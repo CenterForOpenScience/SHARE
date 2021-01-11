@@ -47,7 +47,7 @@ def rawdata_janitor(self, limit=500):
     for rd in qs[:limit]:
         count += 1
         logger.debug('Found unprocessed %r from %r', rd, rd.suid.source_config)
-        job = IngestScheduler().schedule(rd.suid, rd.id)
+        job = IngestScheduler().schedule(rd.suid)
         logger.info('Created job %s for %s', job, rd)
     if count:
         logger.warning('Found %d total unprocessed RawData', count)

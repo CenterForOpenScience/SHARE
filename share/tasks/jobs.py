@@ -293,30 +293,19 @@ class IngestJobConsumer(JobConsumer):
             )
         return qs
 
-    def _prepare_job(self, job, *args, **kwargs):
-        # TODO think about getting rid of these triangles -- infer source config from suid?
-        assert job.suid_id == job.raw.suid_id
-        assert job.source_config_id == job.suid.source_config_id
-
-        if job.raw.datestamp and self.Job.objects.filter(
-                status__in=job.READY_STATUSES,
-                suid=job.suid,
-                raw__datestamp__gt=job.raw.datestamp
-        ).exists():
-            job.skip(job.SkipReasons.pointless)
-            return False
-
-        return super()._prepare_job(job, *args, **kwargs)
-
-    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False):
+    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
+                     pls_format_metadata=True, metadata_formats=None):
         datum = None
+        graph = None
 
         # Check whether we've already done transform/regulate
         if not superfluous:
             datum = job.ingested_normalized_data.order_by('-created_at').first()
 
         if superfluous or datum is None:
-            graph = self._transform(job)
+            most_recent_raw = job.suid.most_recent_raw_datum()
+
+            graph = self._transform(job, most_recent_raw)
             if not graph:
                 return
             graph = self._regulate(job, graph)
@@ -325,37 +314,39 @@ class IngestJobConsumer(JobConsumer):
             datum = NormalizedData.objects.create(
                 data=graph.to_jsonld(),
                 source=job.suid.source_config.source.user,
-                raw=job.raw,
+                raw=most_recent_raw,
             )
             job.ingested_normalized_data.add(datum)
-        else:
-            graph = MutableGraph.from_jsonld(datum.data)
 
-        if apply_changes:
-            # new Suid-based process
-            self._save_formatted_metadata(job.suid, datum)
+        # new Suid-based process
+        if pls_format_metadata:
+            self._save_formatted_metadata(job.suid, datum, metadata_formats)
             if index:
                 self._queue_for_indexing(job.suid, urgent)
 
-            # soon-to-be-rended ShareObject-based process:
+        # soon-to-be-rended ShareObject-based process:
+        if apply_changes:
+            if graph is None:
+                graph = MutableGraph.from_jsonld(datum.data)
             updated_work_ids = self._apply_changes(job, graph, datum)
             if index and updated_work_ids:
                 self._update_index(updated_work_ids, urgent)
 
-    def _transform(self, job):
+    def _transform(self, job, raw):
         transformer = job.suid.source_config.get_transformer()
+
         try:
-            graph = transformer.transform(job.raw)
+            graph = transformer.transform(raw)
         except exceptions.TransformError as e:
             job.fail(e)
             return None
 
         if not graph:
-            if not job.raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_output to True', job.raw)
-                RawDatum.objects.filter(id=job.raw_id).update(no_output=True)
+            if not raw.normalizeddata_set.exists():
+                logger.warning('Graph was empty for %s, setting no_output to True', raw)
+                RawDatum.objects.filter(id=raw.id).update(no_output=True)
             else:
-                logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
+                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
             return None
 
         return graph
@@ -368,8 +359,16 @@ class IngestJobConsumer(JobConsumer):
             job.fail(e)
             return None
 
-    def _save_formatted_metadata(self, suid, normalized_datum):
-        FormattedMetadataRecord.objects.update_or_create_all_metadata_formats(suid, normalized_datum)
+    def _save_formatted_metadata(self, suid, normalized_datum, metadata_formats=None):
+        if metadata_formats is None:
+            FormattedMetadataRecord.objects.update_or_create_all_metadata_formats(suid, normalized_datum)
+        else:
+            for metadata_format in metadata_formats:
+                FormattedMetadataRecord.objects.update_or_create_formatted_metadata_record(
+                    suid,
+                    metadata_format,
+                    normalized_datum,
+                )
 
     def _queue_for_indexing(self, suid, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
