@@ -550,7 +550,7 @@ SHARE_REGULATOR_CONFIG = {
     'NODE_STEPS': [
         'tokenize_tags',
         'whitespace',
-        'normalize_agent_names',
+        # 'normalize_agent_names',
         'cited_as',
         ('normalize_iris', {
             'node_types': ['workidentifier'],
