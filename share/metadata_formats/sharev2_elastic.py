@@ -16,8 +16,16 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             return None
 
         suid = normalized_datum.raw.suid
-        source_name = suid.source_config.source.long_title
 
+        # a document with is_deleted:True will be deleted from the elastic index
+        # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord
+        if central_work['is_deleted']:
+            return json.dumps({
+                'id': suid.id,
+                'is_deleted': True,
+            })
+
+        source_name = suid.source_config.source.long_title
         return json.dumps({
             'id': suid.id,
             'sources': [source_name],
