@@ -61,7 +61,7 @@ class TestDisambiguation:
         ([Publication(identifiers=[WorkIdentifier(5)])], models.Publication, 0),
         ([Publication(identifiers=[WorkIdentifier(3)])], models.Publication, 1),
         ([Organization(name='Aperture Science')], models.Organization, 0),
-        ([Organization(name='Aperture science')], models.Organization, 0),
+        ([Organization(name='Aperture science')], models.Organization, 1),
     ])
     def test_disambiguate(self, input, model, delta, Graph, ingest_initial, ingest):
         Graph.reseed()

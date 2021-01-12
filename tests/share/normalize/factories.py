@@ -17,7 +17,6 @@ from django.apps import apps
 
 from share import models
 from share.transform.chain.links import IRILink
-from share.util import nameparser
 from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 
@@ -311,11 +310,6 @@ class AbstractAgentFactory(TypedGraphNodeFactory):
                 self[k]
                 for k in ['given_name', 'additional_name', 'family_name', 'suffix']
             )))
-        else:
-            human = nameparser.HumanName(name)
-            for hk, sk in [('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')]:
-                if human[hk]:
-                    self[sk] = human[hk]
 
 
 class TagFactory(GraphNodeFactory):
