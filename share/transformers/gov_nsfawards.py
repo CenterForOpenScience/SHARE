@@ -156,7 +156,7 @@ class PIContributorAgent(Parser):
         tools.Delegate(AgentIdentifier),
         tools.Try(
             tools.IRI(ctx.piEmail),
-            exceptions=(ValueError,)
+            exceptions=(InvalidIRI,)
         )
     )
 
