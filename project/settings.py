@@ -559,6 +559,7 @@ SHARE_REGULATOR_CONFIG = {
         }),
         ('normalize_iris', {
             'node_types': ['agentidentifier'],
+            'blocked_schemes': ['mailto'],
         }),
         ('trim_cycles', {
             'node_types': ['abstractworkrelation', 'abstractagentrelation'],

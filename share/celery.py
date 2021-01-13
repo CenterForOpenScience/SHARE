@@ -171,9 +171,7 @@ class TaskResultCleaner:
                 logger.debug('No %s tasks eligible for archival', name)
                 continue
 
-            # archive? we don't need no stinkin archive
-            # TODO either delete the code or make archiving work again
-            # self.archive_queryset(name, queryset)
+            self.archive_queryset(name, queryset)
             self.delete_queryset(queryset)
 
     def archive_queryset(self, task_name, queryset):

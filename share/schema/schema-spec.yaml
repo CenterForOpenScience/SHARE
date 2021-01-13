@@ -312,6 +312,8 @@
     - name: uri
       data_type: string
       data_format: uri
+    - name: extra
+      data_type: object
 
 - concrete_type: ThroughAwards
   relations:
