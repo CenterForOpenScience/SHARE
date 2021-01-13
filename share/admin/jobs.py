@@ -74,6 +74,7 @@ class HarvestJobAdmin(BaseJobAdmin):
     select_related=['source'],
 )
 class IngestJobAdmin(BaseJobAdmin):
+    actions = ('reingest', 'reingest_without_shareobject', )
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'error_type', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
     readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries')
@@ -81,13 +82,20 @@ class IngestJobAdmin(BaseJobAdmin):
     def suid_(self, obj):
         return obj.suid.identifier
 
-    def restart_tasks(self, request, queryset):
+    def reingest(self, request, queryset):
+        self._enqueue_tasks(queryset)
+    reingest.short_description = 'Re-ingest'
+
+    def reingest_without_shareobject(self, request, queryset):
+        self._enqueue_tasks(queryset, {'apply_changes': False})
+    reingest_without_shareobject.short_description = 'Re-ingest (skipping ShareObject)'
+
+    def _enqueue_tasks(self, job_queryset, task_kwargs=None):
         # grab the ids once, use them twice
-        job_ids = list(queryset.values_list('id', flat=True))
+        job_ids = list(job_queryset.values_list('id', flat=True))
 
         IngestJob.objects.filter(id__in=job_ids).update(
             status=AbstractBaseJob.STATUS.created
         )
         for job_id in job_ids:
-            ingest.delay(job_id=job_id)
-    restart_tasks.short_description = 'Re-enqueue'
+            ingest.delay(job_id=job_id, **(task_kwargs or {}))
