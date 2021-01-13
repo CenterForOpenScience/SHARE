@@ -98,7 +98,10 @@ class Award(Parser):
     # The amount of the award provided by the funding NIH Institute(s) or Center(s)
     description = RunPython(filter_nil, ctx.FUNDING_ICs)
     award_amount = Int(RunPython(filter_nil, ctx.TOTAL_COST))
-    date = ParseDate(RunPython(filter_nil, ctx.BUDGET_START))
+    date = Try(
+        ParseDate(RunPython(filter_nil, ctx.BUDGET_START)),
+        exceptions=(InvalidDate,),
+    )
     uri = RunPython('format_nih_url', RunPython(filter_nil, ctx.APPLICATION_ID))
 
     class Extra:
