@@ -327,10 +327,15 @@ class IngestJobConsumer(JobConsumer):
 
         # new Suid-based process
         if pls_format_metadata:
-            logger.debug(f'>>> ingestjob({job.id}) -- formatting')
-            self._save_formatted_metadata(job.suid, datum, metadata_formats)
-            if index:
-                logger.debug(f'>>> ingestjob({job.id}) -- queueing for indexing')
+            records = FormattedMetadataRecord.objects.save_formatted_records(
+                job.suid,
+                record_formats=metadata_formats,
+                normalized_datum=datum,
+            )
+            # TODO consider whether to handle the possible but rare-to-nonexistent case where
+            # `records` is empty this time but there were records in the past -- would need to
+            # remove the previous from the index
+            if records and index:
                 self._queue_for_indexing(job.suid, urgent)
 
         # soon-to-be-rended ShareObject-based process:
@@ -368,17 +373,6 @@ class IngestJobConsumer(JobConsumer):
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
-
-    def _save_formatted_metadata(self, suid, normalized_datum, metadata_formats=None):
-        if metadata_formats is None:
-            FormattedMetadataRecord.objects.update_or_create_all_metadata_formats(suid, normalized_datum)
-        else:
-            for metadata_format in metadata_formats:
-                FormattedMetadataRecord.objects.update_or_create_formatted_metadata_record(
-                    suid,
-                    metadata_format,
-                    normalized_datum,
-                )
 
     def _queue_for_indexing(self, suid, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()

@@ -235,7 +235,14 @@ class IncomingMessageLoop:
                     continue
 
         if messages_by_id:
-            raise DaemonIndexingError(f'Action generator skipped some target_ids! \n\ttarget_id_chunk:{target_id_chunk}\n\tleftover messages:{messages_by_id}')
+            # worth noting but not stopping
+            client.captureMessage(
+                'IncomingMessageLoop: action generator skipped some target_ids!',
+                data={
+                    'target_id_chunk': target_id_chunk,
+                    'leftover_messages_by_id': messages_by_id,
+                },
+            )
 
         logger.info('%sPrepared %d docs to be indexed in %.02fs', self.log_prefix, success_count, time.time() - start)
 

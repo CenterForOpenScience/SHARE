@@ -205,34 +205,42 @@ class NormalizedData(models.Model):
 
 
 class FormattedMetadataRecordManager(models.Manager):
-    def update_or_create_all_metadata_formats(self, suid, normalized_datum=None):
+    def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
         if normalized_datum is None:
             normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+        if record_formats is None:
+            record_formats = Extensions.get_names('share.metadata_formats')
 
-        for format_name in Extensions.get_names('share.metadata_formats'):
-            self.update_or_create_formatted_metadata_record(suid, format_name, normalized_datum)
+        records = []
+        for record_format in record_formats:
+            record = self._format_and_save(suid, normalized_datum, record_format)
+            if record is not None:
+                records.append(record)
+        return records
 
-    def update_or_create_formatted_metadata_record(self, suid, record_format, normalized_datum):
+    def _format_and_save(self, suid, normalized_datum, record_format):
         formatter = Extensions.get('share.metadata_formats', record_format)()
 
-        formatted_metadata = formatter.format(normalized_datum)
-        if formatted_metadata:
+        formatted_record = formatter.format(normalized_datum)
+        if formatted_record:
             record, _ = self.update_or_create(
                 suid=suid,
                 record_format=record_format,
                 defaults={
-                    'formatted_metadata': formatted_metadata,
+                    'formatted_metadata': formatted_record,
                 },
             )
         else:
+            self.filter(suid=suid, record_format=record_format).delete()
             record = None
         return record
 
-    def get_or_create_formatted_metadata_record(self, suid, record_format):
+    def get_or_create_record(self, suid, record_format):
         try:
             formatted_record = self.get(suid=suid, record_format=record_format)
         except self.model.DoesNotExist:
-            formatted_record = self.create_or_update_formatted_metadata_record(suid, record_format)
+            records = self.save_formatted_metadata(suid, record_formats=[record_format])
+            formatted_record = records[0] if records else None
         return formatted_record
 
 
