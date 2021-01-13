@@ -298,26 +298,19 @@ class IngestJobConsumer(JobConsumer):
         datum = None
         graph = None
 
-        logger.debug(f'>>> ingestjob({job.id}) -- starting')
-
         # Check whether we've already done transform/regulate
         if not superfluous:
-            logger.debug(f'>>> ingestjob({job.id}) -- looking for existing normd')
             datum = job.ingested_normalized_data.order_by('-created_at').first()
 
         if superfluous or datum is None:
-            logger.debug(f'>>> ingestjob({job.id}) -- fetching most recent raw')
             most_recent_raw = job.suid.most_recent_raw_datum()
 
-            logger.debug(f'>>> ingestjob({job.id}) -- transforming')
             graph = self._transform(job, most_recent_raw)
             if not graph:
                 return
-            logger.debug(f'>>> ingestjob({job.id}) -- regulating')
             graph = self._regulate(job, graph)
             if not graph:
                 return
-            logger.debug(f'>>> ingestjob({job.id}) -- saving normd')
             datum = NormalizedData.objects.create(
                 data=graph.to_jsonld(),
                 source=job.suid.source_config.source.user,
@@ -340,7 +333,6 @@ class IngestJobConsumer(JobConsumer):
 
         # soon-to-be-rended ShareObject-based process:
         if apply_changes:
-            logger.debug(f'>>> ingestjob({job.id}) -- doing bad things')
             if graph is None:
                 graph = MutableGraph.from_jsonld(datum.data)
             updated_work_ids = self._apply_changes(job, graph, datum)
