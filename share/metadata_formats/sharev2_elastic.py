@@ -1,10 +1,50 @@
 import json
+import re
 
 from django.conf import settings
 
 from share.util.graph import MutableGraph
 
 from .base import MetadataFormatter
+
+
+def format_type(type_name):
+    # convert from PascalCase to lower case with spaces between words
+    return re.sub(r'\B([A-Z])', r' \1', type_name).lower()
+
+
+def format_node_type(node):
+    return format_type(node.schema_type.name)
+
+
+def format_node_type_lineage(node):
+    return [format_type(t) for t in node.schema_type.type_lineage]
+
+
+# values that, for the purpose of indexing in elasticsearch, are equivalent to absence
+EMPTY_VALUES = (None, '', [], (), {}, set())
+
+
+def strip_empty_values(thing):
+    if isinstance(thing, dict):
+        return {
+            k: strip_empty_values(v)
+            for k, v in thing.items()
+            if v not in EMPTY_VALUES
+        }
+    if isinstance(thing, list):
+        return [
+            strip_empty_values(v)
+            for v in thing
+            if v not in EMPTY_VALUES
+        ]
+    if isinstance(thing, tuple):
+        return tuple(
+            strip_empty_values(v)
+            for v in thing
+            if v not in EMPTY_VALUES
+        )
+    return thing
 
 
 class ShareV2ElasticFormatter(MetadataFormatter):
@@ -21,27 +61,29 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord
         if central_work['is_deleted']:
             return json.dumps({
-                'id': suid.id,
+                'id': str(suid.id),
                 'is_deleted': True,
             })
 
         source_name = suid.source_config.source.long_title
-        return json.dumps({
-            'id': suid.id,
+        return json.dumps(strip_empty_values({
+            'id': str(suid.id),
             'sources': [source_name],
+
+            'type': format_node_type(central_work),
+            'types': format_node_type_lineage(central_work),
 
             # attributes:
             'date_created': normalized_datum.created_at.isoformat(),  # TODO do another query to get the first normd under the same suid -- unsure how important
             'date_modified': normalized_datum.created_at.isoformat(),
             'date_published': central_work['date_published'],
             'date_updated': central_work['date_updated'],
-            'description': central_work['description'],
+            'description': central_work['description'] or '',
             'justification': central_work['justification'],
             'language': central_work['language'],
             'registration_type': central_work['registration_type'],
-            'retracted': central_work['withdrawn'],
+            'retracted': bool(central_work['withdrawn']),
             'title': central_work['title'],
-            'type': central_work.type,
             'withdrawn': central_work['withdrawn'],
 
             'date': (
@@ -49,7 +91,6 @@ class ShareV2ElasticFormatter(MetadataFormatter):
                 or central_work['date_updated']
                 or normalized_datum.created_at.isoformat()
             ),
-            'types': central_work.schema_type.type_lineage,
 
             # agent relations:
             'affiliations': self._get_related_agent_names(central_work, ['agentworkrelation']),
@@ -89,7 +130,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
                 'hosts': self._build_related_agent_list(central_work, ['host']),
                 'lineage': self._build_work_lineage(central_work),
             },
-        })
+        }))
 
     def _get_related_agent_names(self, work_node, relation_types):
         return [
@@ -129,8 +170,9 @@ class ShareV2ElasticFormatter(MetadataFormatter):
     def _build_list_agent(self, relation_node):
         agent_node = relation_node['agent']
         return {
-            'type': agent_node.type,
-            'name': agent_node['name'],
+            'type': format_node_type(agent_node),
+            'types': format_node_type_lineage(agent_node),
+            'name': agent_node['name'] or relation_node['cited_as'],
             'given_name': agent_node['given_name'],
             'family_name': agent_node['family_name'],
             'additional_name': agent_node['additional_name'],
@@ -139,7 +181,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
                 identifier_node['uri']
                 for identifier_node in agent_node['identifiers']
             ],
-            'relation_type': relation_node.type,
+            'relation': format_node_type(relation_node),
             'order_cited': relation_node['order_cited'],
             'cited_as': relation_node['cited_as'],
         }
@@ -163,8 +205,8 @@ class ShareV2ElasticFormatter(MetadataFormatter):
 
         parent_lineage = self._build_work_lineage(parent_work)
         parent_data = {
-            'type': parent_work.type,
-            'types': parent_work.schema_type.type_lineage,
+            'type': format_node_type(parent_work),
+            'types': format_node_type_lineage(parent_work),
             'title': parent_work['title'],
             'identifiers': [
                 identifier_node['uri']

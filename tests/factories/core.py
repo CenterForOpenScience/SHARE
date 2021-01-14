@@ -28,6 +28,18 @@ class NormalizedDataFactory(DjangoModelFactory):
     class Meta:
         model = models.NormalizedData
 
+    @classmethod
+    def _generate(cls, create, attrs):
+        normalized_datum = super()._generate(create, attrs)
+
+        # HACK: allow overriding auto_now_add on created_at
+        created_at = attrs.pop('created_at', None)
+        if created_at is not None:
+            normalized_datum.created_at = created_at
+            normalized_datum.save()
+
+        return normalized_datum
+
 
 class SourceFactory(DjangoModelFactory):
     name = factory.Sequence(lambda x: '{}{}'.format(faker.name(), x))
