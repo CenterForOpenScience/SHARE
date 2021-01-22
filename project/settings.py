@@ -308,7 +308,7 @@ ELASTICSEARCH = {
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
     # NOTE: "active" indexes will receive new records from the indexer daemon -- be sure they're set up first
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_customtax_1'), ','),
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_postrend_backcompat'), ','),
     # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
     'INDEXES': {
         'share_v3': {
@@ -541,6 +541,7 @@ SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress
 SUBJECTS_YAML = 'share/subjects.yaml'
 SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
 
+# if false, will skip disambiguation, building ChangeSets, and updating ShareObjects
 SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
 
 HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))

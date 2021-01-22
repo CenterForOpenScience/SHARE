@@ -1,6 +1,7 @@
 import logging
 
 from elasticsearch import Elasticsearch, helpers as elastic_helpers
+from elasticsearch.exceptions import NotFoundError
 
 from django.conf import settings
 
@@ -39,18 +40,17 @@ class ElasticManager:
     def create_index(self, index_name):
         index_setup = self.get_index_setup(index_name)
 
+        if self.es_client.indices.exists(index_name):
+            raise ValueError(f'index already exists: {index_name}')
+
         logger.debug('Ensuring Elasticsearch index %s', index_name)
-        self.es_client.indices.create(index_name, ignore=400)
+        self.es_client.indices.create(
+            index_name,
+            body={'settings': index_setup.index_settings},
+        )
 
         logger.debug('Waiting for yellow status')
         self.es_client.cluster.health(wait_for_status='yellow')
-
-        logger.info('Putting Elasticsearch settings')
-        self.es_client.indices.close(index=index_name)
-        try:
-            self.es_client.indices.put_settings(body=index_setup.index_settings, index=index_name)
-        finally:
-            self.es_client.indices.open(index=index_name)
 
         logger.info('Putting Elasticsearch mappings')
         for doc_type, mapping in index_setup.index_mappings.items():
@@ -81,3 +81,31 @@ class ElasticManager:
 
     def refresh_indexes(self, index_names):
         self.es_client.indices.refresh(index=','.join(index_names))
+
+    def update_primary_alias(self, primary_index_name):
+        alias = settings.ELASTICSEARCH['PRIMARY_INDEX']
+
+        previous_indexes = []
+
+        try:
+            existing_aliases = self.es_client.indices.get_alias(name=alias)
+            previous_indexes = list(existing_aliases.keys())
+        except NotFoundError:
+            pass
+
+        if previous_indexes == [primary_index_name]:
+            logger.info(f'index {primary_index_name} is already the primary')
+            return
+
+        logger.warn(f'removing aliases to {previous_indexes} and adding alias to {primary_index_name}')
+        delete_actions = [
+            {'remove': {'index': index_name, 'alias': alias}}
+            for index_name in previous_indexes
+        ]
+        add_action = {'add': {'index': primary_index_name, 'alias': alias}}
+        self.es_client.indices.update_aliases(body={
+            'actions': [
+                *delete_actions,
+                add_action
+            ],
+        })

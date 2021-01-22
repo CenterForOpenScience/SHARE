@@ -100,7 +100,8 @@ services:
       - pip install -r requirements.txt -r dev-requirements.txt &&
         (python3 -m compileall /usr/local/lib/python3.6 || true) &&
         rm -Rf /python3.6/* &&
-        cp -Rf -p /usr/local/lib/python3.6 /
+        cp -Rf -p /usr/local/lib/python3.6 / &&
+        python3 setup.py develop
     restart: 'no'
     volumes:
       - ./:/code:cached
