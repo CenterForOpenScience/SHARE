@@ -63,7 +63,18 @@ docker-compose up -d rabbitmq worker web indexer frontend
 
 ## handy commands
 
+### start a docker shell
+
+this is the same command you ran in step 2:
+
+```
+docker-compose run --rm --no-deps worker bash
+```
+
 ### start a django shell
+
+this should be run inside the docker shell (see previous):
+
 ```
 python manage.py shell_plus
 ```
@@ -84,14 +95,22 @@ for now, maybe grab a day of data from arxiv.org? at the moment, the `Source` ne
     Source.objects.filter(name='org.arxiv').update(canonical=True)
     ```
 
-then choose a recent date and start a harvest task for it:
+you will also need to update the subject index from the docker shell:
+
+```
+python manage.py addsubjects
+```
+
+next choose a recent date, and start a harvest task for it from the docker shell:
+
 ```
 sharectl schedule -t org.arxiv YYYY-MM-DD
 ```
+
 you could watch its progress several different ways:
   - looking at task queues in the rabbitmq management interface at http://localhost:15673/ (guest/guest)
   - following the `worker` container's logs: `docker-compose logs -f worker`
-  - watching the result count rise as you refresh the search interface at http://localhost:4203/discover
+  - watching the result count rise as you refresh the search interface at http://localhost:8003/share/discover
 
 ## troubleshooting
 - does docker have enough memory? try giving it more
