@@ -109,7 +109,9 @@ sharectl schedule -t org.arxiv YYYY-MM-DD
 you could watch its progress several different ways:
   - looking at task queues in the rabbitmq management interface at http://localhost:15673/ (guest/guest)
   - following the `worker` container's logs: `docker-compose logs -f worker`
-  - watching the result count rise as you refresh the search interface at http://localhost:8003/share/discover
+  - checking the result count as you refresh the search interface at http://localhost:8003/share/discover
+  - watching `IngestJob` statuses update in the admin at http://localhost:8003/admin/share/ingestjob/ (admin/password)
+    - useful for debugging! if ingest fails, the `IngestJob` will contain the error type, message, and stack trace
 
 ## troubleshooting
 - my containers keep mysteriously dying!
