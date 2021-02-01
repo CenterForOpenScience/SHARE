@@ -54,6 +54,11 @@ and use `sharectl` to set up indexes in elasticsearch:
 ```
 sharectl search setup --initial
 ```
+you will also need to initialize the "central taxonomy" of subjects:
+
+```
+python manage.py addsubjects
+```
 
 ### 3. start 'em up
 all other services can now be started (from the host machine):
@@ -95,13 +100,7 @@ for now, maybe grab a day of data from arxiv.org? at the moment, the `Source` ne
     Source.objects.filter(name='org.arxiv').update(canonical=True)
     ```
 
-you will also need to update the subject index from the docker shell:
-
-```
-python manage.py addsubjects
-```
-
-next choose a recent date, and start a harvest task for it from the docker shell:
+next, choose a recent date, and start a harvest task for it from the docker shell:
 
 ```
 sharectl schedule -t org.arxiv YYYY-MM-DD
