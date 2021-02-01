@@ -46,7 +46,7 @@ this will open a bash prompt within a temporary `worker` container -- from here 
 use SHARE's python environment, including django's `manage.py` and SHARE's own `sharectl`
 utility (defined in `share/bin/`)
 
-from the worker shell, use django's `migrate` command to set up tables in postgres:
+from the docker shell, use django's `migrate` command to set up tables in postgres:
 ```
 python manage.py migrate
 ```
@@ -83,9 +83,9 @@ python manage.py shell_plus
 http://localhost:8003/admin -- (admin/password)
 
 ## harvesting data
-TODO: once share.osf.io/oaipmh is reliable, make it easy to init a local deployment by harvesting data from there
+> TODO: once share.osf.io/oaipmh is reliable, make it easy to init a local deployment by harvesting data from there
 
-also TODO: put some thought into unconvoluting the whole harvest-scheduling, ingest-disabling system
+> also TODO: put some thought into unconvoluting the whole harvest-scheduling, ingest-disabling system
 
 for now, maybe grab a day of data from arxiv.org? at the moment, the `Source` needs to be marked
 `canonical` for the system to ingest its data -- either:
@@ -113,4 +113,5 @@ you could watch its progress several different ways:
   - watching the result count rise as you refresh the search interface at http://localhost:8003/share/discover
 
 ## troubleshooting
-- does docker have enough memory? try giving it more
+- my containers keep mysteriously dying!
+  - does docker have enough memory? try giving it more
