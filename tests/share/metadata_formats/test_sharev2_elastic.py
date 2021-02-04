@@ -242,6 +242,107 @@ TEST_CASES = [
                             '@type': 'registration'
                         }
                     },
+                    {
+                        '@id': '_:through-subj-architecture',
+                        '@type': 'throughsubjects',
+                        'creative_work': {
+                            '@id': '_:4058232c-106f-4a2f-8700-d8c14a6c6ece',
+                            '@type': 'registration'
+                        },
+                        'subject': {
+                            '@id': '_:subj-architecture',
+                            '@type': 'subject'
+                        },
+                    },
+                    {
+                        '@id': '_:subj-architecture',
+                        '@type': 'subject',
+                        'name': 'Architecture',
+                    },
+                    {
+                        '@id': '_:through-subj-business',
+                        '@type': 'throughsubjects',
+                        'is_deleted': True,  # back-compat with a prior hack
+                        'creative_work': {
+                            '@id': '_:4058232c-106f-4a2f-8700-d8c14a6c6ece',
+                            '@type': 'registration'
+                        },
+                        'subject': {
+                            '@id': '_:subj-business',
+                            '@type': 'subject'
+                        },
+                    },
+                    {
+                        '@id': '_:subj-business',
+                        '@type': 'subject',
+                        'name': 'Business',
+                    },
+                    {
+                        '@id': '_:through-subj-education',
+                        '@type': 'throughsubjects',
+                        'creative_work': {
+                            '@id': '_:4058232c-106f-4a2f-8700-d8c14a6c6ece',
+                            '@type': 'registration'
+                        },
+                        'subject': {
+                            '@id': '_:subj-education',
+                            '@type': 'subject'
+                        },
+                    },
+                    {
+                        '@id': '_:subj-education',
+                        '@type': 'subject',
+                        'name': 'Education',
+                        'is_deleted': True,  # back-compat with a prior hack
+                    },
+                    {
+                        '@id': '_:through-subj-custom-biology',
+                        '@type': 'throughsubjects',
+                        'creative_work': {
+                            '@id': '_:4058232c-106f-4a2f-8700-d8c14a6c6ece',
+                            '@type': 'registration'
+                        },
+                        'subject': {
+                            '@id': '_:subj-custom-biology',
+                            '@type': 'subject'
+                        },
+                    },
+                    {
+                        '@id': '_:subj-custom-biology',
+                        '@type': 'subject',
+                        'name': 'Custom biologyyyy',
+                        'parent': {
+                            '@id': '_:subj-custom-life-sciences',
+                            '@type': 'subject',
+                        },
+                        'central_synonym': {
+                            '@id': '_:subj-central-biology',
+                            '@type': 'subject',
+                        },
+                    },
+                    {
+                        '@id': '_:subj-custom-life-sciences',
+                        '@type': 'subject',
+                        'name': 'Custom life sciencesssss',
+                        'central_synonym': {
+                            '@id': '_:subj-central-life-sciences',
+                            '@type': 'subject',
+                        },
+                    },
+                    {
+                        '@id': '_:subj-central-biology',
+                        '@type': 'subject',
+                        'name': 'Biology',
+                        'parent': {
+                            '@id': '_:subj-central-life-sciences',
+                            '@type': 'subject',
+                        },
+                    },
+                    {
+                        '@id': '_:subj-central-life-sciences',
+                        '@type': 'subject',
+                        'name': 'Life Sciences',
+                    },
                 ],
             },
         },
@@ -257,6 +358,13 @@ TEST_CASES = [
             'registration_type': 'Open-Ended Registration',
             'retracted': False,
             'sources': ['osf reg'],
+            'subject_synonyms': [
+                'bepress|Life Sciences|Biology',
+            ],
+            'subjects': [
+                'bepress|Architecture',
+                'osf reg|Custom life sciencesssss|Custom biologyyyy',
+            ],
             'title': 'Assorted chair',
             'type': 'registration',
             'types': ['registration', 'publication', 'creative work'],

@@ -141,15 +141,23 @@ class ShareV2ElasticFormatter(MetadataFormatter):
 
     def _get_subjects(self, work_node, source_name):
         return [
-            self._serialize_subject(subject_node, source_name)
-            for subject_node in work_node['subjects']
+            self._serialize_subject(through_subject['subject'], source_name)
+            for through_subject in work_node['subject_relations']
+            if (
+                not through_subject['is_deleted']
+                and not through_subject['subject']['is_deleted']
+            )
         ]
 
     def _get_subject_synonyms(self, work_node):
         return [
-            self._serialize_subject(subject_node['central_synonym'])
-            for subject_node in work_node['subjects']
-            if subject_node['central_synonym']
+            self._serialize_subject(through_subject['subject']['central_synonym'])
+            for through_subject in work_node['subject_relations']
+            if (
+                not through_subject['is_deleted']
+                and not through_subject['subject']['is_deleted']
+                and through_subject['subject']['central_synonym']
+            )
         ]
 
     def _serialize_subject(self, subject_node, source_name=None):
