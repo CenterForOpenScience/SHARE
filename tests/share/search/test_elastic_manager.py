@@ -1,6 +1,7 @@
 from unittest.mock import patch, call
 
 import pytest
+from elasticsearch.exceptions import NotFoundError
 
 from share.search.elastic_manager import ElasticManager
 from share.search.index_setup import ShareClassicIndexSetup, PostRendBackcompatIndexSetup
@@ -40,13 +41,15 @@ class TestIsolatedElasticManager:
     def test_create_index(self, isolated_elastic_manager, index_name):
         index_setup = isolated_elastic_manager.get_index_setup(index_name)
         mock_es_client = isolated_elastic_manager.es_client
+        mock_es_client.configure_mock(**{
+            'indices.exists.return_value': False,
+        })
 
         isolated_elastic_manager.create_index(index_name)
 
-        mock_es_client.indices.create.assert_called_once_with(index_name, ignore=400)
-        mock_es_client.indices.put_settings.assert_called_once_with(
-            index=index_name,
-            body=index_setup.index_settings,
+        mock_es_client.indices.create.assert_called_once_with(
+            index_name,
+            body={'settings': index_setup.index_settings},
         )
         mock_es_client.indices.put_mapping.assert_has_calls([
             call(
@@ -55,6 +58,19 @@ class TestIsolatedElasticManager:
                 index=index_name,
             ) for doc_type, mapping in index_setup.index_mappings.items()
         ], any_order=True)
+
+    @pytest.mark.parametrize('index_name', [
+        'classic_index',
+        'postrend_index',
+    ])
+    def test_create_index_already_exists(self, isolated_elastic_manager, index_name):
+        mock_es_client = isolated_elastic_manager.es_client
+        mock_es_client.configure_mock(**{
+            'indices.exists.return_value': True,
+        })
+
+        with pytest.raises(ValueError):
+            isolated_elastic_manager.create_index(index_name)
 
     @pytest.mark.parametrize('index_name', [
         'classic_index',
@@ -114,3 +130,64 @@ class TestIsolatedElasticManager:
         isolated_elastic_manager.refresh_indexes(index_names)
 
         mock_es_client.indices.refresh.assert_called_once_with(index=expected_arg)
+
+    @pytest.mark.parametrize('index_name', [
+        'classic_index',
+        'postrend_index',
+    ])
+    def test_initial_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
+        alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
+        mock_es_client = isolated_elastic_manager.es_client
+        mock_es_client.configure_mock(**{
+            'indices.get_alias.side_effect': NotFoundError,
+        })
+
+        isolated_elastic_manager.update_primary_alias(index_name)
+
+        mock_es_client.indices.get_alias.assert_called_once_with(name=alias_name)
+        mock_es_client.indices.update_aliases.assert_called_once_with(
+            body={'actions': [
+                {'add': {'index': index_name, 'alias': alias_name}}
+            ]}
+        )
+
+    @pytest.mark.parametrize('index_name', [
+        'classic_index',
+        'postrend_index',
+    ])
+    def test_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
+        alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
+        mock_es_client = isolated_elastic_manager.es_client
+        mock_es_client.configure_mock(**{
+            'indices.get_alias.return_value': {
+                'old_primary': {'alias': alias_name},
+            },
+        })
+
+        isolated_elastic_manager.update_primary_alias(index_name)
+
+        mock_es_client.indices.get_alias.assert_called_once_with(name=alias_name)
+        mock_es_client.indices.update_aliases.assert_called_once_with(
+            body={'actions': [
+                {'remove': {'index': 'old_primary', 'alias': alias_name}},
+                {'add': {'index': index_name, 'alias': alias_name}},
+            ]}
+        )
+
+    @pytest.mark.parametrize('index_name', [
+        'classic_index',
+        'postrend_index',
+    ])
+    def test_unnecessary_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
+        alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
+        mock_es_client = isolated_elastic_manager.es_client
+        mock_es_client.configure_mock(**{
+            'indices.get_alias.return_value': {
+                index_name: {'alias': alias_name},
+            },
+        })
+
+        isolated_elastic_manager.update_primary_alias(index_name)
+
+        mock_es_client.indices.get_alias.assert_called_once_with(name=alias_name)
+        mock_es_client.indices.update_aliases.assert_not_called()

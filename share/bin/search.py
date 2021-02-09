@@ -29,20 +29,33 @@ def search(args, argv):
 @search.subcommand('Drop the Elasticsearch index')
 def purge(args, argv):
     """
-    Usage: {0} search purge [options]
-
-    Options:
-        -i, --index=INDEX    The name of the Elasticsearch index to use.
+    Usage: {0} search purge <index_names>...
     """
-    ElasticManager().delete_index(args.get('--index'))
+    for index_name in args['<index_names>']:
+        ElasticManager().delete_index(index_name)
 
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
     Usage: {0} search setup <index_name>
+           {0} search setup --initial
     """
-    ElasticManager().create_index(args['<index_name>'])
+    is_initial = args.get('--initial')
+
+    if is_initial:
+        index_names = settings.ELASTICSEARCH['ACTIVE_INDEXES']
+    else:
+        index_names = [args['<index_name>']]
+
+    elastic_manager = ElasticManager()
+    for index_name in index_names:
+        print(f'creating elasticsearch index "{index_name}"...')
+        elastic_manager.create_index(index_name)
+
+    if is_initial:
+        primary_index = index_names[0]
+        elastic_manager.update_primary_alias(primary_index)
 
 
 @search.subcommand('Start the search indexing daemon')

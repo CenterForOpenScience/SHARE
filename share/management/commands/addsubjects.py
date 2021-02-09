@@ -32,4 +32,4 @@ class Command(BaseCommand):
             } for s in subjects
         ]
 
-        Ingester(subjects).as_user(user).ingest()
+        Ingester(subjects, 'share/management/commands/addsubjects.py').as_user(user).ingest()

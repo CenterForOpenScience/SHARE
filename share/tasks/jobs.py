@@ -332,7 +332,7 @@ class IngestJobConsumer(JobConsumer):
                 self._queue_for_indexing(job.suid, urgent)
 
         # soon-to-be-rended ShareObject-based process:
-        if apply_changes:
+        if settings.SHARE_LEGACY_PIPELINE and apply_changes:
             if graph is None:
                 graph = MutableGraph.from_jsonld(datum.data)
             updated_work_ids = self._apply_changes(job, graph, datum)
