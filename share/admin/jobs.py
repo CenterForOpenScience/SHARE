@@ -78,6 +78,7 @@ class IngestJobAdmin(BaseJobAdmin):
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'error_type', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
     readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries')
+    search_fields = ['=id', '=suid__identifier']
 
     def suid_(self, obj):
         return obj.suid.identifier
