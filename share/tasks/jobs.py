@@ -298,13 +298,13 @@ class IngestJobConsumer(JobConsumer):
         datum = None
         graph = None
 
+        most_recent_raw = job.suid.most_recent_raw_datum()
+
         # Check whether we've already done transform/regulate
         if not superfluous:
-            datum = job.ingested_normalized_data.order_by('-created_at').first()
+            datum = job.ingested_normalized_data.filter(raw=most_recent_raw).order_by('-created_at').first()
 
         if superfluous or datum is None:
-            most_recent_raw = job.suid.most_recent_raw_datum()
-
             graph = self._transform(job, most_recent_raw)
             if not graph:
                 return
