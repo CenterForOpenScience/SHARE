@@ -6,11 +6,10 @@ from lxml import etree
 
 from django.test.client import Client
 
-from share import models
 from share.oaipmh.util import format_datetime
 from share.util import IDObfuscator
 
-from tests.share.models import factories
+from tests.factories import FormattedMetadataRecordFactory, SourceFactory
 
 
 NAMESPACES = {
@@ -20,30 +19,35 @@ NAMESPACES = {
 }
 
 
-@pytest.fixture
-def oai_works():
-    return [factories.PreprintFactory() for i in range(17)]
-
-
-def oai_request(data, post, errors=False):
+def oai_request(data, pls_post, expect_errors=False):
     client = Client()
-    if post:
+    data = {
+        **data,
+        'pls_trove': True,
+    }
+    if pls_post:
         response = client.post('/oai-pmh/', data)
     else:
         response = client.get('/oai-pmh/', data)
     assert response.status_code == 200
     parsed = etree.fromstring(response.content, parser=etree.XMLParser(recover=True))
     actual_errors = parsed.xpath('//ns0:error', namespaces=NAMESPACES)
-    if errors:
+    if expect_errors:
         assert actual_errors
         return actual_errors
-    assert not actual_errors
+    assert not actual_errors, [etree.tostring(e, encoding='unicode') for e in actual_errors]
     return parsed
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('post', [True, False])
 class TestOAIVerbs:
+    @pytest.fixture
+    def oai_record(self):
+        return FormattedMetadataRecordFactory(
+            record_format='oai_dc',
+            formatted_metadata='<foo></foo>',
+        )
 
     def test_identify(self, post):
         parsed = oai_request({'verb': 'Identify'}, post)
@@ -59,27 +63,27 @@ class TestOAIVerbs:
         assert len(prefixes) == 1
         assert prefixes[0].text == 'oai_dc'
 
-    def test_list_identifiers(self, post, all_about_anteaters):
+    def test_list_identifiers(self, post, oai_record):
         parsed = oai_request({'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc'}, post)
         identifiers = parsed.xpath('//ns0:ListIdentifiers/ns0:header/ns0:identifier', namespaces=NAMESPACES)
         assert len(identifiers) == 1
-        assert identifiers[0].text == 'oai:share.osf.io:{}'.format(IDObfuscator.encode(all_about_anteaters))
+        assert identifiers[0].text == 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
 
-    def test_list_records(self, post, all_about_anteaters, django_assert_num_queries):
-        with django_assert_num_queries(3):
+    def test_list_records(self, post, oai_record, django_assert_num_queries):
+        with django_assert_num_queries(1):
             parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, post)
         records = parsed.xpath('//ns0:ListRecords/ns0:record', namespaces=NAMESPACES)
         assert len(records) == 1
-        assert all_about_anteaters.title == records[0].xpath('ns0:metadata/oai_dc:dc/dc:title', namespaces=NAMESPACES)[0].text
-        ant_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(all_about_anteaters))
-        assert ant_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
+        assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
+        record_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
+        assert record_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
 
-    def test_get_record(self, post, all_about_anteaters):
-        ant_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(all_about_anteaters))
+    def test_get_record(self, post, oai_record):
+        ant_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
         parsed = oai_request({'verb': 'GetRecord', 'metadataPrefix': 'oai_dc', 'identifier': ant_id}, post)
         records = parsed.xpath('//ns0:GetRecord/ns0:record', namespaces=NAMESPACES)
         assert len(records) == 1
-        assert all_about_anteaters.title == records[0].xpath('ns0:metadata/oai_dc:dc/dc:title', namespaces=NAMESPACES)[0].text
+        assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
         assert ant_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
 
     @pytest.mark.parametrize('verb, params, errors', [
@@ -106,52 +110,72 @@ class TestOAIVerbs:
         ('ListSets', {'something': 'oai_dc'}, ['badArgument']),
         ('ListSets', {'resumptionToken': 'bad_token'}, ['badResumptionToken']),
     ])
-    def test_oai_errors(self, verb, params, errors, post, all_about_anteaters):
-        ant_id = IDObfuscator.encode(all_about_anteaters)
-        data = {'verb': verb, **{k: v.format(id=ant_id) for k, v in params.items()}}
-        actual_errors = oai_request(data, post, errors=True)
+    def test_oai_errors(self, verb, params, errors, post, oai_record):
+        record_id = IDObfuscator.encode(oai_record.suid)
+        data = {'verb': verb, **{k: v.format(id=record_id) for k, v in params.items()}}
+        actual_errors = oai_request(data, post, expect_errors=True)
         for error_code in errors:
             assert any(e.attrib.get('code') == error_code for e in actual_errors)
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('post', [True, False])
-@pytest.mark.parametrize('verb', ['ListRecords', 'ListIdentifiers'])
-@pytest.mark.parametrize('page_size', [5, 10, 100])
 class TestOAILists:
+    @pytest.fixture
+    def oai_records(self):
+        return [
+            FormattedMetadataRecordFactory(
+                record_format='oai_dc',
+                formatted_metadata='<foo></foo>',
+            )
+            for i in range(17)
+        ]
 
-    def test_full_list(self, oai_works, post, verb, page_size, monkeypatch):
-        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
-        self._assert_full_list(verb, {}, post, len(oai_works), page_size)
+    # all combined into one massive test to avoid rebuilding the oai_records fixture
+    # repeatedly -- pytest-django can't handle a db-using fixture with scope='class'
+    def test_lists(self, oai_records, monkeypatch):
+        test_params_list = [
+            (pls_post, verb, page_size)
+            for pls_post in [True, False]
+            for verb in ['ListRecords', 'ListIdentifiers']
+            for page_size in [5, 10, 100]
+        ]
+        for pls_post, verb, page_size in test_params_list:
+            monkeypatch.setattr('share.oaipmh.fmr_repository.OaiPmhRepository.PAGE_SIZE', page_size)
+            self._assert_full_list(verb, {}, pls_post, len(oai_records), page_size)
+            self._test_filter_date(oai_records, pls_post, verb, page_size)
+            self._test_filter_set(oai_records, pls_post, verb, page_size)
 
-    @pytest.mark.parametrize('from_date, to_date, expected_count', [
-        (pendulum.now().subtract(days=1), None, 17),
-        (None, pendulum.now().subtract(days=1), 0),
-        (pendulum.now().add(days=1), None, 0),
-        (None, pendulum.now().add(days=1), 17),
-        (pendulum.now().subtract(days=1), pendulum.now().add(days=1), 17),
-    ])
-    def test_filter_date(self, oai_works, post, verb, page_size, monkeypatch, from_date, to_date, expected_count):
-        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
-        params = {}
-        if from_date:
-            params['from'] = format_datetime(from_date)
-        if to_date:
-            params['until'] = format_datetime(to_date)
-        self._assert_full_list(verb, params, post, expected_count, page_size)
+    def _test_filter_date(self, oai_records, pls_post, verb, page_size):
+        for from_date, to_date, expected_count in [
+            (pendulum.now().subtract(days=1), None, 17),
+            (None, pendulum.now().subtract(days=1), 0),
+            (pendulum.now().add(days=1), None, 0),
+            (None, pendulum.now().add(days=1), 17),
+            (pendulum.now().subtract(days=1), pendulum.now().add(days=1), 17),
+        ]:
+            params = {}
+            if from_date:
+                params['from'] = format_datetime(from_date)
+            if to_date:
+                params['until'] = format_datetime(to_date)
+            self._assert_full_list(verb, params, pls_post, expected_count, page_size)
 
-    @pytest.mark.parametrize('expected_count', range(0, 17, 6))
-    def test_filter_set(self, oai_works, post, verb, page_size, monkeypatch, expected_count):
-        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
-        source = models.Source.objects.select_related('user').first()
-        for work in random.sample(oai_works, expected_count):
-            work.sources.add(source.user)
+    def _test_filter_set(self, oai_records, pls_post, verb, page_size):
+        source = SourceFactory()
 
-        self._assert_full_list(verb, {'set': source.name}, post, expected_count, page_size)
+        # empty list
+        self._assert_full_list(verb, {'set': source.name}, pls_post, 0, page_size)
+
+        for record in random.sample(oai_records, 7):
+            source_config = record.suid.source_config
+            source_config.source = source
+            source_config.save()
+
+        self._assert_full_list(verb, {'set': source.name}, pls_post, 7, page_size)
 
     def _assert_full_list(self, verb, params, post, expected_count, page_size):
         if not expected_count:
-            errors = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, post, errors=True)
+            errors = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, post, expect_errors=True)
             assert len(errors) == 1
             assert errors[0].attrib.get('code') == 'noRecordsMatch'
             return

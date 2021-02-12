@@ -214,3 +214,10 @@ class ThroughSubjectsFactory(ShareObjectFactory):
 
     class Meta:
         model = models.ThroughSubjects
+
+
+class FormattedMetadataRecordFactory(DjangoModelFactory):
+    suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+
+    class Meta:
+        model = models.FormattedMetadataRecord
