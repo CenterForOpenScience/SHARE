@@ -448,17 +448,37 @@ class MutableNode:
             if field.relation_shape == RelationShape.ONE_TO_MANY:
                 return self.graph.resolve_named_in_edges(self.id, field.name)
             if field.relation_shape == RelationShape.MANY_TO_MANY:
-                return self._resolve_many_to_many(field)
-            raise MutableGraphError('Only many-to-one, one-to-many, and many-to-many relations allowed')
+                m2m_related_nodes = self._resolve_many_to_many(
+                    field.through_concrete_type,
+                    field.incoming_through_relation,
+                    field.outgoing_through_relation,
+                )
+                is_reflexive = (field.related_concrete_type.lower() == self.concrete_type)
+                if is_reflexive:
+                    # for a reflexive m2m, include nodes related in either direction
+                    m2m_related_nodes.update(self._resolve_many_to_many(
+                        field.through_concrete_type,
+                        # outgoing/incoming swapped
+                        field.outgoing_through_relation,
+                        field.incoming_through_relation,
+                    ))
+                return list(m2m_related_nodes)
+
+            raise MutableGraphError('Only many-to-one, one-to-many, and non-reflexive many-to-many relations allowed')
         return self.__attrs.get(field.name if field else key)
 
-    def _resolve_many_to_many(self, field):
-        incoming_edge_name = ShareV2Schema().get_field(field.through_concrete_type, field.incoming_through_relation).inverse_relation
+    def _resolve_many_to_many(self, through_concrete_type, incoming_through_relation, outgoing_through_relation):
+        incoming_edge_name = ShareV2Schema().get_field(
+            through_concrete_type,
+            incoming_through_relation
+        ).inverse_relation
+
         through_nodes = self.graph.resolve_named_in_edges(self.id, incoming_edge_name)
-        return [
-            self.graph.resolve_named_out_edge(through_node.id, field.outgoing_through_relation)
+
+        return set(
+            self.graph.resolve_named_out_edge(through_node.id, outgoing_through_relation)
             for through_node in through_nodes
-        ]
+        )
 
     def __setitem__(self, key, value):
         """Set an attribute value or add an outgoing named edge.

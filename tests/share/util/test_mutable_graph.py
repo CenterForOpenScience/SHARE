@@ -5,6 +5,7 @@ from share.util.graph import MutableGraph, MutableGraphError
 
 work_id = '_:6203fec461bb4b3fa956772acbd9c50d'
 org_id = '_:d486fd737bea4fbe9566b7a2842651ef'
+uni_id = '_:d486fd737beeffbe9566b7a2842651ef'
 person_id = '_:f4cec0271c7d4085bac26dbb2b32a002'
 creator_id = '_:a17f28109536459ca02d99bf777400ae'
 identifier_id = '_:a27f2810e536459ca02d99bf707400be'
@@ -13,7 +14,15 @@ identifier_id = '_:a27f2810e536459ca02d99bf707400be'
 @pytest.fixture
 def example_graph_nodes():
     return [
+        {'@id': uni_id, '@type': 'Institution', 'name': 'University of Whales'},
         {'@id': org_id, '@type': 'Organization', 'name': 'Department of Physics'},
+
+        {'@id': '_:org-uni', '@type': 'IsMemberOf', 'subject': {'@id': org_id, '@type': 'Organization'}, 'related': {'@id': uni_id, '@type': 'Institution'}},
+
+        {'@id': '_:tag1', '@type': 'Tag', 'name': 'you\'re'},
+        {'@id': '_:tag2', '@type': 'Tag', 'name': 'it'},
+        {'@id': '_:ttag1', '@type': 'ThroughTags', 'tag': {'@id': '_:tag1', '@type': 'Tag'}, 'creative_work': {'@id': work_id, '@type': 'Article'}},
+        {'@id': '_:ttag2', '@type': 'ThroughTags', 'tag': {'@id': '_:tag2', '@type': 'Tag'}, 'creative_work': {'@id': work_id, '@type': 'Article'}},
 
         {'@id': '_:c4f10e02785a4b4d878f48d08ffc7fce', 'related': {'@type': 'Organization', '@id': org_id}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:7e742fa3377e4f119e36f8629144a0bc'}},
         {'@id': '_:7e742fa3377e4f119e36f8629144a0bc', 'agent_relations': [{'@type': 'IsAffiliatedWith', '@id': '_:c4f10e02785a4b4d878f48d08ffc7fce'}], '@type': 'Person', 'family_name': 'Prendergast', 'given_name': 'David'},
@@ -48,7 +57,7 @@ def example_graph(example_graph_nodes):
 
 class TestMutableGraph:
     def test_graph(self, example_graph):
-        assert example_graph.number_of_nodes() == 19
+        assert example_graph.number_of_nodes() == 25
 
     @pytest.mark.parametrize('node_id', [work_id, org_id, person_id, creator_id])
     def test_get_node(self, example_graph, node_id):
@@ -96,16 +105,29 @@ class TestMutableGraph:
         (work_id, 'incoming_creative_work_relations', 0),
         (work_id, 'identifiers', 1),
         (org_id, 'incoming_agent_relations', 3),
+        (org_id, 'outgoing_agent_relations', 1),
     ])
     def test_reverse_edge(self, example_graph, node_id, reverse_edge_name, count):
         node = example_graph.get_node(node_id)
         assert len(node[reverse_edge_name]) == count
 
+    @pytest.mark.parametrize('node_id, m2m_name, count', [
+        (work_id, 'related_agents', 5),
+        (work_id, 'related_works', 0),
+        (work_id, 'subjects', 0),
+        (work_id, 'tags', 2),
+        (org_id, 'related_works', 0),
+        (org_id, 'related_agents', 4),
+    ])
+    def test_many_to_many(self, example_graph, node_id, m2m_name, count):
+        node = example_graph.get_node(node_id)
+        assert len(node[m2m_name]) == count
+
     @pytest.mark.parametrize('node_id, count', [
-        (work_id, 12),
-        (org_id, 15),
-        (person_id, 16),
-        (creator_id, 18),
+        (work_id, 16),
+        (org_id, 20),
+        (person_id, 22),
+        (creator_id, 24),
     ])
     def test_remove_node_cascades(self, example_graph, node_id, count):
         example_graph.remove_node(node_id)
