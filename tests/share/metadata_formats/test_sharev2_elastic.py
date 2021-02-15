@@ -1,8 +1,10 @@
 import json
 import pytest
 import dateutil
+from unittest.mock import patch
 
 from share.metadata_formats.sharev2_elastic import ShareV2ElasticFormatter, format_type
+from share.util import IDObfuscator
 
 from tests.factories import RawDatumFactory
 from tests.factories.core import NormalizedDataFactory
@@ -34,7 +36,7 @@ TEST_CASES = [
             'date_created': '2017-04-07T21:09:05.023090+00:00',
             'date_modified': '2017-04-07T21:09:05.023090+00:00',
             'date_updated': '2017-03-31T05:39:48+00:00',
-            'id': '7',
+            'id': 'encoded-7',
             'identifiers': ['http://dx.doi.org/10.5772/9813'],
             'publishers': ['InTech'],
             'retracted': False,
@@ -42,12 +44,20 @@ TEST_CASES = [
             'title': 'The Role of Mycorrhizas in Forest Soil Stability with Climate Change',
             'type': 'creative work',
             'types': ['creative work'],
+            'affiliations': [],
+            'funders': [],
+            'hosts': [],
+            'subject_synonyms': [],
+            'subjects': [],
+            'tags': [],
             'lists': {
+                'affiliations': [],
                 'contributors': [
                     {
                         'cited_as': 'Suzanne Simard',
                         'family_name': 'Simard',
                         'given_name': 'Suzanne',
+                        'identifiers': [],
                         'name': 'Suzanne Simard',
                         'order_cited': 0,
                         'relation': 'creator',
@@ -58,6 +68,7 @@ TEST_CASES = [
                         'cited_as': 'Mary Austi',
                         'family_name': 'Austi',
                         'given_name': 'Mary',
+                        'identifiers': [],
                         'name': 'Mary Austi',
                         'order_cited': 1,
                         'relation': 'creator',
@@ -65,9 +76,13 @@ TEST_CASES = [
                         'types': ['person', 'agent'],
                     },
                 ],
+                'funders': [],
+                'hosts': [],
+                'lineage': [],
                 'publishers': [
                     {
                         'name': 'InTech',
+                        'identifiers': [],
                         'relation': 'publisher',
                         'type': 'organization',
                         'types': ['organization', 'agent'],
@@ -88,7 +103,7 @@ TEST_CASES = [
             },
         },
         'expected_formatted': {
-            'id': '57',
+            'id': 'encoded-57',
             'is_deleted': True,
         },
     },
@@ -353,7 +368,7 @@ TEST_CASES = [
             'date_created': '2020-02-02T20:20:02.020000+00:00',
             'date_modified': '2020-02-02T20:20:02.020000+00:00',
             'date_published': '2019-01-23T20:34:21.633684+00:00',
-            'id': '123',
+            'id': 'encoded-123',
             'identifiers': ['http://staging.osf.io/chair/'],
             'registration_type': 'Open-Ended Registration',
             'retracted': False,
@@ -369,10 +384,15 @@ TEST_CASES = [
             'type': 'registration',
             'types': ['registration', 'publication', 'creative work'],
             'withdrawn': False,
+            'funders': [],
+            'hosts': [],
+            'publishers': [],
+            'tags': [],
             'lists': {
                 'affiliations': [
                     {
                         'cited_as': 'Wassamatter University',
+                        'identifiers': [],
                         'name': 'Wassamatter University',
                         'relation': 'agent work relation',
                         'type': 'institution',
@@ -404,6 +424,9 @@ TEST_CASES = [
                         'types': ['registration', 'publication', 'creative work'],
                     },
                 ],
+                'funders': [],
+                'hosts': [],
+                'publishers': [],
             },
         },
     },
@@ -420,7 +443,8 @@ TEST_CASES = [
     for test_case in TEST_CASES
 ])
 @pytest.mark.django_db
-def test_format_sharev2_elastic(suid_id, source_name, normalized_datum_kwargs, expected_formatted):
+@patch.object(IDObfuscator, 'encode', wraps=lambda suid: f'encoded-{suid.id}')
+def test_format_sharev2_elastic(mock_encode, suid_id, source_name, normalized_datum_kwargs, expected_formatted):
     normd = NormalizedDataFactory(
         raw=RawDatumFactory(
             suid__id=suid_id,

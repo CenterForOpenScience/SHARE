@@ -4,6 +4,7 @@ import re
 from django.conf import settings
 
 from share.util.graph import MutableGraph
+from share.util import IDObfuscator
 
 from .base import MetadataFormatter
 
@@ -22,7 +23,7 @@ def format_node_type_lineage(node):
 
 
 # values that, for the purpose of indexing in elasticsearch, are equivalent to absence
-EMPTY_VALUES = (None, '', [], (), {}, set())
+EMPTY_VALUES = (None, '')
 
 
 def strip_empty_values(thing):
@@ -61,13 +62,13 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord
         if central_work['is_deleted']:
             return json.dumps({
-                'id': str(suid.id),
+                'id': IDObfuscator.encode(suid),
                 'is_deleted': True,
             })
 
         source_name = suid.source_config.source.long_title
         return json.dumps(strip_empty_values({
-            'id': str(suid.id),
+            'id': IDObfuscator.encode(suid),
             'sources': [source_name],
 
             'type': format_node_type(central_work),
