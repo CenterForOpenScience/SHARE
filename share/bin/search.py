@@ -58,6 +58,14 @@ def setup(args, argv):
         elastic_manager.update_primary_alias(primary_index)
 
 
+@search.subcommand('Set the "primary" index used to serve search results')
+def set_primary(args, argv):
+    """
+    Usage: {0} search set_primary <index_name>
+    """
+    ElasticManager().update_primary_alias(args['<index_name>'])
+
+
 @search.subcommand('Start the search indexing daemon')
 def daemon(args, argv):
     """

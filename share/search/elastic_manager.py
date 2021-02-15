@@ -94,7 +94,7 @@ class ElasticManager:
             pass
 
         if previous_indexes == [primary_index_name]:
-            logger.info(f'index {primary_index_name} is already the primary')
+            logger.warn(f'index {primary_index_name} is already the primary')
             return
 
         logger.warn(f'removing aliases to {previous_indexes} and adding alias to {primary_index_name}')
