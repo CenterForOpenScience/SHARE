@@ -235,12 +235,15 @@ class IncomingMessageLoop:
                     continue
 
         if messages_by_id:
-            # worth noting but not stopping
+            # worth noting...
             logger.warning(
                 'IncomingMessageLoop: action generator skipped some target_ids!\ntarget_id_chunk: %s\nleftover_messages_by_id: %s',
                 target_id_chunk,
                 messages_by_id,
             )
+            # ...but not stopping
+            for message in messages_by_id.values():
+                message.ack()
 
         logger.info('%sPrepared %d docs to be indexed in %.02fs', self.log_prefix, success_count, time.time() - start)
 
