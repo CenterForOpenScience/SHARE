@@ -296,12 +296,13 @@ class OutgoingActionLoop:
         for _ in range(self.chunk_size):
             try:
                 message, action = self.action_queue.get(timeout=LOOP_TIMEOUT)
-                if action is None or '_id' not in action:
+                if (
+                    action is None
+                    or '_id' not in action
+                    or action['_id'] in self.messages_awaiting_elastic
+                ):
                     message.ack()
                     continue
-                if action['_id'] in self.messages_awaiting_elastic:
-                    # should have been deduped in IncomingMessageLoop
-                    raise DaemonMessageError('duplicate messages in one chunk -- should not happen')
                 self.messages_awaiting_elastic[str(action['_id'])] = message
                 yield action
             except local_queue.Empty:
