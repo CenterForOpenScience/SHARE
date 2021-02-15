@@ -133,7 +133,7 @@ class SearchIndexerDaemon:
 
         message_queue = self.__incoming_message_queues.get(wrapped_message.message_type)
         if message_queue is None:
-            logger.warn('%r: unknown message type "%s"', self, wrapped_message.message_type)
+            logger.warning('%r: unknown message type "%s"', self, wrapped_message.message_type)
             raise DaemonMessageError(f'Received message with unexpected type "{wrapped_message.message_type}" (message: {message})')
 
         message_queue.put(wrapped_message)
@@ -236,12 +236,10 @@ class IncomingMessageLoop:
 
         if messages_by_id:
             # worth noting but not stopping
-            client.captureMessage(
-                'IncomingMessageLoop: action generator skipped some target_ids!',
-                data={
-                    'target_id_chunk': target_id_chunk,
-                    'leftover_messages_by_id': messages_by_id,
-                },
+            logger.warning(
+                'IncomingMessageLoop: action generator skipped some target_ids!\ntarget_id_chunk: %s\nleftover_messages_by_id: %s',
+                target_id_chunk,
+                messages_by_id,
             )
 
         logger.info('%sPrepared %d docs to be indexed in %.02fs', self.log_prefix, success_count, time.time() - start)
