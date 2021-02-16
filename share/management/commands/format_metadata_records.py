@@ -1,7 +1,9 @@
 from django.db import connection
+from django.db.models import Exists, OuterRef
 
+from share.ingest.scheduler import IngestScheduler
 from share.management.commands import BaseShareCommand
-from share.models.ingest import SourceConfig
+from share.models.ingest import SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import IngestJob
 from share.tasks import ingest
 from share.util.extensions import Extensions
@@ -33,6 +35,7 @@ class Command(BaseShareCommand):
     def add_arguments(self, parser):
         parser.add_argument('metadata_formats', nargs='+', help='metadata format name (see entry points in setup.py)')
         parser.add_argument('--suid-start-id', '-s', type=int, default=0, help='resume based on the previous run\'s last successful suid')
+        parser.add_argument('--ensure-ingest-jobs', '-j', action='store_true', help='before starting, ensure that all relevant suids have ingest jobs')
         source_config_group = parser.add_mutually_exclusive_group(required=True)
         source_config_group.add_argument('--source-config', '-c', action='append', help='format data from these source configs')
         source_config_group.add_argument('--all-source-configs', '-a', action='store_true', help='format data from *all* source configs')
@@ -40,6 +43,7 @@ class Command(BaseShareCommand):
     def handle(self, *args, **options):
         metadata_formats = options['metadata_formats']
         suid_start_id = options['suid_start_id']
+        ensure_ingest_jobs = options['ensure_ingest_jobs']
 
         valid_formats = Extensions.get_names('share.metadata_formats')
         if any(mf not in valid_formats for mf in metadata_formats):
@@ -50,6 +54,9 @@ class Command(BaseShareCommand):
         source_config_ids = self.get_source_config_ids(options)
         if not source_config_ids:
             return
+
+        if ensure_ingest_jobs:
+            self.ensure_ingest_jobs_exist(source_config_ids)
 
         with connection.cursor() as cursor:
             while True:
@@ -79,6 +86,18 @@ class Command(BaseShareCommand):
             self.stderr.write(f'Invalid source configs: {given_labels - valid_labels}')
             return None
         return tuple(il['id'] for il in ids_and_labels)
+
+    def ensure_ingest_jobs_exist(self, source_config_ids):
+        self.stdout.write(f'creating ingest jobs as needed for source configs {source_config_ids}...')
+        unjobbed_suids = (
+            SourceUniqueIdentifier.objects
+            .filter(source_config__in=source_config_ids)
+            .annotate(
+                has_ingest_job=Exists(IngestJob.objects.filter(suid_id=OuterRef('id')))
+            )
+            .filter(has_ingest_job=False)
+        )
+        IngestScheduler().bulk_schedule(unjobbed_suids)
 
     def enqueue_job_chunk(self, cursor, suid_start_id, metadata_formats, source_config_ids):
         cursor.execute(update_ingest_job_sql, {
