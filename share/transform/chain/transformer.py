@@ -4,6 +4,7 @@ from collections import OrderedDict
 import json
 import xmltodict
 
+from share.schema import ShareV2Schema
 from share.transform.base import BaseTransformer
 from share.transform.chain.links import Context
 
@@ -30,8 +31,7 @@ class ChainTransformer(BaseTransformer):
 
     @property
     def allowed_roots(self):
-        from share.models import AbstractCreativeWork
-        return set(t.__name__ for t in AbstractCreativeWork.get_type_classes())
+        return ShareV2Schema().get_type_names('abstractcreativework')
 
     def do_transform(self, data, **kwargs):
         # Parsed data will be loaded into ctx
