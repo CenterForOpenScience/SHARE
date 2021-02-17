@@ -1,10 +1,6 @@
 import logging
 from contextlib import ExitStack
 
-from django.apps import apps
-from django.db.models import Q
-
-from share.models import AbstractCreativeWork
 from share.search.elastic_manager import ElasticManager
 from share.search.messages import MessageType
 
@@ -87,62 +83,3 @@ class SearchIndexer:
             ]
             self.elastic_manager.send_actions_sync(elastic_actions)
         self.elastic_manager.refresh_indexes(index_names)
-
-    # consider the below deprecated -- should be removed along with ShareObject
-    def index(self, model_name, *pks, index=None, urgent=False):
-        message_type = {
-            'agent': MessageType.INDEX_AGENT,
-            'creativework': MessageType.INDEX_CREATIVEWORK,
-            'subject': MessageType.INDEX_SUBJECT,
-            'tag': MessageType.INDEX_TAG,
-        }[model_name.lower()]
-
-        if not pks:
-            return
-
-        model = apps.get_model('share', model_name)
-        pks = self.pks_to_reindex(model, pks)
-
-        self.send_messages(
-            message_type=message_type,
-            target_ids=pks,
-            urgent=urgent,
-            index_names=[index] if index else None,
-        )
-
-    def pks_to_reindex(self, model, pks):
-        """Get all pks that should be reindexed if the objects with the given ids were updated.
-
-        The indexed payload may include related objects, which we don't want to get stale.
-        """
-        pks = set(pks)
-        if model is AbstractCreativeWork:
-            # Reindex children/gchildren/ggchildren of any affected works
-            parent_relation = 'share.ispartof'
-            children = model.objects.filter((
-                Q(
-                    outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related_id__in=pks
-                ) | Q(
-                    outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related__outgoing_creative_work_relations__related_id__in=pks
-                ) | Q(
-                    outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related__outgoing_creative_work_relations__related__outgoing_creative_work_relations__type=parent_relation,
-                    outgoing_creative_work_relations__related__outgoing_creative_work_relations__related__outgoing_creative_work_relations__related_id__in=pks
-                )),
-                is_deleted=False
-            ).values_list('id', flat=True)
-
-            # Reindex works retracted by any affected works
-            retraction_relation = 'share.retracts'
-            retracted = model.objects.filter(
-                incoming_creative_work_relations__type=retraction_relation,
-                incoming_creative_work_relations__subject_id__in=pks,
-                is_deleted=False
-            ).values_list('id', flat=True)
-
-            return pks.union(children, retracted)
-        return pks

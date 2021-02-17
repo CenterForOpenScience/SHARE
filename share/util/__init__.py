@@ -1,7 +1,5 @@
 from collections import OrderedDict
-import os
 import re
-import yaml
 
 
 WHITESPACE_RE = r'\s+'
@@ -165,50 +163,6 @@ class TopologicalSorter:
 
     def __get_node(self, key):
         return self.__node_map[key] if self.__node_map else key
-
-
-class ModelGenerator:
-    """Generate model classes from yaml specs"""
-
-    def __init__(self, field_types={}):
-        self.__field_types = field_types
-
-    def subclasses_from_yaml(self, file_name, base):
-        yaml_file = re.sub(r'\.py$', '.yaml', os.path.abspath(file_name))
-        with open(yaml_file) as fobj:
-            model_specs = yaml.load(fobj)
-
-        return self.generate_subclasses(model_specs, base)
-
-    def generate_subclasses(self, model_specs, base):
-        models = {}
-        for (name, mspec) in sorted(model_specs.items()):
-            fields = mspec.get('fields', {})
-            verbose_name_plural = mspec.get('verbose_name_plural', None)
-
-            model = type(name, (base,), {
-                **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
-                '__doc__': mspec.get('description'),
-                '__qualname__': name,
-                '__module__': base.__module__
-            })
-            models[name] = model
-            models[model.VersionModel.__name__] = model.VersionModel
-
-            if verbose_name_plural:
-                model._meta.verbose_name_plural = verbose_name_plural
-            elif model._meta.verbose_name.endswith('s'):
-                model._meta.verbose_name_plural = model._meta.verbose_name
-
-            children = mspec.get('children')
-            if children:
-                models.update(self.generate_subclasses(children, model))
-
-        return models
-
-    def _get_field(self, field_spec):
-        field_class = self.__field_types[field_spec['type']]
-        return field_class(*field_spec.get('args', []), **field_spec.get('kwargs', {}))
 
 
 class DictHashingDict:
