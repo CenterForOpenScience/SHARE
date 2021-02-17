@@ -11,11 +11,8 @@ import faker
 import factory
 import factory.fuzzy
 
-from typedmodels.models import TypedModel
-
-from django.apps import apps
-
-from share import models
+from share.schema import ShareV2Schema
+from share.schema.shapes import RelationShape
 from share.transform.chain.links import IRILink
 from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
@@ -24,13 +21,13 @@ from share.util.graph import MutableGraph, MutableNode
 logger = logging.getLogger(__name__)
 
 
+sharev2_schema = ShareV2Schema()
 used_ids = set()
 _Faker = faker.Faker()
 
 
-def format_id(model, id):
-    id_namespace = model._meta.concrete_model._meta.model_name.lower().replace('abstract', '')
-    return '_:{}--{}'.format(id_namespace, id)
+def format_id(type_name, id):
+    return '_:{}--{}'.format(type_name, id)
 
 
 class FactoryGraph(MutableGraph):
@@ -170,8 +167,8 @@ class NodeBuilder:
         self.random_states = random_states
         self.normalize_fields = normalize_fields
 
-    def get_factory(self, model):
-        return globals()[model._meta.concrete_model.__name__ + 'Factory']
+    def get_factory(self, schema_type):
+        return globals()[schema_type.concrete_type + 'Factory']
 
     def build_nodes(self, nodes):
         for n in nodes:
@@ -196,56 +193,61 @@ class NodeBuilder:
         if self.normalize_fields:
             attrs['parse'] = True
 
-        model = apps.get_model('share', node_type)
-
         relations = {}
         for key in tuple(attrs.keys()):
             if isinstance(attrs[key], (dict, list)):
                 relations[key] = attrs.pop(key)
 
+        schema_type = sharev2_schema.get_type(node_type.replace('Abstract', ''))
+
         # Extract/generate required relations.
         # e.g. WorkIdentifier requires a work, Creator requires work and agent
-        for f in model._meta.fields:
-            if f.name not in attrs and f.is_relation and not f.null and f.editable and f.concrete:
+        for field_name in schema_type.explicit_fields:
+            field = sharev2_schema.get_field(node_type, field_name)
+            if (
+                field_name not in attrs
+                and field.is_relation
+                and field.is_required
+            ):
                 try:
-                    relation = relations.pop(f.name)
+                    relation = relations.pop(field_name)
                 except KeyError:
                     # Value missing for required relation; generate a fake one
-                    relation = {'type': f.remote_field.model._meta.concrete_model._meta.model_name}
-                attrs[f.name] = self.build(relation)
+                    relation = {'type': field.related_concrete_type}
+                attrs[field_name] = self.build(relation)
 
         if sparse:
             # Don't generate fake data for missing fields
             node = FactoryNode(self.graph, type=node_type, **attrs)
         else:
             # If it's a specific type, pass it along, otherwise let the factory choose a subtype
-            concrete_model_name = model._meta.concrete_model._meta.model_name
-            if node_type != concrete_model_name:
+            concrete_type_name = schema_type.concrete_type
+            if node_type != concrete_type_name:
                 attrs['type'] = node_type
 
             if seed:
-                seed_ctx = self.random_states.seed(seed=str(seed) + concrete_model_name)
+                seed_ctx = self.random_states.seed(seed=str(seed) + concrete_type_name)
             else:
-                seed_ctx = self.random_states.seed(name=concrete_model_name)
+                seed_ctx = self.random_states.seed(name=concrete_type_name)
 
             with seed_ctx:
-                node = self.get_factory(model)(graph=self.graph, **attrs)
+                node = self.get_factory(schema_type)(graph=self.graph, **attrs)
 
         # Build specified *-to-many relations
         for key, value in sorted(relations.items(), key=lambda x: x[0]):
-            field = model._meta.get_field(key)
+            field = sharev2_schema.get_field(node_type, key)
 
             if isinstance(value, list):
-                if field.many_to_many:
+                if field.relation_shape == RelationShape.MANY_TO_MANY:
                     related = [self.build(v) for v in value]
                     for rel in related:
                         self.build({
-                            'type': field.remote_field.through._meta.model_name,
-                            field.m2m_field_name(): node,
-                            field.m2m_reverse_field_name(): rel,
+                            'type': field.through_concrete_type,
+                            field.incoming_through_relation: node,
+                            field.outgoing_through_relation: rel,
                         })
                 else:
-                    reverse_name = field.remote_field.name
+                    reverse_name = field.inverse_relation
                     for v in value:
                         v[reverse_name] = node
                         self.build(v)
@@ -280,10 +282,12 @@ class TypedGraphNodeFactory(GraphNodeFactory):
     @factory.lazy_attribute
     def type(stub):
         model_name = re.sub('Factory$', '', stub._LazyStub__model_class.__name__)
-        model = apps.get_model('share', model_name)
-        if issubclass(model, TypedModel) and model._meta.concrete_model is model:
-            model = random.choice(model._meta.concrete_model.get_type_classes())
-        return model._meta.model_name.lower()
+        schema_type = sharev2_schema.get_type(model_name.replace('Abstract', ''))
+        if schema_type.concrete_type == model_name:
+            model_name = random.choice(
+                list(sharev2_schema.get_type_names(schema_type.concrete_type))
+            )
+        return model_name.lower()
 
 
 class AbstractAgentFactory(TypedGraphNodeFactory):
@@ -403,19 +407,16 @@ class AgentIdentifierFactory(GraphNodeFactory):
             self['host'] = parsed['authority']
 
 
-def _params(seed=None, id=None, type=None, model=None, **kwargs):
-    ret = {'type': type, **kwargs}
+def _params(seed=None, id=None, schema_type=None, model=None, **kwargs):
+    ret = {'type': schema_type.name.lower(), **kwargs}
     if id is not None:
-        ret['id'] = format_id(model, id)
+        ret['id'] = format_id(schema_type.concrete_type.lower().replace('abstract', ''), id)
     if seed is not None:
         ret['seed'] = seed
     return ret
 
 
 __all__ = ()
-for model_name in dir(models):
-    model = getattr(models, model_name)
-    if not hasattr(model, 'VersionModel'):
-        continue
-    __all__ += (model_name, )
-    locals()[model_name] = functools.partial(_params, type=model_name.lower(), model=model)
+
+for schema_type in sharev2_schema.schema_types.values():
+    locals()[schema_type.name] = functools.partial(_params, schema_type=schema_type)

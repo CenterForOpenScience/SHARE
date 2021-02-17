@@ -117,38 +117,41 @@ class TestSourcesGet:
     endpoint = '/api/v2/sources/'
 
     def test_count(self, client):
-        total = Source.objects.exclude(icon='').exclude(is_deleted=True).count()
+        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
+        source_count = sources_qs.count()
 
         resp = client.get(self.endpoint)
 
-        assert total > 0
+        assert source_count > 0
         assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == total
+        assert resp.json()['meta']['pagination']['count'] == source_count
 
     def test_is_deleted(self, client):
-        total = Source.objects.exclude(icon='').exclude(is_deleted=True).count()
+        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
+        source_count = sources_qs.count()
 
-        s = Source.objects.first()
+        s = sources_qs.first()
         s.is_deleted = True
         s.save()
 
         resp = client.get(self.endpoint)
         assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == total - 1
+        assert resp.json()['meta']['pagination']['count'] == source_count - 1
 
     def test_no_icon(self, client):
-        total = Source.objects.exclude(icon='').exclude(is_deleted=True).count()
+        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
+        source_count = sources_qs.count()
 
-        s = Source.objects.first()
+        s = sources_qs.first()
         s.icon = None
         s.save()
 
         resp = client.get(self.endpoint)
         assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == total - 1
+        assert resp.json()['meta']['pagination']['count'] == source_count - 1
 
     def test_by_id(self, client):
-        source = Source.objects.first()
+        source = Source.objects.last()
         resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
 
         assert resp.status_code == 200

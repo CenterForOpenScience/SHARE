@@ -235,14 +235,6 @@ class FormattedMetadataRecordManager(models.Manager):
             record = None
         return record
 
-    def get_or_create_record(self, suid, record_format):
-        try:
-            formatted_record = self.get(suid=suid, record_format=record_format)
-        except self.model.DoesNotExist:
-            records = self.save_formatted_metadata(suid, record_formats=[record_format])
-            formatted_record = records[0] if records else None
-        return formatted_record
-
 
 class FormattedMetadataRecord(models.Model):
     RECORD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))

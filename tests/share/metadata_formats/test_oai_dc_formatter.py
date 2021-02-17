@@ -1,7 +1,5 @@
 from lxml import etree
 
-from share.metadata_formats.oai_dc import OaiDcFormatter
-
 from tests.share.metadata_formats.base import BaseMetadataFormatterTest
 
 
@@ -20,8 +18,9 @@ def xml_elements_equal(element_1, element_2):
 
 
 class TestOaiDcFormatter(BaseMetadataFormatterTest):
-    def test_formatter(self, normalized_datum, expected_output):
-        actual_output = OaiDcFormatter().format(normalized_datum)
+    formatter_key = 'oai_dc'
+
+    def assert_formatter_outputs_equal(self, actual_output, expected_output):
         if expected_output is None:
             assert actual_output is None
         else:

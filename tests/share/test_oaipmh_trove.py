@@ -21,10 +21,6 @@ NAMESPACES = {
 
 def oai_request(data, pls_post, expect_errors=False):
     client = Client()
-    data = {
-        **data,
-        'pls_trove': True,
-    }
     if pls_post:
         response = client.post('/oai-pmh/', data)
     else:

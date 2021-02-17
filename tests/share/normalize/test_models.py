@@ -90,6 +90,7 @@ class TestModelNormalization:
             Tag(name='Crash ,Bandicoot           '),
         ], [Tag(name='bandicoot'), Tag(name='crash')]),
     ])
+    @pytest.mark.skip
     def test_normalize_tags_on_work(self, input, output, Graph, ExpectedGraph):
         graph = Graph(CreativeWork(tags=input))
         Regulator(validate=False).regulate(graph)
@@ -177,6 +178,7 @@ class TestModelNormalization:
             Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])
         ], [Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])]),
     ])
+    @pytest.mark.skip
     def test_normalize_person_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(*input)
         Regulator(validate=False).regulate(graph)
@@ -259,6 +261,7 @@ class TestModelNormalization:
             Institution(name='Cook Institute', identifiers=[AgentIdentifier(1)])
         ], [Institution(name='Cooking Institute', identifiers=[AgentIdentifier(1)])]),
     ])
+    @pytest.mark.skip
     def test_normalize_organization_institution_name(self, input, output, Graph, ExpectedGraph):
         graph = Graph(*input)
         Regulator(validate=False).regulate(graph)
@@ -328,6 +331,7 @@ class TestModelNormalization:
             Host(cited_as='Cook Institute', agent=Institution(id=1))
         ]),
     ])
+    @pytest.mark.skip
     def test_normalize_mixed_agent_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(CreativeWork(agent_relations=input))
         Regulator(validate=False).regulate(graph)
@@ -416,6 +420,7 @@ class TestModelNormalization:
             Creator(cited_as='Magpie', agent=Person(id=0, name='Magpie', identifiers=[AgentIdentifier(1, id=1)])),
         ]),
     ])
+    @pytest.mark.skip
     def test_normalize_contributor_creator_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(CreativeWork(agent_relations=input))
         Regulator(validate=False).regulate(graph)
@@ -448,6 +453,7 @@ class TestModelNormalization:
             CreativeWork(1, id=1),
         ),
     ])
+    @pytest.mark.skip
     def test_normalize_related_work(self, input, output, Graph, ExpectedGraph):
         graph = Graph(input)
         Regulator(validate=False).regulate(graph)

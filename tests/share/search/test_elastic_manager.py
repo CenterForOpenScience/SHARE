@@ -4,7 +4,7 @@ import pytest
 from elasticsearch.exceptions import NotFoundError
 
 from share.search.elastic_manager import ElasticManager
-from share.search.index_setup import ShareClassicIndexSetup, PostRendBackcompatIndexSetup
+from share.search.index_setup import PostRendBackcompatIndexSetup, TroveV0IndexSetup
 
 
 class TestIsolatedElasticManager:
@@ -13,11 +13,11 @@ class TestIsolatedElasticManager:
         custom_settings = {
             **settings.ELASTICSEARCH,
             'INDEXES': {
-                'classic_index': {
-                    'INDEX_SETUP': 'share_classic',
-                },
                 'postrend_index': {
                     'INDEX_SETUP': 'postrend_backcompat',
+                },
+                'trove_index': {
+                    'INDEX_SETUP': 'trove_v0',
                 },
             },
         }
@@ -27,16 +27,17 @@ class TestIsolatedElasticManager:
             yield isolated_elastic_manager
 
     @pytest.mark.parametrize('index_name, expected_setup_class', [
-        ('classic_index', ShareClassicIndexSetup),
         ('postrend_index', PostRendBackcompatIndexSetup),
+        ('trove_index', TroveV0IndexSetup),
     ])
     def test_get_index_setup(self, isolated_elastic_manager, index_name, expected_setup_class):
         index_setup = isolated_elastic_manager.get_index_setup(index_name)
         assert isinstance(index_setup, expected_setup_class)
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        # TODO when it's not just a stub
+        # 'trove_index',
     ])
     def test_create_index(self, isolated_elastic_manager, index_name):
         index_setup = isolated_elastic_manager.get_index_setup(index_name)
@@ -60,8 +61,8 @@ class TestIsolatedElasticManager:
         ], any_order=True)
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        'trove_index',
     ])
     def test_create_index_already_exists(self, isolated_elastic_manager, index_name):
         mock_es_client = isolated_elastic_manager.es_client
@@ -73,8 +74,8 @@ class TestIsolatedElasticManager:
             isolated_elastic_manager.create_index(index_name)
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        'trove_index',
     ])
     def test_delete_index(self, isolated_elastic_manager, index_name):
         mock_es_client = isolated_elastic_manager.es_client
@@ -120,9 +121,9 @@ class TestIsolatedElasticManager:
             bock_mulk.assert_called_once_with(isolated_elastic_manager.es_client, input_actions)
 
     @pytest.mark.parametrize('index_names, expected_arg', [
-        (['classic_index'], 'classic_index'),
+        (['trove_index'], 'trove_index'),
         (['postrend_index'], 'postrend_index'),
-        (['classic_index', 'postrend_index'], 'classic_index,postrend_index'),
+        (['trove_index', 'postrend_index'], 'trove_index,postrend_index'),
     ])
     def test_refresh_indexes(self, isolated_elastic_manager, index_names, expected_arg):
         mock_es_client = isolated_elastic_manager.es_client
@@ -132,8 +133,8 @@ class TestIsolatedElasticManager:
         mock_es_client.indices.refresh.assert_called_once_with(index=expected_arg)
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        'trove_index',
     ])
     def test_initial_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
         alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
@@ -152,8 +153,8 @@ class TestIsolatedElasticManager:
         )
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        'trove_index',
     ])
     def test_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
         alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
@@ -175,8 +176,8 @@ class TestIsolatedElasticManager:
         )
 
     @pytest.mark.parametrize('index_name', [
-        'classic_index',
         'postrend_index',
+        'trove_index',
     ])
     def test_unnecessary_update_primary_alias(self, isolated_elastic_manager, index_name, settings):
         alias_name = settings.ELASTICSEARCH['PRIMARY_INDEX']
