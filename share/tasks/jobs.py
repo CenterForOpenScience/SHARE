@@ -1,18 +1,13 @@
 import logging
 import random
 
-from django.apps import apps
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError
-from django.db.utils import OperationalError
 from django.utils import timezone
 
 from share import exceptions
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.ingest.change_builder import ChangeSetBuilder
 from share.models import (
-    AbstractCreativeWork,
     HarvestJob,
     IngestJob,
     NormalizedData,
@@ -24,7 +19,6 @@ from share.regulate import Regulator
 from share.search import SearchIndexer
 from share.search.messages import MessageType
 from share.util import chunked
-from share.util.graph import MutableGraph
 
 
 logger = logging.getLogger(__name__)
@@ -318,7 +312,6 @@ class IngestJobConsumer(JobConsumer):
             )
             job.ingested_normalized_data.add(datum)
 
-        # new Suid-based process
         if pls_format_metadata:
             records = FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
@@ -330,14 +323,6 @@ class IngestJobConsumer(JobConsumer):
             # remove the previous from the index
             if records and index:
                 self._queue_for_indexing(job.suid, urgent)
-
-        # soon-to-be-rended ShareObject-based process:
-        if settings.SHARE_LEGACY_PIPELINE and apply_changes:
-            if graph is None:
-                graph = MutableGraph.from_jsonld(datum.data)
-            updated_work_ids = self._apply_changes(job, graph, datum)
-            if index and updated_work_ids:
-                self._update_index(updated_work_ids, urgent)
 
     def _transform(self, job, raw):
         transformer = job.suid.source_config.get_transformer()
@@ -369,48 +354,3 @@ class IngestJobConsumer(JobConsumer):
     def _queue_for_indexing(self, suid, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
         indexer.send_messages(MessageType.INDEX_SUID, [suid.id], urgent=urgent)
-
-    def _apply_changes(self, job, graph, normalized_datum):
-        updated = None
-        matches = None
-
-        try:
-            # Load all relevant ContentTypes in a single query
-            ContentType.objects.get_for_models(*apps.get_models('share'), for_concrete_models=False)
-
-            with transaction.atomic():
-                change_set_builder = ChangeSetBuilder(graph, normalized_datum, disambiguate=True)
-                change_set = change_set_builder.build_change_set()
-
-                user = normalized_datum.source  # "source" here is a user...
-                source = user.source
-                if change_set and (source or user.is_robot or user.is_trusted):
-                    updated = change_set.accept()
-                    matches = change_set_builder.matches
-
-        # Retry if it was just the wrong place at the wrong time
-        except (exceptions.IngestConflict, OperationalError):
-            job.retries = (job.retries or 0) + 1
-            job.save(update_fields=('retries',))
-            if job.retries > self.MAX_RETRIES:
-                raise
-            job.reschedule()
-            return
-
-        if not updated:
-            return
-
-        updated_works = set(
-            x.id for x in (updated or [])
-            if isinstance(x, AbstractCreativeWork)
-        )
-        existing_works = set(
-            x.id for x in (matches or {}).values()
-            if isinstance(x, AbstractCreativeWork)
-        )
-
-        return list(updated_works | existing_works)
-
-    def _update_index(self, work_ids, urgent):
-        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
-        indexer.index('creativework', *work_ids, urgent=urgent)

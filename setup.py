@@ -110,9 +110,8 @@ setup(
             'oai_dc = share.metadata_formats.oai_dc:OaiDcFormatter',
         ],
         'share.search.index_setup': [
-            'share_classic = share.search.index_setup:ShareClassicIndexSetup',
             'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
-            # 'trove_v0 = share.search.index_setup:TroveV0IndexSetup',
+            'trove_v0 = share.search.index_setup:TroveV0IndexSetup',
         ],
     }
 )

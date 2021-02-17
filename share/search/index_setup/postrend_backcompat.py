@@ -6,13 +6,14 @@ from share.search.messages import MessageType
 
 
 class PostRendBackcompatIndexSetup(IndexSetup):
+    SUBJECT_DELIMITER = '|'
+
     @property
     def supported_message_types(self):
         return {MessageType.INDEX_SUID}
 
     @property
     def index_settings(self):
-        from share.search.fetchers import CreativeWorkFetcher
         return {
             'analysis': {
                 'filter': {
@@ -56,7 +57,7 @@ class PostRendBackcompatIndexSetup(IndexSetup):
                 'tokenizer': {
                     'subject_tokenizer': {
                         'type': 'path_hierarchy',
-                        'delimiter': CreativeWorkFetcher.SUBJECT_DELIMITER,
+                        'delimiter': self.SUBJECT_DELIMITER,
                     }
                 }
             }
