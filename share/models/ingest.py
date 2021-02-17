@@ -18,7 +18,6 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
-from share.models.indexes import ConcurrentIndex
 from share.util import chunked, placeholders, BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
@@ -480,9 +479,9 @@ class RawDatum(models.Model):
     class Meta:
         unique_together = ('suid', 'sha256')
         verbose_name_plural = 'Raw Data'
-        indexes = (
-            ConcurrentIndex(fields=['no_output']),
-        )
+        indexes = [
+            models.Index(fields=['no_output'], name='share_rawda_no_outp_f0330f_idx'),
+        ]
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         resource_name = 'RawData'
