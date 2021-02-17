@@ -25,7 +25,7 @@ from share.util import BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'NormalizedData',)
+__all__ = ('ShareUser', 'NormalizedData', 'FormattedMetadataRecord',)
 
 
 class ShareUserManager(BaseUserManager):

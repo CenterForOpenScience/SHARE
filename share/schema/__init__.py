@@ -58,7 +58,10 @@ class ShareV2Schema:
             raise SchemaKeyError(f'type "{type_name}" not found in SHARE schema')
 
     def get_field(self, type_name, field_name) -> Union[ShareV2SchemaAttribute, ShareV2SchemaRelation]:
-        concrete_type = self.get_type(type_name).concrete_type
+        if type_name.lower() in self.schema_type_names:
+            concrete_type = type_name
+        else:
+            concrete_type = self.get_type(type_name).concrete_type
         key = (concrete_type.lower(), field_name.lower())
         try:
             return self.schema_fields[key]

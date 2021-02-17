@@ -1,17 +1,12 @@
-import json
-import pytest
 import dateutil
-from unittest.mock import patch
-
-from share.metadata_formats.sharev2_elastic import ShareV2ElasticFormatter, format_type
-from share.util import IDObfuscator
+import pytest
 
 from tests.factories import RawDatumFactory
 from tests.factories.core import NormalizedDataFactory
 
 
-TEST_CASES = [
-    {
+FORMATTER_TEST_INPUTS = {
+    'mycorrhizas': {
         'suid_id': 7,
         'source_name': 'SomeSource',
         'normalized_datum_kwargs': {
@@ -30,68 +25,8 @@ TEST_CASES = [
                 '@context': {}
             },
         },
-        'expected_formatted': {
-            'contributors': ['Suzanne Simard', 'Mary Austi'],
-            'date': '2017-03-31T05:39:48+00:00',
-            'date_created': '2017-04-07T21:09:05.023090+00:00',
-            'date_modified': '2017-04-07T21:09:05.023090+00:00',
-            'date_updated': '2017-03-31T05:39:48+00:00',
-            'id': 'encoded-7',
-            'identifiers': ['http://dx.doi.org/10.5772/9813'],
-            'publishers': ['InTech'],
-            'retracted': False,
-            'sources': ['SomeSource'],
-            'title': 'The Role of Mycorrhizas in Forest Soil Stability with Climate Change',
-            'type': 'creative work',
-            'types': ['creative work'],
-            'affiliations': [],
-            'funders': [],
-            'hosts': [],
-            'subject_synonyms': [],
-            'subjects': [],
-            'tags': [],
-            'lists': {
-                'affiliations': [],
-                'contributors': [
-                    {
-                        'cited_as': 'Suzanne Simard',
-                        'family_name': 'Simard',
-                        'given_name': 'Suzanne',
-                        'identifiers': [],
-                        'name': 'Suzanne Simard',
-                        'order_cited': 0,
-                        'relation': 'creator',
-                        'type': 'person',
-                        'types': ['person', 'agent'],
-                    },
-                    {
-                        'cited_as': 'Mary Austi',
-                        'family_name': 'Austi',
-                        'given_name': 'Mary',
-                        'identifiers': [],
-                        'name': 'Mary Austi',
-                        'order_cited': 1,
-                        'relation': 'creator',
-                        'type': 'person',
-                        'types': ['person', 'agent'],
-                    },
-                ],
-                'funders': [],
-                'hosts': [],
-                'lineage': [],
-                'publishers': [
-                    {
-                        'name': 'InTech',
-                        'identifiers': [],
-                        'relation': 'publisher',
-                        'type': 'organization',
-                        'types': ['organization', 'agent'],
-                    },
-                ],
-            },
-        },
     },
-    {
+    'with-is_deleted': {
         'suid_id': 57,
         'source_name': 'foo',
         'normalized_datum_kwargs': {
@@ -102,12 +37,8 @@ TEST_CASES = [
                 ],
             },
         },
-        'expected_formatted': {
-            'id': 'encoded-57',
-            'is_deleted': True,
-        },
     },
-    {
+    'with-subjects': {
         'suid_id': 123,
         'source_name': 'osf reg',
         'normalized_datum_kwargs': {
@@ -361,106 +292,41 @@ TEST_CASES = [
                 ],
             },
         },
-        'expected_formatted': {
-            'affiliations': ['Wassamatter University'],
-            'contributors': ['Some Rando'],
-            'date': '2019-01-23T20:34:21.633684+00:00',
-            'date_created': '2020-02-02T20:20:02.020000+00:00',
-            'date_modified': '2020-02-02T20:20:02.020000+00:00',
-            'date_published': '2019-01-23T20:34:21.633684+00:00',
-            'id': 'encoded-123',
-            'identifiers': ['http://staging.osf.io/chair/'],
-            'registration_type': 'Open-Ended Registration',
-            'retracted': False,
-            'sources': ['osf reg'],
-            'subject_synonyms': [
-                'bepress|Life Sciences|Biology',
-            ],
-            'subjects': [
-                'bepress|Architecture',
-                'osf reg|Custom life sciencesssss|Custom biologyyyy',
-            ],
-            'title': 'Assorted chair',
-            'type': 'registration',
-            'types': ['registration', 'publication', 'creative work'],
-            'withdrawn': False,
-            'funders': [],
-            'hosts': [],
-            'publishers': [],
-            'tags': [],
-            'lists': {
-                'affiliations': [
-                    {
-                        'cited_as': 'Wassamatter University',
-                        'identifiers': [],
-                        'name': 'Wassamatter University',
-                        'relation': 'agent work relation',
-                        'type': 'institution',
-                        'types': ['institution', 'organization', 'agent'],
-                    },
-                ],
-                'contributors': [
-                    {
-                        'cited_as': 'Some Rando',
-                        'identifiers': ['http://staging.osf.io/rando/', 'mailto:rando@example.com'],
-                        'name': 'Some Rando',
-                        'order_cited': 0,
-                        'relation': 'creator',
-                        'type': 'person',
-                        'types': ['person', 'agent'],
-                    },
-                ],
-                'lineage': [
-                    {
-                        'identifiers': ['http://staging.osf.io/mdept/'],
-                        'title': 'Miscellaneous department',
-                        'type': 'registration',
-                        'types': ['registration', 'publication', 'creative work'],
-                    },
-                    {
-                        'identifiers': ['http://staging.osf.io/vroom/'],
-                        'title': 'Various room',
-                        'type': 'registration',
-                        'types': ['registration', 'publication', 'creative work'],
-                    },
-                ],
-                'funders': [],
-                'hosts': [],
-                'publishers': [],
-            },
-        },
     },
-]
+}
 
 
-@pytest.mark.parametrize('suid_id,source_name,normalized_datum_kwargs,expected_formatted', [
-    [
-        test_case['suid_id'],
-        test_case['source_name'],
-        test_case['normalized_datum_kwargs'],
-        test_case['expected_formatted'],
-    ]
-    for test_case in TEST_CASES
-])
 @pytest.mark.django_db
-@patch.object(IDObfuscator, 'encode', wraps=lambda suid: f'encoded-{suid.id}')
-def test_format_sharev2_elastic(mock_encode, suid_id, source_name, normalized_datum_kwargs, expected_formatted):
-    normd = NormalizedDataFactory(
-        raw=RawDatumFactory(
-            suid__id=suid_id,
-            suid__source_config__source__long_title=source_name,
-        ),
-        **normalized_datum_kwargs,
-    )
-    actual_formatted = json.loads(ShareV2ElasticFormatter().format(normd))
+class BaseMetadataFormatterTest:
+    # override in child class
+    expected_outputs = {}
 
-    assert actual_formatted == expected_formatted
+    # override in child class
+    def test_formatter(self, normalized_datum, expected_output):
+        raise NotImplementedError
 
+    @pytest.fixture(scope='class', autouse=True)
+    def _sanity_check(self):
+        assert FORMATTER_TEST_INPUTS.keys() == self.expected_outputs.keys(), f'check the test class\'s `expected_outputs` matches {__name__}.FORMATTER_TEST_INPUTS'
 
-@pytest.mark.parametrize('type_name,expected', [
-    ('Foo', 'foo'),
-    ('FooBar', 'foo bar'),
-])
-def test_format_type(type_name, expected):
-    actual = format_type(type_name)
-    assert actual == expected
+    @pytest.fixture(params=FORMATTER_TEST_INPUTS.keys())
+    def _test_key(self, request):
+        return request.param
+
+    @pytest.fixture
+    def formatter_test_input(self, _test_key):
+        return FORMATTER_TEST_INPUTS[_test_key]
+
+    @pytest.fixture
+    def expected_output(self, _test_key):
+        return self.expected_outputs[_test_key]
+
+    @pytest.fixture
+    def normalized_datum(self, formatter_test_input):
+        return NormalizedDataFactory(
+            raw=RawDatumFactory(
+                suid__id=formatter_test_input['suid_id'],
+                suid__source_config__source__long_title=formatter_test_input['source_name'],
+            ),
+            **formatter_test_input['normalized_datum_kwargs'],
+        )

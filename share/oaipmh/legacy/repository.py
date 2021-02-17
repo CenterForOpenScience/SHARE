@@ -4,9 +4,9 @@ from django.conf import settings
 from django.db import connection
 
 from share.models import AbstractCreativeWork, Source, ShareUser
-from share.oaipmh import errors as oai_errors, renderers
+from share.oaipmh import errors as oai_errors
 from share.oaipmh.verbs import OAIVerb
-from share.oaipmh.renderers import OAIRenderer
+from share.oaipmh.legacy.renderers import OAIRenderer, DublinCoreRenderer
 from share.oaipmh.util import format_datetime
 from share.util import IDObfuscator, InvalidID
 
@@ -18,7 +18,7 @@ class OAIRepository:
     GRANULARITY = 'YYYY-MM-DDThh:mm:ssZ'
     ADMIN_EMAILS = ['share-support@osf.io']
     FORMATS = {
-        'oai_dc': renderers.DublinCoreRenderer,
+        'oai_dc': DublinCoreRenderer,
     }
     PAGE_SIZE = 20
 

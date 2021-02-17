@@ -26,6 +26,11 @@ class BadFormat(OAIError):
         super().__init__('cannotDisseminateFormat', 'Invalid metadataPrefix: {}'.format(prefix))
 
 
+class BadFormatForRecord(OAIError):
+    def __init__(self, prefix):
+        super().__init__('cannotDisseminateFormat', 'Record unavailable in the requested format: {}'.format(prefix))
+
+
 class BadRecordID(OAIError):
     def __init__(self, identifier):
         super().__init__('idDoesNotExist', 'Invalid record identifier: {}'.format(identifier))
