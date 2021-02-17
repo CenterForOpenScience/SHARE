@@ -7,11 +7,10 @@ import uuid
 
 import stevedore
 
-import faker
-
 import factory
 from factory import fuzzy
 from factory.django import DjangoModelFactory
+import faker
 
 from project import celery_app
 
@@ -21,15 +20,41 @@ from share.harvest.serialization import StringLikeSerializer
 from share.transform import BaseTransformer
 from share.util.extensions import Extensions
 
-from tests.factories.core import *  # noqa
-from tests.factories.changes import *  # noqa
-from tests.factories.share_objects import *  # noqa
-from tests.factories.share_objects import ShareObjectFactory
+
+fake = faker.Faker()
+
+
+class ShareUserFactory(DjangoModelFactory):
+    username = factory.Sequence(lambda x: '{}{}'.format(fake.name(), x))
+    source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
+
+    class Meta:
+        model = models.ShareUser
+
+
+class NormalizedDataFactory(DjangoModelFactory):
+    data = {}
+    source = factory.SubFactory(ShareUserFactory)
+
+    class Meta:
+        model = models.NormalizedData
+
+    @classmethod
+    def _generate(cls, create, attrs):
+        normalized_datum = super()._generate(create, attrs)
+
+        # HACK: allow overriding auto_now_add on created_at
+        created_at = attrs.pop('created_at', None)
+        if created_at is not None:
+            normalized_datum.created_at = created_at
+            normalized_datum.save()
+
+        return normalized_datum
 
 
 class SourceFactory(DjangoModelFactory):
-    name = factory.Faker('sentence')
-    long_title = factory.Faker('sentence')
+    name = factory.Sequence(lambda x: '{}{}'.format(fake.name(), x))
+    long_title = factory.Sequence(lambda x: '{}{}'.format(fake.sentence(), x))
     icon = factory.SelfAttribute('name')
 
     user = factory.SubFactory(ShareUserFactory, source=None)
@@ -192,28 +217,6 @@ class CeleryTaskResultFactory(DjangoModelFactory):
 
     class Meta:
         model = models.CeleryTaskResult
-
-
-class SubjectTaxonomyFactory(DjangoModelFactory):
-    source = factory.SubFactory(SourceFactory)
-
-    class Meta:
-        model = models.SubjectTaxonomy
-
-
-class SubjectFactory(ShareObjectFactory):
-    name = factory.Sequence(lambda x: '{}?{}'.format(faker.bs(), x))
-    uri = factory.Sequence(lambda x: str(x))
-    taxonomy = factory.SubFactory(SubjectTaxonomyFactory)
-
-    class Meta:
-        model = models.Subject
-
-
-class ThroughSubjectsFactory(ShareObjectFactory):
-
-    class Meta:
-        model = models.ThroughSubjects
 
 
 class FormattedMetadataRecordFactory(DjangoModelFactory):
