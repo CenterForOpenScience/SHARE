@@ -397,7 +397,13 @@ class TestModelNormalization:
         ([
             Creator(cited_as='', agent=Person(id=0, name='None', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-        ])
+        ]),
+        # Nameless agent with cited_as
+        ([
+            Creator(cited_as='Magpie', agent=Person(id=0, name='', identifiers=[AgentIdentifier(1, id=1)])),
+        ], [
+            Creator(cited_as='Magpie', agent=Person(id=0, name='Magpie', identifiers=[AgentIdentifier(1, id=1)])),
+        ]),
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(CreativeWork(agent_relations=input))

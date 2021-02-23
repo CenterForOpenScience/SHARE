@@ -28,13 +28,25 @@ class NormalizeAgentNames(NodeStep):
 
     def _normalize_person(self, node):
         name = strip_whitespace(node['name'] or '')
+
         if not name:
+            # try building the name from parts
             name = strip_whitespace(' '.join((
                 node['given_name'] or '',
                 node['additional_name'] or '',
                 node['family_name'] or '',
                 node['suffix'] or '',
             )))
+
+        if not name:
+            # try getting the name from "cited_as"
+            cited_as_names = [
+                relation['cited_as']
+                for relation in node['work_relations']
+                if relation['cited_as']
+            ]
+            if len(cited_as_names) == 1:
+                name = cited_as_names[0]
 
         if not name or self.NULL_RE.match(name):
             self.info('Discarding unnamed person', node.id)
