@@ -1,4 +1,18 @@
-from tests.share.normalize.factories import *
+from tests.share.normalize.factories import (
+    Agent,
+    AgentIdentifier,
+    Article,
+    CreativeWork,
+    Institution,
+    Organization,
+    Patent,
+    Person,
+    Preprint,
+    Publication,
+    Tag,
+    ThroughTags,
+    WorkIdentifier,
+)
 from tests.share.normalize.factories import FactoryGraph
 
 

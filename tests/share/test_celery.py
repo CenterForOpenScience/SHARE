@@ -7,8 +7,7 @@ from unittest import mock
 from django.utils import timezone
 from django.core import serializers
 
-from share import models
-from share.celery import TaskResultCleaner
+from share.celery import TaskResultCleaner, CeleryTaskResult
 
 from tests import factories
 
@@ -29,18 +28,18 @@ class TestResultArchiver:
 
     def test_delete_false(self):
         trc = TaskResultCleaner(datetime.timedelta(weeks=520), delete=False)
-        assert trc.delete_queryset(models.CeleryTaskResult.objects.all()) == 0
-        assert models.CeleryTaskResult.objects.count() != 0
+        assert trc.delete_queryset(CeleryTaskResult.objects.all()) == 0
+        assert CeleryTaskResult.objects.count() != 0
 
     def test_delete_queryset(self):
         trc = TaskResultCleaner(datetime.timedelta(weeks=520))
-        assert trc.delete_queryset(models.CeleryTaskResult.objects.all()) == 100
-        assert models.CeleryTaskResult.objects.count() == 0
+        assert trc.delete_queryset(CeleryTaskResult.objects.all()) == 100
+        assert CeleryTaskResult.objects.count() == 0
 
     def test_no_bucket(self):
         trc = TaskResultCleaner(datetime.timedelta(weeks=520), bucket=None)
         trc.put_s3 = mock.Mock()
-        trc.archive_queryset('name', models.CeleryTaskResult.objects.all())
+        trc.archive_queryset('name', CeleryTaskResult.objects.all())
         assert trc.put_s3.called is False
 
 #     @pytest.mark.parametrize('access_key, secret_key, folder_name, bucket_name', [
@@ -62,7 +61,7 @@ class TestResultArchiver:
         trc = TaskResultCleaner(0, bucket=mock.Mock())
         factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
         trc.archive()
-        assert models.CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
+        assert CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
         for call in mock_boto.resource('s3').Object.call_args_list:
             assert call[0][0] is trc.bucket
             assert isinstance(call[0][1], str)
@@ -71,13 +70,13 @@ class TestResultArchiver:
         trc = TaskResultCleaner(0, bucket=mock.Mock(), chunk_size=1)
         factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
         trc.archive()
-        assert models.CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
+        assert CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
         assert len(mock_boto.resource('s3').Object.call_args_list) >= 100
 
     def test_serialization(self):
         trc = TaskResultCleaner(0)
-        compressed = trc.compress_and_serialize(models.CeleryTaskResult.objects.all())
+        compressed = trc.compress_and_serialize(CeleryTaskResult.objects.all())
         reloaded = list(serializers.deserialize('json', bz2.decompress(compressed.getvalue())))
         assert len(reloaded) == 100
         for task in reloaded:
-            assert isinstance(task.object, models.CeleryTaskResult)
+            assert isinstance(task.object, CeleryTaskResult)

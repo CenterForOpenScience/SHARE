@@ -1,8 +1,8 @@
 
 from xml.sax.saxutils import unescape
-import datetime
 import json
 import logging
+import pendulum
 import re
 import requests
 
@@ -34,22 +34,6 @@ def prepare_string(s):
         # is already bleached. Unescape to escape extra escapes.
         return unescape(s)
     return s
-
-
-def parse_date(s):
-    if not s:
-        return None
-
-    # strptime can't parse +00:00
-    s = re.sub(r'\+(\d\d):(\d\d)', r'+\1\2', s)
-
-    for date_fmt in ('%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S.%f%z'):
-        try:
-            return datetime.datetime.strptime(s, date_fmt)
-        except ValueError:
-            pass
-    logger.error('Could not parse date "%s"', s)
-    return None
 
 
 class CreativeWorksRSS(Feed):
@@ -124,10 +108,10 @@ class CreativeWorksRSS(Feed):
         return prepare_string('{}{}'.format(author_name, ' et al.' if len(authors) > 1 else ''))
 
     def item_pubdate(self, item):
-        return parse_date(item.get('date_published'))
+        return pendulum.parse(item.get('date_published'))
 
     def item_updateddate(self, item):
-        return parse_date(item.get(self._order))
+        return pendulum.parse(item.get(self._order))
 
     def item_categories(self, item):
         categories = item.get('subjects', [])

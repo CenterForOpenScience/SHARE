@@ -2,7 +2,7 @@ import json
 import pytest
 from unittest.mock import patch
 
-from share.metadata_formats.sharev2_elastic import ShareV2ElasticFormatter, format_type
+from share.metadata_formats.sharev2_elastic import format_type
 
 from tests.share.metadata_formats.base import BaseMetadataFormatterTest
 
@@ -21,10 +21,15 @@ def fake_id_encode(obj):
 
 
 class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
-    @patch('share.util.IDObfuscator.encode', wraps=fake_id_encode)
-    def test_formatter(self, encode_mock, normalized_datum, expected_output):
-        actual_output = json.loads(ShareV2ElasticFormatter().format(normalized_datum))
-        assert actual_output == expected_output
+    @pytest.fixture(scope='class', autouse=True)
+    def patch_encode(self):
+        with patch('share.util.IDObfuscator.encode', wraps=fake_id_encode):
+            yield
+
+    def assert_formatter_outputs_equal(self, actual_output, expected_output):
+        assert json.loads(actual_output) == expected_output
+
+    formatter_key = 'sharev2_elastic'
 
     expected_outputs = {
         'mycorrhizas': {
