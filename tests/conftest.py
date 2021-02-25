@@ -14,6 +14,7 @@ from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
+from share.models import FormattedMetadataRecord
 from share.search import MessageType, SearchIndexer
 from share.search.elastic_manager import ElasticManager
 
@@ -176,9 +177,25 @@ def elastic_test_manager(settings, elastic_test_index_name):
 @pytest.fixture
 def index_records(elastic_test_manager):
 
-    def _index_records(formatted_records):
-        suid_ids = [fmr.suid_id for fmr in formatted_records]
+    def _index_records(normalized_graphs):
+        normalized_datums = [
+            factories.NormalizedDataFactory(
+                data=GraphBuilder()(ng).to_jsonld(),
+                raw=factories.RawDatumFactory(
+                    datum='',
+                ),
+            )
+            for ng in normalized_graphs
+        ]
+        suids = [nd.raw.suid for nd in normalized_datums]
+        for normd, suid in zip(normalized_datums, suids):
+            FormattedMetadataRecord.objects.save_formatted_records(
+                suid=suid,
+                record_formats=['sharev2_elastic'],
+                normalized_datum=normd,
+            )
         indexer = SearchIndexer(elastic_manager=elastic_test_manager)
-        indexer.handle_messages_sync(MessageType.INDEX_SUID, suid_ids)
+        indexer.handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
+        return normalized_datums
 
     return _index_records
