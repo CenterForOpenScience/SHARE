@@ -8,6 +8,7 @@ from share.models.ingest import SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import IngestJob
 from share.tasks import ingest
 from share.util.extensions import Extensions
+from share.util.osf import osf_sources
 
 
 CHUNK_SIZE = 2000
@@ -19,6 +20,7 @@ class Command(BaseShareCommand):
 
         source_config_group = parser.add_mutually_exclusive_group(required=True)
         source_config_group.add_argument('--source-config', '-c', action='append', help='format data from these source configs')
+        source_config_group.add_argument('--osf-source-configs', '-o', action='store_true', help='format data from OSF source configs')
         source_config_group.add_argument('--all-source-configs', '-a', action='store_true', help='format data from *all* source configs')
 
         parser.add_argument('--suid-start-id', '-s', type=int, default=0, help='resume based on the previous run\'s last successful suid')
@@ -54,12 +56,20 @@ class Command(BaseShareCommand):
 
     def get_source_config_ids(self, options):
         source_config_labels = options['source_config']
+        osf_source_configs = options['osf_source_configs']
         all_source_configs = options['all_source_configs']
 
         if all_source_configs:
             return tuple(SourceConfig.objects.filter(
                 disabled=False,
                 source__is_deleted=False,
+            ).values_list('id', flat=True))
+
+        if osf_source_configs:
+            return tuple(SourceConfig.objects.filter(
+                disabled=False,
+                source__is_deleted=False,
+                source__in=osf_sources(),
             ).values_list('id', flat=True))
 
         ids_and_labels = SourceConfig.objects.filter(
