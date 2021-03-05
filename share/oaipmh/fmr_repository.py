@@ -1,5 +1,7 @@
 import dateutil
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from share.models import FormattedMetadataRecord, Source, SourceUniqueIdentifier
 from share.oaipmh import errors as oai_errors
 from share.oaipmh.verbs import OAIVerb
@@ -63,8 +65,11 @@ class OaiPmhRepository:
             splid = identifier.split(self.IDENTIFER_DELIMITER)
             if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
                 raise InvalidID(identifier)
-            return IDObfuscator.resolve(splid[-1])
-        except (FormattedMetadataRecord.DoesNotExist, InvalidID):
+            suid = IDObfuscator.resolve(splid[-1])
+            if not isinstance(suid, SourceUniqueIdentifier):
+                raise InvalidID(identifier)
+            return suid
+        except (ObjectDoesNotExist, InvalidID):
             self.errors.append(oai_errors.BadRecordID(identifier))
             return None
 
@@ -115,6 +120,9 @@ class OaiPmhRepository:
 
     def _do_getrecord(self, kwargs, renderer):
         suid = self.resolve_oai_identifier(kwargs['identifier'])
+        if self.errors:
+            return
+
         record = FormattedMetadataRecord.objects.filter(
             suid=suid,
             record_format=self.FORMATS[kwargs['metadataPrefix']]['formatter_key'],

@@ -6,6 +6,7 @@ from lxml import etree
 
 from django.test.client import Client
 
+from share.models import SourceUniqueIdentifier, FormattedMetadataRecord
 from share.oaipmh.util import format_datetime
 from share.util import IDObfuscator
 
@@ -90,8 +91,10 @@ class TestOAIVerbs:
         ('GetRecord', {}, ['badArgument']),
         ('GetRecord', {'something': '{id}'}, ['badArgument']),
         ('GetRecord', {'identifier': '{id}'}, ['badArgument']),
+        ('GetRecord', {'identifier': 'oai:share.osf.io:DEADB-EEE-EEF'}, ['badArgument']),
         ('GetRecord', {'identifier': 'bad', 'metadataPrefix': 'oai_dc'}, ['idDoesNotExist']),
         ('GetRecord', {'identifier': '{id}', 'metadataPrefix': 'bad'}, ['cannotDisseminateFormat']),
+        ('GetRecord', {'identifier': 'oai:share.osf.io:DEADB-EEE-EEF', 'metadataPrefix': 'oai_dc'}, ['idDoesNotExist']),
         ('Identify', {'metadataPrefix': 'oai_dc'}, ['badArgument']),
         ('ListIdentifiers', {}, ['badArgument']),
         ('ListIdentifiers', {'something': '{id}'}, ['badArgument']),
@@ -107,6 +110,7 @@ class TestOAIVerbs:
         ('ListRecords', {'resumptionToken': 'token'}, ['badResumptionToken']),
         ('ListMetadataFormats', {'metadataPrefix': 'oai_dc'}, ['badArgument']),
         ('ListMetadataFormats', {'identifier': 'bad_identifier'}, ['idDoesNotExist']),
+        ('ListMetadataFormats', {'identifier': 'oai:share.osf.io:DEADB-EEE-EEF'}, ['idDoesNotExist']),
         ('ListSets', {'something': 'oai_dc'}, ['badArgument']),
         ('ListSets', {'resumptionToken': 'bad_token'}, ['badResumptionToken']),
     ])
@@ -114,8 +118,48 @@ class TestOAIVerbs:
         record_id = IDObfuscator.encode(oai_record.suid)
         data = {'verb': verb, **{k: v.format(id=record_id) for k, v in params.items()}}
         actual_errors = oai_request(data, post, expect_errors=True)
-        for error_code in errors:
-            assert any(e.attrib.get('code') == error_code for e in actual_errors)
+        actual_error_codes = {e.attrib.get('code') for e in actual_errors}
+        assert actual_error_codes == set(errors)
+
+    def test_subtly_wrong_identifiers(self, post, oai_record):
+        # obfuscated id points to the correct table, but a non-existent row
+        self._assert_bad_identifier(post, IDObfuscator.encode_id(
+            self._get_nonexistent_id(SourceUniqueIdentifier),
+            SourceUniqueIdentifier,
+        ))
+
+        # obfuscated id points to the wrong table, but an existing row
+        self._assert_bad_identifier(post, IDObfuscator.encode(oai_record))
+
+        # obfuscated id points to the wrong table, and a non-existent row
+        self._assert_bad_identifier(post, IDObfuscator.encode_id(
+            self._get_nonexistent_id(FormattedMetadataRecord),
+            FormattedMetadataRecord,
+        ))
+
+    def _get_nonexistent_id(self, model_class):
+        last_id = model_class.objects.order_by('-id').values_list('id', flat=True).first()
+        nonexistent_id = last_id + 1
+        assert not model_class.objects.filter(id=nonexistent_id).exists()
+        return nonexistent_id
+
+    def _assert_bad_identifier(self, post, bad_identifier):
+        full_bad_identifier = f'oai:share.osf.io:{bad_identifier}'
+        request_param_sets = [{
+            'verb': 'GetRecord',
+            'metadataPrefix': 'oai_dc',
+            'identifier': full_bad_identifier,
+        }, {
+            'verb': 'ListMetadataFormats',
+            'identifier': full_bad_identifier,
+        }]
+        for params in request_param_sets:
+            actual_errors = oai_request(params, post, expect_errors=True)
+            actual_error_codes = {
+                e.attrib.get('code')
+                for e in actual_errors
+            }
+            assert actual_error_codes == {'idDoesNotExist'}
 
 
 @pytest.mark.django_db

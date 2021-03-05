@@ -61,7 +61,15 @@ class IDObfuscator:
         if not match:
             raise InvalidID(id)
         model_id, *pks = match.groups()
-        return ContentType.objects.get(pk=int(model_id, 16)).model_class(), int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+
+        try:
+            model_class = ContentType.objects.get(pk=int(model_id, 16)).model_class()
+        except ContentType.DoesNotExist:
+            raise InvalidID(id)
+
+        obj_id = int(''.join(pks), 16) * cls.MOD_INV % cls.MOD
+
+        return (model_class, obj_id)
 
     @classmethod
     def decode_id(cls, id):
