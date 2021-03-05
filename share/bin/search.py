@@ -3,8 +3,11 @@ import threading
 from project.celery import app as celery_app
 
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 
 from share.bin.util import command
+from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
+from share.search import MessageType, SearchIndexer
 from share.search.daemon import SearchIndexerDaemon
 from share.search.elastic_manager import ElasticManager
 
@@ -64,6 +67,31 @@ def set_primary(args, argv):
     Usage: {0} search set_primary <index_name>
     """
     ElasticManager().update_primary_alias(args['<index_name>'])
+
+
+@search.subcommand('Queue daemon messages to reindex all suids')
+def reindex_all_suids(args, argv):
+    """
+    Usage: {0} search reindex_all_suids <index_name>
+
+    Most likely useful for a freshly `setup` index (perhaps after a purge).
+    """
+    # TODO check for a specific format of FMR, not just that *any* FMR exists
+    suid_id_queryset = (
+        SourceUniqueIdentifier.objects
+        .annotate(
+            has_fmr=Exists(
+                FormattedMetadataRecord.objects.filter(suid_id=OuterRef('id'))
+            )
+        )
+        .filter(has_fmr=True)
+        .values_list('id', flat=True)
+    )
+    SearchIndexer().send_messages(
+        message_type=MessageType.INDEX_SUID,
+        target_ids=suid_id_queryset,
+        index_names=[args['<index_name>']],
+    )
 
 
 @search.subcommand('Start the search indexing daemon')
