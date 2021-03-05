@@ -1,3 +1,4 @@
+import logging
 from contextlib import ExitStack
 
 from django.apps import apps
@@ -9,6 +10,9 @@ from share.search.messages import MessageType
 
 
 __all__ = ('SearchIndexer', 'MessageType')
+
+
+logger = logging.getLogger(__name__)
 
 
 class SearchIndexer:
@@ -72,6 +76,10 @@ class SearchIndexer:
 
         for index_name in index_names:
             index_setup = self.elastic_manager.get_index_setup(index_name)
+            if message_type not in index_setup.supported_message_types:
+                logger.error(f'skipping: {index_name} does not support {message_type}')
+                continue
+
             action_generator = index_setup.build_action_generator(index_name, message_type)
             elastic_actions = [
                 elastic_action
