@@ -1,5 +1,9 @@
 # Change Log
 
+# [21.0.2] - 2021-03-09
+- speed up `populate_osf_suids` -- exclude `NormalizedData` with null `raw`,
+  since they'll be ignored anyway
+
 # [21.0.1] - 2021-03-09
 - fix `populate_osf_suids` script to handle fun situations
 
