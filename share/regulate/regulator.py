@@ -34,8 +34,6 @@ class Regulator:
         self.job = ingest_job
         self._logs = []
 
-        logger.debug(f'>>> {ingest_job!r} -- initializing regulator')
-
         if ingest_job and not source_config:
             source_config = ingest_job.suid.source_config
 
@@ -51,7 +49,6 @@ class Regulator:
         )
 
     def regulate(self, graph):
-        logger.debug(f'>>> {self.job!r} -- regulating graph')
         try:
             self._custom_steps.run(graph)
             self._default_steps.run(graph)
@@ -99,7 +96,6 @@ class Steps:
     def _run_steps(self, graph, steps):
         for step in steps:
             try:
-                logger.debug(f'>>> {self.regulator.job!r} -- running regulator step {step.__class__.__name__}')
                 step.run(graph)
             finally:
                 if step.logs:
