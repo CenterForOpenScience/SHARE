@@ -34,6 +34,13 @@ class Fetcher:
     ORDER BY pks.ord;
     '''
 
+    DEFAULT_FETCHERS = {
+        'agent': 'share.search.fetchers.AgentFetcher',
+        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
+        'subject': 'share.search.fetchers.SubjectFetcher',
+        'tag': 'share.search.fetchers.TagFetcher',
+    }
+
     @classmethod
     def fetcher_for(cls, model, overrides=None):
         if not model._meta.concrete_model.__subclasses__():
@@ -41,7 +48,7 @@ class Fetcher:
         else:
             model_name = model._meta.concrete_model.__subclasses__()[0]._meta.model_name.lower()
         try:
-            fetcher_path = (overrides or {}).get(model_name) or settings.ELASTICSEARCH['DEFAULT_FETCHERS'][model_name]
+            fetcher_path = (overrides or {}).get(model_name) or cls.DEFAULT_FETCHERS[model_name]
         except KeyError:
             raise ValueError('No fetcher exists for {!r}'.format(model))
         module, _, name = fetcher_path.rpartition('.')

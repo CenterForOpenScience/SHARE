@@ -13,28 +13,30 @@ class IngestScheduler:
     """
 
     @transaction.atomic
-    def schedule(self, suid, raw_id=None, superfluous=False, claim=False):
+    def schedule(self, suid, superfluous=False, claim=False):
         """Get or create an IngestJob for the given suid.
 
         Params:
-            raw_id: ID for the specific raw datum to ingest. If omitted, uses the most recent.
+            suid: SourceUniqueIdentifier instance to ingest
             superfluous: If the job already exists and has completed, re-enqueue it.
             claim: Prevent the regularly scheduled `ingest` task from choosing this job.
         """
-        if raw_id is None:
+        job = suid.ingest_job
+        created = False
+        if job is None:
+            # TODO clean this up once ingest jobs and suids are one-to-one
             raw_id = self._last_raw_qs(suid).first()
-
-        job, created = IngestJob.objects.get_or_create(
-            raw_id=raw_id,
-            source_config_version=suid.source_config.version,
-            transformer_version=suid.source_config.transformer.version,
-            regulator_version=Regulator.VERSION,
-            defaults={
-                'claimed': claim,
-                'suid': suid,
-                'source_config': suid.source_config,
-            },
-        )
+            job, created = IngestJob.objects.get_or_create(
+                raw_id=raw_id,
+                source_config_version=suid.source_config.version,
+                transformer_version=suid.source_config.transformer.version,
+                regulator_version=Regulator.VERSION,
+                defaults={
+                    'claimed': claim,
+                    'suid': suid,
+                    'source_config': suid.source_config,
+                },
+            )
         if not created:
             job.claimed = claim
             if superfluous and job.status not in IngestJob.READY_STATUSES:

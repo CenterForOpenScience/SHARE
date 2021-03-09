@@ -1,13 +1,9 @@
 import re
-import collections
 
-from django.apps import apps
-
-from share.models import AbstractAgent, Person
 from share.regulate.steps import NodeStep
 from share.transform.chain.links import GuessAgentTypeLink
+from share.schema import ShareV2Schema
 from share.util import strip_whitespace
-from share.util import nameparser
 
 
 class NormalizeAgentNames(NodeStep):
@@ -20,66 +16,56 @@ class NormalizeAgentNames(NodeStep):
     ```
     """
     NULL_RE = re.compile(r'^(?:\s*(none|null|empty)\s*)?$', re.I)
-    NAME_PARTS = collections.OrderedDict([
-        ('first', 'given_name'),
-        ('middle', 'additional_name'),
-        ('last', 'family_name'),
-        ('suffix', 'suffix'),
-    ])
 
     def valid_target(self, node):
-        return node.model._meta.concrete_model is AbstractAgent
+        return node.concrete_type == 'abstractagent'
 
     def regulate_node(self, node):
-        if issubclass(node.model, Person):
+        if node.type == 'person':
             self._normalize_person(node)
         else:
             self._normalize_non_person(node)
 
     def _normalize_person(self, node):
-        attrs = node.attrs()
-        name = max(
-            ' '.join(filter(None, (
-                attrs.get(x, '')
-                for x in self.NAME_PARTS.values()
-            ))),
-            attrs.get('name', ''),
-            key=len
-        )
+        name = strip_whitespace(node['name'] or '')
+
+        if not name:
+            # try building the name from parts
+            name = strip_whitespace(' '.join((
+                node['given_name'] or '',
+                node['additional_name'] or '',
+                node['family_name'] or '',
+                node['suffix'] or '',
+            )))
+
+        if not name:
+            # try getting the name from "cited_as"
+            cited_as_names = [
+                relation['cited_as']
+                for relation in node['work_relations']
+                if relation['cited_as']
+            ]
+            if len(cited_as_names) == 1:
+                name = cited_as_names[0]
 
         if not name or self.NULL_RE.match(name):
             self.info('Discarding unnamed person', node.id)
             node.delete()
-            return
-
-        human = nameparser.HumanName(name)
-        for part_name, field_name in self.NAME_PARTS.items():
-            part = human[part_name]
-            if part:
-                node[field_name] = part.title()
-
-        node['name'] = ' '.join(filter(None, (
-            node[k] for k in self.NAME_PARTS.values()
-        )))
+        else:
+            node['name'] = name
 
     def _normalize_non_person(self, node):
-        # TODO reevaluate everything in this method
-
-        attrs = node.attrs()
-        name = attrs.get('name')
-
+        name = node['name']
         if not name or self.NULL_RE.match(name):
             self.info('Discarding unnamed agent', node.id)
             node.delete()
             return
 
-        # Slightly more intelligent title casing
-        name = re.sub(r'(?!for|and|the)\b[a-z]\w{2,}', lambda x: x.group().title(), name)
-
-        maybe_type = GuessAgentTypeLink(default=node.type).execute(name)
-        # If the new type is MORE specific, IE encompasses FEWER types, upgrade. Otherwise ignore
-        if len(apps.get_model('share', maybe_type).get_types()) < len(node.model.get_types()):
-            node.type = maybe_type
+        maybe_type_name = GuessAgentTypeLink(default=node.type).execute(name)
+        maybe_type = ShareV2Schema().get_type(maybe_type_name)
+        # If the new type is MORE specific, upgrade. Otherwise ignore
+        if maybe_type.distance_from_concrete_type > node.schema_type.distance_from_concrete_type:
+            node.type = maybe_type.name
 
         match = re.match(r'^(.*(?:Departa?ment|Institute).+?);(?: (.+?); )?([^;]+)$', name, re.I)
         if match:

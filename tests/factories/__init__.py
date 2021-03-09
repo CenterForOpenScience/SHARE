@@ -131,7 +131,15 @@ class RawDatumFactory(DjangoModelFactory):
         if 'sha256' not in attrs:
             attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
 
-        return super()._generate(create, attrs)
+        raw_datum = super()._generate(create, attrs)
+
+        # HACK: allow overriding auto_now_add on date_created
+        date_created = attrs.pop('date_created', None)
+        if date_created is not None:
+            raw_datum.date_created = date_created
+            raw_datum.save()
+
+        return raw_datum
 
 
 class HarvestJobFactory(DjangoModelFactory):
@@ -164,6 +172,18 @@ class IngestJobFactory(DjangoModelFactory):
     class Meta:
         model = models.IngestJob
 
+    @classmethod
+    def _generate(cls, create, attrs):
+        ingest_job = super()._generate(create, attrs)
+
+        # HACK: allow overriding auto_now_add on date_created
+        date_created = attrs.pop('date_created', None)
+        if date_created is not None:
+            ingest_job.date_created = date_created
+            ingest_job.save()
+
+        return ingest_job
+
 
 class CeleryTaskResultFactory(DjangoModelFactory):
     task_id = factory.Sequence(lambda x: uuid.uuid4())
@@ -194,3 +214,10 @@ class ThroughSubjectsFactory(ShareObjectFactory):
 
     class Meta:
         model = models.ThroughSubjects
+
+
+class FormattedMetadataRecordFactory(DjangoModelFactory):
+    suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+
+    class Meta:
+        model = models.FormattedMetadataRecord

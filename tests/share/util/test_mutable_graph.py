@@ -1,19 +1,28 @@
 import pytest
 
-from share.util.graph import MutableGraph
+from share.util.graph import MutableGraph, MutableGraphError
 
 
 work_id = '_:6203fec461bb4b3fa956772acbd9c50d'
 org_id = '_:d486fd737bea4fbe9566b7a2842651ef'
+uni_id = '_:d486fd737beeffbe9566b7a2842651ef'
 person_id = '_:f4cec0271c7d4085bac26dbb2b32a002'
 creator_id = '_:a17f28109536459ca02d99bf777400ae'
 identifier_id = '_:a27f2810e536459ca02d99bf707400be'
 
 
 @pytest.fixture
-def mutable_graph_nodes():
+def example_graph_nodes():
     return [
+        {'@id': uni_id, '@type': 'Institution', 'name': 'University of Whales'},
         {'@id': org_id, '@type': 'Organization', 'name': 'Department of Physics'},
+
+        {'@id': '_:org-uni', '@type': 'IsMemberOf', 'subject': {'@id': org_id, '@type': 'Organization'}, 'related': {'@id': uni_id, '@type': 'Institution'}},
+
+        {'@id': '_:tag1', '@type': 'Tag', 'name': 'you\'re'},
+        {'@id': '_:tag2', '@type': 'Tag', 'name': 'it'},
+        {'@id': '_:ttag1', '@type': 'ThroughTags', 'tag': {'@id': '_:tag1', '@type': 'Tag'}, 'creative_work': {'@id': work_id, '@type': 'Article'}},
+        {'@id': '_:ttag2', '@type': 'ThroughTags', 'tag': {'@id': '_:tag2', '@type': 'Tag'}, 'creative_work': {'@id': work_id, '@type': 'Article'}},
 
         {'@id': '_:c4f10e02785a4b4d878f48d08ffc7fce', 'related': {'@type': 'Organization', '@id': org_id}, '@type': 'IsAffiliatedWith', 'subject': {'@type': 'Person', '@id': '_:7e742fa3377e4f119e36f8629144a0bc'}},
         {'@id': '_:7e742fa3377e4f119e36f8629144a0bc', 'agent_relations': [{'@type': 'IsAffiliatedWith', '@id': '_:c4f10e02785a4b4d878f48d08ffc7fce'}], '@type': 'Person', 'family_name': 'Prendergast', 'given_name': 'David'},
@@ -42,39 +51,40 @@ def mutable_graph_nodes():
 
 
 @pytest.fixture
-def mutable_graph(mutable_graph_nodes):
-    return MutableGraph.from_jsonld(mutable_graph_nodes)
+def example_graph(example_graph_nodes):
+    return MutableGraph.from_jsonld(example_graph_nodes)
 
 
 class TestMutableGraph:
-    def test_graph(self, mutable_graph):
-        assert mutable_graph.number_of_nodes() == 19
+    def test_graph(self, example_graph):
+        assert example_graph.number_of_nodes() == 25
 
     @pytest.mark.parametrize('node_id', [work_id, org_id, person_id, creator_id])
-    def test_get_node(self, mutable_graph, node_id):
-        assert mutable_graph.get_node(node_id).id == node_id
+    def test_get_node(self, example_graph, node_id):
+        assert example_graph.get_node(node_id).id == node_id
 
-    def test_get_nonexistent_node(self, mutable_graph):
-        assert mutable_graph.get_node('not_an_id') is None
+    def test_get_nonexistent_node(self, example_graph):
+        assert example_graph.get_node('not_an_id') is None
 
-    def test_edge(self, mutable_graph):
-        creator_node = mutable_graph.get_node(creator_id)
-        assert creator_node['creative_work'] == mutable_graph.get_node(work_id)
-        assert creator_node['agent'] == mutable_graph.get_node(person_id)
+    def test_edge(self, example_graph):
+        creator_node = example_graph.get_node(creator_id)
+        assert creator_node['creative_work'] == example_graph.get_node(work_id)
+        assert creator_node['agent'] == example_graph.get_node(person_id)
 
     @pytest.mark.parametrize('node_id, key, value', [
         (work_id, 'title', 'title title'),
         (work_id, 'description', 'woo'),
         (identifier_id, 'creative_work', None),
+        (identifier_id, 'foo', 'bar'),
     ])
-    def test_set_attrs(self, mutable_graph, node_id, key, value):
-        n = mutable_graph.get_node(node_id)
+    def test_set_attrs(self, example_graph, node_id, key, value):
+        n = example_graph.get_node(node_id)
         n[key] = value
         assert n[key] == value
 
     @pytest.mark.parametrize('set_none', [True, False])
-    def test_del_attrs(self, mutable_graph, set_none):
-        work = mutable_graph.get_node(work_id)
+    def test_del_attrs(self, example_graph, set_none):
+        work = example_graph.get_node(work_id)
         assert work['title']
         if set_none:
             work['title'] = None
@@ -83,7 +93,7 @@ class TestMutableGraph:
         assert work['title'] is None
         assert 'title' not in work.attrs()
 
-        identifier = mutable_graph.get_node(identifier_id)
+        identifier = example_graph.get_node(identifier_id)
         assert identifier['creative_work'] == work
         if set_none:
             identifier['creative_work'] = None
@@ -95,32 +105,45 @@ class TestMutableGraph:
         (work_id, 'incoming_creative_work_relations', 0),
         (work_id, 'identifiers', 1),
         (org_id, 'incoming_agent_relations', 3),
+        (org_id, 'outgoing_agent_relations', 1),
     ])
-    def test_reverse_edge(self, mutable_graph, node_id, reverse_edge_name, count):
-        node = mutable_graph.get_node(node_id)
+    def test_reverse_edge(self, example_graph, node_id, reverse_edge_name, count):
+        node = example_graph.get_node(node_id)
         assert len(node[reverse_edge_name]) == count
 
-    @pytest.mark.parametrize('node_id, count', [
-        (work_id, 12),
-        (org_id, 15),
-        (person_id, 16),
-        (creator_id, 18),
+    @pytest.mark.parametrize('node_id, m2m_name, count', [
+        (work_id, 'related_agents', 5),
+        (work_id, 'related_works', 0),
+        (work_id, 'subjects', 0),
+        (work_id, 'tags', 2),
+        (org_id, 'related_works', 0),
+        (org_id, 'related_agents', 4),
     ])
-    def test_remove_node_cascades(self, mutable_graph, node_id, count):
-        mutable_graph.remove_node(node_id)
-        assert mutable_graph.number_of_nodes() == count
+    def test_many_to_many(self, example_graph, node_id, m2m_name, count):
+        node = example_graph.get_node(node_id)
+        assert len(node[m2m_name]) == count
 
-    def test_add_node(self, mutable_graph):
+    @pytest.mark.parametrize('node_id, count', [
+        (work_id, 16),
+        (org_id, 20),
+        (person_id, 22),
+        (creator_id, 24),
+    ])
+    def test_remove_node_cascades(self, example_graph, node_id, count):
+        example_graph.remove_node(node_id)
+        assert example_graph.number_of_nodes() == count
+
+    def test_add_node(self, example_graph):
         identifier_id = '_:foo'
         uri = 'mailto:person@example.com'
-        person = mutable_graph.get_node(person_id)
-        node_count = mutable_graph.number_of_nodes()
+        person = example_graph.get_node(person_id)
+        node_count = example_graph.number_of_nodes()
         assert len(person['identifiers']) == 0
 
-        mutable_graph.add_node(identifier_id, 'AgentIdentifier', {'uri': uri, 'agent': person})
+        example_graph.add_node(identifier_id, 'AgentIdentifier', {'uri': uri, 'agent': person})
 
-        assert mutable_graph.number_of_nodes() == node_count + 1
-        identifier_node = mutable_graph.get_node(identifier_id)
+        assert example_graph.number_of_nodes() == node_count + 1
+        identifier_node = example_graph.get_node(identifier_id)
         assert identifier_node['uri'] == uri
         assert identifier_node['agent'] == person
 
@@ -133,11 +156,11 @@ class TestMutableGraph:
         (0, lambda n, g: not g.degree(n.id)),
         (1, lambda n, g: len(g.out_edges(n.id)) == 1),
     ])
-    def test_filter_nodes(self, mutable_graph, filter, count):
-        filtered = list(mutable_graph.filter_nodes(lambda n: filter(n, mutable_graph)))
+    def test_filter_nodes(self, example_graph, filter, count):
+        filtered = list(example_graph.filter_nodes(lambda n: filter(n, example_graph)))
         assert len(filtered) == count
 
-    def test_jsonld(self, mutable_graph_nodes, mutable_graph):
+    def test_jsonld(self, example_graph_nodes, example_graph):
         def clean_jsonld(value):
             if isinstance(value, list):
                 return [clean_jsonld(n) for n in sorted(value, key=lambda n: n['@id'])]
@@ -147,4 +170,69 @@ class TestMutableGraph:
                     for k, v in value.items() if not isinstance(v, list)
                 }
             return value
-        assert clean_jsonld(mutable_graph_nodes) == clean_jsonld(mutable_graph.to_jsonld(in_edges=False))
+        expected_nodes = clean_jsonld(example_graph_nodes)
+        actual = example_graph.to_jsonld(in_edges=False)
+        actual_nodes = clean_jsonld(actual['@graph'])
+        assert expected_nodes == actual_nodes
+        assert actual['central_node_id'] is None
+
+
+class TestCentralWork:
+    def test_obvious_example(self, example_graph):
+        assert example_graph.central_node_id is None
+        assert example_graph.get_central_node() is None
+
+        guessed = example_graph.get_central_node(guess=True)
+        assert guessed.id == work_id
+        # side-effect: now the graph knows its central node
+        assert example_graph.central_node_id == work_id
+        assert example_graph.get_central_node() == guessed
+
+    def test_no_central_node(self):
+        graph = MutableGraph()
+        agent = graph.add_node(None, 'agent')
+        graph.add_node(None, 'agentidentifier', {'agent': agent})
+
+        assert graph.get_central_node() is None
+        assert graph.get_central_node(guess=True) is None
+        assert graph.central_node_id is None
+
+    def test_explicit_central_node(self):
+        central_id = '_:center'
+
+        graph = MutableGraph.from_jsonld({
+            'central_node_id': central_id,
+            '@graph': [
+                {'@id': central_id, '@type': 'creativework'},
+                {'@id': '_:other', '@type': 'creativework', 'title': 'looks like the center'},
+            ],
+        })
+        assert graph.central_node_id == central_id
+        assert graph.get_central_node().id == central_id
+        assert graph.get_central_node(guess=True).id == central_id
+
+    def test_ambiguous_central_node(self):
+        graph = MutableGraph.from_jsonld({
+            '@graph': [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
+            ],
+        })
+        with pytest.raises(MutableGraphError):
+            graph.get_central_node(guess=True)
+
+    def test_edges_matter(self):
+        graph = MutableGraph.from_jsonld({
+            '@graph': [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
+                {
+                    '@id': '_:tiebreaker',
+                    '@type': 'workidentifier',
+                    'uri': 'http://example.com/woo',
+                    'creative_work': {'@id': '_:thing2', '@type': 'creativework'},
+                },
+            ],
+        })
+        guessed = graph.get_central_node(guess=True)
+        assert guessed.id == '_:thing2'

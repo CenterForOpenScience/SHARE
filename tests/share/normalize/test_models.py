@@ -98,18 +98,24 @@ class TestModelNormalization:
     @pytest.mark.parametrize('input, output', [(i, o) for input, o in [
         ([
             Person(name='Smith, J'),
-            Person(name='J    Smith   '),
             Person(name='Smith,     J'),
+        ], Person(name='Smith, J')),
+        ([
+            Person(name='J    Smith   '),
+        ], Person(name='J Smith')),
+        ([
             Person(given_name='J', family_name='Smith'),
             Person(given_name='  J', family_name='\n\nSmith'),
         ], Person(name='J Smith', family_name='Smith', given_name='J')),
         ([
             Person(name='Johnathan James Doe'),
+        ], Person(name='Johnathan James Doe')),
+        ([
             Person(name='johnathan james doe'),
-        ], Person(name='Johnathan James Doe', family_name='Doe', given_name='Johnathan', additional_name='James')),
+        ], Person(name='johnathan james doe')),
         ([
             Person(name='johnathan james doe JR'),
-        ], Person(name='Johnathan James Doe Jr', family_name='Doe', given_name='Johnathan', additional_name='James', suffix='Jr')),
+        ], Person(name='johnathan james doe JR')),
         ([
             Person(name='none'),
             Person(name=''),
@@ -169,7 +175,7 @@ class TestModelNormalization:
             Person(name='Dylan, B', identifiers=[AgentIdentifier(1)]),
             Person(name='Barb Dylan', identifiers=[AgentIdentifier(1)]),
             Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])
-        ], [Person(name='Barb D. Dylan', identifiers=[AgentIdentifier(1)])]),
+        ], [Person(name='B. D. Dylan', identifiers=[AgentIdentifier(1)])]),
     ])
     def test_normalize_person_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(*input)
@@ -190,7 +196,7 @@ class TestModelNormalization:
         (Agent(name='DPTA'), Organization(name='DPTA')),
         (Agent(name='B. Verkin Institute for Low Temperatures Physics & Engineering, Kharkov, Ukraine'), Institution(name='B. Verkin Institute for Low Temperatures Physics & Engineering', location='Kharkov, Ukraine', type='institution')),
         (Agent(name='Physikalisches Institut, University Wuerzburg, Germany'), Agent(name='Physikalisches Institut', location='University Wuerzburg, Germany', type='institution')),
-        (Agent(name='Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'), Agent(name='UFRGS - Centro de Biotecnologia e Departamento de Biofísica', location='Av Bento Goncalves 9500, Predio 43431 Sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi')),
+        (Agent(name='Centro de Biotecnologia e Departamento de Biofísica; UFRGS; Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi'), Agent(name='UFRGS - Centro de Biotecnologia e Departamento de Biofísica', location='Av Bento Goncalves 9500, Predio 43431 sala 213 91501-970 Porto Alegre Rio Grande do Sul Brazi')),
         (Agent(name='Department of Chemistry; ZheJiang University; HangZhou ZheJiang CHINA'), Institution(name='ZheJiang University - Department of Chemistry', location='HangZhou ZheJiang CHINA')),
         (Agent(name='Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences; University of Groningen; Nijenborgh 7, 9747 AG Groningen The Netherlands'), Institution(name='University of Groningen - Marine Evolution and Conservation; Groningen Institute for Evolutionary Life Sciences', location='Nijenborgh 7, 9747 AG Groningen The Netherlands')),
         (Agent(name='Institute of Marine Research; PO Box 1870 Nordnes, 5817 Bergen Norway'), Institution(name='Institute of Marine Research', location='PO Box 1870 Nordnes, 5817 Bergen Norway')),
@@ -353,14 +359,14 @@ class TestModelNormalization:
             Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=0)])),
             Contributor(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, id=1)]))
+            Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)]))
         ]),
         # same identifier, different name, different type
         ([
             Creator(cited_as='B. Dylan', agent=Person(id=0, name='B. Dylan', identifiers=[AgentIdentifier(1, id=0)])),
             Contributor(cited_as='Bob Dylan', agent=Person(id=1, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-            Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', given_name='Bob', family_name='Dylan', identifiers=[AgentIdentifier(1, id=1)]))
+            Creator(cited_as='Bob Dylan', agent=Person(id=0, name='Bob Dylan', identifiers=[AgentIdentifier(1, id=1)]))
         ]),
         # same name, one identifier, add identifier
         ([
@@ -391,7 +397,13 @@ class TestModelNormalization:
         ([
             Creator(cited_as='', agent=Person(id=0, name='None', identifiers=[AgentIdentifier(1, id=1)])),
         ], [
-        ])
+        ]),
+        # Nameless agent with cited_as
+        ([
+            Creator(cited_as='Magpie', agent=Person(id=0, name='', identifiers=[AgentIdentifier(1, id=1)])),
+        ], [
+            Creator(cited_as='Magpie', agent=Person(id=0, name='Magpie', identifiers=[AgentIdentifier(1, id=1)])),
+        ]),
     ])
     def test_normalize_contributor_creator_relation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(CreativeWork(agent_relations=input))
@@ -443,19 +455,23 @@ class TestModelNormalization:
         assert graph == ExpectedGraph(CreativeWork(**output))
 
     @pytest.mark.parametrize('input, output', [
-        (input, Creator(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)
+        (input, Creator(cited_as='James Bond', agent=Person(name='James Bond')),)
         for input in [
             Creator(cited_as='   \t James\n Bond \t     ', agent=Person(name='James  Bond')),
             Creator(cited_as='', agent=Person(name='James  Bond')),
             Creator(cited_as='', agent=Person(name='James      Bond')),
-            Creator(cited_as='', agent=Person(given_name='James', family_name='Bond')),
         ]
     ] + [
-        (input, Contributor(cited_as='James Bond', agent=Person(name='James Bond', family_name='Bond', given_name='James')),)
+        (input, Contributor(cited_as='James Bond', agent=Person(name='James Bond')),)
         for input in [
             Contributor(cited_as='   \t James\n Bond \t     ', agent=Person(name='James  Bond')),
             Contributor(cited_as='', agent=Person(name='James  Bond')),
         ]
+    ] + [
+        (
+            Creator(cited_as='', agent=Person(given_name='James', family_name='Bond')),
+            Creator(cited_as='James Bond', agent=Person(name='James Bond', given_name='James', family_name='Bond')),
+        ),
     ])
     def test_normalize_agentworkrelation(self, input, output, Graph, ExpectedGraph):
         graph = Graph(input)

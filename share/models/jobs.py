@@ -111,8 +111,8 @@ class AbstractJobManager(models.Manager):
 
 class AbstractBaseJob(models.Model):
     STATUS = Choices(
-        (0, 'created', _('Enqueued')),
-        (1, 'started', _('In Progress')),
+        (0, 'created', _('Created')),
+        (1, 'started', _('Started')),
         (2, 'failed', _('Failed')),
         (3, 'succeeded', _('Succeeded')),
         (4, 'rescheduled', _('Rescheduled')),
@@ -302,7 +302,7 @@ class PGLock(models.Model):
 
 
 class LockableQuerySet(models.QuerySet):
-    LOCK_ACQUIRED = re.sub('\s\s+', ' ', '''
+    LOCK_ACQUIRED = re.sub(r'\s\s+', ' ', '''
         pg_try_advisory_lock(%s::REGCLASS::INTEGER, "{0.model._meta.db_table}"."{0.column}")
     ''').strip()
 
@@ -416,10 +416,6 @@ class IngestJob(AbstractBaseJob):
             from share.tasks import ingest
             ingest.delay(job_id=self.id)
         return result
-
-    def log_graph(self, field_name, graph):
-        setattr(self, field_name, graph.to_jsonld())
-        self.save(update_fields=(field_name, 'date_modified'))
 
     def __repr__(self):
         return '<{type}({id}, {status}, {source}, {suid})>'.format(

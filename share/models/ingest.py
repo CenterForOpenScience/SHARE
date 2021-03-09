@@ -10,6 +10,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
@@ -263,6 +264,23 @@ class SourceUniqueIdentifier(models.Model):
     class Meta:
         unique_together = ('identifier', 'source_config')
 
+    @property
+    def ingest_job(self):
+        """fetch the most recent IngestJob for this suid
+
+        (hopefully) temporary -- will be replaced by the inverse relation of a OneToOneField on IngestJob
+        """
+        return self.ingest_jobs.order_by(
+            Coalesce('date_started', 'date_created').desc(nulls_last=True)
+        ).first()
+
+    def most_recent_raw_datum(self):
+        """fetch the most recent RawDatum for this suid
+        """
+        return self.raw_data.order_by(
+            Coalesce('datestamp', 'date_created').desc(nulls_last=True)
+        ).first()
+
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
 
@@ -301,7 +319,7 @@ class RawDatumManager(FuzzyCountManager):
 
         Args:
             source_config (SourceConfig):
-            data Generator[(str, str)]: (identifier, datum)
+            data Generator[FetchResult]:
 
         Returns:
             Generator[RawDatum]

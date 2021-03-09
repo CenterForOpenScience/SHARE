@@ -73,7 +73,7 @@ class BiorxivHarvester(BaseHarvester):
                     el.extract()
 
                 # Links have PKs and dates in them. /content/early/YYYY/MM/DD/PK or /content/early/YYYY/MM/DD/PK.REV
-                identifier = re.match('/content/early/\d{4}/\d{2}/\d{2}/(\d+)(?:\.\d+)?$', link.decode()).group(1)
+                identifier = re.match(r'/content/early/\d{4}/\d{2}/\d{2}/(\d+)(?:\.\d+)?$', link.decode()).group(1)
 
                 yield identifier, str(soup)
 

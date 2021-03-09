@@ -63,7 +63,7 @@ class ChangeBuilder:
             logger.debug('No changes detected in {!r}, skipping.'.format(self.node))
             return None
 
-        model = self.node.model
+        model = apps.get_model('share', self.node.type)
 
         attrs = {
             'node_id': self.node.id,
@@ -89,10 +89,11 @@ class ChangeBuilder:
         return change
 
     def should_skip(self):
-        if not hasattr(self.node.model, 'VersionModel'):
+        model = apps.get_model('share', self.node.type)
+        if not hasattr(model, 'VersionModel'):
             # Non-ShareObjects (e.g. SubjectTaxonomy) cannot be changed.
             # Shouldn't reach this point...
-            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(self.node, self.node.model))
+            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(self.node, model))
             return True
 
         if self.instance:
@@ -145,7 +146,7 @@ class ChangeBuilder:
 
         ignore_attrs = self._get_ignore_attrs(attrs)
 
-        new_model = self.node.model
+        new_model = apps.get_model('share', self.node.type)
         old_model = type(self.instance)
         is_subject = new_model is apps.get_model('share', 'subject')
 
@@ -214,7 +215,8 @@ class ChangeBuilder:
     def _get_ignore_attrs(self, attrs):
         ignore_attrs = set()
 
-        if not issubclass(self.node.model, apps.get_model('share', 'creativework')):
+        model = apps.get_model('share', self.node.type)
+        if not issubclass(model, apps.get_model('share', 'creativework')):
             # Only work records get special treatment at the moment
             return ignore_attrs
 

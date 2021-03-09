@@ -1,8 +1,8 @@
 import json
-import uuid
 import pendulum
 from typing import Union
 
+from share.exceptions import IngestError
 from share.ingest.scheduler import IngestScheduler
 from share.models import RawDatum
 from share.models import SourceConfig
@@ -26,7 +26,7 @@ class Ingester:
 
     _config = None
 
-    def __init__(self, datum: Union[str, list, dict], datum_id: str = None, datestamp=None):
+    def __init__(self, datum: Union[str, list, dict], datum_id: str, datestamp=None):
         if isinstance(datum, str):
             self.datum = datum
         elif isinstance(datum, (list, dict)):
@@ -34,7 +34,10 @@ class Ingester:
         else:
             raise TypeError('datum must be a string or a json-serializable dict or list')
 
-        self.datum_id = datum_id or str(uuid.uuid4())
+        if not datum_id:
+            raise IngestError('Ingester requires a datum_id (for suid\'s sake)')
+
+        self.datum_id = datum_id
         self.datestamp = datestamp or pendulum.now()
 
     def with_config(self, config):

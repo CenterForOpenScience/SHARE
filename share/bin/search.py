@@ -1,16 +1,15 @@
-import json
-import logging
 import threading
 
-from project.celery import app
+from project.celery import app as celery_app
 
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 
 from share.bin.util import command
+from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
+from share.search import MessageType, SearchIndexer
 from share.search.daemon import SearchIndexerDaemon
-
-from bots.elasticsearch import tasks
-from bots.elasticsearch.bot import ElasticSearchBot
+from share.search.elastic_manager import ElasticManager
 
 
 @command('Manage Elasticsearch')
@@ -18,114 +17,97 @@ def search(args, argv):
     """
     Usage:
         {0} search <command> [<args>...]
-        {0} search [--help | --filter=FILTER | --all] [--async | --to-daemon] [options]
 
     Options:
         -h, --help           Show this screen.
-        -f, --filter=FILTER  Filter the queryset to be index using this filter. Must be valid JSON.
-        -a, --all            Index everything. Equivalent to --filter '{{"id__isnull": false}}'.
-        -u, --url=URL        The URL of Elasticsearch.
-        -i, --index=INDEX    The name of the Elasticsearch index to use.
-        -a, --async          Send an update_elasticsearch task to Celery.
-        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
 
     Commands:
     {1.subcommand_list}
 
     See '{0} search <command> --help' for more information on a specific command.
     """
-
-    if args['--filter']:
-        args['--filter'] = json.loads(args['--filter'])
-
-    if args['--all']:
-        args['--filter'] = {'id__isnull': False}
-
-    kwargs = {
-        'periodic': False,
-        'filter': args.get('--filter'),
-        'index': args.get('--index'),
-        'url': args.get('--url'),
-        'to_daemon': bool(args.get('--to-daemon')),
-        # 'models': args.get('--models'),
-    }
-
-    if args['--async']:
-        tasks.update_elasticsearch.apply_async((), kwargs)
-    else:
-        tasks.update_elasticsearch(**kwargs)
+    pass
 
 
 @search.subcommand('Drop the Elasticsearch index')
 def purge(args, argv):
     """
-    Usage: {0} search purge
-
-    NOT YET IMPLEMENTED
+    Usage: {0} search purge <index_names>...
     """
-    raise NotImplementedError()
-
-
-@search.subcommand('Synchronize the Elasticsearch index and database')
-def janitor(args, argv):
-    """
-    Usage: {0} search janitor [--dry | --async] [options]
-
-    Options:
-        -u, --url=URL        The URL of Elasticsearch.
-        -i, --index=INDEX    The name of the Elasticsearch index to use.
-        -d, --dry            Dry run the janitor task.
-        -t, --to-daemon      Index records by adding them to the indexer daemon's queue.
-    """
-    kwargs = {
-        'es_url': args.get('--url'),
-        'es_index': args.get('--index'),
-        'dry': bool(args['--dry']),
-        'to_daemon': bool(args['--to-daemon']),
-    }
-
-    if args['--async']:
-        tasks.elasticsearch_janitor.apply_async((), kwargs)
-    else:
-        tasks.elasticsearch_janitor(**kwargs)
+    for index_name in args['<index_names>']:
+        ElasticManager().delete_index(index_name)
 
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup [options]
-
-    Options:
-        -u, --url=URL        The URL of Elasticsearch.
-        -i, --index=INDEX    The name of the Elasticsearch index to use.
+    Usage: {0} search setup <index_name>
+           {0} search setup --initial
     """
-    ElasticSearchBot(es_url=args.get('--url'), es_index=args.get('--index')).setup()
+    is_initial = args.get('--initial')
+
+    if is_initial:
+        index_names = settings.ELASTICSEARCH['ACTIVE_INDEXES']
+    else:
+        index_names = [args['<index_name>']]
+
+    elastic_manager = ElasticManager()
+    for index_name in index_names:
+        print(f'creating elasticsearch index "{index_name}"...')
+        elastic_manager.create_index(index_name)
+
+    if is_initial:
+        primary_index = index_names[0]
+        elastic_manager.update_primary_alias(primary_index)
+
+
+@search.subcommand('Set the "primary" index used to serve search results')
+def set_primary(args, argv):
+    """
+    Usage: {0} search set_primary <index_name>
+    """
+    ElasticManager().update_primary_alias(args['<index_name>'])
+
+
+@search.subcommand('Queue daemon messages to reindex all suids')
+def reindex_all_suids(args, argv):
+    """
+    Usage: {0} search reindex_all_suids <index_name>
+
+    Most likely useful for a freshly `setup` index (perhaps after a purge).
+    """
+    # TODO check for a specific format of FMR, not just that *any* FMR exists
+    suid_id_queryset = (
+        SourceUniqueIdentifier.objects
+        .annotate(
+            has_fmr=Exists(
+                FormattedMetadataRecord.objects.filter(suid_id=OuterRef('id'))
+            )
+        )
+        .filter(has_fmr=True)
+        .values_list('id', flat=True)
+    )
+    SearchIndexer().send_messages(
+        message_type=MessageType.INDEX_SUID,
+        target_ids=suid_id_queryset,
+        index_names=[args['<index_name>']],
+    )
 
 
 @search.subcommand('Start the search indexing daemon')
 def daemon(args, argv):
     """
-    Usage: {0} search daemon [options]
-
-    Options:
-        -l, --log-level=LOGLEVEL  Set the log level [default: INFO]
+    Usage: {0} search daemon
     """
-    logging.getLogger('share.search.daemon').setLevel(args['--log-level'])
-    logging.getLogger('share.search.indexing').setLevel(args['--log-level'])
-
+    elastic_manager = ElasticManager()
     stop_event = threading.Event()
-    indexers = []
-    for index in settings.ELASTICSEARCH['ACTIVE_INDEXES']:
-        indexers.append(SearchIndexerDaemon(app.pool.acquire(block=True), index, stop_event=stop_event))
-
-    for indexer in indexers:
-        threading.Thread(target=indexer.run).start()
+    for index_name in settings.ELASTICSEARCH['ACTIVE_INDEXES']:
+        SearchIndexerDaemon.start_indexer_in_thread(celery_app, stop_event, elastic_manager, index_name)
 
     try:
         stop_event.wait()
     except KeyboardInterrupt:
-        pass
+        pass  # let the finally block stop all threads
     finally:
-        for indexer in indexers:
-            if not indexer.should_stop:
-                indexer.stop()
+        if not stop_event.is_set():
+            stop_event.set()

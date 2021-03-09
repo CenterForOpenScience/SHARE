@@ -1,8 +1,13 @@
+import logging
+
 from django.conf import settings
 
 from share import exceptions
 from share.models import RegulatorLog
 from share.util.extensions import Extensions
+
+
+logger = logging.getLogger(__name__)
 
 
 class RegulatorConfigError(exceptions.ShareException):

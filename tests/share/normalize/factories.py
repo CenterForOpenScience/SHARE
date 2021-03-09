@@ -17,7 +17,6 @@ from django.apps import apps
 
 from share import models
 from share.transform.chain.links import IRILink
-from share.util import nameparser
 from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 
@@ -63,7 +62,7 @@ class FactoryGraph(MutableGraph):
         jsonld = super().to_jsonld(*args, **kwargs)
         id_map = {
             node['@id']: '_:__{}'.format(i)
-            for i, node in enumerate(jsonld)
+            for i, node in enumerate(jsonld['@graph'])
         }
 
         def map_id(value):
@@ -73,7 +72,7 @@ class FactoryGraph(MutableGraph):
                 for v in value:
                     map_id(v)
 
-        for node in jsonld:
+        for node in jsonld['@graph']:
             for v in node.values():
                 map_id(v)
             map_id(node)
@@ -311,11 +310,6 @@ class AbstractAgentFactory(TypedGraphNodeFactory):
                 self[k]
                 for k in ['given_name', 'additional_name', 'family_name', 'suffix']
             )))
-        else:
-            human = nameparser.HumanName(name)
-            for hk, sk in [('first', 'given_name'), ('middle', 'additional_name'), ('last', 'family_name'), ('suffix', 'suffix')]:
-                if human[hk]:
-                    self[sk] = human[hk]
 
 
 class TagFactory(GraphNodeFactory):

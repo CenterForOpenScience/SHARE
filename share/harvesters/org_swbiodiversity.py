@@ -31,7 +31,7 @@ class SWHarvester(BaseHarvester):
 
         record_list = []
         for record in records:
-            record_content = re.findall('collid=(\d+)', record.get('href'))
+            record_content = re.findall(r'collid=(\d+)', record.get('href'))
             if record_content and record_content[0] not in record_list:
                 record_list.append(record_content[0])
         total = len(record_list)

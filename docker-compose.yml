@@ -1,88 +1,141 @@
 # Taken from https://github.com/CenterForOpenScience/osf.io/pull/6364/files#diff-4e5e90c6228fd48698d074241c2ba760R1
 # Install the Docker Client
-#
-# OSX: https://www.docker.com/products/docker#/mac
-# Windows: https://www.docker.com/products/docker#/windows
+# - https://www.docker.com/products/docker-desktop
 
-# Setup the Operation System
-#
-# OSX
-# - Alias the loopback interface
-#   sudo ifconfig lo0 alias 192.168.168.167
-#
-# Windows
-# - Install Microsoft Loopback Adapter (Windows 10 follow community comments as the driver was renamed)
-#   https://technet.microsoft.com/en-us/library/cc708322(v=ws.10).aspx
-# - Rename the new Loopback Interface (typically called 'Ethernet 2')
-#   - List interfaces
-#     netsh interface show interface
-#   - Rename the interface
-#     netsh inteface set interface "Ethernet 2" newname="Loopback"
-# - Assign the Loopback interface an IP address
-#   netsh interface ip add address "Loopback" 192.168.168.167 255.255.255.255
-# - Allow Docker to access to Drive your project is stored on
-#   Open the Docker Client -> Settings -> Shared Drives -> e.g. C -> Apply
+version: '3.4'
 
-version: '2'
+volumes:
+  postgres_data_vol:
+    external: false
+  elasticsearch_data_vol:
+    external: false
+  rabbitmq_vol:
+    external: false
+  share_vol:
+    external: false
+  share_dist_vol:
+    external: false
+  share_requirements_vol:
+    external: false
+
 services:
+
+
+  ####################
+  # Backend Services #
+  ####################
+
   elasticsearch:
     image: elasticsearch:5.4
     ports:
-      - 9200:9200
+      - 9203:9200
     environment:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data_vol:/usr/share/elasticsearch/data
+    stdin_open: true
 
   rabbitmq:
     image: rabbitmq:management
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 5673:5672
+      - 15673:15672
+    volumes:
+      - rabbitmq_vol:/var/lib/rabbitmq
+    stdin_open: true
 
   postgres:
-    image: postgres
-    command: /bin/bash -c "sed -i -e 's/max_connections.*/max_connections = 5000/' /var/lib/postgresql/data/postgresql.conf || true && sed -i -e 's/#log_min_duration_statement = .*/log_min_duration_statement = 0/' /var/lib/postgresql/data/postgresql.conf || true && /docker-entrypoint.sh postgres"
+    image: postgres:10
+    command:
+      - /bin/bash
+      - -c
+      - echo "$$POSTGRES_INITDB" > /docker-entrypoint-initdb.d/commands.sh &&
+        chmod +x /docker-entrypoint-initdb.d/commands.sh &&
+        /docker-entrypoint.sh postgres
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       POSTGRES_DB: share
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB: |
+        sed -i -e 's/max_connections.*/max_connections = 5000/' /var/lib/postgresql/data/postgresql.conf
+        sed -i -e 's/#log_min_duration_statement = .*/log_min_duration_statement = 0/' /var/lib/postgresql/data/postgresql.conf
+    volumes:
+      - "${POSTGRES_DATA_VOL:-postgres_data_vol}:/var/lib/postgresql/data/"
+    stdin_open: true
+
+  ##################
+  # SHARE software #
+  ##################
+
+  requirements:
+    image: quay.io/centerforopenscience/share:develop
+    command:
+      - /bin/bash
+      - -c
+      - pip install -r requirements.txt -r dev-requirements.txt &&
+        (python3 -m compileall /usr/local/lib/python3.6 || true) &&
+        rm -Rf /python3.6/* &&
+        cp -Rf -p /usr/local/lib/python3.6 / &&
+        python3 setup.py develop
+    restart: 'no'
+    volumes:
+      - ./:/code:cached
+      - share_requirements_vol:/python3.6
+
+  frontend:
+    image: quay.io/centerforopenscience/share-web:develop-local
+    command: yarn start
+    ports:
+      - 4204:4200
+    volumes:
+      - share_dist_vol:/code/dist
+    stdin_open: true
 
   worker:
-    build: .
-    command: python manage.py celery worker -l DEBUG
+    image: quay.io/centerforopenscience/share:develop
+    command: /usr/local/bin/celery worker -l INFO --app project --uid daemon
     depends_on:
       - postgres
       - rabbitmq
       - web
-    links:
-      - rabbitmq
-      - postgres
-      - web
       - elasticsearch
+      - indexer
     volumes:
-      - ./:/code
-    environment:
-      DATABASE_HOST: postgres
-      BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-      SHARE_API_URL: http://web:8000/
-      ELASTICSEARCH_URL: http://elasticsearch:9200/
+      - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.6
+    env_file:
+      - .docker-compose.env
+    stdin_open: true
 
   web:
-    build: .
+    image: quay.io/centerforopenscience/share:develop
     command: python manage.py runserver --noreload 0.0.0.0:8000
     ports:
-      - 8000:8000
+      - 8003:8000
     depends_on:
       - postgres
       - rabbitmq
       - elasticsearch
-    links:
+      - frontend
+    volumes:
+      - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.6
+    env_file:
+      - .docker-compose.env
+    stdin_open: true
+
+  indexer:
+    image: quay.io/centerforopenscience/share:develop
+    command: sharectl search daemon
+    depends_on:
       - postgres
       - rabbitmq
       - elasticsearch
     volumes:
-      - ./:/code
-    environment:
-      DATABASE_HOST: postgres
-      BROKER_URL: amqp://guest:guest@rabbitmq:5672/
-      ELASTICSEARCH_URL: http://elasticsearch:9200/
-      EMBER_SHARE_URL: http://192.168.168.167:4200
+      - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.6
+    env_file:
+      - .docker-compose.env
+    stdin_open: true
+

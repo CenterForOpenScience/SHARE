@@ -121,7 +121,7 @@ class Preprint(Parser):
             agent_email = next((x for x in emails if agent in x), None)
 
             if agent_email:
-                agent_object['email'] = re.compile('\((\S+?)\)').search(agent_email).group(1)
+                agent_object['email'] = re.compile(r'\((\S+?)\)').search(agent_email).group(1)
             agent_objects.append(agent_object)
 
         return agent_objects

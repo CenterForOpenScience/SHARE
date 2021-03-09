@@ -18,9 +18,11 @@ from share.models import (
     NormalizedData,
     RawDatum,
 )
+from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import SearchIndexer
+from share.search.messages import MessageType
 from share.util import chunked
 from share.util.graph import MutableGraph
 
@@ -58,7 +60,9 @@ class JobConsumer:
                 Used to prevent a backlog. If we have a valid job, spin off another task to eat through
                 the rest of the queue.
             ignore_disabled (bool, optional): Consume jobs from disabled source configs and/or deleted sources. Defaults to False.
-            superfluous (bool, optional): Re-ingest Rawdata that we've already collected. Defaults to False.
+            superfluous (bool, optional): Consuming a job should be idempotent, and subsequent runs may
+                skip doing work that has already been done. If superfluous=True, however, will do all
+                work whether or not it's already been done. Default False.
             force (bool, optional):
         Additional keyword arguments passed to _consume_job, along with superfluous and force
         """
@@ -289,63 +293,67 @@ class IngestJobConsumer(JobConsumer):
             )
         return qs
 
-    def _prepare_job(self, job, *args, **kwargs):
-        # TODO think about getting rid of these triangles -- infer source config from suid?
-        assert job.suid_id == job.raw.suid_id
-        assert job.source_config_id == job.suid.source_config_id
-
-        if job.raw.datestamp and self.Job.objects.filter(
-                status__in=job.READY_STATUSES,
-                suid=job.suid,
-                raw__datestamp__gt=job.raw.datestamp
-        ).exists():
-            job.skip(job.SkipReasons.pointless)
-            return False
-
-        return super()._prepare_job(job, *args, **kwargs)
-
-    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False):
+    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
+                     pls_format_metadata=True, metadata_formats=None):
         datum = None
+        graph = None
+
+        most_recent_raw = job.suid.most_recent_raw_datum()
 
         # Check whether we've already done transform/regulate
         if not superfluous:
-            datum = job.ingested_normalized_data.order_by('-created_at').first()
+            datum = job.ingested_normalized_data.filter(raw=most_recent_raw).order_by('-created_at').first()
 
         if superfluous or datum is None:
-            graph = self._transform(job)
+            graph = self._transform(job, most_recent_raw)
             if not graph:
                 return
             graph = self._regulate(job, graph)
             if not graph:
                 return
             datum = NormalizedData.objects.create(
-                data={'@graph': graph.to_jsonld()},
+                data=graph.to_jsonld(),
                 source=job.suid.source_config.source.user,
-                raw=job.raw,
+                raw=most_recent_raw,
             )
             job.ingested_normalized_data.add(datum)
-        else:
-            graph = MutableGraph.from_jsonld(datum.data)
 
-        if apply_changes:
+        # new Suid-based process
+        if pls_format_metadata:
+            records = FormattedMetadataRecord.objects.save_formatted_records(
+                job.suid,
+                record_formats=metadata_formats,
+                normalized_datum=datum,
+            )
+            # TODO consider whether to handle the possible but rare-to-nonexistent case where
+            # `records` is empty this time but there were records in the past -- would need to
+            # remove the previous from the index
+            if records and index:
+                self._queue_for_indexing(job.suid, urgent)
+
+        # soon-to-be-rended ShareObject-based process:
+        if settings.SHARE_LEGACY_PIPELINE and apply_changes:
+            if graph is None:
+                graph = MutableGraph.from_jsonld(datum.data)
             updated_work_ids = self._apply_changes(job, graph, datum)
             if index and updated_work_ids:
                 self._update_index(updated_work_ids, urgent)
 
-    def _transform(self, job):
+    def _transform(self, job, raw):
         transformer = job.suid.source_config.get_transformer()
+
         try:
-            graph = transformer.transform(job.raw)
+            graph = transformer.transform(raw)
         except exceptions.TransformError as e:
             job.fail(e)
             return None
 
         if not graph:
-            if not job.raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_output to True', job.raw)
-                RawDatum.objects.filter(id=job.raw_id).update(no_output=True)
+            if not raw.normalizeddata_set.exists():
+                logger.warning('Graph was empty for %s, setting no_output to True', raw)
+                RawDatum.objects.filter(id=raw.id).update(no_output=True)
             else:
-                logger.warning('Graph was empty for %s, but a normalized data already exists for it', job.raw)
+                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
             return None
 
         return graph
@@ -357,6 +365,10 @@ class IngestJobConsumer(JobConsumer):
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
+
+    def _queue_for_indexing(self, suid, urgent):
+        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
+        indexer.send_messages(MessageType.INDEX_SUID, [suid.id], urgent=urgent)
 
     def _apply_changes(self, job, graph, normalized_datum):
         updated = None
@@ -377,7 +389,7 @@ class IngestJobConsumer(JobConsumer):
                     matches = change_set_builder.matches
 
         # Retry if it was just the wrong place at the wrong time
-        except (exceptions.IngestConflict, OperationalError) as e:
+        except (exceptions.IngestConflict, OperationalError):
             job.retries = (job.retries or 0) + 1
             job.save(update_fields=('retries',))
             if job.retries > self.MAX_RETRIES:

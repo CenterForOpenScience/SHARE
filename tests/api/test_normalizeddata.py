@@ -106,11 +106,58 @@ class TestPostNormalizedData:
             'data': {
                 'type': 'NormalizedData',
                 'attributes': {
+                    'suid': 'jim',
                     'data': {
                         '@graph': [{
                             '@id': '_:100',
                             '@type': 'Person',
                             'given_name': 'Jim',
+                        }]
+                    }
+                }
+            }
+        })
+    }, {
+        'out': Response(202, keys={'data'}),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@id': '_:100',
+                            '@type': 'CreativeWork',
+                            'title': 'Jim',
+                        }, {
+                            '@id': '_:101',
+                            '@type': 'WorkIdentifier',
+                            'creative_work': {'@type': 'CreativeWork', '@id': '_:100'},
+                            # a recognizable OSF guid means no suid is required
+                            'uri': 'https://osf.io/jimbo',
+                        }]
+                    }
+                }
+            }
+        })
+    }, {
+        'out': Response(400, json={
+            'errors': [
+                {
+                    'detail': "'suid' is a required attribute",
+                    'source': {'pointer': '/data'},
+                    'status': '400'
+                }
+            ]
+        }),
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {
+                    'data': {
+                        '@graph': [{
+                            '@id': '_:100',
+                            '@type': 'CreativeWork',
+                            'title': 'Jim',
                         }]
                     }
                 }
@@ -130,6 +177,7 @@ class TestPostNormalizedData:
             'data': {
                 'type': 'NormalizedData',
                 'attributes': {
+                    'suid': 'jim',
                     'data': {
                         '@graph': [{
                             '@type': 'Person',

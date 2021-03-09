@@ -298,40 +298,40 @@ STATICFILES_FINDERS = (
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-    'INDEX': os.environ.get('ELASTIC_SEARCH_INDEX', 'share'),
+    'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 25)),
-    'DEFAULT_FETCHERS': {
-        'agent': 'share.search.fetchers.AgentFetcher',
-        'creativework': 'share.search.fetchers.CreativeWorkFetcher',
-        'subject': 'share.search.fetchers.SubjectFetcher',
-        'tag': 'share.search.fetchers.TagFetcher',
-    },
-    'QUEUE_SETTINGS': {
+    'KOMBU_QUEUE_SETTINGS': {
         'serializer': 'json',
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    # NOTE: mappings will have to be created BEFORE the daemon starts
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_customtax_1'), ','),
+    # NOTE: "active" indexes will receive new records from the indexer daemon -- be sure they're set up first
+    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_postrend_backcompat'), ','),
+    # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
     'INDEXES': {
         'share_v3': {
             'DEFAULT_QUEUE': 'es-triton-share',
             'URGENT_QUEUE': 'es-triton-share.urgent',
+            'INDEX_SETUP': 'share_classic',
         },
         'share_customtax_1': {
             'DEFAULT_QUEUE': 'es-share',
             'URGENT_QUEUE': 'es-share.urgent',
-        }
+            'INDEX_SETUP': 'share_classic',
+        },
+        'share_postrend_backcompat': {
+            'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
+            'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
+            'INDEX_SETUP': 'postrend_backcompat',
+        },
+        # 'trove_v0': {
+        #     'DEFAULT_QUEUE': 'es-trove-v0',
+        #     'URGENT_QUEUE': 'es-trove-v0.urgent',
+        #     'INDEX_SETUP': 'trove_v0',
+        # },
     },
-}
-
-INDEXABLE_MODELS = {
-    'agent': 'Agent',
-    'creativework': 'CreativeWork',
-    'subject': 'Subject',
-    'tag': 'Tag',
 }
 
 # Seconds, not an actual celery settings
@@ -352,11 +352,6 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
-    # Once a minute
-    'Update Search': {
-        'task': 'bots.elasticsearch.tasks.update_elasticsearch',
-        'schedule': 60,
-    },
     # Every 2 minutes
     'Harvest Task': {
         'task': 'share.tasks.harvest',
@@ -366,11 +361,6 @@ CELERY_BEAT_SCHEDULE = {
     'Ingest Task': {
         'task': 'share.tasks.ingest',
         'schedule': 120,
-    },
-    # Executes daily at 11:30 P.M
-    'Elasticsearch Janitor': {
-        'task': 'bots.elasticsearch.tasks.elasticsearch_janitor',
-        'schedule': crontab(hour=23, minute=30),
     },
     # Executes daily at 10:30 P.M
     'IngestJob Janitor': {
@@ -489,11 +479,6 @@ LOGGING = {
             'level': LOG_LEVEL,
             'propagate': False
         },
-        'share.search.daemon': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -543,7 +528,7 @@ SHARE_LIMITS = {
     'MAX_AGENT_RELATIONS': 500,
 }
 
-OSF_API_URL = os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
+OSF_API_URL = os.environ.get('OSF_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
@@ -556,7 +541,8 @@ SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress
 SUBJECTS_YAML = 'share/subjects.yaml'
 SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
 
-SHARE_LEGACY_PIPELINE = os.environ.get('SHARE_LEGACY_PIPELINE', True)
+# if false, will skip disambiguation, building ChangeSets, and updating ShareObjects
+SHARE_LEGACY_PIPELINE = strtobool(os.environ.get('SHARE_LEGACY_PIPELINE', 'True'))
 
 HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
 
@@ -574,6 +560,7 @@ SHARE_REGULATOR_CONFIG = {
         }),
         ('normalize_iris', {
             'node_types': ['agentidentifier'],
+            'blocked_schemes': ['mailto'],
         }),
         ('trim_cycles', {
             'node_types': ['abstractworkrelation', 'abstractagentrelation'],

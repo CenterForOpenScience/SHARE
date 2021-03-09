@@ -4,8 +4,8 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
-from share.models.jobs import AbstractBaseJob
+from share.admin.util import FuzzyPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
+from share.models.jobs import AbstractBaseJob, IngestJob
 from share.tasks import ingest
 
 
@@ -20,11 +20,6 @@ STATUS_COLORS = {
     AbstractBaseJob.STATUS.retried: 'darkseagreen',
     AbstractBaseJob.STATUS.cancelled: 'grey',
 }
-
-
-def readonly_link(obj, display_str=None):
-    url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.id])
-    return format_html('<a href="{}">{}</a>', url, display_str or str(obj))
 
 
 @linked_fk('source_config')
@@ -45,12 +40,6 @@ class BaseJobAdmin(admin.ModelAdmin):
 
     def source_config_(self, obj):
         return obj.source_config.label
-
-    def restart_tasks(self, request, queryset):
-        queryset.update(status=AbstractBaseJob.STATUS.created)
-        for job_id in queryset.values_list('id', flat=True):
-            ingest.delay(job_id=job_id)
-    restart_tasks.short_description = 'Re-enqueue'
 
 
 class HarvestJobAdmin(BaseJobAdmin):
@@ -73,16 +62,38 @@ class HarvestJobAdmin(BaseJobAdmin):
 
 
 @linked_fk('suid')
-@linked_fk('raw')
 @linked_many(
     'ingested_normalized_data',
     order_by=['-created_at'],
     select_related=['source'],
 )
 class IngestJobAdmin(BaseJobAdmin):
+    actions = ('reingest', 'reingest_without_shareobject', )
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'error_type', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
-    readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries')
+    readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries', 'most_recent_suid_raw',)
+    search_fields = ['=id', '=suid__identifier']
 
     def suid_(self, obj):
         return obj.suid.identifier
+
+    def most_recent_suid_raw(self, obj):
+        return admin_link(obj.suid.most_recent_raw_datum())
+
+    def reingest(self, request, queryset):
+        self._enqueue_tasks(queryset)
+    reingest.short_description = 'Re-ingest'
+
+    def reingest_without_shareobject(self, request, queryset):
+        self._enqueue_tasks(queryset, {'apply_changes': False})
+    reingest_without_shareobject.short_description = 'Re-ingest (skipping ShareObject)'
+
+    def _enqueue_tasks(self, job_queryset, task_kwargs=None):
+        # grab the ids once, use them twice
+        job_ids = list(job_queryset.values_list('id', flat=True))
+
+        IngestJob.objects.filter(id__in=job_ids).update(
+            status=AbstractBaseJob.STATUS.created
+        )
+        for job_id in job_ids:
+            ingest.delay(job_id=job_id, **(task_kwargs or {}))

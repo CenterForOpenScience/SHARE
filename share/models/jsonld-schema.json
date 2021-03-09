@@ -42,6 +42,11 @@
           ]
         }
       }
+    },
+
+    "central_node_id": {
+      "description": "@id of the central node",
+      "type": ["string", "null"]
     }
   }
 }

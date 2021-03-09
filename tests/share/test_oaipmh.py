@@ -121,7 +121,7 @@ class TestOAIVerbs:
 class TestOAILists:
 
     def test_full_list(self, oai_works, post, verb, page_size, monkeypatch):
-        monkeypatch.setattr('share.oaipmh.repository.OAIRepository.PAGE_SIZE', page_size)
+        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
         self._assert_full_list(verb, {}, post, len(oai_works), page_size)
 
     @pytest.mark.parametrize('from_date, to_date, expected_count', [
@@ -132,7 +132,7 @@ class TestOAILists:
         (pendulum.now().subtract(days=1), pendulum.now().add(days=1), 17),
     ])
     def test_filter_date(self, oai_works, post, verb, page_size, monkeypatch, from_date, to_date, expected_count):
-        monkeypatch.setattr('share.oaipmh.repository.OAIRepository.PAGE_SIZE', page_size)
+        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
         params = {}
         if from_date:
             params['from'] = format_datetime(from_date)
@@ -142,7 +142,7 @@ class TestOAILists:
 
     @pytest.mark.parametrize('expected_count', range(0, 17, 6))
     def test_filter_set(self, oai_works, post, verb, page_size, monkeypatch, expected_count):
-        monkeypatch.setattr('share.oaipmh.repository.OAIRepository.PAGE_SIZE', page_size)
+        monkeypatch.setattr('share.oaipmh.legacy.repository.OAIRepository.PAGE_SIZE', page_size)
         source = models.Source.objects.select_related('user').first()
         for work in random.sample(oai_works, expected_count):
             work.sources.add(source.user)

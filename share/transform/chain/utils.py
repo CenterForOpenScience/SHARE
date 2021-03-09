@@ -123,9 +123,9 @@ def get_emails(s):
     # Removing lines that start with '//' because the regular expression
     # mistakenly matches patterns like 'http://foo@bar.com' as '//foo@bar.com'.
     # Adopted from code by Dennis Ideler ideler.dennis@gmail.com
-    regex = re.compile(("([a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`"
-                        "{|}~-]+)*(@|\sat\s)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(\.|"
-                        "\sdot\s))+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)"))
+    regex = re.compile((r"([a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`"
+                        r"{|}~-]+)*(@|\sat\s)(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(\.|"
+                        r"\sdot\s))+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)"))
     s = s.lower()
     result = re.findall(regex, s)
     if result:

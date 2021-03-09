@@ -71,9 +71,13 @@ class GraphStrategy(MatchingStrategy):
 
     def _graph_nodes(self, model, allowed_models=None):
         if allowed_models is None:
-            return self.graph.filter_by_concrete_model(model._meta.concrete_model)
+            return self.graph.filter_by_concrete_type(model._meta.concrete_model._meta.model_name)
         else:
+            allowed_model_names = {
+                allowed_model._meta.model_name.lower()
+                for allowed_model in allowed_models
+            }
             return filter(
-                lambda n: n.model in allowed_models,
+                lambda n: n.type in allowed_model_names,
                 self.graph,
             )
