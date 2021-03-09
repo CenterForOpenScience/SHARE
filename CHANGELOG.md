@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.0.1] - 2021-03-09
+- fix `populate_osf_suids` script to handle fun situations
+
 # [21.0.0] - 2021-03-09
 - new model: `FormattedMetadataRecord`
 - new sharectl commands:
