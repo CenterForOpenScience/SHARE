@@ -48,6 +48,7 @@ def update_old_suid_raws(old_suid, new_suid):
 def get_normd_ids(start_id):
     normd_id_qs = NormalizedData.objects.filter(
         id__gte=start_id,
+        raw__isnull=False,
         source__in=ShareUser.objects.filter(source__in=osf_sources())
     ).order_by('id').values_list('id', flat=True)
     return list(normd_id_qs[:CHUNK_SIZE])
