@@ -1,5 +1,45 @@
 # Change Log
 
+# [21.0.0] - 2021-03-09
+- new model: `FormattedMetadataRecord`
+- new sharectl commands:
+    - `sharectl search purge`
+    - `sharectl search setup <index_name>`
+    - `sharectl search setup --initial`
+    - `sharectl search set_primary <index_name>`
+    - `sharectl search reindex_all_suids <index_name>`
+- new management commands:
+    - `format_metadata_records`
+    - `populate_osf_suids`
+- new doc: `README-docker-quickstart.md` -- the easy way to get started
+- define the "share schema" statically (in `share.schema`)
+    - stop inferring everything from the `ShareObject` models
+- add a parallel ingestion path, preparing for a future without `ShareObject`
+    - use only the most recent `NormalizedData` for each suid (no merging)
+    - allow explicitly stating the suid when pushing a `NormalizedData`
+        - if not specified, try looking for an OSF guid
+    - build a `FormattedMetadataRecord` for each metadata format
+    - currently two metadata formatters (and room for more):
+        - `sharev2_elastic`: for a back-compatible elasticsearch index -- builds
+          a document just like `share.search.fetchers.CreativeWorkFetcher`, but
+          from a `NormalizedData` instead of all the `ShareObject` tables
+        - `oai_dc`: dublin core XML, for the OAI-PMH feed
+- indexer daemon overhaul
+    - assorted cleanup; dead/useless code removal
+    - add `ElasticManager` to encapsulate all requests sent to elasticsearch
+    - add `IndexSetup` concept to describe how to get/build documents for an
+      index and what messages to send to that index's daemon
+    - currently two index setups:
+        - `share_classic`: index by `AbstractCreativeWork` id, using existing
+          `share.search.fetchers` logic
+        - `postrend_backcompat`: index by `SourceUniqueIdentifier` id, using
+          the `sharev2_elastic` `FormattedMetadataRecord`s
+- add a parallel OAI-PMH that uses `FormattedMetadataRecord` with `oai_dc`
+    - remains dormant for the moment -- enable with `pls_trove` query param
+    - NOTE: when we switch over, OAI-PMH datestamps will all be new and recent
+- admin updates:
+    - search `IngestJob` by suid value
+
 # [20.2.0] - 2020-09-03
 - Add a decorator for marking views deprecated
 - Mark some views deprecated
