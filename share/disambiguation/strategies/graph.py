@@ -60,6 +60,7 @@ class GraphStrategy(MatchingStrategy):
             matches = [
                 n for n in graph_nodes
                 if n != node
+                and n['parent'] == node['parent']
                 and n['central_synonym'] == node['central_synonym']
                 and (equal_not_none(n['uri'], node['uri']) or equal_not_none(n['name'], node['name']))
             ]
