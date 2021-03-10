@@ -142,25 +142,6 @@ class MutableGraph(nx.DiGraph):
             return MutableNode(self, node_id)
         return None
 
-    def get_central_node(self, guess=False):
-        if guess and self.central_node_id is None:
-            work_nodes = self.filter_by_concrete_type('abstractcreativework')
-            if work_nodes:
-                # get the work node with the most attrs+relations
-                work_nodes.sort(
-                    key=lambda n: n._attrs_and_edges_count,
-                    reverse=True
-                )
-                if (
-                    len(work_nodes) > 1
-                    and work_nodes[0]._attrs_and_edges_count == work_nodes[1]._attrs_and_edges_count
-                ):
-                    raise MutableGraphError(f'cannot guess central node -- multiple candidates ({work_nodes[0].id}, {work_nodes[1].id})')
-                central_node = work_nodes[0]
-                self.central_node_id = central_node.id
-
-        return self.get_node(self.central_node_id)
-
     def remove_node(self, node_id, cascade=True):
         """Remove a node and its incoming/outgoing edges.
 
@@ -359,6 +340,51 @@ class MutableGraph(nx.DiGraph):
             if from_target != into_target:
                 self.merge_nodes(from_target, into_target)
 
+    def get_central_node(self, guess=False):
+        if guess and self.central_node_id is None:
+            self._guess_central_node()
+        return self.get_node(self.central_node_id)
+
+    def _guess_central_node(self):
+        # use a heuristic to guess the "central" node, when it's not given
+        # (the whole idea of guessing here is a hack to handle old data --
+        # hopefully we can get away from it eventually)
+
+        def centrality_heuristic(work_node):
+            # return a tuple of numbers (and booleans), where
+            # higher numbers (including `True`s) => more likely central
+            has_identifiers = bool(work_node['identifiers'])
+            has_contributor_info = bool(work_node['agent_relations'])
+            how_much_total_info = (
+                len(work_node.attrs())
+                + len(self.in_edges(work_node.id))
+                + len(self.out_edges(work_node.id))
+            )
+            how_much_contributor_info = len(work_node['agent_relations'])
+            has_parent_work = any(
+                relation.type == 'ispartof'
+                for relation in work_node['outgoing_creative_work_relations']
+            )
+            return (
+                has_identifiers,
+                has_contributor_info,
+                how_much_total_info,
+                how_much_contributor_info,
+                has_parent_work,
+            )
+
+        work_nodes = self.filter_by_concrete_type('abstractcreativework')
+        if work_nodes:
+            # get the work node with the most attrs+relations
+            work_nodes.sort(key=centrality_heuristic, reverse=True)
+            if (
+                len(work_nodes) > 1
+                and centrality_heuristic(work_nodes[0]) == centrality_heuristic(work_nodes[1])
+            ):
+                raise MutableGraphError(f'cannot guess central node -- multiple candidates ({work_nodes[0].id}, {work_nodes[1].id})')
+            central_node = work_nodes[0]
+            self.central_node_id = central_node.id
+
 
 class MutableNode:
     """Convenience wrapper around a node in a MutableGraph.
@@ -406,15 +432,6 @@ class MutableNode:
     @property
     def schema_type(self):
         return ShareV2Schema().get_type(self.type)
-
-    @property
-    def _attrs_and_edges_count(self):
-        # used to guess the "central" node, when it's not already specified
-        return (
-            len(self.__attrs)
-            + len(self.graph.in_edges(self.id))
-            + len(self.graph.out_edges(self.id))
-        )
 
     def attrs(self):
         return {

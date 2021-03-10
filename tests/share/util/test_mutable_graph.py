@@ -221,9 +221,22 @@ class TestCentralWork:
         with pytest.raises(MutableGraphError):
             graph.get_central_node(guess=True)
 
-    def test_edges_matter(self):
-        graph = MutableGraph.from_jsonld({
-            '@graph': [
+    @pytest.mark.parametrize('graph_nodes, expected_guess', [
+        (
+            [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'only thing'},
+            ],
+            '_:thing1',
+        ),
+        (
+            [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'one thing'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'another thing', 'description': 'tiebreaker'},
+            ],
+            '_:thing2',
+        ),
+        (
+            [
                 {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center'},
                 {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
                 {
@@ -233,6 +246,36 @@ class TestCentralWork:
                     'creative_work': {'@id': '_:thing2', '@type': 'creativework'},
                 },
             ],
-        })
+            '_:thing2',
+        ),
+        (
+            [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'looks like the center', 'description': 'confounder'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'also looks like the center'},
+                {
+                    '@id': '_:tiebreaker',
+                    '@type': 'workidentifier',
+                    'uri': 'http://example.com/woo',
+                    'creative_work': {'@id': '_:thing2', '@type': 'creativework'},
+                },
+            ],
+            '_:thing2',
+        ),
+        (
+            [
+                {'@id': '_:thing1', '@type': 'creativework', 'title': 'parent'},
+                {'@id': '_:thing2', '@type': 'creativework', 'title': 'child'},
+                {
+                    '@id': '_:choose-the-child',
+                    '@type': 'ispartof',
+                    'subject': {'@id': '_:thing2', '@type': 'creativework'},
+                    'related': {'@id': '_:thing1', '@type': 'creativework'},
+                },
+            ],
+            '_:thing2',
+        ),
+    ])
+    def test_guessing(self, graph_nodes, expected_guess):
+        graph = MutableGraph.from_jsonld({'@graph': graph_nodes})
         guessed = graph.get_central_node(guess=True)
-        assert guessed.id == '_:thing2'
+        assert guessed.id == expected_guess

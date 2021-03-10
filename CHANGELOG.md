@@ -1,5 +1,9 @@
 # Change Log
 
+# [21.0.2] - 2021-03-10
+- fix up `populate_osf_suids` with more useful messaging
+- improve "central node" guessing to handle old osf data on prod
+
 # [21.0.2] - 2021-03-09
 - speed up `populate_osf_suids` -- exclude `NormalizedData` with null `raw`,
   since they'll be ignored anyway
