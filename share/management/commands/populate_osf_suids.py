@@ -11,7 +11,7 @@ def update_suid(normalized_datum, new_suid_identifier):
     raw_datum = normalized_datum.raw
     if not raw_datum:
         print(f'normd {normalized_datum.id}: skip, no raw')
-        return
+        return 0
 
     existing_suid = raw_datum.suid
     new_suid, created = SourceUniqueIdentifier.objects.get_or_create(
@@ -21,11 +21,12 @@ def update_suid(normalized_datum, new_suid_identifier):
 
     if new_suid == existing_suid:
         print(f'normd {normalized_datum.id}: skip, already has correct suid {existing_suid.id}')
-        return
+        return 0
 
     print(f'normd {normalized_datum.id}: updating suid from {existing_suid.id} to {new_suid.id}...')
-    update_old_suid_raws(normalized_datum, existing_suid, new_suid)
+    update_old_suid_raws(existing_suid, new_suid)
     existing_suid.delete()
+    return 1
 
 
 def update_old_suid_raws(old_suid, new_suid):
@@ -46,6 +47,7 @@ def update_old_suid_raws(old_suid, new_suid):
 
 
 def get_normd_ids(start_id):
+    print(f'-- getting {CHUNK_SIZE} normd ids starting with {start_id} --')
     normd_id_qs = NormalizedData.objects.filter(
         id__gte=start_id,
         raw__isnull=False,
@@ -63,15 +65,19 @@ class Command(BaseShareCommand):
         commit = options.get('commit')
         start_id = options['start_id']
 
+        total_seen = 0
+        total_updated = 0
+
         normd_ids = get_normd_ids(start_id)
         while normd_ids:
+            total_seen += len(normd_ids)
             for normd_id in normd_ids:
                 normd = NormalizedData.objects.get(id=normd_id)
                 mgraph = MutableGraph.from_jsonld(normd.data)
                 guid = guess_osf_guid(mgraph)
                 if guid:
                     with self.rollback_unless_commit(commit=commit):
-                        update_suid(normd, guid)
+                        total_updated += update_suid(normd, guid)
             next_start_id = int(normd_ids[-1]) + 1
-            print(f'-- next normd chunk starting with {next_start_id} --')
             normd_ids = get_normd_ids(next_start_id)
+        print(f'-- done! looked at {total_seen} NormalizedData; updated {total_updated} --')
