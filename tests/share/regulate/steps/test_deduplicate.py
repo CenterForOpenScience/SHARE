@@ -32,7 +32,27 @@ class TestDeduplicate:
                 WorkIdentifier(4),
                 WorkIdentifier(uri='http://osf.io/guidguid'),
             ]),
-        ])
+        ]),
+        ([
+            Registration(0, subjects=[
+                Subject(
+                    0,
+                    name='custom-child',
+                    central_synonym=Subject(1, name='central-child', parent=Subject(3, name='central-parent')),
+                    parent=Subject(2, name='custom-parent', central_synonym=Subject(3, name='central-parent')),
+                )
+                for _ in range(3)
+            ]),
+        ], [
+            Registration(0, subjects=[
+                Subject(
+                    0,
+                    name='custom-child',
+                    central_synonym=Subject(1, name='central-child', parent=Subject(3, id='central-parent', name='central-parent')),
+                    parent=Subject(2, name='custom-parent', central_synonym=Subject(id='central-parent')),
+                )
+            ]),
+        ]),
     ])
     def test_deduplicate(self, Graph, input, output):
         graph = Graph(input)

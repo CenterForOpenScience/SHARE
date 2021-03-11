@@ -261,6 +261,7 @@
     - name: central_synonym
       relation_shape: many_to_one
       related_concrete_type: Subject
+      inverse_relation: custom_synonyms
 
 - concrete_type: ThroughSubjects
   attributes:

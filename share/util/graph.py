@@ -560,13 +560,13 @@ class MutableNode:
         self.graph.remove_node(self.id, cascade)
         self.__graph = None
 
-    def to_jsonld(self, ref=False, in_edges=True):
+    def to_jsonld(self, ref=False, in_edges=False):
         ld_node = {
             '@id': self.id,
             '@type': self.type,
         }
         if not ref:
-            ld_node.update(self.relations(in_edges=False, jsonld=True))
+            ld_node.update(self.relations(in_edges=in_edges, jsonld=True))
             ld_node.update(self.attrs())
         return ld_node
 
