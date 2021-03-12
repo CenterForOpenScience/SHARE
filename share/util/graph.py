@@ -325,7 +325,7 @@ class MutableGraph(nx.DiGraph):
 
     def _merge_value(self, value_a, value_b):
         # use the longer value, or the first alphabetically if they're the same length
-        return sorted([value_a, value_b], key=lambda x: (-len(str(x)), x))[0]
+        return sorted([value_a, value_b], key=lambda x: (-len(str(x)), str(x)))[0]
 
     def _merge_in_edges(self, from_node, into_node):
         for in_edge_name, source_nodes in self.named_in_edges(from_node.id).items():
