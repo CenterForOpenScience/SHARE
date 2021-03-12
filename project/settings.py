@@ -561,6 +561,7 @@ SHARE_REGULATOR_CONFIG = {
         ('normalize_iris', {
             'node_types': ['agentidentifier'],
             'blocked_schemes': ['mailto'],
+            'blocked_authorities': ['secure.gravatar.com'],
         }),
         ('trim_cycles', {
             'node_types': ['abstractworkrelation', 'abstractagentrelation'],
