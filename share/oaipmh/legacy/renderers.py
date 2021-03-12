@@ -6,13 +6,14 @@ from django.urls import reverse
 
 from share.models import Contributor
 from share.oaipmh.util import format_datetime
+from share.util.xml import strip_illegal_xml_chars
 
 
 # For convenience
 def SubEl(parent, tag, text=None, attrib={}):
     element = SubElement(parent, tag, attrib)
     if text:
-        element.text = text
+        element.text = strip_illegal_xml_chars(text)
     return element
 
 

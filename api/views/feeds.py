@@ -10,26 +10,17 @@ from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
+from share.util.xml import strip_illegal_xml_chars
+
 
 logger = logging.getLogger(__name__)
 
 RESULTS_PER_PAGE = 250
 
-RE_XML_ILLEGAL = u'([\u0000-\u0008\u000b-\u000c\u000e-\u001f\ufffe-\uffff])' + \
-                 u'|' + \
-                 u'([%s-%s][^%s-%s])|([^%s-%s][%s-%s])|([%s-%s]$)|(^[%s-%s])' % \
-    (
-        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
-        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff),
-        chr(0xd800), chr(0xdbff), chr(0xdc00), chr(0xdfff)
-    )
-
-RE_XML_ILLEGAL_COMPILED = re.compile(RE_XML_ILLEGAL)
-
 
 def prepare_string(s):
     if s:
-        s = RE_XML_ILLEGAL_COMPILED.sub('', s)
+        s = strip_illegal_xml_chars(s)
         # Strings will be autoescaped during XML generation, and data from elasticsearch
         # is already bleached. Unescape to escape extra escapes.
         return unescape(s)

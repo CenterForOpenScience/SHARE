@@ -1,5 +1,10 @@
 # Change Log
 
+# [21.0.5] - 2021-03-12
+- bugfix: in share.util.graph, handle merging nodes with dictionary values
+- bugfix: when formatting oai_dc, strip characters illegal in XML
+- when regulating, discard gravatars as agent identifiers
+
 # [21.0.4] - 2021-03-11
 - bugfix: deduping subjects in custom taxonomies
 
