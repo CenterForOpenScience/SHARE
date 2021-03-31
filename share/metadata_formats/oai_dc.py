@@ -1,6 +1,7 @@
 from lxml import etree
 
 from share.util.graph import MutableGraph
+from share.util.names import get_related_agent_name
 
 from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
 from share.metadata_formats.base import MetadataFormatter
@@ -87,7 +88,10 @@ class OaiDcFormatter(MetadataFormatter):
 
     def _get_related_agent_names(self, work_node, relation_types):
         def sort_key(relation_node):
-            return relation_node['order_cited'] or 9999999  # those without order_cited go last
+            order_cited = relation_node['order_cited']
+            if order_cited is None:
+                return 9999999  # those without order_cited go last
+            return int(order_cited)
 
         relation_nodes = sorted(
             [
@@ -97,10 +101,12 @@ class OaiDcFormatter(MetadataFormatter):
             ],
             key=sort_key,
         )
-        return [
-            relation['cited_as'] or relation['agent']['name']
+
+        # remove falsy values
+        return filter(None, [
+            get_related_agent_name(relation)
             for relation in relation_nodes
-        ]
+        ])
 
     def _get_related_uris(self, work_node):
         related_work_uris = set()
