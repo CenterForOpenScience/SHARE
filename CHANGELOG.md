@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.0.7] - 2021-04-01
+- fix: facility != funder (in gov.clinicaltrials transformer)
+
 # [21.0.6] - 2021-04-01
 - remove feature: oai_dc formatter no longer puts first author last
 - add utility: `share.util.names.get_related_agent_name` for consistently
