@@ -25,13 +25,15 @@ class Command(BaseShareCommand):
 
         parser.add_argument('--suid-start-id', '-s', type=int, default=0, help='resume based on the previous run\'s last successful suid')
         parser.add_argument('--pls-ensure-ingest-jobs', '-j', action='store_true', help='before starting, ensure that all relevant suids have ingest jobs')
-        parser.add_argument('--pls-reformat', '-r', action='store_true', help='re-ingest records that are already in these formats')
+        parser.add_argument('--pls-reformat', '-r', action='store_true', help='re-format records that are already in these formats')
+        parser.add_argument('--pls-reingest', '-i', action='store_true', help='re-ingest records from raw, ignoring old normalizeddata')
 
     def handle(self, *args, **options):
         metadata_formats = options['metadata_formats']
         suid_start_id = options['suid_start_id']
         pls_ensure_ingest_jobs = options['pls_ensure_ingest_jobs']
         pls_reformat = options['pls_reformat']
+        pls_reingest = options['pls_reingest']
 
         valid_formats = Extensions.get_names('share.metadata_formats')
         if any(mf not in valid_formats for mf in metadata_formats):
@@ -49,7 +51,7 @@ class Command(BaseShareCommand):
             self.ensure_ingest_jobs_exist(base_suid_qs)
 
         while True:
-            last_successful_suid = self.enqueue_job_chunk(base_suid_qs, suid_start_id, metadata_formats)
+            last_successful_suid = self.enqueue_job_chunk(base_suid_qs, suid_start_id, metadata_formats, pls_reingest)
             if last_successful_suid is None:
                 break
             suid_start_id = int(last_successful_suid) + 1
@@ -121,7 +123,7 @@ class Command(BaseShareCommand):
         unjobbed_suids = base_suid_qs.filter(latest_ingest_job_id=None)
         IngestScheduler().bulk_schedule(unjobbed_suids)
 
-    def enqueue_job_chunk(self, base_suid_qs, suid_start_id, metadata_formats):
+    def enqueue_job_chunk(self, base_suid_qs, suid_start_id, metadata_formats, pls_reingest):
         result_chunk = tuple(
             base_suid_qs
             .filter(id__gte=suid_start_id)
@@ -146,6 +148,7 @@ class Command(BaseShareCommand):
         for job_id in job_ids:
             ingest.delay(
                 job_id=job_id,
+                superfluous=pls_reingest,  # whether to start from RawDatum or NormalizedDatum
                 apply_changes=False,  # skip the whole ShareObject mess
                 pls_format_metadata=True,  # definitely don't skip this command's namesake
                 metadata_formats=metadata_formats,
