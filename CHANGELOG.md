@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.0.8] - 2021-04-01
+- add `--pls-reingest` arg to format_metadata_records command
+
 # [21.0.7] - 2021-04-01
 - fix: facility != funder (in gov.clinicaltrials transformer)
 
