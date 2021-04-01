@@ -39,9 +39,24 @@ class TestOaiDcFormatter(BaseMetadataFormatterTest):
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
         >
             <dc:title>The Role of Mycorrhizas in Forest Soil Stability with Climate Change</dc:title>
-            <dc:creator>Mary Austi</dc:creator>
             <dc:creator>Suzanne Simard</dc:creator>
+            <dc:creator>Mary Austi</dc:creator>
             <dc:publisher>InTech</dc:publisher>
+            <dc:date>2017-03-31T05:39:48Z</dc:date>
+            <dc:type>creativework</dc:type>
+            <dc:identifier>http://dx.doi.org/10.5772/9813</dc:identifier>
+        </oai_dc:dc>
+        ''',
+        'no-names-only-name-parts': '''
+        <oai_dc:dc
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        >
+            <dc:title>The Role of Mycorrhizas in Forest Soil Stability with Climate Change</dc:title>
+            <dc:creator>Suzanne Simard</dc:creator>
+            <dc:creator>Mary Austi</dc:creator>
             <dc:date>2017-03-31T05:39:48Z</dc:date>
             <dc:type>creativework</dc:type>
             <dc:identifier>http://dx.doi.org/10.5772/9813</dc:identifier>

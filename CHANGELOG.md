@@ -1,5 +1,13 @@
 # Change Log
 
+# [21.0.6] - 2021-04-01
+- remove feature: oai_dc formatter no longer puts first author last
+- add utility: `share.util.names.get_related_agent_name` for consistently
+  getting an agent name from an "agent-work relation" node 
+  - if missing both `cited_as` and `name` (true of some old, unregulated
+    production data), reluctantly apply some cultural assumptions and build a
+    name from parts (`given_name`, `additional_name`, `family_name`, `suffix`)
+
 # [21.0.5] - 2021-03-12
 - bugfix: in share.util.graph, handle merging nodes with dictionary values
 - bugfix: when formatting oai_dc, strip characters illegal in XML

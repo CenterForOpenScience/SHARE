@@ -26,6 +26,24 @@ FORMATTER_TEST_INPUTS = {
             },
         },
     },
+    'no-names-only-name-parts': {
+        'suid_id': 7,
+        'source_name': 'SomeSource',
+        'normalized_datum_kwargs': {
+            'created_at': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
+            'data': {
+                '@graph': [
+                    {'@id': '_:cfed87cc7294471eac2b67d9ce92f60b', '@type': 'person', 'given_name': 'Suzanne', 'family_name': 'Simard', 'identifiers': [], 'related_agents': []},
+                    {'@id': '_:c786ef414acb423f878522690453a6b8', '@type': 'creator', 'agent': {'@id': '_:cfed87cc7294471eac2b67d9ce92f60b', '@type': 'person'}, 'order_cited': 0, 'creative_work': {'@id': '_:de04f3a34eb047e98891662b5345afd9', '@type': 'creativework'}},
+                    {'@id': '_:2afb5767c79c47c9ab6b87c7d5b3aa0a', '@type': 'person', 'given_name': 'Mary', 'family_name': 'Austi', 'identifiers': [], 'related_agents': []},
+                    {'@id': '_:44ec4e74e8ae487cbd86abcde5c2a075', '@type': 'creator', 'agent': {'@id': '_:2afb5767c79c47c9ab6b87c7d5b3aa0a', '@type': 'person'}, 'order_cited': 1, 'creative_work': {'@id': '_:de04f3a34eb047e98891662b5345afd9', '@type': 'creativework'}},
+                    {'@id': '_:8ae1b46cd2f341cb968fbf76c9a7f345', 'uri': 'http://dx.doi.org/10.5772/9813', '@type': 'workidentifier', 'creative_work': {'@id': '_:de04f3a34eb047e98891662b5345afd9', '@type': 'creativework'}},
+                    {'@id': '_:de04f3a34eb047e98891662b5345afd9', 'tags': [], '@type': 'creativework', 'extra': {'type': 'book-chapter', 'member': 'http://id.crossref.org/member/3774', 'titles': ['The Role of Mycorrhizas in Forest Soil Stability with Climate Change'], 'date_created': '2012-03-29T07:53:20+00:00', 'date_published': {'date_parts': [[2010, 8, 17]]}, 'container_title': ['Climate Change and Variability'], 'published_online': {'date_parts': [[2010, 8, 17]]}}, 'title': 'The Role of Mycorrhizas in Forest Soil Stability with Climate Change', 'identifiers': [{'@id': '_:8ae1b46cd2f341cb968fbf76c9a7f345', '@type': 'workidentifier'}], 'date_updated': '2017-03-31T05:39:48+00:00', 'related_agents': [{'@id': '_:c786ef414acb423f878522690453a6b8', '@type': 'creator'}, {'@id': '_:44ec4e74e8ae487cbd86abcde5c2a075', '@type': 'creator'}, {'@id': '_:e0fdb4b7b6194b699078f26a799cd232', '@type': 'publisher'}]},
+                ],
+                '@context': {}
+            },
+        },
+    },
     'with-is_deleted': {
         'suid_id': 57,
         'source_name': 'foo',

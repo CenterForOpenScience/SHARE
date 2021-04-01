@@ -4,6 +4,7 @@ import re
 from django.conf import settings
 
 from share.util.graph import MutableGraph
+from share.util.names import get_related_agent_name
 from share.util import IDObfuscator
 
 from .base import MetadataFormatter
@@ -135,7 +136,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
 
     def _get_related_agent_names(self, work_node, relation_types):
         return [
-            relation_node['cited_as'] or relation_node['agent']['name']
+            get_related_agent_name(relation_node)
             for relation_node in work_node['agent_relations']
             if relation_node.type in relation_types
         ]
@@ -181,7 +182,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         return {
             'type': format_node_type(agent_node),
             'types': format_node_type_lineage(agent_node),
-            'name': agent_node['name'] or relation_node['cited_as'],
+            'name': agent_node['name'] or get_related_agent_name(relation_node),
             'given_name': agent_node['given_name'],
             'family_name': agent_node['family_name'],
             'additional_name': agent_node['additional_name'],
