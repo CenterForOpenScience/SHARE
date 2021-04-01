@@ -182,7 +182,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         return {
             'type': format_node_type(agent_node),
             'types': format_node_type_lineage(agent_node),
-            'name': get_related_agent_name(relation_node),
+            'name': agent_node['name'] or get_related_agent_name(relation_node),
             'given_name': agent_node['given_name'],
             'family_name': agent_node['family_name'],
             'additional_name': agent_node['additional_name'],
