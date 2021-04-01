@@ -79,8 +79,7 @@ class Registration(Parser):
         Map(Delegate(Contributor), Maybe(ctx.clinical_study, 'overall_contact_backup')),
         Map(Delegate(Funder),
             Concat(ctx.clinical_study.sponsors.lead_sponsor,
-                   Maybe(ctx.clinical_study.sponsors, 'collaborator'),
-                   RunPython('get_locations', Concat(Try(ctx.clinical_study.location)))))
+                   Maybe(ctx.clinical_study.sponsors, 'collaborator')))
     )
 
     tags = Map(Delegate(ThroughTags), Maybe(ctx.clinical_study, 'keyword'))
@@ -102,13 +101,6 @@ class Registration(Parser):
         is_fda_regulated = Try(ctx.clinical_study.is_fda_regulated)
         is_section_801 = Try(ctx.clinical_study.is_section_801)
         citation = Try(ctx.clinical_study.reference.citation)
-
-    def get_locations(self, locations):
-        results = []
-        for location in locations:
-            if 'name' in location['facility']:
-                results.append(location)
-        return results
 
     def format_url(self, id, base):
         return base + id
