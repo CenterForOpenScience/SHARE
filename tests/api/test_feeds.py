@@ -44,8 +44,12 @@ class TestFeed:
 
         index_creativeworks(ids)
 
-    def test_get_feed(self, client, fake_items):
-        resp = client.get('/api/v2/atom')
+    @pytest.mark.parametrize('feed_url', [
+        '/api/v2/atom/',
+        '/api/v2/feeds/atom/',
+    ])
+    def test_get_feed(self, client, fake_items, feed_url, settings):
+        resp = client.get(feed_url)
         assert resp.status_code == 200
 
         feed = etree.fromstring(resp.content)
@@ -58,8 +62,12 @@ class TestFeed:
         'date_updated',
         'date_modified',
     ])
-    def test_order(self, client, order, fake_items):
-        resp = client.get('/api/v2/atom', {'order': order})
+    @pytest.mark.parametrize('feed_url', [
+        '/api/v2/atom/',
+        '/api/v2/feeds/atom/',
+    ])
+    def test_order(self, client, order, fake_items, feed_url):
+        resp = client.get(feed_url, {'order': order})
         assert resp.status_code == 200
 
         feed = etree.fromstring(resp.content)
@@ -94,3 +102,14 @@ class TestFeed:
                 assert entry.find('atom:published', namespaces=NAMESPACES).text == creative_work.date_published.isoformat()
             else:
                 assert entry.find('atom:published', namespaces=NAMESPACES) is None
+
+    @pytest.mark.parametrize('feed_url, expected_status', [
+        ('/api/v2/atom/', 410),
+        ('/api/v2/rss/', 410),
+        ('/api/v2/feeds/atom/', 200),
+        ('/api/v2/feeds/rss/', 200),
+    ])
+    def test_gone(self, client, settings, fake_items, feed_url, expected_status):
+        settings.SHARE_LEGACY_PIPELINE = False
+        resp = client.get(feed_url)
+        assert resp.status_code == expected_status
