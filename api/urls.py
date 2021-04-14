@@ -24,8 +24,11 @@ urlpatterns = [
     url('^search/', include('api.search.urls'), name='search'),
 
     # TODO refactor non-viewset endpoints to conform to new structure
-    url(r'status/?', views.ServerStatusView.as_view(), name='status'),
-    url(r'rss/?', views.CreativeWorksRSS(), name='rss'),
-    url(r'atom/?', views.CreativeWorksAtom(), name='atom'),
-    url(r'graph/?', GraphQLView.as_view(graphiql=True)),
+    url(r'^status/?', views.ServerStatusView.as_view(), name='status'),
+    url(r'^rss/?', views.LegacyCreativeWorksRSS(), name='rss'),
+    url(r'^atom/?', views.LegacyCreativeWorksAtom(), name='atom'),
+    url(r'^graph/?', GraphQLView.as_view(graphiql=True)),
+
+    url(r'^feeds/rss/?', views.MetadataRecordsRSS(), name='feeds.rss'),
+    url(r'^feeds/atom/?', views.MetadataRecordsAtom(), name='feeds.atom'),
 ]
