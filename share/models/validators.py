@@ -153,11 +153,9 @@ class JSONLDValidator:
 
 
 def is_valid_iri(iri):
-    try:
-        IRILink().execute(iri)
-    except InvalidIRI:
-        return False
+    # raises InvalidIRI if invalid
+    IRILink().execute(iri)
     return True
 
 
-draft4_format_checker.checks('uri', raises=ValueError)(is_valid_iri)
+draft4_format_checker.checks('uri', raises=InvalidIRI)(is_valid_iri)
