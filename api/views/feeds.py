@@ -47,7 +47,7 @@ def parse_date(s):
 
 class MetadataRecordsRSS(Feed):
     _share_index_key = 'BACKCOMPAT_INDEX'  # TODO remove when we drop legacy feeds
-    link = '{}api/v2/feeds/rss/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/feeds/rss/'.format(settings.SHARE_WEB_URL)
     description = 'Updates to the SHARE open dataset'
     author_name = 'SHARE'
 
@@ -104,7 +104,7 @@ class MetadataRecordsRSS(Feed):
 
     def item_link(self, item):
         # Link to SHARE curate page
-        return '{}{}/{}'.format(settings.SHARE_API_URL, item.get('type').replace(' ', ''), item.get('id'))
+        return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
 
     def item_author_name(self, item):
         contributor_list = item.get('lists', []).get('contributors', [])
@@ -137,13 +137,13 @@ class MetadataRecordsAtom(MetadataRecordsRSS):
     _share_index_key = 'BACKCOMPAT_INDEX'  # TODO remove when we drop legacy feeds
     feed_type = Atom1Feed
     subtitle = MetadataRecordsRSS.description
-    link = '{}api/v2/feeds/atom/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/feeds/atom/'.format(settings.SHARE_WEB_URL)
 
 
 # TODO remove when we drop legacy feeds
 class LegacyCreativeWorksRSS(MetadataRecordsRSS):
     _share_index_key = 'LEGACY_INDEX'  # TODO remove when we drop legacy feeds
-    link = '{}api/v2/rss/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/rss/'.format(settings.SHARE_WEB_URL)
 
     def __call__(self, request, *args, **kwargs):
         if not settings.SHARE_LEGACY_PIPELINE:
@@ -157,7 +157,7 @@ class LegacyCreativeWorksRSS(MetadataRecordsRSS):
 # TODO remove when we drop legacy feeds
 class LegacyCreativeWorksAtom(MetadataRecordsAtom):
     _share_index_key = 'LEGACY_INDEX'  # TODO remove when we drop legacy feeds
-    link = '{}api/v2/atom/'.format(settings.SHARE_API_URL)
+    link = '{}api/v2/atom/'.format(settings.SHARE_WEB_URL)
 
     def __call__(self, request, *args, **kwargs):
         if not settings.SHARE_LEGACY_PIPELINE:
