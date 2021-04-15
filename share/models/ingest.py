@@ -261,6 +261,9 @@ class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
 
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
+
     class Meta:
         unique_together = ('identifier', 'source_config')
 

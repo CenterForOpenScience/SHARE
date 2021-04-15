@@ -802,12 +802,15 @@ class URLLink(AbstractIRILink):
     IMPLICIT_PORTS = {80, 443}
     IP_RE = re.compile(r'\b({schemes})://(\d{{1,3}}.){{4}}(?:\d{{2,5}})\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
     URL_RE = re.compile(r'\b({schemes})://[-a-z0-9@:%._\+~#=]{{2,256}}\.[a-z]{{2,6}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
+    LOCAL_URL_RE = re.compile(r'\b({schemes})://localhost:[0-9]{{2,5}}\b([-a-z0-9@:%_\+.~#?&//=]*)'.format(schemes='|'.join(SCHEMES)), flags=re.I)
 
     @classmethod
     def hint(cls, obj):
         # BePress double escapes in OAI feeds
         obj = obj.replace('&amp;', '&')
 
+        if settings.DEBUG and cls.LOCAL_URL_RE.search(obj) is not None:
+            return 0.25
         if cls.URL_RE.search(obj) is not None:
             return 0.25
         if cls.IP_RE.search(obj) is not None:
@@ -819,10 +822,16 @@ class URLLink(AbstractIRILink):
     def _parse(self, obj):
         # BePress double escapes in OAI feeds
         obj = obj.replace('&amp;', '&')
+        match = None
+        if settings.DEBUG:
+            match = self.LOCAL_URL_RE.search(obj)
 
-        match = self.URL_RE.search(obj) or self.IP_RE.search(obj)
+        if not match:
+            match = self.URL_RE.search(obj) or self.IP_RE.search(obj)
+
         if not match and obj.lower().startswith(self.SCHEMELESS_STARTS):
             match = self.URL_RE.search('http://{}'.format(obj))
+
         return super(URLLink, self)._parse(match.group(0))
 
     def _process_scheme(self, scheme):

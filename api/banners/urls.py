@@ -3,5 +3,5 @@ from api.banners import views
 
 
 router = SimpleRouter()
-router.register(r'site_banners', views.SiteBannerViewSet, base_name='site_banners')
+router.register(r'^site_?banners', views.SiteBannerViewSet, base_name='site_banners')
 urlpatterns = router.urls

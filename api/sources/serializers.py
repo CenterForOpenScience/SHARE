@@ -25,7 +25,14 @@ class ReadonlySourceSerializer(ShareSerializer):
 
     class Meta:
         model = models.Source
-        fields = ('name', 'home_page', 'long_title', 'icon', 'url')
+        fields = (
+            'name',
+            'home_page',
+            'long_title',
+            'icon',
+            'url',
+            'source_configs',
+        )
         read_only_fields = fields
 
 
