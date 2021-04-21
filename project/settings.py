@@ -332,6 +332,9 @@ ELASTICSEARCH = {
         #     'INDEX_SETUP': 'trove_v0',
         # },
     },
+    # ease the transition
+    'LEGACY_INDEX': 'share_customtax_1',
+    'BACKCOMPAT_INDEX': 'share_postrend_backcompat',
 }
 
 # Seconds, not an actual celery settings

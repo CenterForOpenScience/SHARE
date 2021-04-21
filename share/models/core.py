@@ -255,6 +255,9 @@ class FormattedMetadataRecord(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     formatted_metadata = models.TextField()  # could be JSON, XML, or whatever
 
+    class JSONAPIMeta(BaseJSONAPIMeta):
+        pass
+
     class Meta:
         unique_together = ('suid', 'record_format')
 

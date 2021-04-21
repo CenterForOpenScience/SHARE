@@ -1,3 +1,4 @@
+import logging
 from django.db import transaction
 from django.urls import reverse
 
@@ -18,6 +19,9 @@ from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
+
+
+logger = logging.getLogger(__name__)
 
 
 class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.RetrieveAPIView):

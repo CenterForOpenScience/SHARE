@@ -1,12 +1,14 @@
 
 from xml.sax.saxutils import unescape
 import datetime
+from furl import furl
 import json
 import logging
 import re
 import requests
 
 from django.contrib.syndication.views import Feed
+from django.http import HttpResponseGone
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 
@@ -43,8 +45,9 @@ def parse_date(s):
     return None
 
 
-class CreativeWorksRSS(Feed):
-    link = '{}api/v2/rss/'.format(settings.SHARE_WEB_URL)
+class MetadataRecordsRSS(Feed):
+    _share_index_key = 'BACKCOMPAT_INDEX'  # TODO remove when we drop legacy feeds
+    link = '{}api/v2/feeds/rss/'.format(settings.SHARE_WEB_URL)
     description = 'Updates to the SHARE open dataset'
     author_name = 'SHARE'
 
@@ -75,7 +78,11 @@ class CreativeWorksRSS(Feed):
 
     def items(self, obj):
         headers = {'Content-Type': 'application/json'}
-        search_url = '{}{}/creativeworks/_search'.format(settings.ELASTICSEARCH['URL'], settings.ELASTICSEARCH['PRIMARY_INDEX'])
+        search_url = '{}{}/creativeworks/_search'.format(
+            settings.ELASTICSEARCH['URL'],
+            # TODO as soon as we can drop the legacy feeds, use settings.ELASTICSEARCH['PRIMARY_INDEX']
+            settings.ELASTICSEARCH[self._share_index_key],
+        )
         elastic_response = requests.post(search_url, data=json.dumps(obj), headers=headers)
         json_response = elastic_response.json()
 
@@ -126,7 +133,36 @@ class CreativeWorksRSS(Feed):
         return [prepare_string(c) for c in categories if c]
 
 
-class CreativeWorksAtom(CreativeWorksRSS):
+class MetadataRecordsAtom(MetadataRecordsRSS):
+    _share_index_key = 'BACKCOMPAT_INDEX'  # TODO remove when we drop legacy feeds
     feed_type = Atom1Feed
-    subtitle = CreativeWorksRSS.description
+    subtitle = MetadataRecordsRSS.description
+    link = '{}api/v2/feeds/atom/'.format(settings.SHARE_WEB_URL)
+
+
+# TODO remove when we drop legacy feeds
+class LegacyCreativeWorksRSS(MetadataRecordsRSS):
+    _share_index_key = 'LEGACY_INDEX'  # TODO remove when we drop legacy feeds
+    link = '{}api/v2/rss/'.format(settings.SHARE_WEB_URL)
+
+    def __call__(self, request, *args, **kwargs):
+        if not settings.SHARE_LEGACY_PIPELINE:
+            correct_url = furl(MetadataRecordsRSS.link).set(query_params=request.GET)
+            return HttpResponseGone(
+                f'This feed has been removed -- please update to use {correct_url}'
+            )
+        return super().__call__(request, *args, **kwargs)
+
+
+# TODO remove when we drop legacy feeds
+class LegacyCreativeWorksAtom(MetadataRecordsAtom):
+    _share_index_key = 'LEGACY_INDEX'  # TODO remove when we drop legacy feeds
     link = '{}api/v2/atom/'.format(settings.SHARE_WEB_URL)
+
+    def __call__(self, request, *args, **kwargs):
+        if not settings.SHARE_LEGACY_PIPELINE:
+            correct_url = furl(MetadataRecordsAtom.link).set(query_params=request.GET)
+            return HttpResponseGone(
+                f'This feed has been removed -- please update to use {correct_url}'
+            )
+        return super().__call__(request, *args, **kwargs)

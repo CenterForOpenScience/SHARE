@@ -1,5 +1,15 @@
 # Change Log
 
+# [21.1.0] - 2021-04-21
+- expose a few models in read-only json:api, so the frontend can be useful given a suid
+  - `/api/v2/formattedmetadatarecords/`
+  - `/api/v2/sourceconfigs/`
+  - `/api/v2/suids/`
+- add new atom/rss feeds that get results from the new backcompat index
+  - `/api/v2/feeds/atom/`
+  - `/api/v2/feeds/rss/`
+  - (old feeds now deprecated, will be gone with ShareObject)
+
 # [21.0.8] - 2021-04-01
 - add `--pls-reingest` arg to format_metadata_records command
 
