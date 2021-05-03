@@ -2,6 +2,8 @@ import logging
 from django.db import transaction
 from django.urls import reverse
 
+from raven.contrib.django.raven_compat.models import client as sentry_client
+
 from rest_framework import status
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
@@ -69,6 +71,20 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         return models.NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
+        try:
+            return self._do_create(request, *args, **kwargs)
+        except Exception as e:
+            sentry_client.captureMessage('Bad normalizeddatum?', data={
+                'request': {
+                    'path': request.path,
+                    'method': request.method,
+                    'user': request.user,
+                },
+                'error': str(e),
+            })
+            raise
+
+    def _do_create(self, request, *args, **kwargs):
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
