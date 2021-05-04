@@ -282,15 +282,26 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 
 @linked_fk('source_config')
+@linked_fk('ingest_job')  # technically not fk but still works
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = FuzzyPaginator
     actions = ('reingest',)
     list_filter = (SourceConfigFilter,)
-    search_fields = ('identifier',)
+    list_select_related = ('source_config',)
+    show_full_result_count = False
 
     def reingest(self, request, queryset):
         IngestScheduler().bulk_reingest(queryset)
+
+    def get_search_results(self, request, queryset, search_term):
+        if not search_term:
+            return super().get_search_results(request, queryset, search_term)
+
+        return (
+            queryset.filter(identifier=search_term),
+            False,  # no duplicates expected
+        )
 
 
 admin.site.unregister(AccessToken)
