@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.1.1] - 2021-05-04
+- tidy up some admin inefficiencies
+
 # [21.1.0] - 2021-04-21
 - expose a few models in read-only json:api, so the frontend can be useful given a suid
   - `/api/v2/formattedmetadatarecords/`
