@@ -82,16 +82,19 @@ class ElasticManager:
     def refresh_indexes(self, index_names):
         self.es_client.indices.refresh(index=','.join(index_names))
 
+    def get_primary_indexes(self):
+        alias = settings.ELASTICSEARCH['PRIMARY_INDEX']
+
+        try:
+            aliases = self.es_client.indices.get_alias(name=alias)
+            return list(aliases.keys())
+        except NotFoundError:
+            return []
+
     def update_primary_alias(self, primary_index_name):
         alias = settings.ELASTICSEARCH['PRIMARY_INDEX']
 
-        previous_indexes = []
-
-        try:
-            existing_aliases = self.es_client.indices.get_alias(name=alias)
-            previous_indexes = list(existing_aliases.keys())
-        except NotFoundError:
-            pass
+        previous_indexes = self.get_primary_indexes()
 
         if previous_indexes == [primary_index_name]:
             logger.warn(f'index {primary_index_name} is already the primary')
