@@ -9,6 +9,9 @@ FORMATTER_TEST_INPUTS = {
     'mycorrhizas': {
         'suid_id': 7,
         'source_name': 'SomeSource',
+        'raw_datum_kwargs': {
+            'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
+        },
         'normalized_datum_kwargs': {
             'created_at': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
             'data': {
@@ -29,6 +32,9 @@ FORMATTER_TEST_INPUTS = {
     'no-names-only-name-parts': {
         'suid_id': 7,
         'source_name': 'SomeSource',
+        'raw_datum_kwargs': {
+            'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
+        },
         'normalized_datum_kwargs': {
             'created_at': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
             'data': {
@@ -47,6 +53,7 @@ FORMATTER_TEST_INPUTS = {
     'with-is_deleted': {
         'suid_id': 57,
         'source_name': 'foo',
+        'raw_datum_kwargs': {},
         'normalized_datum_kwargs': {
             'data': {
                 '@graph': [
@@ -59,6 +66,9 @@ FORMATTER_TEST_INPUTS = {
     'with-subjects': {
         'suid_id': 123,
         'source_name': 'osf reg',
+        'raw_datum_kwargs': {
+            'date_created': dateutil.parser.isoparse('2020-02-02T20:20:02.02+00:00'),
+        },
         'normalized_datum_kwargs': {
             'created_at': dateutil.parser.isoparse('2020-02-02T20:20:02.02+00:00'),
             'data': {
@@ -345,6 +355,7 @@ class BaseMetadataFormatterTest:
             raw=RawDatumFactory(
                 suid__id=formatter_test_input['suid_id'],
                 suid__source_config__source__long_title=formatter_test_input['source_name'],
+                **formatter_test_input['raw_datum_kwargs'],
             ),
             **formatter_test_input['normalized_datum_kwargs'],
         )

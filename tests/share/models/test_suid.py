@@ -58,3 +58,18 @@ class TestSourceUniqueIdentifier:
 
         actual = suid.ingest_job
         assert expected == actual
+
+    def test_date_first_seen(self):
+        suid = SourceUniqueIdentifierFactory()
+
+        expected = RawDatumFactory(suid=suid).date_created
+        for _ in range(7):
+            RawDatumFactory(suid=suid)
+
+        actual = suid.get_date_first_seen()
+        assert expected == actual
+
+    def test_date_first_seen_when_no_data(self):
+        suid = SourceUniqueIdentifierFactory()
+        actual = suid.get_date_first_seen()
+        assert actual is None
