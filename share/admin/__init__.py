@@ -290,6 +290,7 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     list_filter = (SourceConfigFilter,)
     list_select_related = ('source_config',)
     show_full_result_count = False
+    search_fields = ('identifier',)
 
     def reingest(self, request, queryset):
         IngestScheduler().bulk_reingest(queryset)

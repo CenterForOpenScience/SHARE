@@ -1,6 +1,7 @@
 import contextlib
 import datetime
 import logging
+from typing import Optional
 
 from django.contrib.postgres.fields import JSONField
 from django.core import validators
@@ -283,6 +284,16 @@ class SourceUniqueIdentifier(models.Model):
         return self.raw_data.order_by(
             Coalesce('datestamp', 'date_created').desc(nulls_last=True)
         ).first()
+
+    def get_date_first_seen(self) -> Optional[datetime.datetime]:
+        """when the first RawDatum for this suid was added
+        """
+        return (
+            self.raw_data
+            .order_by('date_created')
+            .values_list('date_created', flat=True)
+            .first()
+        )
 
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)

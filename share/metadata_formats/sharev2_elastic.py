@@ -76,7 +76,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             'types': format_node_type_lineage(central_work),
 
             # attributes:
-            'date_created': normalized_datum.created_at.isoformat(),  # TODO do another query to get the first normd under the same suid -- unsure how important
+            'date_created': suid.get_date_first_seen().isoformat(),
             'date_modified': normalized_datum.created_at.isoformat(),
             'date_published': central_work['date_published'],
             'date_updated': central_work['date_updated'],

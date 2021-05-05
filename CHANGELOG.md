@@ -1,5 +1,10 @@
 # Change Log
 
+# [21.1.2] - 2021-05-05
+- give an accurate `date_created` in sharev2_elastic formatter
+- fix admin bug -- don't hide the search box
+- add django-debug-toolbar to dev dependencies
+
 # [21.1.1] - 2021-05-04
 - tidy up some admin inefficiencies
 
