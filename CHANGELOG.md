@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.1.3] - 2021-05-05
+- make the oai-pmh feed respect switch-flipping
+
 # [21.1.2] - 2021-05-05
 - give an accurate `date_created` in sharev2_elastic formatter
 - fix admin bug -- don't hide the search box
