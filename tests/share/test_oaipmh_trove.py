@@ -3,11 +3,13 @@ import pendulum
 import pytest
 import random
 from lxml import etree
+from unittest.mock import patch
 
 from django.test.client import Client
 
 from share.models import SourceUniqueIdentifier, FormattedMetadataRecord
 from share.oaipmh.util import format_datetime
+from share.oaipmh.views import OAIPMHView
 from share.util import IDObfuscator
 
 from tests.factories import FormattedMetadataRecordFactory, SourceFactory
@@ -20,12 +22,14 @@ NAMESPACES = {
 }
 
 
+@pytest.fixture(autouse=True)
+def ensure_non_legacy_oaipmh():
+    with patch.object(OAIPMHView, '_should_use_legacy_repository', return_value=False):
+        yield
+
+
 def oai_request(data, pls_post, expect_errors=False):
     client = Client()
-    data = {
-        **data,
-        'pls_trove': True,
-    }
     if pls_post:
         response = client.post('/oai-pmh/', data)
     else:
