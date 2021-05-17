@@ -45,7 +45,6 @@ class ShareViewSet(viewsets.ViewSet):
 class RootView(views.APIView):
     def get(self, request):
         links = {
-            'site_banners': 'api:site_banners-list',
             'normalizeddata': 'api:normalizeddata-list',
             'rawdata': 'api:rawdatum-list',
             'sourceregistrations': 'api:sourceregistration-list',

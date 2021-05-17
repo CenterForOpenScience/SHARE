@@ -1,5 +1,9 @@
 # Change Log
 
+# [21.1.4] - 2021-05-17
+- fix a 500 error at `/api/v2/`
+- fix sending useful debugging info to sentry
+
 # [21.1.3] - 2021-05-05
 - make the oai-pmh feed respect switch-flipping
 

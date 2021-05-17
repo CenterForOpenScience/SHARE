@@ -80,6 +80,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                     'method': request.method,
                     'user': request.user,
                 },
+            }, extra={
                 'error': str(e),
             })
             raise
