@@ -27,6 +27,7 @@ class Deduplicate(GraphStep):
         'throughtags': {'tag', 'creative_work'},
         # 'award': {},
         'throughawards': {'funder', 'award'},
+        'throughsubjects': {'subject', 'creative_work'},
     }
 
     def regulate_graph(self, graph):
