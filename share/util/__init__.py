@@ -9,22 +9,6 @@ def strip_whitespace(string):
     return re.sub(WHITESPACE_RE, ' ', string).strip()
 
 
-def sort_dict_by_key(hierarchy):
-    types = OrderedDict()
-    for key, value in sorted(hierarchy.items()):
-        if isinstance(value, dict):
-            types[key] = sort_dict_by_key(value)
-        else:
-            types[key] = value
-    return types
-
-
-def ensure_iterable(maybe_iterable):
-    if isinstance(maybe_iterable, (list, tuple, set)):
-        return maybe_iterable
-    return [maybe_iterable]
-
-
 class InvalidID(Exception):
     def __init__(self, value, message='Invalid ID'):
         super().__init__(value, message)
@@ -214,16 +198,6 @@ def chunked(iterable, size=25, fail_fast=False):
         if not fail_fast and chunk:
             yield chunk
         raise e
-
-
-def interweave(*iterables):
-    iters = [iter(i) for i in iterables]
-    while iters:
-        for i in tuple(iters):
-            try:
-                yield next(i)
-            except StopIteration:
-                iters.remove(i)
 
 
 def placeholders(length):
