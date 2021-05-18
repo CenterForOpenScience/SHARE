@@ -11,7 +11,6 @@ MODULES = (
     'info',
     'ingest',
     'search',
-    'services',
 )
 
 
