@@ -80,3 +80,23 @@ class TestSharectlSearch:
             mock_daemon.start_indexer_in_thread.side_effect = fake_start_indexer
             run_sharectl('search', 'daemon')
             assert actual_indexes == expected_indexes
+
+
+# TODO unit tests, not just a smoke test
+def test_fetch_runs():
+    with mock.patch('share.bin.harvest.SourceConfig'):
+        run_sharectl('fetch', 'foo.sourceconfig', '2021-05-05', '--print')
+
+
+# TODO unit tests, not just a smoke test
+def test_harvest_runs():
+    with mock.patch('share.bin.harvest.SourceConfig'):
+        run_sharectl('harvest', 'foo.sourceconfig')
+
+
+# TODO unit tests, not just a smoke test
+def test_schedule_runs():
+    with mock.patch('share.bin.harvest.SourceConfig'):
+        with mock.patch('share.bin.harvest.HarvestScheduler'):
+            with mock.patch('share.bin.harvest.tasks'):
+                run_sharectl('schedule', 'foo.sourceconfig')
