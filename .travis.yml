@@ -43,6 +43,7 @@ install:
     - travis_retry pip install flake8==3.8.3 --force-reinstall --upgrade
     - travis_retry pip install -r dev-requirements.txt
     - travis_retry pip install .
+    - travis_retry python setup.py develop
 
 before_script:
   - wget -q --waitretry=1 --retry-connrefused -T 10 -O - http://127.0.0.1:9200

@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('osf_oauth2_adapter', '0001_make_human_group'),
-        ('share', '0003_create_share_user'),
+        ('share', '0001_initial_squashed_0020_auto_20170206_2114'),
         ('sites', '0002_alter_domain_unique'),
         ('socialaccount', '0003_extra_data_default_dict'),
     ]

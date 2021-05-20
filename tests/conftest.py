@@ -11,27 +11,15 @@ from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
-from share.ingest.change_builder import ChangeBuilder, ChangeSetBuilder
-from share.models import Person, NormalizedData, ChangeSet, RawDatum
-from share.models import Article, Institution
+from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
-from share.regulate import Regulator
+from share.models import FormattedMetadataRecord
 from share.search import MessageType, SearchIndexer
 from share.search.elastic_manager import ElasticManager
-from share.util.graph import MutableGraph
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
-
-
-def pytest_configure(config):
-    # The hackiest of all hacks
-    # Looks like pytest's recursion detection doesn't like typedmodels
-    # and will sometimes cause all tests to fail
-    # If we create a queryset here, all of typedmodels cached properties
-    # will be filled in while recursion detection isn't active
-    Article.objects.all()
 
 
 @pytest.fixture
@@ -138,21 +126,6 @@ def normalized_data_id(normalized_data):
 
 
 @pytest.fixture
-def change_set(normalized_data_id):
-    return ChangeSet.objects.create(normalized_data_id=normalized_data_id)
-
-
-@pytest.fixture
-def change_node():
-    return next(n for n in MutableGraph.from_jsonld([{
-        '@id': '_:1234',
-        '@type': 'person',
-        'given_name': 'No',
-        'family_name': 'Matter',
-    }]))
-
-
-@pytest.fixture
 def Graph():
     return GraphBuilder()
 
@@ -162,68 +135,6 @@ def ExpectedGraph(Graph):
     def expected_graph(*args, **kwargs):
         return Graph(*args, **kwargs, normalize_fields=True)
     return expected_graph
-
-
-@pytest.fixture
-def ingest(normalized_data):
-    def _ingest(graph, disambiguate=True, regulate=True, user=None, save=True):
-        if regulate:
-            Regulator().regulate(graph)
-
-        nd = factories.NormalizedDataFactory(source=user) if user else normalized_data
-        cs = ChangeSetBuilder(graph, nd, disambiguate=disambiguate).build_change_set()
-        if save and cs is not None:
-            cs.accept()
-        return cs
-    return _ingest
-
-
-@pytest.fixture
-def change_factory(share_user, source, change_set, change_node):
-    class ChangeFactory:
-        def from_graph(self, jsonld, disambiguate=False):
-            nd = NormalizedData.objects.create(data=jsonld, source=share_user)
-            graph = MutableGraph.from_jsonld(jsonld)
-            return ChangeSetBuilder(graph, nd, disambiguate=disambiguate).build_change_set()
-
-        def get(self):
-            return ChangeBuilder(change_node, source).build_change(change_set)
-
-    return ChangeFactory()
-
-
-@pytest.fixture
-def change_ids(change_factory):
-    class ChangeIdFactory:
-        def get(self):
-            return change_factory.get().id
-    return ChangeIdFactory()
-
-
-@pytest.fixture
-def john_doe(change_ids):
-    john = Person.objects.create(given_name='John', family_name='Doe', change_id=change_ids.get())
-    john.refresh_from_db()
-    return john
-
-
-@pytest.fixture
-def jane_doe(change_ids):
-    jane = Person.objects.create(given_name='Jane', family_name='Doe', change_id=change_ids.get())
-    jane.refresh_from_db()
-    return jane
-
-
-@pytest.fixture
-def all_about_anteaters(change_ids, share_user):
-    article = Article.objects.create(title='All about Anteaters', change_id=change_ids.get())
-    article.sources.add(share_user)
-    return article
-
-
-@pytest.fixture
-def university_of_whales(change_ids):
-    return Institution.objects.create(name='University of Whales', change_id=change_ids.get())
 
 
 @pytest.fixture
@@ -246,7 +157,7 @@ def elastic_test_manager(settings, elastic_test_index_name):
             elastic_test_index_name: {
                 'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
                 'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
-                'INDEX_SETUP': 'share_classic',
+                'INDEX_SETUP': 'postrend_backcompat',
             },
         },
     }
@@ -264,10 +175,27 @@ def elastic_test_manager(settings, elastic_test_index_name):
 
 
 @pytest.fixture
-def index_creativeworks(elastic_test_manager):
+def index_records(elastic_test_manager):
 
-    def _index_creativeworks(ids):
+    def _index_records(normalized_graphs):
+        normalized_datums = [
+            factories.NormalizedDataFactory(
+                data=GraphBuilder()(ng).to_jsonld(),
+                raw=factories.RawDatumFactory(
+                    datum='',
+                ),
+            )
+            for ng in normalized_graphs
+        ]
+        suids = [nd.raw.suid for nd in normalized_datums]
+        for normd, suid in zip(normalized_datums, suids):
+            FormattedMetadataRecord.objects.save_formatted_records(
+                suid=suid,
+                record_formats=['sharev2_elastic'],
+                normalized_datum=normd,
+            )
         indexer = SearchIndexer(elastic_manager=elastic_test_manager)
-        indexer.handle_messages_sync(MessageType.INDEX_CREATIVEWORK, ids)
+        indexer.handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
+        return normalized_datums
 
-    return _index_creativeworks
+    return _index_records

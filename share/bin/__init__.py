@@ -8,10 +8,8 @@ from share.bin.util import execute_cmd
 
 MODULES = (
     'harvest',
-    'info',
     'ingest',
     'search',
-    'services',
 )
 
 

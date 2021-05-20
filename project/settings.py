@@ -75,7 +75,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
-    'graphene_django',
     'prettyjson',
 
     'allauth',
@@ -156,10 +155,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'api.authentication.NonCSRFSessionAuthentication',
     ),
-}
-
-GRAPHENE = {
-    'SCHEMA': 'share.graphql.schema.schema'
 }
 
 MIDDLEWARE = [
@@ -311,16 +306,16 @@ ELASTICSEARCH = {
     'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_postrend_backcompat'), ','),
     # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
     'INDEXES': {
-        'share_v3': {
-            'DEFAULT_QUEUE': 'es-triton-share',
-            'URGENT_QUEUE': 'es-triton-share.urgent',
-            'INDEX_SETUP': 'share_classic',
-        },
-        'share_customtax_1': {
-            'DEFAULT_QUEUE': 'es-share',
-            'URGENT_QUEUE': 'es-share.urgent',
-            'INDEX_SETUP': 'share_classic',
-        },
+        # 'share_v3': {
+        #     'DEFAULT_QUEUE': 'es-triton-share',
+        #     'URGENT_QUEUE': 'es-triton-share.urgent',
+        #     'INDEX_SETUP': 'share_classic',
+        # },
+        # 'share_customtax_1': {
+        #     'DEFAULT_QUEUE': 'es-share',
+        #     'URGENT_QUEUE': 'es-share.urgent',
+        #     'INDEX_SETUP': 'share_classic',
+        # },
         'share_postrend_backcompat': {
             'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
             'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',

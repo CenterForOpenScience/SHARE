@@ -24,7 +24,9 @@ def is_valid_jsonld(value):
 @deconstructible
 class JSONLDValidator:
 
-    __schema_cache = {}
+    __json_schema_cache = {}
+    __validator_cache = {}
+
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jsonld-schema.json')) as fobj:
         jsonld_schema = Draft4Validator(ujson.load(fobj))
 
@@ -124,9 +126,9 @@ class JSONLDValidator:
 
         return schema
 
-    def validator_for(self, share_schema_type):
-        if share_schema_type.name in JSONLDValidator.__schema_cache:
-            return JSONLDValidator.__schema_cache[share_schema_type.name]
+    def json_schema_for_type(self, share_schema_type):
+        if share_schema_type.name in JSONLDValidator.__json_schema_cache:
+            return JSONLDValidator.__json_schema_cache[share_schema_type.name]
 
         schema = {
             'type': 'object',
@@ -146,7 +148,18 @@ class JSONLDValidator:
                 schema['required'].append(share_field.name)
             schema['properties'][share_field.name] = self.json_schema_for_field(share_field)
 
-        return JSONLDValidator.__schema_cache.setdefault(
+        return JSONLDValidator.__json_schema_cache.setdefault(
+            share_schema_type.name,
+            schema,
+        )
+
+    def validator_for(self, share_schema_type):
+        if share_schema_type.name in JSONLDValidator.__validator_cache:
+            return JSONLDValidator.__validator_cache[share_schema_type.name]
+
+        schema = self.json_schema_for_type(share_schema_type)
+
+        return JSONLDValidator.__validator_cache.setdefault(
             share_schema_type.name,
             Draft4Validator(schema, format_checker=draft4_format_checker),
         )

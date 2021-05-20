@@ -1,15 +1,8 @@
 from celery import states
 
-from django.conf import settings
 from django.db import models
-from django.utils.translation import ugettext as _
-
-from model_utils import Choices
-
-from typedmodels.models import TypedModel
 
 from share.models.fields import DateTimeAwareJSONField
-from share.models.fuzzycount import FuzzyCountManager
 from share.models.jobs import get_share_version
 
 
@@ -51,35 +44,3 @@ class CeleryTaskResult(models.Model):
             'traceback': self.traceback,
             'meta': self.meta,
         }
-
-
-class UnusedCeleryTask(TypedModel):
-    """Keeping this model around so we have the data to refer back to, if need be.
-    """
-    STATUS = Choices(
-        (0, 'started', _('started')),
-        (1, 'retried', _('retried')),
-        (2, 'failed', _('failed')),
-        (3, 'succeeded', _('succeeded')),
-    )
-
-    uuid = models.UUIDField(db_index=True, unique=True)
-    name = models.TextField(blank=True, db_index=True)
-    args = models.TextField(blank=True)
-    kwargs = models.TextField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
-    started_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='started_by', null=True, on_delete=models.CASCADE)
-    # TODO rename to 'source'
-    provider = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='provider', null=True, on_delete=models.CASCADE)
-    status = models.IntegerField(choices=STATUS)
-
-    objects = FuzzyCountManager()
-
-    class Meta:
-        ordering = ('-timestamp',)
-        index_together = ('type', 'name', 'app_label', 'timestamp')
-
-
-class UnusedCeleryProviderTask(UnusedCeleryTask):
-    app_label = models.TextField(db_index=True, blank=True)
-    app_version = models.TextField(db_index=True, blank=True)

@@ -37,36 +37,6 @@ class Migration(migrations.Migration):
         ('contenttypes', '0002_remove_content_type_name'),
     ]
 
-    replaces = [
-        ('share', '0001_initial'),
-        ('share', '0002_initial'),
-        ('share', '0003_create_share_user'),
-        ('share', '0004_unique_organization_institution_names'),
-        ('share', '0005_update_trigger_migrations_20161117_0127'),
-        ('share', '0006_auto_20161118_1707'),
-        ('share', '0007_auto_20161122_1810'),
-        ('share', '0008_auto_20161207_1535'),
-        ('share', '0009_auto_20161209_1945'),
-        ('share', '0010_auto_20161212_1418_a'),
-        ('share', '0010_auto_20161212_1418_b'),
-        ('share', '0010_auto_20161212_1418_c'),
-        ('share', '0010_auto_20161212_1418_d'),
-        ('share', '0010_auto_20161212_1418_e'),
-        ('share', '0011_sitebanner'),
-        ('share', '0012_auto_20161212_1555'),
-        ('share', '0013_auto_20161214_1921'),
-        ('share', '0014_auto_20170112_2143'),
-        ('share', '0014_auto_20170127_1423'),
-        ('share', '0015_auto_20170117_2050'),
-        ('share', '0016_auto_20170130_2130'),
-        ('share', '0016_merge'),
-        ('share', '0017_merge'),
-        ('share', '0018_fuzzycount'),
-        ('share', '0018_store_favicons'),
-        ('share', '0019_merge'),
-        ('share', '0020_auto_20170206_2114'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='ShareUser',
