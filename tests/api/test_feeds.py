@@ -65,6 +65,5 @@ class TestFeed:
         ('/api/v2/feeds/rss/', 200),
     ])
     def test_gone(self, client, settings, fake_items, feed_url, expected_status):
-        settings.SHARE_LEGACY_PIPELINE = False
         resp = client.get(feed_url)
         assert resp.status_code == expected_status
