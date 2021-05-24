@@ -22,7 +22,7 @@ from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
-from share.models.core import NormalizedData, ShareUser
+from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
 from share.models.fields import DateTimeAwareJSONField
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
@@ -215,10 +215,11 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 @linked_fk('source_config')
 @linked_fk('ingest_job')  # technically not fk but still works
+@linked_many('formattedmetadatarecord_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = FuzzyPaginator
-    actions = ('reingest',)
+    actions = ('reingest', 'delete_formatted_records_for_suid')
     list_filter = (SourceConfigFilter,)
     list_select_related = ('source_config',)
     show_full_result_count = False
@@ -226,6 +227,10 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
 
     def reingest(self, request, queryset):
         IngestScheduler().bulk_reingest(queryset)
+
+    def delete_formatted_records_for_suid(self, request, queryset):
+        for suid in queryset:
+            FormattedMetadataRecord.objects.delete_formatted_records(suid)
 
     def get_search_results(self, request, queryset, search_term):
         if not search_term:
@@ -237,12 +242,20 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
         )
 
 
+@linked_fk('suid')
+class FormattedMetadataRecordAdmin(admin.ModelAdmin):
+    readonly_fields = ('record_format',)
+    paginator = FuzzyPaginator
+    show_full_result_count = False
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
 admin.site.register(HarvestJob, HarvestJobAdmin)
 admin.site.register(IngestJob, IngestJobAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
+admin.site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(SiteBanner, SiteBannerAdmin)

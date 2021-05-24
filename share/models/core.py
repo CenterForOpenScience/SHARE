@@ -205,6 +205,16 @@ class NormalizedData(models.Model):
 
 
 class FormattedMetadataRecordManager(models.Manager):
+    def delete_formatted_records(self, suid):
+        records = []
+        for record_format in Extensions.get_names('share.metadata_formats'):
+            formatter = Extensions.get('share.metadata_formats', record_format)()
+            formatted_record = formatter.format_as_deleted(suid)
+            record = self._save_formatted_record(suid, record_format, formatted_record)
+            if record is not None:
+                records.append(record)
+        return records
+
     def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
         if normalized_datum is None:
             normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
@@ -213,15 +223,14 @@ class FormattedMetadataRecordManager(models.Manager):
 
         records = []
         for record_format in record_formats:
-            record = self._format_and_save(suid, normalized_datum, record_format)
+            formatter = Extensions.get('share.metadata_formats', record_format)()
+            formatted_record = formatter.format(normalized_datum)
+            record = self._save_formatted_record(suid, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
 
-    def _format_and_save(self, suid, normalized_datum, record_format):
-        formatter = Extensions.get('share.metadata_formats', record_format)()
-
-        formatted_record = formatter.format(normalized_datum)
+    def _save_formatted_record(self, suid, record_format, formatted_record):
         if formatted_record:
             record, _ = self.update_or_create(
                 suid=suid,
@@ -257,4 +266,7 @@ class FormattedMetadataRecord(models.Model):
         ]
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}({self.id}, {self.suid_id}, {self.record_format})>'
+        return f'<{self.__class__.__name__}({self.id}, {self.record_format}, suid:{self.suid_id})>'
+
+    def __str__(self):
+        return repr(self)
