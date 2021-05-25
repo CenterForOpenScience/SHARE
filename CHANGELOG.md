@@ -1,5 +1,32 @@
 # Change Log
 
+# [21.2.0] - 2021-05-25
+- big rend! remove many things:
+  - concepts:
+    - merging data from multiple sources together (aiming instead for a simple,
+      robust repository of metadata records -- let's talk later/soon about how
+      we might do merging well)
+  - models:
+    - `ShareObject` and all its descendents
+    - `ShareObjectVersion` and all its descendents
+    - `Change`
+    - `ChangeSet`
+    - `SubjectTaxonomy`
+    - `UnusedCeleryProviderTask`
+    - `UnusedCeleryTask`
+  - api routes:
+    - all auto-generated `ShareObject` routes (e.g. `/api/v2/creativeworks/`)
+    - all `schema` routes (except the root `/api/v2/schema/`)
+      - auto-generated schema routes (e.g. `/api/v2/schema/disputes/`)
+      - work type hierarchy (`/api/v2/schema/creativeworks/hierarchy/`)
+    - `/api/v2/graph/`
+- admin features/improvements
+  - add FormattedMetadataRecord admin
+  - when investigating a problem, start by finding the suid and navigate
+    relationships from there
+  - add action to delete all FormattedMetadataRecords for some chosen suid(s)
+    (good for spam control)
+
 # [21.1.4] - 2021-05-17
 - fix a 500 error at `/api/v2/`
 - fix sending useful debugging info to sentry
