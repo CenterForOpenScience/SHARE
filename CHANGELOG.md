@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.2.2] - 2021-05-25
+- fix: feeds should not break on null date_published
+
 # [21.2.1] - 2021-05-25
 - fix: oai_dc formatter breaks on deletions
 
