@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.2.1] - 2021-05-25
+- fix: oai_dc formatter breaks on deletions
+
 # [21.2.0] - 2021-05-25
 - big rend! remove many things:
   - concepts:
