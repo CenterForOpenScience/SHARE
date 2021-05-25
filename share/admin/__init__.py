@@ -3,13 +3,12 @@ from prettyjson import PrettyJSONWidget
 from django import forms
 from django.conf.urls import url
 from django.contrib import admin
-from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.widgets import AdminDateWidget
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html, format_html_join, mark_safe
+from django.utils.html import format_html
 
 from oauth2_provider.models import AccessToken
 
@@ -18,26 +17,20 @@ from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
 from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
-from share.admin.share_objects import CreativeWorkAdmin, SubjectAdmin
 from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
-from share.models.change import ChangeSet
-from share.models.core import NormalizedData, ShareUser
-from share.models.creative import AbstractCreativeWork
+from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
 from share.models.fields import DateTimeAwareJSONField
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
-from share.models.meta import Subject, SubjectTaxonomy
 from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat
 
 
-admin.site.register(AbstractCreativeWork, CreativeWorkAdmin)
-admin.site.register(Subject, SubjectAdmin)
 admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
 
@@ -61,38 +54,6 @@ class NormalizedDataAdmin(admin.ModelAdmin):
             })
         }
     }
-
-
-class ChangeSetSubmittedByFilter(SimpleListFilter):
-    title = 'Source'
-    parameter_name = 'source_id'
-
-    def lookups(self, request, model_admin):
-        return ShareUser.objects.filter(is_active=True).values_list('id', 'username')
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(normalized_data__source_id=self.value())
-        return queryset
-
-
-class ChangeSetAdmin(admin.ModelAdmin):
-    list_display = ('status_', 'count_changes', 'submitted_by', 'submitted_at')
-    actions = ['accept_changes']
-    list_filter = ['status', ChangeSetSubmittedByFilter]
-    raw_id_fields = ('normalized_data',)
-    paginator = FuzzyPaginator
-
-    def submitted_by(self, obj):
-        return obj.normalized_data.source
-    submitted_by.short_description = 'submitted by'
-
-    def count_changes(self, obj):
-        return obj.changes.count()
-    count_changes.short_description = 'number of changes'
-
-    def status_(self, obj):
-        return ChangeSet.STATUS[obj.status].title()
 
 
 @linked_fk('suid')
@@ -222,35 +183,6 @@ class SourceAdmin(admin.ModelAdmin):
         return None
 
 
-class SubjectTaxonomyAdmin(admin.ModelAdmin):
-    readonly_fields = ('source', 'subject_links',)
-    fields = ('source', 'is_deleted', 'subject_links')
-    list_display = ('id', 'source_',)
-    list_select_related = ('source',)
-
-    def source_(self, obj):
-        return obj.source.long_title
-
-    def subject_links(self, obj):
-        def recursive_link_list(subjects):
-            if not subjects:
-                return ''
-            items = format_html_join(
-                '', '<li style="list-style: square;"><a href="{}">{}</a>{}</li>',
-                (
-                    (
-                        reverse('admin:share_subject_change', args=(s.id,)),
-                        s.name,
-                        mark_safe(recursive_link_list(list(s.children.all())))
-                    ) for s in sorted(subjects, key=lambda s: s.name)
-                )
-            )
-            return format_html('<ul style="margin-left: 10px;">{}</ul>', mark_safe(items))
-        roots = obj.subject_set.filter(parent__isnull=True).prefetch_related('children', 'children__children', 'children__children__children')
-        return recursive_link_list(list(roots))
-    subject_links.short_description = 'Subjects'
-
-
 class SourceStatAdmin(admin.ModelAdmin):
     search_fields = ('config__label', 'config__source__long_title')
     list_display = ('label', 'date_created', 'base_urls_match', 'earliest_datestamps_match', 'response_elapsed_time', 'response_status_code', 'grade_')
@@ -283,10 +215,11 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 @linked_fk('source_config')
 @linked_fk('ingest_job')  # technically not fk but still works
+@linked_many('formattedmetadatarecord_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = FuzzyPaginator
-    actions = ('reingest',)
+    actions = ('reingest', 'delete_formatted_records_for_suid')
     list_filter = (SourceConfigFilter,)
     list_select_related = ('source_config',)
     show_full_result_count = False
@@ -294,6 +227,10 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
 
     def reingest(self, request, queryset):
         IngestScheduler().bulk_reingest(queryset)
+
+    def delete_formatted_records_for_suid(self, request, queryset):
+        for suid in queryset:
+            FormattedMetadataRecord.objects.delete_formatted_records(suid)
 
     def get_search_results(self, request, queryset, search_term):
         if not search_term:
@@ -305,13 +242,20 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
         )
 
 
+@linked_fk('suid')
+class FormattedMetadataRecordAdmin(admin.ModelAdmin):
+    readonly_fields = ('record_format',)
+    paginator = FuzzyPaginator
+    show_full_result_count = False
+
+
 admin.site.unregister(AccessToken)
 admin.site.register(AccessToken, AccessTokenAdmin)
 
-admin.site.register(ChangeSet, ChangeSetAdmin)
 admin.site.register(HarvestJob, HarvestJobAdmin)
 admin.site.register(IngestJob, IngestJobAdmin)
 admin.site.register(NormalizedData, NormalizedDataAdmin)
+admin.site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(SiteBanner, SiteBannerAdmin)
@@ -320,7 +264,6 @@ admin.site.register(Harvester)
 admin.site.register(ShareUser)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
-admin.site.register(SubjectTaxonomy, SubjectTaxonomyAdmin)
 admin.site.register(SourceStat, SourceStatAdmin)
 admin.site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
 admin.site.register(Transformer)

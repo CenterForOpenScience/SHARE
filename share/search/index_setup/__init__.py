@@ -1,8 +1,8 @@
 from .postrend_backcompat import PostRendBackcompatIndexSetup
-from .share_classic import ShareClassicIndexSetup
+from .trove_v0 import TroveV0IndexSetup
 
 
 __all__ = (
     'PostRendBackcompatIndexSetup',
-    'ShareClassicIndexSetup',
+    'TroveV0IndexSetup',
 )

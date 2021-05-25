@@ -1,8 +1,10 @@
 import dateutil
 import pytest
 
-from tests.factories import RawDatumFactory
-from tests.factories.core import NormalizedDataFactory
+from share.models.core import FormattedMetadataRecord
+from share.util.extensions import Extensions
+
+from tests.factories import RawDatumFactory, NormalizedDataFactory
 
 
 FORMATTER_TEST_INPUTS = {
@@ -326,12 +328,25 @@ FORMATTER_TEST_INPUTS = {
 
 @pytest.mark.django_db
 class BaseMetadataFormatterTest:
-    # override in child class
+
+    ####### override these things #######
+
+    # formatter key, as registered in setup.py
+    formatter_key = None
+
+    # dictionary with the same keys as `FORMATTER_TEST_INPUTS`, mapping to values
+    # that `assert_formatter_outputs_equal` will understand
     expected_outputs = {}
 
-    # override in child class
-    def test_formatter(self, normalized_datum, expected_output):
+    def assert_formatter_outputs_equal(self, actual_output, expected_output):
+        """raise AssertionError if the two outputs aren't equal
+
+        @param actual_output (str): return value of the formatter's `.format()` method
+        @param expected_output: corresponding value from this class's `expected_outputs` dictionary
+        """
         raise NotImplementedError
+
+    ####### don't override anything else #######
 
     @pytest.fixture(scope='class', autouse=True)
     def _sanity_check(self):
@@ -340,6 +355,10 @@ class BaseMetadataFormatterTest:
     @pytest.fixture(params=FORMATTER_TEST_INPUTS.keys())
     def _test_key(self, request):
         return request.param
+
+    @pytest.fixture
+    def formatter(self):
+        return Extensions.get('share.metadata_formats', self.formatter_key)()
 
     @pytest.fixture
     def formatter_test_input(self, _test_key):
@@ -359,3 +378,20 @@ class BaseMetadataFormatterTest:
             ),
             **formatter_test_input['normalized_datum_kwargs'],
         )
+
+    def test_formatter(self, formatter, normalized_datum, expected_output):
+        actual_output = formatter.format(normalized_datum)
+        self.assert_formatter_outputs_equal(actual_output, expected_output)
+
+    def test_save_formatted_records(self, normalized_datum, expected_output):
+        saved_records = FormattedMetadataRecord.objects.save_formatted_records(
+            suid=normalized_datum.raw.suid,
+            record_formats=[self.formatter_key],
+            normalized_datum=normalized_datum,
+        )
+        if expected_output is None:
+            assert len(saved_records) == 0
+        else:
+            assert len(saved_records) == 1
+            actual_output = saved_records[0].formatted_metadata
+            self.assert_formatter_outputs_equal(actual_output, expected_output)

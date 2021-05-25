@@ -42,7 +42,7 @@ def migrate_push_sources(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0019_merge'),
+        ('share', '0001_initial_squashed_0020_auto_20170206_2114'),
     ]
 
     operations = [

@@ -1,7 +1,5 @@
 from collections import OrderedDict
-import os
 import re
-import yaml
 
 
 WHITESPACE_RE = r'\s+'
@@ -9,22 +7,6 @@ WHITESPACE_RE = r'\s+'
 
 def strip_whitespace(string):
     return re.sub(WHITESPACE_RE, ' ', string).strip()
-
-
-def sort_dict_by_key(hierarchy):
-    types = OrderedDict()
-    for key, value in sorted(hierarchy.items()):
-        if isinstance(value, dict):
-            types[key] = sort_dict_by_key(value)
-        else:
-            types[key] = value
-    return types
-
-
-def ensure_iterable(maybe_iterable):
-    if isinstance(maybe_iterable, (list, tuple, set)):
-        return maybe_iterable
-    return [maybe_iterable]
 
 
 class InvalidID(Exception):
@@ -167,50 +149,6 @@ class TopologicalSorter:
         return self.__node_map[key] if self.__node_map else key
 
 
-class ModelGenerator:
-    """Generate model classes from yaml specs"""
-
-    def __init__(self, field_types={}):
-        self.__field_types = field_types
-
-    def subclasses_from_yaml(self, file_name, base):
-        yaml_file = re.sub(r'\.py$', '.yaml', os.path.abspath(file_name))
-        with open(yaml_file) as fobj:
-            model_specs = yaml.load(fobj)
-
-        return self.generate_subclasses(model_specs, base)
-
-    def generate_subclasses(self, model_specs, base):
-        models = {}
-        for (name, mspec) in sorted(model_specs.items()):
-            fields = mspec.get('fields', {})
-            verbose_name_plural = mspec.get('verbose_name_plural', None)
-
-            model = type(name, (base,), {
-                **{fname: self._get_field(fspec) for (fname, fspec) in fields.items()},
-                '__doc__': mspec.get('description'),
-                '__qualname__': name,
-                '__module__': base.__module__
-            })
-            models[name] = model
-            models[model.VersionModel.__name__] = model.VersionModel
-
-            if verbose_name_plural:
-                model._meta.verbose_name_plural = verbose_name_plural
-            elif model._meta.verbose_name.endswith('s'):
-                model._meta.verbose_name_plural = model._meta.verbose_name
-
-            children = mspec.get('children')
-            if children:
-                models.update(self.generate_subclasses(children, model))
-
-        return models
-
-    def _get_field(self, field_spec):
-        field_class = self.__field_types[field_spec['type']]
-        return field_class(*field_spec.get('args', []), **field_spec.get('kwargs', {}))
-
-
 class DictHashingDict:
     # A wrapper around dicts that can have dicts as keys
 
@@ -260,16 +198,6 @@ def chunked(iterable, size=25, fail_fast=False):
         if not fail_fast and chunk:
             yield chunk
         raise e
-
-
-def interweave(*iterables):
-    iters = [iter(i) for i in iterables]
-    while iters:
-        for i in tuple(iters):
-            try:
-                yield next(i)
-            except StopIteration:
-                iters.remove(i)
 
 
 def placeholders(length):

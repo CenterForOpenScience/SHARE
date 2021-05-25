@@ -3,9 +3,10 @@ import uuid
 import logging
 from functools import reduce
 
-from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 
+from share.schema import ShareV2Schema
+from share.schema.shapes import RelationShape
 from share.transform.chain.exceptions import ChainError
 from share.transform.chain.links import Context
 from share.transform.chain.links import AbstractLink
@@ -63,7 +64,7 @@ class Parser(metaclass=ParserMeta):
 
     def validate(self, field, value):
         if field.is_relation:
-            if field.one_to_many or field.remote_field.many_to_many:
+            if field.relation_shape in (RelationShape.ONE_TO_MANY, RelationShape.MANY_TO_MANY):
                 assert isinstance(value, (list, tuple)), 'Values for field {} must be lists. Found {}'.format(field, value)
             else:
                 assert isinstance(value, dict) and '@id' in value and '@type' in value, 'Values for field {} must be a dictionary with keys @id and @type. Found {}'.format(field, value)
@@ -86,16 +87,16 @@ class Parser(metaclass=ParserMeta):
         else:
             schema = self.schema
 
-        model = apps.get_model('share', schema)
+        schema_type = ShareV2Schema().get_type(schema)
         self.ref = {'@id': self.id, '@type': schema}
 
         inst = {**self.ref}  # Shorthand for copying ref
 
         for key, chain in self.parsers.items():
             try:
-                field = model._meta.get_field(key)
+                field = ShareV2Schema().get_field(schema_type.name, key)
             except FieldDoesNotExist:
-                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, model))
+                raise Exception('Tried to parse value {} which does not exist on {}'.format(key, schema_type))
 
             try:
                 value = chain.run(self.context)
@@ -103,15 +104,23 @@ class Parser(metaclass=ParserMeta):
                 e.push('{}.{}'.format(self.__class__.__name__, key))
                 raise e
 
-            if value and field.is_relation and (field.one_to_many or field.remote_field.many_to_many):
-                field_name = field.field.name if field.one_to_many else field.m2m_field_name()
+            if (
+                value
+                and field.is_relation
+                and field.relation_shape in (RelationShape.ONE_TO_MANY, RelationShape.MANY_TO_MANY)
+            ):
+                if field.relation_shape == RelationShape.ONE_TO_MANY:
+                    field_to_set = field.inverse_relation
+                else:
+                    field_to_set = field.incoming_through_relation
+
                 for v in tuple(value):  # Freeze list so we can modify it will iterating
                     # Allow filling out either side of recursive relations
-                    if model._meta.concrete_model == field.related_model and field_name in ctx.pool[v]:
-                        ctx.pool[v][field.m2m_reverse_field_name()] = self.ref
+                    if schema_type.concrete_type == field.related_concrete_type and field.name in ctx.pool[v]:
+                        ctx.pool[v][field_to_set] = self.ref
                         value.remove(v)  # Prevent CyclicalDependency error. Only "subjects" should have related_works
                     else:
-                        ctx.pool[v][field_name] = self.ref
+                        ctx.pool[v][field_to_set] = self.ref
 
             if value is not None:
                 self.validate(field, value)

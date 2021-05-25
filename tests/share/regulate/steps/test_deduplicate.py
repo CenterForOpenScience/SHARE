@@ -2,7 +2,13 @@ import pytest
 
 from share.regulate.steps.deduplicate import Deduplicate
 
-from tests.share.normalize.factories import *
+from tests.share.normalize.factories import (
+    CreativeWork,
+    Preprint,
+    Registration,
+    Subject,
+    WorkIdentifier,
+)
 
 
 class TestDeduplicate:
