@@ -1,7 +1,6 @@
 # SHARE Quickstart or: How I Learned to Stop Worrying and Love the Dock
 
-this guide sets up everything inside docker containers -- no dependencies
-or python environments on your host machine.
+this guide guides you through setting up SHARE locally using Docker.
 
 ## pre-requisites
 - [git](https://git-scm.com/)
