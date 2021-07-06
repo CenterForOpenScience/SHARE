@@ -17,7 +17,7 @@ from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
 from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
-from share.admin.util import FuzzyPaginator, linked_fk, linked_many, SourceConfigFilter
+from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
@@ -44,7 +44,7 @@ class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
     raw_id_fields = ('tasks',)
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
     formfield_overrides = {
         DateTimeAwareJSONField: {
             'widget': PrettyJSONWidget(attrs={
@@ -63,7 +63,7 @@ class RawDatumAdmin(admin.ModelAdmin):
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
     readonly_fields = ('datum', 'sha256')
     raw_id_fields = ('jobs',)
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
 
     def identifier(self, obj):
         return obj.suid.identifier
@@ -218,7 +218,7 @@ class SourceStatAdmin(admin.ModelAdmin):
 @linked_many('formattedmetadatarecord_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
     actions = ('reingest', 'delete_formatted_records_for_suid')
     list_filter = (SourceConfigFilter,)
     list_select_related = ('source_config',)
@@ -245,7 +245,7 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
 @linked_fk('suid')
 class FormattedMetadataRecordAdmin(admin.ModelAdmin):
     readonly_fields = ('record_format',)
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
     show_full_result_count = False
 
 

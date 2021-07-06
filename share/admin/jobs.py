@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from share.admin.util import FuzzyPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
+from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
 from share.models.jobs import AbstractBaseJob, IngestJob
 from share.tasks import ingest
 
@@ -29,7 +29,7 @@ class BaseJobAdmin(admin.ModelAdmin):
     actions = ('restart_tasks', )
     readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', 'source_config_version', )
     show_full_result_count = False
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
 
     def status_(self, obj):
         return format_html(
