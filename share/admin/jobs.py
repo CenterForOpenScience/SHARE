@@ -74,10 +74,6 @@ class IngestJobAdmin(BaseJobAdmin):
     readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries', 'most_recent_suid_raw',)
     show_full_result_count = False
 
-    def get_search_results(self, request, queryset, search_term):
-        # return (queryset, is_distinct) pair
-        return queryset.filter(suid__identifier=search_term), False
-
     def suid_(self, obj):
         return obj.suid.identifier
 
