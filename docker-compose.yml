@@ -73,9 +73,12 @@ services:
     command:
       - /bin/bash
       - -c
-      - pip install -r requirements.txt -r dev-requirements.txt &&
+      - apt-get update &&
+        apt-get install -y gcc &&
+        pip install -r requirements.txt -r dev-requirements.txt &&
         (python3 -m compileall /usr/local/lib/python3.6 || true) &&
         rm -Rf /python3.6/* &&
+        apt-get remove -y gcc &&
         cp -Rf -p /usr/local/lib/python3.6 / &&
         python3 setup.py develop
     restart: 'no'
