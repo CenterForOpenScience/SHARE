@@ -151,7 +151,7 @@ class TestSourcesGet:
         assert resp.json()['meta']['pagination']['count'] == source_count - 1
 
     def test_by_id(self, client):
-        source = Source.objects.last()
+        source = Source.objects.exclude(icon='').exclude(is_deleted=True).last()
         resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
 
         assert resp.status_code == 200
