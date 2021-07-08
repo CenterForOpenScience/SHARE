@@ -11,7 +11,6 @@ import types
 import xmltodict
 import pendulum
 from lxml import etree
-from pycountry import languages
 
 from django.conf import settings
 
@@ -319,16 +318,7 @@ class LanguageParserLink(AbstractLink):
     def execute(self, maybe_code):
         if isinstance(maybe_code, dict):
             maybe_code = maybe_code['#text']
-        # Force indices to populate
-        if not languages._is_loaded:
-            languages._load()
-
-        for kwarg in languages.indices.keys():
-            try:
-                return languages.get(**{kwarg: maybe_code}).iso639_3_code
-            except KeyError:
-                continue
-        return None
+        return maybe_code
 
 
 class ConcatLink(AbstractLink):

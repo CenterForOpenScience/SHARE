@@ -1,7 +1,7 @@
 from prettyjson import PrettyJSONWidget
 
 from django import forms
-from django.conf.urls import url
+from django.urls import re_path as url
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
 from django.http import HttpResponseRedirect

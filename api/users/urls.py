@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path as url
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from rest_framework.routers import SimpleRouter
