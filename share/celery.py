@@ -1,18 +1,13 @@
-import bz2
 import datetime
 import functools
-import io
 import logging
 
-import boto3
 
 from celery import states
 from celery.app.task import Context
 from celery.backends.base import BaseDictBackend
 from celery.utils.time import maybe_timedelta
 
-from django.conf import settings
-from django.core import serializers
 from django.db import transaction
 from django.utils import timezone
 
@@ -98,19 +93,7 @@ class CeleryDatabaseBackend(BaseDictBackend):
 
     @die_on_unhandled
     def cleanup(self, expires=None):
-        # require storage and folder settings on prod and staging
-        if settings.DEBUG is False:
-            if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
-                raise Exception('No storage found! CeleryTasks will NOT be archived or deleted.')
-            if not settings.CELERY_TASK_FOLDER_NAME:
-                raise Exception('Folder name not set! Please define folder name in project.settings')
-
-        if not settings.AWS_ACCESS_KEY_ID or not settings.AWS_SECRET_ACCESS_KEY:
-            logger.warning('No storage found! CeleryTasks will NOT be archived but WILL be deleted.')
-        elif not settings.CELERY_TASK_BUCKET_NAME:
-            raise Exception('Bucket name not set! Please define bucket name in project.settings')
-
-        TaskResultCleaner(expires or self.expires, bucket=settings.CELERY_TASK_BUCKET_NAME).archive()
+        TaskResultCleaner(expires or self.expires).clean()
 
     @die_on_unhandled
     def _get_task_meta_for(self, task_id):
@@ -157,7 +140,7 @@ class TaskResultCleaner:
             task_names.append(val.get('task_name'))
         return task_names
 
-    def archive(self):
+    def clean(self):
         for name in self.get_task_names():
             logger.debug('Looking for succeeded %s tasks modified before %s', name, self.get_ttl(name))
 
@@ -168,48 +151,10 @@ class TaskResultCleaner:
             )
 
             if not queryset.exists():
-                logger.debug('No %s tasks eligible for archival', name)
+                logger.debug('No %s tasks eligible for cleaning', name)
                 continue
 
-            self.archive_queryset(name, queryset)
             self.delete_queryset(queryset)
-
-    def archive_queryset(self, task_name, queryset):
-        if self.bucket is None:
-            logger.warning('%r.bucket is None. Results will NOT be archived', self)
-            return None
-
-        if task_name in self.NO_ARCHIVE:
-            logger.info('Found %s in NO_ARCHIVE, archival will be skipped', task_name)
-
-        total = queryset.count()
-        logger.info('Found %s %ss eligible for archiving', total, task_name)
-        logger.info('Archiving in chunks of %d', self.chunk_size)
-
-        i = 0
-        for chunk in chunked(queryset.iterator(), size=self.chunk_size):
-            compressed = self.compress_and_serialize(chunk)
-            self.put_s3(task_name, compressed)
-            i += len(chunk)
-            logger.info('Archived %d of %d', i, total)
-
-    def put_s3(self, location, data):
-        obj_name = '{}/{}-{}.json.bz2'.format(
-            settings.CELERY_TASK_FOLDER_NAME or '',
-            location,
-            timezone.now(),
-        )
-
-        boto3.resource('s3').Object(self.bucket, obj_name).put(
-            Body=data.getvalue(),
-            ServerSideEncryption='AES256'
-        )
-
-    def compress_and_serialize(self, queryset):
-        compressed_output = io.BytesIO()
-        compressed_output.write(bz2.compress(serializers.serialize('json', queryset).encode()))
-
-        return compressed_output
 
     def delete_queryset(self, queryset):
         if not self.delete:
