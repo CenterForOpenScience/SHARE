@@ -36,13 +36,13 @@ class TestResultArchiver:
         trc.TASK_TTLS['existant-task'] = datetime.timedelta(days=1)
         assert ((timezone.now() - datetime.timedelta(days=1)) - trc.get_ttl('existant-task')) < datetime.timedelta(seconds=2)
 
-    def test_clean(self, mock_boto):
+    def test_clean(self):
         trc = TaskResultCleaner(0, bucket=mock.Mock())
         factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
         trc.clean()
         assert CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
 
-    def test_clean_chunksize(self, mock_boto):
+    def test_clean_chunksize(self):
         trc = TaskResultCleaner(0, bucket=mock.Mock(), chunk_size=1)
         factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
         trc.clean()

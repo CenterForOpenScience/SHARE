@@ -14,14 +14,9 @@ class TestSiteBanners:
         assert resp.json() == {
             'data': [],
             'links': {
-                'first': 'http://testserver/api/v2/site_banners/?page=1',
-                'last': 'http://testserver/api/v2/site_banners/?page=1',
                 'next': None,
                 'prev': None,
             },
-            'meta': {
-                'pagination': {'count': 0, 'pages': 1, 'page': 1},
-            }
         }
 
     def test_list_with_items(self, client):
@@ -46,14 +41,9 @@ class TestSiteBanners:
                 }
             }],
             'links': {
-                'first': 'http://testserver/api/v2/site_banners/?page=1',
-                'last': 'http://testserver/api/v2/site_banners/?page=1',
                 'next': None,
                 'prev': None,
             },
-            'meta': {
-                'pagination': {'count': 1, 'pages': 1, 'page': 1},
-            }
         }
 
     # def test_get_item(self, client):

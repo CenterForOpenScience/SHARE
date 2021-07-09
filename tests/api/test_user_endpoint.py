@@ -28,12 +28,16 @@ class TestSourcesGet:
     def test_logged_in(self, endpoint, client, share_user):
         resp = client.get(endpoint, HTTP_AUTHORIZATION=share_user.authorization())
         assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == 1
+
+        user_data = resp.json()['data']
+        assert len(user_data) == 1
+        assert user_data[0]['attributes']['username'] == share_user.username
 
     def test_not_logged_in(self, endpoint, client):
         resp = client.get(endpoint)
         assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == 0
+        user_data = resp.json()['data']
+        assert len(user_data) == 0
 
 
 @pytest.mark.django_db

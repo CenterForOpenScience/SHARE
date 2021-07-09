@@ -112,6 +112,22 @@ def flatten_write_response(resp):
     return flattened
 
 
+def fetch_all_pages(client, url, results=None):
+    if results is None:
+        results = []
+
+    resp = client.get(url)
+    assert resp.status_code == 200
+    resp_json = resp.json()
+
+    results.extend(resp_json['data'])
+
+    next_url = resp_json['links']['next']
+    if next_url:
+        return fetch_all_pages(client, next_url, results)
+    return results
+
+
 @pytest.mark.django_db
 class TestSourcesGet:
     endpoint = '/api/v2/sources/'
@@ -120,35 +136,50 @@ class TestSourcesGet:
         sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
         source_count = sources_qs.count()
 
-        resp = client.get(self.endpoint)
+        results = fetch_all_pages(client, self.endpoint)
 
         assert source_count > 0
-        assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == source_count
+        assert len(results) == source_count
 
     def test_is_deleted(self, client):
         sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
         source_count = sources_qs.count()
 
-        s = sources_qs.first()
-        s.is_deleted = True
-        s.save()
+        sources_before = fetch_all_pages(client, self.endpoint)
+        source_ids_before = {s['id'] for s in sources_before}
 
-        resp = client.get(self.endpoint)
-        assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == source_count - 1
+        assert len(sources_before) == source_count
+
+        deleted_source = sources_qs.first()
+        deleted_source.is_deleted = True
+        deleted_source.save()
+
+        sources_after = fetch_all_pages(client, self.endpoint)
+        source_ids_after = {s['id'] for s in sources_after}
+
+        assert len(sources_after) == len(sources_before) - 1
+        missing_ids = source_ids_before - source_ids_after
+        assert missing_ids == {IDObfuscator.encode(deleted_source)}
 
     def test_no_icon(self, client):
         sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
         source_count = sources_qs.count()
 
-        s = sources_qs.first()
-        s.icon = None
-        s.save()
+        sources_before = fetch_all_pages(client, self.endpoint)
+        source_ids_before = {s['id'] for s in sources_before}
 
-        resp = client.get(self.endpoint)
-        assert resp.status_code == 200
-        assert resp.json()['meta']['pagination']['count'] == source_count - 1
+        assert len(sources_before) == source_count
+
+        iconless_source = sources_qs.first()
+        iconless_source.icon = None
+        iconless_source.save()
+
+        sources_after = fetch_all_pages(client, self.endpoint)
+        source_ids_after = {s['id'] for s in sources_after}
+
+        assert len(sources_after) == len(sources_before) - 1
+        missing_ids = source_ids_before - source_ids_after
+        assert missing_ids == {IDObfuscator.encode(iconless_source)}
 
     def test_by_id(self, client):
         source = Source.objects.exclude(icon='').exclude(is_deleted=True).last()

@@ -185,6 +185,7 @@ class TestValidator:
     POST_CASES = [{
         'out': Response(400, json={
             'errors': [{
+                'code': 'required',
                 'detail': 'This field is required.',
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
@@ -199,6 +200,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'parse_error',
                 'detail': 'JSON parse error - Expecting value: line 1 column 1 (char 0)',
                 'source': {'pointer': '/data'},
                 'status': '400'
@@ -208,6 +210,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': '@graph may not be empty',
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
@@ -243,6 +246,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': "'@id' is a required property at /@graph/0",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
@@ -265,6 +269,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': "'AbstractAgent' is not one of ["
                           "'AGENT', 'Agent', 'CONSORTIUM', 'Consortium', "
                           "'DEPARTMENT', 'Department', "
@@ -280,6 +285,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': "'AbstractCreativeWork' is not a valid type",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
@@ -289,6 +295,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': "'InvalidWorkType' is not a valid type",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
@@ -301,6 +308,7 @@ class TestValidator:
     }, {
         'out': Response(400, json={
             'errors': [{
+                'code': 'invalid',
                 'detail': "Additional properties are not allowed ('publishers' was unexpected) at /@graph/2",
                 'source': {'pointer': '/data/attributes/data'},
                 'status': '400'
