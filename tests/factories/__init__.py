@@ -145,17 +145,15 @@ class SourceUniqueIdentifierFactory(DjangoModelFactory):
 
 
 class RawDatumFactory(DjangoModelFactory):
-    datum = factory.Faker('text')
+    datum = factory.Sequence(lambda n: f'{n}{fake.text()}')
     suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+    sha256 = factory.LazyAttribute(lambda r: hashlib.sha256(r.datum.encode()).hexdigest())
 
     class Meta:
         model = models.RawDatum
 
     @classmethod
     def _generate(cls, create, attrs):
-        if 'sha256' not in attrs:
-            attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
-
         raw_datum = super()._generate(create, attrs)
 
         # HACK: allow overriding auto_now_add on date_created
