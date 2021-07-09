@@ -145,7 +145,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def authorization(self) -> str:
-        return 'Bearer ' + self.accesstoken_set.first().token
+        return 'Bearer ' + self.oauth2_provider_accesstoken.first().token
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)

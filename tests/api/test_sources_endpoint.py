@@ -202,7 +202,7 @@ class TestSourcesPost:
         assert data['source']['name'] == created_label
         assert data['source']['homePage'] is None
         assert data['user']['username'] == created_label
-        assert data['user']['token'] == created_user.accesstoken_set.first().token
+        assert data['user']['token'] == created_user.oauth2_provider_accesstoken.first().token
         assert created_user.is_trusted is True
 
     def test_successful_post_home_page(self, client, source_add_user, mock_icon_urls):

@@ -11,6 +11,7 @@ from share.models import Source
 
 from api.base import exceptions
 from api.base import ShareViewSet
+from api.pagination import CursorPagination
 from api.sources.serializers import (
     ReadonlySourceSerializer,
     CreateSourceSerializer,
@@ -25,6 +26,7 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
     filter_backends = (filters.OrderingFilter, )
     ordering = ('id', )
     ordering_fields = ('long_title', )
+    pagination_class = CursorPagination
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     queryset = Source.objects.none()  # Required for DjangoModelPermissions

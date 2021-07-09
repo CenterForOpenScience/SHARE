@@ -142,5 +142,5 @@ class EncryptedJSONField(models.BinaryField):
 
         return output_json
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         return self.to_python(value)

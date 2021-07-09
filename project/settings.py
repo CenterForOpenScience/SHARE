@@ -54,7 +54,7 @@ ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
 AUTH_USER_MODEL = 'share.ShareUser'
 
-JSON_API_FORMAT_KEYS = 'camelize'
+JSON_API_FORMAT_FIELD_NAMES = 'camelize'
 
 # Application definition
 

@@ -31,7 +31,7 @@ class TestRawDataEndpoint:
             self.endpoint,
             json.dumps(get_test_data('RawData')),
             content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token,
+            HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token,
         ).status_code == 405
 
 
@@ -47,5 +47,5 @@ class TestSiteBannersEndpoint:
             self.endpoint,
             json.dumps(get_test_data('SiteBanner')),
             content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token,
+            HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token,
         ).status_code == 405

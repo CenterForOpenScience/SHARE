@@ -177,7 +177,7 @@ class SourceAdmin(admin.ModelAdmin):
     readonly_fields = ('access_token',)
 
     def access_token(self, obj):
-        tokens = obj.user.accesstoken_set.all()
+        tokens = obj.user.oauth2_provider_accesstoken.all()
         if tokens:
             return tokens[0].token
         return None

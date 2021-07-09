@@ -345,7 +345,7 @@ class TestValidator:
         elif _request.json is not None:
             kwargs['data'] = json.dumps(_request.json)
 
-        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first())
 
         with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
             mock_ingest.delay().id = '123'
@@ -374,7 +374,7 @@ class TestValidator:
         elif _request.json is not None:
             kwargs['data'] = json.dumps(_request.json)
 
-        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.accesstoken_set.first())
+        kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.oauth2_provider_accesstoken.first())
 
         with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
             mock_ingest.delay().id = '123'

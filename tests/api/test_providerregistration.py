@@ -67,14 +67,16 @@ class TestPostProviderRegistration:
     POST_CASES = [{
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
         }]}),
-        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': 'bar'})
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': {'type': 'ProviderRegistration'}})
     }, {
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
@@ -90,6 +92,7 @@ class TestPostProviderRegistration:
     }, {
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
@@ -106,12 +109,14 @@ class TestPostProviderRegistration:
         )
     }, {
         'out': Response(400, json={'errors': [{
+            'code': 'parse_error',
             'detail': 'Received document does not contain primary data',
             'source': {'pointer': '/data'}, 'status': '400'}
         ]}),
         'in': requests.Request('POST', json={})
     }, {
         'out': Response(409, json={'errors': [{
+            'code': 'error',
             'detail': 'The resource object\'s type (None) is not the type that constitute the collection represented by the endpoint (ProviderRegistration).',
             'source': {'pointer': '/data'},
             'status': '409'
@@ -119,6 +124,7 @@ class TestPostProviderRegistration:
         'in': requests.Request('POST', json={'data': {}})
     }, {
         'out': Response(409, json={'errors': [{
+            'code': 'error',
             'detail': 'The resource object\'s type (None) is not the type that constitute the collection represented by the endpoint (ProviderRegistration).',
             'source': {'pointer': '/data'},
             'status': '409'
@@ -132,25 +138,30 @@ class TestPostProviderRegistration:
         'out': Response(400, json={
             'errors': [
                 {
+                    'code': 'required',
                     'detail': 'This field is required.',
                     'source': {'pointer': '/data/attributes/contactAffiliation'},
                     'status': '400'
                 },
                 {
+                    'code': 'required',
                     'detail': 'This field is required.',
                     'source': {'pointer': '/data/attributes/contactEmail'},
                     'status': '400'},
                 {
+                    'code': 'required',
                     'detail': 'This field is required.',
                     'source': {'pointer': '/data/attributes/contactName'},
                     'status': '400'
                 },
                 {
+                    'code': 'required',
                     'detail': 'This field is required.',
                     'source': {'pointer': '/data/attributes/sourceDescription'},
                     'status': '400'
                 },
                 {
+                    'code': 'required',
                     'detail': 'This field is required.',
                     'source': {'pointer': '/data/attributes/sourceName'},
                     'status': '400'
@@ -166,6 +177,7 @@ class TestPostProviderRegistration:
     }, {
         'out': Response(400, json={'errors': [
             {
+                'code': 'parse_error',
                 'detail': 'JSON parse error - Expecting value: line 1 column 1 (char 0)',
                 'source': {'pointer': '/data'},
                 'status': '400'
@@ -175,6 +187,7 @@ class TestPostProviderRegistration:
     }, {
         'out': Response(400, json={'errors': [
             {
+                'code': 'invalid',
                 'detail': 'Enter a valid email address.',
                 'source': {'pointer': '/data/attributes/contactEmail'},
                 'status': '400'
@@ -209,6 +222,7 @@ class TestPostProviderRegistration:
     }, {
         'out': Response(400, json={'errors': [
             {
+                'code': 'invalid',
                 'detail': 'Enter a valid URL.',
                 'source': {'pointer': '/data/attributes/sourceBaseUrl'},
                 'status': '400'
@@ -245,38 +259,47 @@ class TestPostProviderRegistration:
     }, {
         'out': Response(400, json={'errors': [
             {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/contactAffiliation'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/contactName'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 1000 characters.',
                 'source': {'pointer': '/data/attributes/sourceAdditionalInfo'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 1000 characters.',
                 'source': {'pointer': '/data/attributes/sourceDescription'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/sourceDisallowedSets'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/sourceDocumentation'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/sourceName'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/sourcePreferredMetadataPrefix'},
                 'status': '400'
             }, {
+                'code': 'max_length',
                 'detail': 'Ensure this field has no more than 300 characters.',
                 'source': {'pointer': '/data/attributes/sourceRateLimit'},
                 'status': '400'
@@ -312,7 +335,7 @@ class TestPostProviderRegistration:
             kwargs['data'] = json.dumps(_request.json)
 
         if authorized:
-            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first())
 
         assert response == client.post('/api/v2/sourceregistrations/', *args, **kwargs)
 
@@ -325,7 +348,7 @@ class TestPostProviderRegistration:
         resp = client.get(
             '/api/v2/sourceregistrations/',
             content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.accesstoken_set.first()),
+            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first()),
         )
 
         assert resp.status_code == 200
@@ -334,10 +357,7 @@ class TestPostProviderRegistration:
             'links': {
                 'prev': None,
                 'next': None,
-                'last': 'http://testserver/api/v2/sourceregistrations/?page=1',
-                'first': 'http://testserver/api/v2/sourceregistrations/?page=1',
             },
-            'meta': {'pagination': {'count': 0, 'page': 1, 'pages': 1}}
         }
 
     @pytest.mark.django_db
@@ -353,7 +373,7 @@ class TestPostProviderRegistration:
         resp = client.get(
             '/api/v2/sourceregistrations/{}/'.format(IDObfuscator.encode(reg)),
             content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.accesstoken_set.first()),
+            HTTP_AUTHORIZATION='Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first()),
         )
 
         assert resp.status_code == 200

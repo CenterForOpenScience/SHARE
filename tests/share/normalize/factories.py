@@ -2,7 +2,6 @@ import contextlib
 import functools
 import json
 import random
-import re
 import logging
 from operator import attrgetter
 
@@ -168,7 +167,21 @@ class NodeBuilder:
         self.normalize_fields = normalize_fields
 
     def get_factory(self, schema_type):
-        return globals()[schema_type.concrete_type + 'Factory']
+        return {
+            'AbstractCreativeWork': AbstractCreativeWorkFactory,
+            'AbstractAgent': AbstractAgentFactory,
+            'AbstractAgentWorkRelation': AbstractAgentWorkRelationFactory,
+            'AbstractWorkRelation': AbstractWorkRelationFactory,
+            # 'AbstractAgentRelation': AbstractAgentRelationFactory,
+            'WorkIdentifier': WorkIdentifierFactory,
+            'AgentIdentifier': AgentIdentifierFactory,
+            'Subject': SubjectFactory,
+            'ThroughSubjects': ThroughSubjectsFactory,
+            'Tag': TagFactory,
+            'ThroughTags': ThroughTagsFactory,
+            # 'Award': AwardFactory,
+            # 'ThroughAwards': ThroughAwardsFactory,
+        }[schema_type.concrete_type]
 
     def build_nodes(self, nodes):
         for n in nodes:
@@ -181,7 +194,6 @@ class NodeBuilder:
         assert 'type' in attrs, 'Must provide "type" when constructing a node'
 
         attrs = {**attrs}  # make a copy to avoid mutating the arg
-        node_type = attrs.pop('type')
         sparse = attrs.pop('sparse', False)
         seed = attrs.pop('seed', None)
 
@@ -198,7 +210,16 @@ class NodeBuilder:
             if isinstance(attrs[key], (dict, list)):
                 relations[key] = attrs.pop(key)
 
+        node_type = attrs['type']
         schema_type = sharev2_schema.get_type(node_type.replace('Abstract', ''))
+
+        # If it's a specific type, pass it along, otherwise let the factory choose a subtype
+        if node_type == schema_type.concrete_type:
+            attrs['type'] = random.choice(
+                list(sharev2_schema.get_type_names(schema_type.concrete_type))
+            )
+        else:
+            attrs['type'] = schema_type.name
 
         # Extract/generate required relations.
         # e.g. WorkIdentifier requires a work, Creator requires work and agent
@@ -220,15 +241,10 @@ class NodeBuilder:
             # Don't generate fake data for missing fields
             node = FactoryNode(self.graph, type=node_type, **attrs)
         else:
-            # If it's a specific type, pass it along, otherwise let the factory choose a subtype
-            concrete_type_name = schema_type.concrete_type
-            if node_type != concrete_type_name:
-                attrs['type'] = node_type
-
             if seed:
-                seed_ctx = self.random_states.seed(seed=str(seed) + concrete_type_name)
+                seed_ctx = self.random_states.seed(seed=str(seed) + schema_type.concrete_type)
             else:
-                seed_ctx = self.random_states.seed(name=concrete_type_name)
+                seed_ctx = self.random_states.seed(name=schema_type.concrete_type)
 
             with seed_ctx:
                 node = self.get_factory(schema_type)(graph=self.graph, **attrs)
@@ -268,8 +284,8 @@ class GraphNodeFactory(factory.Factory):
         inline_args = ('graph',)
 
     @factory.lazy_attribute
-    def type(stub):
-        return re.sub('Factory$', '', stub._LazyStub__model_class.__name__).lower()
+    def type(self):
+        raise NotImplementedError('must give a `type`!')
 
     @factory.post_generation
     def parse(self, _, parse, **kwargs):
@@ -277,20 +293,7 @@ class GraphNodeFactory(factory.Factory):
         pass
 
 
-class TypedGraphNodeFactory(GraphNodeFactory):
-
-    @factory.lazy_attribute
-    def type(stub):
-        model_name = re.sub('Factory$', '', stub._LazyStub__model_class.__name__)
-        schema_type = sharev2_schema.get_type(model_name.replace('Abstract', ''))
-        if schema_type.concrete_type == model_name:
-            model_name = random.choice(
-                list(sharev2_schema.get_type_names(schema_type.concrete_type))
-            )
-        return model_name.lower()
-
-
-class AbstractAgentFactory(TypedGraphNodeFactory):
+class AbstractAgentFactory(GraphNodeFactory):
 
     @factory.lazy_attribute
     def name(self):
@@ -324,7 +327,7 @@ class SubjectFactory(GraphNodeFactory):
     name = factory.Faker('word')
 
 
-class AbstractCreativeWorkFactory(TypedGraphNodeFactory):
+class AbstractCreativeWorkFactory(GraphNodeFactory):
     title = factory.Faker('sentence')
     description = factory.Faker('paragraph')
     language = factory.Faker('language_code')
@@ -344,7 +347,7 @@ class AbstractCreativeWorkFactory(TypedGraphNodeFactory):
         model = FactoryNode
 
 
-class AbstractAgentWorkRelationFactory(TypedGraphNodeFactory):
+class AbstractAgentWorkRelationFactory(GraphNodeFactory):
     # lazy attr
     # agent = factory.SubFactory(AbstractAgentFactory)
     # creative_work = factory.SubFactory(AbstractCreativeWorkFactory)
@@ -361,7 +364,7 @@ class AbstractAgentWorkRelationFactory(TypedGraphNodeFactory):
         model = FactoryNode
 
 
-class AbstractWorkRelationFactory(TypedGraphNodeFactory):
+class AbstractWorkRelationFactory(GraphNodeFactory):
     # related = factory.SubFactory(AbstractCreativeWorkFactory)
     # subject = factory.SubFactory(AbstractCreativeWorkFactory)
 
@@ -407,7 +410,7 @@ class AgentIdentifierFactory(GraphNodeFactory):
             self['host'] = parsed['authority']
 
 
-def _params(seed=None, id=None, schema_type=None, model=None, **kwargs):
+def _get_node_builder_params(seed=None, id=None, schema_type=None, model=None, **kwargs):
     ret = {'type': schema_type.name.lower(), **kwargs}
     if id is not None:
         ret['id'] = format_id(schema_type.concrete_type.lower().replace('abstract', ''), id)
@@ -419,4 +422,4 @@ def _params(seed=None, id=None, schema_type=None, model=None, **kwargs):
 __all__ = ()
 
 for schema_type in sharev2_schema.schema_types.values():
-    locals()[schema_type.name] = functools.partial(_params, schema_type=schema_type)
+    locals()[schema_type.name] = functools.partial(_get_node_builder_params, schema_type=schema_type)

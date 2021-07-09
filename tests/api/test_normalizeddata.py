@@ -33,14 +33,16 @@ class TestPostNormalizedData:
     POST_CASES = [{
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
         }]}),
-        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': 'bar'})
+        'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={'data': {'type': 'NormalizedData'}})
     }, {
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
@@ -56,6 +58,7 @@ class TestPostNormalizedData:
     }, {
         'authorized': False,
         'out': Response(401, json={'errors': [{
+            'code': 'not_authenticated',
             'detail': 'Authentication credentials were not provided.',
             'source': {'pointer': '/data'},
             'status': '401'
@@ -70,6 +73,7 @@ class TestPostNormalizedData:
         })
     }, {
         'out': Response(400, json={'errors': [{
+            'code': 'parse_error',
             'detail': 'Received document does not contain primary data',
             'source': {'pointer': '/data'},
             'status': '400'
@@ -77,6 +81,7 @@ class TestPostNormalizedData:
         'in': requests.Request('POST', headers={'Content-Type': 'application/vnd.api+json'}, json={})
     }, {
         'out': Response(400, json={'errors': [{
+            'code': 'parse_error',
             'detail': 'JSON parse error - Expecting value: line 1 column 1 (char 0)',
             'source': {'pointer': '/data'},
             'status': '400'
@@ -86,6 +91,7 @@ class TestPostNormalizedData:
         'out': Response(400, json={
             'errors': [
                 {
+                    'code': 'invalid',
                     'detail': '@graph may not be empty',
                     'source': {'pointer': '/data/attributes/data'},
                     'status': '400'
@@ -143,6 +149,7 @@ class TestPostNormalizedData:
         'out': Response(400, json={
             'errors': [
                 {
+                    'code': 'invalid',
                     'detail': "'suid' is a required attribute",
                     'source': {'pointer': '/data'},
                     'status': '400'
@@ -167,6 +174,7 @@ class TestPostNormalizedData:
         'out': Response(400, json={
             'errors': [
                 {
+                    'code': 'invalid',
                     'detail': "'@id' is a required property at /@graph/0",
                     'source': {'pointer': '/data/attributes/data'},
                     'status': '400'
@@ -200,7 +208,7 @@ class TestPostNormalizedData:
             kwargs['data'] = json.dumps(_request.json)
 
         if authorized:
-            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.accesstoken_set.first())
+            kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first())
 
         with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
             mock_ingest.delay().id = '123'
