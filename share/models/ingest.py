@@ -436,8 +436,8 @@ class RawDatumManager(FuzzyCountManager):
 
 # Explicit through table to match legacy names
 class RawDatumJob(models.Model):
-    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id')
-    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id')
+    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id', on_delete=models.CASCADE)
+    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'share_rawdatum_logs'

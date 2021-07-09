@@ -1,6 +1,5 @@
 import os
 import yaml
-from stevedore import extension
 
 from django.apps import apps
 from django.core.files import File
@@ -12,6 +11,7 @@ from django.db.models.signals import post_save
 
 import share
 from share.models.core import user_post_save
+from share.util.extensions import Extensions
 
 SOURCES_DIR = 'sources'
 
@@ -41,7 +41,7 @@ class Command(BaseCommand):
             self.update_sources(source_dirs, overwrite=options.get('overwrite'))
 
     def sync_drivers(self, namespace, model):
-        names = set(extension.ExtensionManager(namespace).entry_points_names())
+        names = set(Extensions.get_names(namespace))
         for key in names:
             model.objects.update_or_create(key=key)
         missing = model.objects.exclude(key__in=names).values_list('key', flat=True)
@@ -55,7 +55,7 @@ class Command(BaseCommand):
         loaded_configs = set()
         for source_dir in source_dirs:
             with open(os.path.join(source_dir, 'source.yaml')) as fobj:
-                serialized = yaml.load(fobj)
+                serialized = yaml.load(fobj, Loader=yaml.CLoader)
             configs = serialized.pop('configs')
             name = serialized.pop('name')
             assert name not in loaded_sources

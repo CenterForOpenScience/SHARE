@@ -97,7 +97,7 @@ services:
 
   worker:
     image: quay.io/centerforopenscience/share:develop
-    command: /usr/local/bin/celery worker -l INFO --app project --uid daemon
+    command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
       - rabbitmq
@@ -113,7 +113,7 @@ services:
 
   web:
     image: quay.io/centerforopenscience/share:develop
-    command: python manage.py runserver --noreload 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8003:8000
     depends_on:

@@ -7,7 +7,7 @@ from api.users import views
 
 
 router = SimpleRouter()
-router.register(r'users?', views.ShareUserViewSet, base_name='user')
+router.register(r'users?', views.ShareUserViewSet, basename='user')
 urlpatterns = router.urls + [
     url(r'userinfo/?', ensure_csrf_cookie(views.ShareUserView.as_view()), name='userinfo'),
 ]

@@ -3,5 +3,5 @@ from api.ingestjobs import views
 
 
 router = SimpleRouter()
-router.register(r'ingestjobs', views.IngestJobViewSet, base_name='ingestjob')
+router.register(r'ingestjobs', views.IngestJobViewSet, basename='ingestjob')
 urlpatterns = router.urls

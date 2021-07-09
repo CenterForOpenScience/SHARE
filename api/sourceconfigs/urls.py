@@ -3,5 +3,5 @@ from api.sourceconfigs import views
 
 
 router = SimpleRouter()
-router.register(r'sourceconfigs', views.SourceConfigViewSet, base_name='sourceconfig')
+router.register(r'sourceconfigs', views.SourceConfigViewSet, basename='sourceconfig')
 urlpatterns = router.urls

@@ -3,5 +3,5 @@ from api.rawdata import views
 
 
 router = SimpleRouter()
-router.register(r'rawdata', views.RawDataViewSet, base_name='rawdatum')
+router.register(r'rawdata', views.RawDataViewSet, basename='rawdatum')
 urlpatterns = router.urls
