@@ -23,7 +23,7 @@ jsonschema==3.2.0  # MIT
 lxml==4.6.3  # BSD
 kombu==5.1.0  # BSD 3 Clause
 nameparser==1.0.6  # LGPL
-networkx==2.6  # BSD
+networkx==2.5.1  # BSD
 newrelic==6.4.4.161  # newrelic APM agent, Custom License
 pendulum==1.2.5  # MIT
 pillow==8.3.1  # PIL Software License
@@ -40,5 +40,5 @@ xmltodict==0.12.0  # MIT
 
 # djangorestframework-jsonapi==4.2.1  # MIT
 # Allows custom-rendered IDs, hiding null values, and including data in error responses
-git+git://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos1
+git+git://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos0
 
