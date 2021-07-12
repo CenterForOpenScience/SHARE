@@ -54,7 +54,6 @@ ul#id_approved_sets {
 }
 
 .logo_header {
-  background-color: #f5f5f5;
   margin-top: 30px;
   padding-top: 20px;
   padding-bottom: 20px;
@@ -135,30 +134,14 @@ ul#id_approved_sets {
 }
 
 span.help-block {
-  background-color: #FF7B7B;
   background-image: linear-gradient(90deg, transparent 60%, rgba(255,255,255,.5) 50%);
   background-size: 3px 3px;
-  color: black;
   font-weight: bold;
   padding-left: 10px;
 }
 
 #header {
-  background: #f5f5f5;
   height: 130px !important;
-}
-
-
-#branding h1, #branding h1 a:link, #branding h1 a:visited {
-  color: #5D625C;
-}
-
-div#user-tools {
-  color: #5D625C;
-}
-
-div#user-tools a:link {
-  color: #06B4EA;
 }
 
 table#result_list input {
@@ -179,17 +162,4 @@ div.help_information {
 
 .pushregnav li a {
   color: white !important;
-}
-
-#login_logo {
-    width: 150px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    position: absolute;
-    padding-top: 10px;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    top: 0;
 }
