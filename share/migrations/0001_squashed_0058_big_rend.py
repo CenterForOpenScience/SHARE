@@ -3,11 +3,10 @@
 from __future__ import unicode_literals
 
 import datetime
-import db.deletion
 from django.conf import settings
 import django.contrib.postgres.fields.jsonb
 import django.core.validators
-from django.db import migrations, models
+from django.db import migrations, models, transaction
 import django.db.models.deletion
 import django.utils.timezone
 import share.models.core
@@ -22,25 +21,33 @@ def create_share_robot_user(apps, schema_editor):
     ShareUser = apps.get_model('share', 'ShareUser')
     Source = apps.get_model('share', 'Source')
 
-    system_user = ShareUser.objects.db_manager(schema_editor.connection.alias).create_robot_user(username=settings.APPLICATION_USERNAME, robot='')
+    with transaction.atomic():
+        system_user = ShareUser.objects.db_manager(schema_editor.connection.alias).create_robot_user(
+            username=settings.APPLICATION_USERNAME,
+            robot='',
+        )
 
-    system_user.is_trusted = True
-    system_user.save()
+        system_user.is_trusted = True
+        system_user.save()
 
-    Source.objects.update_or_create(
-        user=system_user,
-        defaults={
-            'name': settings.APPLICATION_USERNAME,
-            'long_title': 'SHARE System',
-            'canonical': True,
-        }
-    )
+        Source.objects.update_or_create(
+            user=system_user,
+            defaults={
+                'name': settings.APPLICATION_USERNAME,
+                'long_title': 'SHARE System',
+                'canonical': True,
+            }
+        )
 
 
 def create_share_admin_user(apps, schema_editor):
     import os
     ShareUser = apps.get_model('share', 'ShareUser')
-    ShareUser.objects.db_manager(schema_editor.connection.alias).create_superuser('admin', os.environ.get('SHARE_ADMIN_PASSWORD', 'password'))
+    with transaction.atomic():
+        ShareUser.objects.db_manager(schema_editor.connection.alias).create_superuser(
+            'admin',
+            os.environ.get('SHARE_ADMIN_PASSWORD', 'password')
+        )
 
 
 class Migration(migrations.Migration):
