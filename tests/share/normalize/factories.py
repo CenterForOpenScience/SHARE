@@ -194,6 +194,7 @@ class NodeBuilder:
         assert 'type' in attrs, 'Must provide "type" when constructing a node'
 
         attrs = {**attrs}  # make a copy to avoid mutating the arg
+        node_type = attrs.pop('type')
         sparse = attrs.pop('sparse', False)
         seed = attrs.pop('seed', None)
 
@@ -210,7 +211,6 @@ class NodeBuilder:
             if isinstance(attrs[key], (dict, list)):
                 relations[key] = attrs.pop(key)
 
-        node_type = attrs['type']
         schema_type = sharev2_schema.get_type(node_type.replace('Abstract', ''))
 
         # If it's a specific type, pass it along, otherwise let the factory choose a subtype
@@ -239,7 +239,7 @@ class NodeBuilder:
 
         if sparse:
             # Don't generate fake data for missing fields
-            node = FactoryNode(self.graph, type=node_type, **attrs)
+            node = FactoryNode(self.graph, **attrs)
         else:
             if seed:
                 seed_ctx = self.random_states.seed(seed=str(seed) + schema_type.concrete_type)
