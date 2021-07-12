@@ -306,7 +306,7 @@ class DateParserLink(AbstractLink):
                 raise InvalidDate(str(e)) from e
 
             try:
-                repr(date)  # Forces tzoffset validation to run
+                date.utcoffset()  # Forces tzoffset validation to run
             except ValueError as e:
                 raise InvalidDate(*e.args) from e
 
