@@ -21,8 +21,8 @@ def test_AEA_harvester():
 
     httpretty.register_uri(httpretty.GET, url,
                            body=csv_repsonse, content_type='text/html')
-    start = pendulum.utcnow() - timedelta(days=3)
-    end = pendulum.utcnow()
+    start = pendulum.now() - timedelta(days=3)
+    end = pendulum.now()
     result = harvester._do_fetch(start, end)
     for data in result:
         assert data[0] == 'AEARCTR-0000005'

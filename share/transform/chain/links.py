@@ -294,9 +294,9 @@ class NameParserLink(AbstractLink):
 
 
 class DateParserLink(AbstractLink):
-    LOWER_BOUND = pendulum.create(1200, 1, 1)
+    LOWER_BOUND = pendulum.datetime(1200, 1, 1)
     UPPER_BOUND = pendulum.today().add(years=100)
-    DEFAULT = pendulum.create(2016, 1, 1)
+    DEFAULT = pendulum.datetime(2016, 1, 1)
 
     def execute(self, obj):
         if obj:

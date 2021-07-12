@@ -80,7 +80,7 @@ class TestHarvesterInterface:
                 pendulum.parse('2016-01-05'),
                 pendulum.parse('2016-01-04'),
             ))
-        assert e.value.args == ('start must be before end. <Pendulum [2016-01-05T00:00:00+00:00]> > <Pendulum [2016-01-04T00:00:00+00:00]>', )
+        assert e.value.args == ("start must be before end. DateTime(2016, 1, 5, 0, 0, 0, tzinfo=Timezone('UTC')) > DateTime(2016, 1, 4, 0, 0, 0, tzinfo=Timezone('UTC'))", )
 
     def test__do_fetch_must_be_generator(self, harvester):
         harvester._do_fetch = lambda *_, **__: [1, 2]

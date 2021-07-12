@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class PeerJHarvester(BaseHarvester):
     VERSION = 1
 
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum, identifier_prefix='', fetch_xml=False):
+    def do_harvest(self, start_date: pendulum.DateTime, end_date: pendulum.DateTime, identifier_prefix='', fetch_xml=False):
         url = self.config.base_url
         while True:
             logger.debug('Fetching page %s', url)

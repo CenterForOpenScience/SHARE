@@ -25,7 +25,7 @@ kombu==5.1.0  # BSD 3 Clause
 nameparser==1.0.6  # LGPL
 networkx==2.5.1  # BSD
 newrelic==6.4.4.161  # newrelic APM agent, Custom License
-pendulum==1.2.5  # MIT
+pendulum==2.1.1  # MIT
 pillow==8.3.1  # PIL Software License
 psycogreen==1.0.2  # BSD
 psycopg2==2.8.6  # LGPL with exceptions or ZPL

@@ -29,7 +29,7 @@ class HarvestScheduler:
 
         """
         if cutoff is None:
-            cutoff = pendulum.utcnow().date()
+            cutoff = pendulum.now().date()
 
         # TODO take harvest/sourceconfig version into account here
         if hasattr(self.source_config, 'latest'):

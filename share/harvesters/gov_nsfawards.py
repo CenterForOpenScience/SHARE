@@ -67,7 +67,7 @@ NSF_FIELDS = [
 class NSFAwardsHarvester(BaseHarvester):
     VERSION = 2
 
-    def shift_range(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Tuple[pendulum.Pendulum, pendulum.Pendulum]:
+    def shift_range(self, start_date: pendulum.DateTime, end_date: pendulum.DateTime) -> Tuple[pendulum.DateTime, pendulum.DateTime]:
         # HACK: Records are made available one business day *after* their "date".
         # Accounting for holidays, they might be delayed over a 4-day weekend.
         # When harvesting yesterday's data, actually reach back farther...
@@ -75,7 +75,7 @@ class NSFAwardsHarvester(BaseHarvester):
             start_date = start_date.subtract(days=5)
         return start_date, end_date
 
-    def _do_fetch(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
+    def _do_fetch(self, start_date: pendulum.DateTime, end_date: pendulum.DateTime) -> Iterator[Tuple[str, Union[str, dict, bytes]]]:
         url = furl(self.config.base_url)
 
         url.args['dateStart'] = start_date.date().strftime('%m/%d/%Y')
@@ -86,7 +86,7 @@ class NSFAwardsHarvester(BaseHarvester):
 
         return self.fetch_records(url)
 
-    def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes], pendulum.Pendulum]]:
+    def fetch_records(self, url: furl) -> Iterator[Tuple[str, Union[str, dict, bytes], pendulum.DateTime]]:
         while True:
             logger.info('Fetching %s', url.url)
             records = self.requests.get(url.url).json()['response'].get('award', [])

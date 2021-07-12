@@ -114,8 +114,8 @@ def test_swbiodiversity_harvester():
     collection.args['collid'] = 223
     httpretty.register_uri(httpretty.GET, collection.url,
                            body=collection_page, content_type='text/html', match_querystring=True)
-    start = pendulum.utcnow() - timedelta(days=3)
-    end = pendulum.utcnow()
+    start = pendulum.now() - timedelta(days=3)
+    end = pendulum.now()
     results = harvester.fetch_date_range(start, end)
     for result in results:
         assert result.identifier == collection.url
