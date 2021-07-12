@@ -269,7 +269,7 @@ class TestHarvestTask:
     def test_datestamps(self, source_config):
         source_config.harvester.get_class()._do_fetch.clear()
         source_config.harvester.get_class()._do_fetch.extend([
-            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.parse('2017-01-{}'.format(i)))
+            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.datetime(2017, 1, i))
             for i in range(1, 10)
         ])
 
@@ -284,7 +284,7 @@ class TestHarvestTask:
     def test_datestamps_out_of_range(self, source_config):
         source_config.harvester.get_class()._do_fetch.clear()
         source_config.harvester.get_class()._do_fetch.extend([
-            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.parse('2016-01-{}'.format(i)))
+            ('identifier{}'.format(i), 'data{}'.format(i), pendulum.datetime(2016, 1, i))
             for i in range(1, 10)
         ])
 
