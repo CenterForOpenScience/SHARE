@@ -110,6 +110,9 @@ class HarvestScheduler:
         if self.claim_jobs:
             job_kwargs['claimed'] = True
 
+        start = pendulum.datetime(start.year, start.month, start.day)
+        end = pendulum.datetime(end.year, end.month, end.day)
+
         sd, ed = start, start
 
         while ed + self.source_config.harvest_interval <= end:
