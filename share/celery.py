@@ -70,8 +70,8 @@ class CeleryDatabaseBackend(BaseDictBackend):
 
         if isinstance(request, Context):
             fields.update({
-                'task_name': request.task,
-                'correlation_id': request.correlation_id,
+                'task_name': getattr(request, 'task', None),
+                'correlation_id': request.correlation_id or task_id,
             })
 
             fields['meta'].update({
