@@ -60,7 +60,7 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_robot_user(self, username, robot):
+    def create_robot_user(self, username, robot, is_trusted=False):
         try:
             self.get(username=username, robot=robot)
         except self.model.DoesNotExist:
@@ -71,6 +71,7 @@ class ShareUserManager(BaseUserManager):
         ShareUser.set_unusable_password(user)
         user.username = username
         user.robot = robot
+        user.is_trusted = is_trusted
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False

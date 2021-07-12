@@ -17,39 +17,6 @@ import share.models.jobs
 import share.models.validators
 
 
-def create_share_robot_user(apps, schema_editor):
-    ShareUser = apps.get_model('share', 'ShareUser')
-    Source = apps.get_model('share', 'Source')
-
-    with transaction.atomic():
-        system_user = ShareUser.objects.db_manager(schema_editor.connection.alias).create_robot_user(
-            username=settings.APPLICATION_USERNAME,
-            robot='',
-        )
-
-        system_user.is_trusted = True
-        system_user.save()
-
-        Source.objects.update_or_create(
-            user=system_user,
-            defaults={
-                'name': settings.APPLICATION_USERNAME,
-                'long_title': 'SHARE System',
-                'canonical': True,
-            }
-        )
-
-
-def create_share_admin_user(apps, schema_editor):
-    import os
-    ShareUser = apps.get_model('share', 'ShareUser')
-    with transaction.atomic():
-        ShareUser.objects.db_manager(schema_editor.connection.alias).create_superuser(
-            'admin',
-            os.environ.get('SHARE_ADMIN_PASSWORD', 'password')
-        )
-
-
 class Migration(migrations.Migration):
 
     replaces = [
@@ -627,12 +594,6 @@ class Migration(migrations.Migration):
             model_name='formattedmetadatarecord',
             name='record_format',
             field=models.TextField(choices=[('oai_dc', 'oai_dc'), ('sharev2_elastic', 'sharev2_elastic')]),
-        ),
-        migrations.RunPython(
-            code=create_share_robot_user,
-        ),
-        migrations.RunPython(
-            code=create_share_admin_user,
         ),
         migrations.RunSQL(
             sql='\n                CREATE OR REPLACE FUNCTION count_estimate(query text) RETURNS INTEGER AS\n                $func$\n                DECLARE\n                    rec   record;\n                    ROWS  INTEGER;\n                BEGIN\n                    FOR rec IN EXECUTE \'EXPLAIN \' || query LOOP\n                        ROWS := SUBSTRING(rec."QUERY PLAN" FROM \' rows=([[:digit:]]+)\');\n                        EXIT WHEN ROWS IS NOT NULL;\n                    END LOOP;\n\n                    RETURN ROWS - 1;\n                END\n                $func$ LANGUAGE plpgsql;\n            ',
