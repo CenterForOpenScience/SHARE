@@ -84,10 +84,6 @@ class IngestJobAdmin(BaseJobAdmin):
         self._enqueue_tasks(queryset)
     reingest.short_description = 'Re-ingest'
 
-    def reingest_without_shareobject(self, request, queryset):
-        self._enqueue_tasks(queryset, {'apply_changes': False})
-    reingest_without_shareobject.short_description = 'Re-ingest (skipping ShareObject)'
-
     def _enqueue_tasks(self, job_queryset, task_kwargs=None):
         # grab the ids once, use them twice
         job_ids = list(job_queryset.values_list('id', flat=True))
