@@ -9,7 +9,7 @@ def ensure_application(apps, schema_editor):
     Application = apps.get_model('oauth2_provider', 'Application')
     ShareUser = apps.get_model('share', 'ShareUser')
     share_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-    oauth_app = Application.objects.get_or_create(
+    Application.objects.get_or_create(
         client_type=str(ActualApplication.CLIENT_TYPES[0][1]),
         authorization_grant_type=str(ActualApplication.GRANT_TYPES[2][1]),
         name='Harvester API',

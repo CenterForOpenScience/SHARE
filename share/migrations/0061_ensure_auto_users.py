@@ -10,7 +10,7 @@ def ensure_share_system_user(apps, schema_editor):
 
     system_user = ShareUser.objects.filter(username=settings.APPLICATION_USERNAME).first()
     if system_user is None:
-        system_user = user_manager.create_robot_user(
+        system_user = ShareUser.objects.create_robot_user(
             username=settings.APPLICATION_USERNAME,
             robot='',
             is_trusted=True,
@@ -37,7 +37,6 @@ def ensure_share_admin_user(apps, schema_editor):
             admin_username,
             os.environ.get('SHARE_ADMIN_PASSWORD', 'password')
         )
-
 
 
 class Migration(migrations.Migration):

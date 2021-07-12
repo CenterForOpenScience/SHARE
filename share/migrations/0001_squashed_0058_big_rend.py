@@ -6,7 +6,7 @@ import datetime
 from django.conf import settings
 import django.contrib.postgres.fields.jsonb
 import django.core.validators
-from django.db import migrations, models, transaction
+from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
 import share.models.core
@@ -71,7 +71,6 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('auth', '0007_alter_validators_add_error_messages'),
-        #('oauth2_provider', '0004_auto_20160525_1623'),
     ]
 
     operations = [

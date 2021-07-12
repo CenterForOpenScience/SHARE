@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.conf import settings
 
+
 def create_application(apps, schema_editor):
     from oauth2_provider.models import Application as ActualApplication
     Application = apps.get_model('oauth2_provider', 'Application')
@@ -16,7 +17,8 @@ def create_application(apps, schema_editor):
         name='Harvester API',
         user=share_user
     )
-    oauth_app = Application.objects.create(**fields)
+    Application.objects.create(**fields)
+
 
 class Migration(migrations.Migration):
 

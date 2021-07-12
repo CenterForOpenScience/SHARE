@@ -3,20 +3,14 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-import django.db.models.deletion
-from django.db import migrations, models
-
-import db.deletion
+from django.db import migrations
 
 
 def improvenance_subjects(apps, schema_editor):
     Subject = apps.get_model('share', 'Subject')
-    SubjectTaxonomy = apps.get_model('share', 'SubjectTaxonomy')
     ShareUser = apps.get_model('share', 'ShareUser')
-    NormalizedData = apps.get_model('share', 'NormalizedData')
 
     user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-    central_taxonomy = SubjectTaxonomy.objects.get_or_create(source=user.source)
 
     if not Subject.objects.exists():
         return
