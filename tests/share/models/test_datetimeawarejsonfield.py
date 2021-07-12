@@ -2,7 +2,7 @@ import datetime as dt
 import json
 from decimal import Decimal
 
-from share.models.fields import DateTimeAwareJSONEncoder, decode_datetime_objects
+from share.models.fields import DateTimeAwareJSONEncoder, DateTimeAwareJSONDecoder
 
 
 class TestDateTimeAwareJSONField:
@@ -56,10 +56,10 @@ class TestDateTimeAwareJSONField:
 
     def test_dict(self):
         json_string = json.dumps(self.json_dict_data, cls=DateTimeAwareJSONEncoder)
-        json_data = decode_datetime_objects(json.loads(json_string))
+        json_data = json.loads(json_string, cls=DateTimeAwareJSONDecoder)
         assert json_data == self.json_dict_data, 'Nope'
 
     def test_list(self):
         json_string = json.dumps(self.json_list_data, cls=DateTimeAwareJSONEncoder)
-        json_data = decode_datetime_objects(json.loads(json_string))
+        json_data = json.loads(json_string, cls=DateTimeAwareJSONDecoder)
         assert json_data == self.json_list_data, 'Nope'

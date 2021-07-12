@@ -13,7 +13,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oauth2_provider.models import AccessToken, Application
 
@@ -262,7 +262,7 @@ class FormattedMetadataRecord(models.Model):
     class Meta:
         unique_together = ('suid', 'record_format')
         indexes = [
-            models.Index(fields=['date_modified'], name=['fmr_date_modified_index'])
+            models.Index(fields=['date_modified'], name='fmr_date_modified_index')
         ]
 
     def __repr__(self):

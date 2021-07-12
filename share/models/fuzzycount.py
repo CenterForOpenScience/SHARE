@@ -1,6 +1,6 @@
 from django.db import connections
 from django.db.models import QuerySet, Manager
-from django.db.models.sql.datastructures import EmptyResultSet
+from django.core.exceptions import EmptyResultSet
 
 
 class FuzzyCountQuerySet(QuerySet):
