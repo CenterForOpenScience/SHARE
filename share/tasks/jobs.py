@@ -268,7 +268,7 @@ class IngestJobConsumer(JobConsumer):
         # tests/share/tasks/test_job_consumers
         if job_id is None:
             task = self.task
-            logger.warn('Skipping ingest task with job_id=None (task_id: %s)', task.request.id if task else None)
+            logger.warning('Skipping ingest task with job_id=None (task_id: %s)', task.request.id if task else None)
             return
         return super().consume(job_id=job_id, **kwargs)
 
