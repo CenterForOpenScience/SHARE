@@ -297,7 +297,7 @@ class AbstractAgentFactory(GraphNodeFactory):
 
     @factory.lazy_attribute
     def name(self):
-        if self.type == 'person':
+        if self.type == 'Person':
             if any(getattr(self, n, None) for n in ('given_name', 'family_name', 'suffix', 'additional_name')):
                 return None
             return _Faker.name()
@@ -308,7 +308,7 @@ class AbstractAgentFactory(GraphNodeFactory):
 
     @factory.post_generation
     def parse(self, _, parse, **kwargs):
-        if not parse or self.type != 'person':
+        if not parse or self.type != 'Person':
             return
 
         name = self['name']

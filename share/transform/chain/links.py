@@ -302,6 +302,10 @@ class DateParserLink(AbstractLink):
         if obj:
             try:
                 date = dateutil.parser.parse(obj, default=self.DEFAULT)
+            except dateutil.parser.ParserError as e:
+                raise InvalidDate(str(e)) from e
+
+            try:
                 repr(date)  # Forces tzoffset validation to run
             except ValueError as e:
                 raise InvalidDate(*e.args) from e
