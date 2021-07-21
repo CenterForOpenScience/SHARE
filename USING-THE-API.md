@@ -2,7 +2,9 @@
 
 ## Good things to use
 
-`/oaipmh` -- an implementation of the Open Access Initiative's [Protocol for Metadata Harvesting](https://www.openarchives.org/OAI/openarchivesprotocol.html)
+`/oaipmh` -- an implementation of the Open Access Initiative's [Protocol for Metadata Harvesting](https://www.openarchives.org/OAI/openarchivesprotocol.html), an open standard for harvesting metadata
+from open repositories. You can use this to list metadata in bulk, or query by a few simple
+parameters (date range or source).
 
 
 ## Things that might shift out from under you

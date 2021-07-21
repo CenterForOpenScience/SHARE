@@ -53,11 +53,6 @@ and use `sharectl` to set up indexes in elasticsearch:
 ```
 sharectl search setup --initial
 ```
-you will also need to initialize the "central taxonomy" of subjects:
-
-```
-python manage.py addsubjects
-```
 
 ### 3. start 'em up
 all other services can now be started (from the host machine):

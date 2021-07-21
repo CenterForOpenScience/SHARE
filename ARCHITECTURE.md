@@ -4,7 +4,27 @@ This document is a starting point and reference to familiarize yourself with thi
 
 ## Bird's eye view
 In short, SHARE/Trove takes metadata records (in any supported input format),
-ingests them, and makes them available in any supported output format
+ingests them, and makes them available in any supported output format.
+```
+             ┌──────────────────────────────────────────┐
+             │                Ingest                    │
+             │                                          │
+             │ ┌─────────────────────────┐              │
+             │ │         Normalize       │              │
+             │ │                         │              │      ┌─────────────────────┐
+┌───────┐    │ │ ┌─────────┐  ┌────────┐ │     ┌──────┐ │      │(depending on format)│
+│Harvest├──┬─┼─┼─►Transform├──►Regulate├─┼──┬──►Format├─┼─┬────►Index                │
+└───────┘  │ │ │ └─────────┘  └────────┘ │  │  └──────┘ │ │    └─────────────────────┘
+           │ │ │                         │  │           │ │
+           │ │ └─────────────────────────┘  │           │ │
+           │ │                              │           │ │
+           │ └──────────────────────────────┼───────────┘ │
+           │                                │             │
+           ▼                                ▼             ▼
+         save as                         save as          save as
+         RawDatum                        NormalizedData   FormattedMetadataRecord
+```
+
 
 ## Code map
 
@@ -24,6 +44,9 @@ environment variables (and their default values), as well as settings
 which cannot.
 
 `share/models/` describes the data layer using the [Django](https://www.djangoproject.com/) ORM.
+
+`share/subjects.yaml` describes the "central taxonomy" of subjects allowed
+in `Subject.name` fields of `NormalizedData`.
 
 ### Harvest and ingest
 
@@ -52,6 +75,13 @@ view for harvesting metadata from SHARE/Trove in bulk.
 
 `api/` describes a mostly REST-ful API that's useful for inspecting records for
 a specific item of interest.
+
+### Internals
+
+`share/admin/` is a Django-app for administrative access to the SHARE database
+and pipeline logs
+
+`osf_oauth2_adapter/` is a Django app to support logging in to SHARE via OSF
 
 ### Testing
 
