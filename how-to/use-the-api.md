@@ -1,4 +1,4 @@
-# Using the API
+# How to use the API
 
 ## Harvesting metadata records in bulk
 

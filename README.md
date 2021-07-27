@@ -12,13 +12,13 @@ SHARE is creating a free, open dataset of research (meta)data.
 see [WHAT-IS-THIS-EVEN.md](./WHAT-IS-THIS-EVEN.md)
 
 ### How can I use it?
-see [USING-THE-API.md](./USING-THE-API.md)
+see [how-to/use-the-api.md](./how-to/use-the-api.md)
 
 ### How do I navigate this codebase?
 see [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ### How do I run a copy locally?
-see [QUICKSTART.md](./QUICKSTART.md)
+see [how-to/run-locally.md](./how-to/run-locally.md)
 
 
 ## Running Tests
