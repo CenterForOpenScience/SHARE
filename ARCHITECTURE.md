@@ -6,25 +6,24 @@ This document is a starting point and reference to familiarize yourself with thi
 In short, SHARE/Trove takes metadata records (in any supported input format),
 ingests them, and makes them available in any supported output format.
 ```
-             ┌──────────────────────────────────────────┐
-             │                Ingest                    │
-             │                                          │
-             │ ┌─────────────────────────┐              │
-             │ │         Normalize       │              │
-             │ │                         │              │      ┌─────────────────────┐
-┌───────┐    │ │ ┌─────────┐  ┌────────┐ │     ┌──────┐ │      │(depending on format)│
-│Harvest├──┬─┼─┼─►Transform├──►Regulate├─┼──┬──►Format├─┼─┬────►Index                │
-└───────┘  │ │ │ └─────────┘  └────────┘ │  │  └──────┘ │ │    └─────────────────────┘
-           │ │ │                         │  │           │ │
-           │ │ └─────────────────────────┘  │           │ │
-           │ │                              │           │ │
-           │ └──────────────────────────────┼───────────┘ │
-           │                                │             │
-           ▼                                ▼             ▼
-         save as                         save as          save as
-         RawDatum                        NormalizedData   FormattedMetadataRecord
+            ┌───────────────────────────────────────────┐
+            │                  Ingest                   │
+            │                                  ┌──────┐ │
+            │ ┌─────────────────────────┐   ┌──►Format├─┼────┐
+            │ │        Normalize        │   │  └──────┘ │    │
+            │ │                         │   │           │    ▼
+┌───────┐   │ │ ┌─────────┐  ┌────────┐ │   │  ┌──────┐ │    save as
+│Harvest├─┬─┼─┼─►Transform├──►Regulate├─┼─┬─┼──►Format├─┼─┬─►FormattedMetadataRecord
+└───────┘ │ │ │ └─────────┘  └────────┘ │ │ │  └──────┘ │ │
+          │ │ │                         │ │ .           │ │  ┌───────┐
+          │ │ └─────────────────────────┘ │ .           │ └──►Indexer│
+          │ │                             │ .           │    └───────┘
+          │ └─────────────────────────────┼─────────────┘  some formats also
+          │                               │                indexed separately
+          ▼                               ▼
+        save as                         save as
+        RawDatum                        NormalizedData
 ```
-
 
 ## Code map
 
@@ -62,7 +61,8 @@ regardless where or what format it originally come from.
 `share/metadata_formats/` describes how a normalized datum can be formatted
 into any supported output format.
 
-`share/tasks/` runs the pipeline: harvest -> transform -> regulate -> format
+`share/tasks/` runs the harvest/ingest pipeline and stores each task's status
+(including debugging info, if errored) as a `HarvestJob` or `IngestJob`.
 
 ### Outward-facing views
 
