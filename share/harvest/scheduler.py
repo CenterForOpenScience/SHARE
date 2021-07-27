@@ -29,7 +29,7 @@ class HarvestScheduler:
 
         """
         if cutoff is None:
-            cutoff = pendulum.utcnow().date()
+            cutoff = pendulum.now().date()
 
         # TODO take harvest/sourceconfig version into account here
         if hasattr(self.source_config, 'latest'):
@@ -109,6 +109,9 @@ class HarvestScheduler:
         }
         if self.claim_jobs:
             job_kwargs['claimed'] = True
+
+        start = pendulum.datetime(start.year, start.month, start.day)
+        end = pendulum.datetime(end.year, end.month, end.day)
 
         sd, ed = start, start
 

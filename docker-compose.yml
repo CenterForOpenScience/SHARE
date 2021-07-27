@@ -73,9 +73,12 @@ services:
     command:
       - /bin/bash
       - -c
-      - pip install -r requirements.txt -r dev-requirements.txt &&
+      - apt-get update &&
+        apt-get install -y gcc &&
+        pip install -r requirements.txt -r dev-requirements.txt &&
         (python3 -m compileall /usr/local/lib/python3.6 || true) &&
         rm -Rf /python3.6/* &&
+        apt-get remove -y gcc &&
         cp -Rf -p /usr/local/lib/python3.6 / &&
         python3 setup.py develop
     restart: 'no'
@@ -94,7 +97,7 @@ services:
 
   worker:
     image: quay.io/centerforopenscience/share:develop
-    command: /usr/local/bin/celery worker -l INFO --app project --uid daemon
+    command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
       - rabbitmq
@@ -110,7 +113,7 @@ services:
 
   web:
     image: quay.io/centerforopenscience/share:develop
-    command: python manage.py runserver --noreload 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8003:8000
     depends_on:

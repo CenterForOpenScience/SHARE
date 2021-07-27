@@ -149,8 +149,6 @@ class Command(BaseShareCommand):
             ingest.delay(
                 job_id=job_id,
                 superfluous=pls_reingest,  # whether to start from RawDatum or NormalizedDatum
-                apply_changes=False,  # skip the whole ShareObject mess
-                pls_format_metadata=True,  # definitely don't skip this command's namesake
                 metadata_formats=metadata_formats,
             )
         self.stdout.write(f'queued tasks for {len(result_chunk)} IngestJobs (last suid: {last_suid_id})...')

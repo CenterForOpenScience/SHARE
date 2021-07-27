@@ -1,7 +1,7 @@
 from prettyjson import PrettyJSONWidget
 
 from django import forms
-from django.conf.urls import url
+from django.urls import re_path as url
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
 from django.http import HttpResponseRedirect
@@ -177,7 +177,7 @@ class SourceAdmin(admin.ModelAdmin):
     readonly_fields = ('access_token',)
 
     def access_token(self, obj):
-        tokens = obj.user.accesstoken_set.all()
+        tokens = obj.user.oauth2_provider_accesstoken.all()
         if tokens:
             return tokens[0].token
         return None

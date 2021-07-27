@@ -145,17 +145,15 @@ class SourceUniqueIdentifierFactory(DjangoModelFactory):
 
 
 class RawDatumFactory(DjangoModelFactory):
-    datum = factory.Faker('text')
+    datum = factory.Sequence(lambda n: f'{n}{fake.text()}')
     suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+    sha256 = factory.LazyAttribute(lambda r: hashlib.sha256(r.datum.encode()).hexdigest())
 
     class Meta:
         model = models.RawDatum
 
     @classmethod
     def _generate(cls, create, attrs):
-        if 'sha256' not in attrs:
-            attrs['sha256'] = hashlib.sha256(attrs.get('datum', '').encode()).hexdigest()
-
         raw_datum = super()._generate(create, attrs)
 
         # HACK: allow overriding auto_now_add on date_created
@@ -169,21 +167,14 @@ class RawDatumFactory(DjangoModelFactory):
 
 class HarvestJobFactory(DjangoModelFactory):
     source_config = factory.SubFactory(SourceConfigFactory)
-    start_date = factory.Faker('date_time')
+    start_date = factory.Faker('date_object')
+    end_date = factory.LazyAttribute(lambda job: job.start_date + datetime.timedelta(days=1))
 
     source_config_version = factory.SelfAttribute('source_config.version')
     harvester_version = factory.SelfAttribute('source_config.harvester.version')
 
     class Meta:
         model = models.HarvestJob
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        if isinstance(attrs['start_date'], datetime.datetime):
-            attrs['start_date'] = attrs['start_date'].date()
-        if not attrs.get('end_date'):
-            attrs['end_date'] = attrs['start_date'] + datetime.timedelta(days=1)
-        return super()._generate(create, attrs)
 
 
 class IngestJobFactory(DjangoModelFactory):

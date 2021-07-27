@@ -3,5 +3,5 @@ from api.suids import views
 
 
 router = SimpleRouter()
-router.register(r'suids', views.SuidViewSet, base_name='suid')
+router.register(r'suids', views.SuidViewSet, basename='suid')
 urlpatterns = router.urls

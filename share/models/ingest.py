@@ -3,7 +3,6 @@ import datetime
 import logging
 from typing import Optional
 
-from django.contrib.postgres.fields import JSONField
 from django.core import validators
 from django.core.files.base import ContentFile
 from django.core.files.storage import Storage
@@ -136,7 +135,7 @@ class SourceConfig(models.Model):
 
     # Allow null for push sources
     harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
-    harvester_kwargs = JSONField(null=True, blank=True)
+    harvester_kwargs = models.JSONField(null=True, blank=True)
     harvest_interval = models.DurationField(default=datetime.timedelta(days=1))
     harvest_after = models.TimeField(default='02:00')
     full_harvest = models.BooleanField(default=False, help_text=(
@@ -149,9 +148,9 @@ class SourceConfig(models.Model):
     # Allow null for push sources
     # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
     transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
-    transformer_kwargs = JSONField(null=True, blank=True)
+    transformer_kwargs = models.JSONField(null=True, blank=True)
 
-    regulator_steps = JSONField(null=True, blank=True)
+    regulator_steps = models.JSONField(null=True, blank=True)
 
     disabled = models.BooleanField(default=False)
 
@@ -436,8 +435,8 @@ class RawDatumManager(FuzzyCountManager):
 
 # Explicit through table to match legacy names
 class RawDatumJob(models.Model):
-    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id')
-    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id')
+    datum = models.ForeignKey('RawDatum', db_column='rawdatum_id', on_delete=models.CASCADE)
+    job = models.ForeignKey('HarvestJob', db_column='harvestlog_id', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'share_rawdatum_logs'
@@ -461,7 +460,7 @@ class RawDatum(models.Model):
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
 
-    no_output = models.NullBooleanField(null=True, help_text=(
+    no_output = models.BooleanField(null=True, help_text=(
         'Indicates that this RawDatum resulted in an empty graph when transformed. '
         'This allows the RawDataJanitor to find records that have not been processed. '
         'Records that result in an empty graph will not have a NormalizedData associated with them, '

@@ -13,7 +13,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oauth2_provider.models import AccessToken, Application
 
@@ -60,7 +60,7 @@ class ShareUserManager(BaseUserManager):
 
         return self._create_user(username, email, password, **extra_fields)
 
-    def create_robot_user(self, username, robot):
+    def create_robot_user(self, username, robot, is_trusted=False):
         try:
             self.get(username=username, robot=robot)
         except self.model.DoesNotExist:
@@ -71,6 +71,7 @@ class ShareUserManager(BaseUserManager):
         ShareUser.set_unusable_password(user)
         user.username = username
         user.robot = robot
+        user.is_trusted = is_trusted
         user.is_active = True
         user.is_staff = False
         user.is_superuser = False
@@ -145,7 +146,7 @@ class ShareUser(AbstractBaseUser, PermissionsMixin):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def authorization(self) -> str:
-        return 'Bearer ' + self.accesstoken_set.first().token
+        return 'Bearer ' + self.oauth2_provider_accesstoken.first().token
 
     def __repr__(self):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.username)
@@ -262,7 +263,7 @@ class FormattedMetadataRecord(models.Model):
     class Meta:
         unique_together = ('suid', 'record_format')
         indexes = [
-            models.Index(fields=['date_modified'], name=['fmr_date_modified_index'])
+            models.Index(fields=['date_modified'], name='fmr_date_modified_index')
         ]
 
     def __repr__(self):

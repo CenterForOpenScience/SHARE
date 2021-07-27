@@ -69,7 +69,7 @@ jobs:
 
       - name: run tests
         run: |
-          coverage run -m pytest
+          coverage run -m pytest -x --create-db
           coverage run --append -m behave
         env:
           DATABASE_PASSWORD: postgres

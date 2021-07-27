@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 # tell Django we're adding an index
                 migrations.AddIndex(
                     model_name='formattedmetadatarecord',
-                    index=models.Index(fields=['date_modified'], name=['fmr_date_modified_index']),
+                    index=models.Index(fields=['date_modified'], name='fmr_date_modified_index'),
                 ),
             ],
             database_operations=[

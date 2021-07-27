@@ -6,7 +6,7 @@ from django.utils.functional import cached_property
 
 from rest_framework.views import Response
 from rest_framework_json_api.pagination import PageNumberPagination
-from rest_framework.pagination import CursorPagination
+from rest_framework.pagination import CursorPagination as DrfCursorPagination
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class FuzzyPageNumberPagination(PageNumberPagination):
     django_paginator_class = FuzzyPaginator
 
 
-class CursorPagination(CursorPagination):
+class CursorPagination(DrfCursorPagination):
     ordering = '-id'
     cursor_query_param = 'page[cursor]'
 

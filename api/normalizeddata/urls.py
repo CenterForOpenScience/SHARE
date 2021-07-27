@@ -3,5 +3,5 @@ from api.normalizeddata import views
 
 
 router = SimpleRouter()
-router.register(r'normalizeddata', views.NormalizedDataViewSet, base_name='normalizeddata')
+router.register(r'normalizeddata', views.NormalizedDataViewSet, basename='normalizeddata')
 urlpatterns = router.urls

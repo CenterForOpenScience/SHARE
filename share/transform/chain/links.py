@@ -11,7 +11,6 @@ import types
 import xmltodict
 import pendulum
 from lxml import etree
-from pycountry import languages
 
 from django.conf import settings
 
@@ -295,15 +294,19 @@ class NameParserLink(AbstractLink):
 
 
 class DateParserLink(AbstractLink):
-    LOWER_BOUND = pendulum.create(1200, 1, 1)
+    LOWER_BOUND = pendulum.datetime(1200, 1, 1)
     UPPER_BOUND = pendulum.today().add(years=100)
-    DEFAULT = pendulum.create(2016, 1, 1)
+    DEFAULT = pendulum.datetime(2016, 1, 1)
 
     def execute(self, obj):
         if obj:
             try:
                 date = dateutil.parser.parse(obj, default=self.DEFAULT)
-                repr(date)  # Forces tzoffset validation to run
+            except dateutil.parser.ParserError as e:
+                raise InvalidDate(str(e)) from e
+
+            try:
+                date.utcoffset()  # Forces tzoffset validation to run
             except ValueError as e:
                 raise InvalidDate(*e.args) from e
 
@@ -319,16 +322,7 @@ class LanguageParserLink(AbstractLink):
     def execute(self, maybe_code):
         if isinstance(maybe_code, dict):
             maybe_code = maybe_code['#text']
-        # Force indices to populate
-        if not languages._is_loaded:
-            languages._load()
-
-        for kwarg in languages.indices.keys():
-            try:
-                return languages.get(**{kwarg: maybe_code}).iso639_3_code
-            except KeyError:
-                continue
-        return None
+        return maybe_code
 
 
 class ConcatLink(AbstractLink):

@@ -26,5 +26,5 @@ class TestEncryptedJsonField:
         else:
             assert isinstance(my_value_encrypted, bytes)
 
-        my_value_decrypted = field.from_db_value(my_value_encrypted, None, None, None)
+        my_value_decrypted = field.from_db_value(my_value_encrypted, None, None)
         assert my_value_decrypted == output_text

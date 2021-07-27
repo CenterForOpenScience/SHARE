@@ -9,13 +9,14 @@ class ConcurrentIndex(Index):
 
     For the above reason it is recommened to have seperate migrations for index creation and schema changes
     """
+    sql_create_index_concurrently = 'CREATE INDEX CONCURRENTLY %(name)s ON %(table)s%(using)s (%(columns)s)%(extra)s'
 
     def create_sql(self, model, schema_editor, using=''):
         if schema_editor.atomic_migration:
             raise ValueError('Migrations creating concurrent indexes must have "atomic = False"')
 
         try:
-            sql_create_index = schema_editor.sql_create_index_concurrently
+            sql_create_index = ConcurrentIndex.sql_create_index_concurrently
         except AttributeError as e:
             raise ValueError('Concurrent index creation not supported by {}'.format(schema_editor)) from e
 

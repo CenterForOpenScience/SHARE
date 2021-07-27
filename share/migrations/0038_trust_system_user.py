@@ -35,7 +35,6 @@ def distrust_system_user(apps, schema_editor):
     system_user.source.save()
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [

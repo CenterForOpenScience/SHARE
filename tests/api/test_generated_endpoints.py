@@ -60,6 +60,7 @@ class TestPagination:
         resp = client.get(f'/api/v2/{endpoint}/', {'page[cursor]': 1})
         assert resp.status_code == 404
         assert resp.json() == {'errors': [{
+            'code': 'not_found',
             'status': '404',
             'detail': 'Invalid cursor',
             'source': {'pointer': '/data'},

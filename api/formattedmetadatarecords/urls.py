@@ -3,5 +3,5 @@ from api.formattedmetadatarecords import views
 
 
 router = SimpleRouter()
-router.register(r'formattedmetadatarecords', views.FormattedMetadataRecordViewSet, base_name='formattedmetadatarecord')
+router.register(r'formattedmetadatarecords', views.FormattedMetadataRecordViewSet, basename='formattedmetadatarecord')
 urlpatterns = router.urls
