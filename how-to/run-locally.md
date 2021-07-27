@@ -1,7 +1,6 @@
 # SHARE Quickstart or: How I Learned to Stop Worrying and Love the Dock
 
-this guide sets up everything inside docker containers -- no dependencies
-or python environments on your host machine.
+this guide guides you through setting up SHARE locally using Docker.
 
 ## pre-requisites
 - [git](https://git-scm.com/)
@@ -53,11 +52,6 @@ python manage.py migrate
 and use `sharectl` to set up indexes in elasticsearch:
 ```
 sharectl search setup --initial
-```
-you will also need to initialize the "central taxonomy" of subjects:
-
-```
-python manage.py addsubjects
 ```
 
 ### 3. start 'em up
