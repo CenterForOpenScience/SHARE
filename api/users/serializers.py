@@ -36,7 +36,7 @@ class ShareUserWithTokenSerializer(ShareUserSerializer):
 
     def get_token(self, obj):
         try:
-            return obj.accesstoken_set.first().token
+            return obj.oauth2_provider_accesstoken.first().token
         except AttributeError:
             return None
 

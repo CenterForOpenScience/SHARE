@@ -5,6 +5,7 @@ from share.models import ProviderRegistration
 
 from api.base.views import ShareViewSet
 from api.deprecation import deprecate
+from api.pagination import CursorPagination
 from api.sourceregistrations.serializers import ProviderRegistrationSerializer
 
 
@@ -40,6 +41,7 @@ class ProviderRegistrationViewSet(ShareViewSet, generics.ListCreateAPIView, gene
 
         Success:       201 CREATED
     """
+    pagination_class = CursorPagination
     permission_classes = (IsAuthenticated, )
     serializer_class = ProviderRegistrationSerializer
 

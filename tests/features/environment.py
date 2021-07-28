@@ -2,9 +2,12 @@ import os
 
 import django
 from django.test import TestCase
-from django.test.utils import setup_test_environment, teardown_test_environment
-
-from pytest_django.compat import setup_databases, teardown_databases
+from django.test.utils import (
+    setup_test_environment,
+    teardown_test_environment,
+    setup_databases,
+    teardown_databases,
+)
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')

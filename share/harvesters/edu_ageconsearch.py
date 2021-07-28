@@ -48,7 +48,7 @@ class AgEconHarvester(BaseHarvester):
     }
 
     # Request page with nearest date
-    def do_harvest(self, start_date: pendulum.Pendulum, end_date: pendulum.Pendulum):
+    def do_harvest(self, start_date: pendulum.DateTime, end_date: pendulum.DateTime):
         return self.fetch_records(start_date, end_date)
 
     # Fetch the list of work urls on a single result page and return results within date range
@@ -81,7 +81,7 @@ class AgEconHarvester(BaseHarvester):
             r = self.requests.get('http://ageconsearch.umn.edu/{}'.format(document.find('a', string='Next page').attrs['href']))
 
     def check_record_date(self, issue_date, start_date, end_date):
-        date_object = dateutil.parser.parse(issue_date, default=pendulum.create(2016, 1, 1))
+        date_object = dateutil.parser.parse(issue_date, default=pendulum.datetime(2016, 1, 1))
 
         if date_object < start_date.start_of('day'):
             return 'before'

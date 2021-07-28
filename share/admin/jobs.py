@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from share.admin.util import FuzzyPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
+from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
 from share.models.jobs import AbstractBaseJob, IngestJob
 from share.tasks import ingest
 
@@ -29,7 +29,7 @@ class BaseJobAdmin(admin.ModelAdmin):
     actions = ('restart_tasks', )
     readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', 'source_config_version', )
     show_full_result_count = False
-    paginator = FuzzyPaginator
+    paginator = TimeLimitedPaginator
 
     def status_(self, obj):
         return format_html(
@@ -74,10 +74,6 @@ class IngestJobAdmin(BaseJobAdmin):
     readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries', 'most_recent_suid_raw',)
     show_full_result_count = False
 
-    def get_search_results(self, request, queryset, search_term):
-        # return (queryset, is_distinct) pair
-        return queryset.filter(suid__identifier=search_term), False
-
     def suid_(self, obj):
         return obj.suid.identifier
 
@@ -87,10 +83,6 @@ class IngestJobAdmin(BaseJobAdmin):
     def reingest(self, request, queryset):
         self._enqueue_tasks(queryset)
     reingest.short_description = 'Re-ingest'
-
-    def reingest_without_shareobject(self, request, queryset):
-        self._enqueue_tasks(queryset, {'apply_changes': False})
-    reingest_without_shareobject.short_description = 'Re-ingest (skipping ShareObject)'
 
     def _enqueue_tasks(self, job_queryset, task_kwargs=None):
         # grab the ids once, use them twice

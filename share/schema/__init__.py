@@ -19,7 +19,7 @@ class ShareV2Schema:
     @classmethod
     def load_schema(cls):
         with open('share/schema/schema-spec.yaml') as fobj:
-            type_spec_list = yaml.load(fobj)
+            type_spec_list = yaml.load(fobj, Loader=yaml.CLoader)
         loader = SchemaLoader(type_spec_list)
         cls._schema_types = loader.schema_types
         cls._schema_fields = loader.schema_fields

@@ -6,10 +6,8 @@ import db.deletion
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-from django.urls import reverse
 import django.utils.timezone
 import share.models.fields
-from share.util import IDObfuscator
 
 
 class Migration(migrations.Migration):

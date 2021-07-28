@@ -1,6 +1,6 @@
 import logging
 
-from oauth2_provider.ext.rest_framework import TokenHasScope
+from oauth2_provider.contrib.rest_framework import TokenHasScope
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 

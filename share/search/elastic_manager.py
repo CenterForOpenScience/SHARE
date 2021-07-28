@@ -34,7 +34,7 @@ class ElasticManager:
         return Extensions.get('share.search.index_setup', index_setup_name)()
 
     def delete_index(self, index_name):
-        logger.warn(f'ElasticManager: deleting index {index_name}')
+        logger.warning(f'ElasticManager: deleting index {index_name}')
         self.es_client.indices.delete(index=index_name, ignore=[400, 404])
 
     def create_index(self, index_name):
@@ -97,10 +97,10 @@ class ElasticManager:
         previous_indexes = self.get_primary_indexes()
 
         if previous_indexes == [primary_index_name]:
-            logger.warn(f'index {primary_index_name} is already the primary')
+            logger.warning(f'index {primary_index_name} is already the primary')
             return
 
-        logger.warn(f'removing aliases to {previous_indexes} and adding alias to {primary_index_name}')
+        logger.warning(f'removing aliases to {previous_indexes} and adding alias to {primary_index_name}')
         delete_actions = [
             {'remove': {'index': index_name, 'alias': alias}}
             for index_name in previous_indexes

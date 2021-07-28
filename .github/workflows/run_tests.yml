@@ -1,0 +1,80 @@
+name: run_share_tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  checks: write
+
+jobs:
+
+  run_tests:
+    strategy:
+      matrix:
+        python-version: [3.6]
+    runs-on: ubuntu-latest
+
+
+    services:
+
+      postgres:
+        image: postgres:10
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      elasticsearch:
+        image: elasticsearch:5.4
+        env:
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+        ports:
+          - 9200:9200
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: install non-py dependencies
+        run: sudo apt-get install libxml2-dev libxslt1-dev libpq-dev
+
+      - name: cache py dependencies
+        id: cache-requirements
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'dev-requirements.txt') }}
+
+      - name: install py dependencies
+        if: steps.cache-requirements.outputs.cache-hit != 'true'
+        run: pip install -r dev-requirements.txt
+
+      - name: install share
+        run: python setup.py develop
+
+      - name: flake it
+        run: flake8 .
+
+      - name: run tests
+        run: |
+          coverage run -m pytest -x --create-db
+          coverage run --append -m behave
+        env:
+          DATABASE_PASSWORD: postgres
+
+      - name: send coverage report
+        run: coveralls --service=github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

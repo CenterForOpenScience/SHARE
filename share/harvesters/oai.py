@@ -34,8 +34,8 @@ class OAIHarvester(BaseHarvester):
         url.args['metadataPrefix'] = metadata_prefix
 
         if time_granularity:
-            url.args['from'] = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
-            url.args['until'] = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            url.args['from'] = start_date.format('YYYY-MM-DD') + 'T00:00:00Z'
+            url.args['until'] = end_date.format('YYYY-MM-DD') + 'T00:00:00Z'
         else:
             url.args['from'] = start_date.date().isoformat()
             url.args['until'] = end_date.date().isoformat()

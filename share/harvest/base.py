@@ -136,8 +136,8 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             return  # No need to do anything
 
         # Cast to datetimes for compat reasons
-        start = pendulum.Pendulum.instance(datetime.datetime.combine(start, datetime.time(0, 0, 0, 0, timezone.utc)))
-        end = pendulum.Pendulum.instance(datetime.datetime.combine(end, datetime.time(0, 0, 0, 0, timezone.utc)))
+        start = pendulum.instance(datetime.datetime.combine(start, datetime.time(0, 0, 0, 0, timezone.utc)))
+        end = pendulum.instance(datetime.datetime.combine(end, datetime.time(0, 0, 0, 0, timezone.utc)))
 
         if hasattr(self, 'shift_range'):
             warnings.warn(
@@ -159,7 +159,7 @@ class BaseHarvester(metaclass=abc.ABCMeta):
             if result.datestamp is None:
                 result.datestamp = start
             elif (result.datestamp.date() < start.date() or result.datestamp.date() > end.date()):
-                if (start - result.datestamp) > pendulum.Interval(hours=24) or (result.datestamp - end) > pendulum.Interval(hours=24):
+                if (start - result.datestamp) > pendulum.Duration(hours=24) or (result.datestamp - end) > pendulum.Duration(hours=24):
                     raise ValueError(
                         'result.datestamp is outside of the requested date range. '
                         '{} from {} is not within [{} - {}]'.format(result.datestamp, result.identifier, start, end)

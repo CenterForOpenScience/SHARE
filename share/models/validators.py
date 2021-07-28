@@ -1,6 +1,5 @@
 import os
 import json
-import ujson
 from collections import OrderedDict
 from itertools import chain
 
@@ -28,7 +27,7 @@ class JSONLDValidator:
     __validator_cache = {}
 
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jsonld-schema.json')) as fobj:
-        jsonld_schema = Draft4Validator(ujson.load(fobj))
+        jsonld_schema = Draft4Validator(json.load(fobj))
 
     db_type_map = {
         AttributeDataType.STRING: 'string',

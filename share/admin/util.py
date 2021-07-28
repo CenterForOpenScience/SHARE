@@ -1,7 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.core.paginator import Paginator
-from django.db import connections
-from django.db.models.sql.datastructures import EmptyResultSet
+from django.db import connection, transaction, OperationalError
 from django.utils.functional import cached_property
 from django.urls import reverse
 from django.utils.html import format_html
@@ -9,18 +8,22 @@ from django.utils.html import format_html
 from share.models import SourceConfig
 
 
-class FuzzyPaginator(Paginator):
-
+# TimeLimitedPaginator from https://hakibenita.com/optimizing-the-django-admin-paginator
+class TimeLimitedPaginator(Paginator):
+    """
+    Paginator that enforces a timeout on the count operation.
+    If the count times out, a bogus large value is returned instead.
+    """
     @cached_property
     def count(self):
-        cursor = connections[self.object_list.db].cursor()
-
-        try:
-            cursor.execute('SELECT count_estimate(%s);', (cursor.mogrify(*self.object_list.query.sql_with_params()).decode(), ))
-        except EmptyResultSet:
-            return 0
-
-        return int(cursor.fetchone()[0])
+        # We set the timeout in a db transaction to prevent it from
+        # affecting other transactions.
+        with transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute('SET LOCAL statement_timeout TO 500;')
+            try:
+                return super().count
+            except OperationalError:
+                return 999999999999
 
 
 def append_to_cls_property(cls, property_name, value):

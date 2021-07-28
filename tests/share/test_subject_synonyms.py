@@ -6,7 +6,7 @@ from django.conf import settings
 
 def test_synonyms_valid():
     with open(settings.SUBJECTS_YAML) as f:
-        subjects = yaml.load(f)
+        subjects = yaml.load(f, Loader=yaml.CLoader)
     subject_names = set(s['name'] for s in subjects)
 
     with open(settings.SUBJECT_SYNONYMS_JSON) as f:

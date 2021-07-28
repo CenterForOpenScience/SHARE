@@ -309,4 +309,4 @@ class OutgoingActionLoop:
                 self.messages_awaiting_elastic[str(action['_id'])] = message
                 yield action
             except local_queue.Empty:
-                raise StopIteration
+                return

@@ -22,8 +22,8 @@ class NCARHarvester(BaseHarvester):
         url = furl(self.url).set(query_params={
             'verb': 'ListRecords',
             'metadataPrefix': 'dif',
-            'from': start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z',
-            'until': end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+            'from': start_date.format('YYYY-MM-DD') + 'T00:00:00Z',
+            'until': end_date.format('YYYY-MM-DD') + 'T00:00:00Z',
         })
 
         return self.fetch_records(url)

@@ -15,7 +15,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models.expressions import RawSQL
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from share.util import chunked, BaseJSONAPIMeta
 
@@ -141,7 +141,7 @@ class AbstractBaseJob(models.Model):
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
 
-    claimed = models.NullBooleanField()
+    claimed = models.BooleanField(null=True)
 
     error_type = models.TextField(blank=True, null=True, db_index=True)
     error_message = models.TextField(blank=True, null=True, db_column='message')

@@ -93,7 +93,7 @@ class ChangeBuilder:
         if not hasattr(model, 'VersionModel'):
             # Non-ShareObjects (e.g. SubjectTaxonomy) cannot be changed.
             # Shouldn't reach this point...
-            logger.warn('Change node {!r} targets immutable model {}, skipping.'.format(self.node, model))
+            logger.warning('Change node {!r} targets immutable model {}, skipping.'.format(self.node, model))
             return True
 
         if self.instance:

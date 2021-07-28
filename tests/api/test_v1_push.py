@@ -63,7 +63,7 @@ class TestV1PushProxy:
             '/api/v1/share/data/',
             json.dumps(data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
+            HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 400
         assert not mock_ingest.delay.called
 
@@ -72,7 +72,7 @@ class TestV1PushProxy:
             '/api/v1/share/data/',
             json.dumps(self.valid_data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Bearer ' + trusted_user.accesstoken_set.first().token
+            HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 202
 
         assert mock_ingest.delay.called
@@ -94,6 +94,6 @@ class TestV1PushProxy:
             '/api/v1/share/data/',
             json.dumps({}),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Token ' + trusted_user.accesstoken_set.first().token
+            HTTP_AUTHORIZATION='Token ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 400
         assert not mock_ingest.delay.called

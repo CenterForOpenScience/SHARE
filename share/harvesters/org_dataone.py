@@ -9,8 +9,8 @@ class DataOneHarvester(BaseHarvester):
     VERSION = 1
 
     def do_harvest(self, start_date, end_date):
-        end_date = end_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
-        start_date = start_date.format('YYYY-MM-DDT00:00:00', formatter='alternative') + 'Z'
+        end_date = end_date.format('YYYY-MM-DD') + 'T00:00:00Z'
+        start_date = start_date.format('YYYY-MM-DD') + 'T00:00:00Z'
 
         url = furl(self.config.base_url).set(query_params={
             'q': 'dateModified:[{} TO {}]'.format(start_date, end_date),

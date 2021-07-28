@@ -166,12 +166,13 @@ def elastic_test_manager(settings, elastic_test_index_name):
         elastic_manager.delete_index(elastic_test_index_name)
         elastic_manager.create_index(elastic_test_index_name)
 
-        yield elastic_manager
+        try:
+            yield elastic_manager
+        finally:
+            elastic_manager.delete_index(elastic_test_index_name)
 
     except (ConnectionError, ElasticConnectionError):
         raise pytest.skip('Elasticsearch unavailable')
-    finally:
-        elastic_manager.delete_index(elastic_test_index_name)
 
 
 @pytest.fixture
