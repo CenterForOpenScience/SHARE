@@ -1,5 +1,8 @@
 # Change Log
 
+# [21.3.1] - 2021-07-28
+- update raven
+
 # [21.3.0] - 2021-07-28
 - update and consolidate docs
 - audit and upgrade all dependencies
