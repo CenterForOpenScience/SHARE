@@ -71,7 +71,7 @@ class NSFAwardsHarvester(BaseHarvester):
         # HACK: Records are made available one business day *after* their "date".
         # Accounting for holidays, they might be delayed over a 4-day weekend.
         # When harvesting yesterday's data, actually reach back farther...
-        if end_date.is_today():
+        if end_date.is_same_day(pendulum.now()):
             start_date = start_date.subtract(days=5)
         return start_date, end_date
 
