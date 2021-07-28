@@ -1,5 +1,10 @@
 # Change Log
 
+# [21.3.0] - 2021-07-28
+- update and consolidate docs
+- audit and upgrade all dependencies
+- switch to github actions for tests/ci
+
 # [21.2.2] - 2021-05-25
 - fix: feeds should not break on null date_published
 
