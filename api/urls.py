@@ -19,6 +19,8 @@ urlpatterns = [
     url('^', include('api.suids.urls')),
     url('^', include('api.users.urls')),
 
+    url('^', include('api.pls_render_metadata.urls')),
+
     url('^schemas?/', include('api.schemas.urls'), name='schema'),
     url('^search/', include('api.search.urls'), name='search'),
 

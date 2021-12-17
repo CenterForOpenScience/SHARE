@@ -3,11 +3,18 @@ from typing import Optional
 
 from share.models.core import NormalizedData
 from share.models.ingest import SourceUniqueIdentifier
+from share.util.graph import MutableGraph
 
 
 class MetadataFormatter(ABC):
-    @abstractmethod
     def format(self, normalized_data: NormalizedData) -> Optional[str]:
+        """return a string representation of the given metadata in the formatter's format
+        """
+        mgraph = MutableGraph.from_jsonld(normalized_data.data)
+        return self.format_from_graph(mgraph)
+
+    @abstractmethod
+    def format_from_graph(self, normalized_data: NormalizedData) -> Optional[str]:
         """return a string representation of the given metadata in the formatter's format
         """
         raise NotImplementedError

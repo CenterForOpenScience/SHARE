@@ -58,6 +58,10 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             'is_deleted': True,
         })
 
+    def format_from_graph(self, mgraph):
+        # HACK because sharev2_elastic is dumb
+        raise NotImplementedError('sharev2_elastic formatter depends on a NormalizedData')
+
     def format(self, normalized_datum):
         mgraph = MutableGraph.from_jsonld(normalized_datum.data)
         central_work = mgraph.get_central_node(guess=True)
