@@ -66,6 +66,12 @@ class TestSharectlSearch:
             run_sharectl('search', 'set_primary', 'blazblat')
         assert mock_elastic_manager.update_primary_alias.mock_calls == [mock.call('blazblat')]
 
+    def test_update_mappings(self):
+        mock_elastic_manager = mock.Mock()
+        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
+            run_sharectl('search', 'update_mappings', 'blazblat')
+        assert mock_elastic_manager.update_mappings.mock_calls == [mock.call('blazblat')]
+
     def test_daemon(self, settings):
         expected_indexes = ['bliz', 'blaz', 'bluz']
         settings.ELASTICSEARCH['ACTIVE_INDEXES'] = expected_indexes

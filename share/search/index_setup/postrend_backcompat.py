@@ -113,6 +113,7 @@ class PostRendBackcompatIndexSetup(IndexSetup):
                     'type': {'type': 'keyword', 'include_in_all': False},
                     'types': {'type': 'keyword', 'include_in_all': False},
                     'withdrawn': {'type': 'boolean', 'include_in_all': False},
+                    'osf_related_resource_types': {'type': 'object', 'dynamic': True, 'include_in_all': False},
                     'lists': {'type': 'object', 'dynamic': True, 'include_in_all': False},
                 },
                 'dynamic_templates': [
