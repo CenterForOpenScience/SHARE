@@ -9,3 +9,11 @@ def post_migrate_load_sources(sender, **kwargs):
     except ProgrammingError:
         return
     management.call_command('loadsources')
+
+
+def ensure_latest_elastic_mappings(sender, **kwargs):
+    from share.search.elastic_manager import ElasticManager
+    elastic_manager = ElasticManager()
+
+    for index_name in elastic_manager.get_primary_indexes():
+        elastic_manager.update_mappings(index_name)
