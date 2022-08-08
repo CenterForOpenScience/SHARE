@@ -5,6 +5,7 @@ RUN apt-get update \
         ca-certificates \
         gcc \
         git \
+        gosu \
         libev4 \
         libev-dev \
         libevent-dev \
