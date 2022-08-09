@@ -105,6 +105,8 @@ class PostRendBackcompatIndexSetup(IndexSetup):
                     'publishers': {'type': 'text', 'fields': exact_field},
                     'registration_type': {'type': 'keyword', 'include_in_all': False},
                     'retracted': {'type': 'boolean', 'include_in_all': False},
+                    'source_config': {'type': 'keyword', 'include_in_all': False},
+                    'source_unique_id': {'type': 'keyword'},
                     'sources': {'type': 'keyword', 'include_in_all': False},
                     'subjects': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer'},
                     'subject_synonyms': {'type': 'text', 'include_in_all': False, 'analyzer': 'subject_analyzer', 'search_analyzer': 'subject_search_analyzer', 'copy_to': 'subjects'},

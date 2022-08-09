@@ -10,7 +10,9 @@ from tests.factories import RawDatumFactory, NormalizedDataFactory
 FORMATTER_TEST_INPUTS = {
     'mycorrhizas': {
         'suid_id': 7,
+        'suid_value': 'oof',
         'source_name': 'SomeSource',
+        'source_config_label': 'foo',
         'raw_datum_kwargs': {
             'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
         },
@@ -33,7 +35,9 @@ FORMATTER_TEST_INPUTS = {
     },
     'no-names-only-name-parts': {
         'suid_id': 7,
+        'suid_value': 'rab',
         'source_name': 'SomeSource',
+        'source_config_label': 'bar',
         'raw_datum_kwargs': {
             'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
         },
@@ -54,7 +58,9 @@ FORMATTER_TEST_INPUTS = {
     },
     'with-is_deleted': {
         'suid_id': 57,
+        'suid_value': 'zab',
         'source_name': 'foo',
+        'source_config_label': 'baz',
         'raw_datum_kwargs': {},
         'normalized_datum_kwargs': {
             'data': {
@@ -67,7 +73,9 @@ FORMATTER_TEST_INPUTS = {
     },
     'with-subjects': {
         'suid_id': 123,
+        'suid_value': 'xuq',
         'source_name': 'osf reg',
+        'source_config_label': 'subj',
         'raw_datum_kwargs': {
             'date_created': dateutil.parser.isoparse('2020-02-02T20:20:02.02+00:00'),
         },
@@ -325,7 +333,9 @@ FORMATTER_TEST_INPUTS = {
     },
     'with-osf-extra': {
         'suid_id': 99,
+        'suid_value': 'guidz',
         'source_name': 'OsfProbably',
+        'source_config_label': 'osf.io.v2_push',
         'raw_datum_kwargs': {
             'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
         },
@@ -416,6 +426,8 @@ class BaseMetadataFormatterTest:
         return NormalizedDataFactory(
             raw=RawDatumFactory(
                 suid__id=formatter_test_input['suid_id'],
+                suid__identifier=formatter_test_input['suid_value'],
+                suid__source_config__label=formatter_test_input['source_config_label'],
                 suid__source_config__source__long_title=formatter_test_input['source_name'],
                 **formatter_test_input['raw_datum_kwargs'],
             ),
