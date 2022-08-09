@@ -74,6 +74,8 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         return json.dumps(strip_empty_values({
             'id': IDObfuscator.encode(suid),
             'sources': [source_name],
+            'source_config': suid.source_config.label,
+            'source_unique_id': suid.identifier,
 
             'type': format_node_type(central_work),
             'types': format_node_type_lineage(central_work),
