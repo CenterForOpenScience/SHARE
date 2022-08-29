@@ -1,5 +1,8 @@
 # Change Log
 
+# [22.0.1] - 2022-08-29
+- add `suid` value to `sharev2_elastic` index
+
 # [22.0.0] - 2022-08-29
 - easy additive elastic mapping changes
 - add `osf_related_resource_types` field
