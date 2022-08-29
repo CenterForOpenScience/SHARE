@@ -103,7 +103,7 @@ class MetadataRecordsRSS(Feed):
         return prepare_string('{}{}'.format(author_name, ' et al.' if len(authors) > 1 else ''))
 
     def item_pubdate(self, item):
-        return pendulum.parse(item.get('date_published'))
+        return pendulum.parse(item.get('date_published') or item.get('date_created'))
 
     def item_updateddate(self, item):
         return pendulum.parse(item.get(self._order))
