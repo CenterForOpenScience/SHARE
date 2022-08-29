@@ -323,6 +323,49 @@ FORMATTER_TEST_INPUTS = {
             },
         },
     },
+    'with-osf-extra': {
+        'suid_id': 99,
+        'source_name': 'OsfProbably',
+        'raw_datum_kwargs': {
+            'date_created': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
+        },
+        'normalized_datum_kwargs': {
+            'created_at': dateutil.parser.isoparse('2017-04-07T21:09:05.023090+00:00'),
+            'data': {
+                '@graph': [
+                    {
+                        '@id': '_:p',
+                        '@type': 'person',
+                        'name': 'Open McOperton',
+                    },
+                    {
+                        '@id': '_:c',
+                        '@type': 'creator',
+                        'agent': {'@id': '_:p', '@type': 'person'},
+                        'creative_work': {'@id': '_:w', '@type': 'creativework'},
+                        'cited_as': 'Open McOperton',
+                        'order_cited': 0,
+                    },
+                    {
+                        '@id': '_:i',
+                        '@type': 'workidentifier',
+                        'creative_work': {'@id': '_:w', '@type': 'creativework'},
+                        'uri': 'https://example.com/open',
+                    },
+                    {
+                        '@id': '_:w',
+                        '@type': 'creativework',
+                        'title': 'So open',
+                        'date_updated': '2017-03-31T05:39:48+00:00',
+                        'extra': {
+                            'osf_related_resource_types': {'foo': True, 'bar': False},
+                        },
+                    },
+                ],
+                '@context': {}
+            },
+        },
+    },
 }
 
 

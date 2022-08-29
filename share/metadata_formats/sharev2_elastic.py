@@ -121,6 +121,9 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             'subjects': self._get_subjects(central_work, source_name),
             'subject_synonyms': self._get_subject_synonyms(central_work),
 
+            # osf-specific extra
+            'osf_related_resource_types': (central_work['extra'] or {}).get('osf_related_resource_types'),
+
             # a bunch of nested data because reasons -- used mostly for rendering search results
             'lists': {
                 'affiliations': self._build_related_agent_list(central_work, ['agentworkrelation']),

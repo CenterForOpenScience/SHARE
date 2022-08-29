@@ -49,10 +49,18 @@ class ElasticManager:
             body={'settings': index_setup.index_settings},
         )
 
+        logger.info('Putting Elasticsearch mappings')
+        self.update_mappings(index_name)
+
+        self.es_client.indices.refresh(index_name)
+
         logger.debug('Waiting for yellow status')
         self.es_client.cluster.health(wait_for_status='yellow')
+        logger.info('Finished setting up Elasticsearch index %s', index_name)
 
-        logger.info('Putting Elasticsearch mappings')
+    def update_mappings(self, index_name):
+        index_setup = self.get_index_setup(index_name)
+
         for doc_type, mapping in index_setup.index_mappings.items():
             logger.debug('Putting mapping for %s', doc_type)
             self.es_client.indices.put_mapping(
@@ -60,10 +68,6 @@ class ElasticManager:
                 body={doc_type: mapping},
                 index=index_name,
             )
-
-        self.es_client.indices.refresh(index_name)
-
-        logger.info('Finished setting up Elasticsearch index %s', index_name)
 
     def stream_actions(self, actions):
         stream = elastic_helpers.streaming_bulk(

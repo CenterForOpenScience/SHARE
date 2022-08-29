@@ -1,10 +1,11 @@
-FROM python:3.6-slim-stretch as app
+FROM python:3.6-slim-buster as app
 
 RUN apt-get update \
     && apt-get install -y \
         ca-certificates \
         gcc \
         git \
+        gosu \
         libev4 \
         libev-dev \
         libevent-dev \
@@ -17,32 +18,6 @@ RUN apt-get update \
         zlib1g-dev \
     && apt-get clean \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
-
-# gosu
-ENV GOSU_VERSION 1.10
-RUN apt-get update \
-    && apt-get install -y \
-        curl \
-        gnupg2 \
-    && mkdir ~/.gnupg && chmod 600 ~/.gnupg && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
-    && for server in hkp://ipv4.pool.sks-keyservers.net:80 \
-                     kp://ha.pool.sks-keyservers.net:80 \
-                     hkp://pgp.mit.edu:80 \
-                     hkp://keyserver.pgp.com:80 \
-    ; do \
-        gpg --keyserver "$server" --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && break || echo "Trying new server..." \
-    ; done \
-    && curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
-    && curl -o /usr/local/bin/gosu.asc -SL "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
-    && gpg --verify /usr/local/bin/gosu.asc \
-    && rm /usr/local/bin/gosu.asc \
-    && chmod +x /usr/local/bin/gosu \
-    # /gosu
-    && apt-get clean \
-    && apt-get autoremove -y \
-        curl \
-        gnupg2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN update-ca-certificates

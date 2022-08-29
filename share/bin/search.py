@@ -61,6 +61,14 @@ def setup(args, argv):
         elastic_manager.update_primary_alias(primary_index)
 
 
+@search.subcommand('Update mappings for an existing index')
+def update_mappings(args, argv):
+    """
+    Usage: {0} search update_mappings <index_name>
+    """
+    ElasticManager().update_mappings(args['<index_name>'])
+
+
 @search.subcommand('Set the "primary" index used to serve search results')
 def set_primary(args, argv):
     """
