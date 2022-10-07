@@ -1,8 +1,8 @@
 import pytest
 
-from share.schema.exceptions import SchemaLoadError
-from share.schema.loader import SchemaLoader
-from share.schema.shapes import (
+from share.legacy_normalize.schema.exceptions import SchemaLoadError
+from share.legacy_normalize.schema.loader import SchemaLoader
+from share.legacy_normalize.schema.shapes import (
     ShareV2SchemaType,
     ShareV2SchemaAttribute,
     ShareV2SchemaRelation,

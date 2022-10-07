@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate.steps.deduplicate import Deduplicate
+from share.legacy_normalize.regulate.steps.deduplicate import Deduplicate
 
 from tests.share.normalize.factories import (
     CreativeWork,

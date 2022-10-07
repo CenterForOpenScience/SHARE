@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate.steps import NodeStep, GraphStep, ValidationStep
+from share.legacy_normalize.regulate.steps import NodeStep, GraphStep, ValidationStep
 from share.util.extensions import Extensions
 
 

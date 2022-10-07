@@ -1,8 +1,8 @@
 import pytest
 from unittest import mock
 
-from share.regulate.regulator import Regulator, Steps, InfiniteRegulationError, RegulatorConfigError
-from share.regulate.steps import NodeStep, GraphStep, ValidationStep
+from share.legacy_normalize.regulate.regulator import Regulator, Steps, InfiniteRegulationError, RegulatorConfigError
+from share.legacy_normalize.regulate.steps import NodeStep, GraphStep, ValidationStep
 from share.util.graph import MutableGraph
 
 

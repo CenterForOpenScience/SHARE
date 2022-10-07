@@ -1,6 +1,6 @@
 import pytest
 
-from share.transformers.mods import MODSTransformer
+from share.legacy_normalize.transformers.mods import MODSTransformer
 
 from tests.share.transformers.test_oai_dc import TestSetsFilter
 

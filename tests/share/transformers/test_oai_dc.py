@@ -1,7 +1,7 @@
 import pytest
 
 from share.models import SourceConfig
-from share.transformers.oai import OAITransformer
+from share.legacy_normalize.transformers.oai import OAITransformer
 
 
 class TestSetsFilter:

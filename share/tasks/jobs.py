@@ -15,7 +15,7 @@ from share.models import (
 )
 from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
-from share.regulate import Regulator
+from share.legacy_normalize.regulate import Regulator
 from share.search import SearchIndexer
 from share.search.messages import MessageType
 from share.util import chunked

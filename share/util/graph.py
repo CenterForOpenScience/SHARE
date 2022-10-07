@@ -6,9 +6,9 @@ import pendulum
 import uuid
 
 from share.exceptions import ShareException
-from share.schema import ShareV2Schema
-from share.schema.exceptions import SchemaKeyError
-from share.schema.shapes import AttributeDataType, RelationShape
+from share.legacy_normalize.schema import ShareV2Schema
+from share.legacy_normalize.schema.exceptions import SchemaKeyError
+from share.legacy_normalize.schema.shapes import AttributeDataType, RelationShape
 from share.util import TopologicalSorter
 
 

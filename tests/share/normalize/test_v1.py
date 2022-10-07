@@ -1,8 +1,8 @@
 import json
 import pytest
 
-from share.transform.chain import ctx
-from share.transformers.v1_push import V1Transformer
+from share.legacy_normalize.transform.chain import ctx
+from share.legacy_normalize.transformers.v1_push import V1Transformer
 
 
 class TestV1Transformer:

@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate.steps.block_extra_values import BlockExtraValues
+from share.legacy_normalize.regulate.steps.block_extra_values import BlockExtraValues
 from share.util.graph import MutableGraph
 
 

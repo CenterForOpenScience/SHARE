@@ -1,5 +1,5 @@
 import pytest
-from share.transform.chain.utils import contact_extract
+from share.legacy_normalize.transform.chain.utils import contact_extract
 
 
 @pytest.mark.parametrize('input_text, output_text', [

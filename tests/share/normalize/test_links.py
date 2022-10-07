@@ -1,8 +1,8 @@
 import pytest
 import pendulum
 
-from share.transform.chain import exceptions
-from share.transform.chain.links import (
+from share.legacy_normalize.transform.chain import exceptions
+from share.legacy_normalize.transform.chain.links import (
     ARKLink,
     ArXivLink,
     DOILink,

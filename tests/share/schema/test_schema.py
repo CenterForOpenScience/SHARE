@@ -1,9 +1,9 @@
 import pytest
 
-from share.schema import ShareV2Schema
-from share.schema.exceptions import SchemaKeyError
-from share.schema.shapes import AttributeDataType, AttributeDataFormat, RelationShape
-from share.schema.shapes import ShareV2SchemaType, ShareV2SchemaAttribute, ShareV2SchemaRelation
+from share.legacy_normalize.schema import ShareV2Schema
+from share.legacy_normalize.schema.exceptions import SchemaKeyError
+from share.legacy_normalize.schema.shapes import AttributeDataType, AttributeDataFormat, RelationShape
+from share.legacy_normalize.schema.shapes import ShareV2SchemaType, ShareV2SchemaAttribute, ShareV2SchemaRelation
 
 WORK_TYPES = {
     'CreativeWork',

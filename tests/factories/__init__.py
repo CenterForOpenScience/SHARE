@@ -17,7 +17,7 @@ from project import celery_app
 from share import models
 from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
-from share.transform import BaseTransformer
+from share.legacy_normalize.transform import BaseTransformer
 from share.util.extensions import Extensions
 
 

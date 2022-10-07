@@ -1,4 +1,4 @@
-from share.transform.chain import *  # noqa
+from share.legacy_normalize.transform.chain import *  # noqa
 
 
 EXAMPLE = {

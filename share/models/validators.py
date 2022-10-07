@@ -9,11 +9,11 @@ from jsonschema import Draft4Validator, draft4_format_checker
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
-from share.schema import ShareV2Schema
-from share.schema.exceptions import SchemaKeyError
-from share.schema.shapes import AttributeDataType, AttributeDataFormat, RelationShape
-from share.transform.chain.links import IRILink
-from share.transform.chain.exceptions import InvalidIRI
+from share.legacy_normalize.schema import ShareV2Schema
+from share.legacy_normalize.schema.exceptions import SchemaKeyError
+from share.legacy_normalize.schema.shapes import AttributeDataType, AttributeDataFormat, RelationShape
+from share.legacy_normalize.transform.chain.links import IRILink
+from share.legacy_normalize.transform.chain.exceptions import InvalidIRI
 
 
 def is_valid_jsonld(value):

@@ -1,5 +1,5 @@
 import pytest
-from share.transform.chain.utils import force_text
+from share.legacy_normalize.transform.chain.utils import force_text
 
 
 @pytest.mark.parametrize('input_text, output_text', [

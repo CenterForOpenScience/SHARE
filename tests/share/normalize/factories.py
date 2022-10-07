@@ -10,9 +10,9 @@ import faker
 import factory
 import factory.fuzzy
 
-from share.schema import ShareV2Schema
-from share.schema.shapes import RelationShape
-from share.transform.chain.links import IRILink
+from share.legacy_normalize.schema import ShareV2Schema
+from share.legacy_normalize.schema.shapes import RelationShape
+from share.legacy_normalize.transform.chain.links import IRILink
 from share.util import TopologicalSorter
 from share.util.graph import MutableGraph, MutableNode
 

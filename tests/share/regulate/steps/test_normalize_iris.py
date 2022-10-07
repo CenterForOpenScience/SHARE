@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate.steps.normalize_iris import NormalizeIRIs
+from share.legacy_normalize.regulate.steps.normalize_iris import NormalizeIRIs
 from share.util.graph import MutableGraph
 
 

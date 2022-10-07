@@ -1,6 +1,6 @@
 import pytest
 
-from share.regulate import Regulator
+from share.legacy_normalize.regulate import Regulator
 
 from tests.share.normalize.factories import (
     Agent,
