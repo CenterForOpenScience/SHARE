@@ -1,0 +1,33 @@
+rdf
+---
+
+
+decide/create rdf-based core metadata application profile
+("osf/rdf"?) allowing for additional future terms/vocabularies
+==> to start, use dcterms and assume just the core
+
+build rdf vocabulary in share/schema/
+- one path: add rdf uri to each term in schema-spec.yml,
+  give rdflib what it needs to parse v2normalizeddata directly
+- another path: define just the target vocabulary, build a formatter
+  that converts from normalizeddata to the target vocab,
+  use that in metadata formatters instead of normalizeddata
+  
+
+replace share.utils.graph.MutableGraph with rdflib.Graph
+(or make it use rdflib.Graph internally)
+
+add converter from sharev2_normalizeddata to osf/rdf
+
+update metadata formatters to take osf/rdf graph as input
+
+
+
+
+=======
+
+existing ingest flow:
+  share:RawDatum -> [Transform] -> [Regulate] -> share:MutableGraph -> [Format] -> Set<share:FormattedMetadataRecord>
+
+desired ingest flow:
+  share:RawDatum -> [Parse] -> rdf:Graph (saved as share:MetadataRecord) -> [Format] -> Set<share:FormattedMetadataRecord>
