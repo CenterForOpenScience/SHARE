@@ -43,4 +43,4 @@ class DoepagesHarvester(BaseHarvester):
         for record in records:
             doc_id = record.xpath('dc:ostiId/node()', namespaces=self.namespaces)[0]
             doc = etree.tostring(record)
-            yield(doc_id, doc)
+            yield (doc_id, doc)

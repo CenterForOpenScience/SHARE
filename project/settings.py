@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from distutils.util import strtobool
 
 from django.utils.log import DEFAULT_LOGGING
 
@@ -19,6 +18,15 @@ from celery.schedules import crontab
 import jwe
 
 from share import __version__
+
+
+def strtobool(s: str) -> bool:
+    s = s.lower()
+    if s in ('t', 'true', '1'):
+        return True
+    if s in ('f', 'false', '0'):
+        return False
+    raise ValueError(f'unboolable string: "{s}"')
 
 
 def split(string, delim):

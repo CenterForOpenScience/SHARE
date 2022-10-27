@@ -436,7 +436,7 @@ class MutableNode:
     def attrs(self):
         return {
             k: v for k, v in self.__attrs.items()
-            if k not in PrivateNodeAttrs
+            if not isinstance(k, PrivateNodeAttrs)
         }
 
     def relations(self, in_edges=True, jsonld=False):
