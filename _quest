@@ -3,16 +3,12 @@ rdf
 
 
 decide/create rdf-based core metadata application profile
-("osf/rdf"?) allowing for additional future terms/vocabularies
-==> to start, use dcterms and assume just the core
+("osf-map"?) allowing for additional future terms/vocabularies
 
-build rdf vocabulary in share/schema/
-- one path: add rdf uri to each term in schema-spec.yml,
-  give rdflib what it needs to parse v2normalizeddata directly
-- another path: define just the target vocabulary, build a formatter
-  that converts from normalizeddata to the target vocab,
-  use that in metadata formatters instead of normalizeddata
-  
+build a formatter that converts from sharev2's normalizeddata to
+the given osf-map vocabulary, and serializes with rdflib
+=> use that as the new input format for metadata formatters
+   (instead of normalizeddata)
 
 replace share.utils.graph.MutableGraph with rdflib.Graph
 (or make it use rdflib.Graph internally)
@@ -31,3 +27,11 @@ existing ingest flow:
 
 desired ingest flow:
   share:RawDatum -> [Parse] -> rdf:Graph (saved as share:MetadataRecord) -> [Format] -> Set<share:FormattedMetadataRecord>
+
+
+
+=======
+from sharev2:normalizeddata to rdflib-parsable json-ld
+- load json
+- give the "central node" a non-blank @id
+- add "@context": "https://share.osf.io/vocab/"

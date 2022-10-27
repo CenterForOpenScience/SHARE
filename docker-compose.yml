@@ -96,7 +96,9 @@ services:
     stdin_open: true
 
   worker:
-    image: quay.io/centerforopenscience/share:develop
+    #image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
     command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
