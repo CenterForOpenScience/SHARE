@@ -1,7 +1,7 @@
 from django.db.models import Exists, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.management.commands import BaseShareCommand
 from share.models.core import FormattedMetadataRecord
 from share.models.ingest import SourceConfig, SourceUniqueIdentifier

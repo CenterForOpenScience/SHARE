@@ -12,6 +12,7 @@ the given osf-map vocabulary, and serializes with rdflib
 
 replace share.utils.graph.MutableGraph with rdflib.Graph
 (or make it use rdflib.Graph internally)
+(or use it to write reformatter for existing data, compat layer for existing transformers)
 
 add converter from sharev2_normalizeddata to osf/rdf
 

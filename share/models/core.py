@@ -196,8 +196,8 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    rdf_graph = models.TextField()  # alternate representation to `data`
-    rdf_parse_format = models.TextField()  # what to pass as `format` to rdflib.Graph.parse
+    serialized_rdf_graph = models.BinaryField()  # alternate/replacement for `data` field
+    _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

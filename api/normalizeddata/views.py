@@ -14,7 +14,7 @@ from share.tasks import ingest
 from share.util import IDObfuscator
 from share.util.graph import MutableGraph
 from share.util.osf import guess_osf_guid
-from share.ingest.ingester import Ingester
+from share.util.ingester import Ingester
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer

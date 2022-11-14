@@ -24,7 +24,7 @@ def improvenance_subjects(apps, schema_editor):
         } for s in Subject.objects.all()
     ]
 
-    from share.ingest.ingester import Ingester
+    from share.util.ingester import Ingester
     Ingester(subjects).as_user(user).ingest()
 
 

@@ -1,6 +1,9 @@
+import abc
 import dateutil
+import typing
 
 from django.core.exceptions import ObjectDoesNotExist
+from rdflib import URIRef
 
 from share.models import FormattedMetadataRecord, Source, SourceUniqueIdentifier
 from share.oaipmh import errors as oai_errors
@@ -8,6 +11,53 @@ from share.oaipmh.verbs import OAIVerb
 from share.oaipmh.response_renderer import OAIRenderer
 from share.oaipmh.util import format_datetime
 from share.util import IDObfuscator, InvalidID
+
+
+class RecordRepository(abc.ABC):
+    def identify(self):
+        return {
+            # TODO: uriref keys, shacl:validation-report as feedback to implementors of this abc.ABC
+            '@id': self.REPOSITORY_URI,
+        }
+
+    @abc.abstractmethod
+    def list_formats(self, pid: URIRef = None) -> typing.Iterable[URIRef]:
+        raise NotImplementedError('should yield identifiers of known/available record formats')
+
+    # @abc.abstractmethod
+    # def list_namespaces(self, pid=None) -> typing.Iterable[URIRef]:
+    #     raise NotImplementedError('should yield identifiers of known/available metadata namespaces')
+
+    @abc.abstractmethod
+    def list_keywords(self) -> typing.Iterable[URIRef]:
+        raise NotImplementedError(f'''
+            pls implement list_keywords on {self.__class__.__qualname__}
+            to yield URIs of keywords which are used by records in this repository.
+        ''')
+
+    @abc.abstractmethod
+    def list_pids(self) -> typing.Iterable[URIRef]:
+        raise NotImplementedError(f'''
+            pls implement list_pids on {self.__class__.__qualname__}:
+            to yield persistent identifiers of items/objects/subjects
+            noted by records in this repository.
+        ''')
+
+    @abc.abstractmethod
+    def get_record(self, pid: URIRef, record_format: URIRef) -> bytes:
+        raise NotImplementedError(f'''
+            pls implement get_record on {self.__class__.__qualname__}:
+            to return the requested record as bytes,
+            with any further expectations based on record_format
+        ''')
+
+    @abc.abstractmethod
+    def list_records(self, record_format: URIRef, keyword: typing.Tuple[URIRef] = None) -> typing.Iterable[typing.Tuple[URIRef, bytes]]:
+        raise NotImplementedError(f'''
+            pls implement list_records on {self.__class__.__qualname__}:
+            to yield (uri, record_bytes), with expectations for record_bytes
+            based on record_format
+        ''')
 
 
 class OaiPmhRepository:

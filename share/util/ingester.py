@@ -3,7 +3,7 @@ import pendulum
 from typing import Union
 
 from share.exceptions import IngestError
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.models import RawDatum
 from share.models import SourceConfig
 from share.tasks import ingest

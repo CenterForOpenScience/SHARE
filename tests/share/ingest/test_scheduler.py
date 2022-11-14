@@ -2,7 +2,7 @@ import pytest
 from unittest import mock
 import pendulum
 
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.models.jobs import IngestJob
 from share.models.ingest import SourceUniqueIdentifier
 
@@ -19,7 +19,7 @@ class TestIngestScheduler:
 
     @pytest.fixture
     def mock_ingest(self):
-        with mock.patch('share.ingest.scheduler.ingest') as mock_ingest:
+        with mock.patch('share.tasks.scheduler.ingest') as mock_ingest:
             yield mock_ingest
 
     @pytest.mark.parametrize('raw_ages, selected_raw', [
@@ -122,7 +122,7 @@ class TestIngestScheduler:
                 assert job.status == IngestJob.STATUS.created
 
     def test_bulk_reingest(self, mock_ingest):
-        with mock.patch('share.ingest.scheduler.IngestScheduler.bulk_schedule') as mock_bulk_schedule:
+        with mock.patch('share.tasks.scheduler.IngestScheduler.bulk_schedule') as mock_bulk_schedule:
             jobs = [
                 factories.IngestJobFactory()
                 for _ in range(10)
