@@ -69,7 +69,9 @@ services:
   ##################
 
   requirements:
-    image: quay.io/centerforopenscience/share:develop
+    # image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
     command:
       - /bin/bash
       - -c
