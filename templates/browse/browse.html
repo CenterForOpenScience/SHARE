@@ -2,19 +2,19 @@
 <html>
     <head>
         {% load static %}
-        <link rel='stylesheet' href='{% static "browse/browse.css" %}' />
+        <link rel='stylesheet' href='{% static "css/browse.css" %}' />
     </head>
     <body>
-        <section local-class='Browse'>
+        <section class='Browse'>
             <h1>browse</h1>
-            {% include 'browse/article.html' }
-            {% include 'browse/article.html' }
-            {% include 'browse/article.html' }
-            {% include 'browse/article.html' }
-            {% include 'browse/article.html' }
-            {% include 'browse/article.html' }
+            {% include 'browse/article.html' %}
+            {% include 'browse/article.html' %}
+            {% include 'browse/article.html' %}
+            {% include 'browse/article.html' %}
+            {% include 'browse/article.html' %}
+            {% include 'browse/article.html' %}
         </section>
-        <section local-class='Glossolalia'>
+        <section class='Glossolalia'>
             <h2>glossolalia</h2>
             <p>a <dfn><a href='http://localhost:5000/aaaa'>osfio:aaaa</a></dfn> is a thing</p>
             <p>a <dfn><a href='http://localhost:5000/foobl'>osfio:foobl</a></dfn> is a thing</p>

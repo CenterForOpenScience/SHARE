@@ -1,0 +1,38 @@
+.Browse {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.618rem;
+    padding: 0.618rem;
+}
+
+.Browse article {
+    display: flex;
+    flex-direction: column;
+    gap: 0.382rem;
+    padding: 0.382rem;
+    max-width: 19rem;
+    border: solid 1px;
+}
+
+.Browse header {
+    font-weight: bold;
+    background-color: #efe;
+}
+
+.Browse footer {
+    padding: 0.618rem;
+    background-color: #eee;
+}
+
+.Browse p,
+.Browse address {
+    display: flex;
+    flex-direction: row;
+    gap: 0.618rem;
+    border: dotted 1px;
+    padding: 0.382rem;
+    justify-content: space-between;
+    overflow: scroll;
+    margin: 0;
+}
