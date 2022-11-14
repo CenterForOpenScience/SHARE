@@ -19,7 +19,7 @@ from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser

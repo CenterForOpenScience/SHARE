@@ -25,6 +25,7 @@ from osf_oauth2_adapter import views as osf_oauth2_adapter_views
 from api.views import APIVersionRedirectView, source_icon_view
 
 from share.oaipmh.views import OAIPMHView
+from share.browse.views import BrowseView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -37,6 +38,7 @@ urlpatterns = [
     url(r'^accounts/social/login/cancelled/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/social/login/error/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^browse/', BrowseView.as_view(), name='browse'),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
         url=staticfiles_storage.url('favicon.ico'),

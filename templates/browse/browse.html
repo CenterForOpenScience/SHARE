@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load static %}
+        <link rel='stylesheet' href='{% static "browse/browse.css" %}' />
+    </head>
+    <body>
+        <section local-class='Browse'>
+            <h1>browse</h1>
+            {% include 'browse/article.html' }
+            {% include 'browse/article.html' }
+            {% include 'browse/article.html' }
+            {% include 'browse/article.html' }
+            {% include 'browse/article.html' }
+            {% include 'browse/article.html' }
+        </section>
+        <section local-class='Glossolalia'>
+            <h2>glossolalia</h2>
+            <p>a <dfn><a href='http://localhost:5000/aaaa'>osfio:aaaa</a></dfn> is a thing</p>
+            <p>a <dfn><a href='http://localhost:5000/foobl'>osfio:foobl</a></dfn> is a thing</p>
+            <p>when we say <dfn><a href='http://localhost:5000/vocab/foo/doodl'>foo:doodl</a></dfn> we mean some stuff
+                like what they described in <a href='#foo'>foo</a></p>
+            <p>when we say <dfn><a href='http://localhost:5000/vocab/foo/'>foo</a></dfn> we are talking about
+                a bunch of defined terms used widely by somesuch and folk, which we have decided to embrace.</p>
+        </section>
+    </body>
+</html>

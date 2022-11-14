@@ -6,7 +6,7 @@ import celery
 from django.db.models import Exists
 from django.db.models import OuterRef
 
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.models import NormalizedData
 from share.models import RawDatum, IngestJob
 

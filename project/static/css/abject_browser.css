@@ -1,0 +1,32 @@
+.Browse {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.618rem;
+    padding: 0.618rem;
+
+    article {
+        border: solid 1px;
+        display: flex;
+        flex-direction: column;
+        padding: 0.382rem;
+    }
+
+    header {
+        font-weight: bold;
+        background-color: #efe;
+    }
+
+    footer {
+        padding: 0.618rem;
+        background-color: #eee;
+    }
+
+    p, address {
+        display: flex;
+        gap: 0.618rem;
+        border: dotted 1px;
+        padding: 0.382rem;
+        justify-content: space-between;
+    }
+}

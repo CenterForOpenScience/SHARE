@@ -1,5 +1,5 @@
 from share.bin.util import command
-from share.ingest.scheduler import IngestScheduler
+from share.tasks.scheduler import IngestScheduler
 from share.models import SourceUniqueIdentifier
 from share.models.jobs import IngestJob
 from share.tasks import ingest as ingest_task
