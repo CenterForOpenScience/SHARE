@@ -1,0 +1,21 @@
+<article class='Browse__article'>
+    <header>
+        <a rel='bookmark' href='#{{record.focus_pid}}'><dfn id='{{record.focus_pid}}'>{{record.focus_pid}}</dfn></a>
+        <a href='#rdf:type'>is-a</a>
+        <ul class='Browse__value_set'>
+            {% for focus_type in record.focus_type_set %}
+            <li class='Browse__value'><a href='#{{focus_type}}'>{{focus_type}}</a></li>
+            {% endfor %}
+        </ul>
+    </header>
+    <ul class='Browse__statement_set'>
+        {% for predicate, value_set in record.statement_set %}
+            <li class='Browse__statement'>
+                {% include 'browse/_statement.html' with predicate=predicate value_set=value_set only %}
+            </li>
+        {% endfor %}
+    </ul>
+    <footer>
+        <address class='Browse__statement'>record from <a href='#{{record.record_source}}'>{{record.record_source}}</a></address>
+    </footer>
+</article>

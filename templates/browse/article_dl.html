@@ -1,0 +1,71 @@
+<article>
+    <header>
+        <a rel='bookmark' href='#myown:permalink'><dfn id='myown:permalink'>myown:<wbr>permalink</dfn></a>
+        <a href='#rdf:type'>is-a</a>
+        <a href='#myown:Object'>thing that works how i expect because i made it myself</a>
+        <!--aside>rdf triple: <code>(myown:permalink, rdf:type, myown:Object)</code></aside-->
+    </header>
+    <dl>
+        <dt><a href='#dct:title'>dct:<wbr>title</a></dt>
+        <dd><q>this is a title</q></dd>
+        <!--aside>rdf triple: <code>(myown:permalink, dct:title, "this is a title")</code></aside-->
+        <dt><a href='#foo:doodl'>foo:<wbr>doodl</a></dt>
+        <dd><q>this whole thing is an html-serialized rdf graph, with uri references
+            represented as &lt;a&gt; (anchor) tags, literal values represented as
+            &lt;q&gt; (quote) tags, and blank references represented as &lt;ul&gt;
+            (unordered list) tags containing further statements
+        </q></dd>
+        <!--aside>rdf triple: <code>(myown:permalink, foo:doodl, "this whole thing is an htm...")</code></aside-->
+        <dt><a href='#foo:keyword'>foo:<wbr>keyword</a></dt>
+        <dd><q>glob</q></dd>
+        <dd><q>blob</q></dd>
+        <dd><q>blib</q></dd>
+        <dd><q>blip</q></dd>
+        <dd><q>clip</q></dd>
+        <dd><q>clop</q></dd>
+        <dd><q>cloy</q></dd>
+        <dd><q>ploy</q></dd>
+        <dd><q>play</q></dd>
+        <dd><q>pyay</q></dd>
+        <dt><a href='#myown:linkable-property'>myown:<wbr>linkable-property</a></dt>
+        <dd><a href='#myown:linkable-value'>myown:<wbr>linkable-value</a></dd>
+        <!--aside>rdf triple: <code>(myown:permalink, myown:linkable-property, myown:linkable-value)</code></aside-->
+        <dd><a href='#myown:nuther-linkable-value'>myown:<wbr>nuther-linkable-value</a></dd>
+        <!--aside>rdf triple: <code>(myown:permalink, myown:linkable-property, myown:nuther-linkable-value)</code></aside-->
+        <dt><a href='#myown:nested-data-structure'>myown:<wbr>nested-data-structure</a></dt>
+        <dd>
+            <dl>
+                <dt><a href='#myown:nested-fieldy'>myown:<wbr>nested-fieldy</a></dt>
+                <dd><q>lolwat</q></dd>
+                <dd><q>no</q></dd>
+                <dt><a href='#myown:nested-fieldx'>myown:<wbr>nested-fieldx</a></dt>
+                <dd><time datetime='2202-02-22'>2202-02-22</time></dd>
+            </dl>
+        </dd>
+        <dd>
+            <dl>
+                <dt><a href='#myown:nested-fieldz'>myown:<wbr>nested-fieldz</a></dt>
+                <dd><a href='#myown:third-linkable-value'>myown:<wbr>third-linkable-value</a></dd>
+                <dt><a href='#myown:nested-fieldy'>myown:<wbr>nested-fieldy</a></dt>
+                <dd><q>blahbloo bla blooh</q></dd>
+                <dd><q>zoomooboofoo</q></dd>
+                <dt><a href='#myown:nested-fieldx'>myown:<wbr>nested-fieldx</a></dt>
+                <dd><time datetime='2202-02-22'>2202-02-22</time></dd>
+            </dl>
+        </dd>
+        <!--aside>
+            rdf triples (turtle):
+            <code>
+            myown:permalink myown:nested-data-structure [
+                myown:nested-fieldz myown:third-linkable-value ;
+                myown:nested-fieldy "blahbloo bla blooh" ;
+                myown:nested-fieldx "2202-02-22"^^xsd:date ;
+            ] .
+            </code>
+        </aside-->
+    </dl>
+    <footer>
+        <address>record from <a href='#source@repo.example'>source@repo.example</a></address>
+    </footer>
+</article>
+

@@ -1,56 +1,28 @@
-<article>
-    <header class='Browse__statement'>
-        <a rel='bookmark' href='#myown:permalink'><dfn id='myown:permalink'>myown:permalink</dfn></a>
-        <a href='#rdf:type'>is-a</a>
-        <a href='#myown:Object'>thing that works how i expect because i made it myself</a>
-        <!--aside>rdf triple: <code>(myown:permalink, rdf:type, myown:Object)</code></aside-->
-    </header>
-    <p class='Browse__statement'>
-        <a href='#dct:title'>dct:title</a>
-        <q>this is a title</q>
-        <!--aside>rdf triple: <code>(myown:permalink, dct:title, "this is a title")</code></aside-->
-    </p>
-    <p class='Browse__statement'>
-        <a href='#foo:doodl'>foo:doodl</a>
-        <q>this whole thing is an html-serialized rdf graph, with uri references
-            represented as &lt;a&gt; (anchor) tags, literal values represented as
-            &lt;q&gt; (quote) tags, and blank references represented as &lt;ul&gt;
-            (unordered list) tags containing further statements
-        </q>
-        <!--aside>rdf triple: <code>(myown:permalink, foo:doodl, "this whole thing is an htm...")</code></aside-->
-    </p>
-    <p class='Browse__statement'>
-        <a href='#myown:linkable-property'>myown:linkable-property</a>
-        <a href='#myown:linkable-value'>myown:linkable-value</a>
-        <!--aside>rdf triple: <code>(myown:permalink, myown:linkable-property, myown:linkable-value)</code></aside-->
-    </p>
-    <footer>
-        <address class='Browse__statement'>record from <a href='#source@repo.example'>source@repo.example</a></address>
-    </footer>
-</article>
-
-<article>
-    <header class='Browse__statement'>
+<article class='Browse__ul'>
+    <header>
         <a rel='bookmark' href='#osfio:fubar'><dfn id='osfio:fubar'>osfio:fubar</dfn></a>
         <a href='#rdf:type'>is-a</a>
         <a href='#osf:Project'>osf:Project</a>
         <!--aside>rdf triple: <code>(osfio:fubar, rdf:type, osf:Project)</code></aside-->
     </header>
-    <p class='Browse__statement'>
-        <a href='#dct:title'>dct:title</a>
-        <q>my project!!1!</q>
-        <!--aside>rdf triple: <code>(osfio:fubar, dct:title, "my project!!1!")</code></aside-->
-    </p>
-    <p class='Browse__statement'>
-        <a href='#dct:description'>dct:description</a>
-        <q>blah blah blah look at me i have things to say</q>
-        <!--aside>rdf triple: <code>(osfio:fubar, dct:description, "blah blah blah look at me i have things to say")</code></aside-->
-    </p>
-    <p class='Browse__statement'>
-        <a href='#myown:linkable-property'>myown:linkable-property</a>
-        <a href='#myown:linkable-value'>myown:linkable-value</a>
-        <!--aside>rdf triple: <code>(osfio:fubar, myown:linkable-property, myown:linkable-value)</code></aside-->
-    </p>
+    <ul>
+        <li>
+            {% include 'browse/_statement.html' with predicate='dct:title' obj='my project!!1!' %}
+            <a href='#dct:title'>dct:title</a>
+            <ul><li><q>my project!!1!</q></li></ul>
+            <!--aside>rdf triple: <code>(osfio:fubar, dct:title, "my project!!1!")</code></aside-->
+        </li>
+        <li>
+            <a href='#dct:description'>dct:description</a>
+            <ul><li><q>blah blah blah look at me i have things to say</q></li></ul>
+            <!--aside>rdf triple: <code>(osfio:fubar, dct:description, "blah blah blah look at me i have things to say")</code></aside-->
+        </li>
+        <li>
+            <a href='#myown:linkable-property'>myown:linkable-property</a>
+            <ul><li><a href='#myown:linkable-value'>myown:linkable-value</a></li></ul>
+            <!--aside>rdf triple: <code>(osfio:fubar, myown:linkable-property, myown:linkable-value)</code></aside-->
+        </li>
+    </ul>
     <footer>
         <address class='Browse__statement'>record from <a href='#source@repo.example'>source@repo.example</a></address>
     </footer>

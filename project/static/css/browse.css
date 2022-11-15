@@ -1,38 +1,83 @@
 .Browse {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     flex-wrap: wrap;
     gap: 0.618rem;
-    padding: 0.618rem;
+
+    --hue-rotate-step: 0.17turn;
+    background-color: #edc;
 }
 
-.Browse article {
+.Browse dfn {
+    font-weight: bold;
+}
+
+.Browse__article {
     display: flex;
     flex-direction: column;
-    gap: 0.382rem;
-    padding: 0.382rem;
-    max-width: 19rem;
+
+    max-width: 31rem;
+    margin: 0;
     border: solid 1px;
+    padding: 0.382rem;
+    backdrop-filter: hue-rotate(var(--hue-rotate-step));
 }
 
-.Browse header {
-    font-weight: bold;
-    background-color: #efe;
-}
-
-.Browse footer {
+.Browse__article > header {
+    display: flex;
+    gap: 0.618rem;
     padding: 0.618rem;
-    background-color: #eee;
 }
 
-.Browse p,
-.Browse address {
+.Browse__article > footer {
+    padding: 0.618rem;
+}
+
+.Browse__statement_set {
+    display: flex;
+    flex-direction: column;
+
+    margin: 0;
+    padding: 0;
+}
+
+.Browse__statement {
     display: flex;
     flex-direction: row;
-    gap: 0.618rem;
-    border: dotted 1px;
-    padding: 0.382rem;
-    justify-content: space-between;
-    overflow: scroll;
+    gap: 0.382rem;
+
     margin: 0;
+    border: 1px dotted #000;
+    padding: 0.382rem;
+    backdrop-filter: hue-rotate(var(--hue-rotate-step));
 }
+
+.Browse__value_set {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    margin: 0;
+    padding: 0;
+}
+
+.Browse__value {
+    display: flex;
+    flex-direction: row;
+
+    margin: 0;
+    border: 1px dotted #000;
+    padding: 0.382rem;
+    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+}
+
+/*
+.Browse :focus-within {
+    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+}
+
+.Browse :focus {
+    border: 5px dotted #e28;
+}
+*/

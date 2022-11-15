@@ -1,0 +1,17 @@
+{% if value.is_literal_str %}
+    <q>{{value.value}}</q>
+{% elif value.is_literal_time %}
+    <time datetime='{{value.value}}'>{{value.value}}</time>
+{% elif value.is_short_uriref %}
+    <a href="#{{value.value}}">{{value.value}}</a>
+{% elif value.is_full_uriref %}
+    <a href="{{value.value}}">{{value.value}}</a>
+{% elif value.is_nested %}
+    <ul class="Browse__statement_set">
+        {% for nested_predicate, nested_value_set in value.nested_statement_set %}
+            <li class='Browse__statement'>
+                {% include 'browse/_statement.html' with predicate=nested_predicate value_set=nested_value_set only %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

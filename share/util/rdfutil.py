@@ -4,6 +4,7 @@ import rdflib.compare
 
 DCT = rdflib.DCTERMS
 OSF = rdflib.Namespace('https://osf.io/vocab/2022/')
+OSFIO = rdflib.Namespace('https://osf.io/')
 
 
 # in addition to rdflib's 'core' (rdf, rdfs, owl...)

@@ -7,12 +7,9 @@
     <body>
         <section class='Browse'>
             <h1>browse</h1>
-            {% include 'browse/article.html' %}
-            {% include 'browse/article.html' %}
-            {% include 'browse/article.html' %}
-            {% include 'browse/article.html' %}
-            {% include 'browse/article.html' %}
-            {% include 'browse/article.html' %}
+            {% for record in metadata_records %}
+                {% include 'browse/_article.html' with record=record only %}
+            {% endfor %}
         </section>
         <section class='Glossolalia'>
             <h2>glossolalia</h2>
