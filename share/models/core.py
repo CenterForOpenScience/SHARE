@@ -196,8 +196,8 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    serialized_rdf_graph = models.BinaryField()  # alternate/replacement for `data` field
-    _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse
+    # serialized_rdf_graph = models.BinaryField()  # alternate/replacement for `data` field
+    # _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
@@ -212,8 +212,7 @@ class FormattedMetadataRecordManager(models.Manager):
     def delete_formatted_records(self, suid):
         records = []
         for record_format in Extensions.get_names('share.metadata_formats'):
-            formatter = Extensions.get('share.metadata_formats', record_format)()
-            formatted_record = formatter.format_as_deleted(suid)
+            formatted_record = self.get_formatter(record_format).format_as_deleted(suid)
             record = self._save_formatted_record(suid, record_format, formatted_record)
             if record is not None:
                 records.append(record)
@@ -227,12 +226,23 @@ class FormattedMetadataRecordManager(models.Manager):
 
         records = []
         for record_format in record_formats:
-            formatter = Extensions.get('share.metadata_formats', record_format)()
-            formatted_record = formatter.format(normalized_datum)
+            formatted_record = self.get_formatter(record_format).format(normalized_datum)
             record = self._save_formatted_record(suid, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
+
+    def get_record(self, suid, record_format):
+        try:
+            return self.get(suid=suid, record_format=record_format)
+        except self.model.DoesNotExist:
+            normd = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+            formatted_record = self.get_formatter().format(normd)
+            return self._save_formatted_record(suid, record_format, formatted_record)
+
+    def get_formatter(self, record_format):
+        formatter_class = Extensions.get('share.metadata_formats', record_format)
+        return formatter_class()
 
     def _save_formatted_record(self, suid, record_format, formatted_record):
         if formatted_record:

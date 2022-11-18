@@ -22,19 +22,19 @@
   attributes:
     - name: title
       data_type: string
-      rdf_predicate: dcterms:title
+      rdf_predicate: dct:title
     - name: description
       data_type: string
-      rdf_predicate: dcterms:description
+      rdf_predicate: dct:description
     - name: is_deleted
       data_type: boolean
       rdf_predicate: null
     - name: date_published
       data_type: datetime
-      rdf_predicate: dcterms:dateCopyrighted
+      rdf_predicate: dct:dateCopyrighted
     - name: date_updated
       data_type: datetime
-      rdf_predicate: dcterms:date
+      rdf_predicate: dct:date
     - name: free_to_read_type
       data_type: string
       data_format: uri
@@ -44,10 +44,10 @@
       rdf_predicate: null
     - name: rights
       data_type: string
-      rdf_predicate: dcterms:rights
+      rdf_predicate: dct:rights
     - name: language
       data_type: string
-      rdf_predicate: dcterms:language
+      rdf_predicate: dct:language
     - name: registration_type
       data_type: string
       rdf_predicate: osf:registration_schema
@@ -68,7 +68,7 @@
       incoming_through_relation: creative_work
       outgoing_through_relation: subject
       inverse_relation: creative_works
-      rdf_predicate: dcterms:subject
+      rdf_predicate: dct:subject
     - name: tags
       relation_shape: many_to_many
       related_concrete_type: Tag
@@ -92,7 +92,6 @@
       outgoing_through_relation: related
 
 - concrete_type: AbstractAgent
-  rdf_type: dcterms:Agent
   type_tree:
     Agent:
       Organization:

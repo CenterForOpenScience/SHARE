@@ -1,4 +1,7 @@
-from rdflib import DCTERMS
+import re
+from urllib.parse import urlsplit
+
+import rdflib
 
 from share.util.graph import MutableGraph
 from share.util import rdfutil
@@ -11,92 +14,118 @@ class RdfTurtleFormatter(MetadataFormatter):
     """
 
     def format(self, normalized_datum):
+        rdf_graph, _ = self.build_rdf_graph(normalized_datum)
+        return rdf_graph.serialize(format='turtle')
+
+        # TODO
+        # if (
+        #     not central_work
+        #     or central_work.concrete_type != 'abstractcreativework'
+        #     or central_work['is_deleted']
+        # ):
+        #     return self.format_as_deleted(None)
+
+    def build_rdf_graph(self, normalized_datum):
+        self._reset()
         mgraph = MutableGraph.from_jsonld(normalized_datum.data)
         central_work = mgraph.get_central_node(guess=True)
 
-        if (
-            not central_work
-            or central_work.concrete_type != 'abstractcreativework'
-            or central_work['is_deleted']
-        ):
-            return self.format_as_deleted(None)
-
-        rdf_graph = self.build_rdf_graph(central_work)
-        return rdf_graph.serialize(format='turtle')
-
-    def rdf_triples(self, work_node):
         rdf_graph = rdfutil.contextualized_graph()
-        SubEl(dc_element, ns('dc', 'title'), work_node['title'])
+        self._add_work(rdf_graph, central_work)
+        return rdf_graph, self._get_rdf_id(central_work)
 
-        for creator_name in self._get_related_agent_names(work_node, {'creator'}):
-            SubEl(dc_element, ns('dc', 'creator'), creator_name)
+    def _reset(self):
+        self._blank_to_pid = {}
+
+    def _agentwork_relation_predicate(self, agent_relation):
+        predicate_map = {
+            'creator': rdfutil.DCT.creator,
+            'publisher': rdfutil.DCT.publisher,
+            'contributor': rdfutil.DCT.contributor,
+            'principalinvestigator': rdfutil.DCT.contributor,
+            'principalinvestigatorcontact': rdfutil.DCT.contributor,
+        }
+        predicate = predicate_map.get(agent_relation.type)
+        return predicate or rdfutil.SHAREV2[agent_relation.type]
+
+    def _agent_relation_predicate(self, agent_relation):
+        predicate_map = {
+        }
+        predicate = predicate_map.get(agent_relation.type)
+        return predicate or rdfutil.SHAREV2[agent_relation.type]
+
+    def _work_relation_predicate(self, work_relation):
+        predicate_map = {
+        }
+        predicate = predicate_map.get(work_relation.type)
+        return predicate or rdfutil.SHAREV2[work_relation.type]
+
+    def _add_agent(self, rdf_graph, agent_sharenode):
+        agent_id = self._get_rdf_id(agent_sharenode)
+
+        rdf_graph.add((agent_id, rdflib.RDF.type, rdfutil.SHAREV2[agent_sharenode.type]))
+
+        for attr_name, attr_value in agent_sharenode.attrs().items():
+            if attr_value is None or attr_value == '' or attr_name == 'extra':
+                continue
+            rdf_graph.add((agent_id, rdfutil.SHAREV2[attr_name], rdflib.Literal(attr_value)))
+
+        for relation_sharenode in agent_sharenode['outgoing_agent_relations']:
+            related_agent = relation_sharenode['related']
+            predicate_uri = self._agent_relation_predicate(relation_sharenode)
+            rdf_graph.add((agent_id, predicate_uri, self._get_rdf_id(related_agent)))
+            self._add_agent(rdf_graph, related_agent)
+
+    def _add_work(self, rdf_graph, work_sharenode):
+        work_id = self._get_rdf_id(work_sharenode)
+
+        rdf_graph.add((work_id, rdflib.RDF.type, rdfutil.SHAREV2[work_sharenode.type]))
+        rdf_graph.add((work_id, rdfutil.DCT.title, rdflib.Literal(work_sharenode['title'])))
+
+        for relation_sharenode in work_sharenode['agent_relations']:
+            related_agent = relation_sharenode['agent']
+            predicate_uri = self._agentwork_relation_predicate(relation_sharenode)
+            rdf_graph.add((work_id, predicate_uri, self._get_rdf_id(related_agent)))
+            self._add_agent(rdf_graph, related_agent)
 
         subject_names = {
             subject_node['name']
-            for subject_node in work_node['subjects']
+            for subject_node in work_sharenode['subjects']
         }
         for subject_name in sorted(subject_names):
-            SubEl(dc_element, ns('dc', 'subject'), subject_name)
+            # TODO: uri?
+            rdf_graph.add((work_id, rdfutil.DCT.subject, rdflib.Literal(subject_name)))
 
-        description = work_node['description']
+        description = work_sharenode['description']
         if description:
-            SubEl(dc_element, ns('dc', 'description'), description)
+            rdf_graph.add((work_id, rdfutil.DCT.description, rdflib.Literal(description)))
 
-        for publisher_name in sorted(self._get_related_agent_names(work_node, {'publisher'})):
-            SubEl(dc_element, ns('dc', 'publisher'), publisher_name)
-
-        for contributor_name in sorted(self._get_related_agent_names(work_node, {'contributor', 'principalinvestigator', 'principalinvestigatorcontact'})):
-            SubEl(dc_element, ns('dc', 'contributor'), contributor_name)
-
-        date = work_node['date_published'] or work_node['date_updated']
+        date = work_sharenode['date_published'] or work_sharenode['date_updated']
         if date:
-            SubEl(dc_element, ns('dc', 'date'), format_datetime(date))
-
-        SubEl(dc_element, ns('dc', 'type'), work_node.type)
+            rdf_graph.add((work_id, rdfutil.DCT.date, rdflib.Literal(str(date))))
 
         identifier_uris = {
             identifier_node['uri']
-            for identifier_node in work_node['identifiers']
+            for identifier_node in work_sharenode['identifiers']
         }
         for identifier_uri in sorted(identifier_uris):
-            SubEl(dc_element, ns('dc', 'identifier'), identifier_uri)
+            rdf_graph.add((work_id, rdfutil.DCT.identifier, rdflib.Literal(identifier_uri)))
 
-        language = work_node['language']
+        language = work_sharenode['language']
         if language:
-            SubEl(dc_element, ns('dc', 'language'), language)
+            rdf_graph.add((work_id, rdfutil.DCT.language, rdflib.Literal(language)))
 
-        for related_uri in self._get_related_uris(work_node):
-            SubEl(dc_element, ns('dc', 'relation'), related_uri)
+        for relation_sharenode in work_sharenode['outgoing_creative_work_relations']:
+            related_work = relation_sharenode['related']
+            predicate_uri = self._work_relation_predicate(relation_sharenode)
+            rdf_graph.add((work_id, predicate_uri, self._get_rdf_id(related_work)))
+            self._add_work(self, rdf_graph, related_work)
 
-        if work_node['rights']:
-            SubEl(dc_element, ns('dc', 'rights'), work_node['rights'])
+        if work_sharenode['rights']:
+            rdf_graph.add((work_id, rdfutil.DCT.rights, rdflib.Literal(work_sharenode['rights'])))
 
-        if work_node['free_to_read_type']:
-            SubEl(dc_element, ns('dc', 'rights'), work_node['free_to_read_type'])
-
-        return dc_element
-
-    def _get_related_agent_names(self, work_node, relation_types):
-        def sort_key(relation_node):
-            order_cited = relation_node['order_cited']
-            if order_cited is None:
-                return 9999999  # those without order_cited go last
-            return int(order_cited)
-
-        relation_nodes = sorted(
-            [
-                relation_node
-                for relation_node in work_node['agent_relations']
-                if relation_node.type in relation_types
-            ],
-            key=sort_key,
-        )
-
-        # remove falsy values
-        return filter(None, [
-            get_related_agent_name(relation)
-            for relation in relation_nodes
-        ])
+        if work_sharenode['free_to_read_type']:
+            rdf_graph.add((work_id, rdfutil.DCT.rights, rdflib.Literal(work_sharenode['free_to_read_type'])))
 
     def _get_related_uris(self, work_node):
         related_work_uris = set()
@@ -106,3 +135,37 @@ class RdfTurtleFormatter(MetadataFormatter):
                 for identifier in related_work_node['identifiers']
             )
         return sorted(related_work_uris)
+
+    def _get_rdf_id(self, sharenode):
+        cached_id = self._blank_to_pid.get(sharenode.id)
+        if cached_id:
+            return cached_id
+        guessed_pid = self._guess_pid(sharenode)
+        if guessed_pid:
+            pid = rdflib.URIRef(guessed_pid)
+            self._blank_to_pid[sharenode.id] = pid
+            return pid
+        blank_id = rdflib.term.BNode(sharenode.id)
+        self._blank_to_pid[sharenode.id] = blank_id
+        return blank_id
+
+    def _guess_pid(self, sharenode):
+        pid_domain_regexes = [
+            re.compile(r'osf\.io'),
+            re.compile(r'([^./]+\.)?doi\.org'),
+            re.compile(r'orcid\.org'),
+            # TODO: more (or a different approach)
+        ]
+        node_irls = sorted(
+            identifier['uri']
+            for identifier in (sharenode['identifiers'] or ())
+        )
+        irl_domains = {
+            node_irl: urlsplit(node_irl).hostname
+            for node_irl in node_irls
+        }
+        for domain_regex in pid_domain_regexes:
+            for node_irl, domain in irl_domains.items():
+                if domain_regex.fullmatch(domain):
+                    return node_irl.replace('http:', 'https:').rstrip('/')
+        return None

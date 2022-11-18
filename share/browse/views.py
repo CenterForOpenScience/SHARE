@@ -1,97 +1,20 @@
 import rdflib
+from django.db.models import F
 from django.views.generic.base import TemplateView
 
+from share import models as db
 from share.util import rdfutil
-
-
-class FocusedContextBuilder:
-    def __init__(self, rdf_graph, focus_id, ignored=None):
-        assert isinstance(rdf_graph, rdflib.Graph)
-        assert isinstance(focus_id, rdflib.term.Node)
-
-        self._rdf_graph = rdf_graph
-        self._ignored = set(ignored or ())
-        self.focus_id = focus_id
-
-    def build(self):
-        assert isinstance(self.focus_id, rdflib.term.URIRef)
-        return {
-            'focus_pid': self.qname(self.focus_id),
-            'focus_type_set': [
-                self.qname(type_uri)
-                for type_uri in self._rdf_graph.objects(self.focus_id, rdflib.RDF.type)
-            ],
-            'statement_set': self._statement_set(),
-        }
-
-    def qname(self, uri):
-        return self._rdf_graph.qname(uri)
-
-    def _follow_bnode_value(self, bnode_id):
-        assert isinstance(bnode_id, rdflib.term.BNode)
-        inner_builder = FocusedContextBuilder(
-            rdf_graph=self._rdf_graph,
-            focus_id=bnode_id,
-            ignored=(self.focus_id, *self._ignored),
-        )
-        return {
-            'is_nested': True,
-            'nested_statement_set': inner_builder._statement_set(),
-        }
-
-    def _value(self, obj):
-        if isinstance(obj, rdflib.term.Literal):
-            return {
-                'value': obj,
-                'is_literal_str': isinstance(obj, rdflib.term.Literal),
-            }
-        if isinstance(obj, rdflib.term.BNode):
-            return self._follow_bnode_value(obj)
-        if isinstance(obj, rdflib.term.URIRef):
-            obj_qname = self.qname(obj)
-            is_short = (obj != obj_qname)
-            return {
-                'value': obj_qname,
-                'is_short_uriref': is_short,
-                'is_full_uriref': not is_short,
-            }
-        raise NotImplementedError(f'what is {obj} ({type(obj)}?)')
-
-    def _statement(self, predicate_pid):
-        statement_objects = set(self._rdf_graph.objects(
-            subject=self.focus_id,
-            predicate=predicate_pid,
-        ))
-        return (
-            self.qname(predicate_pid),
-            [
-                self._value(obj)
-                for obj in statement_objects
-            ],
-        )
-
-    def _statement_set(self):
-        predicate_objects = self._rdf_graph.predicate_objects(
-            subject=self.focus_id,
-        )
-        predicates = set(
-            predicate_uri
-            for predicate_uri, obj in predicate_objects
-            if not (isinstance(obj, rdflib.term.Node) and obj in self._ignored)
-        )
-        return [
-            self._statement(predicate)
-            for predicate in predicates
-        ]
+from share.metadata_formats.turtle import RdfTurtleFormatter
+from .serializers import FocusedContextBuilder
 
 
 def _context_from_turtle(focus_pid, turtle_str):
     g = rdfutil.contextualized_graph()
     g.parse(format='turtle', data=turtle_str)
-    return FocusedContextBuilder(g, focus_pid).build()
+    return FocusedContextBuilder(g, focus_pid, 'turtle').build()
 
 
-def _metadata_record_contexts():
+def _some_static_records():
     return [
         _context_from_turtle(
             rdflib.URIRef('https://foo.example/vocab/blamb'),
@@ -160,10 +83,43 @@ def _metadata_record_contexts():
     ]
 
 
+def _some_normd_records():
+    normd_qs = (
+        db.NormalizedData.objects
+        .filter(raw__suid__source_config__label='io.osf.registrations')
+        .annotate(source_name=F('raw__suid__source_config__source__name'))
+    )
+
+    for normd in normd_qs[:20]:
+        rdf_graph, focus_irl = RdfTurtleFormatter().build_rdf_graph(normd)
+        yield FocusedContextBuilder(rdf_graph, focus_irl, normd.source_name).build()
+
+
 class BrowseView(TemplateView):
     template_name = 'browse/browse.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['metadata_records'] = _metadata_record_contexts()
+        context['metadata_records'] = [
+            *_some_normd_records(),
+            # *_some_static_records(),
+        ]
         return context
+
+
+class BrowsePidView(TemplateView):
+    template_name = 'browse/browse-pid.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['metadata_record'] = [
+        ]
+        return context
+
+    def _get_pid_record(self, maybe_pid):
+        record = FormattedMetadataRecord.objects.get_record(
+            suid=suid,
+            record_format='rdf-turtle',
+        )
+        rdf_graph, focus_irl = RdfTurtleFormatter().build_rdf_graph()
+        yield FocusedContextBuilder(rdf_graph, focus_irl, normd.source_name).build()

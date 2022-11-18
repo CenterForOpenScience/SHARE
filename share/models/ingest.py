@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from share.models.fields import EncryptedJSONField
+from share.models.fields import EncryptedJSONField, ShareURLField
 from share.models.fuzzycount import FuzzyCountManager
 from share.util import chunked, placeholders, BaseJSONAPIMeta
 from share.util.extensions import Extensions
@@ -259,12 +259,16 @@ class Transformer(models.Model):
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
+    # TODO: referent_pid = ShareURLField()
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
 
     class Meta:
         unique_together = ('identifier', 'source_config')
+        # indexes = [
+        #     models.Index(fields=['referent_pid']),
+        # ]
 
     @property
     def ingest_job(self):

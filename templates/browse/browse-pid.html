@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load static %}
+        <link rel='stylesheet' href='{% static "css/browse.css" %}' />
+    </head>
+    <body>
+        {% include 'browse/_article.html' with record=metadata_record only %}
+    </body>
+</html>

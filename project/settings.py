@@ -535,7 +535,7 @@ SHARE_LIMITS = {
     'MAX_AGENT_RELATIONS': 500,
 }
 
-OSF_API_URL = os.environ.get('OSF_API_URL', 'http://localhost:8000').rstrip('/') + '/'
+OSF_API_URL = 'https://api.osf.io/'  # os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
 DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')

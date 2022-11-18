@@ -12,9 +12,6 @@ class ShareV2SchemaType(NamedTuple):
     concrete_type: str
     explicit_fields: Set[str]
     type_lineage: Tuple[str] = ()
-    rdf_type: Optional[str] = None
-    rdf_predicate: Optional[str] = None
-    rdf_value_field: Optional[str] = None
 
     @property
     def distance_from_concrete_type(self):

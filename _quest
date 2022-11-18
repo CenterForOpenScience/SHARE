@@ -18,16 +18,24 @@ add converter from sharev2_normalizeddata to osf/rdf
 
 update metadata formatters to take osf/rdf graph as input
 
-
-
+simple turtle-to-html renderer (based on turtle syntax, not rdf semantics)
 
 =======
 
-existing ingest flow:
+existing ingest flow
+```turtle
+  
+  participant RawDatum
   share:RawDatum -> [Transform] -> [Regulate] -> share:MutableGraph -> [Format] -> Set<share:FormattedMetadataRecord>
 
 desired ingest flow:
-  share:RawDatum -> [Parse] -> rdf:Graph (saved as share:MetadataRecord) -> [Format] -> Set<share:FormattedMetadataRecord>
+  share:RawDatum -> [Parse] -> rdflib:Resource () -> [Format] -> Set<share:FormattedMetadataRecord>
+```mermaid
+  participant share:RawDatum
+  participant rdflib:Resource
+
+  share:RawDatum -> [Parse] -> rdflib:Resource () -> [Format] -> Set<share:FormattedMetadataRecord>
+```
 
 
 

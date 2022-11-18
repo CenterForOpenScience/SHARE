@@ -137,6 +137,7 @@ class SchemaLoader:
             # optional
             is_required=attr_dict.get('is_required', False),
             data_format=AttributeDataFormat[attr_dict['data_format'].upper()] if 'data_format' in attr_dict else None,
+            rdf_predicate=attr_dict.get('rdf_predicate', None),
         )
 
     def _build_relation(self, relation_dict):
@@ -152,6 +153,7 @@ class SchemaLoader:
             outgoing_through_relation=relation_dict.get('outgoing_through_relation', None),
             inverse_relation=relation_dict.get('inverse_relation', None),
             is_required=relation_dict.get('is_required', False),
+            rdf_predicate=relation_dict.get('rdf_predicate', None),
         )
         if new_relation.related_concrete_type not in self.concrete_types:
             raise SchemaLoadError(f'invalid related_concrete_type on relation {new_relation}')

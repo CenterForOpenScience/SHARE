@@ -1,12 +1,13 @@
+body {
+    background-color: #edc;
+}
+
 .Browse {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 0.618rem;
-
-    --hue-rotate-step: 0.17turn;
-    background-color: #edc;
 }
 
 .Browse dfn {
@@ -17,11 +18,9 @@
     display: flex;
     flex-direction: column;
 
-    max-width: 31rem;
+    /*max-width: 31rem;*/
     margin: 0;
-    border: solid 1px;
-    padding: 0.382rem;
-    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+    border: dotted 1px;
 }
 
 .Browse__article > header {
@@ -48,9 +47,7 @@
     gap: 0.382rem;
 
     margin: 0;
-    border: 1px dotted #000;
-    padding: 0.382rem;
-    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+    border: dotted 1px;
 }
 
 .Browse__value_set {
@@ -60,6 +57,7 @@
 
     margin: 0;
     padding: 0;
+    gap: 0.382rem;
 }
 
 .Browse__value {
@@ -67,9 +65,8 @@
     flex-direction: row;
 
     margin: 0;
-    border: 1px dotted #000;
-    padding: 0.382rem;
-    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+    /*border: 1px dotted #000;*/
+    border: dotted 1px;
 }
 
 /*
@@ -81,3 +78,8 @@
     border: 5px dotted #e28;
 }
 */
+
+.VisibleNest {
+    padding: 0.191rem 0.382rem;
+    backdrop-filter: hue-rotate(0.191turn);
+}

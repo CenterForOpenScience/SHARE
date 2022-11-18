@@ -1,6 +1,6 @@
 <a href='#{{predicate}}'>{{predicate}}</a>
 <ul class='Browse__value_set'>
     {% for value in value_set %}
-        <li class='Browse__value'>{% include 'browse/_value.html' with value=value only %}</li>
+        <li class='Browse__value VisibleNest'>{% include 'browse/_value.html' with value=value only %}</li>
     {% endfor %}
 </ul>
