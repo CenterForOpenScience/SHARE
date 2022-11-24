@@ -310,7 +310,6 @@ class OAITransformer(ChainTransformer):
             type_map = root_type_map
 
         if property_list:
-            logger.debug('Attaching addition properties %s to transformer for %s', property_list, self.config.label)
             for prop in property_list:
                 if prop in RootParser._extra:
                     logger.warning('Skipping property %s, it already exists', prop)

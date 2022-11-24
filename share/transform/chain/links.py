@@ -1029,7 +1029,7 @@ class IRILink(AbstractLink):
                 break
 
         if not final[0]:
-            if self._urn_fallback:
+            if self._urn_fallback and getattr(Context(), '_config', None):
                 urn = self.FALLBACK_FORMAT.format(source=Context()._config.label, id=urllib.parse.quote(obj))
                 return URNLink().execute(urn)
             else:

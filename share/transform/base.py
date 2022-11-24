@@ -6,7 +6,7 @@ from share.util.graph import MutableGraph
 
 class BaseTransformer(metaclass=abc.ABCMeta):
 
-    def __init__(self, source_config):
+    def __init__(self, source_config=None):
         self.config = source_config
 
     @abc.abstractmethod
