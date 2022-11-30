@@ -11,6 +11,7 @@ class MessageType(Enum):
     INDEX_SUBJECT = 'Subject'
 
     INDEX_SUID = 'suid'
+    DELETE_SUID = 'delete-suid'
 
 
 class IndexableMessage:

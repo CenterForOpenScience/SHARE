@@ -3,8 +3,6 @@ import logging
 import random
 import string
 
-from model_utils import Choices
-
 from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Group
@@ -22,10 +20,10 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
 from share.util import BaseJSONAPIMeta
-from share.util.extensions import Extensions
+
 
 logger = logging.getLogger(__name__)
-__all__ = ('ShareUser', 'NormalizedData', 'FormattedMetadataRecord',)
+__all__ = ('ShareUser', 'NormalizedData',)
 
 
 class ShareUserManager(BaseUserManager):
@@ -206,81 +204,3 @@ class NormalizedData(models.Model):
         return '<{}({}, {}, {})>'.format(self.__class__.__name__, self.id, self.source.get_short_name(), self.created_at)
 
     __repr__ = __str__
-
-
-class FormattedMetadataRecordManager(models.Manager):
-    def delete_formatted_records(self, suid):
-        records = []
-        for record_format in Extensions.get_names('share.metadata_formats'):
-            formatted_record = self.get_formatter(record_format).format_as_deleted(suid)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
-            if record is not None:
-                records.append(record)
-        return records
-
-    def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
-        if normalized_datum is None:
-            normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
-        if record_formats is None:
-            record_formats = Extensions.get_names('share.metadata_formats')
-
-        records = []
-        for record_format in record_formats:
-            formatted_record = self.get_formatter(record_format).format(normalized_datum)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
-            if record is not None:
-                records.append(record)
-        return records
-
-    def get_record(self, suid, record_format):
-        try:
-            return self.get(suid=suid, record_format=record_format)
-        except self.model.DoesNotExist:
-            normd = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
-            formatted_record = self.get_formatter().format(normd)
-            return self._save_formatted_record(suid, record_format, formatted_record)
-
-    def get_formatter(self, record_format):
-        formatter_class = Extensions.get('share.metadata_formats', record_format)
-        return formatter_class()
-
-    def _save_formatted_record(self, suid, record_format, formatted_record):
-        if formatted_record:
-            record, _ = self.update_or_create(
-                suid=suid,
-                record_format=record_format,
-                defaults={
-                    'formatted_metadata': formatted_record,
-                },
-            )
-        else:
-            self.filter(suid=suid, record_format=record_format).delete()
-            record = None
-        return record
-
-
-class FormattedMetadataRecord(models.Model):
-    RECORD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
-
-    objects = FormattedMetadataRecordManager()
-
-    id = models.AutoField(primary_key=True)
-    suid = models.ForeignKey('SourceUniqueIdentifier', on_delete=models.CASCADE)
-    record_format = models.TextField(choices=RECORD_FORMAT)
-    date_modified = models.DateTimeField(auto_now=True)
-    formatted_metadata = models.TextField()  # could be JSON, XML, or whatever
-
-    class JSONAPIMeta(BaseJSONAPIMeta):
-        pass
-
-    class Meta:
-        unique_together = ('suid', 'record_format')
-        indexes = [
-            models.Index(fields=['date_modified'], name='fmr_date_modified_index')
-        ]
-
-    def __repr__(self):
-        return f'<{self.__class__.__name__}({self.id}, {self.record_format}, suid:{self.suid_id})>'
-
-    def __str__(self):
-        return repr(self)

@@ -1,7 +1,6 @@
 import contextlib
 import datetime
 import logging
-from typing import Optional
 
 from django.core import validators
 from django.core.files.base import ContentFile
@@ -10,19 +9,19 @@ from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
-from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
-from share.models.fields import EncryptedJSONField, ShareURLField
+from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
+from share.models.suid import SourceUniqueIdentifier
 from share.util import chunked, placeholders, BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
 
 logger = logging.getLogger(__name__)
-__all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'SourceUniqueIdentifier')
+__all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer',)
 
 
 class SourceIcon(models.Model):
@@ -254,53 +253,6 @@ class Transformer(models.Model):
 
     def __str__(self):
         return repr(self)
-
-
-class SourceUniqueIdentifier(models.Model):
-    identifier = models.TextField()
-    source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
-    # TODO: referent_pid = ShareURLField()
-
-    class JSONAPIMeta(BaseJSONAPIMeta):
-        pass
-
-    class Meta:
-        unique_together = ('identifier', 'source_config')
-        # indexes = [
-        #     models.Index(fields=['referent_pid']),
-        # ]
-
-    @property
-    def ingest_job(self):
-        """fetch the most recent IngestJob for this suid
-
-        (hopefully) temporary -- will be replaced by the inverse relation of a OneToOneField on IngestJob
-        """
-        return self.ingest_jobs.order_by(
-            Coalesce('date_started', 'date_created').desc(nulls_last=True)
-        ).first()
-
-    def most_recent_raw_datum(self):
-        """fetch the most recent RawDatum for this suid
-        """
-        return self.raw_data.order_by(
-            Coalesce('datestamp', 'date_created').desc(nulls_last=True)
-        ).first()
-
-    def get_date_first_seen(self) -> Optional[datetime.datetime]:
-        """when the first RawDatum for this suid was added
-        """
-        return (
-            self.raw_data
-            .order_by('date_created')
-            .values_list('date_created', flat=True)
-            .first()
-        )
-
-    def __repr__(self):
-        return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
-
-    __str__ = __repr__
 
 
 class RawDatumManager(FuzzyCountManager):

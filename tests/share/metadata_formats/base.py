@@ -1,7 +1,7 @@
 import dateutil
 import pytest
 
-from share.models.core import FormattedMetadataRecord
+from share.models import FormattedMetadataRecord
 from share.util.extensions import Extensions
 
 from tests.factories import RawDatumFactory, NormalizedDataFactory

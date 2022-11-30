@@ -8,12 +8,12 @@ from django.utils import timezone
 from share import exceptions
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import (
+    FormattedMetadataRecord,
     HarvestJob,
     IngestJob,
     NormalizedData,
     RawDatum,
 )
-from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
 from share.legacy_normalize.regulate import Regulator
 from share.search import SearchIndexer

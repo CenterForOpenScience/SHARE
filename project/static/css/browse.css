@@ -1,4 +1,6 @@
 body {
+    margin: 0;
+    padding: 1rem;
     background-color: #edc;
 }
 
@@ -20,7 +22,7 @@ body {
 
     /*max-width: 31rem;*/
     margin: 0;
-    border: dotted 1px;
+    border: solid 0.382rem rgba(0,0,0,0.191);
 }
 
 .Browse__article > header {
@@ -47,13 +49,18 @@ body {
     gap: 0.382rem;
 
     margin: 0;
-    border: dotted 1px;
+    border: solid 1px rgba(0,0,0,0.382);
+}
+
+.Browse__statement:not(:first-child) {
+    border-top: 0;
 }
 
 .Browse__value_set {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: flex-start;
 
     margin: 0;
     padding: 0;
@@ -67,6 +74,7 @@ body {
     margin: 0;
     /*border: 1px dotted #000;*/
     border: dotted 1px;
+    gap: 0.382rem;
 }
 
 /*
@@ -81,5 +89,6 @@ body {
 
 .VisibleNest {
     padding: 0.191rem 0.382rem;
+    filter: hue-rotate(0.191turn);
     backdrop-filter: hue-rotate(0.191turn);
 }

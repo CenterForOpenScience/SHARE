@@ -1,6 +1,3 @@
-import re
-from urllib.parse import urlsplit
-
 import rdflib
 import rdflib.compare
 
@@ -9,10 +6,11 @@ from share.util.graph import MutableGraph
 
 
 DCT = rdflib.DCTERMS
+SHAREV2 = rdflib.Namespace('https://share.osf.io/vocab/2017/')
 OSF = rdflib.Namespace('https://osf.io/vocab/2022/')
 OSFIO = rdflib.Namespace('https://osf.io/')
-SHAREV2 = rdflib.Namespace('https://share.osf.io/vocab/2017/')
-DOI = rdflib.Namespace('https://dx.doi.org/')
+DOI = rdflib.Namespace('https://doi.org/')
+DXDOI = rdflib.Namespace('https://dx.doi.org/')
 
 
 # in addition to rdflib's 'core' (rdf, rdfs, owl...)
@@ -35,6 +33,27 @@ def contextualized_graph():
 def checksum_urn(checksum_algorithm, checksum_hex):
     urn = f'urn:checksum/{checksum_algorithm}/{checksum_hex}'
     return rdflib.URIRef(urn)
+
+
+def normalize_pid_uri(pid_uri):
+    if ':' not in pid_uri:
+        raise ValueError(f'does not look like a URI: {pid_uri}')
+    pid_uri = pid_uri.strip()
+    if '://' not in pid_uri:
+        # is shortened form, 'prefix:term'
+        (namespace_prefix, _, term) = pid_uri.partition(':')
+        try:
+            namespace = LOCAL_CONTEXT[namespace_prefix]
+        except KeyError:
+            raise ValueError(f'unknown uri prefix "{namespace_prefix}" from uri "{pid_uri}"')
+        else:
+            pid_uri = namespace[term]
+
+    if pid_uri.startswith(OSFIO):
+        pid_uri = pid_uri.rstrip('/')
+
+    # TODO: replace http with https (or vice versa, to match uri in LOCAL_CONTEXT)
+    return pid_uri
 
 
 def graph_equals(actual_rdf_graph, expected_triples):

@@ -1,6 +1,6 @@
 import json
 
-from share.models.core import FormattedMetadataRecord
+from share.models import FormattedMetadataRecord
 from share.search.index_setup.base import IndexSetup
 from share.search.messages import MessageType
 
@@ -10,7 +10,10 @@ class PostRendBackcompatIndexSetup(IndexSetup):
 
     @property
     def supported_message_types(self):
-        return {MessageType.INDEX_SUID}
+        return {
+            MessageType.INDEX_SUID,
+            MessageType.DELETE_SUID,
+        }
 
     @property
     def index_settings(self):

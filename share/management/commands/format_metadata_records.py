@@ -3,7 +3,7 @@ from django.db.models.functions import Coalesce
 
 from share.tasks.scheduler import IngestScheduler
 from share.management.commands import BaseShareCommand
-from share.models.core import FormattedMetadataRecord
+from share.models.formatted_metadata_record import FormattedMetadataRecord
 from share.models.ingest import SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import IngestJob
 from share.tasks import ingest

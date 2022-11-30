@@ -1,3 +1,5 @@
+import random
+
 import rdflib
 from django.db.models import F
 from django.views.generic.base import TemplateView
@@ -104,22 +106,30 @@ class BrowseView(TemplateView):
             *_some_normd_records(),
             # *_some_static_records(),
         ]
+        context['random_seed'] = random.random()
         return context
 
 
 class BrowsePidView(TemplateView):
-    template_name = 'browse/browse-pid.html'
+    template_name = 'browse/browse.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['metadata_record'] = [
-        ]
-        return context
+        context['metadata_records'] = list(self._get_pid_records(kwargs['pid']))
 
-    def _get_pid_record(self, maybe_pid):
-        record = FormattedMetadataRecord.objects.get_record(
-            suid=suid,
-            record_format='rdf-turtle',
+    def _get_pid_records(self, maybe_pid):
+        pid_uri = rdfutil.normalize_pid_uri(maybe_pid)
+        records = db.FormattedMetadataRecord.objects.get_by_pid(
+            pid_uri,
+            record_format='turtle',
         )
-        rdf_graph, focus_irl = RdfTurtleFormatter().build_rdf_graph()
-        yield FocusedContextBuilder(rdf_graph, focus_irl, normd.source_name).build()
+        for record in records:
+            rdf_graph = rdfutil.contextualized_graph().parse(
+                data=record.formatted_metadata,
+                format='turtle',
+            )
+            yield FocusedContextBuilder(
+                rdf_graph,
+                pid_uri,
+                record.suid.source_config.source.long_title,
+            ).build()
