@@ -9,6 +9,8 @@ volumes:
     external: false
   elasticsearch_data_vol:
     external: false
+  elasticsearch8_data_vol:
+    external: false
   rabbitmq_vol:
     external: false
   share_vol:
@@ -34,6 +36,13 @@ services:
     volumes:
       - elasticsearch_data_vol:/usr/share/elasticsearch/data
     stdin_open: true
+
+  elasticsearch8:
+    image: elasticsearch:8.6
+    ports:
+      - 9208:9200
+    volumes:
+      - elasticsearch8_data_vol:/usr/share/elasticsearch/data
 
   rabbitmq:
     image: rabbitmq:management
@@ -103,6 +112,7 @@ services:
       - rabbitmq
       - web
       - elasticsearch
+      - elasticsearch8
       - indexer
     volumes:
       - ./:/code:cached
@@ -120,6 +130,7 @@ services:
       - postgres
       - rabbitmq
       - elasticsearch
+      - elasticsearch8
       - frontend
     volumes:
       - ./:/code:cached
@@ -135,6 +146,7 @@ services:
       - postgres
       - rabbitmq
       - elasticsearch
+      - elasticsearch8
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/usr/local/lib/python3.9

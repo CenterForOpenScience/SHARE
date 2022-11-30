@@ -1,7 +1,6 @@
+import abc
+import importlib
 import logging
-
-from elasticsearch import Elasticsearch, helpers as elastic_helpers
-from elasticsearch.exceptions import NotFoundError
 
 from django.conf import settings
 
@@ -11,23 +10,21 @@ from share.util.extensions import Extensions
 logger = logging.getLogger(__name__)
 
 
-class ElasticManager:
+class MulticlusterElasticManager:
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
     def __init__(self, custom_settings=None):
         self.settings = custom_settings or settings.ELASTICSEARCH
+        self._cluster_managers = {}
 
-        self.es_client = Elasticsearch(
-            self.settings['URL'],
-            retry_on_timeout=True,
-            timeout=self.settings['TIMEOUT'],
-            # sniff before doing anything
-            sniff_on_start=self.settings['SNIFF'],
-            # refresh nodes after a node fails to respond
-            sniff_on_connection_fail=self.settings['SNIFF'],
-            # and also every 60 seconds
-            sniffer_timeout=60 if self.settings['SNIFF'] else None,
-        )
+    def get_cluster_manager_for_index(self, index_name):
+        cluster_id = self.settings['INDEXES'][index_name]['CLUSTER']
+        if cluster_id not in self._cluster_managers:
+            cluster_info = self.settings['CLUSTERS'][cluster_id]
+            module_name, _, class_name = cluster_info['MANAGER_CLASS'].rpartition('.')
+            manager_class = getattr(importlib.import_module(module_name), class_name)
+            self._cluster_managers[cluster_id] = manager_class(cluster_info)
+        return self._cluster_managers[cluster_id]
 
     def get_index_setup(self, index_name):
         index_setup_name = self.settings['INDEXES'][index_name]['INDEX_SETUP']
@@ -116,3 +113,33 @@ class ElasticManager:
                 add_action
             ],
         })
+
+
+class UniclusterElasticManager(abc.ABC):
+    @abc.abstractmethod
+    def delete_index(self, index_name):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def create_index(self, index_name):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def index_exists(self, index_name):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update_mappings(self, index_name):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def stream_actions(self, action_gen):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def send_actions_sync(self, action_gen):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def refresh_indexes(self):
+        raise NotImplementedError

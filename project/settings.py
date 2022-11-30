@@ -300,8 +300,17 @@ STATICFILES_FINDERS = (
 )
 
 ELASTICSEARCH = {
+    'CLUSTERS': {
+        'es5': {
+            'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
+            'MANAGER_CLASS': 'share.search.elastic5.Elastic5Manager',
+        },
+        'es8': {
+            'URL': os.environ.get('ELASTICSEARCH8_URL', 'http://localhost:9208/'),
+            'MANAGER_CLASS': 'share.search.elastic8.Elastic8Manager',
+        },
+    },
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
-    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
     'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
@@ -326,9 +335,16 @@ ELASTICSEARCH = {
         #     'INDEX_SETUP': 'share_classic',
         # },
         'share_postrend_backcompat': {
+            'CLUSTER': 'es5',
             'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
             'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
             'INDEX_SETUP': 'postrend_backcompat',
+        },
+        'new_new_search': {
+            'CLUSTER': 'es8',
+            'DEFAULT_QUEUE': 'new-new-search',
+            'URGENT_QUEUE': 'new-new-search.urgent',
+            'INDEX_SETUP': 'new_new_search',
         },
         # 'trove_v0': {
         #     'DEFAULT_QUEUE': 'es-trove-v0',
@@ -336,9 +352,6 @@ ELASTICSEARCH = {
         #     'INDEX_SETUP': 'trove_v0',
         # },
     },
-    # ease the transition
-    'LEGACY_INDEX': 'share_customtax_1',
-    'BACKCOMPAT_INDEX': 'share_postrend_backcompat',
 }
 
 # Seconds, not an actual celery settings
