@@ -39,4 +39,4 @@ and [OSF Registries](https://osf.io/registries/discover) show only registrations
 and preprints, respectively, which are hosted on OSF infrastructure.
 
 To learn about using the API (instead of a user interface), see
-[USING-THE-API.md](./USING-THE-API.md)
+[how-to/use-the-api.md](./how-to/use-the-api.md)
