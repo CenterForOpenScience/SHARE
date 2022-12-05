@@ -76,15 +76,15 @@ services:
       - apt-get update &&
         apt-get install -y gcc &&
         pip install -r requirements.txt -r dev-requirements.txt &&
-        (python3 -m compileall /usr/local/lib/python3.6 || true) &&
-        rm -Rf /python3.6/* &&
+        (python3 -m compileall /usr/local/lib/python3.9 || true) &&
+        rm -Rf /python3.9/* &&
         apt-get remove -y gcc &&
-        cp -Rf -p /usr/local/lib/python3.6 / &&
+        cp -Rf -p /usr/local/lib/python3.9 / &&
         python3 setup.py develop
     restart: 'no'
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/python3.6
+      - share_requirements_vol:/python3.9
 
   frontend:
     image: quay.io/centerforopenscience/share-web:develop-local
@@ -106,7 +106,7 @@ services:
       - indexer
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.6
+      - share_requirements_vol:/usr/local/lib/python3.9
     env_file:
       - .docker-compose.env
     stdin_open: true
@@ -123,7 +123,7 @@ services:
       - frontend
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.6
+      - share_requirements_vol:/usr/local/lib/python3.9
     env_file:
       - .docker-compose.env
     stdin_open: true
@@ -137,7 +137,7 @@ services:
       - elasticsearch
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.6
+      - share_requirements_vol:/usr/local/lib/python3.9
     env_file:
       - .docker-compose.env
     stdin_open: true

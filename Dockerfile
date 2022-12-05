@@ -1,4 +1,4 @@
-FROM python:3.6-slim-buster as app
+FROM python:3.9-slim as app
 
 RUN apt-get update \
     && apt-get install -y \
