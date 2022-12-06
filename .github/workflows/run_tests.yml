@@ -41,25 +41,21 @@ jobs:
           - 9200:9200
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: set up python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v3
 
       - name: install non-py dependencies
         run: sudo apt-get install libxml2-dev libxslt1-dev libpq-dev
 
-      - name: cache py dependencies
-        id: cache-requirements
-        uses: actions/cache@v2
+      - name: set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'dev-requirements.txt') }}
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            dev-requirements.txt
 
       - name: install py dependencies
-        if: steps.cache-requirements.outputs.cache-hit != 'true'
         run: pip install -r dev-requirements.txt
 
       - name: install share
