@@ -26,7 +26,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN pip install -U pip
-RUN pip install uwsgi==2.0.16
+RUN pip install uwsgi==2.0.21
 
 COPY ./requirements.txt /code/requirements.txt
 COPY ./constraints.txt /code/constraints.txt
