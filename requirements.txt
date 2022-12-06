@@ -16,6 +16,7 @@ djangorestframework==3.12.4  # BSD
 docopt==0.6.2  # MIT
 elasticsearch==5.4.0  # Apache 2.0
 furl==2.1.2  # None
+gevent==22.10.2  # MIT
 jsonschema==3.2.0  # MIT
 lxml==4.6.3  # BSD
 kombu==5.1.0  # BSD 3 Clause
@@ -24,6 +25,7 @@ networkx==2.5.1  # BSD
 newrelic==6.4.4.161  # newrelic APM agent, Custom License
 pendulum==2.1.1  # MIT
 pillow==8.3.1  # PIL Software License
+psycogreen==1.0.2  # BSD
 psycopg2==2.8.6  # LGPL with exceptions or ZPL
 python-dateutil==2.8.1  # Apache 2.0
 PyJWE==1.0.0 # Apache 2.0
