@@ -41,8 +41,12 @@ class TestHarvestTaskWithJob:
     #         tasks.harvest(job_id=12)
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestHarvestTask:
+
+    @pytest.fixture(scope='class')
+    def source_config(self, class_scoped_django_db):
+        return factories.SourceConfigFactory()
 
     @pytest.mark.parametrize('source_config_kwargs, task_kwargs, lock_config, exception', [
         ({}, {}, True, HarvesterConcurrencyError),
@@ -88,8 +92,13 @@ class TestHarvestTask:
             if lock_config:
                 t.join()
 
-    def test_harvest_fails(self, source_config):
-        source_config.harvester.get_class()._do_fetch.side_effect = ValueError('In a test')
+    def test_harvest_fails(self, source_config, monkeypatch):
+        monkeypatch.setattr(
+            source_config.harvester.get_class()._do_fetch,
+            'side_effect',
+            ValueError('In a test'),
+            raising=False,
+        )
         job = factories.HarvestJobFactory(source_config=source_config)
 
         with pytest.raises(ValueError) as e:
@@ -102,7 +111,7 @@ class TestHarvestTask:
         assert job.completions == 0
         assert 'ValueError: In a test' in job.error_context
 
-    def test_harvest_database_error(self, source_config):
+    def test_harvest_database_error(self, source_config, monkeypatch):
         job = factories.HarvestJobFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
@@ -110,7 +119,7 @@ class TestHarvestTask:
             yield ('doc2', b'doc2data')
             yield ('doc3', b'doc3data')
             raise DatabaseError('In a test')
-        source_config.harvester.get_class()._do_fetch = _do_fetch
+        monkeypatch.setattr(source_config.harvester.get_class(), '_do_fetch', _do_fetch)
 
         with pytest.raises(DatabaseError) as e:
             tasks.harvest(job_id=job.id)
@@ -124,7 +133,7 @@ class TestHarvestTask:
         assert 'DatabaseError: In a test' in job.error_context
         assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
-    def test_partial_harvest_fails(self, source_config):
+    def test_partial_harvest_fails(self, source_config, monkeypatch):
         job = factories.HarvestJobFactory(source_config=source_config)
 
         def _do_fetch(*args, **kwargs):
@@ -132,7 +141,7 @@ class TestHarvestTask:
             yield ('doc2', b'doc2data')
             yield ('doc3', b'doc3data')
             raise ValueError('In a test')
-        source_config.harvester.get_class()._do_fetch = _do_fetch
+        monkeypatch.setattr(source_config.harvester.get_class(), '_do_fetch', _do_fetch)
 
         with pytest.raises(ValueError) as e:
             tasks.harvest(job_id=job.id)
@@ -177,12 +186,16 @@ class TestHarvestTask:
         for rediscovered in (0, count * .5, count)
         if rediscovered <= count
     })
-    def test_data_flow(self, source_config, monkeypatch, count, rediscovered, superfluous, limit, ingest, django_assert_num_queries):
+    def test_data_flow(self, source_config, count, rediscovered, superfluous, limit, ingest, django_assert_num_queries, monkeypatch):
         assert rediscovered <= count, 'Y tho'
 
         fake = Factory.create()
 
-        source_config.harvester.get_class()._do_fetch.extend([(fake.sentence(), str(i * 50)) for i in range(count)])
+        monkeypatch.setattr(
+            source_config.harvester.get_class(),
+            '_do_fetch',
+            factories.ListGenerator((fake.sentence(), str(i * 50)) for i in range(count)),
+        )
         list(RawDatum.objects.store_chunk(source_config, (
             FetchResult(*tup) for tup in
             random.sample(source_config.harvester.get_class()._do_fetch, rediscovered))
@@ -216,7 +229,7 @@ class TestHarvestTask:
         else:
             assert ingest_count == 0
 
-    def test_handles_duplicate_values(self, monkeypatch, source_config):
+    def test_handles_duplicate_values(self, source_config):
         fake = Factory.create()
         job = factories.HarvestJobFactory(source_config=source_config)
 
@@ -230,7 +243,7 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.succeeded
         assert job.raw_data.count() == 100
 
-    def test_handles_duplicate_values_limit(self, monkeypatch, source_config):
+    def test_handles_duplicate_values_limit(self, source_config):
         fake = Factory.create()
         job = factories.HarvestJobFactory(source_config=source_config)
 
@@ -254,7 +267,7 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.succeeded
         assert job.raw_data.count() == 30
 
-    def test_duplicate_data_different_identifiers(self, monkeypatch, source_config):
+    def test_duplicate_data_different_identifiers(self, source_config):
         source_config.harvester.get_class()._do_fetch.clear()
         source_config.harvester.get_class()._do_fetch.extend([
             ('identifier1', 'samedata'),
@@ -360,11 +373,10 @@ class TestHarvestTask:
 
         assert source_config.harvester.get_class()._do_fetch.called == should_run
 
-    def test_latest_date(self):
-        source_config = factories.SourceConfigFactory(
-            full_harvest=True,
-            earliest_date=pendulum.parse('2017-01-01').date()
-        )
+    def test_latest_date(self, source_config):
+        source_config.full_harvest = True
+        source_config.earliest_date = pendulum.parse('2017-01-01').date()
+        source_config.save()
 
         # We have a harvest job with start_date equal to earliest_date
         # but a different source_config
@@ -375,11 +387,10 @@ class TestHarvestTask:
 
         assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
 
-    def test_caught_up(self):
-        source_config = factories.SourceConfigFactory(
-            full_harvest=True,
-            earliest_date=pendulum.parse('2017-01-01').date()
-        )
+    def test_caught_up(self, source_config):
+        source_config.full_harvest = True
+        source_config.earliest_date = pendulum.parse('2017-01-01').date()
+        source_config.save()
 
         factories.HarvestJobFactory(
             source_config=source_config,
@@ -395,15 +406,13 @@ class TestHarvestTask:
 
         assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 0
 
-    def test_latest_date_null(self):
-        source_config = factories.SourceConfigFactory(
-            full_harvest=True,
-            earliest_date=pendulum.parse('2017-01-01').date()
-        )
+    def test_latest_date_null(self, source_config):
+        source_config.full_harvest = True
+        source_config.earliest_date = pendulum.parse('2017-01-01').date()
+        source_config.save()
         assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
 
-    def test_obsolete(self):
-        source_config = factories.SourceConfigFactory()
+    def test_obsolete(self, source_config):
 
         hlv1 = factories.HarvestJobFactory(
             harvester_version=source_config.harvester.version,
@@ -442,9 +451,7 @@ class TestHarvestTask:
         (0, HarvestJob.STATUS.failed, 2, True),
         (0, HarvestJob.STATUS.succeeded, 2, True),
     ])
-    def test_autoupdate(self, completions, status, new_version, updated):
-        source_config = factories.SourceConfigFactory()
-
+    def test_autoupdate(self, source_config, completions, status, new_version, updated):
         source_config.harvester.get_class().VERSION = 1
 
         hl = factories.HarvestJobFactory(

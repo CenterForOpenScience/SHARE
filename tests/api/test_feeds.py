@@ -16,11 +16,11 @@ NAMESPACES = {'atom': 'http://www.w3.org/2005/Atom'}
 # TODO add tests for RSS
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestFeed:
 
-    @pytest.fixture
-    def fake_items(self, settings, index_records):
+    @pytest.fixture(scope='class')
+    def fake_items(self, index_records, class_scoped_django_db):
         records = [
             f.CreativeWork(
                 identifiers=[f.WorkIdentifier()],

@@ -20,12 +20,14 @@ NAMESPACES = {
 }
 
 
-def oai_request(data, pls_post, expect_errors=False):
+def oai_request(data, request_method, expect_errors=False):
     client = Client()
-    if pls_post:
+    if request_method == 'POST':
         response = client.post('/oai-pmh/', data)
-    else:
+    elif request_method == 'GET':
         response = client.get('/oai-pmh/', data)
+    else:
+        raise NotImplementedError
     assert response.status_code == 200
     parsed = etree.fromstring(response.content, parser=etree.XMLParser(recover=True))
     actual_errors = parsed.xpath('//ns0:error', namespaces=NAMESPACES)
@@ -36,48 +38,51 @@ def oai_request(data, pls_post, expect_errors=False):
     return parsed
 
 
-@pytest.mark.django_db
-@pytest.mark.parametrize('post', [True, False])
+@pytest.mark.usefixtures('nested_django_db')
 class TestOAIVerbs:
-    @pytest.fixture
-    def oai_record(self):
+    @pytest.fixture(scope='class')
+    def oai_record(self, class_scoped_django_db):
         return FormattedMetadataRecordFactory(
             record_format='oai_dc',
             formatted_metadata='<foo></foo>',
         )
 
-    def test_identify(self, post):
-        parsed = oai_request({'verb': 'Identify'}, post)
+    @pytest.fixture(params=['POST', 'GET'])
+    def request_method(self, request):
+        return request.param
+
+    def test_identify(self, request_method):
+        parsed = oai_request({'verb': 'Identify'}, request_method)
         assert parsed.xpath('//ns0:Identify/ns0:repositoryName', namespaces=NAMESPACES)[0].text == 'SHARE'
 
-    def test_list_sets(self, post):
-        parsed = oai_request({'verb': 'ListSets'}, post)
+    def test_list_sets(self, request_method):
+        parsed = oai_request({'verb': 'ListSets'}, request_method)
         assert len(parsed.xpath('//ns0:ListSets/ns0:set', namespaces=NAMESPACES)) > 100
 
-    def test_list_formats(self, post):
-        parsed = oai_request({'verb': 'ListMetadataFormats'}, post)
+    def test_list_formats(self, request_method):
+        parsed = oai_request({'verb': 'ListMetadataFormats'}, request_method)
         prefixes = parsed.xpath('//ns0:ListMetadataFormats/ns0:metadataFormat/ns0:metadataPrefix', namespaces=NAMESPACES)
         assert len(prefixes) == 1
         assert prefixes[0].text == 'oai_dc'
 
-    def test_list_identifiers(self, post, oai_record):
-        parsed = oai_request({'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc'}, post)
+    def test_list_identifiers(self, request_method, oai_record):
+        parsed = oai_request({'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc'}, request_method)
         identifiers = parsed.xpath('//ns0:ListIdentifiers/ns0:header/ns0:identifier', namespaces=NAMESPACES)
         assert len(identifiers) == 1
         assert identifiers[0].text == 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
 
-    def test_list_records(self, post, oai_record, django_assert_num_queries):
+    def test_list_records(self, request_method, oai_record, django_assert_num_queries):
         with django_assert_num_queries(1):
-            parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, post)
+            parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, request_method)
         records = parsed.xpath('//ns0:ListRecords/ns0:record', namespaces=NAMESPACES)
         assert len(records) == 1
         assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
         record_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
         assert record_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
 
-    def test_get_record(self, post, oai_record):
+    def test_get_record(self, request_method, oai_record):
         ant_id = 'oai:share.osf.io:{}'.format(IDObfuscator.encode(oai_record.suid))
-        parsed = oai_request({'verb': 'GetRecord', 'metadataPrefix': 'oai_dc', 'identifier': ant_id}, post)
+        parsed = oai_request({'verb': 'GetRecord', 'metadataPrefix': 'oai_dc', 'identifier': ant_id}, request_method)
         records = parsed.xpath('//ns0:GetRecord/ns0:record', namespaces=NAMESPACES)
         assert len(records) == 1
         assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
@@ -110,25 +115,25 @@ class TestOAIVerbs:
         ('ListSets', {'something': 'oai_dc'}, ['badArgument']),
         ('ListSets', {'resumptionToken': 'bad_token'}, ['badResumptionToken']),
     ])
-    def test_oai_errors(self, verb, params, errors, post, oai_record):
+    def test_oai_errors(self, verb, params, errors, request_method, oai_record):
         record_id = IDObfuscator.encode(oai_record.suid)
         data = {'verb': verb, **{k: v.format(id=record_id) for k, v in params.items()}}
-        actual_errors = oai_request(data, post, expect_errors=True)
+        actual_errors = oai_request(data, request_method, expect_errors=True)
         actual_error_codes = {e.attrib.get('code') for e in actual_errors}
         assert actual_error_codes == set(errors)
 
-    def test_subtly_wrong_identifiers(self, post, oai_record):
+    def test_subtly_wrong_identifiers(self, request_method, oai_record):
         # obfuscated id points to the correct table, but a non-existent row
-        self._assert_bad_identifier(post, IDObfuscator.encode_id(
+        self._assert_bad_identifier(request_method, IDObfuscator.encode_id(
             self._get_nonexistent_id(SourceUniqueIdentifier),
             SourceUniqueIdentifier,
         ))
 
         # obfuscated id points to the wrong table, but an existing row
-        self._assert_bad_identifier(post, IDObfuscator.encode(oai_record))
+        self._assert_bad_identifier(request_method, IDObfuscator.encode(oai_record))
 
         # obfuscated id points to the wrong table, and a non-existent row
-        self._assert_bad_identifier(post, IDObfuscator.encode_id(
+        self._assert_bad_identifier(request_method, IDObfuscator.encode_id(
             self._get_nonexistent_id(FormattedMetadataRecord),
             FormattedMetadataRecord,
         ))
@@ -139,7 +144,7 @@ class TestOAIVerbs:
         assert not model_class.objects.filter(id=nonexistent_id).exists()
         return nonexistent_id
 
-    def _assert_bad_identifier(self, post, bad_identifier):
+    def _assert_bad_identifier(self, request_method, bad_identifier):
         full_bad_identifier = f'oai:share.osf.io:{bad_identifier}'
         request_param_sets = [{
             'verb': 'GetRecord',
@@ -150,7 +155,7 @@ class TestOAIVerbs:
             'identifier': full_bad_identifier,
         }]
         for params in request_param_sets:
-            actual_errors = oai_request(params, post, expect_errors=True)
+            actual_errors = oai_request(params, request_method, expect_errors=True)
             actual_error_codes = {
                 e.attrib.get('code')
                 for e in actual_errors
@@ -158,10 +163,10 @@ class TestOAIVerbs:
             assert actual_error_codes == {'idDoesNotExist'}
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestOAILists:
-    @pytest.fixture
-    def oai_records(self):
+    @pytest.fixture(scope='class')
+    def oai_records(self, class_scoped_django_db):
         return [
             FormattedMetadataRecordFactory(
                 record_format='oai_dc',
@@ -174,18 +179,18 @@ class TestOAILists:
     # repeatedly -- pytest-django can't handle a db-using fixture with scope='class'
     def test_lists(self, oai_records, monkeypatch):
         test_params_list = [
-            (pls_post, verb, page_size)
-            for pls_post in [True, False]
+            (request_method, verb, page_size)
+            for request_method in ['GET', 'POST']
             for verb in ['ListRecords', 'ListIdentifiers']
             for page_size in [5, 10, 100]
         ]
-        for pls_post, verb, page_size in test_params_list:
+        for request_method, verb, page_size in test_params_list:
             monkeypatch.setattr('share.oaipmh.fmr_repository.OaiPmhRepository.PAGE_SIZE', page_size)
-            self._assert_full_list(verb, {}, pls_post, len(oai_records), page_size)
-            self._test_filter_date(oai_records, pls_post, verb, page_size)
-            self._test_filter_set(oai_records, pls_post, verb, page_size)
+            self._assert_full_list(verb, {}, request_method, len(oai_records), page_size)
+            self._test_filter_date(oai_records, request_method, verb, page_size)
+            self._test_filter_set(oai_records, request_method, verb, page_size)
 
-    def _test_filter_date(self, oai_records, pls_post, verb, page_size):
+    def _test_filter_date(self, oai_records, request_method, verb, page_size):
         for from_date, to_date, expected_count in [
             (pendulum.now().subtract(days=1), None, 17),
             (None, pendulum.now().subtract(days=1), 0),
@@ -198,24 +203,24 @@ class TestOAILists:
                 params['from'] = format_datetime(from_date)
             if to_date:
                 params['until'] = format_datetime(to_date)
-            self._assert_full_list(verb, params, pls_post, expected_count, page_size)
+            self._assert_full_list(verb, params, request_method, expected_count, page_size)
 
-    def _test_filter_set(self, oai_records, pls_post, verb, page_size):
+    def _test_filter_set(self, oai_records, request_method, verb, page_size):
         source = SourceFactory()
 
         # empty list
-        self._assert_full_list(verb, {'set': source.name}, pls_post, 0, page_size)
+        self._assert_full_list(verb, {'set': source.name}, request_method, 0, page_size)
 
         for record in random.sample(oai_records, 7):
             source_config = record.suid.source_config
             source_config.source = source
             source_config.save()
 
-        self._assert_full_list(verb, {'set': source.name}, pls_post, 7, page_size)
+        self._assert_full_list(verb, {'set': source.name}, request_method, 7, page_size)
 
-    def _assert_full_list(self, verb, params, post, expected_count, page_size):
+    def _assert_full_list(self, verb, params, request_method, expected_count, page_size):
         if not expected_count:
-            errors = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, post, expect_errors=True)
+            errors = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, request_method, expect_errors=True)
             assert len(errors) == 1
             assert errors[0].attrib.get('code') == 'noRecordsMatch'
             return
@@ -225,9 +230,9 @@ class TestOAILists:
         token = None
         while True:
             if token:
-                parsed = oai_request({'verb': verb, 'resumptionToken': token}, post)
+                parsed = oai_request({'verb': verb, 'resumptionToken': token}, request_method)
             else:
-                parsed = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, post)
+                parsed = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, request_method)
             page = parsed.xpath('//ns0:header/ns0:identifier', namespaces=NAMESPACES)
             pages += 1
             count += len(page)
