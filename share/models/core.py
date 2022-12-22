@@ -19,7 +19,8 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
-from share.util import BaseJSONAPIMeta
+from share.util import BaseJSONAPIMeta, rdfutil
+from share.util.graph import MutableGraph
 
 
 logger = logging.getLogger(__name__)
@@ -190,12 +191,37 @@ class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
     raw = models.ForeignKey('RawDatum', null=True, on_delete=models.CASCADE)
-    data = DateTimeAwareJSONField(validators=[JSONLDValidator(), ])
+    data = DateTimeAwareJSONField(null=True, validators=[JSONLDValidator(), ])
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    # serialized_rdf_graph = models.BinaryField()  # alternate/replacement for `data` field
-    # _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse
+    serialized_rdf = models.BinaryField(null=True)  # alternate/replacement for `data` field
+    _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse and .serialize
+
+    def convert_to_rdf(self):
+        if self.data is None:
+            return None
+        rdfgraph = rdfutil.Sharev2ToRdf(
+            MutableGraph.from_jsonld(self.data)
+        ).rdfgraph
+        self.set_rdfgraph(rdfgraph)
+        if self.id:
+            self.save()
+        return rdfgraph
+
+    def get_rdfgraph(self, convert=False):
+        if self.serialized_rdf is None:
+            if convert:
+                return self.convert_to_rdf()
+            else:
+                return None
+        return rdfutil.contextualized_graph().parse(
+            format=self._RDF_FORMAT,
+            data=self.serialized_rdf,
+        )
+
+    def set_rdfgraph(self, rdfgraph):
+        self.serialized_rdf = rdfgraph.serialize(format=self._RDF_FORMAT)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

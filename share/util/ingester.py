@@ -13,6 +13,9 @@ from share.tasks.jobs import IngestJobConsumer
 class Ingester:
     """Helper class that takes a datum and feeds it to SHARE
 
+    Usage given a user pushing data with a recognized rdf content-type:
+        Ingester(datum, datum_id, contenttype='text/turtle').as_user(user).ingest()
+
     Usage given a source config:
         Ingester(datum, datum_id).with_config(source_config).ingest()
 
@@ -26,7 +29,7 @@ class Ingester:
 
     _config = None
 
-    def __init__(self, datum: Union[str, list, dict], datum_id: str, datestamp=None):
+    def __init__(self, datum: Union[str, list, dict], datum_id: str, datestamp=None, contenttype=None):
         if isinstance(datum, str):
             self.datum = datum
         elif isinstance(datum, (list, dict)):
@@ -39,19 +42,23 @@ class Ingester:
 
         self.datum_id = datum_id
         self.datestamp = datestamp or pendulum.now()
+        self.contenttype = contenttype
 
     def with_config(self, config):
         assert not self._config
         self._config = config
         return self
 
-    def as_user(self, user, transformer_key='v2_push'):
+    def as_user(self, user, transformer_key=None):
         """Ingest as the given user, with the given transformer
 
         Create a source config for the given user/transformer, or get a previously created one.
         """
         assert not self._config
-        self._config = SourceConfig.objects.get_or_create_push_config(user, transformer_key)
+        if transformer_key is None:
+            self._config = SourceConfig.objects.get_or_create_rdfpush_config(user)
+        else:
+            self._config = SourceConfig.objects.get_or_create_push_config(user, transformer_key)
         return self
 
     def ingest(self, **kwargs):
@@ -74,6 +81,6 @@ class Ingester:
 
         # TODO get rid of FetchResult, or make it more sensical
         from share.harvest.base import FetchResult
-        fetch_result = FetchResult(self.datum_id, self.datum, self.datestamp)
+        fetch_result = FetchResult(self.datum_id, self.datum, self.datestamp, self.contenttype)
         self.raw = RawDatum.objects.store_data(self._config, fetch_result)
         self.job = IngestScheduler().schedule(self.raw.suid, self.raw.id, claim=claim_job)

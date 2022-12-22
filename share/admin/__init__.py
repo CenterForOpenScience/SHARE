@@ -25,7 +25,7 @@ from share.models.celery import CeleryTaskResult
 from share.models.core import NormalizedData, ShareUser
 from share.models.fields import DateTimeAwareJSONField
 from share.models.formatted_metadata_record import FormattedMetadataRecord
-from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
+from share.models.ingest import RawDatum, Source, SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
 from share.models.registration import ProviderRegistration
@@ -261,10 +261,8 @@ admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin.site.register(RawDatum, RawDatumAdmin)
 admin.site.register(SiteBanner, SiteBannerAdmin)
 
-admin.site.register(Harvester)
 admin.site.register(ShareUser)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(SourceConfig, SourceConfigAdmin)
 admin.site.register(SourceStat, SourceStatAdmin)
 admin.site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
-admin.site.register(Transformer)

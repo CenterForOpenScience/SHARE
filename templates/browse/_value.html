@@ -1,11 +1,7 @@
-{% if value.is_literal_str %}
-    <q>{{value.value}}</q>
-{% elif value.is_literal_time %}
-    <time datetime='{{value.value}}'>{{value.value}}</time>
-{% elif value.is_short_uriref %}
-    <a href="/browse///{{value.value}}">{{value.value}}</a>
-{% elif value.is_full_uriref %}
-    <a rel="nofollow noopener external" href="{{value.value}}">{{value.value}}</a>
+{% if value.literal_value %}
+    <q>{{value.literal_value}}</q>
+{% elif value.full_uri %}
+    <a href="/browse///{{value.full_uri}}">{{value.display_uri}}</a>
 {% endif %}
 
 {% if value.nested_statement_set %}

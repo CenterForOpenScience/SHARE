@@ -25,7 +25,7 @@ def improvenance_subjects(apps, schema_editor):
     ]
 
     from share.util.ingester import Ingester
-    Ingester(subjects).as_user(user).ingest()
+    Ingester(subjects).as_user(user, 'v2_push').ingest()
 
 
 class Migration(migrations.Migration):

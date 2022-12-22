@@ -99,8 +99,10 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
 
         with transaction.atomic():
             # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
-            ingester = Ingester(data, suid).as_user(request.user).ingest(
-                pls_format_metadata=False,
+            ingester = (
+                Ingester(data, suid, contenttype=request.content_type)
+                .as_user(request.user, 'v2_push')
+                .ingest(pls_format_metadata=False)
             )
             ingester.job.reschedule(claim=True)
 

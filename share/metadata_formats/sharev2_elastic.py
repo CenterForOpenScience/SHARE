@@ -50,14 +50,6 @@ def strip_empty_values(thing):
 
 
 class ShareV2ElasticFormatter(MetadataFormatter):
-    def format_as_deleted(self, suid):
-        # a document with is_deleted:True will be deleted from the elastic index
-        # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord
-        return json.dumps({
-            'id': IDObfuscator.encode(suid),
-            'is_deleted': True,
-        })
-
     def format(self, normalized_datum):
         mgraph = MutableGraph.from_jsonld(normalized_datum.data)
         central_work = mgraph.get_central_node(guess=True)
@@ -68,7 +60,7 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         suid = normalized_datum.raw.suid
 
         if central_work['is_deleted']:
-            return self.format_as_deleted(suid)
+            return None
 
         source_name = suid.source_config.source.long_title
         return json.dumps(strip_empty_values({

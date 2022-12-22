@@ -16,7 +16,7 @@ class FocusedContextBuilder:
         return {
             'focus_pid': self.shortname(self.focus_id),
             'focus_type_set': [
-                self.shortname(type_uri)
+                self.display_uri(type_uri)
                 for type_uri in self._rdf_graph.objects(self.focus_id, rdflib.RDF.type)
             ],
             'statement_set': statement_set,
@@ -24,7 +24,7 @@ class FocusedContextBuilder:
             'referenced_pids': self._gather_references(statement_set),
         }
 
-    def shortname(self, uri):
+    def display_uri(self, uri):
         return self._rdf_graph.namespace_manager.normalizeUri(uri)
 
     def _nested_statement_set(self, node_id):
@@ -40,20 +40,16 @@ class FocusedContextBuilder:
     def _value(self, obj):
         if isinstance(obj, rdflib.term.Literal):
             return {
-                'value': obj,
-                'is_literal_str': isinstance(obj, rdflib.term.Literal),
+                'literal_value': obj,
             }
         if isinstance(obj, rdflib.term.BNode):
             return {
                 'nested_statement_set': self._nested_statement_set(obj),
             }
         if isinstance(obj, rdflib.term.URIRef):
-            obj_qname = self.shortname(obj)
-            is_short = not obj_qname.startswith('<')
             return {
-                'value': obj_qname,
-                'is_short_uriref': is_short,
-                'is_full_uriref': not is_short,
+                'display_uri': self.display_uri(obj),
+                'full_uri': obj,
                 'nested_statement_set': self._nested_statement_set(obj),
             }
         raise NotImplementedError(f'what is {obj} ({type(obj)}?)')

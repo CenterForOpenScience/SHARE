@@ -8,13 +8,7 @@ from share.util.extensions import Extensions
 
 class FormattedMetadataRecordManager(models.Manager):
     def delete_formatted_records(self, suid):
-        records = []
-        for record_format in Extensions.get_names('share.metadata_formats'):
-            formatted_record = self.get_formatter(record_format).format_as_deleted(suid)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
-            if record is not None:
-                records.append(record)
-        return records
+        self.filter(suid=suid).delete()
 
     def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
         if normalized_datum is None:
@@ -45,6 +39,7 @@ class FormattedMetadataRecordManager(models.Manager):
             .annotate(
                 _formatted_record=(
                     self.filter(suid_id=models.OuterRef('id'), record_format=record_format)
+                    .values('formatted_metadata')
                     [:1]
                 ),
             )
@@ -63,7 +58,10 @@ class FormattedMetadataRecordManager(models.Manager):
         return formatter_class()
 
     def _save_formatted_record(self, suid, record_format, formatted_record):
-        if formatted_record:
+        record = None
+        if formatted_record is None:
+            self.filter(suid=suid, record_format=record_format).delete()
+        else:
             record, _ = self.update_or_create(
                 suid=suid,
                 record_format=record_format,
@@ -71,9 +69,6 @@ class FormattedMetadataRecordManager(models.Manager):
                     'formatted_metadata': formatted_record,
                 },
             )
-        else:
-            self.filter(suid=suid, record_format=record_format).delete()
-            record = None
         return record
 
 

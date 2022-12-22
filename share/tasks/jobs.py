@@ -4,8 +4,10 @@ import random
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.utils import timezone
+import rdflib
 
 from share import exceptions
+from share.extract import get_rdf_extractor
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import (
     FormattedMetadataRecord,
@@ -13,12 +15,13 @@ from share.models import (
     IngestJob,
     NormalizedData,
     RawDatum,
+    KnownPid,
 )
 from share.models.ingest import RawDatumJob
 from share.legacy_normalize.regulate import Regulator
 from share.search import SearchIndexer
 from share.search.messages import MessageType
-from share.util import chunked
+from share.util import chunked, rdfutil
 
 
 logger = logging.getLogger(__name__)
@@ -290,7 +293,6 @@ class IngestJobConsumer(JobConsumer):
     def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
                      pls_format_metadata=True, metadata_formats=None):
         datum = None
-        graph = None
 
         most_recent_raw = job.suid.most_recent_raw_datum()
 
@@ -299,57 +301,65 @@ class IngestJobConsumer(JobConsumer):
             datum = job.ingested_normalized_data.filter(raw=most_recent_raw).order_by('-created_at').first()
 
         if superfluous or datum is None:
-            graph = self._transform(job, most_recent_raw)
-            if not graph:
-                return
-            graph = self._regulate(job, graph)
-            if not graph:
-                return
-            datum = NormalizedData.objects.create(
-                data=graph.to_jsonld(),
-                source=job.suid.source_config.source.user,
-                raw=most_recent_raw,
-            )
-            job.ingested_normalized_data.add(datum)
+            self._extract(most_recent_raw, job)
 
         if pls_format_metadata:
-            records = FormattedMetadataRecord.objects.save_formatted_records(
+            FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
                 record_formats=metadata_formats,
                 normalized_datum=datum,
             )
-            # TODO consider whether to handle the possible but rare-to-nonexistent case where
-            # `records` is empty this time but there were records in the past -- would need to
-            # remove the previous from the index
-            if records and index:
-                self._queue_for_indexing(job.suid, urgent)
+        if index:
+            self._queue_for_indexing(job.suid, urgent)
 
-    def _transform(self, job, raw):
-        transformer = job.suid.source_config.get_transformer()
+    @transaction.atomic
+    def _extract(self, raw, job):
+        extractor = get_rdf_extractor(raw.contenttype, job.suid.source_config)
+        rdfgraph = extractor.extract_rdf(raw.datum)
+        norm_datum = NormalizedData(
+            source=job.suid.source_config.source.user,
+            raw=raw,
+        )
+        if rdfgraph:
+            norm_datum.set_rdfgraph(rdfgraph)
+        else:
+            self._handle_no_output(raw)
+        norm_datum.save()
+        job.ingested_normalized_data.add(norm_datum)
+        self._update_focal_pids(raw.suid, rdfgraph)
+        return norm_datum
 
+    def _update_focal_pids(self, suid, rdfgraph):
+        pids = set()
         try:
-            graph = transformer.transform(raw)
-        except exceptions.TransformError as e:
-            job.fail(e)
-            return None
+            pid_from_suid = rdfutil.normalize_pid_uri(suid.identifier)
+        except exceptions.BadPid:
+            pass
+        else:
+            pids.add(pid_from_suid)
+        if pid_from_suid and rdfgraph:
+            pid_synonyms = rdfgraph.objects(
+                subject=rdflib.URIRef(pid_from_suid),
+                predicate=rdflib.OWL.sameAs,
+            )
+            for pid_synonym in pid_synonyms:
+                try:
+                    pids.add(rdfutil.normalize_pid_uri(pid_synonym))
+                except exceptions.BadPid:
+                    pass
 
-        if not graph:
-            if not raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_output to True', raw)
-                RawDatum.objects.filter(id=raw.id).update(no_output=True)
-            else:
-                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
-            return None
+        known_pids = [
+            KnownPid.objects.get_or_create(uri=pid_uri)
+            for pid_uri in pids
+        ]
+        suid.focal_pid_set.set(known_pids)
 
-        return graph
-
-    def _regulate(self, job, graph):
-        try:
-            Regulator(job).regulate(graph)
-            return graph
-        except exceptions.RegulateError as e:
-            job.fail(e)
-            return None
+    def _handle_no_output(self, raw):
+        if not raw.normalizeddata_set.exists():
+            logger.warning('Graph was empty for %s, setting no_output to True', raw)
+            RawDatum.objects.filter(id=raw.id).update(no_output=True)
+        else:
+            logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
 
     def _queue_for_indexing(self, suid, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()

@@ -1,8 +1,9 @@
 import json
 
-from share.models import FormattedMetadataRecord
+from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
 from share.search.index_setup.base import IndexSetup
 from share.search.messages import MessageType
+from share.util import IDObfuscator
 
 
 class PostRendBackcompatIndexSetup(IndexSetup):
@@ -168,9 +169,10 @@ class PostRendBackcompatIndexSetup(IndexSetup):
             '_type': 'creativeworks',
         }
 
-        def action_generator(target_id_iter):
+        def action_generator(target_id_chunk):
+            remaining_suid_ids = set(target_id_chunk)
             record_qs = FormattedMetadataRecord.objects.filter(
-                suid_id__in=target_id_iter,
+                suid_id__in=target_id_chunk,
                 record_format='sharev2_elastic',  # TODO specify in config? or don't
             )
             for record in record_qs:
@@ -188,5 +190,15 @@ class PostRendBackcompatIndexSetup(IndexSetup):
                         '_op_type': 'index',
                         '_source': source_doc,
                     }
+                remaining_suid_ids.pop(record.suid_id)
                 yield (record.suid_id, action)
+
+            to_delete_from_index = SourceUniqueIdentifier.objects.filter(id__in=remaining_suid_ids)
+            for suid in to_delete_from_index:
+                action = {
+                    **action_template,
+                    'id': IDObfuscator.encode(suid),
+                    '_op_type': 'delete',
+                }
+                yield (suid.id, action)
         return action_generator

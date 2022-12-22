@@ -29,3 +29,7 @@ class IngestConflict(IngestError):
     """Multiple data being ingested at the same time conflicted.
     """
     pass
+
+
+class BadPid(IngestError):
+    pass

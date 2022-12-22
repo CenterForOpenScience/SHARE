@@ -11,7 +11,6 @@ from django.db.models.signals import post_save
 
 import share
 from share.models.core import user_post_save
-from share.util.extensions import Extensions
 
 SOURCES_DIR = 'sources'
 
@@ -36,18 +35,7 @@ class Command(BaseCommand):
             receiver(post_save, sender=self.apps.get_model('share.ShareUser'), dispatch_uid='__fake__.share.models.share_user_post_save_handler')(user_post_save)
 
         with transaction.atomic():
-            self.known_harvesters = self.sync_drivers('share.harvesters', self.apps.get_model('share.Harvester'))
-            self.known_transformers = self.sync_drivers('share.transformers', self.apps.get_model('share.Transformer'))
             self.update_sources(source_dirs, overwrite=options.get('overwrite'))
-
-    def sync_drivers(self, namespace, model):
-        names = set(Extensions.get_names(namespace))
-        for key in names:
-            model.objects.update_or_create(key=key)
-        missing = model.objects.exclude(key__in=names).values_list('key', flat=True)
-        if missing:
-            print('Warning: Missing {} drivers: {}'.format(model._meta.model_name, missing))
-        return names
 
     def update_sources(self, source_dirs, overwrite):
         Source = self.apps.get_model('share.Source')
@@ -80,13 +68,6 @@ class Command(BaseCommand):
 
     def update_source_config(self, source, serialized, overwrite):
         label = serialized.pop('label')
-        if serialized['harvester'] and serialized['harvester'] not in self.known_harvesters:
-            print('Unknown harvester {}! Skipping source config {}'.format(serialized['harvester'], label))
-            return
-        if serialized['transformer'] and serialized['transformer'] not in self.known_transformers:
-            print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
-            return
-
         SourceConfig = self.apps.get_model('share.SourceConfig')
         config_defaults = {
             'source': source,
@@ -116,6 +97,10 @@ class Command(BaseCommand):
     def process_defaults(self, model, defaults):
         ret = {}
         for k, v in defaults.items():
+            if k == 'harvester':
+                k = 'harvester_key'
+            elif k == 'transformer':
+                k = 'transformer_key'
             try:
                 field = model._meta.get_field(k)
             except FieldDoesNotExist:

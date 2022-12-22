@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class FetchResult:
-    __slots__ = ('identifier', 'datum', 'datestamp', '_sha256')
+    __slots__ = ('identifier', 'datum', 'datestamp', 'contenttype', '_sha256')
 
     @property
     def sha256(self):
@@ -28,8 +28,9 @@ class FetchResult:
             self._sha256 = sha256(self.datum.encode('utf-8')).hexdigest()
         return self._sha256
 
-    def __init__(self, identifier, datum, datestamp=None):
+    def __init__(self, identifier, datum, datestamp=None, contenttype=None):
         self._sha256 = None
+        self.contenttype = contenttype
         self.datestamp = datestamp
         self.datum = datum
         self.identifier = identifier

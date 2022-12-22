@@ -26,6 +26,7 @@ from api.views import APIVersionRedirectView, source_icon_view
 
 from share.oaipmh.views import OAIPMHView
 from share.browse.views import BrowseView, BrowsePidView
+from share.push.views import RdfPushView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -40,6 +41,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     path('browse/', BrowseView.as_view(), name='browse'),
     path('browse///<path:pid>', BrowsePidView.as_view(), name='browse-pid'),
+    path('push///<path:pid>', RdfPushView.as_view(), name='rdf-push'),
     url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
         url=staticfiles_storage.url('favicon.ico'),

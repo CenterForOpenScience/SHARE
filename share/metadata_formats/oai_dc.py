@@ -23,7 +23,7 @@ class OaiDcFormatter(MetadataFormatter):
             or central_work.concrete_type != 'abstractcreativework'
             or central_work['is_deleted']
         ):
-            return self.format_as_deleted(None)
+            return None
 
         dc_formatted = self.build_dublin_core(central_work)
         return etree.tostring(dc_formatted, encoding='unicode')

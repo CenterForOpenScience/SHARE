@@ -12,6 +12,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
+from model_utils import Choices
 
 from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
@@ -21,7 +22,7 @@ from share.util.extensions import Extensions
 
 
 logger = logging.getLogger(__name__)
-__all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer',)
+__all__ = ('Source', 'RawDatum', 'SourceConfig', )
 
 
 class SourceIcon(models.Model):
@@ -99,6 +100,29 @@ class Source(models.Model):
 
 
 class SourceConfigManager(NaturalKeyManager):
+    def get_or_create_rdfpush_config(self, user):
+        config_label = '{}.rdfpush'.format(user.username)
+        try:
+            return SourceConfig.objects.get(label=config_label)
+        except SourceConfig.DoesNotExist:
+            source, _ = Source.objects.get_or_create(
+                user=user,
+                defaults={
+                    'name': user.username,
+                    'long_title': user.username,
+                }
+            )
+            config, _ = SourceConfig.objects.get_or_create(
+                label=config_label,
+                defaults={
+                    'source': source,
+                    'rdfpush': True,
+                }
+            )
+            assert config.source_id == source.id
+            assert config.rdfpush
+            return config
+
     def get_or_create_push_config(self, user, transformer_key):
         config_label = '{}.{}'.format(user.username, transformer_key)
         try:
@@ -115,7 +139,7 @@ class SourceConfigManager(NaturalKeyManager):
                 label=config_label,
                 defaults={
                     'source': source,
-                    'transformer': Transformer.objects.get(key=transformer_key),
+                    'transformer_key': transformer_key,
                 }
             )
             return config
@@ -133,7 +157,8 @@ class SourceConfig(models.Model):
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
-    harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
+    HARVESTER_KEY = Choices(*Extensions.get_names('share.harvesters'))
+    harvester_key = models.TextField(null=True, choices=HARVESTER_KEY)
     harvester_kwargs = models.JSONField(null=True, blank=True)
     harvest_interval = models.DurationField(default=datetime.timedelta(days=1))
     harvest_after = models.TimeField(default='02:00')
@@ -144,12 +169,13 @@ class SourceConfig(models.Model):
         'This should never be set to True by default. '
     ))
 
-    # Allow null for push sources
-    # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
-    transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
+    TRANSFORMER_KEY = Choices(*Extensions.get_names('share.transformers'))
+    transformer_key = models.TextField(null=True, choices=TRANSFORMER_KEY)
     transformer_kwargs = models.JSONField(null=True, blank=True)
 
     regulator_steps = models.JSONField(null=True, blank=True)
+
+    rdfpush = models.BooleanField(default=False)
 
     disabled = models.BooleanField(default=False)
 
@@ -169,14 +195,16 @@ class SourceConfig(models.Model):
 
         **kwargs: passed to the harvester's initializer
         """
-        return self.harvester.get_class()(self, **kwargs)
+        harvester_class = Extensions.get('share.harvesters', self.harvester_key)
+        return harvester_class(self, **kwargs)
 
     def get_transformer(self, **kwargs):
         """Return a transformer instance configured for this SourceConfig.
 
         **kwargs: passed to the transformer's initializer
         """
-        return self.transformer.get_class()(self, **kwargs)
+        transformer_class = Extensions.get('share.transformers', self.transformer_key)
+        return transformer_class(self, **kwargs)
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):
@@ -205,54 +233,6 @@ class SourceConfig(models.Model):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
 
     __str__ = __repr__
-
-
-class Harvester(models.Model):
-    key = models.TextField(unique=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-
-    objects = NaturalKeyManager('key')
-
-    @property
-    def version(self):
-        return self.get_class().VERSION
-
-    def natural_key(self):
-        return (self.key,)
-
-    def get_class(self):
-        return Extensions.get('share.harvesters', self.key)
-
-    def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
-
-    def __str__(self):
-        return repr(self)
-
-
-class Transformer(models.Model):
-    key = models.TextField(unique=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_modified = models.DateTimeField(auto_now=True)
-
-    objects = NaturalKeyManager('key')
-
-    @property
-    def version(self):
-        return self.get_class().VERSION
-
-    def natural_key(self):
-        return (self.key,)
-
-    def get_class(self):
-        return Extensions.get('share.transformers', self.key)
-
-    def __repr__(self):
-        return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.key)
-
-    def __str__(self):
-        return repr(self)
 
 
 class RawDatumManager(FuzzyCountManager):
@@ -349,7 +329,7 @@ class RawDatumManager(FuzzyCountManager):
                 yield from RawDatum.objects.raw(
                     '''
                         INSERT INTO "{table}"
-                            ("{suid}", "{hash}", "{datum}", "{datestamp}", "{date_modified}", "{date_created}")
+                            ("{suid}", "{hash}", "{datum}", "{datestamp}", "{contenttype}", "{date_modified}", "{date_created}")
                         VALUES
                             {values}
                         ON CONFLICT
@@ -357,18 +337,19 @@ class RawDatumManager(FuzzyCountManager):
                         DO UPDATE SET
                             "{datestamp}" = EXCLUDED."{datestamp}",
                             "{date_modified}" = EXCLUDED."{date_modified}"
-                        RETURNING id, "{suid}", "{hash}", "{datestamp}", "{date_modified}", "{date_created}"
+                        RETURNING id, "{suid}", "{hash}", "{datestamp}", "{contenttype}", "{date_modified}", "{date_created}"
                     '''.format(
                         table=RawDatum._meta.db_table,
                         suid=RawDatum._meta.get_field('suid').column,
                         hash=RawDatum._meta.get_field('sha256').column,
                         datum=RawDatum._meta.get_field('datum').column,
                         datestamp=RawDatum._meta.get_field('datestamp').column,
+                        contenttype=RawDatum._meta.get_field('contenttype').column,
                         date_modified=RawDatum._meta.get_field('date_modified').column,
                         date_created=RawDatum._meta.get_field('date_created').column,
                         values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     ), [
-                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp or now, now, now)
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp or now, fr.contenttype, now, now)
                         for fr in new
                     ]
                 )
@@ -401,6 +382,7 @@ class RawDatumJob(models.Model):
 class RawDatum(models.Model):
 
     datum = models.TextField()
+    contenttype = models.TextField(null=True, blank=True)
 
     suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 
