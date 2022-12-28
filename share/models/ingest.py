@@ -100,10 +100,21 @@ class Source(models.Model):
 
 
 class SourceConfigManager(NaturalKeyManager):
-    def get_or_create_rdfpush_config(self, user):
-        config_label = '{}.rdfpush'.format(user.username)
+    def get_or_create_push_config(self, user, transformer_key=None):
+        if transformer_key is None:
+            # new normal
+            config_label = '{}.rdfpush'.format(user.username)
+            config_expectations = {
+                'rdfpush': True,
+            }
+        else:
+            # old normal
+            config_label = '{}.{}'.format(user.username, transformer_key)
+            config_expectations = {
+                'transformer_key': transformer_key,
+            }
         try:
-            return SourceConfig.objects.get(label=config_label)
+            config = SourceConfig.objects.get(label=config_label)
         except SourceConfig.DoesNotExist:
             source, _ = Source.objects.get_or_create(
                 user=user,
@@ -116,33 +127,14 @@ class SourceConfigManager(NaturalKeyManager):
                 label=config_label,
                 defaults={
                     'source': source,
-                    'rdfpush': True,
-                }
+                    **config_expectations,
+                },
             )
             assert config.source_id == source.id
-            assert config.rdfpush
-            return config
-
-    def get_or_create_push_config(self, user, transformer_key):
-        config_label = '{}.{}'.format(user.username, transformer_key)
-        try:
-            return SourceConfig.objects.get(label=config_label)
-        except SourceConfig.DoesNotExist:
-            source, _ = Source.objects.get_or_create(
-                user=user,
-                defaults={
-                    'name': user.username,
-                    'long_title': user.username,
-                }
-            )
-            config, _ = SourceConfig.objects.get_or_create(
-                label=config_label,
-                defaults={
-                    'source': source,
-                    'transformer_key': transformer_key,
-                }
-            )
-            return config
+        finally:
+            for k, v in config_expectations.items():
+                assert getattr(config, k) == v
+        return config
 
 
 class SourceConfig(models.Model):

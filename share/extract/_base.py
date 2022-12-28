@@ -9,5 +9,5 @@ class BaseRdfExtractor(abc.ABC):
         self.source_config = source_config
 
     @abc.abstractmethod
-    def extract_rdf(self, input_str: str) -> typing.Optional[rdflib.Graph]:
+    def extract_resource_description(self, input_document: str, focus_uri: str) -> typing.Optional[rdflib.Graph]:
         raise NotImplementedError

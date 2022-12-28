@@ -6,7 +6,7 @@ def get_rdf_extractor(contenttype, source_config):
     if source_config.transformer_key:
         return LegacySharev2Extractor(source_config)
     if contenttype == 'text/turtle':
-        return SimpleRdfParseExtractor(source_config, rdf_parser='turtle')
+        return SimpleRdfParseExtractor(source_config, rdf_format='turtle')
     if contenttype == 'application/ld+json':
-        return SimpleRdfParseExtractor(source_config, rdf_parser='json-ld')
+        return SimpleRdfParseExtractor(source_config, rdf_format='json-ld')
     raise NotImplementedError(f'no rdf extractor for content-type: {contenttype}')

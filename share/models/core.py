@@ -20,7 +20,7 @@ from osf_oauth2_adapter.apps import OsfOauth2AdapterConfig
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
 from share.util import BaseJSONAPIMeta, rdfutil
-from share.util.graph import MutableGraph
+from share.util.sharev2_to_rdf import sharev2_to_rdf
 
 
 logger = logging.getLogger(__name__)
@@ -195,33 +195,34 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    serialized_rdf = models.BinaryField(null=True)  # alternate/replacement for `data` field
+    resource_identifier = ShareURLField(blank=True, null=True)
+    serialized_resource_description = models.BinaryField(null=True)  # alternate/replacement for `data` field
     _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse and .serialize
 
     def convert_to_rdf(self):
         if self.data is None:
             return None
-        rdfgraph = rdfutil.Sharev2ToRdf(
-            MutableGraph.from_jsonld(self.data)
-        ).rdfgraph
-        self.set_rdfgraph(rdfgraph)
+        (focus_uri, rdfgraph) = sharev2_to_rdf(self.data)
+        self.resource_identifier = focus_uri
+        self.set_resource_description(rdfgraph)
         if self.id:
             self.save()
         return rdfgraph
 
-    def get_rdfgraph(self, convert=False):
-        if self.serialized_rdf is None:
+    def get_resource_description(self, convert=False):
+        if (self.serialized_resource_description is None) or (self.resource_identifier is None):
             if convert:
                 return self.convert_to_rdf()
             else:
                 return None
-        return rdfutil.contextualized_graph().parse(
-            format=self._RDF_FORMAT,
-            data=self.serialized_rdf,
+        return (
+            rdfutil.contextualized_graph()
+            .parse(format=self._RDF_FORMAT, data=self.serialized_resource_description)
         )
 
-    def set_rdfgraph(self, rdfgraph):
-        self.serialized_rdf = rdfgraph.serialize(format=self._RDF_FORMAT)
+    def set_resource_description(self, rdfgraph):
+        assert self.serialized_resource_description is None
+        self.serialized_resource_description = rdfgraph.serialize(format=self._RDF_FORMAT)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

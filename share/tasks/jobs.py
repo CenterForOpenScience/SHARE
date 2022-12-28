@@ -315,13 +315,13 @@ class IngestJobConsumer(JobConsumer):
     @transaction.atomic
     def _extract(self, raw, job):
         extractor = get_rdf_extractor(raw.contenttype, job.suid.source_config)
-        rdfgraph = extractor.extract_rdf(raw.datum)
+        rdf_resource = extractor.extract_resource_description(raw.datum)
         norm_datum = NormalizedData(
             source=job.suid.source_config.source.user,
             raw=raw,
         )
-        if rdfgraph:
-            norm_datum.set_rdfgraph(rdfgraph)
+        if rdf_resource:
+            norm_datum.set_rdf_resource(rdf_resource)
         else:
             self._handle_no_output(raw)
         norm_datum.save()
@@ -330,29 +330,7 @@ class IngestJobConsumer(JobConsumer):
         return norm_datum
 
     def _update_focal_pids(self, suid, rdfgraph):
-        pids = set()
-        try:
-            pid_from_suid = rdfutil.normalize_pid_uri(suid.identifier)
-        except exceptions.BadPid:
-            pass
-        else:
-            pids.add(pid_from_suid)
-        if pid_from_suid and rdfgraph:
-            pid_synonyms = rdfgraph.objects(
-                subject=rdflib.URIRef(pid_from_suid),
-                predicate=rdflib.OWL.sameAs,
-            )
-            for pid_synonym in pid_synonyms:
-                try:
-                    pids.add(rdfutil.normalize_pid_uri(pid_synonym))
-                except exceptions.BadPid:
-                    pass
-
-        known_pids = [
-            KnownPid.objects.get_or_create(uri=pid_uri)
-            for pid_uri in pids
-        ]
-        suid.focal_pid_set.set(known_pids)
+        raise NotImplementedError
 
     def _handle_no_output(self, raw):
         if not raw.normalizeddata_set.exists():

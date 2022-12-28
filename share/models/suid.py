@@ -4,7 +4,8 @@ import datetime
 from django.db import models
 from django.db.models.functions import Coalesce
 
-from share.util import BaseJSONAPIMeta
+from share import exceptions
+from share.util import BaseJSONAPIMeta, rdfutil
 
 
 __all__ = ('SourceUniqueIdentifier', )
@@ -50,6 +51,19 @@ class SourceUniqueIdentifier(models.Model):
             .values_list('date_created', flat=True)
             .first()
         )
+
+    def as_puri(self):
+        """if this suid is known to correspond to a persistent uri, return that uri (else None)
+        """
+        source = self.source_config.source
+        suid_is_osfio_guid = (
+            source.canonical
+            and source.user.is_trusted
+            and source.home_page.startswith(rdfutil.OSFIO)
+        )
+        if suid_is_osfio_guid:
+            return rdfutil.OSFIO[self.identifier]
+        return None
 
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)

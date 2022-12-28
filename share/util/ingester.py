@@ -50,15 +50,12 @@ class Ingester:
         return self
 
     def as_user(self, user, transformer_key=None):
-        """Ingest as the given user, with the given transformer
+        """Ingest as the given user (with the given transformer, if pre-rdf)
 
         Create a source config for the given user/transformer, or get a previously created one.
         """
         assert not self._config
-        if transformer_key is None:
-            self._config = SourceConfig.objects.get_or_create_rdfpush_config(user)
-        else:
-            self._config = SourceConfig.objects.get_or_create_push_config(user, transformer_key)
+        self._config = SourceConfig.objects.get_or_create_push_config(user, transformer_key)
         return self
 
     def ingest(self, **kwargs):

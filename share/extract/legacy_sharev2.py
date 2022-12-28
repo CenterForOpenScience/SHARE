@@ -1,21 +1,19 @@
 from share.legacy_normalize.regulate import Regulator
-from share.util import rdfutil
+from share.util.sharev2_to_rdf import sharev2_to_rdf
 from ._base import BaseRdfExtractor
 
 
 class LegacySharev2Extractor(BaseRdfExtractor):
-    last_mgraph = None
-
-    def extract_rdf(self, input_str):
+    def extract_resource_description(self, input_document, focus_uri):
         transformer = self.source_config.get_transformer()
-        mgraph = transformer.transform(input_str)
-        if not mgraph:
+        sharev2graph = transformer.transform(input_document)
+        if not sharev2graph:
             return None
-        Regulator(source_config=self.source_config).regulate(mgraph)
-        if not mgraph:
+        Regulator(source_config=self.source_config).regulate(sharev2graph)
+        if not sharev2graph:
             return None
-        self.last_mgraph = mgraph
-        central_node = mgraph.get_central_node(guess=True)
+        central_node = sharev2graph.get_central_node(guess=True)
         if central_node is None or central_node['is_deleted']:
             return None
-        return rdfutil.Sharev2ToRdf(mgraph).rdfgraph
+        (_, rdfgraph) = sharev2_to_rdf(sharev2graph, focus_uri)
+        return rdfgraph
