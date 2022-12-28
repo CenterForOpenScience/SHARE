@@ -18,7 +18,8 @@ class RdfPushView(views.APIView):
                 rdfutil.normalize_pid_url(pid),
                 contenttype=request.content_type,
             ).as_user(request.user)
-            ingester.ingest_async()
+            # ingester.ingest_async()
+            ingester.ingest()
         except exceptions.IngestError as e:
             return HttpResponse(str(e), status=400)
         else:

@@ -14,10 +14,11 @@ from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 from model_utils import Choices
 
-from share.models.fields import EncryptedJSONField
+from share import exceptions
+from share.models.fields import EncryptedJSONField, ShareURLField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.suid import SourceUniqueIdentifier
-from share.util import chunked, placeholders, BaseJSONAPIMeta
+from share.util import chunked, placeholders, rdfutil, BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
 
@@ -227,6 +228,15 @@ class SourceConfig(models.Model):
     __str__ = __repr__
 
 
+def pid_or_none(maybe_uri):
+    if not maybe_uri:
+        return None
+    try:
+        return rdfutil.normalize_pid_uri(maybe_uri)
+    except exceptions.BadPid:
+        return None
+
+
 class RawDatumManager(FuzzyCountManager):
 
     def link_to_job(self, job, datum_ids):
@@ -321,7 +331,7 @@ class RawDatumManager(FuzzyCountManager):
                 yield from RawDatum.objects.raw(
                     '''
                         INSERT INTO "{table}"
-                            ("{suid}", "{hash}", "{datum}", "{datestamp}", "{contenttype}", "{date_modified}", "{date_created}")
+                            ("{suid}", "{hash}", "{datum}", "{contenttype}", "{focus_pid}", "{datestamp}", "{date_modified}", "{date_created}")
                         VALUES
                             {values}
                         ON CONFLICT
@@ -329,19 +339,20 @@ class RawDatumManager(FuzzyCountManager):
                         DO UPDATE SET
                             "{datestamp}" = EXCLUDED."{datestamp}",
                             "{date_modified}" = EXCLUDED."{date_modified}"
-                        RETURNING id, "{suid}", "{hash}", "{datestamp}", "{contenttype}", "{date_modified}", "{date_created}"
+                        RETURNING id, "{suid}", "{hash}", "{contenttype}", "{focus_pid}", "{datestamp}", "{date_modified}", "{date_created}"
                     '''.format(
                         table=RawDatum._meta.db_table,
                         suid=RawDatum._meta.get_field('suid').column,
                         hash=RawDatum._meta.get_field('sha256').column,
                         datum=RawDatum._meta.get_field('datum').column,
-                        datestamp=RawDatum._meta.get_field('datestamp').column,
                         contenttype=RawDatum._meta.get_field('contenttype').column,
+                        focus_pid=RawDatum._meta.get_field('focus_pid').column,
+                        datestamp=RawDatum._meta.get_field('datestamp').column,
                         date_modified=RawDatum._meta.get_field('date_modified').column,
                         date_created=RawDatum._meta.get_field('date_created').column,
                         values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     ), [
-                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.datestamp or now, fr.contenttype, now, now)
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.contenttype, pid_or_none(fr.identifier), fr.datestamp or now, now, now)
                         for fr in new
                     ]
                 )
@@ -372,9 +383,9 @@ class RawDatumJob(models.Model):
 
 
 class RawDatum(models.Model):
-
     datum = models.TextField()
     contenttype = models.TextField(null=True, blank=True)
+    focus_pid = ShareURLField(null=True, blank=True)
 
     suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 

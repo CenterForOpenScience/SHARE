@@ -4,9 +4,7 @@ import random
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.utils import timezone
-import rdflib
 
-from share import exceptions
 from share.extract import get_rdf_extractor
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import (
@@ -15,13 +13,12 @@ from share.models import (
     IngestJob,
     NormalizedData,
     RawDatum,
-    KnownPid,
 )
 from share.models.ingest import RawDatumJob
 from share.legacy_normalize.regulate import Regulator
 from share.search import SearchIndexer
 from share.search.messages import MessageType
-from share.util import chunked, rdfutil
+from share.util import chunked
 
 
 logger = logging.getLogger(__name__)
@@ -292,45 +289,45 @@ class IngestJobConsumer(JobConsumer):
 
     def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
                      pls_format_metadata=True, metadata_formats=None):
-        datum = None
-
         most_recent_raw = job.suid.most_recent_raw_datum()
 
-        # Check whether we've already done transform/regulate
+        normed_datum = None
         if not superfluous:
-            datum = job.ingested_normalized_data.filter(raw=most_recent_raw).order_by('-created_at').first()
+            # check whether it's already been ingested
+            normed_datum = (
+                job.ingested_normalized_data
+                .filter(raw=most_recent_raw)
+                .order_by('-created_at')
+                .first()
+            )
 
-        if superfluous or datum is None:
-            self._extract(most_recent_raw, job)
+        if normed_datum is None:
+            normed_datum = self._extract(most_recent_raw)
+            job.ingested_normalized_data.add(normed_datum)
 
         if pls_format_metadata:
             FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
                 record_formats=metadata_formats,
-                normalized_datum=datum,
+                normalized_datum=normed_datum,
             )
         if index:
             self._queue_for_indexing(job.suid, urgent)
 
-    @transaction.atomic
-    def _extract(self, raw, job):
-        extractor = get_rdf_extractor(raw.contenttype, job.suid.source_config)
-        rdf_resource = extractor.extract_resource_description(raw.datum)
-        norm_datum = NormalizedData(
-            source=job.suid.source_config.source.user,
+    def _extract(self, raw):
+        extractor = get_rdf_extractor(raw.contenttype, raw.suid.source_config)
+        rdfgraph = extractor.extract_resource_description(raw.datum, raw.focus_pid)
+        normed_datum = NormalizedData(
+            source=raw.suid.source_config.source.user,
             raw=raw,
         )
-        if rdf_resource:
-            norm_datum.set_rdf_resource(rdf_resource)
+        if rdfgraph:
+            normed_datum.resource_identifier = raw.focus_pid
+            normed_datum.set_resource_description(rdfgraph)
         else:
             self._handle_no_output(raw)
-        norm_datum.save()
-        job.ingested_normalized_data.add(norm_datum)
-        self._update_focal_pids(raw.suid, rdfgraph)
-        return norm_datum
-
-    def _update_focal_pids(self, suid, rdfgraph):
-        raise NotImplementedError
+        normed_datum.save()
+        return normed_datum
 
     def _handle_no_output(self, raw):
         if not raw.normalizeddata_set.exists():

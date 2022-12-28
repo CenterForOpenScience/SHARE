@@ -70,12 +70,10 @@ add MessageType.DELETE_SUID, get rid of the "format as deleted" thing
 2022-11-21
 
 TODO
-- KnownPid data migration
-- fill focal_pid_set on ingest
-- focal_pid_set backfill task
+- add RawDatum.contenttype (nullable text), RawDatum.focus_pid (nullable url)
 - browse-pid interlink
 - system-load vocabulary pids (rdfs/owl)
-- focal-pid authorization by source domain
+- focal-pid authorization by source domain?
 - pid-keyword search index
 - recognize Source.home_page as pid for source info
 - rdf-based oai_dc formatter
@@ -83,4 +81,3 @@ TODO
 
 DONE
 - browse-pid load turtle
-- KnownPid migration

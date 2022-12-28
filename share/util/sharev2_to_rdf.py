@@ -14,13 +14,14 @@ def sharev2_to_rdf(sharev2graph, focus_uri=None):
 class Sharev2ToRdfConverter:
     def __init__(self, sharev2graph, focus_uri=None):
         self.sharev2graph = sharev2graph
-        if focus_uri is None:
-            self.focus_uri = None
-        else:
-            self.focus_uri = rdfutil.normalize_pid_uri(focus_uri)
+        self.rdfgraph = None
+        self.focus_uri = (
+            rdfutil.normalize_pid_uri(focus_uri)
+            if focus_uri is not None
+            else None
+        )
         self._sharenodeid_to_rdfid = {}
         self._visited_sharenode_ids = set()
-        self.rdfgraph = None
         self._fill_rdfgraph()
 
     def _fill_rdfgraph(self):

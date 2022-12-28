@@ -1,8 +1,9 @@
+import itertools
+
 import rdflib
 import rdflib.compare
 
 from share import exceptions
-from share.util.graph import MutableGraph
 
 
 DCT = rdflib.DCTERMS
@@ -83,3 +84,23 @@ def graph_equals(actual_rdf_graph, expected_triples):
         actual_rdf_graph,
         expected_rdf_graph,
     )
+
+
+def connected_subgraph_triples(from_rdfgraph, focus, _already_focused=None):
+    if _already_focused is None:
+        _already_focused = set()
+    elif focus in _already_focused:
+        return
+    _already_focused.add(focus)
+    next_foci = set()
+    for (subj, pred, obj) in from_rdfgraph.triples((focus, None, None)):
+        yield (subj, pred, obj)
+        if pred not in _already_focused:
+            next_foci.add(pred)
+        if obj not in _already_focused:
+            next_foci.add(obj)
+    for subj in from_rdfgraph.subjects(object=focus, unique=True):
+        if subj not in _already_focused:
+            next_foci.add(subj)
+    for next_focus in next_foci:
+        yield from connected_subgraph_triples(from_rdfgraph, next_focus, _already_focused)
