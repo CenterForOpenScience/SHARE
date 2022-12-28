@@ -9,11 +9,11 @@ import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import share.models.core
 import share.models.fields
 import share.models.indexes
 import share.models.ingest
 import share.models.jobs
+import share.models.share_user
 import share.models.validators
 
 
@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'Share user',
             },
             managers=[
-                ('objects', share.models.core.ShareUserManager()),
+                ('objects', share.models.share_user.ShareUserManager()),
             ],
         ),
         migrations.CreateModel(

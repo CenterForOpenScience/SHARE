@@ -385,7 +385,7 @@ class RawDatumJob(models.Model):
 class RawDatum(models.Model):
     datum = models.TextField()
     contenttype = models.TextField(null=True, blank=True)
-    focus_pid = ShareURLField(null=True, blank=True)
+    asserted_focus_pid = ShareURLField(null=True, blank=True)
 
     suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 

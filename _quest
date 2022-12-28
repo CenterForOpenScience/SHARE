@@ -70,7 +70,6 @@ add MessageType.DELETE_SUID, get rid of the "format as deleted" thing
 2022-11-21
 
 TODO
-- add RawDatum.contenttype (nullable text), RawDatum.focus_pid (nullable url)
 - browse-pid interlink
 - system-load vocabulary pids (rdfs/owl)
 - focal-pid authorization by source domain?
@@ -78,6 +77,15 @@ TODO
 - recognize Source.home_page as pid for source info
 - rdf-based oai_dc formatter
 - rdf-based sharev2_elastic formatter
+- avoid duplicate v2_push/rdfpush (different sourceconfig means different suid)
+- 'push' permissions
 
 DONE
-- browse-pid load turtle
+- add RawDatum.contenttype (nullable text), RawDatum.focus_uri (nullable url)
+- rdf-based NormalizedData
+  - add NormalizedData.resource_identifier
+  - add NormalizedData.serialized_resource_description
+  - conversion from sharev2 MutableGraph to rdflib.Graph
+- rdf 'push' endpoint
+- add 'turtle' metadata formatter
+- basic 'browse' endpoint

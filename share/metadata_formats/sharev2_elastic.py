@@ -51,17 +51,12 @@ def strip_empty_values(thing):
 
 class ShareV2ElasticFormatter(MetadataFormatter):
     def format(self, normalized_datum):
-        mgraph = MutableGraph.from_jsonld(normalized_datum.data)
-        central_work = mgraph.get_central_node(guess=True)
+        rdfgraph = normalized_datum.get_rdfgraph(convert=True)
 
-        if not central_work or central_work.concrete_type != 'abstractcreativework':
+        if not rdfgraph:
             return None
 
         suid = normalized_datum.raw.suid
-
-        if central_work['is_deleted']:
-            return None
-
         source_name = suid.source_config.source.long_title
         return json.dumps(strip_empty_values({
             'id': IDObfuscator.encode(suid),

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from share.models.core import NormalizedData
+from share.models import NormalizedData
 
 
 class MetadataFormatter(ABC):

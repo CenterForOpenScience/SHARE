@@ -89,6 +89,9 @@ class Sharev2ToRdfConverter:
             return  # avoid infinite loops
         self._visited_sharenode_ids.add(work_sharenode.id)
 
+        if work_sharenode['is_deleted']:
+            return
+
         work_id = self._get_rdf_id(work_sharenode)
 
         self.rdfgraph.add((work_id, rdflib.RDF.type, rdfutil.SHAREV2[work_sharenode.type]))

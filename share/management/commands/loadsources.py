@@ -10,7 +10,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models.signals import post_save
 
 import share
-from share.models.core import user_post_save
+from share.models.share_user import user_post_save
 
 SOURCES_DIR = 'sources'
 

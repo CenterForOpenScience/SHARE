@@ -323,7 +323,7 @@ class IngestJobConsumer(JobConsumer):
         )
         if rdfgraph:
             normed_datum.resource_identifier = raw.focus_pid
-            normed_datum.set_resource_description(rdfgraph)
+            normed_datum.set_rdfgraph(rdfgraph)
         else:
             self._handle_no_output(raw)
         normed_datum.save()
