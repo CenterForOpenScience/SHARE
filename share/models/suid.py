@@ -4,6 +4,7 @@ import datetime
 from django.db import models
 from django.db.models.functions import Coalesce
 
+from share.models.fields import ShareURLField
 from share.util import BaseJSONAPIMeta
 
 
@@ -13,6 +14,7 @@ __all__ = ('SourceUniqueIdentifier', )
 class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
+    described_resource_pid = ShareURLField(null=True, blank=True)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

@@ -10,11 +10,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from share import models
-from share.tasks import ingest
 from share.util import IDObfuscator
 from share.util.graph import MutableGraph
 from share.util.osf import guess_osf_guid
-from share.util.ingester import Ingester
+from share.push import ingest
 
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
@@ -89,36 +88,21 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         serializer = self.get_serializer_class()(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        data = serializer.validated_data['data']
-        suid = serializer.validated_data.get('suid', None)
-        if not suid:
+        datum = serializer.validated_data['data']
+        datum_identifier = serializer.validated_data.get('suid', None)
+        if not datum_identifier:
             # HACK: try for an osf guid -- may still be None tho
-            suid = guess_osf_guid(MutableGraph.from_jsonld(data))
-            if not suid:
+            datum_identifier = guess_osf_guid(MutableGraph.from_jsonld(datum))
+            if not datum_identifier:
                 raise ValidationError("'suid' is a required attribute")
-
-        with transaction.atomic():
-            # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
-            ingester = (
-                Ingester(data, suid, contenttype=request.content_type)
-                .as_user(request.user, 'v2_push')
-                .ingest(pls_format_metadata=False)
-            )
-            ingester.job.reschedule(claim=True)
-
-            nd_id = models.NormalizedData.objects.filter(
-                raw=ingester.raw,
-                ingest_jobs=ingester.job
-            ).order_by('-created_at').values_list('id', flat=True).first()
-
-        async_result = ingest.delay(job_id=ingester.job.id, urgent=True)
-
-        # TODO Use an actual serializer
-        return Response({
-            'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
-            'type': 'NormalizedData',
-            'attributes': {
-                'task': async_result.id,
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
-            }
-        }, status=status.HTTP_202_ACCEPTED)
+        suid = ingest.chew(
+            datum=datum,
+            datum_identifier=datum_identifier,
+            datum_contenttype=request.content_type,
+            user=request.user,
+        )
+        ingest_job = ingest.swallow(suid, urgent=True)
+        ingest_job_uri = request.build_absolute_uri(
+            reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingest_job)]),
+        )
+        return Response({'ingest_job': ingest_job_uri}, status=status.HTTP_202_ACCEPTED)

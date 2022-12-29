@@ -10,16 +10,15 @@ class FormattedMetadataRecordManager(models.Manager):
     def delete_formatted_records(self, suid):
         self.filter(suid=suid).delete()
 
-    def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
-        if normalized_datum is None:
-            from . import NormalizedData
-            normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+    def save_formatted_records(self, suid, record_formats=None, normalized_data=None):
+        if normalized_data is None:
+            raw = suid.most_recent_raw_datum()
+            normalized_data = raw.normalizeddata_set.all()
         if record_formats is None:
             record_formats = Extensions.get_names('share.metadata_formats')
-
         records = []
         for record_format in record_formats:
-            formatted_record = self.get_formatter(record_format).format(normalized_datum)
+            formatted_record = self.get_formatter(record_format).format(normalized_data)
             record = self._save_formatted_record(suid, record_format, formatted_record)
             if record is not None:
                 records.append(record)

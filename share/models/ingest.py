@@ -101,19 +101,8 @@ class Source(models.Model):
 
 
 class SourceConfigManager(NaturalKeyManager):
-    def get_or_create_push_config(self, user, transformer_key=None):
-        if transformer_key is None:
-            # new normal
-            config_label = '{}.rdfpush'.format(user.username)
-            config_expectations = {
-                'rdfpush': True,
-            }
-        else:
-            # old normal
-            config_label = '{}.{}'.format(user.username, transformer_key)
-            config_expectations = {
-                'transformer_key': transformer_key,
-            }
+    def get_or_create_push_config(self, user, transformer_key='v2_push'):
+        config_label = '{}.{}'.format(user.username, transformer_key)
         try:
             config = SourceConfig.objects.get(label=config_label)
         except SourceConfig.DoesNotExist:
@@ -128,13 +117,11 @@ class SourceConfigManager(NaturalKeyManager):
                 label=config_label,
                 defaults={
                     'source': source,
-                    **config_expectations,
+                    'transformer_key': transformer_key,
                 },
             )
             assert config.source_id == source.id
-        finally:
-            for k, v in config_expectations.items():
-                assert getattr(config, k) == v
+        assert config.transformer_key == transformer_key
         return config
 
 
@@ -385,7 +372,6 @@ class RawDatumJob(models.Model):
 class RawDatum(models.Model):
     datum = models.TextField()
     contenttype = models.TextField(null=True, blank=True)
-    asserted_focus_pid = ShareURLField(null=True, blank=True)
 
     suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 

@@ -4,7 +4,7 @@ import rdflib
 from django.conf import settings
 from django.db import migrations
 
-from share.util.ingester import Ingester
+from share.push import ingest
 
 
 def extract_term_descriptions(vocab_rdfgraph, vocab_uri):
@@ -18,8 +18,13 @@ def extract_term_descriptions(vocab_rdfgraph, vocab_uri):
 
 
 def ingest_vocab_term(system_user, term_uri, term_description_rdfgraph):
-    term_description = term_description_rdfgraph.serialize(format='turtle')
-    Ingester(term_description, term_uri, 'text/turtle').as_user(system_user).ingest()
+    suid = ingest.chew(
+        datum=term_description_rdfgraph.serialize(format='turtle'),
+        datum_identifier=term_uri,
+        datum_contenttype='text/turtle',
+        user=system_user,
+    )
+    ingest.digest(suid)
 
 
 def load_dcterms(apps, schema_editor):

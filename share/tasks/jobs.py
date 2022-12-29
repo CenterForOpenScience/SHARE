@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.utils import timezone
 
-from share.extract import get_rdf_extractor
+from share.extract import get_rdf_extractor_class
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import (
     FormattedMetadataRecord,
@@ -290,51 +290,40 @@ class IngestJobConsumer(JobConsumer):
     def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
                      pls_format_metadata=True, metadata_formats=None):
         most_recent_raw = job.suid.most_recent_raw_datum()
-
-        normed_datum = None
+        normalized_datum = None
         if not superfluous:
-            # check whether it's already been ingested
-            normed_datum = (
-                job.ingested_normalized_data
+            normalized_datum = (
+                NormalizedData.objects
                 .filter(raw=most_recent_raw)
                 .order_by('-created_at')
                 .first()
             )
-
-        if normed_datum is None:
-            normed_datum = self._extract(most_recent_raw)
-            job.ingested_normalized_data.add(normed_datum)
-
+        if not normalized_datum:
+            normalized_datum = self._extract(most_recent_raw)
+            job.ingested_normalized_data.add(normalized_datum)
         if pls_format_metadata:
             FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
                 record_formats=metadata_formats,
-                normalized_datum=normed_datum,
+                normalized_datum=normalized_datum,
             )
         if index:
             self._queue_for_indexing(job.suid, urgent)
 
     def _extract(self, raw):
-        extractor = get_rdf_extractor(raw.contenttype, raw.suid.source_config)
-        rdfgraph = extractor.extract_resource_description(raw.datum, raw.focus_pid)
-        normed_datum = NormalizedData(
-            source=raw.suid.source_config.source.user,
-            raw=raw,
-        )
+        extracted_normalized_datum = None
+        extractor = get_rdf_extractor_class(raw.contenttype)(raw.suid.source_config)
+        rdfgraph = extractor.extract_resource_description(raw.datum, resource_identifier)
         if rdfgraph:
-            normed_datum.resource_identifier = raw.focus_pid
-            normed_datum.set_rdfgraph(rdfgraph)
-        else:
-            self._handle_no_output(raw)
-        normed_datum.save()
-        return normed_datum
-
-    def _handle_no_output(self, raw):
-        if not raw.normalizeddata_set.exists():
-            logger.warning('Graph was empty for %s, setting no_output to True', raw)
-            RawDatum.objects.filter(id=raw.id).update(no_output=True)
-        else:
-            logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
+            extracted_normalized_datum = NormalizedData(
+                source=raw.suid.source_config.source.user,
+                raw=raw,
+                resource_identifier=resource_identifier,
+                rdfgraph=rdfgraph,
+            )
+        raw.no_output = bool(rdfgraph)
+        raw.save(update_fields=['no_output'])
+        return extracted_normalized_datum
 
     def _queue_for_indexing(self, suid, urgent):
         indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()

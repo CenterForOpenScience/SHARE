@@ -3,8 +3,8 @@ from django.db import models
 
 from share.models.fields import DateTimeAwareJSONField, ShareURLField
 from share.models.validators import JSONLDValidator
-from share.util import BaseJSONAPIMeta, rdfutil
-from share.util.sharev2_to_rdf import sharev2_to_rdf
+from share.util import BaseJSONAPIMeta, rdfutil, sharev2_to_rdf
+from share.util.graph import MutableGraph
 
 
 __all__ = ('NormalizedData',)
@@ -23,22 +23,26 @@ class NormalizedData(models.Model):
     serialized_rdfgraph = models.BinaryField(null=True)  # alternate/replacement for `data` field
     _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse and .serialize
 
+    def __init__(self, *args, rdfgraph=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if rdfgraph is not None:
+            self.set_rdfgraph(rdfgraph)
+
     def convert_to_rdf(self):
         if self.data is None:
-            return None
-        (focus_uri, rdfgraph) = sharev2_to_rdf(self.data)
-        self.set_rdfgraph(rdfgraph)
-        self.resource_identifier = focus_uri
-        if self.id:
-            self.save()
-        return rdfgraph
+            return
+        sharev2graph = MutableGraph.from_jsonld(self.data)
+        self.resource_identifier = sharev2_to_rdf.guess_pid(
+            sharev2graph.get_central_node(guess=True),
+        )
+        self.set_rdfgraph(
+            sharev2_to_rdf.convert(sharev2graph, self.resource_identifier),
+        )
+        self.save()
 
-    def get_rdfgraph(self, convert=False):
-        if (self.serialized_rdfgraph is None) or (self.resource_identifier is None):
-            if convert:
-                return self.convert_to_rdf()
-            else:
-                return None
+    def get_rdfgraph(self):
+        if self.serialized_rdfgraph is None:
+            self.convert_to_rdf()
         return (
             rdfutil.contextualized_graph()
             .parse(format=self._RDF_FORMAT, data=self.serialized_rdfgraph)

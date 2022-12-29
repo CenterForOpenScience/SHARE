@@ -3,7 +3,7 @@ from rest_framework import views
 
 from share import exceptions
 from share.util import rdfutil
-from share.util.ingester import Ingester
+from share.push import ingest
 
 
 class RdfPushView(views.APIView):
@@ -13,13 +13,14 @@ class RdfPushView(views.APIView):
     def put(self, request, pid):
         # TODO: permissions, validate pid against user source
         try:
-            ingester = Ingester(
-                request.data,
-                rdfutil.normalize_pid_url(pid),
-                contenttype=request.content_type,
-            ).as_user(request.user)
-            # ingester.ingest_async()
-            ingester.ingest()
+            suid = ingest.chew(
+                datum=request.data,
+                datum_identifier=rdfutil.normalize_pid_url(pid),
+                datum_contenttype=request.content_type,
+                user=request.user,
+                urgent=True,
+            )
+            ingest.swallow(suid, urgent=True)
         except exceptions.IngestError as e:
             return HttpResponse(str(e), status=400)
         else:

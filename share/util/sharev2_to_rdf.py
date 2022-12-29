@@ -1,25 +1,33 @@
 import rdflib
 
+from share import exceptions
 from share.util.graph import MutableGraph
 from share.util import rdfutil
 
 
-def sharev2_to_rdf(sharev2graph, focus_uri=None):
+def convert(sharev2graph, focus_uri):
     if not isinstance(sharev2graph, MutableGraph):
         sharev2graph = MutableGraph.from_jsonld(sharev2graph)
     converter = Sharev2ToRdfConverter(sharev2graph, focus_uri)
-    return (converter.focus_uri, converter.rdfgraph)
+    return converter.rdfgraph
+
+
+def guess_pid(sharev2node):
+    node_uris = sorted(filter(None, (
+        identifier['uri']
+        for identifier in (sharev2node['identifiers'] or ())
+    )))
+    for uri in node_uris:
+        if any(uri.startswith(ns) for ns in rdfutil.LOCAL_CONTEXT.values()):
+            return rdfutil.normalize_pid_uri(uri)
+    return None
 
 
 class Sharev2ToRdfConverter:
-    def __init__(self, sharev2graph, focus_uri=None):
+    def __init__(self, sharev2graph, focus_uri):
         self.sharev2graph = sharev2graph
+        self.focus_uri = focus_uri
         self.rdfgraph = None
-        self.focus_uri = (
-            rdfutil.normalize_pid_uri(focus_uri)
-            if focus_uri is not None
-            else None
-        )
         self._sharenodeid_to_rdfid = {}
         self._visited_sharenode_ids = set()
         self._fill_rdfgraph()
@@ -30,14 +38,9 @@ class Sharev2ToRdfConverter:
         self._add_work(self._get_focus_worknode())
 
     def _get_focus_worknode(self):
-        if self.focus_uri:
-            for identifier_sharenode in self.sharev2graph.filter_type('workidentifier'):
-                if rdfutil.pids_equal(self.focus_uri, identifier_sharenode['uri']):
-                    return identifier_sharenode['creative_work']
-        else:
-            central_work = self.sharev2graph.get_central_node(guess=True)
-            self.focus_uri = self._get_rdf_id(central_work)
-            return central_work
+        for identifier_sharenode in self.sharev2graph.filter_type('workidentifier'):
+            if rdfutil.pids_equal(self.focus_uri, identifier_sharenode['uri']):
+                return identifier_sharenode['creative_work']
 
     def _agentwork_relation_predicate(self, agent_relation):
         predicate_map = {
@@ -125,6 +128,10 @@ class Sharev2ToRdfConverter:
         }
         for identifier_uri in sorted(identifier_uris):
             self.rdfgraph.add((work_id, rdfutil.DCT.identifier, rdflib.Literal(identifier_uri)))
+            try:
+                self.rdfgraph.add((work_id, rdflib.OWL.sameAs, rdfutil.normalize_pid_uri(identifier_uri)))
+            except exceptions.BadPid:
+                pass
 
         language = work_sharenode['language']
         if language:
@@ -155,20 +162,10 @@ class Sharev2ToRdfConverter:
         cached_id = self._sharenodeid_to_rdfid.get(sharenode.id)
         if cached_id:
             return cached_id
-        guessed_pid = self._guess_pid(sharenode)
+        guessed_pid = guess_pid(sharenode)
         if guessed_pid:
             self._sharenodeid_to_rdfid[sharenode.id] = guessed_pid
             return guessed_pid
         blank_id = rdflib.term.BNode(sharenode.id)
         self._sharenodeid_to_rdfid[sharenode.id] = blank_id
         return blank_id
-
-    def _guess_pid(self, sharenode):
-        node_irls = sorted(filter(None, (
-            identifier['uri']
-            for identifier in (sharenode['identifiers'] or ())
-        )))
-        for uri in node_irls:
-            if any(uri.startswith(ns) for ns in rdfutil.LOCAL_CONTEXT.values()):
-                return rdfutil.normalize_pid_uri(uri)
-        return None

@@ -13,13 +13,13 @@ class IngestScheduler:
     """
 
     @transaction.atomic
-    def schedule(self, suid, superfluous=False, claim=False):
+    def schedule(self, suid, superfluous=False, urgent=False):
         """Get or create an IngestJob for the given suid.
 
         Params:
             suid: SourceUniqueIdentifier instance to ingest
-            superfluous: If the job already exists and has completed, re-enqueue it.
-            claim: Prevent the regularly scheduled `ingest` task from choosing this job.
+            superfluous: If the suid's latest datum has already been ingested, re-ingest it anyway.
+            urgent: schedule on the 'urgent' queue
         """
         job = suid.ingest_job
         created = False
@@ -32,16 +32,17 @@ class IngestScheduler:
                 transformer_version=suid.source_config.transformer.version,
                 regulator_version=Regulator.VERSION,
                 defaults={
-                    'claimed': claim,
+                    'claimed': True,
                     'suid': suid,
                     'source_config': suid.source_config,
                 },
             )
         if not created:
-            job.claimed = claim
-            if superfluous and job.status not in IngestJob.READY_STATUSES:
+            job.claimed = True
+            if job.status not in IngestJob.READY_STATUSES:
                 job.status = IngestJob.STATUS.created
             job.save(update_fields=('status', 'claimed'))
+        ingest.delay(job_id=job.id, superfluous=superfluous, urgent=urgent)
         return job
 
     def bulk_schedule(self, suid_qs, superfluous=False, claim=False):

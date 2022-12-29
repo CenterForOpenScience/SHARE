@@ -10,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from share.util import IDObfuscator
-from share.util.ingester import Ingester
+from share.push import ingest
 
 from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication
@@ -112,10 +112,15 @@ class V1DataView(views.APIView):
                 doc_id = prelim_data['uris']['canonicalUri']
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
-
-            ingester = Ingester(prelim_data, doc_id).as_user(request.user, 'v1_push').ingest_async(urgent=True)
-
-            return Response({
-                'task_id': ingester.async_task.id,
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
-            }, status=status.HTTP_202_ACCEPTED)
+            suid = ingest.chew(
+                datum=prelim_data,
+                datum_identifier=doc_id,
+                datum_contenttype=request.content_type,
+                user=request.user,
+                transformer_key='v1_push',
+            )
+            ingest_job = ingest.swallow(suid, urgent=True)
+            ingest_job_uri = request.build_absolute_uri(
+                reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingest_job)]),
+            )
+            return Response({'ingest_job': ingest_job_uri}, status=status.HTTP_202_ACCEPTED)
