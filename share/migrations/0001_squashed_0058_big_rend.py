@@ -19,53 +19,6 @@ import share.models.validators
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ('share', '0001_initial_squashed_0020_auto_20170206_2114'),
-        ('share', '0023_auto_20170315_0241'),
-        ('share', '0024_populate_suids'),
-        ('share', '0025_auto_20170315_1544'),
-        ('share', '0026_auto_20170324_1757'),
-        ('share', '0027_harvestlog_datetime_to_date'),
-        ('share', '0028_auto_20170329_1703'),
-        ('share', '0029_source_is_deleted'),
-        ('share', '0030_source_canonical'),
-        ('share', '0031_auto_20170504_1957'),
-        ('share', '0032_auto_20170508_1931'),
-        ('share', '0032_auto_20170508_1753'),
-        ('share', '0033_merge_20170509_1710'),
-        ('share', '0034_auto_20170512_2052'),
-        ('share', '0035_celery_upgrade'),
-        ('share', '0036_rawdatum_datestamp'),
-        ('share', '0037_pglock'),
-        ('share', '0038_auto_20170606_1857'),
-        ('share', '0038_trust_system_user'),
-        ('share', '0039_subject_taxonomy_a'),
-        ('share', '0040_subject_provenance'),
-        ('share', '0041_subject_taxonomy_b'),
-        ('share', '0039_auto_20170614_1825'),
-        ('share', '0042_merge_20170620_1330'),
-        ('share', '0039_sourcestat'),
-        ('share', '0043_merge_20170626_1516'),
-        ('share', '0040_rawdatum_no_output'),
-        ('share', '0041_no_change_index'),
-        ('share', '0044_merge_20170628_1811'),
-        ('share', '0045_subject_seq'),
-        ('share', '0046_auto_20170714_1547'),
-        ('share', '0047_auto_20171019_2018'),
-        ('share', '0048_auto_20171113_1852'),
-        ('share', '0049_jobs'),
-        ('share', '0050_harvest_job_index'),
-        ('share', '0051_auto_20180319_2145'),
-        ('share', '0051_auto_20180301_2032'),
-        ('share', '0052_merge_20180416_1412'),
-        ('share', '0053_auto_20180419_2033'),
-        ('share', '0054_formatted_metadata_record'),
-        ('share', '0055_job_status_created'),
-        ('share', '0056_auto_20210217_1923'),
-        ('share', '0057_unconcurrent_index'),
-        ('share', '0058_big_rend'),
-    ]
-
     initial = True
 
     dependencies = [
