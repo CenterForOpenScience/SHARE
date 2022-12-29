@@ -12,10 +12,8 @@ from share.models import (
     HarvestJob,
     IngestJob,
     NormalizedData,
-    RawDatum,
 )
 from share.models.ingest import RawDatumJob
-from share.legacy_normalize.regulate import Regulator
 from share.search import SearchIndexer
 from share.search.messages import MessageType
 from share.util import chunked
@@ -95,8 +93,8 @@ class JobConsumer:
             # Allows for better analytics of currently running tasks
             self.task.update_state(meta={
                 'job_id': job.id,
-                'source': job.source_config.source.long_title,
-                'source_config': job.source_config.label,
+                'source': job.suid.source_config.source.long_title,
+                'source_config': job.suid.source_config.label,
             })
 
             job.task_id = self.task.request.id
@@ -179,6 +177,7 @@ class HarvestJobConsumer(JobConsumer):
 
     def _current_versions(self, job):
         return {
+            'share_version': settings.VERSION,
             'source_config_version': job.source_config.version,
             'harvester_version': job.source_config.harvester.version,
         }
@@ -234,15 +233,10 @@ class HarvestJobConsumer(JobConsumer):
         # HACK to allow scheduling ingest tasks without cyclical imports
         from share.tasks import ingest
 
-        job_kwargs = {
-            'source_config': job.source_config,
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
-        created_jobs = IngestJob.objects.bulk_get_or_create(
-            [IngestJob(raw_id=datum.id, suid_id=datum.suid_id, **job_kwargs) for datum in datums]
-        )
+        created_jobs = IngestJob.objects.bulk_get_or_create([
+            IngestJob(raw_id=datum.id, suid_id=datum.suid_id, source_config=job.source_config)
+            for datum in datums
+        ])
         if not settings.INGEST_ONLY_CANONICAL_DEFAULT or job.source_config.source.canonical:
             for job in created_jobs:
                 ingest.delay(job_id=job.id)
@@ -274,9 +268,7 @@ class IngestJobConsumer(JobConsumer):
 
     def _current_versions(self, job):
         return {
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
+            'share_version': settings.VERSION,
         }
 
     def _filter_ready(self, qs):
@@ -300,7 +292,8 @@ class IngestJobConsumer(JobConsumer):
             )
         if not normalized_datum:
             normalized_datum = self._extract(most_recent_raw)
-            job.ingested_normalized_data.add(normalized_datum)
+            if normalized_datum:
+                job.ingested_normalized_data.add(normalized_datum)
         if pls_format_metadata:
             FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
@@ -313,14 +306,14 @@ class IngestJobConsumer(JobConsumer):
     def _extract(self, raw):
         extracted_normalized_datum = None
         extractor = get_rdf_extractor_class(raw.contenttype)(raw.suid.source_config)
-        rdfgraph = extractor.extract_resource_description(raw.datum, described_resource_uri)
+        rdfgraph = extractor.extract_resource_description(raw.datum, raw.suid.described_resource_pid)
         if rdfgraph:
             extracted_normalized_datum = NormalizedData(
                 source=raw.suid.source_config.source.user,
                 raw=raw,
-                described_resource_uri=described_resource_uri,
                 rdfgraph=rdfgraph,
             )
+            extracted_normalized_datum.save()
         raw.no_output = bool(rdfgraph)
         raw.save(update_fields=['no_output'])
         return extracted_normalized_datum

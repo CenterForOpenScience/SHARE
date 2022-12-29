@@ -18,9 +18,10 @@ def extract_term_descriptions(vocab_rdfgraph, vocab_uri):
 
 
 def ingest_vocab_term(system_user, term_uri, term_description_rdfgraph):
+    print(f'ingesting {term_uri}')
     suid = ingest.chew(
         datum=term_description_rdfgraph.serialize(format='turtle'),
-        datum_identifier=term_uri,
+        datum_identifier=str(term_uri),
         datum_contenttype='text/turtle',
         user=system_user,
     )
@@ -32,7 +33,7 @@ def load_dcterms(apps, schema_editor):
     system_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
     with open('vocab/dublin_core_terms.ttl') as dcterms_file:
         dcterms_rdfgraph = rdflib.Graph().parse(file=dcterms_file)
-    term_gen = extract_term_descriptions(dcterms_rdfgraph, 'http://purl.org/dc/terms/')
+    term_gen = extract_term_descriptions(dcterms_rdfgraph, rdflib.URIRef(rdflib.DCTERMS))
     for term_uri, term_description in term_gen:
         ingest_vocab_term(system_user, term_uri, term_description)
 
@@ -44,7 +45,7 @@ def fake_undo(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0067_rdf'),
+        ('share', '0069_tidy_ingestjob'),
     ]
 
     operations = [

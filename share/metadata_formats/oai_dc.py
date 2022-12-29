@@ -15,6 +15,9 @@ class OaiDcFormatter(MetadataFormatter):
     """
 
     def format(self, normalized_datum):
+        if not normalized_datum.data:
+            return None  # TODO
+
         mgraph = MutableGraph.from_jsonld(normalized_datum.data)
         central_work = mgraph.get_central_node(guess=True)
 

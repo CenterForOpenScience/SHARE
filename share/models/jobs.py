@@ -394,20 +394,14 @@ class HarvestJob(AbstractBaseJob):
 
 
 class IngestJob(AbstractBaseJob):
-    raw = models.ForeignKey('RawDatum', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-    suid = models.ForeignKey('SourceUniqueIdentifier', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-
-    source_config_version = models.PositiveIntegerField()
-    transformer_version = models.PositiveIntegerField()
-    regulator_version = models.PositiveIntegerField()
+    suid = models.OneToOneField('SourceUniqueIdentifier', editable=False, related_name='ingest_job', on_delete=models.CASCADE)
 
     ingested_normalized_data = models.ManyToManyField('NormalizedData', related_name='ingest_jobs')
 
     retries = models.IntegerField(null=True)
 
     class Meta:
-        unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
+        pass
 
     def reschedule(self, claim=False):
         result = super().reschedule(claim)
@@ -422,7 +416,7 @@ class IngestJob(AbstractBaseJob):
             type=type(self).__name__,
             id=self.id,
             status=self.STATUS[self.status],
-            source=self.source_config.label,
+            source=self.suid.source_config.label,
             suid=self.suid.identifier,
         )
 

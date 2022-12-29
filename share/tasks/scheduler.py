@@ -13,36 +13,27 @@ class IngestScheduler:
     """
 
     @transaction.atomic
-    def schedule(self, suid, superfluous=False, urgent=False):
+    def schedule(self, suid, superfluous=False, claim=False):
         """Get or create an IngestJob for the given suid.
 
         Params:
             suid: SourceUniqueIdentifier instance to ingest
             superfluous: If the suid's latest datum has already been ingested, re-ingest it anyway.
-            urgent: schedule on the 'urgent' queue
+            claim:
         """
-        job = suid.ingest_job
-        created = False
-        if job is None:
-            # TODO clean this up once ingest jobs and suids are one-to-one
-            raw_id = self._last_raw_qs(suid).first()
-            job, created = IngestJob.objects.get_or_create(
-                raw_id=raw_id,
-                source_config_version=suid.source_config.version,
-                transformer_version=suid.source_config.transformer.version,
-                regulator_version=Regulator.VERSION,
-                defaults={
-                    'claimed': True,
-                    'suid': suid,
-                    'source_config': suid.source_config,
-                },
-            )
-        if not created:
+        job, created = IngestJob.objects.get_or_create(
+            suid=suid,
+            defaults={
+                'claimed': True,
+            },
+        )
+        if not created and not job.claimed:
             job.claimed = True
             if job.status not in IngestJob.READY_STATUSES:
                 job.status = IngestJob.STATUS.created
             job.save(update_fields=('status', 'claimed'))
-        ingest.delay(job_id=job.id, superfluous=superfluous, urgent=urgent)
+        if not claim:
+            ingest.delay(job_id=job.id, superfluous=superfluous, urgent=True)
         return job
 
     def bulk_schedule(self, suid_qs, superfluous=False, claim=False):

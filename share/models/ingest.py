@@ -12,13 +12,12 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
-from model_utils import Choices
 
 from share import exceptions
-from share.models.fields import EncryptedJSONField, ShareURLField
+from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.suid import SourceUniqueIdentifier
-from share.util import chunked, placeholders, rdfutil, BaseJSONAPIMeta
+from share.util import chunked, placeholders, rdfutil, BaseJSONAPIMeta, osf
 from share.util.extensions import Extensions
 
 
@@ -107,7 +106,7 @@ class SourceConfigManager(NaturalKeyManager):
             config = SourceConfig.objects.get(label=config_label)
         except SourceConfig.DoesNotExist:
             source, _ = Source.objects.get_or_create(
-                user=user,
+                user_id=user.id,
                 defaults={
                     'name': user.username,
                     'long_title': user.username,
@@ -182,6 +181,19 @@ class SourceConfig(models.Model):
         transformer_class = Extensions.get('share.transformers', self.transformer_key)
         return transformer_class(self, **kwargs)
 
+    def maybe_resource_uri(self, datum_identifier):
+        try:
+            return rdfutil.normalize_pid_uri(datum_identifier)
+        except exceptions.BadPid:
+            pass
+        # osf-specific hacks -- TODO: better
+        looks_like_osf_source = (
+            self.transformer_key == 'v2_push'
+            and self.source.canonical
+        )
+        if looks_like_osf_source:
+            return osf.maybe_osfguid_uri(datum_identifier)
+
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):
         from share.harvest.exceptions import HarvesterConcurrencyError
@@ -209,15 +221,6 @@ class SourceConfig(models.Model):
         return '<{}({}, {})>'.format(self.__class__.__name__, self.pk, self.label)
 
     __str__ = __repr__
-
-
-def pid_or_none(maybe_uri):
-    if not maybe_uri:
-        return None
-    try:
-        return rdfutil.normalize_pid_uri(maybe_uri)
-    except exceptions.BadPid:
-        return None
 
 
 class RawDatumManager(FuzzyCountManager):
@@ -290,7 +293,7 @@ class RawDatumManager(FuzzyCountManager):
             if new_identifiers:
                 suids = SourceUniqueIdentifier.objects.raw('''
                     INSERT INTO "{table}"
-                        ("{identifier}", "{source_config}")
+                        ("{identifier}", "{source_config}", "{described_resource_pid}")
                     VALUES
                         {values}
                     ON CONFLICT
@@ -302,9 +305,10 @@ class RawDatumManager(FuzzyCountManager):
                     table=SourceUniqueIdentifier._meta.db_table,
                     identifier=SourceUniqueIdentifier._meta.get_field('identifier').column,
                     source_config=SourceUniqueIdentifier._meta.get_field('source_config').column,
+                    described_resource_pid=SourceUniqueIdentifier._meta.get_field('described_resource_pid').column,
                     values=placeholders(len(new_identifiers)),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     fields=', '.join('"{}"'.format(field.column) for field in SourceUniqueIdentifier._meta.concrete_fields),
-                ), [(identifier, source_config.id) for identifier in new_identifiers])
+                ), [(identifier, source_config.id, source_config.maybe_resource_uri(identifier)) for identifier in new_identifiers])
 
                 for suid in suids:
                     identifiers[suid.identifier] = suid.pk
@@ -314,7 +318,7 @@ class RawDatumManager(FuzzyCountManager):
                 yield from RawDatum.objects.raw(
                     '''
                         INSERT INTO "{table}"
-                            ("{suid}", "{hash}", "{datum}", "{contenttype}", "{focus_pid}", "{datestamp}", "{date_modified}", "{date_created}")
+                            ("{suid}", "{hash}", "{datum}", "{contenttype}", "{datestamp}", "{date_modified}", "{date_created}")
                         VALUES
                             {values}
                         ON CONFLICT
@@ -322,20 +326,19 @@ class RawDatumManager(FuzzyCountManager):
                         DO UPDATE SET
                             "{datestamp}" = EXCLUDED."{datestamp}",
                             "{date_modified}" = EXCLUDED."{date_modified}"
-                        RETURNING id, "{suid}", "{hash}", "{contenttype}", "{focus_pid}", "{datestamp}", "{date_modified}", "{date_created}"
+                        RETURNING id, "{suid}", "{hash}", "{contenttype}", "{datestamp}", "{date_modified}", "{date_created}"
                     '''.format(
                         table=RawDatum._meta.db_table,
                         suid=RawDatum._meta.get_field('suid').column,
                         hash=RawDatum._meta.get_field('sha256').column,
                         datum=RawDatum._meta.get_field('datum').column,
                         contenttype=RawDatum._meta.get_field('contenttype').column,
-                        focus_pid=RawDatum._meta.get_field('focus_pid').column,
                         datestamp=RawDatum._meta.get_field('datestamp').column,
                         date_modified=RawDatum._meta.get_field('date_modified').column,
                         date_created=RawDatum._meta.get_field('date_created').column,
                         values=', '.join('%s' for _ in range(len(new))),  # Nasty hack. Fix when psycopg2 2.7 is released with execute_values
                     ), [
-                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.contenttype, pid_or_none(fr.identifier), fr.datestamp or now, now, now)
+                        (identifiers[fr.identifier], fr.sha256, fr.datum, fr.contenttype, fr.datestamp or now, now, now)
                         for fr in new
                     ]
                 )

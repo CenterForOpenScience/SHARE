@@ -10,8 +10,9 @@ class SimpleRdfParseExtractor(BaseRdfExtractor):
             rdfutil.contextualized_graph()
             .parse(format=self.RDF_FORMAT, data=input_document)
         )
+        resource_pid_uri = rdfutil.normalize_pid_uri(resource_uri)
         connected_subgraph = rdfutil.contextualized_graph()
-        for triple in rdfutil.connected_subgraph_triples(full_rdfgraph, resource_uri):
+        for triple in rdfutil.connected_subgraph_triples(full_rdfgraph, resource_pid_uri):
             connected_subgraph.add(triple)
         return connected_subgraph
 

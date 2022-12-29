@@ -89,13 +89,14 @@ def _some_normd_records():
         db.NormalizedData.objects
         .filter(raw__suid__source_config__label='io.osf.registrations')
         .annotate(source_name=F('raw__suid__source_config__source__name'))
+        .annotate(described_resource_pid=F('raw__suid__described_resource_pid'))
     )
 
     for normd in normd_qs[:20]:
         rdfgraph = normd.get_rdfgraph()
         yield FocusedContextBuilder(
             rdfgraph,
-            normd.described_resource_uri,
+            normd.described_resource_pid,
             normd.source_name,
         ).build()
 

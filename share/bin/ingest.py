@@ -35,9 +35,6 @@ def ingest(args, argv):
     else:
         raise ValueError('Need raw ids, suid ids, or source configs')
 
-    if not superfluous:
-        qs = qs.filter(ingest_jobs=None)
-
     scheduler = IngestScheduler()
     if run_now:
         for suid in qs:

@@ -16,6 +16,12 @@ def chew(
     transformer_key='v2_push',
 ) -> db.SourceUniqueIdentifier:
     """prepare a datum for ingestion
+
+    create (or update) one of each of:
+        Source
+        SourceConfig
+        SourceUniqueIdentifier
+        RawDatum
     """
     if isinstance(datum, (list, dict)):
         datum = json.dumps(datum, sort_keys=True)
@@ -33,11 +39,14 @@ def chew(
     return raw.suid
 
 
-def swallow(suid, urgent=False) -> db.IngestJob:
+def swallow(suid) -> db.IngestJob:
     """set up the given suid to be digested soon
+
+    create (or update) an IngestJob and enqueue a task
     """
-    return IngestScheduler().schedule(suid, urgent=urgent)
+    return IngestScheduler().schedule(suid)
 
 
 def digest(suid):
-    IngestJobConsumer().consume(suid.ingest_job.id)
+    ingest_job = IngestScheduler().schedule(suid, claim=True)
+    IngestJobConsumer().consume(job_id=ingest_job.id, exhaust=False)

@@ -25,16 +25,6 @@ class SourceUniqueIdentifier(models.Model):
         #     models.Index(fields=['referent_pid']),
         # ]
 
-    @property
-    def ingest_job(self):
-        """fetch the most recent IngestJob for this suid
-
-        (hopefully) temporary -- will be replaced by the inverse relation of a OneToOneField on IngestJob
-        """
-        return self.ingest_jobs.order_by(
-            Coalesce('date_started', 'date_created').desc(nulls_last=True)
-        ).first()
-
     def most_recent_raw_datum(self):
         """fetch the most recent RawDatum for this suid
         """

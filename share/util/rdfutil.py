@@ -1,5 +1,3 @@
-import itertools
-
 import rdflib
 import rdflib.compare
 
@@ -95,10 +93,7 @@ def connected_subgraph_triples(from_rdfgraph, focus, _already_focused=None):
     next_foci = set()
     for (subj, pred, obj) in from_rdfgraph.triples((focus, None, None)):
         yield (subj, pred, obj)
-        if pred not in _already_focused:
-            next_foci.add(pred)
-        if obj not in _already_focused:
-            next_foci.add(obj)
+        next_foci += {pred, obj}.difference(_already_focused)
     for subj in from_rdfgraph.subjects(object=focus, unique=True):
         if subj not in _already_focused:
             next_foci.add(subj)

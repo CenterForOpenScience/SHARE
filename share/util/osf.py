@@ -2,11 +2,12 @@ import re
 
 from django.conf import settings
 
-from share.models.ingest import Source
 from share.util.graph import MutableGraph
+from share.util import rdfutil
 
 
 def osf_sources():
+    from share.models.ingest import Source
     return Source.objects.filter(
         canonical=True,
     ).exclude(
@@ -16,11 +17,21 @@ def osf_sources():
     )
 
 
-OSF_GUID_RE = re.compile(r'^https?://(?:[^.]+\.)?osf\.io/(?P<guid>[^/]+)/?$')
+OSF_BARE_GUID_RE = re.compile(r'[a-z0-9]{5,7}')
+
+OSF_GUID_URI_RE = re.compile(r'^https?://(?:[^.]+\.)?osf\.io/(?P<guid>[^/]+)/?$')
+
+
+def maybe_osfguid_uri(maybe_bare_guid):
+    if not isinstance(maybe_bare_guid, str):
+        return None
+    maybe_bare_guid = maybe_bare_guid.strip().lower()
+    if OSF_BARE_GUID_RE.fullmatch(maybe_bare_guid):
+        return rdfutil.OSFIO[maybe_bare_guid]
 
 
 def get_guid_from_uri(uri: str):
-    match = OSF_GUID_RE.match(uri)
+    match = OSF_GUID_URI_RE.match(uri)
     return match.group('guid') if match else None
 
 

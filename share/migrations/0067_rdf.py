@@ -14,13 +14,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='normalizeddata',
-            name='described_resource_uri',
-            field=share.models.fields.ShareURLField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='normalizeddata',
             name='serialized_rdfgraph',
-            field=models.BinaryField(null=True),
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
             model_name='rawdatum',

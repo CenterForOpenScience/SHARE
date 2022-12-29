@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from share.models.fields import DateTimeAwareJSONField, ShareURLField
+from share.models.fields import DateTimeAwareJSONField
 from share.models.validators import JSONLDValidator
 from share.util import BaseJSONAPIMeta, rdfutil, sharev2_to_rdf
 from share.util.graph import MutableGraph
@@ -19,8 +19,7 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    described_resource_uri = ShareURLField(blank=True, null=True)
-    serialized_rdfgraph = models.BinaryField(null=True)  # alternate/replacement for `data` field
+    serialized_rdfgraph = models.TextField(null=True)  # alternate/replacement for `data` field
     _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse and .serialize
 
     def __init__(self, *args, rdfgraph=None, **kwargs):
@@ -32,11 +31,8 @@ class NormalizedData(models.Model):
         if self.data is None:
             return
         sharev2graph = MutableGraph.from_jsonld(self.data)
-        self.described_resource_uri = sharev2_to_rdf.guess_pid(
-            sharev2graph.get_central_node(guess=True),
-        )
         self.set_rdfgraph(
-            sharev2_to_rdf.convert(sharev2graph, self.described_resource_uri),
+            sharev2_to_rdf.convert(sharev2graph, self.raw.suid.described_resource_uri),
         )
         self.save()
 
