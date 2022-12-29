@@ -137,8 +137,7 @@ class SourceConfig(models.Model):
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
-    HARVESTER_KEY = Choices(*Extensions.get_names('share.harvesters'))
-    harvester_key = models.TextField(null=True, choices=HARVESTER_KEY)
+    harvester_key = models.TextField(null=True)
     harvester_kwargs = models.JSONField(null=True, blank=True)
     harvest_interval = models.DurationField(default=datetime.timedelta(days=1))
     harvest_after = models.TimeField(default='02:00')
@@ -149,13 +148,10 @@ class SourceConfig(models.Model):
         'This should never be set to True by default. '
     ))
 
-    TRANSFORMER_KEY = Choices(*Extensions.get_names('share.transformers'))
-    transformer_key = models.TextField(null=True, choices=TRANSFORMER_KEY)
+    transformer_key = models.TextField(null=True)
     transformer_kwargs = models.JSONField(null=True, blank=True)
 
     regulator_steps = models.JSONField(null=True, blank=True)
-
-    rdfpush = models.BooleanField(default=False)
 
     disabled = models.BooleanField(default=False)
 

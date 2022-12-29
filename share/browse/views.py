@@ -6,7 +6,6 @@ from django.views.generic.base import TemplateView
 
 from share import models as db
 from share.util import rdfutil
-from share.metadata_formats.turtle import RdfTurtleFormatter
 from .serializers import FocusedContextBuilder
 
 
@@ -93,8 +92,12 @@ def _some_normd_records():
     )
 
     for normd in normd_qs[:20]:
-        rdf_graph, focus_irl = RdfTurtleFormatter().build_rdf_graph(normd)
-        yield FocusedContextBuilder(rdf_graph, focus_irl, normd.source_name).build()
+        rdfgraph = normd.get_rdfgraph()
+        yield FocusedContextBuilder(
+            rdfgraph,
+            normd.described_resource_uri,
+            normd.source_name,
+        ).build()
 
 
 class BrowseView(TemplateView):

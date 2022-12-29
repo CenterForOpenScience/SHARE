@@ -14,7 +14,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='normalizeddata',
-            name='serialized_rdf',
+            name='described_resource_uri',
+            field=share.models.fields.ShareURLField(blank=True, null=True),
+        ),
+        migrations.AddField(
+            model_name='normalizeddata',
+            name='serialized_rdfgraph',
             field=models.BinaryField(null=True),
         ),
         migrations.AddField(
@@ -22,18 +27,19 @@ class Migration(migrations.Migration):
             name='contenttype',
             field=models.TextField(blank=True, null=True),
         ),
+        migrations.AddField(
+            model_name='sourceuniqueidentifier',
+            name='described_resource_pid',
+            field=share.models.fields.ShareURLField(blank=True, null=True),
+        ),
         migrations.AlterField(
             model_name='formattedmetadatarecord',
             name='record_format',
-            field=models.TextField(choices=[('oai_dc', 'oai_dc'), ('sharev2_elastic', 'sharev2_elastic'), ('turtle', 'turtle')]),
+            field=models.TextField(choices=[('oai_dc', 'oai_dc'), ('sharev2_elastic', 'sharev2_elastic')]),
         ),
         migrations.AlterField(
             model_name='normalizeddata',
             name='data',
             field=share.models.fields.DateTimeAwareJSONField(decoder=share.models.fields.DateTimeAwareJSONDecoder, encoder=share.models.fields.DateTimeAwareJSONEncoder, null=True, validators=[share.models.validators.JSONLDValidator()]),
-        ),
-        migrations.AddConstraint(
-            model_name='normalizeddata',
-            constraint=models.CheckConstraint(check=models.Q(('data__isnull', False), ('serialized_rdf__isnull', False), _connector='OR'), name='has_data_or_serialized_rdf'),
         ),
     ]

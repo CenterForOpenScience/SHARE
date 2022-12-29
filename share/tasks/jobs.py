@@ -313,12 +313,12 @@ class IngestJobConsumer(JobConsumer):
     def _extract(self, raw):
         extracted_normalized_datum = None
         extractor = get_rdf_extractor_class(raw.contenttype)(raw.suid.source_config)
-        rdfgraph = extractor.extract_resource_description(raw.datum, resource_identifier)
+        rdfgraph = extractor.extract_resource_description(raw.datum, described_resource_uri)
         if rdfgraph:
             extracted_normalized_datum = NormalizedData(
                 source=raw.suid.source_config.source.user,
                 raw=raw,
-                resource_identifier=resource_identifier,
+                described_resource_uri=described_resource_uri,
                 rdfgraph=rdfgraph,
             )
         raw.no_output = bool(rdfgraph)

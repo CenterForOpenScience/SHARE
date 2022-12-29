@@ -37,6 +37,10 @@ def load_dcterms(apps, schema_editor):
         ingest_vocab_term(system_user, term_uri, term_description)
 
 
+def fake_undo(apps, schema_editor):
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -44,5 +48,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(load_dcterms),
+        migrations.RunPython(load_dcterms, fake_undo),
     ]

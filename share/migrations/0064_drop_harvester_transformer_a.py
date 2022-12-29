@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0062_known_pid'),
+        ('share', '0061_ensure_auto_users'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='sourceconfig',
             name='harvester_key',
-            field=models.TextField(choices=[], null=True),
+            field=models.TextField(null=True),
         ),
         migrations.AddField(
             model_name='sourceconfig',
             name='transformer_key',
-            field=models.TextField(choices=[('ca.lwbin', 'ca.lwbin'), ('com.biomedcentral', 'com.biomedcentral'), ('com.dailyssrn', 'com.dailyssrn'), ('com.figshare', 'com.figshare'), ('com.figshare.v2', 'com.figshare.v2'), ('com.mendeley.data', 'com.mendeley.data'), ('com.peerj', 'com.peerj'), ('com.peerj.xml', 'com.peerj.xml'), ('com.researchregistry', 'com.researchregistry'), ('com.springer', 'com.springer'), ('edu.ageconsearch', 'edu.ageconsearch'), ('edu.gwu', 'edu.gwu'), ('edu.harvarddataverse', 'edu.harvarddataverse'), ('gov.clinicaltrials', 'gov.clinicaltrials'), ('gov.nih', 'gov.nih'), ('gov.nsfawards', 'gov.nsfawards'), ('gov.pubmedcentral.pmc', 'gov.pubmedcentral.pmc'), ('gov.scitech', 'gov.scitech'), ('gov.usgs', 'gov.usgs'), ('io.osf', 'io.osf'), ('io.osf.preprints', 'io.osf.preprints'), ('io.osf.registrations', 'io.osf.registrations'), ('mods', 'mods'), ('oai_dc', 'oai_dc'), ('org.arxiv', 'org.arxiv'), ('org.biorxiv', 'org.biorxiv'), ('org.biorxiv.html', 'org.biorxiv.html'), ('org.biorxiv.rss', 'org.biorxiv.rss'), ('org.crossref', 'org.crossref'), ('org.datacite', 'org.datacite'), ('org.dataone', 'org.dataone'), ('org.elife', 'org.elife'), ('org.engrxiv', 'org.engrxiv'), ('org.ncar', 'org.ncar'), ('org.neurovault', 'org.neurovault'), ('org.plos', 'org.plos'), ('org.psyarxiv', 'org.psyarxiv'), ('org.socarxiv', 'org.socarxiv'), ('org.socialscienceregistry', 'org.socialscienceregistry'), ('org.swbiodiversity', 'org.swbiodiversity'), ('v1_push', 'v1_push'), ('v2_push', 'v2_push')], null=True),
+            field=models.TextField(null=True),
         ),
     ]
