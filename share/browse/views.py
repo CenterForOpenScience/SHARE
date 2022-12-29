@@ -120,20 +120,20 @@ class BrowsePidView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['metadata_records'] = list(self._get_pid_records(kwargs['pid']))
+        return context
 
     def _get_pid_records(self, maybe_pid):
         pid_uri = rdfutil.normalize_pid_uri(maybe_pid)
-        records = db.FormattedMetadataRecord.objects.get_by_pid(
-            pid_uri,
-            record_format='turtle',
+        normd_qs = db.NormalizedData.objects.filter(
+            raw__suid__described_resource_pid=pid_uri,
         )
-        for record in records:
-            rdf_graph = rdfutil.contextualized_graph().parse(
-                data=record.formatted_metadata,
-                format='turtle',
-            )
+        # records = db.FormattedMetadataRecord.objects.get_by_pid(
+        #     pid_uri,
+        #     record_format='turtle',
+        # )
+        for normd in normd_qs:
             yield FocusedContextBuilder(
-                rdf_graph,
+                normd.get_rdfgraph(),
                 pid_uri,
-                record.suid.source_config.source.long_title,
+                normd.raw.suid.source_config.source.long_title,
             ).build()

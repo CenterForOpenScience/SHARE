@@ -14,7 +14,7 @@ class FocusedContextBuilder:
     def build(self):
         statement_set = self._statement_set()
         return {
-            'focus_pid': self.shortname(self.focus_id),
+            'focus_pid': self.display_uri(self.focus_id),
             'focus_type_set': [
                 self.display_uri(type_uri)
                 for type_uri in self._rdf_graph.objects(self.focus_id, rdflib.RDF.type)
@@ -60,7 +60,7 @@ class FocusedContextBuilder:
             predicate=predicate_pid,
         ))
         return (
-            self.shortname(predicate_pid),
+            self.display_uri(predicate_pid),
             [
                 self._value(obj)
                 for obj in statement_objects
