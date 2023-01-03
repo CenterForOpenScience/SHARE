@@ -1,95 +1,40 @@
 rdf
 ---
 
+DONE
+- browse-by-pid
+  - /browse///<pid-uri>
+  - render rdf-graph to html
+  - link uri-refs to browse
+- rdf 'push' endpoint
+  - /push///<pid-uri>
+- add SourceUniqueIdentifier.described_resource_pid
+  - a suid identifies a metadata record in a remote repository, this is an
+    ostensibly-persistent uri of the resource described by that record
+- add RawDatum.contenttype (nullable text)
+  - if present, should be an iana media type to extract or parse as RDF
+    (e.g. "text/turtle", "application/ld+json")
+- replace sharev2 "normalize" with rdf extraction
+  - add NormalizedData.serialized_rdfgraph (to replace NormalizedData.data)
+  - conversion from sharev2 MutableGraph to rdflib.Graph
+- system-load dcterms vocabulary
+- tidy migrations
+- get rid of "format as deleted"
+  - delete FMRs that should be removed from the index
+  - indexer daemon interprets lack of FMR accordingly
 
-decide/create rdf-based core metadata application profile
-("osf-map"?) allowing for additional future terms/vocabularies
-
-build a formatter that converts from sharev2's normalizeddata to
-the given osf-map vocabulary, and serializes with rdflib
-=> use that as the new input format for metadata formatters
-   (instead of normalizeddata)
-
-replace share.utils.graph.MutableGraph with rdflib.Graph
-(or make it use rdflib.Graph internally)
-(or use it to write reformatter for existing data, compat layer for existing transformers)
-
-add converter from sharev2_normalizeddata to osf/rdf
-
-update metadata formatters to take osf/rdf graph as input
-
-=======
-
-existing ingest flow
-  share:RawDatum -> [Transform] -> [Regulate] -> share:MutableGraph -> [Format] -> Set<share:FormattedMetadataRecord>
-
-desired ingest flow:
-  share:RawDatum -> [Parse] -> rdflib:Resource () -> [Format] -> Set<share:FormattedMetadataRecord>
-
-
-
-=======
-from sharev2:normalizeddata to rdflib-parsable json-ld
-- load json
-- give the "central node" a non-blank @id
-- add "@context": "https://share.osf.io/vocab/"
-
-
-=======
-plan as of 2022-11-18
-
-redefine "share:normalize" to output a set of pid-centered rdf graphs
-(with a shim to fill the gap with existing "transformers" which output
-a single rdf graph with all explicitly blank ids)
-
-store pid-centered rdf graphs as `FormattedMetadataRecord(record_format='turtle')`
-
-add KnownPid model
-- suid identifies a metadata record in a specific source repository,
-  pid identifies what that record is focused on
-- add suid.focal_pid_set
-
-html "browse" view by pid
-- maybe 'html' metadata format? maybe turtle-to-html renderer?
-- given pid, get/render FMRs (via intermediate suid), choose format by content negotiation
-- link any other referenced pids to their browse view
-
-maybe start storing rdfs/owl/shacl vocabularies/terms as turtle-formatted FMR?
-
-index records by their referenced uris:
-- "central" pid
-- any related pid
-- rdf predicate uri
-- rdf namespace/vocabulary/prefix uri
-
-add "known vocabularies" to aid crosswalks
-
-add MessageType.DELETE_SUID, get rid of the "format as deleted" thing
-
-====
-2022-11-21
 
 TODO
-- browse-pid interlink
-  - system-load vocabulary pids (rdfs/owl)
-  - pid-keyword search index
-  - recognize Source.home_page as pid for source info
+- index records by their referenced uris:
+  - "central" pid
+  - any related pid
+  - rdf predicate uri
+  - rdf namespace/vocabulary/prefix uri
+- recognize Source.home_page as pid for source info
 - rdf-based formatters
-  - ResourceDescriptionSet abstraction
   - oai_dc
   - sharev2_elastic
-- avoid duplicate v2_push/rdfpush (different sourceconfig means different suid)
 - 'push' permissions
-  - focal-pid authorization by source domain?
-- tidy migrations
-
-DONE
-- add RawDatum.contenttype (nullable text), RawDatum.focus_uri (nullable url)
-- rdf-based NormalizedData
-  - add NormalizedData.resource_identifier
-  - add NormalizedData.serialized_resource_description
-  - conversion from sharev2 MutableGraph to rdflib.Graph
-  - extract (potentially) many NormalizedData from one RawDatum
-- rdf 'push' endpoint
-- add 'turtle' metadata formatter
-- basic 'browse' endpoint
+  - authorize a Source for specific pid domains?
+- browse-by-pid attention-to-detail
+- generalize system-loaded vocab
