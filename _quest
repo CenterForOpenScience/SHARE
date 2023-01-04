@@ -38,3 +38,4 @@ TODO
   - authorize a Source for specific pid domains?
 - browse-by-pid attention-to-detail
 - generalize system-loaded vocab
+- rename NormalizedData to ResourceDescription?

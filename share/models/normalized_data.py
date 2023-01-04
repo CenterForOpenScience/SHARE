@@ -10,7 +10,6 @@ from share.util.graph import MutableGraph
 __all__ = ('NormalizedData',)
 
 
-# TODO: rename to ResourceDescription
 class NormalizedData(models.Model):
     id = models.AutoField(primary_key=True)
     created_at = models.DateTimeField(null=True, auto_now_add=True)
@@ -19,7 +18,10 @@ class NormalizedData(models.Model):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     tasks = models.ManyToManyField('CeleryTaskResult')
 
-    serialized_rdfgraph = models.TextField(null=True)  # alternate/replacement for `data` field
+    # alternate/replacement for `data` field
+    #   if null, hasn't yet been populated.
+    #   if blank string, known empty record.
+    serialized_rdfgraph = models.TextField(null=True, blank=True)
     _RDF_FORMAT = 'turtle'  # passed as `format` to rdflib.Graph.parse and .serialize
 
     def __init__(self, *args, rdfgraph=None, **kwargs):
@@ -29,11 +31,16 @@ class NormalizedData(models.Model):
 
     def convert_to_rdf(self):
         if self.data is None:
-            return
-        sharev2graph = MutableGraph.from_jsonld(self.data)
-        self.set_rdfgraph(
-            sharev2_to_rdf.convert(sharev2graph, self.raw.suid.described_resource_uri),
-        )
+            self.set_rdfgraph(None)
+        else:
+            suid = self.raw.suid
+            sharev2graph = MutableGraph.from_jsonld(self.data)
+            if suid.described_resource_pid is None:
+                suid.described_resource_pid = rdfutil.guess_pid(sharev2graph.get_central_node(guess=True))
+                suid.save()
+            self.set_rdfgraph(
+                sharev2_to_rdf.convert(sharev2graph, suid.described_resource_pid),
+            )
         self.save()
 
     def get_rdfgraph(self):
@@ -46,7 +53,10 @@ class NormalizedData(models.Model):
 
     def set_rdfgraph(self, rdfgraph):
         assert self.serialized_rdfgraph is None
-        self.serialized_rdfgraph = rdfgraph.serialize(format=self._RDF_FORMAT)
+        if rdfgraph is None:
+            self.serialized_rdfgraph = ''
+        else:
+            self.serialized_rdfgraph = rdfgraph.serialize(format=self._RDF_FORMAT)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

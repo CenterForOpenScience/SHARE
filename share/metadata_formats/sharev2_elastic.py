@@ -51,7 +51,7 @@ def strip_empty_values(thing):
 
 class ShareV2ElasticFormatter(MetadataFormatter):
     def format(self, normalized_datum):
-        rdfgraph = normalized_datum.get_rdfgraph(convert=True)
+        rdfgraph = normalized_datum.get_rdfgraph()
 
         if not rdfgraph:
             return None

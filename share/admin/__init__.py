@@ -27,8 +27,8 @@ from share.models.formatted_metadata_record import FormattedMetadataRecord
 from share.models.ingest import RawDatum, Source, SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
+from share.models.normalized_data import NormalizedData
 from share.models.registration import ProviderRegistration
-from share.models.resource_description import NormalizedData
 from share.models.share_user import ShareUser
 from share.models.sources import SourceStat
 

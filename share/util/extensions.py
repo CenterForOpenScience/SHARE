@@ -6,7 +6,7 @@ class ExtensionsError(Exception):
 
 
 def on_error(manager, entrypoint, exception):
-    raise exception
+    raise ExtensionsError(f'Error loading {entrypoint}') from exception
 
 
 class Extensions:
