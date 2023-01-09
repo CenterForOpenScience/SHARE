@@ -22,14 +22,14 @@ DONE
 - get rid of "format as deleted"
   - delete FMRs that should be removed from the index
   - indexer daemon interprets lack of FMR accordingly
-
-
-TODO
 - index records by their referenced uris:
   - "central" pid
   - any related pid
   - rdf predicate uri
   - rdf namespace/vocabulary/prefix uri
+
+
+TODO
 - recognize Source.home_page as pid for source info
 - rdf-based formatters
   - oai_dc

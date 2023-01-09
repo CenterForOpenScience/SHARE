@@ -330,11 +330,11 @@ ELASTICSEARCH = {
             'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
             'INDEX_SETUP': 'postrend_backcompat',
         },
-        # 'trove_v0': {
-        #     'DEFAULT_QUEUE': 'es-trove-v0',
-        #     'URGENT_QUEUE': 'es-trove-v0.urgent',
-        #     'INDEX_SETUP': 'trove_v0',
-        # },
+        'trove_v0': {
+            'DEFAULT_QUEUE': 'es-trove-v0',
+            'URGENT_QUEUE': 'es-trove-v0.urgent',
+            'INDEX_SETUP': 'trove_v0',
+        },
     },
     # ease the transition
     'LEGACY_INDEX': 'share_customtax_1',

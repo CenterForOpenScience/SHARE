@@ -29,7 +29,7 @@ class UriAccumulator:
 
     def add_vocab_for(self, uri):
         # naive vocab recognition:
-        # assume everything before #fragment, if it's there
+        # if the uri has a #fragment, assume everything before it is the vocab uri
         vocab, _, _ = uri.rpartition('#')
         if not vocab:
             # otherwise, assume everything before the last /path-segment
@@ -53,9 +53,6 @@ class TroveV0IndexSetup(IndexSetup):
             'metadata_record': {
                 'dynamic': 'strict',
                 'properties': {
-                    'normalized_datum_id': {
-                        'type': 'keyword',
-                    },
                     'described_resource_uri': {
                         'type': 'keyword',
                     },
@@ -116,7 +113,7 @@ class TroveV0IndexSetup(IndexSetup):
                 action = {
                     '_index': index_name,
                     '_type': 'metadata_record',
-                    'id': IDObfuscator.encode_id(suid_id, db.SourceUniqueIdentifier),
+                    '_id': IDObfuscator.encode_id(suid_id, db.SourceUniqueIdentifier),
                     '_op_type': 'delete',
                 }
                 yield (suid_id, action)
