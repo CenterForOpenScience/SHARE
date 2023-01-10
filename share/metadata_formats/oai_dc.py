@@ -1,7 +1,7 @@
 from lxml import etree
 
 from share.util.graph import MutableGraph
-from share.util.names import get_related_agent_name
+# from share.util.names import get_related_agent_name
 
 from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
 from share.metadata_formats.base import MetadataFormatter

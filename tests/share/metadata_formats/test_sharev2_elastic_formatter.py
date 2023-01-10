@@ -2,7 +2,7 @@ import json
 import pytest
 from unittest.mock import patch
 
-from share.metadata_formats.sharev2_elastic import format_type
+from share.metadata_formats.sharev2_elastic import format_sharev2_type
 
 from tests.share.metadata_formats.base import BaseMetadataFormatterTest
 
@@ -12,7 +12,7 @@ from tests.share.metadata_formats.base import BaseMetadataFormatterTest
     ('FooBar', 'foo bar'),
 ])
 def test_format_type(type_name, expected):
-    actual = format_type(type_name)
+    actual = format_sharev2_type(type_name)
     assert actual == expected
 
 
@@ -27,7 +27,10 @@ class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
             yield
 
     def assert_formatter_outputs_equal(self, actual_output, expected_output):
-        assert json.loads(actual_output) == expected_output
+        if expected_output is None:
+            assert actual_output is None
+        else:
+            assert json.loads(actual_output) == expected_output
 
     formatter_key = 'sharev2_elastic'
 
@@ -39,7 +42,7 @@ class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
             'date_modified': '2017-04-07T21:09:05.023090+00:00',
             'date_updated': '2017-03-31T05:39:48+00:00',
             'id': 'encoded-7',
-            'identifiers': ['http://dx.doi.org/10.5772/9813'],
+            'identifiers': ['https://doi.org/10.5772/9813'],
             'publishers': ['InTech'],
             'retracted': False,
             'source_config': 'foo',
@@ -101,7 +104,7 @@ class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
             'date_modified': '2017-04-07T21:09:05.023090+00:00',
             'date_updated': '2017-03-31T05:39:48+00:00',
             'id': 'encoded-7',
-            'identifiers': ['http://dx.doi.org/10.5772/9813'],
+            'identifiers': ['https://doi.org/10.5772/9813'],
             'publishers': [],
             'retracted': False,
             'source_config': 'bar',
@@ -146,10 +149,7 @@ class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
                 'publishers': [],
             },
         },
-        'with-is_deleted': {
-            'id': 'encoded-57',
-            'is_deleted': True,
-        },
+        'with-is_deleted': None,
         'with-subjects': {
             'affiliations': ['Wassamatter University'],
             'contributors': ['Some Rando'],
@@ -228,7 +228,7 @@ class TestSharev2ElasticFormatter(BaseMetadataFormatterTest):
             'date_modified': '2017-04-07T21:09:05.023090+00:00',
             'date_updated': '2017-03-31T05:39:48+00:00',
             'id': 'encoded-99',
-            'identifiers': ['https://example.com/open'],
+            'identifiers': ['https://osf.io/open'],
             'source_config': 'osf.io.v2_push',
             'source_unique_id': 'guidz',
             'sources': ['OsfProbably'],

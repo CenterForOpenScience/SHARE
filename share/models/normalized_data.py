@@ -36,10 +36,14 @@ class NormalizedData(models.Model):
             suid = self.raw.suid
             sharev2graph = MutableGraph.from_jsonld(self.data)
             if suid.described_resource_pid is None:
-                suid.described_resource_pid = rdfutil.guess_pid(sharev2graph.get_central_node(guess=True))
+                suid.described_resource_pid = sharev2_to_rdf.guess_pid(sharev2graph.get_central_node(guess=True))
                 suid.save()
             self.set_rdfgraph(
-                sharev2_to_rdf.convert(sharev2graph, suid.described_resource_pid),
+                sharev2_to_rdf.convert(
+                    sharev2graph,
+                    suid.described_resource_pid,
+                    custom_subject_taxonomy_name=suid.source_config.source.long_title,
+                ),
             )
         self.save()
 

@@ -9,4 +9,8 @@ class LegacySharev2Extractor(BaseRdfExtractor):
         sharev2graph = transformer.transform(input_document)
         if sharev2graph:
             Regulator(source_config=self.source_config).regulate(sharev2graph)
-        return sharev2_to_rdf.convert(sharev2graph, resource_uri)
+        return sharev2_to_rdf.convert(
+            sharev2graph,
+            resource_uri,
+            custom_subject_taxonomy_name=self.source_config.source.long_title,
+        )

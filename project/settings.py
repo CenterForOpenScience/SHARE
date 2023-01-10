@@ -538,8 +538,6 @@ SHARE_LIMITS = {
 OSF_API_URL = 'https://api.osf.io/'  # os.environ.get('OSF_API_URL', 'https://api.osf.io').rstrip('/') + '/'
 OSF_BYPASS_THROTTLE_TOKEN = os.environ.get('BYPASS_THROTTLE_TOKEN', None)
 
-DOI_BASE_URL = os.environ.get('DOI_BASE_URL', 'http://dx.doi.org/')
-
 ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', 'ol', 'strong', 'ul']
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')

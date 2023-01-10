@@ -360,7 +360,7 @@ FORMATTER_TEST_INPUTS = {
                         '@id': '_:i',
                         '@type': 'workidentifier',
                         'creative_work': {'@id': '_:w', '@type': 'creativework'},
-                        'uri': 'https://example.com/open',
+                        'uri': 'https://osf.io/open',
                     },
                     {
                         '@id': '_:w',

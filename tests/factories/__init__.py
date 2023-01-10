@@ -1,11 +1,6 @@
-from unittest import mock
 import datetime
 import hashlib
-import json
-import pkg_resources
 import uuid
-
-import stevedore
 
 import factory
 from factory import fuzzy
@@ -15,10 +10,6 @@ import faker
 from project import celery_app
 
 from share import models
-from share.harvest import BaseHarvester
-from share.harvest.serialization import StringLikeSerializer
-from share.legacy_normalize.transform import BaseTransformer
-from share.util.extensions import Extensions
 
 
 fake = faker.Faker()
@@ -71,66 +62,14 @@ class ListGenerator(list):
         return (x for x in self)
 
 
-class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('sentence')
-
-    class Meta:
-        model = models.Harvester
-
-    @factory.post_generation
-    def make_harvester(self, create, extracted, **kwargs):
-        stevedore.ExtensionManager('share.harvesters')  # Force extensions to load
-
-        class MockHarvester(BaseHarvester):
-            KEY = self.key
-            VERSION = 1
-            SERIALIZER_CLASS = StringLikeSerializer
-
-            _do_fetch = ListGenerator()
-
-        mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
-        mock_entry.name = self.key
-        mock_entry.module_name = self.key
-        mock_entry.resolve.return_value = MockHarvester
-
-        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
-        Extensions._load_namespace('share.harvesters')
-
-
-class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('sentence')
-
-    class Meta:
-        model = models.Transformer
-
-    @factory.post_generation
-    def make_transformer(self, create, extracted, **kwargs):
-        stevedore.ExtensionManager('share.transformers')  # Force extensions to load
-
-        class MockTransformer(BaseTransformer):
-            KEY = self.key
-            VERSION = 1
-
-            def do_transform(self, data, **kwargs):
-                return json.loads(data), None
-
-        mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
-        mock_entry.name = self.key
-        mock_entry.module_name = self.key
-        mock_entry.resolve.return_value = MockTransformer
-
-        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
-        Extensions._load_namespace('share.transformers')
-
-
 class SourceConfigFactory(DjangoModelFactory):
     label = factory.Faker('sentence')
     base_url = factory.Faker('url')
     harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
 
-    harvester = factory.SubFactory(HarvesterFactory)
-    transformer = factory.SubFactory(TransformerFactory)
+    harvester_key = factory.Faker('word')
+    transformer_key = factory.Faker('word')
 
     class Meta:
         model = models.SourceConfig
