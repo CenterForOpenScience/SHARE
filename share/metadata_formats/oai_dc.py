@@ -1,10 +1,9 @@
 from lxml import etree
-
-from share.util.graph import MutableGraph
-# from share.util.names import get_related_agent_name
+import rdflib
 
 from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
 from share.metadata_formats.base import MetadataFormatter
+from share.util import rdfutil
 
 
 class OaiDcFormatter(MetadataFormatter):
@@ -15,23 +14,18 @@ class OaiDcFormatter(MetadataFormatter):
     """
 
     def format(self, normalized_datum):
-        if not normalized_datum.data:
-            return None  # TODO
-
-        mgraph = MutableGraph.from_jsonld(normalized_datum.data)
-        central_work = mgraph.get_central_node(guess=True)
-
-        if (
-            not central_work
-            or central_work.concrete_type != 'abstractcreativework'
-            or central_work['is_deleted']
-        ):
+        rdfgraph = normalized_datum.get_rdfgraph()
+        if not rdfgraph:
+            return None
+        suid = normalized_datum.raw.suid
+        focus = rdfutil.normalize_pid_uri(suid.described_resource_pid)
+        if not rdfutil.is_creativework(rdfgraph, focus):
             return None
 
-        dc_formatted = self.build_dublin_core(central_work)
+        dc_formatted = self.build_dublin_core(rdfgraph, focus)
         return etree.tostring(dc_formatted, encoding='unicode')
 
-    def build_dublin_core(self, work_node):
+    def build_dublin_core(self, rdfgraph, focus):
         dc_element = etree.Element(
             ns('oai_dc', 'dc'),
             attrib={
@@ -39,77 +33,61 @@ class OaiDcFormatter(MetadataFormatter):
             },
             nsmap=nsmap('oai_dc', 'dc', 'xsi'),
         )
-        SubEl(dc_element, ns('dc', 'title'), work_node['title'])
+        SubEl(dc_element, ns('dc', 'title'), rdfgraph.value(focus, rdfutil.DCT.title))
 
-        for creator_name in self._get_related_agent_names(work_node, {'creator'}):
+        creator_names = rdfutil.get_related_agent_names(rdfgraph, focus, {rdfutil.DCT.creator})
+        for creator_name in creator_names:
             SubEl(dc_element, ns('dc', 'creator'), creator_name)
 
-        subject_names = {
-            subject_node['name']
-            for subject_node in work_node['subjects']
-        }
+        subject_names = rdfgraph.objects(focus, rdfutil.DCT.subject)
         for subject_name in sorted(subject_names):
             SubEl(dc_element, ns('dc', 'subject'), subject_name)
 
-        description = work_node['description']
+        description = rdfgraph.value(focus, rdfutil.DCT.description)
         if description:
             SubEl(dc_element, ns('dc', 'description'), description)
 
-        for publisher_name in sorted(self._get_related_agent_names(work_node, {'publisher'})):
+        publisher_names = rdfutil.get_related_agent_names(rdfgraph, focus, {rdfutil.DCT.publisher})
+        for publisher_name in sorted(publisher_names):
             SubEl(dc_element, ns('dc', 'publisher'), publisher_name)
 
-        for contributor_name in sorted(self._get_related_agent_names(work_node, {'contributor', 'principalinvestigator', 'principalinvestigatorcontact'})):
+        contributor_names = rdfutil.get_related_agent_names(rdfgraph, focus, {
+            rdfutil.DCT.contributor,
+            rdfutil.SHAREV2.PrincipalInvestigator,
+            rdfutil.SHAREV2.PrincipalInvestigatorContact,
+        })
+        for contributor_name in sorted(contributor_names):
             SubEl(dc_element, ns('dc', 'contributor'), contributor_name)
 
-        date = work_node['date_published'] or work_node['date_updated']
+        date = (
+            rdfgraph.value(focus, rdfutil.DCT.available)
+            or rdfgraph.value(focus, rdfutil.DCT.modified)
+        )
         if date:
             SubEl(dc_element, ns('dc', 'date'), format_datetime(date))
 
-        SubEl(dc_element, ns('dc', 'type'), work_node.type)
+        SubEl(dc_element, ns('dc', 'type'), rdfgraph.value(focus, rdflib.RDF.type))
 
-        identifier_uris = {
-            identifier_node['uri']
-            for identifier_node in work_node['identifiers']
-        }
+        identifier_uris = rdfgraph.objects(focus, rdfutil.DCT.identifier)
         for identifier_uri in sorted(identifier_uris):
             SubEl(dc_element, ns('dc', 'identifier'), identifier_uri)
 
-        language = work_node['language']
+        language = rdfgraph.value(focus, rdfutil.DCT.language)
         if language:
             SubEl(dc_element, ns('dc', 'language'), language)
 
         for related_uri in self._get_related_uris(work_node):
             SubEl(dc_element, ns('dc', 'relation'), related_uri)
 
-        if work_node['rights']:
-            SubEl(dc_element, ns('dc', 'rights'), work_node['rights'])
+        rights = rdfgraph.value(focus, rdfutil.DCT.rights)
+        if rights:
+            SubEl(dc_element, ns('dc', 'rights'), rights)
 
-        if work_node['free_to_read_type']:
-            SubEl(dc_element, ns('dc', 'rights'), work_node['free_to_read_type'])
+        free_to_read_type = rdfgraph.value(focus, rdfutil.DCT.free_to_read_type)
+        if free_to_read_type:
+            SubEl(dc_element, ns('dc', 'rights'), free_to_read_type)
 
         return dc_element
-
-    def _get_related_agent_names(self, work_node, relation_types):
-        def sort_key(relation_node):
-            order_cited = relation_node['order_cited']
-            if order_cited is None:
-                return 9999999  # those without order_cited go last
-            return int(order_cited)
-
-        relation_nodes = sorted(
-            [
-                relation_node
-                for relation_node in work_node['agent_relations']
-                if relation_node.type in relation_types
-            ],
-            key=sort_key,
-        )
-
-        # remove falsy values
-        return filter(None, [
-            get_related_agent_name(relation)
-            for relation in relation_nodes
-        ])
 
     def _get_related_uris(self, work_node):
         related_work_uris = set()

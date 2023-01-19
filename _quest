@@ -39,3 +39,4 @@ TODO
 - browse-by-pid attention-to-detail
 - generalize system-loaded vocab
 - rename NormalizedData to ResourceDescription?
+- test formatters with non-creativework (e.g. vocab)

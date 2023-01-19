@@ -2,6 +2,7 @@ import rdflib
 import rdflib.compare
 
 from share import exceptions
+from share.legacy_normalize.schema import ShareV2Schema
 
 
 DCT = rdflib.DCTERMS
@@ -114,6 +115,85 @@ def graph_equals(actual_rdf_graph, expected_triples):
         actual_rdf_graph,
         expected_rdf_graph,
     )
+
+
+def strip_namespace(uri, namespaces=None):
+    if namespaces is None:
+        namespaces = KNOWN_PID_NAMESPACES
+    for namespace in namespaces:
+        ns = str(namespace)
+        if uri.startswith(ns):
+            return uri[len(ns):]
+    else:
+        return None
+
+
+def unwrapped_value(rdfgraph, focus_id, predicate_id, *, default=None):
+    value = rdfgraph.value(focus_id, predicate_id)
+    return (
+        value.toPython()
+        if value is not None
+        else default
+    )
+
+
+def is_creativework(rdfgraph, maybe_work_id):
+    type_id = rdfgraph.value(maybe_work_id, rdflib.RDF.type)
+    if type_id:
+        type_name = strip_namespace(type_id)
+        if type_name:
+            concrete_type = ShareV2Schema().get_type(type_name).concrete_type
+            return concrete_type == 'abstractcreativework'
+    return False
+
+
+def get_related_agents(rdfgraph, focus, predicate_ids):
+    related_list = [
+        (predicate_id, related_id)
+        for predicate_id in predicate_ids
+        for related_id in rdfgraph.objects(focus, predicate_id)
+    ]
+
+    def sort_key(predicate_object):
+        (predicate_id, related_id) = predicate_object
+        return unwrapped_value(
+            rdfgraph,
+            related_id,
+            SHAREV2.order_cited,
+            default=99999,
+        )
+    return sorted(related_list, key=sort_key)
+
+
+def get_related_agent_names(rdfgraph, focus, predicate_ids):
+    return [
+        get_related_agent_name(rdfgraph, related_id)
+        for _, related_id in get_related_agents(rdfgraph, focus, predicate_ids)
+    ]
+
+
+def get_related_agent_name(rdfgraph, related_id):
+    """get the name to refer to a related agent
+
+    @param rdfgraph: rdflib.Graph instance
+    @param related_id: related agent node in the graph (could be bnode, uriref, or literal)
+    @returns string (possibly empty)
+    """
+    if isinstance(related_id, rdflib.Literal):
+        agent_name = str(related_id)
+    else:
+        agent_name = rdfgraph.value(related_id, SHAREV2.cited_as)
+        if not agent_name:
+            agent_name = rdfgraph.value(related_id, SHAREV2.name)
+            if not agent_name:
+                name_parts = filter(None, [
+                    rdfgraph.value(related_id, SHAREV2.given_name),
+                    rdfgraph.value(related_id, SHAREV2.additional_name),
+                    rdfgraph.value(related_id, SHAREV2.family_name),
+                    rdfgraph.value(related_id, SHAREV2.suffix),
+                ])
+                agent_name = ' '.join(name_parts).strip()
+    return agent_name
 
 
 def connected_subgraph_triples(from_rdfgraph, focus, _already_focused=None):

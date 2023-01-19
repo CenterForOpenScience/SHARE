@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.utils import timezone
 
-from share.extract import get_rdf_extractor_class
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import (
     FormattedMetadataRecord,
@@ -295,29 +294,5 @@ class IngestJobConsumer(JobConsumer):
             if normalized_datum:
                 job.ingested_normalized_data.add(normalized_datum)
         if pls_format_metadata:
-            FormattedMetadataRecord.objects.save_formatted_records(
-                job.suid,
-                record_formats=metadata_formats,
-                normalized_datum=normalized_datum,
-            )
         if index:
             self._queue_for_indexing(job.suid, urgent)
-
-    def _extract(self, raw):
-        extracted_normalized_datum = None
-        extractor = get_rdf_extractor_class(raw.contenttype)(raw.suid.source_config)
-        rdfgraph = extractor.extract_resource_description(raw.datum, raw.suid.described_resource_pid)
-        if rdfgraph:
-            extracted_normalized_datum = NormalizedData(
-                source=raw.suid.source_config.source.user,
-                raw=raw,
-                rdfgraph=rdfgraph,
-            )
-            extracted_normalized_datum.save()
-        raw.no_output = bool(rdfgraph)
-        raw.save(update_fields=['no_output'])
-        return extracted_normalized_datum
-
-    def _queue_for_indexing(self, suid, urgent):
-        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
-        indexer.send_messages(MessageType.INDEX_SUID, [suid.id], urgent=urgent)

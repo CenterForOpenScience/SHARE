@@ -122,6 +122,13 @@ class AbstractBaseJob(models.Model):
         (7, 'skipped', _('Skipped')),
         (8, 'retried', _('Retrying')),
         (9, 'cancelled', _('Cancelled')),
+
+        # new job-status scheme (appended to old for back-compat)
+        (50, 'chewed', _('Chewed')),
+        (50, 'swallowed', _('Swallowed')),
+        (50, 'extracted', _('Extracted')),
+        (50, 'formatted', _('Formatted')),
+        (50, 'indexed', _('Indexed')),
     )
 
     READY_STATUSES = (
@@ -142,6 +149,7 @@ class AbstractBaseJob(models.Model):
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
 
     claimed = models.BooleanField(null=True)
+    in_progress = models.BooleanField(null=True)
 
     error_type = models.TextField(blank=True, null=True, db_index=True)
     error_message = models.TextField(blank=True, null=True, db_column='message')

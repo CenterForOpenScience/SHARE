@@ -5,7 +5,7 @@ import rdflib
 
 from share.legacy_normalize.schema import ShareV2Schema
 from share.util import IDObfuscator
-from share.util import sharev2_to_rdf, rdfutil
+from share.util import rdfutil
 from .base import MetadataFormatter
 
 
@@ -14,21 +14,10 @@ def format_sharev2_type(type_name):
     return re.sub(r'\B([A-Z])', r' \1', type_name).lower()
 
 
-def strip_namespace(uri, namespaces=None):
-    if namespaces is None:
-        namespaces = rdfutil.KNOWN_PID_NAMESPACES
-    for namespace in namespaces:
-        ns = str(namespace)
-        if uri.startswith(ns):
-            return uri[len(ns):]
-    else:
-        return None
-
-
 def format_node_type(rdfgraph, node_id):
     type_id = rdfgraph.value(node_id, rdflib.RDF.type)
     return (
-        format_sharev2_type(strip_namespace(type_id, [rdfutil.SHAREV2]))
+        format_sharev2_type(rdfutil.strip_namespace(type_id, [rdfutil.SHAREV2]))
         if type_id is not None
         else None
     )
@@ -37,7 +26,7 @@ def format_node_type(rdfgraph, node_id):
 def format_node_type_lineage(rdfgraph, node_id):
     type_id = rdfgraph.value(node_id, rdflib.RDF.type)
     if type_id:
-        type_name = strip_namespace(type_id, [rdfutil.SHAREV2])
+        type_name = rdfutil.strip_namespace(type_id, [rdfutil.SHAREV2])
         if type_name:
             type_lineage = ShareV2Schema().get_type(type_name).type_lineage
             return [format_sharev2_type(t) for t in type_lineage]
@@ -45,16 +34,7 @@ def format_node_type_lineage(rdfgraph, node_id):
 
 
 def format_relation_type(predicate_id):
-    return format_sharev2_type(strip_namespace(predicate_id))
-
-
-def unwrapped_value(rdfgraph, focus_id, predicate_id, *, default=None):
-    value = rdfgraph.value(focus_id, predicate_id)
-    return (
-        value.toPython()
-        if value is not None
-        else default
-    )
+    return format_sharev2_type(rdfutil.strip_namespace(predicate_id))
 
 
 # values that, for the purpose of indexing in elasticsearch, are equivalent to absence
@@ -86,18 +66,17 @@ def strip_empty_values(thing):
 class ShareV2ElasticFormatter(MetadataFormatter):
     def format(self, normalized_datum):
         rdfgraph = normalized_datum.get_rdfgraph()
-
         if not rdfgraph:
             return None
-        print(rdfgraph.serialize(format='turtle'))
-
         suid = normalized_datum.raw.suid
-        source_name = suid.source_config.source.long_title
         focus = rdfutil.normalize_pid_uri(suid.described_resource_pid)
+        if not rdfutil.is_creativework(rdfgraph, focus):
+            return None
+
         return json.dumps(strip_empty_values({
             # system properties (about the metadata record)
             'id': IDObfuscator.encode(suid),
-            'sources': [source_name],
+            'sources': [suid.source_config.source.long_title],
             'source_config': suid.source_config.label,
             'source_unique_id': suid.identifier,
             'date_created': suid.get_date_first_seen().isoformat(),
@@ -119,19 +98,19 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             'title': rdfgraph.value(focus, rdfutil.DCT.title),
             'type': format_node_type(rdfgraph, focus),
             'types': format_node_type_lineage(rdfgraph, focus),
-            'withdrawn': unwrapped_value(rdfgraph, focus, rdfutil.SHAREV2.withdrawn),
+            'withdrawn': rdfutil.unwrapped_value(rdfgraph, focus, rdfutil.SHAREV2.withdrawn),
 
             # agent relations:
-            'affiliations': self._get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.AgentWorkRelation]),
-            'contributors': self._get_related_agent_names(rdfgraph, focus, [
+            'affiliations': rdfutil.get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.AgentWorkRelation]),
+            'contributors': rdfutil.get_related_agent_names(rdfgraph, focus, [
                 rdfutil.DCT.contributor,
                 rdfutil.DCT.creator,
                 rdfutil.SHAREV2.PrincipalInvestigator,
                 rdfutil.SHAREV2.PrincipalInvestigatorContact,
             ]),
-            'funders': self._get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.Funder]),
-            'publishers': self._get_related_agent_names(rdfgraph, focus, [rdfutil.DCT.publisher]),
-            'hosts': self._get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.Host]),
+            'funders': rdfutil.get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.Funder]),
+            'publishers': rdfutil.get_related_agent_names(rdfgraph, focus, [rdfutil.DCT.publisher]),
+            'hosts': rdfutil.get_related_agent_names(rdfgraph, focus, [rdfutil.SHAREV2.Host]),
 
             # other relations:
             'identifiers': sorted(rdfgraph.objects(focus, rdfutil.DCT.identifier)),
@@ -158,29 +137,6 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             },
         }))
 
-    def _get_related_agents(self, rdfgraph, focus, predicate_ids):
-        related_list = [
-            (predicate_id, related_id)
-            for predicate_id in predicate_ids
-            for related_id in rdfgraph.objects(focus, predicate_id)
-        ]
-
-        def sort_key(predicate_object):
-            (predicate_id, related_id) = predicate_object
-            return unwrapped_value(
-                rdfgraph,
-                related_id,
-                rdfutil.SHAREV2.order_cited,
-                default=99999,
-            )
-        return sorted(related_list, key=sort_key)
-
-    def _get_related_agent_names(self, rdfgraph, focus, predicate_ids):
-        return [
-            sharev2_to_rdf.get_related_agent_name(rdfgraph, related_id)
-            for _, related_id in self._get_related_agents(rdfgraph, focus, predicate_ids)
-        ]
-
     def _get_osf_related_resource_types(self, rdfgraph, focus):
         related_resource_types = {}
         for resource_type in rdfgraph.objects(focus, rdfutil.OSF.has_related_resource_type):
@@ -193,21 +149,21 @@ class ShareV2ElasticFormatter(MetadataFormatter):
         return {
             'type': format_node_type(rdfgraph, related_id),
             'types': format_node_type_lineage(rdfgraph, related_id),
-            'name': sharev2_to_rdf.get_related_agent_name(rdfgraph, related_id),
+            'name': rdfutil.get_related_agent_name(rdfgraph, related_id),
             'given_name': rdfgraph.value(related_id, rdfutil.SHAREV2.given_name),
             'family_name': rdfgraph.value(related_id, rdfutil.SHAREV2.family_name),
             'additional_name': rdfgraph.value(related_id, rdfutil.SHAREV2.additional_name),
             'suffix': rdfgraph.value(related_id, rdfutil.SHAREV2.suffix),
             'identifiers': list(rdfgraph.objects(related_id, rdfutil.DCT.identifier)),
             'relation': format_relation_type(predicate_id),
-            'order_cited': unwrapped_value(rdfgraph, related_id, rdfutil.SHAREV2.order_cited),
+            'order_cited': rdfutil.unwrapped_value(rdfgraph, related_id, rdfutil.SHAREV2.order_cited),
             'cited_as': rdfgraph.value(related_id, rdfutil.SHAREV2.cited_as),
         }
 
     def _build_related_agent_list(self, rdfgraph, focus, predicate_ids):
         return [
             self._build_list_agent(rdfgraph, predicate_id, related_id)
-            for predicate_id, related_id in self._get_related_agents(rdfgraph, focus, predicate_ids)
+            for predicate_id, related_id in rdfutil.get_related_agents(rdfgraph, focus, predicate_ids)
         ]
 
     def _build_work_lineage(self, rdfgraph, focus):

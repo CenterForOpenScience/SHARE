@@ -31,30 +31,6 @@ def guess_pid(sharev2node):
     return None
 
 
-def get_related_agent_name(rdfgraph, related_id):
-    """get the name to refer to a related agent
-
-    @param rdfgraph: rdflib.Graph instance
-    @param related_id: related agent node in the graph (could be bnode, uriref, or literal)
-    @returns string (possibly empty)
-    """
-    if isinstance(related_id, rdflib.Literal):
-        agent_name = str(related_id)
-    else:
-        agent_name = rdfgraph.value(related_id, rdfutil.SHAREV2.cited_as)
-        if not agent_name:
-            agent_name = rdfgraph.value(related_id, rdfutil.SHAREV2.name)
-            if not agent_name:
-                name_parts = filter(None, [
-                    rdfgraph.value(related_id, rdfutil.SHAREV2.given_name),
-                    rdfgraph.value(related_id, rdfutil.SHAREV2.additional_name),
-                    rdfgraph.value(related_id, rdfutil.SHAREV2.family_name),
-                    rdfgraph.value(related_id, rdfutil.SHAREV2.suffix),
-                ])
-                agent_name = ' '.join(name_parts).strip()
-    return agent_name
-
-
 class Sharev2ToRdfConverter:
     def __init__(self, sharev2graph, focus_uri, *, custom_subject_taxonomy_name):
         self.sharev2graph = sharev2graph
