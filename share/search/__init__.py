@@ -3,9 +3,10 @@ from contextlib import ExitStack
 
 from share.search.elastic_manager import ElasticManager
 from share.search.messages import MessageType
+from share.search.index_setup._base import IndexSetup
 
 
-__all__ = ('SearchIndexer', 'MessageType')
+__all__ = ('SearchIndexer', 'MessageType', 'IndexSetup')
 
 
 logger = logging.getLogger(__name__)

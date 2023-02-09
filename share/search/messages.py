@@ -13,7 +13,7 @@ class MessageType(Enum):
     INDEX_SUID = 'suid'
 
 
-class IndexableMessage:
+class DaemonMessage:
     PROTOCOL_VERSION = None
 
     @classmethod
@@ -45,7 +45,7 @@ class IndexableMessage:
         return f'<{self.__class__.__name__}({self.message_type}, {self.target_id})>'
 
 
-class V1Message(IndexableMessage):
+class V1Message(DaemonMessage):
     """
     {
         "version": 1,
@@ -65,7 +65,7 @@ class V1Message(IndexableMessage):
         return self.message.payload['ids'][0]
 
 
-class V2Message(IndexableMessage):
+class V2Message(DaemonMessage):
     """
     e.g.
     {
@@ -75,6 +75,26 @@ class V2Message(IndexableMessage):
     }
     """
     PROTOCOL_VERSION = 2
+
+    @property
+    def message_type(self):
+        return MessageType(self.message.payload['message_type'])
+
+    @property
+    def target_id(self):
+        return self.message.payload['target_id']
+
+
+class V3Message(DaemonMessage):
+    """
+    e.g.
+    {
+        "version": 3,
+        "@type": "https://share.osf.io/vocab/2017/MessageType/index_by_piri",
+        "piri": "https://doi.org/10.foo/blah,
+    }
+    """
+    PROTOCOL_VERSION = 3
 
     @property
     def message_type(self):

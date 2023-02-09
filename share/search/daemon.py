@@ -10,7 +10,7 @@ from kombu.mixins import ConsumerMixin
 from raven.contrib.django.raven_compat.models import client
 
 from share.search.exceptions import DaemonSetupError, DaemonMessageError, DaemonIndexingError
-from share.search.messages import IndexableMessage
+from share.search.messages import DaemonMessage
 
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ class SearchIndexerDaemon:
             self.__thread_pool.submit(self.__incoming_message_loop, message_type)
 
     def on_message(self, body, message):
-        wrapped_message = IndexableMessage.wrap(message)
+        wrapped_message = DaemonMessage.wrap(message)
 
         message_queue = self.__incoming_message_queues.get(wrapped_message.message_type)
         if message_queue is None:

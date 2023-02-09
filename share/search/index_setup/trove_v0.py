@@ -1,4 +1,4 @@
-from share.search.index_setup.base import IndexSetup
+from share.search.index_setup._base import IndexSetup
 
 
 # just a placeholder for now

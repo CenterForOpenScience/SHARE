@@ -1,7 +1,7 @@
 import json
 
 from share.models.core import FormattedMetadataRecord
-from share.search.index_setup.base import IndexSetup
+from share.search.index_setup._base import IndexSetup
 from share.search.messages import MessageType
 
 
