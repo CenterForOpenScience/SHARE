@@ -31,46 +31,31 @@ class TestSharectlSearch:
         ['another', 'makes', 'two'],
     ])
     def test_purge(self, index_names):
-        expected_purge_calls = [
-            mock.call(index_name)
-            for index_name in index_names
+        mock_index_setups = [
+            mock.Mock()
+            for _ in index_names
         ]
-        mock_elastic_manager = mock.Mock()
-        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
+        with mock.patch('share.bin.search.IndexSetup.all_indexes', return_value=mock_index_setups):
             run_sharectl('search', 'purge', *index_names)
-        assert mock_elastic_manager.delete_index.mock_calls == expected_purge_calls
+        for mock_index_setup in mock_index_setups:
+            assert mock_index_setup.pls_delete.mock_calls == [mock.call()]
 
     def test_setup_initial(self, settings):
         expected_indexes = ['baz', 'bar', 'foo']
-        settings.ELASTICSEARCH['ACTIVE_INDEXES'] = expected_indexes
-        mock_elastic_manager = mock.Mock()
-        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
-            run_sharectl('search', 'setup', '--initial')
-
-        assert mock_elastic_manager.create_index.mock_calls == [
-            mock.call(index_name)
-            for index_name in expected_indexes
+        mock_index_setups = [
+            mock.Mock()
+            for _ in expected_indexes
         ]
-        assert mock_elastic_manager.update_primary_alias.mock_calls == [mock.call(expected_indexes[0])]
+        with mock.patch('share.bin.search.IndexSetup.all_indexes', return_value=mock_index_setups):
+            run_sharectl('search', 'setup', '--initial')
+        for mock_index_setup in mock_index_setups:
+            assert mock_index_setup.pls_setup_as_needed.mock_calls == [mock.call()]
 
     def test_setup_index(self):
-        mock_elastic_manager = mock.Mock()
-        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
+        mock_index_setup = mock.Mock()
+        with mock.patch('share.bin.search.IndexSetup.by_name', return_value=mock_index_setup):
             run_sharectl('search', 'setup', 'foo')
-        assert mock_elastic_manager.create_index.mock_calls == [mock.call('foo')]
-        assert mock_elastic_manager.update_primary_alias.mock_calls == []
-
-    def test_set_primary(self):
-        mock_elastic_manager = mock.Mock()
-        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
-            run_sharectl('search', 'set_primary', 'blazblat')
-        assert mock_elastic_manager.update_primary_alias.mock_calls == [mock.call('blazblat')]
-
-    def test_update_mappings(self):
-        mock_elastic_manager = mock.Mock()
-        with mock.patch('share.bin.search.ElasticManager', return_value=mock_elastic_manager):
-            run_sharectl('search', 'update_mappings', 'blazblat')
-        assert mock_elastic_manager.update_mappings.mock_calls == [mock.call('blazblat')]
+        assert mock_index_setup.pls_setup_as_needed.mock_calls == [mock.call('foo')]
 
     def test_daemon(self, settings):
         expected_indexes = ['bliz', 'blaz', 'bluz']
@@ -82,7 +67,7 @@ class TestSharectlSearch:
             actual_indexes.append(index_name)
             stop_event.set()
 
-        with mock.patch('share.bin.search.SearchIndexerDaemon') as mock_daemon:
+        with mock.patch('share.bin.search.IndexMessengerDaemon') as mock_daemon:
             mock_daemon.start_indexer_in_thread.side_effect = fake_start_indexer
             run_sharectl('search', 'daemon')
             assert actual_indexes == expected_indexes

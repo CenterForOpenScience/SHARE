@@ -12,8 +12,7 @@ def post_migrate_load_sources(sender, **kwargs):
 
 
 def ensure_latest_elastic_mappings(sender, **kwargs):
-    from share.search.elastic_manager import ElasticManager
-    elastic_manager = ElasticManager()
+    from share.search import IndexSetup
 
-    for index_name in elastic_manager.get_primary_indexes():
-        elastic_manager.update_mappings(index_name)
+    for index_setup in IndexSetup.all_indexes():
+        index_setup.pls_setup_as_needed()

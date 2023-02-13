@@ -18,8 +18,7 @@ from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 from share.models import FormattedMetadataRecord
-from share.search import MessageType, SearchIndexer
-from share.search.elastic_manager import ElasticManager
+from share.search import MessageType, SearchHelper, IndexSetup
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
@@ -148,43 +147,48 @@ def elastic_test_index_name():
     return 'test_share'
 
 
-@pytest.fixture(scope='class')
-def elastic_test_manager(elastic_test_index_name):
-    # ideally these settings changes would be encapsulated by ElasticManager, but there's
-    # still code that uses the settings directly, so using pytest.MonkeyPatch for now
-    with pytest.MonkeyPatch.context() as mp:
-        mp.setattr('share.search.elastic_manager.settings.ELASTICSEARCH', {
-            **ELASTICSEARCH,
-            'TIMEOUT': 5,
-            'PRIMARY_INDEX': elastic_test_index_name,
-            'LEGACY_INDEX': elastic_test_index_name,
-            'BACKCOMPAT_INDEX': elastic_test_index_name,
-            'ACTIVE_INDEXES': [elastic_test_index_name],
-            'INDEXES': {
-                elastic_test_index_name: {
-                    'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
-                    'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
-                    'INDEX_SETUP': 'postrend_backcompat',
-                },
+@pytest.fixture(params=['es5', 'es8'])
+def elastic_test_cluster_url(request, settings):
+    if request.param == 'es5':
+        return settings.ELASTICSEARCH_5_URL
+    if request.param == 'es8':
+        return settings.ELASTICSEARCH_8_URL
+    raise ValueError(request.param)
+
+
+@pytest.fixture()
+def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, settings):
+    old_elasticsearch_settings = settings.ELASTICSEARCH
+    settings.ELASTICSEARCH = {
+        **old_elasticsearch_settings,
+        'TIMEOUT': 5,
+        'PRIMARY_INDEX': elastic_test_index_name,
+        'LEGACY_INDEX': elastic_test_index_name,
+        'BACKCOMPAT_INDEX': elastic_test_index_name,
+        'ACTIVE_INDEXES': [elastic_test_index_name],
+        'INDEXES': {
+            elastic_test_index_name: {
+                'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
+                'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
+                'INDEX_SETUP': 'sharev2_elastic5',
+                'CLUSTER_URL': settings.ELASTICSEARCH_5_URL,
             },
-        })
-        elastic_manager = ElasticManager()
+        },
+    }
+    index_setup = IndexSetup.by_name(elastic_test_index_name)
+    try:
+        index_setup.pls_delete()
+        index_setup.pls_setup()
         try:
-            elastic_manager.delete_index(elastic_test_index_name)
-            elastic_manager.create_index(elastic_test_index_name)
-
-            try:
-                yield elastic_manager
-            finally:
-                elastic_manager.delete_index(elastic_test_index_name)
-
-        except (ConnectionError, ElasticConnectionError):
-            raise pytest.skip('Elasticsearch unavailable')
+            yield
+        finally:
+            index_setup.pls_delete()
+    except (ConnectionError, ElasticConnectionError):
+        raise pytest.skip('Elasticsearch unavailable')
 
 
-@pytest.fixture(scope='class')
-def index_records(elastic_test_manager, class_scoped_django_db):
-
+@pytest.fixture()
+def index_records(elastic_test_settings):
     def _index_records(normalized_graphs):
         normalized_datums = [
             factories.NormalizedDataFactory(
@@ -202,10 +206,8 @@ def index_records(elastic_test_manager, class_scoped_django_db):
                 record_formats=['sharev2_elastic'],
                 normalized_datum=normd,
             )
-        indexer = SearchIndexer(elastic_manager=elastic_test_manager)
-        indexer.handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
+        SearchHelper().handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
         return normalized_datums
-
     return _index_records
 
 

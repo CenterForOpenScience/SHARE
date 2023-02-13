@@ -298,18 +298,10 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
+ELASTICSEARCH_5_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
+ELASTICSEARCH_8_URL = os.environ.get('ELASTICSEARCH_8_URL', 'http://localhost:9208/'),
 
 ELASTICSEARCH = {
-    'CLUSTERS': {
-        'es5': {
-            'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-            'MANAGER_CLASS': 'share.search.elastic5.Elastic5Manager',
-        },
-        'es8': {
-            'URL': os.environ.get('ELASTICSEARCH8_URL', 'http://localhost:9208/'),
-            'MANAGER_CLASS': 'share.search.elastic8.Elastic8Manager',
-        },
-    },
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
@@ -320,37 +312,18 @@ ELASTICSEARCH = {
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    # NOTE: "active" indexes will receive new records from the indexer daemon -- be sure they're set up first
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_postrend_backcompat'), ','),
-    # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
     'INDEXES': {
-        # 'share_v3': {
-        #     'DEFAULT_QUEUE': 'es-triton-share',
-        #     'URGENT_QUEUE': 'es-triton-share.urgent',
-        #     'INDEX_SETUP': 'share_classic',
-        # },
-        # 'share_customtax_1': {
-        #     'DEFAULT_QUEUE': 'es-share',
-        #     'URGENT_QUEUE': 'es-share.urgent',
-        #     'INDEX_SETUP': 'share_classic',
-        # },
+        # TODO: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
         'share_postrend_backcompat': {
-            'CLUSTER': 'es5',
+            'CLUSTER_URL': ELASTICSEARCH_5_URL,
+            'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic5:Sharev2Elastic5IndexSetup',
             'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
             'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
-            'INDEX_SETUP': 'postrend_backcompat',
         },
-        'new_new_search': {
-            'CLUSTER': 'es8',
-            'DEFAULT_QUEUE': 'new-new-search',
-            'URGENT_QUEUE': 'new-new-search.urgent',
-            'INDEX_SETUP': 'new_new_search',
+        'sharev2_elastic8': {
+            'CLUSTER_URL': ELASTICSEARCH_8_URL,
+            'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic8:Sharev2Elastic8IndexSetup',
         },
-        # 'trove_v0': {
-        #     'DEFAULT_QUEUE': 'es-trove-v0',
-        #     'URGENT_QUEUE': 'es-trove-v0.urgent',
-        #     'INDEX_SETUP': 'trove_v0',
-        # },
     },
 }
 

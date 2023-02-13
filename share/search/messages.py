@@ -1,5 +1,9 @@
 from enum import Enum
 import logging
+import typing
+
+from share.search import exceptions
+
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +21,19 @@ class DaemonMessage:
     PROTOCOL_VERSION = None
 
     @classmethod
-    def wrap(cls, message):
-        version = message.payload.get('version', 0)
+    def from_received_message(cls, kombu_message):
+        version = kombu_message.payload.get('version', 0)
         for klass in cls.__subclasses__():
             if klass.PROTOCOL_VERSION == version:
-                return klass(message)
+                return klass(kombu_message=kombu_message)
         raise ValueError('Invalid version "{}"'.format(version))
+
+    @classmethod
+    def from_values(cls, message_type, target_ids):
+        return [
+            V2Message(message_type=message_type, target_id=target_id)
+            for target_id in target_ids
+        ]
 
     @property
     def message_type(self):
@@ -32,37 +43,34 @@ class DaemonMessage:
     def target_id(self):
         raise NotImplementedError
 
-    def __init__(self, message):
-        self.message = message
+    def to_dict(self):
+        raise NotImplementedError
+
+    def __init__(self, *, kombu_message=None):
+        self.kombu_message = kombu_message
 
     def ack(self):
-        return self.message.ack()
+        if self.kombu_message is None:
+            raise exceptions.DaemonMessageError('ack! called DaemonMessage.ack() but there is nothing to ack')
+        return self.kombu_message.ack()
 
     def requeue(self):
-        return self.message.reject_log_error(logger, Exception, requeue=True)
+        if self.kombu_message is None:
+            raise exceptions.DaemonMessageError('called DaemonMessage.requeue() but there is nothing to requeue')
+        return self.kombu_message.reject_log_error(logger, Exception, requeue=True)
 
     def __repr__(self):
         return f'<{self.__class__.__name__}({self.message_type}, {self.target_id})>'
 
+    def __hash__(self):
+        return hash((self.message_type, self.target_id))
 
-class V1Message(DaemonMessage):
-    """
-    {
-        "version": 1,
-        "model": "<model_name>",
-        "ids": [id1, id2, id3...],
-    }
-    """
-    PROTOCOL_VERSION = 1
-
-    @property
-    def message_type(self):
-        return MessageType(self.message.payload['model'])
-
-    @property
-    def target_id(self):
-        assert len(self.message.payload['ids']) == 1
-        return self.message.payload['ids'][0]
+    def __eq__(self, other):
+        return (
+            isinstance(other, DaemonMessage)
+            and self.message_type == other.message_type
+            and self.target_id == other.target_id
+        )
 
 
 class V2Message(DaemonMessage):
@@ -76,30 +84,36 @@ class V2Message(DaemonMessage):
     """
     PROTOCOL_VERSION = 2
 
-    @property
-    def message_type(self):
-        return MessageType(self.message.payload['message_type'])
-
-    @property
-    def target_id(self):
-        return self.message.payload['target_id']
-
-
-class V3Message(DaemonMessage):
-    """
-    e.g.
-    {
-        "version": 3,
-        "@type": "https://share.osf.io/vocab/2017/MessageType/index_by_piri",
-        "piri": "https://doi.org/10.foo/blah,
-    }
-    """
-    PROTOCOL_VERSION = 3
+    def __init__(self, *, kombu_message=None, message_type=None, target_id=None):
+        if kombu_message is None:
+            assert message_type is not None
+            assert target_id is not None
+            super().__init__()
+            # override properties
+            self.message_type = message_type
+            self.target_id = target_id
+        else:
+            assert message_type is None
+            assert target_id is None
+            super().__init__(kombu_message)
 
     @property
     def message_type(self):
-        return MessageType(self.message.payload['message_type'])
+        return MessageType(self.kombu_message.payload['message_type'])
 
     @property
     def target_id(self):
-        return self.message.payload['target_id']
+        return self.kombu_message.payload['target_id']
+
+    def to_dict(self):
+        return {
+            'version': self.PROTOCOL_VERSION,
+            'message_type': self.message_type.value,
+            'target_id': self.target_id,
+        }
+
+
+class HandledMessageResponse(typing.NamedTuple):
+    is_handled: bool
+    daemon_message: DaemonMessage
+    error_message: typing.Optional[str]

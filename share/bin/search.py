@@ -2,14 +2,12 @@ import threading
 
 from project.celery import app as celery_app
 
-from django.conf import settings
 from django.db.models import Exists, OuterRef
 
 from share.bin.util import command
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import MessageType, SearchIndexer
-from share.search.daemon import SearchIndexerDaemon
-from share.search.elastic_manager import ElasticManager
+from share.search import MessageType, SearchHelper, IndexSetup
+from share.search.daemon import IndexMessengerDaemon
 
 
 @command('Manage Elasticsearch')
@@ -35,7 +33,8 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        ElasticManager().delete_index(index_name)
+        index_setup = IndexSetup.by_name(index_name)
+        index_setup.pls_delete()
 
 
 @search.subcommand('Create indicies and apply mappings')
@@ -45,36 +44,12 @@ def setup(args, argv):
            {0} search setup --initial
     """
     is_initial = args.get('--initial')
-
     if is_initial:
-        index_names = settings.ELASTICSEARCH['ACTIVE_INDEXES']
+        index_setups = IndexSetup.all_indexes()
     else:
-        index_names = [args['<index_name>']]
-
-    elastic_manager = ElasticManager()
-    for index_name in index_names:
-        print(f'creating elasticsearch index "{index_name}"...')
-        elastic_manager.create_index(index_name)
-
-    if is_initial:
-        primary_index = index_names[0]
-        elastic_manager.update_primary_alias(primary_index)
-
-
-@search.subcommand('Update mappings for an existing index')
-def update_mappings(args, argv):
-    """
-    Usage: {0} search update_mappings <index_name>
-    """
-    ElasticManager().update_mappings(args['<index_name>'])
-
-
-@search.subcommand('Set the "primary" index used to serve search results')
-def set_primary(args, argv):
-    """
-    Usage: {0} search set_primary <index_name>
-    """
-    ElasticManager().update_primary_alias(args['<index_name>'])
+        index_setups = [IndexSetup.by_name(args['<index_name>'])]
+    for index_setup in index_setups:
+        index_setup.pls_setup_as_needed()
 
 
 @search.subcommand('Queue daemon messages to reindex all suids')
@@ -95,7 +70,7 @@ def reindex_all_suids(args, argv):
         .filter(has_fmr=True)
         .values_list('id', flat=True)
     )
-    SearchIndexer().send_messages(
+    SearchHelper().send_messages(
         message_type=MessageType.INDEX_SUID,
         target_ids=suid_id_queryset,
         index_names=[args['<index_name>']],
@@ -107,11 +82,8 @@ def daemon(args, argv):
     """
     Usage: {0} search daemon
     """
-    elastic_manager = ElasticManager()
     stop_event = threading.Event()
-    for index_name in settings.ELASTICSEARCH['ACTIVE_INDEXES']:
-        SearchIndexerDaemon.start_indexer_in_thread(celery_app, stop_event, elastic_manager, index_name)
-
+    IndexMessengerDaemon.start_daemonthreads(celery_app, stop_event)
     try:
         stop_event.wait()
     except KeyboardInterrupt:

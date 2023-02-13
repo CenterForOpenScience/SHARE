@@ -38,11 +38,12 @@ services:
     stdin_open: true
 
   elasticsearch8:
-    image: elasticsearch:8.6
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
     ports:
       - 9208:9200
     volumes:
       - elasticsearch8_data_vol:/usr/share/elasticsearch/data
+    stdin_open: true
 
   rabbitmq:
     image: rabbitmq:management

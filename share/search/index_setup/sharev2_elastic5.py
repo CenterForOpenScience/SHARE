@@ -1,11 +1,12 @@
 import json
 
-from share.models.core import FormattedMetadataRecord
-from share.search.index_setup._base import IndexSetup
+from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
+from share.search.index_setup.elastic5 import Elastic5IndexSetup
 from share.search.messages import MessageType
+from share.util import IDObfuscator
 
 
-class PostRendBackcompatIndexSetup(IndexSetup):
+class Sharev2Elastic5IndexSetup(Elastic5IndexSetup):
     SUBJECT_DELIMITER = '|'
 
     @property
@@ -157,33 +158,40 @@ class PostRendBackcompatIndexSetup(IndexSetup):
             },
         }
 
-    def build_action_generator(self, index_name, message_type):
+    def build_elastic_actions(self, message_type, messages_chunk):
         self.assert_message_type(message_type)
-
         action_template = {
-            '_index': index_name,
+            '_index': self.index_name,
             '_type': 'creativeworks',
         }
-
-        def action_generator(target_id_iter):
-            record_qs = FormattedMetadataRecord.objects.filter(
-                suid_id__in=target_id_iter,
-                record_format='sharev2_elastic',  # TODO specify in config? or don't
-            )
-            for record in record_qs:
-                source_doc = json.loads(record.formatted_metadata)
-                if source_doc.pop('is_deleted', False):
-                    action = {
-                        **action_template,
-                        '_id': source_doc['id'],
-                        '_op_type': 'delete',
-                    }
-                else:
-                    action = {
-                        **action_template,
-                        '_id': source_doc['id'],
-                        '_op_type': 'index',
-                        '_source': source_doc,
-                    }
-                yield (record.suid_id, action)
-        return action_generator
+        suid_ids = set(message.target_id for message in messages_chunk)
+        record_qs = FormattedMetadataRecord.objects.filter(
+            suid_id__in=suid_ids,
+            record_format='sharev2_elastic',  # TODO specify in config? or don't
+        )
+        for record in record_qs:
+            doc_id = IDObfuscator.encode_id(record.suid_id, SourceUniqueIdentifier)
+            suid_ids.pop(record.suid_id)
+            source_doc = json.loads(record.formatted_metadata)
+            assert source_doc['id'] == doc_id
+            if source_doc.pop('is_deleted', False):
+                action = {
+                    **action_template,
+                    '_id': doc_id,
+                    '_op_type': 'delete',
+                }
+            else:
+                action = {
+                    **action_template,
+                    '_id': doc_id,
+                    '_op_type': 'index',
+                    '_source': source_doc,
+                }
+            yield action
+        # delete any that don't have the expected FormattedMetadataRecord
+        for leftover_suid_id in suid_ids:
+            yield {
+                **action_template,
+                '_id': IDObfuscator.encode_id(leftover_suid_id, SourceUniqueIdentifier),
+                '_op_type': 'delete',
+            }

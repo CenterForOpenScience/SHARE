@@ -16,7 +16,7 @@ from share.models import (
 from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
-from share.search import SearchIndexer
+from share.search import SearchHelper
 from share.search.messages import MessageType
 from share.util import chunked
 
@@ -352,5 +352,5 @@ class IngestJobConsumer(JobConsumer):
             return None
 
     def _queue_for_indexing(self, suid, urgent):
-        indexer = SearchIndexer(self.task.app) if self.task else SearchIndexer()
+        indexer = SearchHelper(self.task.app) if self.task else SearchHelper()
         indexer.send_messages(MessageType.INDEX_SUID, [suid.id], urgent=urgent)

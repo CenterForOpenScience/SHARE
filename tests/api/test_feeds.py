@@ -16,11 +16,10 @@ NAMESPACES = {'atom': 'http://www.w3.org/2005/Atom'}
 # TODO add tests for RSS
 
 
-@pytest.mark.usefixtures('nested_django_db')
 class TestFeed:
 
-    @pytest.fixture(scope='class')
-    def fake_items(self, index_records, class_scoped_django_db):
+    @pytest.fixture()
+    def fake_items(self, index_records):
         records = [
             f.CreativeWork(
                 identifiers=[f.WorkIdentifier()],
@@ -58,12 +57,13 @@ class TestFeed:
         assert len(actual_titles) == 11
         assert actual_titles == expected_titles
 
-    @pytest.mark.parametrize('feed_url, expected_status', [
-        ('/api/v2/atom/', 410),
-        ('/api/v2/rss/', 410),
-        ('/api/v2/feeds/atom/', 200),
-        ('/api/v2/feeds/rss/', 200),
-    ])
-    def test_gone(self, client, settings, fake_items, feed_url, expected_status):
-        resp = client.get(feed_url)
-        assert resp.status_code == expected_status
+
+@pytest.mark.parametrize('feed_url, expected_status', [
+    ('/api/v2/atom/', 410),
+    ('/api/v2/rss/', 410),
+    ('/api/v2/feeds/atom/', 200),
+    ('/api/v2/feeds/rss/', 200),
+])
+def test_gone(client, settings, feed_url, expected_status):
+    resp = client.get(feed_url)
+    assert resp.status_code == expected_status

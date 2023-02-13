@@ -8,8 +8,9 @@ perform all elastic operations thru one of two interfaces:
 
 share.search.IndexSetup knows of version- or cluster-specific features
 
-share.search.DaemonMessage doesn't understand the difference,
-has only a handful of iris
+share.search.daemon doesn't understand the difference,
+                    knows only the common IndexSetup interface
+                    acts on only a handful of iris,
 
 use different elasticsearch client libraries for different versions
 
