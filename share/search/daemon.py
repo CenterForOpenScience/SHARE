@@ -111,7 +111,7 @@ class IndexMessengerDaemon:
         # Keep blocking on put() until there's space in the queue or it's time to stop
         while not self.stop_event.is_set():
             try:
-                local_message_queue.put(message, timeout=UNPRESSURED_TIMEOUT)
+                local_message_queue.put(daemon_message, timeout=UNPRESSURED_TIMEOUT)
                 break
             except local_queue.Full:
                 continue

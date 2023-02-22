@@ -72,7 +72,7 @@ def reindex_all_suids(args, argv):
     )
     SearchHelper().send_messages(
         message_type=MessageType.INDEX_SUID,
-        target_ids=suid_id_queryset,
+        target_ids_chunk=suid_id_queryset,
         index_names=[args['<index_name>']],
     )
 

@@ -83,27 +83,30 @@ class V2Message(DaemonMessage):
     }
     """
     PROTOCOL_VERSION = 2
+    _message_type = None
+    _target_id = None
 
     def __init__(self, *, kombu_message=None, message_type=None, target_id=None):
         if kombu_message is None:
             assert message_type is not None
             assert target_id is not None
             super().__init__()
-            # override properties
-            self.message_type = message_type
-            self.target_id = target_id
         else:
             assert message_type is None
             assert target_id is None
-            super().__init__(kombu_message)
+            message_type = MessageType(kombu_message.payload['message_type'])
+            target_id = kombu_message.payload['target_id']
+            super().__init__(kombu_message=kombu_message)
+        self._message_type = message_type
+        self._target_id = target_id
 
     @property
     def message_type(self):
-        return MessageType(self.kombu_message.payload['message_type'])
+        return self._message_type
 
     @property
     def target_id(self):
-        return self.kombu_message.payload['target_id']
+        return self._target_id
 
     def to_dict(self):
         return {

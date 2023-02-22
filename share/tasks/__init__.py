@@ -90,7 +90,7 @@ def schedule_backfill(self, index_name):
     for suid_id_chunk in chunked_iterator:
         SearchHelper().send_messages(
             message_type=MessageType.INDEX_SUID,
-            target_ids=suid_id_queryset,
+            target_ids_chunk=suid_id_queryset,
             index_names=[index_name],
         )
 

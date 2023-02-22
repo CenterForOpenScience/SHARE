@@ -104,10 +104,16 @@ class Sharev2Elastic8IndexSetup(Elastic8IndexSetup):
             ]
         }
 
+    def get_doc_id(self, message_target_id):
+        return IDObfuscator.encode_id(message_target_id, db.SourceUniqueIdentifier)
+
+    def get_message_target_id(self, doc_id):
+        return IDObfuscator.decode_id(doc_id)
+
     def build_elastic_actions(self, message_type, messages_chunk):
         self.assert_message_type(message_type)
         action_template = {
-            '_index': self.index_name,
+            '_index': self.current_index_name,
         }
         suid_ids = set(message.target_id for message in messages_chunk)
         record_qs = db.FormattedMetadataRecord.objects.filter(
@@ -115,8 +121,8 @@ class Sharev2Elastic8IndexSetup(Elastic8IndexSetup):
             record_format='sharev2_elastic',  # TODO specify in config? or don't
         )
         for record in record_qs:
-            doc_id = IDObfuscator.encode_id(record.suid_id, db.SourceUniqueIdentifier)
-            suid_ids.pop(record.suid_id)
+            doc_id = self.get_doc_id(record.suid_id)
+            suid_ids.discard(record.suid_id)
             source_doc = json.loads(record.formatted_metadata)
             assert source_doc['id'] == doc_id
             if source_doc.pop('is_deleted', False):

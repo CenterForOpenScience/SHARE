@@ -3,8 +3,11 @@ import logging
 
 from django.conf import settings
 import elasticsearch8
+from elasticsearch8.helpers import streaming_bulk
 
 from share.search.index_setup._base import IndexSetup
+from share.search import messages
+from share.util import IDObfuscator
 
 
 logger = logging.getLogger(__name__)
@@ -39,6 +42,12 @@ class Elastic8IndexSetup(IndexSetup):
     @abc.abstractmethod
     def build_elastic_actions(self, message_type, messages_chunk):
         raise NotImplementedError  # for subclasses to implement
+
+    def get_doc_id(self, message_target_id):
+        return message_target_id  # here so subclasses can override if needed
+
+    def get_message_target_id(self, doc_id):
+        return doc_id  # here so subclasses can override if needed
 
     # implements IndexSetup.current_setup
     def current_setup(self):
@@ -101,24 +110,21 @@ class Elastic8IndexSetup(IndexSetup):
         )
 
     def pls_handle_messages(self, message_type, messages_chunk):
-        bulk_stream = elasticsearch8.helpers.streaming_bulk(
+        messages_by_target_id = {
+            message.target_id: message
+            for message in messages_chunk
+        }
+        bulk_stream = streaming_bulk(
             self.es8_client,
             self.build_elastic_actions(message_type, messages_chunk),
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
-            print((ok, op_type, response_body))
-            import pdb; pdb.set_trace()
-            # TODO yield message result
-
-    def _stream_actions(self, actions):
-        stream = elasticsearch8.helpers.streaming_bulk(
-            self.es8_client,
-            actions,
-            max_chunk_bytes=self.MAX_CHUNK_BYTES,
-            raise_on_error=False,
-        )
-        for (ok, response) in stream:
-            op_type, response_body = next(iter(response.items()))
-            yield (ok, op_type, response_body)
+            message_target_id = self.get_message_target_id(response_body['_id'])
+            daemon_message = messages_by_target_id[message_target_id]
+            yield messages.HandledMessageResponse(
+                is_handled=ok,
+                daemon_message=daemon_message,
+                error_message=response_body.get('_errors'),
+            )
