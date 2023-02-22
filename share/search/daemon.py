@@ -57,7 +57,7 @@ class CeleryMessageConsumer(ConsumerMixin):
         ]
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.index_name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.name)
 
 
 class IndexMessengerDaemon:
@@ -135,7 +135,7 @@ class IndexMessengerDaemon:
             self.stop()
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.index_name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.name)
 
 
 class MessageHandlingLoop:

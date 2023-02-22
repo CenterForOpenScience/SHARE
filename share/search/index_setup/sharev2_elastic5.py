@@ -1,8 +1,8 @@
 import json
 
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search.index_setup.elastic5 import Elastic5IndexSetup
 from share.search.messages import MessageType
+from share.search.index_setup.elastic5 import Elastic5IndexSetup
 from share.util import IDObfuscator
 
 
@@ -13,7 +13,6 @@ class Sharev2Elastic5IndexSetup(Elastic5IndexSetup):
     def supported_message_types(self):
         return {MessageType.INDEX_SUID}
 
-    @property
     def index_settings(self):
         return {
             'analysis': {
@@ -64,7 +63,6 @@ class Sharev2Elastic5IndexSetup(Elastic5IndexSetup):
             }
         }
 
-    @property
     def index_mappings(self):
         autocomplete_field = {
             'autocomplete': {
@@ -161,8 +159,7 @@ class Sharev2Elastic5IndexSetup(Elastic5IndexSetup):
     def build_elastic_actions(self, message_type, messages_chunk):
         self.assert_message_type(message_type)
         action_template = {
-            '_index': self.index_name,
-            '_type': 'creativeworks',
+            '_index': self.current_index_name,
         }
         suid_ids = set(message.target_id for message in messages_chunk)
         record_qs = FormattedMetadataRecord.objects.filter(

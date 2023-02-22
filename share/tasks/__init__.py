@@ -7,10 +7,12 @@ from django.db import models
 from django.db import transaction
 
 from share.harvest.scheduler import HarvestScheduler
-from share.models import HarvestJob
-from share.models import SourceConfig
+from share import models as db
+from share.search.helper import SearchHelper
+from share.search.messages import MessageType
 from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
+from share.util import chunked
 from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
 
@@ -29,9 +31,9 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
 
     """
     if source_config_ids:
-        qs = SourceConfig.objects.filter(id__in=source_config_ids)
+        qs = db.SourceConfig.objects.filter(id__in=source_config_ids)
     else:
-        qs = SourceConfig.objects.exclude(disabled=True).exclude(source__is_deleted=True)
+        qs = db.SourceConfig.objects.exclude(disabled=True).exclude(source__is_deleted=True)
 
     with transaction.atomic():
         jobs = []
@@ -40,7 +42,7 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
         for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvest_jobs__end_date')):
             jobs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
-        HarvestJob.objects.bulk_get_or_create(jobs)
+        db.HarvestJob.objects.bulk_get_or_create(jobs)
 
 
 @celery.shared_task(bind=True, max_retries=5)
@@ -66,8 +68,36 @@ def ingest(self, only_canonical=None, **kwargs):
 
 
 @celery.shared_task(bind=True)
+def schedule_backfill(self, index_name):
+    chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+    suid_id_queryset = (
+        db.SourceUniqueIdentifier
+        .objects
+        .exclude(source_config__disabled=True)
+        .exclude(source_config__source__is_deleted=True)
+        .annotate(
+            has_fmr=models.Exists(
+                db.FormattedMetadataRecord.objects.filter(suid_id=models.OuterRef('id'))
+            )
+        )
+        .filter(has_fmr=True)
+        .values_list('id', flat=True)
+    )
+    chunked_iterator = chunked(
+        suid_id_queryset.iterator(chunk_size=chunk_size),
+        size=chunk_size,
+    )
+    for suid_id_chunk in chunked_iterator:
+        SearchHelper().send_messages(
+            message_type=MessageType.INDEX_SUID,
+            target_ids=suid_id_queryset,
+            index_names=[index_name],
+        )
+
+
+@celery.shared_task(bind=True)
 def source_stats(self):
-    oai_sourceconfigs = SourceConfig.objects.filter(
+    oai_sourceconfigs = db.SourceConfig.objects.filter(
         disabled=False,
         base_url__isnull=False,
         harvester__key='oai'
@@ -75,7 +105,7 @@ def source_stats(self):
     for config in oai_sourceconfigs.values():
         get_source_stats.apply_async((config['id'],))
 
-    non_oai_sourceconfigs = SourceConfig.objects.filter(
+    non_oai_sourceconfigs = db.SourceConfig.objects.filter(
         disabled=False,
         base_url__isnull=False
     ).exclude(
@@ -87,7 +117,7 @@ def source_stats(self):
 
 @celery.shared_task(bind=True)
 def get_source_stats(self, config_id):
-    source_config = SourceConfig.objects.get(pk=config_id)
+    source_config = db.SourceConfig.objects.get(pk=config_id)
     if source_config.harvester.key == 'oai':
         OAISourceStatus(config_id).get_source_stats()
     else:

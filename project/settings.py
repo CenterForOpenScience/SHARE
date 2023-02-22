@@ -299,14 +299,14 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 ELASTICSEARCH_5_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-ELASTICSEARCH_8_URL = os.environ.get('ELASTICSEARCH_8_URL', 'http://localhost:9208/'),
+ELASTICSEARCH_8_URL = os.environ.get('ELASTICSEARCH_8_URL', 'http://elastic8:9200/'),
 
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
-    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 25)),
+    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
     'KOMBU_QUEUE_SETTINGS': {
         'serializer': 'json',
         'compression': 'zlib',

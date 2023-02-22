@@ -9,7 +9,7 @@ volumes:
     external: false
   elasticsearch_data_vol:
     external: false
-  elasticsearch8_data_vol:
+  elasticsearch8x_data_vol:
     external: false
   rabbitmq_vol:
     external: false
@@ -37,12 +37,17 @@ services:
       - elasticsearch_data_vol:/usr/share/elasticsearch/data
     stdin_open: true
 
-  elasticsearch8:
+  elastic8:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
     ports:
       - 9208:9200
     volumes:
-      - elasticsearch8_data_vol:/usr/share/elasticsearch/data
+      - elasticsearch8x_data_vol:/usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      node.name: elastic8
+      cluster.initial_master_nodes: elastic8
+      xpack.security.enabled: false  # not good for deployment
     stdin_open: true
 
   rabbitmq:
@@ -113,7 +118,7 @@ services:
       - rabbitmq
       - web
       - elasticsearch
-      - elasticsearch8
+      - elastic8
       - indexer
     volumes:
       - ./:/code:cached
@@ -131,7 +136,7 @@ services:
       - postgres
       - rabbitmq
       - elasticsearch
-      - elasticsearch8
+      - elastic8
       - frontend
     volumes:
       - ./:/code:cached
@@ -147,7 +152,7 @@ services:
       - postgres
       - rabbitmq
       - elasticsearch
-      - elasticsearch8
+      - elastic8
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/usr/local/lib/python3.9

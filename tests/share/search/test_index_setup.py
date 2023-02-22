@@ -49,7 +49,7 @@ class TestIndexSetup:
         assert isinstance(all_indexes, tuple)
         assert len(all_indexes) == 2
         index_names = {
-            index_setup.index_name
+            index_setup.name
             for index_setup in all_indexes
         }
         assert index_names == {'my_es5_index', 'my_es8_index'}
@@ -65,14 +65,14 @@ class TestIndexSetup:
             index_setup.pls_create()
             mock_es_client.indices.create.assert_called_once_with(
                 index_name,
-                body={'settings': index_setup.index_settings},
+                body={'settings': index_setup.index_settings()},
             )
             mock_es_client.indices.put_mapping.assert_has_calls([
                 call(
                     doc_type=doc_type,
                     body={doc_type: mapping},
                     index=index_name,
-                ) for doc_type, mapping in index_setup.index_mappings.items()
+                ) for doc_type, mapping in index_setup.index_mappings().items()
             ], any_order=True)
 
     def test_create_index_already_exists(self, mock_es_clients):

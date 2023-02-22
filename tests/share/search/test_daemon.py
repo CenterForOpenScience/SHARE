@@ -14,8 +14,8 @@ def wait_for(event):
 
 
 class FakeIndexSetup:
-    def __init__(self, index_name):
-        self.index_name = index_name
+    def __init__(self, name):
+        self.name = name
 
         # these events allow pausing for test assertions
         self.next_message_ready = threading.Event()
@@ -60,7 +60,7 @@ class TestIndexerDaemon:
 
     @pytest.fixture(scope='class')
     def _index_setup(self):
-        return FakeIndexSetup(index_name='fake_index')
+        return FakeIndexSetup(name='fake_index')
 
     @pytest.fixture(scope='class')
     def _daemon(self, _index_setup):

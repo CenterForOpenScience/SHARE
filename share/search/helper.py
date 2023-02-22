@@ -36,7 +36,7 @@ class SearchHelper:
                 for index_name in index_names
             )
 
-    def send_messages(self, message_type, target_ids_chunk, urgent=False):
+    def send_messages(self, message_type, target_ids_chunk, *, urgent=False, index_names=None):
         # gather the queues to send to, based on the index setups' supported message types
         queue_names = [
             (
@@ -45,7 +45,9 @@ class SearchHelper:
                 else index_setup.default_queue_name
             )
             for index_setup in self.index_setups
-            if message_type in index_setup.supported_message_types
+            if (index_names is None or index_setup.name in index_names)
+            and (message_type in index_setup.supported_message_types)
+
         ]
         queue_settings = settings.ELASTICSEARCH['KOMBU_QUEUE_SETTINGS']
         messages_chunk = messages.DaemonMessage.from_values(message_type, target_ids_chunk)
@@ -67,7 +69,7 @@ class SearchHelper:
         messages_chunk = messages.DaemonMessage.from_values(message_type, target_ids)
         for index_setup in self.index_setups:
             if message_type not in index_setup.supported_message_types:
-                logger.error(f'skipping: {index_setup.index_name} does not support {message_type}')
+                logger.error(f'skipping: {index_setup.name} does not support {message_type}')
                 continue
             for result in index_setup.pls_handle_messages(message_type, messages_chunk):
                 if not result.is_handled:
