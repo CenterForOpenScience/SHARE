@@ -37,7 +37,7 @@ class Elastic5IndexStrategy(IndexStrategy):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build_elastic_actions(self, message_type, messages_chunk):
+    def build_elastic_actions(self, messages_chunk):
         raise NotImplementedError
 
     def current_setup(self):
@@ -81,10 +81,10 @@ class Elastic5IndexStrategy(IndexStrategy):
     def pls_organize_redo(self):
         pass  # migrating away
 
-    def pls_handle_messages(self, message_type, messages_chunk):
+    def pls_handle_messages_chunk(self, messages_chunk):
         (success_count, errors) = elastic5_helpers.bulk(
             self.es5_client,
-            self.build_elastic_actions(message_type, messages_chunk),
+            self.build_elastic_actions(messages_chunk),
             raise_on_error=False,
         )
         print((success_count, errors))

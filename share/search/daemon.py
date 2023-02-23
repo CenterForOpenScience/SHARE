@@ -148,43 +148,46 @@ class MessageHandlingLoop:
         self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         logger.info('%sStarted', self.log_prefix)
 
-    def _get_messages_chunk(self):
-        messages_chunk = set()
-        while len(messages_chunk) < self.chunk_size:
+    def _get_daemon_messages(self):
+        daemon_messages_by_target_id = {}
+        while len(daemon_messages_by_target_id) < self.chunk_size:
             try:
                 # If we have any messages queued up, push them through ASAP
                 daemon_message = self.local_message_queue.get(timeout=(
                     QUICK_TIMEOUT
-                    if messages_chunk
+                    if daemon_messages_by_target_id
                     else UNPRESSURED_TIMEOUT
                 ))
-                if daemon_message in messages_chunk:
+                target_id = daemon_message.target_id
+                if target_id in daemon_messages_by_target_id:
                     # skip processing duplicate messages in one chunk
                     daemon_message.ack()
                 else:
-                    messages_chunk.add(daemon_message)
+                    daemon_messages_by_target_id[target_id] = daemon_message
             except local_queue.Empty:
                 break
-        return messages_chunk
+        return daemon_messages_by_target_id
 
     def iterate_once(self):
         # each message corresponds to one action on this daemon's index
         start_time = time.time()
         doc_count, error_count = 0, 0
-        messages_chunk = self._get_messages_chunk()
-        unhandled_messages = set(messages_chunk)  # copy
-        if unhandled_messages:
-            for message_response in self.index_strategy.pls_handle_messages(self.message_type, messages_chunk):
-                if message_response.daemon_message not in unhandled_messages:
-                    raise exceptions.DaemonMessageError(f'where did this message come from {message_response.daemon_message}')
-                unhandled_messages.remove(message_response.daemon_message)
+        daemon_messages_by_target_id = self._get_daemon_messages()
+        if daemon_messages_by_target_id:
+            messages_chunk = messages.MessagesChunk(
+                message_type=self.message_type,
+                target_ids_chunk=set(daemon_messages_by_target_id.keys()),
+            )
+            for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
+                target_id = message_response.index_message.target_id
+                daemon_message = daemon_messages_by_target_id.pop(target_id)
+                daemon_message.ack()  # finally set it free
                 if message_response.is_handled:
                     doc_count += 1
                 else:
                     error_count += 1
-                    logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_message)
-                    sentry_client.captureMessage(message_response.error_message)
-                message_response.daemon_message.ack()  # finally set it free
+                    logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
+                    sentry_client.captureMessage(message_response.error_label)
         time_elapsed = time.time() - start_time
         if doc_count:
             logger.info('%sIndexed %d documents in %.02fs', self.log_prefix, doc_count, time_elapsed)

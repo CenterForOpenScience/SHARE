@@ -138,8 +138,8 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement supported_message_types')
 
     @abc.abstractmethod
-    def pls_handle_messages(self, message_type: messages.MessageType, messages_chunk: typing.Iterable[messages.DaemonMessage]) -> typing.Iterable[messages.HandledMessageResponse]:
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_handle_messages')
+    def pls_handle_messages_chunk(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[messages.IndexMessageResponse]:
+        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_handle_messages_chunk')
 
     # @abc.abstractmethod
     # def pls_handle_query(self, **kwargs):

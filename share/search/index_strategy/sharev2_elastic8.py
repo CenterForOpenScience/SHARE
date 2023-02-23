@@ -110,39 +110,35 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     def get_message_target_id(self, doc_id):
         return IDObfuscator.decode_id(doc_id)
 
-    def build_elastic_actions(self, message_type, messages_chunk):
-        self.assert_message_type(message_type)
-        action_template = {
-            '_index': self.current_index_name,
-        }
-        suid_ids = set(message.target_id for message in messages_chunk)
+    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
+        self.assert_message_type(messages_chunk.message_type)
+        suid_ids = set(messages_chunk.target_ids_chunk)
         record_qs = db.FormattedMetadataRecord.objects.filter(
             suid_id__in=suid_ids,
-            record_format='sharev2_elastic',  # TODO specify in config? or don't
+            record_format='sharev2_elastic',
         )
         for record in record_qs:
-            doc_id = self.get_doc_id(record.suid_id)
             suid_ids.discard(record.suid_id)
             source_doc = json.loads(record.formatted_metadata)
-            assert source_doc['id'] == doc_id
             if source_doc.pop('is_deleted', False):
-                action = {
-                    **action_template,
-                    '_id': doc_id,
-                    '_op_type': 'delete',
-                }
+                yield self._build_delete_action(record.suid_id)
             else:
-                action = {
-                    **action_template,
-                    '_id': doc_id,
-                    '_op_type': 'index',
-                    '_source': source_doc,
-                }
-            yield action
+                yield self._build_index_action(record.suid_id, source_doc)
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
-            yield {
-                **action_template,
-                '_id': IDObfuscator.encode_id(leftover_suid_id, db.SourceUniqueIdentifier),
-                '_op_type': 'delete',
-            }
+            yield self._build_delete_action(leftover_suid_id)
+
+    def _build_index_action(self, target_id, source_doc):
+        return {
+            '_index': self.current_index_name,
+            '_op_type': 'index',
+            '_id': self.get_doc_id(target_id),
+            '_source': source_doc,
+        }
+
+    def _build_delete_action(self, target_id):
+        return {
+            '_index': self.current_index_name,
+            '_op_type': 'delete',
+            '_id': self.get_doc_id(target_id),
+        }

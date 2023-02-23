@@ -7,7 +7,6 @@ from elasticsearch8.helpers import streaming_bulk
 
 from share.search.index_strategy._base import IndexStrategy
 from share.search import messages
-from share.util import IDObfuscator
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +39,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         raise NotImplementedError  # for subclasses to implement
 
     @abc.abstractmethod
-    def build_elastic_actions(self, message_type, messages_chunk):
+    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         raise NotImplementedError  # for subclasses to implement
 
     def get_doc_id(self, message_target_id):
@@ -109,22 +108,17 @@ class Elastic8IndexStrategy(IndexStrategy):
             .delete(index=self.current_index_name, ignore=[400, 404])
         )
 
-    def pls_handle_messages(self, message_type, messages_chunk):
-        messages_by_target_id = {
-            message.target_id: message
-            for message in messages_chunk
-        }
+    def pls_handle_messages_chunk(self, messages_chunk):
         bulk_stream = streaming_bulk(
             self.es8_client,
-            self.build_elastic_actions(message_type, messages_chunk),
+            self.build_elastic_actions(messages_chunk),
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
             message_target_id = self.get_message_target_id(response_body['_id'])
-            daemon_message = messages_by_target_id[message_target_id]
-            yield messages.HandledMessageResponse(
+            yield messages.IndexMessageResponse(
                 is_handled=ok,
-                daemon_message=daemon_message,
-                error_message=response_body.get('_errors'),
+                index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                error_label=response_body.get('_errors'),
             )

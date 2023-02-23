@@ -19,6 +19,17 @@ class MessageType(Enum):
     INDEX_SUID = 'suid'
 
 
+class IndexMessage(typing.NamedTuple):
+    message_type: MessageType
+    target_id: int
+
+
+class IndexMessageResponse(typing.NamedTuple):
+    is_handled: bool
+    index_message: IndexMessage
+    error_label: typing.Optional[str]
+
+
 @dataclasses.dataclass
 class MessagesChunk:
     message_type: MessageType
@@ -31,6 +42,13 @@ class MessagesChunk:
                 'message_type': self.message_type.value,
                 'target_id': target_id,
             }
+
+    def as_tuples(self):
+        for target_id in self.target_ids_chunk:
+            yield IndexMessage(
+                message_type=self.message_type,
+                target_id=target_id,
+            )
 
 
 class DaemonMessage(abc.ABC):
@@ -52,9 +70,6 @@ class DaemonMessage(abc.ABC):
     @property
     @abc.abstractmethod
     def target_id(self):
-        raise NotImplementedError
-
-    def to_dict(self):
         raise NotImplementedError
 
     def __init__(self, *, kombu_message=None):
@@ -102,9 +117,3 @@ class V2Message(DaemonMessage):
     @property
     def target_id(self):
         return self.kombu_message.payload['target_id']
-
-
-class HandledMessageResponse(typing.NamedTuple):
-    is_handled: bool
-    daemon_message: DaemonMessage
-    error_message: typing.Optional[str]

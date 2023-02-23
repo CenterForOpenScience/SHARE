@@ -26,9 +26,9 @@ class FakeIndexStrategy:
     def supported_message_types(self):
         return {messages.MessageType.INDEX_SUID}
 
-    def pls_handle_messages(self, message_type, messages_chunk):
+    def pls_handle_messages_chunk(self, messages_chunk):
         self.message_stream_done.clear()
-        for message in messages_chunk:
+        for index_message in messages_chunk.as_tuples():
             # set so the waiting test thread will continue
             self.next_message_ready.set()
             # immediately clear so the test thread can wait on it again
@@ -37,7 +37,7 @@ class FakeIndexStrategy:
             self.next_message_released.clear()
             wait_for(self.next_message_released)
 
-            yield messages.HandledMessageResponse(True, message, None)
+            yield messages.IndexMessageResponse(True, index_message, None)
         self.message_stream_done.set()
 
 
