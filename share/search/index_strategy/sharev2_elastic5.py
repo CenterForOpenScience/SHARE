@@ -2,11 +2,11 @@ import json
 
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
 from share.search.messages import MessageType
-from share.search.index_setup.elastic5 import Elastic5IndexSetup
+from share.search.index_strategy.elastic5 import Elastic5IndexStrategy
 from share.util import IDObfuscator
 
 
-class Sharev2Elastic5IndexSetup(Elastic5IndexSetup):
+class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     SUBJECT_DELIMITER = '|'
 
     @property

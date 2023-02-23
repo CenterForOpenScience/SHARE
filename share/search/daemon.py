@@ -9,7 +9,7 @@ from kombu import Queue as KombuQueue
 from kombu.mixins import ConsumerMixin
 from raven.contrib.django.raven_compat.models import client as sentry_client
 
-from share.search import exceptions, messages, IndexSetup
+from share.search import exceptions, messages, IndexStrategy
 
 
 logger = logging.getLogger(__name__)
@@ -21,11 +21,11 @@ QUICK_TIMEOUT = 0.1         # one tenth of one second
 class CeleryMessageConsumer(ConsumerMixin):
     PREFETCH_COUNT = 7500
 
-    def __init__(self, celery_app, indexer_daemon, index_setup):
+    def __init__(self, celery_app, indexer_daemon, index_strategy):
         self.connection = celery_app.pool.acquire(block=True)
         self.celery_app = celery_app
         self.__indexer_daemon = indexer_daemon
-        self.__index_setup = index_setup
+        self.__index_strategy = index_strategy
 
     # overrides ConsumerMixin.run
     def run(self):
@@ -47,8 +47,8 @@ class CeleryMessageConsumer(ConsumerMixin):
         return [
             Consumer(
                 [
-                    KombuQueue(self.__index_setup.urgent_queue_name, **kombu_queue_settings),
-                    KombuQueue(self.__index_setup.default_queue_name, **kombu_queue_settings),
+                    KombuQueue(self.__index_strategy.urgent_queue_name, **kombu_queue_settings),
+                    KombuQueue(self.__index_strategy.default_queue_name, **kombu_queue_settings),
                 ],
                 callbacks=[self.__indexer_daemon.on_message],
                 accept=['json'],
@@ -57,7 +57,7 @@ class CeleryMessageConsumer(ConsumerMixin):
         ]
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
 
 
 class IndexMessengerDaemon:
@@ -65,15 +65,15 @@ class IndexMessengerDaemon:
 
     @classmethod
     def start_daemonthreads(cls, celery_app, stop_event):
-        for index_setup in IndexSetup.all_indexes():
-            indexer_daemon = cls(index_setup=index_setup, stop_event=stop_event)
+        for index_strategy in IndexStrategy.all_indexes():
+            indexer_daemon = cls(index_strategy=index_strategy, stop_event=stop_event)
             indexer_daemon.start_loops_and_queues()
-            consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_setup)
+            consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
             threading.Thread(target=consumer.run).start()
 
-    def __init__(self, index_setup, stop_event):
+    def __init__(self, index_strategy, stop_event):
         self.stop_event = stop_event
-        self.__index_setup = index_setup  # TODO: error if index not ready
+        self.__index_strategy = index_strategy  # TODO: error if index not ready
         self.__thread_pool = None
         self.__local_message_queues = {}
 
@@ -90,7 +90,7 @@ class IndexMessengerDaemon:
         if self.__thread_pool:
             raise exceptions.DaemonSetupError('IndexMessengerDaemon already set up!')
 
-        supported_message_types = self.__index_setup.supported_message_types
+        supported_message_types = self.__index_strategy.supported_message_types
 
         self.__thread_pool = ThreadPoolExecutor(max_workers=len(supported_message_types) + 1)
         self.__thread_pool.submit(self.__wait_on_stop_event)
@@ -120,7 +120,7 @@ class IndexMessengerDaemon:
         try:
             log_prefix = f'{repr(self)} MessageHandlingLoop: '
             loop = MessageHandlingLoop(
-                index_setup=self.__index_setup,
+                index_strategy=self.__index_strategy,
                 message_type=message_type,
                 local_message_queue=self.__local_message_queues[message_type],
                 stop_event=self.stop_event,
@@ -135,12 +135,12 @@ class IndexMessengerDaemon:
             self.stop()
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_setup.name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
 
 
 class MessageHandlingLoop:
-    def __init__(self, index_setup, message_type, local_message_queue, stop_event, log_prefix):
-        self.index_setup = index_setup
+    def __init__(self, index_strategy, message_type, local_message_queue, stop_event, log_prefix):
+        self.index_strategy = index_strategy
         self.message_type = message_type
         self.local_message_queue = local_message_queue
         self.log_prefix = log_prefix
@@ -174,7 +174,7 @@ class MessageHandlingLoop:
         messages_chunk = self._get_messages_chunk()
         unhandled_messages = set(messages_chunk)  # copy
         if unhandled_messages:
-            for message_response in self.index_setup.pls_handle_messages(self.message_type, messages_chunk):
+            for message_response in self.index_strategy.pls_handle_messages(self.message_type, messages_chunk):
                 if message_response.daemon_message not in unhandled_messages:
                     raise exceptions.DaemonMessageError(f'where did this message come from {message_response.daemon_message}')
                 unhandled_messages.remove(message_response.daemon_message)

@@ -13,7 +13,7 @@ def wait_for(event):
         raise Exception('timed out waiting for event (see stack trace)')
 
 
-class FakeIndexSetup:
+class FakeIndexStrategy:
     def __init__(self, name):
         self.name = name
 
@@ -59,39 +59,39 @@ class FakeCeleryMessage:
 class TestIndexerDaemon:
 
     @pytest.fixture(scope='class')
-    def _index_setup(self):
-        return FakeIndexSetup(name='fake_index')
+    def _index_strategy(self):
+        return FakeIndexStrategy(name='fake_index')
 
     @pytest.fixture(scope='class')
-    def _daemon(self, _index_setup):
+    def _daemon(self, _index_strategy):
         stop_event = threading.Event()
         daemon = IndexMessengerDaemon(
-            index_setup=_index_setup,
+            index_strategy=_index_strategy,
             stop_event=stop_event,
         )
         daemon.start_loops_and_queues()
         yield daemon
         stop_event.set()
 
-    def test_message_ack_after_success(self, _index_setup, _daemon):
+    def test_message_ack_after_success(self, _index_strategy, _daemon):
         message_1 = FakeCeleryMessage(messages.MessageType.INDEX_SUID, 1)
         message_2 = FakeCeleryMessage(messages.MessageType.INDEX_SUID, 2)
         _daemon.on_message(message_1.payload, message_1)
         _daemon.on_message(message_2.payload, message_2)
 
-        wait_for(_index_setup.next_message_ready)
+        wait_for(_index_strategy.next_message_ready)
 
         assert not message_1.acked
         assert not message_2.acked
-        _index_setup.next_message_released.set()
+        _index_strategy.next_message_released.set()
 
-        wait_for(_index_setup.next_message_ready)
+        wait_for(_index_strategy.next_message_ready)
 
         assert message_1.acked
         assert not message_2.acked
-        _index_setup.next_message_released.set()
+        _index_strategy.next_message_released.set()
 
-        wait_for(_index_setup.message_stream_done)
+        wait_for(_index_strategy.message_stream_done)
 
         assert message_1.acked
         assert message_2.acked

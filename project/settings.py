@@ -317,14 +317,14 @@ ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 if ELASTICSEARCH5_URL:
     ELASTICSEARCH['INDEXES']['share_postrend_backcompat'] = {
         'CLUSTER_URL': ELASTICSEARCH5_URL,
-        'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic5:Sharev2Elastic5IndexSetup',
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
         'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
         'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
     }
 if ELASTICSEARCH8_URL:
     ELASTICSEARCH['INDEXES']['sharev2_elastic8'] = {
         'CLUSTER_URL': ELASTICSEARCH8_URL,
-        'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic8:Sharev2Elastic8IndexSetup',
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
     }
 
 # Seconds, not an actual celery settings

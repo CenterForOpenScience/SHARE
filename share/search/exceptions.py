@@ -13,5 +13,5 @@ class DaemonIndexingError(ShareException):
     pass
 
 
-class IndexSetupError(ShareException):
+class IndexStrategyError(ShareException):
     pass

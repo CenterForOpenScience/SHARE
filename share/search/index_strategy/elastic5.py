@@ -6,13 +6,13 @@ import logging
 from django.conf import settings
 from elasticsearch5 import Elasticsearch, helpers as elastic5_helpers
 
-from share.search.index_setup._base import IndexSetup
+from share.search.index_strategy._base import IndexStrategy
 
 
 logger = logging.getLogger(__name__)
 
 
-class Elastic5IndexSetup(IndexSetup):
+class Elastic5IndexStrategy(IndexStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         should_sniff = settings.ELASTICSEARCH['SNIFF']
@@ -48,7 +48,7 @@ class Elastic5IndexSetup(IndexSetup):
 
     def pls_make_prime(self):
         logger.info(
-            'Elastic5IndexSetup.pls_make_prime doing nothing with '
+            'Elastic5IndexStrategy.pls_make_prime doing nothing with '
             'the expectation we will stop using elasticsearch5 soon'
         )
 

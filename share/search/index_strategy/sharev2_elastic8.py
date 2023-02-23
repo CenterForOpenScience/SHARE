@@ -1,12 +1,12 @@
 import json
 
 from share import models as db
-from share.search.index_setup.elastic8 import Elastic8IndexSetup
+from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
 from share.util import IDObfuscator
 
 
-class Sharev2Elastic8IndexSetup(Elastic8IndexSetup):
+class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:sharev2_elastic8:fe89e0511e02c2ee55124d3c7bc96794e7a2af65a3a30b77696546d8d2e31dce'
 
     @property

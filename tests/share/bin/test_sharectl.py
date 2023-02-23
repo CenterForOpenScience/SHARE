@@ -31,31 +31,31 @@ class TestSharectlSearch:
         ['another', 'makes', 'two'],
     ])
     def test_purge(self, index_names):
-        mock_index_setups = [
+        mock_index_strategys = [
             mock.Mock()
             for _ in index_names
         ]
-        with mock.patch('share.bin.search.IndexSetup.all_indexes', return_value=mock_index_setups):
+        with mock.patch('share.bin.search.IndexStrategy.all_indexes', return_value=mock_index_strategys):
             run_sharectl('search', 'purge', *index_names)
-        for mock_index_setup in mock_index_setups:
-            assert mock_index_setup.pls_delete.mock_calls == [mock.call()]
+        for mock_index_strategy in mock_index_strategys:
+            assert mock_index_strategy.pls_delete.mock_calls == [mock.call()]
 
     def test_setup_initial(self, settings):
         expected_indexes = ['baz', 'bar', 'foo']
-        mock_index_setups = [
+        mock_index_strategys = [
             mock.Mock()
             for _ in expected_indexes
         ]
-        with mock.patch('share.bin.search.IndexSetup.all_indexes', return_value=mock_index_setups):
+        with mock.patch('share.bin.search.IndexStrategy.all_indexes', return_value=mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
-        for mock_index_setup in mock_index_setups:
-            assert mock_index_setup.pls_setup_as_needed.mock_calls == [mock.call()]
+        for mock_index_strategy in mock_index_strategys:
+            assert mock_index_strategy.pls_setup_as_needed.mock_calls == [mock.call()]
 
     def test_setup_index(self):
-        mock_index_setup = mock.Mock()
-        with mock.patch('share.bin.search.IndexSetup.by_name', return_value=mock_index_setup):
+        mock_index_strategy = mock.Mock()
+        with mock.patch('share.bin.search.IndexStrategy.by_name', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
-        assert mock_index_setup.pls_setup_as_needed.mock_calls == [mock.call('foo')]
+        assert mock_index_strategy.pls_setup_as_needed.mock_calls == [mock.call('foo')]
 
     def test_daemon(self, settings):
         expected_indexes = ['bliz', 'blaz', 'bluz']

@@ -12,7 +12,7 @@ def post_migrate_load_sources(sender, **kwargs):
 
 
 def ensure_latest_elastic_mappings(sender, **kwargs):
-    from share.search import IndexSetup
+    from share.search import IndexStrategy
 
-    for index_setup in IndexSetup.all_indexes():
-        index_setup.pls_setup_as_needed()
+    for index_strategy in IndexStrategy.all_indexes():
+        index_strategy.pls_setup_as_needed()

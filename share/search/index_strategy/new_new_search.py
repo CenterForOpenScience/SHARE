@@ -1,11 +1,11 @@
 import json
 
 from share.models.core import FormattedMetadataRecord
-from share.search.index_setup._base import IndexSetup
+from share.search.index_strategy._base import IndexStrategy
 from share.search.messages import MessageType
 
 
-class NewNewIndexSetup(IndexSetup):
+class NewNewIndexStrategy(IndexStrategy):
     @property
     def supported_message_types(self):
         return {MessageType.INDEX_SUID}

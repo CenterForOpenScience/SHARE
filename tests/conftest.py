@@ -18,7 +18,7 @@ from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 from share.models import FormattedMetadataRecord
-from share.search import MessageType, SearchHelper, IndexSetup
+from share.search import MessageType, SearchHelper, IndexStrategy
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
@@ -150,9 +150,9 @@ def elastic_test_index_name():
 @pytest.fixture(params=['es5', 'es8'])
 def elastic_test_cluster_url(request, settings):
     if request.param == 'es5':
-        return settings.ELASTICSEARCH_5_URL
+        return settings.ELASTICSEARCH5_URL
     if request.param == 'es8':
-        return settings.ELASTICSEARCH_8_URL
+        return settings.ELASTICSEARCH8_URL
     raise ValueError(request.param)
 
 
@@ -170,19 +170,19 @@ def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, set
             elastic_test_index_name: {
                 'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
                 'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
-                'INDEX_SETUP': 'sharev2_elastic5',
-                'CLUSTER_URL': settings.ELASTICSEARCH_5_URL,
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
+                'CLUSTER_URL': settings.ELASTICSEARCH5_URL,
             },
         },
     }
-    index_setup = IndexSetup.by_name(elastic_test_index_name)
+    index_strategy = IndexStrategy.by_name(elastic_test_index_name)
     try:
-        index_setup.pls_delete()
-        index_setup.pls_setup()
+        index_strategy.pls_delete()
+        index_strategy.pls_setup()
         try:
             yield
         finally:
-            index_setup.pls_delete()
+            index_strategy.pls_delete()
     except (ConnectionError, ElasticConnectionError):
         raise pytest.skip('Elasticsearch unavailable')
 

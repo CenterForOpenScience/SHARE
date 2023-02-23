@@ -6,7 +6,7 @@ from django.db.models import Exists, OuterRef
 
 from share.bin.util import command
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import MessageType, SearchHelper, IndexSetup
+from share.search import MessageType, SearchHelper, IndexStrategy
 from share.search.daemon import IndexMessengerDaemon
 
 
@@ -33,8 +33,8 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        index_setup = IndexSetup.by_name(index_name)
-        index_setup.pls_delete()
+        index_strategy = IndexStrategy.by_name(index_name)
+        index_strategy.pls_delete()
 
 
 @search.subcommand('Create indicies and apply mappings')
@@ -45,11 +45,11 @@ def setup(args, argv):
     """
     is_initial = args.get('--initial')
     if is_initial:
-        index_setups = IndexSetup.all_indexes()
+        index_strategys = IndexStrategy.all_indexes()
     else:
-        index_setups = [IndexSetup.by_name(args['<index_name>'])]
-    for index_setup in index_setups:
-        index_setup.pls_setup_as_needed()
+        index_strategys = [IndexStrategy.by_name(args['<index_name>'])]
+    for index_strategy in index_strategys:
+        index_strategy.pls_setup_as_needed()
 
 
 @search.subcommand('Queue daemon messages to reindex all suids')

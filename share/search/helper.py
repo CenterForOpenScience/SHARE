@@ -4,7 +4,7 @@ from contextlib import ExitStack
 from django.conf import settings
 
 from share.search import messages
-from share.search.index_setup import IndexSetup
+from share.search.index_strategy import IndexStrategy
 
 
 __all__ = ('SearchHelper',)
@@ -29,10 +29,10 @@ class SearchHelper:
         else:
             self.celery_app = celery_app
         if index_names is None:
-            self.index_setups = IndexSetup.all_indexes()
+            self.index_strategys = IndexStrategy.all_indexes()
         else:
-            self.index_setups = tuple(
-                IndexSetup.by_name(index_name)
+            self.index_strategys = tuple(
+                IndexStrategy.by_name(index_name)
                 for index_name in index_names
             )
 
@@ -40,13 +40,13 @@ class SearchHelper:
         # gather the queues to send to, based on the index setups' supported message types
         queue_names = [
             (
-                index_setup.urgent_queue_name
+                index_strategy.urgent_queue_name
                 if urgent
-                else index_setup.default_queue_name
+                else index_strategy.default_queue_name
             )
-            for index_setup in self.index_setups
-            if (index_names is None or index_setup.name in index_names)
-            and (message_type in index_setup.supported_message_types)
+            for index_strategy in self.index_strategys
+            if (index_names is None or index_strategy.name in index_names)
+            and (message_type in index_strategy.supported_message_types)
 
         ]
         queue_settings = settings.ELASTICSEARCH['KOMBU_QUEUE_SETTINGS']
@@ -67,18 +67,18 @@ class SearchHelper:
 
     def handle_messages_sync(self, message_type, target_ids):
         messages_chunk = messages.DaemonMessage.from_values(message_type, target_ids)
-        for index_setup in self.index_setups:
-            if message_type not in index_setup.supported_message_types:
-                logger.error(f'skipping: {index_setup.name} does not support {message_type}')
+        for index_strategy in self.index_strategys:
+            if message_type not in index_strategy.supported_message_types:
+                logger.error(f'skipping: {index_strategy.name} does not support {message_type}')
                 continue
-            for result in index_setup.pls_handle_messages(message_type, messages_chunk):
+            for result in index_strategy.pls_handle_messages(message_type, messages_chunk):
                 if not result.is_handled:
                     logger.error(
                         'error in %s handling message %s: %s',
-                        (index_setup, result.daemon_message, result.error_message),
+                        (index_strategy, result.daemon_message, result.error_message),
                     )
                 else:
                     logger.info(
                         'success! %s handled message %s',
-                        (index_setup, result.daemon_message),
+                        (index_strategy, result.daemon_message),
                     )

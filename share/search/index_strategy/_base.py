@@ -7,12 +7,12 @@ import typing
 from django.conf import settings
 from django.utils.functional import cached_property
 
-from share.search.exceptions import IndexSetupError
+from share.search.exceptions import IndexStrategyError
 from share.search import messages
 from share import tasks
 
 
-class IndexSetup(abc.ABC):
+class IndexStrategy(abc.ABC):
     CURRENT_SETUP_CHECKSUM = None  # set on subclasses to protect against accidents
 
     @classmethod
@@ -29,12 +29,12 @@ class IndexSetup(abc.ABC):
 
     @classmethod
     def _load_from_config(cls, name, index_config):
-        # required known properties: INDEX_SETUP, CLUSTER_URL
-        module_name, class_name = index_config['INDEX_SETUP'].split(':', maxsplit=1)
-        assert module_name.startswith('share.search.')
-        index_setup_class = getattr(importlib.import_module(module_name), class_name)
-        assert issubclass(index_setup_class, IndexSetup)
-        return index_setup_class(
+        # required known properties: INDEX_STRATEGY_CLASS, CLUSTER_URL
+        module_name, class_name = index_config['INDEX_STRATEGY_CLASS'].split(':', maxsplit=1)
+        assert module_name.startswith('share.search.index_strategy.')
+        index_strategy_class = getattr(importlib.import_module(module_name), class_name)
+        assert issubclass(index_strategy_class, IndexStrategy)
+        return index_strategy_class(
             name=name,
             cluster_url=index_config['CLUSTER_URL'],
             default_queue_name=index_config.get('DEFAULT_QUEUE', None),
@@ -49,7 +49,7 @@ class IndexSetup(abc.ABC):
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:
-            raise IndexSetupError(f'Invalid message_type "{message_type}" (expected {self.supported_message_types})')
+            raise IndexStrategyError(f'Invalid message_type "{message_type}" (expected {self.supported_message_types})')
 
     @cached_property
     def current_setup_checksum(self):
@@ -61,7 +61,7 @@ class IndexSetup(abc.ABC):
             self.current_setup(),
             sort_keys=True,
         )
-        salt = self.__class__.__name__  # note: renaming an IndexSetup subclass changes its checksum
+        salt = self.__class__.__name__  # note: renaming an IndexStrategy subclass changes its checksum
         checksum_hex = (
             hashlib.sha256(
                 f'{salt}{current_setup_str}'.encode(),
@@ -73,17 +73,17 @@ class IndexSetup(abc.ABC):
     @cached_property
     def current_index_name(self):
         checksum_hex = self.current_setup_checksum.rpartition(':')[-1]
-        return '__'.join(('indexsetup', self.name, checksum_hex))
+        return f'{self.name}__{checksum_hex}'
 
     @property
     def prime_alias(self):
         # the alias used for querying
-        return f'prime__{self.name}'
+        return f'{self.name}__prime'
 
     def assert_setup_is_current(self):
         setup_checksum = self.current_setup_checksum
         if setup_checksum != self.CURRENT_SETUP_CHECKSUM:
-            raise IndexSetupError(f'''
+            raise IndexStrategyError(f'''
 Unconfirmed changes in {self.__class__.__name__}!
 Expected CURRENT_SETUP_CHECKSUM = '{self.CURRENT_SETUP_CHECKSUM}'
 ...but got '{setup_checksum}'
@@ -99,7 +99,6 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         self.assert_setup_is_current()
         self.pls_create()
         self.pls_organize_fill()
-        self.pls_make_prime()
 
     def pls_organize_fill(self):
         # TODO check backfill status (if done, don't re-do)

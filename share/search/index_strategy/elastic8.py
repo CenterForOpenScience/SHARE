@@ -5,7 +5,7 @@ from django.conf import settings
 import elasticsearch8
 from elasticsearch8.helpers import streaming_bulk
 
-from share.search.index_setup._base import IndexSetup
+from share.search.index_strategy._base import IndexStrategy
 from share.search import messages
 from share.util import IDObfuscator
 
@@ -13,7 +13,7 @@ from share.util import IDObfuscator
 logger = logging.getLogger(__name__)
 
 
-class Elastic8IndexSetup(IndexSetup):
+class Elastic8IndexStrategy(IndexStrategy):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         should_sniff = settings.ELASTICSEARCH['SNIFF']
@@ -49,14 +49,14 @@ class Elastic8IndexSetup(IndexSetup):
     def get_message_target_id(self, doc_id):
         return doc_id  # here so subclasses can override if needed
 
-    # implements IndexSetup.current_setup
+    # implements IndexStrategy.current_setup
     def current_setup(self):
         return {
             'settings': self.index_settings(),
             'mappings': self.index_mappings(),
         }
 
-    # implements IndexSetup.pls_make_prime
+    # implements IndexStrategy.pls_make_prime
     def pls_make_prime(self):
         indexes_with_prime_alias = self._indexes_with_prime_alias()
         if indexes_with_prime_alias != {self.current_index_name}:
@@ -81,7 +81,7 @@ class Elastic8IndexSetup(IndexSetup):
         except elasticsearch8.exceptions.NotFoundError:
             return set()
 
-    # implements IndexSetup.pls_create
+    # implements IndexStrategy.pls_create
     def pls_create(self):
         logger.debug('Ensuring index %s', self.current_index_name)
         # check index exists (if not, create)
@@ -100,7 +100,7 @@ class Elastic8IndexSetup(IndexSetup):
         self.es8_client.cluster.health(wait_for_status='yellow')
         logger.info('Finished setting up Elasticsearch index %s', self.current_index_name)
 
-    # implements IndexSetup.pls_delete
+    # implements IndexStrategy.pls_delete
     def pls_delete(self):
         logger.warning(f'{self.__class__.__name__}: deleting index {self.current_index_name}')
         (

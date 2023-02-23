@@ -1,8 +1,8 @@
-from share.search.index_setup._base import IndexSetup
+from share.search.index_strategy._base import IndexStrategy
 
 
 # just a placeholder for now
-class TroveV0IndexSetup(IndexSetup):
+class TroveV0IndexStrategy(IndexStrategy):
     @property
     def supported_message_types(self):
         return set()

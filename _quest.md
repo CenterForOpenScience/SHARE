@@ -10,7 +10,7 @@ perform all elastic operations thru one of two interfaces:
     * handles index create/delete/update/query/fill
 * share.search.SearchHelper
     * for operations across all/many indexes/clusters
-    * uses the common IndexSetup interface and share.search.messages
+    * uses the common IndexStrategy interface and share.search.messages
 
 ### local elastic8
 add to docker-compose.yml

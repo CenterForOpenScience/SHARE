@@ -3,15 +3,15 @@ from unittest.mock import patch, call
 import pytest
 from elasticsearch.exceptions import NotFoundError
 
-from share.search.index_setup import (
-    IndexSetup,
-    Sharev2Elastic5IndexSetup,
-    Sharev2Elastic8IndexSetup,
-    TroveV0IndexSetup,
+from share.search.index_strategy import (
+    IndexStrategy,
+    Sharev2Elastic5IndexStrategy,
+    Sharev2Elastic8IndexStrategy,
+    TroveV0IndexStrategy,
 )
 
 
-class TestIndexSetup:
+class TestIndexStrategy:
     @pytest.fixture
     def mock_es_clients(self, settings):
         settings.ELASTICSEARCH = {
@@ -19,92 +19,92 @@ class TestIndexSetup:
             'INDEXES': {
                 'my_es5_index': {
                     'CLUSTER_URL': 'blah',
-                    'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic5:Sharev2Elastic5IndexSetup',
+                    'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
                 },
                 'my_es8_index': {
                     'CLUSTER_URL': 'bleh',
-                    'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic8:Sharev2Elastic8IndexSetup',
+                    'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
                 },
             },
         }
-        es5_indexsetup = IndexSetup.by_name('my_es5_index')
-        es8_indexsetup = IndexSetup.by_name('my_es8_index')
-        with patch.object(es5_indexsetup, 'es5_client') as es5_mockclient:
-            with patch.object(es8_indexsetup, 'es8_client') as es8_mockclient:
+        es5_indexstrategy = IndexStrategy.by_name('my_es5_index')
+        es8_indexstrategy = IndexStrategy.by_name('my_es8_index')
+        with patch.object(es5_indexstrategy, 'es5_client') as es5_mockclient:
+            with patch.object(es8_indexstrategy, 'es8_client') as es8_mockclient:
                 yield {
                     'my_es5_index': es5_mockclient,
                     'my_es8_index': es8_mockclient,
                 }
 
     @pytest.mark.parametrize('index_name, expected_setup_class', [
-        ('my_es5_index', Sharev2Elastic5IndexSetup),
-        ('my_es8_index', Sharev2Elastic8IndexSetup),
+        ('my_es5_index', Sharev2Elastic5IndexStrategy),
+        ('my_es8_index', Sharev2Elastic8IndexStrategy),
     ])
     def test_get_by_name(self, mock_es_clients, index_name, expected_setup_class):
-        index_setup = IndexSetup.by_name(index_name)
-        assert isinstance(index_setup, expected_setup_class)
+        index_strategy = IndexStrategy.by_name(index_name)
+        assert isinstance(index_strategy, expected_setup_class)
 
     def test_get_all_indexes(self, mock_es_clients):
-        all_indexes = IndexSetup.all_indexes()
+        all_indexes = IndexStrategy.all_indexes()
         assert isinstance(all_indexes, tuple)
         assert len(all_indexes) == 2
         index_names = {
-            index_setup.name
-            for index_setup in all_indexes
+            index_strategy.name
+            for index_strategy in all_indexes
         }
         assert index_names == {'my_es5_index', 'my_es8_index'}
-        assert isinstance(all_indexes['my_es5_index'], Sharev2Elastic5IndexSetup)
-        assert isinstance(all_indexes['my_es8_index'], Sharev2Elastic8IndexSetup)
+        assert isinstance(all_indexes['my_es5_index'], Sharev2Elastic5IndexStrategy)
+        assert isinstance(all_indexes['my_es8_index'], Sharev2Elastic8IndexStrategy)
 
     def test_create_index(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.items():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
             mock_es_client.configure_mock(**{
                 'indices.exists.return_value': False,
             })
-            index_setup.pls_create()
+            index_strategy.pls_create()
             mock_es_client.indices.create.assert_called_once_with(
                 index_name,
-                body={'settings': index_setup.index_settings()},
+                body={'settings': index_strategy.index_settings()},
             )
             mock_es_client.indices.put_mapping.assert_has_calls([
                 call(
                     doc_type=doc_type,
                     body={doc_type: mapping},
                     index=index_name,
-                ) for doc_type, mapping in index_setup.index_mappings().items()
+                ) for doc_type, mapping in index_strategy.index_mappings().items()
             ], any_order=True)
 
     def test_create_index_already_exists(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.items():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
             mock_es_client.configure_mock(**{
                 'indices.exists.return_value': True,
             })
             with pytest.raises(ValueError):
-                index_setup.pls_create(index_name)
+                index_strategy.pls_create(index_name)
 
     def test_delete_index(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.items():
-            index_setup = IndexSetup.by_name(index_name)
-            index_setup.pls_delete()
+            index_strategy = IndexStrategy.by_name(index_name)
+            index_strategy.pls_delete()
             mock_es_client.indices.delete.assert_called_once_with(index=index_name, ignore=[400, 404])
 
     def test_exists_as_expected(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.keys():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
 
     def test_pls_setup_as_needed(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.keys():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
 
     def test_pls_handle_messages(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.keys():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
 
     def test_pls_organize_redo(self, mock_es_clients):
         for index_name, mock_es_client in mock_es_clients.keys():
-            index_setup = IndexSetup.by_name(index_name)
+            index_strategy = IndexStrategy.by_name(index_name)
 
     # def test_stream_actions(self, mock_es_clients):
     #     input_actions = [
