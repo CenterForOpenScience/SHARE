@@ -298,8 +298,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-ELASTICSEARCH_5_URL = os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-ELASTICSEARCH_8_URL = os.environ.get('ELASTICSEARCH_8_URL', 'http://elastic8:9200/'),
 
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
@@ -312,20 +310,22 @@ ELASTICSEARCH = {
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    'INDEXES': {
-        # TODO: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
-        'share_postrend_backcompat': {
-            'CLUSTER_URL': ELASTICSEARCH_5_URL,
-            'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic5:Sharev2Elastic5IndexSetup',
-            'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
-            'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
-        },
-        'sharev2_elastic8': {
-            'CLUSTER_URL': ELASTICSEARCH_8_URL,
-            'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic8:Sharev2Elastic8IndexSetup',
-        },
-    },
+    'INDEXES': {},  # populated below based on environment variables
 }
+ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL'),
+ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
+if ELASTICSEARCH5_URL:
+    ELASTICSEARCH['INDEXES']['share_postrend_backcompat'] = {
+        'CLUSTER_URL': ELASTICSEARCH5_URL,
+        'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic5:Sharev2Elastic5IndexSetup',
+        'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
+        'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
+    }
+if ELASTICSEARCH8_URL:
+    ELASTICSEARCH['INDEXES']['sharev2_elastic8'] = {
+        'CLUSTER_URL': ELASTICSEARCH8_URL,
+        'INDEX_SETUP': 'share.search.index_setup.sharev2_elastic8:Sharev2Elastic8IndexSetup',
+    }
 
 # Seconds, not an actual celery settings
 CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if DEBUG else 10))

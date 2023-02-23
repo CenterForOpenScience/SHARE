@@ -3,23 +3,22 @@
 ## TODO
 ### support multiple elastic clusters
 perform all elastic operations thru one of two interfaces:
-* share.search.DaemonMessage (across all indexes/clusters)
-* share.search.IndexSetup (for a specific index)
+* share.search.IndexStrategy
+    * for operations on a specific index
+    * knows of version- or cluster-specific features
+    * encapsulates elasticsearch client library
+    * handles index create/delete/update/query/fill
+* share.search.SearchHelper
+    * for operations across all/many indexes/clusters
+    * uses the common IndexSetup interface and share.search.messages
 
-share.search.IndexSetup knows of version- or cluster-specific features
+### local elastic8
+add to docker-compose.yml
 
-share.search.daemon doesn't understand the difference,
-                    knows only the common IndexSetup interface
-                    acts on only a handful of iris,
+add/use ELASTICSEARCH8_URL environment var
 
-use different elasticsearch client libraries for different versions
+add sharev2_elastic8 copy of existing index
 
-### add elasticsearch8 to local docker-compose.yml
-get tests running across all clusters
-
-### add elasticsearch8 to staging
-however that's done
-
-### add elasticsearch8 to production
+add query param to existing search api to use elastic8
 
 ## DONE

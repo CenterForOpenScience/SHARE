@@ -53,12 +53,15 @@ class IndexSetup(abc.ABC):
 
     @cached_property
     def current_setup_checksum(self):
-        # get checksum iri for static config (e.g. elastic settings, mappings)
+        '''get a checksum (as iri) for all shared/static config in this setup
+
+        (e.g. elastic settings, mappings)
+        '''
         current_setup_str = json.dumps(
             self.current_setup(),
             sort_keys=True,
         )
-        salt = self.name
+        salt = self.__class__.__name__  # note: renaming an IndexSetup subclass changes its checksum
         checksum_hex = (
             hashlib.sha256(
                 f'{salt}{current_setup_str}'.encode(),
@@ -80,15 +83,14 @@ class IndexSetup(abc.ABC):
     def assert_setup_is_current(self):
         setup_checksum = self.current_setup_checksum
         if setup_checksum != self.CURRENT_SETUP_CHECKSUM:
-            indexsetup_name = self.__class__.__name__
             raise IndexSetupError(f'''
-Unexpected setup in {indexsetup_name}!
-Expected <{self.CURRENT_SETUP_CHECKSUM}>
-...but got <{setup_checksum}>
+Unconfirmed changes in {self.__class__.__name__}!
+Expected CURRENT_SETUP_CHECKSUM = '{self.CURRENT_SETUP_CHECKSUM}'
+...but got '{setup_checksum}'
 for the current setup:
 {json.dumps(self.current_setup(), indent=4, sort_keys=True)}
 
-If changing on purpose, update {indexsetup_name} with:
+If changing on purpose, update {self.__class__.__qualname__} with:
 ```
     CURRENT_SETUP_CHECKSUM = '{setup_checksum}'
 ```''')
@@ -106,6 +108,8 @@ If changing on purpose, update {indexsetup_name} with:
 
     @abc.abstractmethod
     def current_setup(self):
+        '''get a json-serializable representation of shared/static index config
+        '''
         raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement current_setup')
 
     @abc.abstractmethod
