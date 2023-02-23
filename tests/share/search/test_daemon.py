@@ -1,7 +1,7 @@
 import pytest
 import threading
 
-from share.search.daemon import IndexMessengerDaemon
+from share.search.daemon import IndexerDaemon
 from share.search import messages
 
 
@@ -65,7 +65,7 @@ class TestIndexerDaemon:
     @pytest.fixture(scope='class')
     def _daemon(self, _index_strategy):
         stop_event = threading.Event()
-        daemon = IndexMessengerDaemon(
+        daemon = IndexerDaemon(
             index_strategy=_index_strategy,
             stop_event=stop_event,
         )

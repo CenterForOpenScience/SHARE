@@ -45,7 +45,7 @@ class TestIndexStrategy:
         assert isinstance(index_strategy, expected_setup_class)
 
     def test_get_all_indexes(self, mock_es_clients):
-        all_indexes = IndexStrategy.all_indexes()
+        all_indexes = IndexStrategy.for_all_indexes()
         assert isinstance(all_indexes, tuple)
         assert len(all_indexes) == 2
         index_names = {

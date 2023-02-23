@@ -16,7 +16,7 @@ class IndexStrategy(abc.ABC):
     CURRENT_SETUP_CHECKSUM = None  # set on subclasses to protect against accidents
 
     @classmethod
-    def all_indexes(cls):
+    def for_all_indexes(cls):
         return tuple(
             cls._load_from_config(name, config)
             for name, config in settings.ELASTICSEARCH['INDEXES'].items()
@@ -46,6 +46,13 @@ class IndexStrategy(abc.ABC):
         self.cluster_url = cluster_url
         self.default_queue_name = default_queue_name or name
         self.urgent_queue_name = urgent_queue_name or f'{self.default_queue_name}.urgent'
+
+    def get_queue_name(self, urgent: bool):
+        return (
+            self.urgent_queue_name
+            if urgent
+            else self.default_queue_name
+        )
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:

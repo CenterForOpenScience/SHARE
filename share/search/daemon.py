@@ -60,12 +60,12 @@ class CeleryMessageConsumer(ConsumerMixin):
         return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
 
 
-class IndexMessengerDaemon:
+class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
 
     @classmethod
     def start_daemonthreads(cls, celery_app, stop_event):
-        for index_strategy in IndexStrategy.all_indexes():
+        for index_strategy in IndexStrategy.for_all_indexes():
             indexer_daemon = cls(index_strategy=index_strategy, stop_event=stop_event)
             indexer_daemon.start_loops_and_queues()
             consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
@@ -88,7 +88,7 @@ class IndexMessengerDaemon:
 
     def start_loops_and_queues(self):
         if self.__thread_pool:
-            raise exceptions.DaemonSetupError('IndexMessengerDaemon already set up!')
+            raise exceptions.DaemonSetupError('IndexerDaemon already set up!')
 
         supported_message_types = self.__index_strategy.supported_message_types
 

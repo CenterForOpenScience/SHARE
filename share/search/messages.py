@@ -1,3 +1,5 @@
+import abc
+import dataclasses
 from enum import Enum
 import logging
 import typing
@@ -17,7 +19,21 @@ class MessageType(Enum):
     INDEX_SUID = 'suid'
 
 
-class DaemonMessage:
+@dataclasses.dataclass
+class MessagesChunk:
+    message_type: MessageType
+    target_ids_chunk: typing.Iterable[int]
+
+    def as_dicts(self):
+        for target_id in self.target_ids_chunk:
+            yield {
+                'version': 2,
+                'message_type': self.message_type.value,
+                'target_id': target_id,
+            }
+
+
+class DaemonMessage(abc.ABC):
     PROTOCOL_VERSION = None
 
     @classmethod
@@ -28,18 +44,13 @@ class DaemonMessage:
                 return klass(kombu_message=kombu_message)
         raise ValueError('Invalid version "{}"'.format(version))
 
-    @classmethod
-    def from_values(cls, message_type, target_ids):
-        return [
-            V2Message(message_type=message_type, target_id=target_id)
-            for target_id in target_ids
-        ]
-
     @property
+    @abc.abstractmethod
     def message_type(self):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def target_id(self):
         raise NotImplementedError
 
@@ -83,37 +94,14 @@ class V2Message(DaemonMessage):
     }
     """
     PROTOCOL_VERSION = 2
-    _message_type = None
-    _target_id = None
-
-    def __init__(self, *, kombu_message=None, message_type=None, target_id=None):
-        if kombu_message is None:
-            assert message_type is not None
-            assert target_id is not None
-            super().__init__()
-        else:
-            assert message_type is None
-            assert target_id is None
-            message_type = MessageType(kombu_message.payload['message_type'])
-            target_id = kombu_message.payload['target_id']
-            super().__init__(kombu_message=kombu_message)
-        self._message_type = message_type
-        self._target_id = target_id
 
     @property
     def message_type(self):
-        return self._message_type
+        return MessageType(self.kombu_message.payload['message_type'])
 
     @property
     def target_id(self):
-        return self._target_id
-
-    def to_dict(self):
-        return {
-            'version': self.PROTOCOL_VERSION,
-            'message_type': self.message_type.value,
-            'target_id': self.target_id,
-        }
+        return self.kombu_message.payload['target_id']
 
 
 class HandledMessageResponse(typing.NamedTuple):

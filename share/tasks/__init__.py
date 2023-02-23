@@ -8,8 +8,8 @@ from django.db import transaction
 
 from share.harvest.scheduler import HarvestScheduler
 from share import models as db
-from share.search.helper import SearchHelper
-from share.search.messages import MessageType
+from share.search.index_messenger import IndexMessenger
+from share.search.messages import MessageType, MessagesChunk
 from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
 from share.util import chunked
@@ -87,10 +87,10 @@ def schedule_backfill(self, index_name):
         suid_id_queryset.iterator(chunk_size=chunk_size),
         size=chunk_size,
     )
+    index_messenger = IndexMessenger(celery_app=self.task.app)
     for suid_id_chunk in chunked_iterator:
-        SearchHelper().send_messages(
-            message_type=MessageType.INDEX_SUID,
-            target_ids_chunk=suid_id_queryset,
+        index_messenger.send_messages_chunk(
+            MessagesChunk(MessageType.INDEX_SUID, suid_id_queryset),
             index_names=[index_name],
         )
 

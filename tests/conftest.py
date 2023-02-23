@@ -13,12 +13,11 @@ from oauth2_provider.models import AccessToken, Application
 from urllib3.connection import ConnectionError
 from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
-from project.settings import ELASTICSEARCH
 from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 from share.models import FormattedMetadataRecord
-from share.search import MessageType, SearchHelper, IndexStrategy
+from share.search import MessageType, IndexStrategy
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder

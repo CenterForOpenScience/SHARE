@@ -6,8 +6,8 @@ from django.db.models import Exists, OuterRef
 
 from share.bin.util import command
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import MessageType, SearchHelper, IndexStrategy
-from share.search.daemon import IndexMessengerDaemon
+from share.search import MessageType, MessagesChunk, IndexMessenger, IndexStrategy
+from share.search.daemon import IndexerDaemon
 
 
 @command('Manage Elasticsearch')
@@ -45,7 +45,7 @@ def setup(args, argv):
     """
     is_initial = args.get('--initial')
     if is_initial:
-        index_strategys = IndexStrategy.all_indexes()
+        index_strategys = IndexStrategy.for_all_indexes()
     else:
         index_strategys = [IndexStrategy.by_name(args['<index_name>'])]
     for index_strategy in index_strategys:
@@ -70,9 +70,11 @@ def reindex_all_suids(args, argv):
         .filter(has_fmr=True)
         .values_list('id', flat=True)
     )
-    SearchHelper().send_messages(
-        message_type=MessageType.INDEX_SUID,
-        target_ids_chunk=suid_id_queryset,
+    IndexMessenger().send_messages_chunk(
+        MessagesChunk(
+            message_type=MessageType.INDEX_SUID,
+            target_ids_chunk=suid_id_queryset,
+        ),
         index_names=[args['<index_name>']],
     )
 
@@ -83,7 +85,7 @@ def daemon(args, argv):
     Usage: {0} search daemon
     """
     stop_event = threading.Event()
-    IndexMessengerDaemon.start_daemonthreads(celery_app, stop_event)
+    IndexerDaemon.start_daemonthreads(celery_app, stop_event)
     try:
         stop_event.wait()
     except KeyboardInterrupt:

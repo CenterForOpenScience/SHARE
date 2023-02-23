@@ -8,7 +8,7 @@ perform all elastic operations thru one of two interfaces:
     * knows of version- or cluster-specific features
     * encapsulates elasticsearch client library
     * handles index create/delete/update/query/fill
-* share.search.SearchHelper
+* share.search.IndexMessenger
     * for operations across all/many indexes/clusters
     * uses the common IndexStrategy interface and share.search.messages
 

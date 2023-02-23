@@ -35,7 +35,7 @@ class TestSharectlSearch:
             mock.Mock()
             for _ in index_names
         ]
-        with mock.patch('share.bin.search.IndexStrategy.all_indexes', return_value=mock_index_strategys):
+        with mock.patch('share.bin.search.IndexStrategy.for_all_indexes', return_value=mock_index_strategys):
             run_sharectl('search', 'purge', *index_names)
         for mock_index_strategy in mock_index_strategys:
             assert mock_index_strategy.pls_delete.mock_calls == [mock.call()]
@@ -46,7 +46,7 @@ class TestSharectlSearch:
             mock.Mock()
             for _ in expected_indexes
         ]
-        with mock.patch('share.bin.search.IndexStrategy.all_indexes', return_value=mock_index_strategys):
+        with mock.patch('share.bin.search.IndexStrategy.for_all_indexes', return_value=mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
         for mock_index_strategy in mock_index_strategys:
             assert mock_index_strategy.pls_setup_as_needed.mock_calls == [mock.call()]
@@ -67,7 +67,7 @@ class TestSharectlSearch:
             actual_indexes.append(index_name)
             stop_event.set()
 
-        with mock.patch('share.bin.search.IndexMessengerDaemon') as mock_daemon:
+        with mock.patch('share.bin.search.IndexerDaemon') as mock_daemon:
             mock_daemon.start_indexer_in_thread.side_effect = fake_start_indexer
             run_sharectl('search', 'daemon')
             assert actual_indexes == expected_indexes
