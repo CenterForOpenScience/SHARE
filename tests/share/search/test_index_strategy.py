@@ -1,13 +1,12 @@
-from unittest.mock import patch, call
+from unittest import mock
 
 import pytest
-from elasticsearch.exceptions import NotFoundError
 
 from share.search.index_strategy import (
     IndexStrategy,
     Sharev2Elastic5IndexStrategy,
     Sharev2Elastic8IndexStrategy,
-    TroveV0IndexStrategy,
+    # TroveV0IndexStrategy,
 )
 
 
@@ -27,22 +26,23 @@ class TestIndexStrategy:
                 },
             },
         }
-        es5_indexstrategy = IndexStrategy.by_name('my_es5_index')
-        es8_indexstrategy = IndexStrategy.by_name('my_es8_index')
-        with patch.object(es5_indexstrategy, 'es5_client') as es5_mockclient:
-            with patch.object(es8_indexstrategy, 'es8_client') as es8_mockclient:
+        with mock.patch('share.search.index_strategy.elastic5.elasticsearch5') as es5_mockpackage:
+            with mock.patch('share.search.index_strategy.elastic8.elasticsearch8') as es8_mockpackage:
+                es5_mockclient = es5_mockpackage.Elasticsearch.return_value
+                es8_mockclient = es8_mockpackage.Elasticsearch.return_value
                 yield {
                     'my_es5_index': es5_mockclient,
                     'my_es8_index': es8_mockclient,
                 }
 
-    @pytest.mark.parametrize('index_name, expected_setup_class', [
-        ('my_es5_index', Sharev2Elastic5IndexStrategy),
-        ('my_es8_index', Sharev2Elastic8IndexStrategy),
-    ])
     def test_get_by_name(self, mock_es_clients, index_name, expected_setup_class):
-        index_strategy = IndexStrategy.by_name(index_name)
-        assert isinstance(index_strategy, expected_setup_class)
+        expected_strategies = {
+            'my_es5_index': Sharev2Elastic5IndexStrategy,
+            'my_es8_index': Sharev2Elastic8IndexStrategy,
+        }
+        for index_name, expected_setup_class in expected_strategies.items():
+            index_strategy = IndexStrategy.by_name(index_name)
+            assert isinstance(index_strategy, expected_setup_class)
 
     def test_get_all_indexes(self, mock_es_clients):
         all_indexes = IndexStrategy.for_all_indexes()
@@ -68,7 +68,7 @@ class TestIndexStrategy:
                 body={'settings': index_strategy.index_settings()},
             )
             mock_es_client.indices.put_mapping.assert_has_calls([
-                call(
+                mock.call(
                     doc_type=doc_type,
                     body={doc_type: mapping},
                     index=index_name,
