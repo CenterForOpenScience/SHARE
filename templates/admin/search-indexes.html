@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h1>{% trans 'status: search indexes' %}</h1>
+    {% for index_name, index_statuses in search_index_statuses.items %}
+    <section>
+        <h2>{{ index_name }}</h2>
+        <table>
+            <tr>
+                <th>{% trans 'is current' %}</th>
+                <th>{% trans 'is prime' %}</th>
+                <th>{% trans 'creation date' %}</th>
+                <th>{% trans 'doc count' %}</th>
+                <th>{% trans 'health' %}</th>
+                <th>{% trans 'index name' %}</th>
+                <th>{% trans 'actions' %}</th>
+            </tr>
+            {% for specific_index_name, index_status in index_statuses.items %}
+            <tr>
+                <td>{% if index_status.is_current %}✓{% endif %}</td>
+                <td>{% if index_status.is_prime %}✓{% endif %}</td>
+                <td>{{ index_status.creation_date }}</td>
+                <td>{{ index_status.doc_count }}</td>
+                <td>{{ index_status.health }}</td>
+                <td>{{ specific_index_name }}</td>
+                <td>
+                    {% if index_status.is_current %}
+                        {% if not index_status.creation_date %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="index_name" value={{index_name}} />
+                                <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
+                                <input type="hidden" name="pls_do" value="setup" />
+                                <input type="submit" value={% trans 'setup' %} />
+                            </form>
+                        {% else %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="index_name" value={{index_name}} />
+                                <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
+                                <input type="hidden" name="pls_do" value="organize_fill" />
+                                <!-- TODO: confirm expensive action -->
+                                <input type="submit" value={% trans 'refill' %} />
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                    {% if not index_status.is_prime %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="index_name" value={{index_name}} />
+                            <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
+                            <input type="hidden" name="pls_do" value="make_prime" />
+                            <input type="submit" value={% trans 'primify' %} />
+                        </form>
+                    {% endif %}
+                    {% if not index_status.is_prime and not index_status.is_current %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="index_name" value={{index_name}} />
+                            <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
+                            <input type="hidden" name="pls_do" value="delete" />
+                            <!-- TODO: confirm destructive action -->
+                            <input type="submit" value={% trans 'delete' %} />
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </section>
+    {% endfor %}
+{% endblock %}

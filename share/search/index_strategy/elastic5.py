@@ -1,6 +1,5 @@
 import abc
-import hashlib
-import json
+import datetime
 import logging
 
 from django.conf import settings
@@ -42,8 +41,8 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     def current_setup(self):
         return {
-            'settings': self.index_settings,
-            'mappings': self.index_mappings,
+            'settings': self.index_settings(),
+            'mappings': self.index_mappings(),
         }
 
     def pls_make_prime(self):
@@ -78,9 +77,6 @@ class Elastic5IndexStrategy(IndexStrategy):
             .delete(index=self.name, ignore=[400, 404])
         )
 
-    def pls_organize_redo(self):
-        pass  # migrating away
-
     def pls_handle_messages_chunk(self, messages_chunk):
         (success_count, errors) = elastic5_helpers.bulk(
             self.es5_client,
@@ -93,13 +89,44 @@ class Elastic5IndexStrategy(IndexStrategy):
             # yield error response
             pass
 
-    # def _stream_actions(self, actions):
-    #     stream = elastic5_helpers.streaming_bulk(
-    #         self.es5_client,
-    #         actions,
-    #         max_chunk_bytes=self.MAX_CHUNK_BYTES,
-    #         raise_on_error=False,
-    #     )
-    #     for (ok, response) in stream:
-    #         op_type, response_body = next(iter(response.items()))
-    #         yield (ok, op_type, response_body)
+    def specific_index_statuses(self):
+        self.es5_client.indices.refresh()
+        stats = self.es5_client.indices.stats(
+            index=self.current_index_wildcard,
+            metric='docs',
+        )
+        creation_dates = self._get_index_creation_dates()
+        index_statuses = {
+            index_name: {
+                'is_current': index_name == self.current_index_name,
+                'is_prime': True,
+                'doc_count': index_stats['primaries']['docs']['count'],
+                'creation_date': creation_dates.get(index_name),
+            }
+            for index_name, index_stats in stats['indices'].items()
+        }
+        if self.current_index_name not in index_statuses:
+            index_statuses[self.current_index_name] = {
+                'is_current': True,
+                'is_prime': True,
+                'doc_count': 0,
+                'health': 'nonexistent',
+                'creation_date': None,
+            }
+        return index_statuses
+
+    def _get_index_creation_dates(self):
+        existing_index_settings = self.es5_client.indices.get_settings(
+            index=self.current_index_wildcard,
+            name='index.creation_date',
+        )
+        creation_dates = {}
+        for index_name, index_settings in existing_index_settings.items():
+            timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
+            timestamp_seconds = timestamp_milliseconds / 1000
+            creation_dates[index_name] = (
+                datetime.datetime
+                .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
+                .isoformat(timespec='minutes')
+            )
+        return creation_dates

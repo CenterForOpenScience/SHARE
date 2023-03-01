@@ -7,11 +7,14 @@ from share.util import IDObfuscator
 
 
 class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
-    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:sharev2_elastic8:fe89e0511e02c2ee55124d3c7bc96794e7a2af65a3a30b77696546d8d2e31dce'
+    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic8IndexStrategy:051323d554d2acc761c858b73f54d96c015ed7168def5b5f6c77cd6e42cb958f'
 
     @property
     def supported_message_types(self):
-        return {messages.MessageType.INDEX_SUID}
+        return {
+            messages.MessageType.INDEX_SUID,
+            messages.MessageType.BACKFILL_SUID,
+        }
 
     def index_settings(self):
         return {
@@ -117,28 +120,36 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             suid_id__in=suid_ids,
             record_format='sharev2_elastic',
         )
+        if messages_chunk.message_type == messages.MessageType.INDEX_SUID:
+            # "index" goes to all indexes managed by this strategy
+            target_index = self.current_index_wildcard
+        elif messages_chunk.message_type == messages.MessageType.BACKFILL_SUID:
+            # "backfill" to get the current index up-to-date
+            target_index = self.current_index_name
+        else:
+            raise NotImplementedError(f'bad message_type: {messages_chunk.message_type}')
         for record in record_qs:
             suid_ids.discard(record.suid_id)
             source_doc = json.loads(record.formatted_metadata)
             if source_doc.pop('is_deleted', False):
-                yield self._build_delete_action(record.suid_id)
+                yield self._build_delete_action(target_index, record.suid_id)
             else:
-                yield self._build_index_action(record.suid_id, source_doc)
+                yield self._build_index_action(target_index, record.suid_id, source_doc)
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
-            yield self._build_delete_action(leftover_suid_id)
+            yield self._build_delete_action(target_index, leftover_suid_id)
 
-    def _build_index_action(self, target_id, source_doc):
+    def _build_index_action(self, target_index, target_id, source_doc):
         return {
-            '_index': self.current_index_name,
+            '_index': target_index,
             '_op_type': 'index',
             '_id': self.get_doc_id(target_id),
             '_source': source_doc,
         }
 
-    def _build_delete_action(self, target_id):
+    def _build_delete_action(self, target_index, target_id):
         return {
-            '_index': self.current_index_name,
+            '_index': target_index,
             '_op_type': 'delete',
             '_id': self.get_doc_id(target_id),
         }

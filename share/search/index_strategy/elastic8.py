@@ -1,4 +1,5 @@
 import abc
+import datetime
 import logging
 
 from django.conf import settings
@@ -56,16 +57,17 @@ class Elastic8IndexStrategy(IndexStrategy):
         }
 
     # implements IndexStrategy.pls_make_prime
-    def pls_make_prime(self):
+    def pls_make_prime(self, *, specific_index_name=None):
+        new_prime_index = specific_index_name or self.current_index_name
         indexes_with_prime_alias = self._indexes_with_prime_alias()
-        if indexes_with_prime_alias != {self.current_index_name}:
-            indexes_with_prime_alias.discard(self.current_index_name)
+        if indexes_with_prime_alias != {new_prime_index}:
+            indexes_with_prime_alias.discard(new_prime_index)
             logger.warning(f'removing aliases to {indexes_with_prime_alias} and adding alias to {self.current_index_name}')
             delete_actions = [
-                {'remove': {'index': index_name, 'alias': self.name}}
+                {'remove': {'index': index_name, 'alias': self.prime_alias}}
                 for index_name in indexes_with_prime_alias
             ]
-            add_action = {'add': {'index': self.current_index_name, 'alias': self.name}}
+            add_action = {'add': {'index': self.current_index_name, 'alias': self.prime_alias}}
             self.es8_client.indices.update_aliases(body={
                 'actions': [
                     *delete_actions,
@@ -75,10 +77,38 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     def _indexes_with_prime_alias(self):
         try:
-            aliases = self.es8_client.indices.get_alias(name=self.name)
+            aliases = self.es8_client.indices.get_alias(name=self.prime_alias)
             return set(aliases.keys())
         except elasticsearch8.exceptions.NotFoundError:
             return set()
+
+    def specific_index_statuses(self):
+        self.es8_client.indices.refresh()
+        stats = self.es8_client.indices.stats(
+            index=self.current_index_wildcard,
+            metric='docs',
+        )
+        creation_dates = self._get_index_creation_dates()
+        prime_indexes = self._indexes_with_prime_alias()
+        index_statuses = {
+            index_name: {
+                'is_current': index_name == self.current_index_name,
+                'is_prime': index_name in prime_indexes,
+                'doc_count': index_stats['primaries']['docs']['count'],
+                'health': index_stats['health'],
+                'creation_date': creation_dates.get(index_name),
+            }
+            for index_name, index_stats in stats['indices'].items()
+        }
+        if self.current_index_name not in index_statuses:
+            index_statuses[self.current_index_name] = {
+                'is_current': True,
+                'is_prime': self.current_index_name in prime_indexes,
+                'doc_count': 0,
+                'health': 'nonexistent',
+                'creation_date': None,
+            }
+        return index_statuses
 
     # implements IndexStrategy.pls_create
     def pls_create(self):
@@ -100,12 +130,13 @@ class Elastic8IndexStrategy(IndexStrategy):
         logger.info('Finished setting up Elasticsearch index %s', self.current_index_name)
 
     # implements IndexStrategy.pls_delete
-    def pls_delete(self):
-        logger.warning(f'{self.__class__.__name__}: deleting index {self.current_index_name}')
+    def pls_delete(self, *, specific_index_name=None):
+        index_name = specific_index_name or self.current_index_name
+        logger.warning(f'{self.__class__.__name__}: deleting index {index_name}')
         (
             self.es8_client
             .indices
-            .delete(index=self.current_index_name, ignore=[400, 404])
+            .delete(index=index_name, ignore=[400, 404])
         )
 
     def pls_handle_messages_chunk(self, messages_chunk):
@@ -122,3 +153,19 @@ class Elastic8IndexStrategy(IndexStrategy):
                 index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
                 error_label=response_body.get('_errors'),
             )
+
+    def _get_index_creation_dates(self):
+        existing_index_settings = self.es8_client.indices.get_settings(
+            index=self.current_index_wildcard,
+            name='index.creation_date',
+        )
+        creation_dates = {}
+        for index_name, index_settings in existing_index_settings.items():
+            timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
+            timestamp_seconds = timestamp_milliseconds / 1000
+            creation_dates[index_name] = (
+                datetime.datetime
+                .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
+                .isoformat(timespec='minutes')
+            )
+        return creation_dates

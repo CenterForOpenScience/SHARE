@@ -23,7 +23,7 @@ class IndexMessenger:
         )
         self.index_strategys = (
             IndexStrategy.for_all_indexes()
-            if self.index_names is None
+            if index_names is None
             else tuple(
                 IndexStrategy.by_name(index_name)
                 for index_name in index_names

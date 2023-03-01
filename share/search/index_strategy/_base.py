@@ -23,9 +23,9 @@ class IndexStrategy(abc.ABC):
         )
 
     @classmethod
-    def by_name(cls, name):
-        index_config = settings.ELASTICSEARCH['INDEXES'][name]
-        return cls._load_from_config(name, index_config)
+    def by_name(cls, key):
+        index_config = settings.ELASTICSEARCH['INDEXES'][key]
+        return cls._load_from_config(key, index_config)
 
     @classmethod
     def _load_from_config(cls, name, index_config):
@@ -77,15 +77,23 @@ class IndexStrategy(abc.ABC):
         )
         return f'urn:checksum:sha-256:{salt}:{checksum_hex}'
 
+    @property
+    def current_index_prefix(self):
+        return f'{self.name}__'
+
+    @property
+    def current_index_wildcard(self):
+        return f'{self.current_index_prefix}*'
+
     @cached_property
     def current_index_name(self):
         checksum_hex = self.current_setup_checksum.rpartition(':')[-1]
-        return f'{self.name}__{checksum_hex}'
+        return f'{self.current_index_prefix}{checksum_hex}'
 
     @property
     def prime_alias(self):
         # the alias used for querying
-        return f'{self.name}__prime'
+        return f'{self.current_index_prefix}prime'
 
     def assert_setup_is_current(self):
         setup_checksum = self.current_setup_checksum
@@ -105,43 +113,47 @@ If changing on purpose, update {self.__class__.__qualname__} with:
     def pls_setup_as_needed(self):
         self.assert_setup_is_current()
         self.pls_create()
-        self.pls_organize_fill()
+        self.pls_organize_backfill()
 
-    def pls_organize_fill(self):
-        # TODO check backfill status (if done, don't re-do)
+    def pls_organize_backfill(self):
+        # TODO track/check backfill status somehow (if done, don't re-do)
         # using the non-urgent queue, schedule a task to schedule index tasks
-        tasks.schedule_backfill.apply_async((self.name,))
+        tasks.schedule_index_backfill.apply_async((self.name,))
 
     @abc.abstractmethod
     def current_setup(self):
         '''get a json-serializable representation of shared/static index config
         '''
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement current_setup')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement current_setup')
+
+    @abc.abstractmethod
+    def specific_index_statuses(self):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement specific_index_statuses')
 
     @abc.abstractmethod
     def pls_create(self):
         # check index exists (if not, create)
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_create')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_create')
 
     @abc.abstractmethod
-    def pls_delete(self):
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_delete')
+    def pls_delete(self, *, specific_index_name=None):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_delete')
 
     @abc.abstractmethod
-    def pls_make_prime(self):
+    def pls_make_prime(self, *, specific_index_name=None):
         # check alias exists from name (if not, create)
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_make_prime')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_make_prime')
 
     @property
     @abc.abstractmethod
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement supported_message_types')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement supported_message_types')
 
     @abc.abstractmethod
     def pls_handle_messages_chunk(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[messages.IndexMessageResponse]:
-        raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_handle_messages_chunk')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_messages_chunk')
 
     # @abc.abstractmethod
     # def pls_handle_query(self, **kwargs):
     #     # TODO
-    #     raise NotImplementedError(f'subclasses of {self.__class__.__name__} must implement pls_handle_query')
+    #     raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query')

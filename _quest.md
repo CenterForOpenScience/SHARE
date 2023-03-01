@@ -21,4 +21,15 @@ add sharev2_elastic8 copy of existing index
 
 add query param to existing search api to use elastic8
 
+### admin controls
+view info about indexes (including current but not-yet-created)
+
+specific-index actions:
+- pls_setup (if index not created)
+- pls_organize_backfill (should normally fill automatically)
+- pls_make_prime (when fill is done)
+- pls_delete (when moved on to a new version)
+
+
+
 ## DONE

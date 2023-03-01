@@ -2,11 +2,8 @@ import threading
 
 from project.celery import app as celery_app
 
-from django.db.models import Exists, OuterRef
-
 from share.bin.util import command
-from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import MessageType, MessagesChunk, IndexMessenger, IndexStrategy
+from share.search import IndexStrategy
 from share.search.daemon import IndexerDaemon
 
 
@@ -59,24 +56,8 @@ def reindex_all_suids(args, argv):
 
     Most likely useful for a freshly `setup` index (perhaps after a purge).
     """
-    # TODO check for a specific format of FMR, not just that *any* FMR exists
-    suid_id_queryset = (
-        SourceUniqueIdentifier.objects
-        .annotate(
-            has_fmr=Exists(
-                FormattedMetadataRecord.objects.filter(suid_id=OuterRef('id'))
-            )
-        )
-        .filter(has_fmr=True)
-        .values_list('id', flat=True)
-    )
-    IndexMessenger().send_messages_chunk(
-        MessagesChunk(
-            message_type=MessageType.INDEX_SUID,
-            target_ids_chunk=suid_id_queryset,
-        ),
-        index_names=[args['<index_name>']],
-    )
+    index_strategy = IndexStrategy.by_name(args['<index_name>'])
+    index_strategy.pls_organize_backfill()
 
 
 @search.subcommand('Start the search indexing daemon')

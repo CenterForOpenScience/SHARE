@@ -10,6 +10,18 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     SUBJECT_DELIMITER = '|'
 
     @property
+    def current_index_prefix(self):
+        # override IndexStrategy.current_index_prefix -- intent is to drop elastic5,
+        # so no point updating with the new versioning logic
+        return 'share_postrend_'
+
+    @property
+    def current_index_name(self):
+        # override IndexStrategy.current_index_name -- intent is to drop elastic5,
+        # so no point updating with the new versioning logic
+        return f'{self.current_index_prefix}backcompat'
+
+    @property
     def supported_message_types(self):
         return {MessageType.INDEX_SUID}
 

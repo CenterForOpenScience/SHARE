@@ -68,7 +68,7 @@ def ingest(self, only_canonical=None, **kwargs):
 
 
 @celery.shared_task(bind=True)
-def schedule_backfill(self, index_name):
+def schedule_index_backfill(self, index_name):
     chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
     suid_id_queryset = (
         db.SourceUniqueIdentifier
@@ -87,11 +87,11 @@ def schedule_backfill(self, index_name):
         suid_id_queryset.iterator(chunk_size=chunk_size),
         size=chunk_size,
     )
-    index_messenger = IndexMessenger(celery_app=self.task.app)
+    index_messenger = IndexMessenger(celery_app=self.app, index_names=[index_name])
     for suid_id_chunk in chunked_iterator:
         index_messenger.send_messages_chunk(
-            MessagesChunk(MessageType.INDEX_SUID, suid_id_queryset),
-            index_names=[index_name],
+            MessagesChunk(MessageType.BACKFILL_SUID, suid_id_queryset),
+            urgent=False,
         )
 
 

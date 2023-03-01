@@ -17,6 +17,7 @@ class MessageType(Enum):
     INDEX_SUBJECT = 'Subject'
 
     INDEX_SUID = 'suid'
+    BACKFILL_SUID = 'fill-suid'
 
 
 class IndexMessage(typing.NamedTuple):
