@@ -90,7 +90,6 @@ class Elastic5IndexStrategy(IndexStrategy):
             pass
 
     def specific_index_statuses(self):
-        self.es5_client.indices.refresh()
         stats = self.es5_client.indices.stats(
             index=self.current_index_wildcard,
             metric='docs',

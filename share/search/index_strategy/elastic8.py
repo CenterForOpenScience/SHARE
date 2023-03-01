@@ -83,7 +83,6 @@ class Elastic8IndexStrategy(IndexStrategy):
             return set()
 
     def specific_index_statuses(self):
-        self.es8_client.indices.refresh()
         stats = self.es8_client.indices.stats(
             index=self.current_index_wildcard,
             metric='docs',
