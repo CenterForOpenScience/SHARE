@@ -1,27 +1,20 @@
 import json
 
+import elasticsearch5
+
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
+from share.search import exceptions
 from share.search.messages import MessageType
 from share.search.index_strategy.elastic5 import Elastic5IndexStrategy
 from share.util import IDObfuscator
 
 
 class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
+    INDEX_NAME = 'share_postrend_backcompat'
     SUBJECT_DELIMITER = '|'
 
     @property
-    def current_index_prefix(self):
-        # override IndexStrategy.current_index_prefix -- intent is to drop elastic5,
-        # so no point updating with the new versioning logic
-        return 'share_postrend_'
-
-    @property
-    def current_index_name(self):
-        # override IndexStrategy.current_index_name -- intent is to drop elastic5,
-        # so no point updating with the new versioning logic
-        return f'{self.current_index_prefix}backcompat'
-
-    @property
+    # abstract method from IndexStrategy
     def supported_message_types(self):
         return {MessageType.INDEX_SUID}
 
@@ -168,6 +161,7 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
             },
         }
 
+    # abstract method from Elastic5IndexStrategy
     def build_elastic_actions(self, message_type, messages_chunk):
         self.assert_message_type(message_type)
         action_template = {
@@ -204,3 +198,14 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
                 '_id': IDObfuscator.encode_id(leftover_suid_id, SourceUniqueIdentifier),
                 '_op_type': 'delete',
             }
+
+    # abstract method from IndexStrategy
+    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
+        try:
+            return self.es5_client.search(
+                index=(specific_index_name or self.prime_alias),
+                body=request_body,
+                params=request_queryparams,
+            )
+        except elasticsearch5.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging

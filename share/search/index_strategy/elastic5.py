@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class Elastic5IndexStrategy(IndexStrategy):
+    # use a simple constant instead of the fancy versioning logic in base IndexStrategy
+    # -- intent is to put new indexes in elastic8+ and drop elastic5 soon
+    INDEX_NAME = None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         should_sniff = settings.ELASTICSEARCH['SNIFF']
@@ -27,30 +31,36 @@ class Elastic5IndexStrategy(IndexStrategy):
             sniffer_timeout=60 if should_sniff else None,
         )
 
-    @abc.abstractmethod
-    def index_settings(self):
-        raise NotImplementedError
+    @property
+    # override IndexStrategy
+    def current_index_prefix(self):
+        return self.INDEX_NAME
 
-    @abc.abstractmethod
-    def index_mappings(self):
-        raise NotImplementedError
+    @property
+    # override IndexStrategy
+    def current_index_name(self):
+        return self.INDEX_NAME
 
-    @abc.abstractmethod
-    def build_elastic_actions(self, messages_chunk):
-        raise NotImplementedError
+    @property
+    # override IndexStrategy
+    def prime_alias(self):
+        return self.INDEX_NAME
 
+    # abstract method from IndexStrategy
     def current_setup(self):
         return {
             'settings': self.index_settings(),
             'mappings': self.index_mappings(),
         }
 
+    # abstract method from IndexStrategy
     def pls_make_prime(self):
         logger.info(
             'Elastic5IndexStrategy.pls_make_prime doing nothing with '
             'the expectation we will stop using elasticsearch5 soon'
         )
 
+    # abstract method from IndexStrategy
     def pls_create(self):
         logger.debug('Ensuring index %s', self.name)
         # check index exists (if not, create)
@@ -69,6 +79,7 @@ class Elastic5IndexStrategy(IndexStrategy):
         self.es5_client.cluster.health(wait_for_status='yellow')
         logger.info('Finished setting up Elasticsearch index %s', self.name)
 
+    # abstract method from IndexStrategy
     def pls_delete(self):
         logger.warning(f'{self.__class__.__name__}: deleting index {self.index_name}')
         (
@@ -77,6 +88,16 @@ class Elastic5IndexStrategy(IndexStrategy):
             .delete(index=self.name, ignore=[400, 404])
         )
 
+    # abstract method from IndexStrategy
+    def pls_check_exists(self):
+        logger.info(f'{self.__class__.__name__}: checking for index {self.current_index_name}')
+        return (
+            self.es5_client
+            .indices
+            .exists(index=self.current_index_name)
+        )
+
+    # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
         (success_count, errors) = elastic5_helpers.bulk(
             self.es5_client,
@@ -89,12 +110,25 @@ class Elastic5IndexStrategy(IndexStrategy):
             # yield error response
             pass
 
+    # abstract method from IndexStrategy
     def specific_index_statuses(self):
         stats = self.es5_client.indices.stats(
             index=self.current_index_wildcard,
             metric='docs',
         )
-        creation_dates = self._get_index_creation_dates()
+        existing_indexes = self.es5_client.indices.get_settings(
+            index=self.current_index_wildcard,
+            name='index.creation_date',
+        )
+        creation_dates = {}
+        for index_name, index_settings in existing_indexes.items():
+            timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
+            timestamp_seconds = timestamp_milliseconds / 1000
+            creation_dates[index_name] = (
+                datetime.datetime
+                .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
+                .isoformat(timespec='minutes')
+            )
         index_statuses = {
             index_name: {
                 'is_current': index_name == self.current_index_name,
@@ -107,25 +141,21 @@ class Elastic5IndexStrategy(IndexStrategy):
         if self.current_index_name not in index_statuses:
             index_statuses[self.current_index_name] = {
                 'is_current': True,
-                'is_prime': True,
+                'is_prime': False,
                 'doc_count': 0,
                 'health': 'nonexistent',
                 'creation_date': None,
             }
         return index_statuses
 
-    def _get_index_creation_dates(self):
-        existing_index_settings = self.es5_client.indices.get_settings(
-            index=self.current_index_wildcard,
-            name='index.creation_date',
-        )
-        creation_dates = {}
-        for index_name, index_settings in existing_index_settings.items():
-            timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
-            timestamp_seconds = timestamp_milliseconds / 1000
-            creation_dates[index_name] = (
-                datetime.datetime
-                .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
-                .isoformat(timespec='minutes')
-            )
-        return creation_dates
+    @abc.abstractmethod
+    def index_settings(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def index_mappings(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def build_elastic_actions(self, messages_chunk):
+        raise NotImplementedError

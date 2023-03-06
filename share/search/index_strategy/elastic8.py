@@ -112,8 +112,13 @@ class Elastic8IndexStrategy(IndexStrategy):
     # implements IndexStrategy.pls_create
     def pls_create(self):
         logger.debug('Ensuring index %s', self.current_index_name)
-        # check index exists (if not, create)
-        if not self.es8_client.indices.exists(index=self.current_index_name):
+        index_exists = (
+            self.es8_client
+            .indices
+            .exists(index=self.current_index_name)
+        )
+        if not index_exists:
+            logger.warning('Creating index %s', self.current_index_name)
             (
                 self.es8_client
                 .indices
@@ -136,6 +141,16 @@ class Elastic8IndexStrategy(IndexStrategy):
             self.es8_client
             .indices
             .delete(index=index_name, ignore=[400, 404])
+        )
+
+    # implements IndexStrategy.pls_check_exists
+    def pls_check_exists(self, *, specific_index_name=None):
+        index_name = specific_index_name or self.current_index_name
+        logger.info(f'{self.__class__.__name__}: checking for index {index_name}')
+        return (
+            self.es8_client
+            .indices
+            .exists(index=index_name)
         )
 
     def pls_handle_messages_chunk(self, messages_chunk):

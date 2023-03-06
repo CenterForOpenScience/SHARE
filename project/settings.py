@@ -312,10 +312,10 @@ ELASTICSEARCH = {
     },
     'INDEXES': {},  # populated below based on environment variables
 }
-ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL'),
+ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
 ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 if ELASTICSEARCH5_URL:
-    ELASTICSEARCH['INDEXES']['share_postrend_backcompat'] = {
+    ELASTICSEARCH['INDEXES']['sharev2_elastic5'] = {
         'CLUSTER_URL': ELASTICSEARCH5_URL,
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
         'DEFAULT_QUEUE': 'es-share-postrend-backcompat',

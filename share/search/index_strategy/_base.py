@@ -153,6 +153,14 @@ If changing on purpose, update {self.__class__.__qualname__} with:
     def pls_handle_messages_chunk(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[messages.IndexMessageResponse]:
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_messages_chunk')
 
+    @abc.abstractmethod
+    def pls_check_exists(self, *, specific_index_name=None):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_check_exists')
+
+    @abc.abstractmethod
+    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query__sharev2backcompat')
+
     # @abc.abstractmethod
     # def pls_handle_query(self, **kwargs):
     #     # TODO
