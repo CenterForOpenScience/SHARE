@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from elasticsearch5 import Elasticsearch, helpers as elastic5_helpers
 
+from share.search import messages
 from share.search.index_strategy._base import IndexStrategy
 
 
@@ -15,6 +16,9 @@ class Elastic5IndexStrategy(IndexStrategy):
     # use a simple constant instead of the fancy versioning logic in base IndexStrategy
     # -- intent is to put new indexes in elastic8+ and drop elastic5 soon
     INDEX_NAME = None
+
+    # perpetuated optimizations from times long past
+    MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,7 +73,7 @@ class Elastic5IndexStrategy(IndexStrategy):
                 self.es5_client
                 .indices
                 .create(
-                    index=self.name,
+                    index=self.get_specific_indexname(),
                     settings=self.index_settings(),
                     mappings=self.index_mappings(),
                 )
@@ -90,25 +94,31 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_check_exists(self):
-        logger.info(f'{self.__class__.__name__}: checking for index {self.current_index_name}')
+        index_name = self.get_specific_indexname()
+        logger.info(f'{self.__class__.__name__}: checking for index {index_name}')
         return (
             self.es5_client
             .indices
-            .exists(index=self.current_index_name)
+            .exists(index=index_name)
         )
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
-        (success_count, errors) = elastic5_helpers.bulk(
+        bulk_stream = elastic5_helpers.streaming_bulk(
             self.es5_client,
             self.build_elastic_actions(messages_chunk),
+            max_chunk_bytes=self.MAX_CHUNK_BYTES,
             raise_on_error=False,
         )
-        print((success_count, errors))
-        import pdb; pdb.set_trace()
-        for error in errors:
-            # yield error response
-            pass
+        for (ok, response) in bulk_stream:
+            logger.info(f'response (ok:{ok}): {response}')
+            op_type, response_body = next(iter(response.items()))
+            message_target_id = self.get_message_target_id(response_body['_id'])
+            yield messages.IndexMessageResponse(
+                is_handled=ok,
+                index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                error_label=response_body.get('_errors'),
+            )
 
     # abstract method from IndexStrategy
     def specific_index_statuses(self):
@@ -154,6 +164,10 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     @abc.abstractmethod
     def index_mappings(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_message_target_id(self, doc_id):
         raise NotImplementedError
 
     @abc.abstractmethod

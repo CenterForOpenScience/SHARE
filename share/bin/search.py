@@ -42,7 +42,7 @@ def setup(args, argv):
     """
     is_initial = args.get('--initial')
     if is_initial:
-        index_strategys = IndexStrategy.for_all_indexes()
+        index_strategys = IndexStrategy.all_strategies().values()
     else:
         index_strategys = [IndexStrategy.by_name(args['<index_name>'])]
     for index_strategy in index_strategys:

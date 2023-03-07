@@ -13,41 +13,88 @@ from share import tasks
 
 
 class IndexStrategy(abc.ABC):
+    '''an abstraction for indexes in different places and ways.
+
+    each IndexStrategy subclass:
+    * may know of version- or cluster-specific features
+      (should encapsulate its elasticsearch client library)
+    * implements methods to observe and effect the lifecycle of a search index:
+        * current_setup
+        * pls_gather_status
+        * pls_check_exists
+        * pls_create
+        * pls_open_for_searching
+        * pls_handle_messages_chunk
+        * pls_handle_query
+        * pls_delete
+    '''
     CURRENT_SETUP_CHECKSUM = None  # set on subclasses to protect against accidents
 
-    @classmethod
-    def for_all_indexes(cls):
-        return tuple(
-            cls._load_from_config(name, config)
-            for name, config in settings.ELASTICSEARCH['INDEX_STRATEGIES'].items()
-        )
+    __all_strategies = None  # private cache
 
     @classmethod
-    def by_name(cls, key):
-        index_config = settings.ELASTICSEARCH['INDEX_STRATEGIES'][key]
-        return cls._load_from_config(key, index_config)
+    def all_strategies(cls):
+        if cls.__all_strategies is None:
+            cls.__all_strategies = {
+                index_strategy_name: cls._load_from_config(index_strategy_name)
+                for index_strategy_name in settings.ELASTICSEARCH['INDEX_STRATEGIES'].keys()
+            }
+        return cls.__all_strategies
 
     @classmethod
-    def _load_from_config(cls, name, index_config):
+    def by_name(cls, index_strategy_name: str):
+        return cls.all_strategies()[index_strategy_name]
+
+    @classmethod
+    def by_request(cls, requested_index_strategy: str):
+        index_strategy = cls.all_strategies().get(requested_index_strategy)
+        if index_strategy is None:
+            try:
+                base_strategy_name = next(
+                    strategy.name
+                    for strategy in cls.all_strategies().values()
+                    if requested_index_strategy.startswith(strategy.current_index_prefix)
+                )
+            except StopIteration:
+                raise IndexStrategyError(f'unknown index-strategy "{requested_index_strategy}"')
+            else:
+                index_strategy = cls._load_from_config(base_strategy_name, requested_index_strategy)
+        return index_strategy
+
+    @classmethod
+    def _load_from_config(cls, index_strategy_name, specific_index_name=None):
         # required known properties: INDEX_STRATEGY_CLASS, CLUSTER_URL
+        index_config = settings.ELASTICSEARCH['INDEX_STRATEGIES'][index_strategy_name]
         module_name, class_name = index_config['INDEX_STRATEGY_CLASS'].split(':', maxsplit=1)
         assert module_name.startswith('share.search.index_strategy.')
         index_strategy_class = getattr(importlib.import_module(module_name), class_name)
         assert issubclass(index_strategy_class, IndexStrategy)
         return index_strategy_class(
-            name=name,
+            name=index_strategy_name,
             cluster_url=index_config['CLUSTER_URL'],
             cluster_auth=index_config.get('CLUSTER_AUTH', None),
             default_queue_name=index_config.get('DEFAULT_QUEUE', None),
             urgent_queue_name=index_config.get('URGENT_QUEUE', None),
+            specific_index_name=specific_index_name,
         )
 
-    def __init__(self, name, cluster_url, cluster_auth=None, default_queue_name=None, urgent_queue_name=None):
+    def __init__(
+        self, *,
+        name,
+        cluster_url,
+        cluster_auth=None,
+        default_queue_name=None,
+        urgent_queue_name=None,
+        specific_index_name=None,
+    ):
         self.name = name
         self.cluster_url = cluster_url
         self.cluster_auth = cluster_auth
         self.default_queue_name = default_queue_name or name
         self.urgent_queue_name = urgent_queue_name or f'{self.default_queue_name}.urgent'
+        if specific_index_name is not None:
+            assert specific_index_name.startswith(self.current_index_prefix)
+        self._specific_index_name = specific_index_name
 
     def get_queue_name(self, urgent: bool):
         return (
@@ -87,7 +134,7 @@ class IndexStrategy(abc.ABC):
     def current_index_wildcard(self):
         return f'{self.current_index_prefix}*'
 
-    @cached_property
+    @property
     def current_index_name(self):
         checksum_hex = self.current_setup_checksum.rpartition(':')[-1]
         return f'{self.current_index_prefix}{checksum_hex}'
@@ -96,6 +143,15 @@ class IndexStrategy(abc.ABC):
     def alias_for_searching(self):
         # the alias used for querying
         return f'{self.current_index_prefix}prime'
+
+    def get_indexname_for_searching(self):
+        return self._specific_index_name or self.alias_for_searching
+
+    def get_indexname_for_updating(self):
+        return self._specific_index_name or self.current_index_name
+
+    def get_specific_indexname(self):
+        return self._specific_index_name or self.current_index_name
 
     def assert_setup_is_current(self):
         setup_checksum = self.current_setup_checksum
@@ -138,11 +194,11 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_create')
 
     @abc.abstractmethod
-    def pls_delete(self, *, specific_index_name=None):
+    def pls_delete(self):
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_delete')
 
     @abc.abstractmethod
-    def pls_open_for_searching(self, *, specific_index_name=None):
+    def pls_open_for_searching(self):
         # check alias exists from name (if not, create)
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_open_for_searching')
 
@@ -156,7 +212,7 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_messages_chunk')
 
     @abc.abstractmethod
-    def pls_check_exists(self, *, specific_index_name=None):
+    def pls_check_exists(self):
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_check_exists')
 
     # TODO:
@@ -165,5 +221,5 @@ If changing on purpose, update {self.__class__.__qualname__} with:
     #     raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query')
 
     # optional for subclasses
-    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None):
-        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query__sharev2backcompat')
+    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query__api_backcompat')

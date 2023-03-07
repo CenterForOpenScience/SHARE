@@ -2,19 +2,19 @@
 {% load i18n %}
 
 {% block content %}
-    <h1>{% trans 'status: search indexes' %}</h1>
+    <h1>{% trans "status: search indexes" %}</h1>
     {% for index_name, index_statuses in search_index_statuses.items %}
     <section>
         <h2>{{ index_name }}</h2>
         <table>
             <tr>
-                <th>{% trans 'current setup' %}</th>
-                <th>{% trans 'open for searching' %}</th>
-                <th>{% trans 'creation date' %}</th>
-                <th>{% trans 'doc count' %}</th>
-                <th>{% trans 'health' %}</th>
-                <th>{% trans 'index name' %}</th>
-                <th>{% trans 'actions' %}</th>
+                <th>{% trans "current setup" %}</th>
+                <th>{% trans "open for searching" %}</th>
+                <th>{% trans "creation date" %}</th>
+                <th>{% trans "doc count" %}</th>
+                <th>{% trans "health" %}</th>
+                <th>{% trans "index name" %}</th>
+                <th>{% trans "actions" %}</th>
             </tr>
             {% for specific_index_name, index_status in index_statuses.items %}
             <tr>
@@ -32,7 +32,7 @@
                                 <input type="hidden" name="index_name" value={{index_name}} />
                                 <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
                                 <input type="hidden" name="pls_do" value="setup" />
-                                <input type="submit" value={% trans 'setup' %} />
+                                <input type="submit" value="{% trans "setup" %}" />
                             </form>
                         {% else %}
                             <form method="post">
@@ -41,7 +41,7 @@
                                 <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
                                 <input type="hidden" name="pls_do" value="organize_fill" />
                                 <!-- TODO: confirm expensive action -->
-                                <input type="submit" value={% trans 'refill' %} />
+                                <input type="submit" value="{% trans "refill" %}" />
                             </form>
                         {% endif %}
                     {% endif %}
@@ -50,8 +50,8 @@
                             {% csrf_token %}
                             <input type="hidden" name="index_name" value={{index_name}} />
                             <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
-                            <input type="hidden" name="pls_do" value="make_prime" />
-                            <input type="submit" value={% trans 'primify' %} />
+                            <input type="hidden" name="pls_do" value="open_for_searching" />
+                            <input type="submit" value="{% trans "open for searching" %}" />
                         </form>
                     {% endif %}
                     {% if not index_status.is_open_for_searching and not index_status.is_current %}
@@ -61,7 +61,7 @@
                             <input type="hidden" name="specific_index_name" value={{specific_index_name}} />
                             <input type="hidden" name="pls_do" value="delete" />
                             <!-- TODO: confirm destructive action -->
-                            <input type="submit" value={% trans 'delete' %} />
+                            <input type="submit" value="{% trans "delete" %}" />
                         </form>
                     {% endif %}
                 </td>

@@ -14,23 +14,17 @@ from share.search.index_strategy import IndexStrategy
 DEFAULT_INDEX_STRATEGY = 'sharev2_elastic5'  # TODO: switchable in admin
 
 
-def _get_index_strategy_and_name(requested_index_name):
-    if requested_index_name is None:
-        default_strategy = IndexStrategy.by_name(DEFAULT_INDEX_STRATEGY)
-        return default_strategy, default_strategy.alias_for_searching
-    for index_strategy in IndexStrategy.for_all_indexes():
-        if requested_index_name == index_strategy.name:
-            return index_strategy, index_strategy.alias_for_searching
-        if requested_index_name.startswith(index_strategy.current_index_prefix):
-            requested_index_exists = (
-                index_strategy
-                .pls_check_exists(specific_index_name=requested_index_name)
-            )
-            if requested_index_exists:
-                return index_strategy, requested_index_name
-            else:
-                raise http.Http404('unknown indexName')
-    raise http.Http404('invalid indexName')
+def _get_index_strategy(requested_index_strategy):
+    if requested_index_strategy is None:
+        index_strategy = IndexStrategy.by_name(DEFAULT_INDEX_STRATEGY)
+    else:
+        try:
+            index_strategy = IndexStrategy.by_request(requested_index_strategy)
+        except exceptions.IndexStrategyError as error:
+            raise http.Http404(error.message)
+    if not index_strategy.pls_check_exists():
+        raise http.Http404(f'indexStrategy={requested_index_strategy} does not exist')
+    return index_strategy
 
 
 class Sharev2ElasticSearchView(views.APIView):
@@ -52,14 +46,13 @@ class Sharev2ElasticSearchView(views.APIView):
         queryparams = request.query_params.copy()
         if 'scroll' in queryparams:
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
-        requested_index_name = queryparams.pop('indexName', [None])[0]
-        index_strategy, index_name = _get_index_strategy_and_name(requested_index_name)
+        requested_index_strategy = queryparams.pop('indexStrategy', [None])[0]
+        index_strategy = _get_index_strategy(requested_index_strategy)
         try:
-            response = index_strategy.pls_handle_query__sharev2backcompat(
-                request_body=request.body,
+            response = index_strategy.pls_handle_query__api_backcompat(
+                request_body=request.data,
                 request_queryparams=queryparams,
-                specific_index_name=requested_index_name,
             )
             return Response(data=response, headers={'Content-Type': 'application/json'})
         except (exceptions.IndexStrategyError, NotImplementedError):
-            return Response(status_code=418)  # TODO
+            return Response(status=418)  # TODO

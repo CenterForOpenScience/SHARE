@@ -59,17 +59,17 @@ class Elastic8IndexStrategy(IndexStrategy):
         }
 
     # implements IndexStrategy.pls_open_for_searching
-    def pls_open_for_searching(self, *, specific_index_name=None):
-        index_to_open = specific_index_name or self.current_index_name
-        indexes_open = self._indexes_open_for_searching()
-        if indexes_open != {index_to_open}:
-            indexes_open.discard(index_to_open)
-            logger.warning(f'removing aliases to {indexes_open} and adding alias to {self.current_index_name}')
+    def pls_open_for_searching(self):
+        index_to_open = self.get_specific_indexname()
+        indexes_already_open = self._indexes_open_for_searching()
+        if indexes_already_open != {index_to_open}:
+            indexes_already_open.discard(index_to_open)
+            logger.warning(f'removing aliases to {indexes_already_open} and adding alias to {index_to_open}')
             delete_actions = [
                 {'remove': {'index': index_name, 'alias': self.alias_for_searching}}
-                for index_name in indexes_open
+                for index_name in indexes_already_open
             ]
-            add_action = {'add': {'index': self.current_index_name, 'alias': self.alias_for_searching}}
+            add_action = {'add': {'index': index_to_open, 'alias': self.alias_for_searching}}
             self.es8_client.indices.update_aliases(body={
                 'actions': [
                     *delete_actions,
@@ -113,41 +113,46 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     # implements IndexStrategy.pls_create
     def pls_create(self):
-        logger.debug('Ensuring index %s', self.current_index_name)
+        index_to_create = self.get_specific_indexname()
+        assert index_to_create == self.current_index_name, (
+            'cannot create a non-current version of an index! '
+            'to proceed, use an index strategy without `specific_index_name`'
+        )
+        logger.debug('Ensuring index %s', index_to_create)
         index_exists = (
             self.es8_client
             .indices
-            .exists(index=self.current_index_name)
+            .exists(index=index_to_create)
         )
         if not index_exists:
-            logger.warning('Creating index %s', self.current_index_name)
+            logger.warning('Creating index %s', index_to_create)
             (
                 self.es8_client
                 .indices
                 .create(
-                    index=self.current_index_name,
+                    index=index_to_create,
                     settings=self.index_settings(),
                     mappings=self.index_mappings(),
                 )
             )
-        self.es8_client.indices.refresh(index=self.current_index_name)
+        self.es8_client.indices.refresh(index=index_to_create)
         logger.debug('Waiting for yellow status')
         self.es8_client.cluster.health(wait_for_status='yellow')
-        logger.info('Finished setting up Elasticsearch index %s', self.current_index_name)
+        logger.info('Finished setting up Elasticsearch index %s', index_to_create)
 
     # implements IndexStrategy.pls_delete
-    def pls_delete(self, *, specific_index_name=None):
-        index_name = specific_index_name or self.current_index_name
-        logger.warning(f'{self.__class__.__name__}: deleting index {index_name}')
+    def pls_delete(self):
+        index_to_delete = self.get_specific_indexname()
+        logger.warning(f'{self.__class__.__name__}: deleting index {index_to_delete}')
         (
             self.es8_client
             .indices
-            .delete(index=index_name, ignore=[400, 404])
+            .delete(index=index_to_delete, ignore=[400, 404])
         )
 
     # implements IndexStrategy.pls_check_exists
-    def pls_check_exists(self, *, specific_index_name=None):
-        index_name = specific_index_name or self.current_index_name
+    def pls_check_exists(self):
+        index_name = self.get_specific_indexname()
         logger.info(f'{self.__class__.__name__}: checking for index {index_name}')
         return (
             self.es8_client
@@ -155,10 +160,18 @@ class Elastic8IndexStrategy(IndexStrategy):
             .exists(index=index_name)
         )
 
+    def _elastic_actions_with_index(self, messages_chunk):
+        indexpattern = self._indexpattern_for_update(messages_chunk.message_type)
+        for elastic_action in self.build_elastic_actions(messages_chunk):
+            yield {
+                '_index': indexpattern,
+                **elastic_action,
+            }
+
     def pls_handle_messages_chunk(self, messages_chunk):
         bulk_stream = streaming_bulk(
             self.es8_client,
-            self.build_elastic_actions(messages_chunk),
+            self._elastic_actions_with_index(messages_chunk),
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
@@ -185,3 +198,13 @@ class Elastic8IndexStrategy(IndexStrategy):
                 .isoformat(timespec='minutes')
             )
         return creation_dates
+
+    def _indexpattern_for_update(self, message_type):
+        if message_type == messages.MessageType.INDEX_SUID:
+            # "index" goes to all indexes managed by this strategy
+            return self.get_indexname_for_updating()
+        elif message_type == messages.MessageType.BACKFILL_SUID:
+            # "backfill" to get the current index up-to-date
+            return self.get_specific_indexname()
+        else:
+            raise NotImplementedError(f'unknown message_type: {message_type}')

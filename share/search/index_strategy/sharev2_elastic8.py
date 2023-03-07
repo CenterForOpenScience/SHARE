@@ -117,7 +117,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return IDObfuscator.decode_id(doc_id)
 
     # abstract method from IndexStrategy
-    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
+    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
         try:
             return self.es8_client.search(
                 index=(specific_index_name or self.alias_for_searching),
@@ -134,36 +134,26 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             suid_id__in=suid_ids,
             record_format='sharev2_elastic',
         )
-        if messages_chunk.message_type == messages.MessageType.INDEX_SUID:
-            # "index" goes to all indexes managed by this strategy
-            target_index = self.current_index_wildcard
-        elif messages_chunk.message_type == messages.MessageType.BACKFILL_SUID:
-            # "backfill" to get the current index up-to-date
-            target_index = self.current_index_name
-        else:
-            raise NotImplementedError(f'bad message_type: {messages_chunk.message_type}')
         for record in record_qs:
             suid_ids.discard(record.suid_id)
             source_doc = json.loads(record.formatted_metadata)
             if source_doc.pop('is_deleted', False):
-                yield self._build_delete_action(target_index, record.suid_id)
+                yield self._build_delete_action(record.suid_id)
             else:
-                yield self._build_index_action(target_index, record.suid_id, source_doc)
+                yield self._build_index_action(record.suid_id, source_doc)
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
-            yield self._build_delete_action(target_index, leftover_suid_id)
+            yield self._build_delete_action(leftover_suid_id)
 
-    def _build_index_action(self, target_index, target_id, source_doc):
+    def _build_index_action(self, target_id, source_doc):
         return {
-            '_index': target_index,
             '_op_type': 'index',
             '_id': self.get_doc_id(target_id),
             '_source': source_doc,
         }
 
-    def _build_delete_action(self, target_index, target_id):
+    def _build_delete_action(self, target_id):
         return {
-            '_index': target_index,
             '_op_type': 'delete',
             '_id': self.get_doc_id(target_id),
         }

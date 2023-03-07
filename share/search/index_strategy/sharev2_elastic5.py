@@ -1,4 +1,5 @@
 import json
+import logging
 
 import elasticsearch5
 
@@ -9,6 +10,13 @@ from share.search.index_strategy.elastic5 import Elastic5IndexStrategy
 from share.util import IDObfuscator
 
 
+logger = logging.getLogger(__name__)
+
+
+def get_doc_id(suid_id):
+    return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
+
+
 class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     INDEX_NAME = 'share_postrend_backcompat'
     SUBJECT_DELIMITER = '|'
@@ -16,7 +24,10 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     @property
     # abstract method from IndexStrategy
     def supported_message_types(self):
-        return {MessageType.INDEX_SUID}
+        return {
+            MessageType.INDEX_SUID,
+            MessageType.BACKFILL_SUID,
+        }
 
     def index_settings(self):
         return {
@@ -162,19 +173,24 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
         }
 
     # abstract method from Elastic5IndexStrategy
-    def build_elastic_actions(self, message_type, messages_chunk):
-        self.assert_message_type(message_type)
+    def get_message_target_id(self, doc_id):
+        return IDObfuscator.decode_id(doc_id)
+
+    # abstract method from Elastic5IndexStrategy
+    def build_elastic_actions(self, messages_chunk):
+        self.assert_message_type(messages_chunk.message_type)
         action_template = {
-            '_index': self.current_index_name,
+            '_index': self.get_indexname_for_updating(),
+            '_type': 'creativeworks',
         }
-        suid_ids = set(message.target_id for message in messages_chunk)
+        suid_ids = set(messages_chunk.target_ids_chunk)
         record_qs = FormattedMetadataRecord.objects.filter(
             suid_id__in=suid_ids,
             record_format='sharev2_elastic',  # TODO specify in config? or don't
         )
         for record in record_qs:
-            doc_id = IDObfuscator.encode_id(record.suid_id, SourceUniqueIdentifier)
-            suid_ids.pop(record.suid_id)
+            doc_id = get_doc_id(record.suid_id)
+            suid_ids.remove(record.suid_id)
             source_doc = json.loads(record.formatted_metadata)
             assert source_doc['id'] == doc_id
             if source_doc.pop('is_deleted', False):
@@ -193,17 +209,18 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
             yield action
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
-            yield {
+            action = {
                 **action_template,
-                '_id': IDObfuscator.encode_id(leftover_suid_id, SourceUniqueIdentifier),
+                '_id': get_doc_id(leftover_suid_id),
                 '_op_type': 'delete',
             }
+            yield action
 
     # abstract method from IndexStrategy
-    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
+    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None):
         try:
             return self.es5_client.search(
-                index=(specific_index_name or self.alias_for_searching),
+                index=self.get_indexname_for_searching(),
                 body=request_body,
                 params=request_queryparams,
             )

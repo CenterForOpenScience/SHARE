@@ -14,7 +14,7 @@ from share.search import exceptions, messages, IndexStrategy
 
 logger = logging.getLogger(__name__)
 
-UNPRESSURED_TIMEOUT = 5     # five seconds
+UNPRESSURED_TIMEOUT = 3     # three seconds
 QUICK_TIMEOUT = 0.1         # one tenth of one second
 
 
@@ -65,7 +65,7 @@ class IndexerDaemon:
 
     @classmethod
     def start_daemonthreads(cls, celery_app, stop_event):
-        for index_strategy in IndexStrategy.for_all_indexes():
+        for index_strategy in IndexStrategy.all_strategies().values():
             indexer_daemon = cls(index_strategy=index_strategy, stop_event=stop_event)
             indexer_daemon.start_loops_and_queues()
             consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)

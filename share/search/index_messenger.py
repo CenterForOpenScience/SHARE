@@ -22,7 +22,7 @@ class IndexMessenger:
             else celery_app
         )
         self.index_strategys = (
-            IndexStrategy.for_all_indexes()
+            tuple(IndexStrategy.all_strategies().values())
             if index_names is None
             else tuple(
                 IndexStrategy.by_name(index_name)
