@@ -27,6 +27,7 @@ class Elastic5IndexStrategy(IndexStrategy):
             self.cluster_url,
             retry_on_timeout=True,
             timeout=settings.ELASTICSEARCH['TIMEOUT'],
+            verify_certs=False,
             # sniff before doing anything
             sniff_on_start=should_sniff,
             # refresh nodes after a node fails to respond
