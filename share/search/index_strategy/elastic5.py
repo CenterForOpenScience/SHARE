@@ -43,7 +43,7 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     @property
     # override IndexStrategy
-    def prime_alias(self):
+    def alias_for_searching(self):
         return self.INDEX_NAME
 
     # abstract method from IndexStrategy
@@ -54,9 +54,9 @@ class Elastic5IndexStrategy(IndexStrategy):
         }
 
     # abstract method from IndexStrategy
-    def pls_make_prime(self):
+    def pls_open_for_searching(self):
         logger.info(
-            'Elastic5IndexStrategy.pls_make_prime doing nothing with '
+            'Elastic5IndexStrategy.pls_open_for_searching doing nothing with '
             'the expectation we will stop using elasticsearch5 soon'
         )
 
@@ -132,7 +132,7 @@ class Elastic5IndexStrategy(IndexStrategy):
         index_statuses = {
             index_name: {
                 'is_current': index_name == self.current_index_name,
-                'is_prime': True,
+                'is_open_for_searching': True,
                 'doc_count': index_stats['primaries']['docs']['count'],
                 'creation_date': creation_dates.get(index_name),
             }
@@ -141,7 +141,7 @@ class Elastic5IndexStrategy(IndexStrategy):
         if self.current_index_name not in index_statuses:
             index_statuses[self.current_index_name] = {
                 'is_current': True,
-                'is_prime': False,
+                'is_open_for_searching': False,
                 'doc_count': 0,
                 'health': 'nonexistent',
                 'creation_date': None,

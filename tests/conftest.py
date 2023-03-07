@@ -165,7 +165,7 @@ def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, set
         'LEGACY_INDEX': elastic_test_index_name,
         'BACKCOMPAT_INDEX': elastic_test_index_name,
         'ACTIVE_INDEXES': [elastic_test_index_name],
-        'INDEXES': {
+        'INDEX_STRATEGIES': {
             elastic_test_index_name: {
                 'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
                 'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',

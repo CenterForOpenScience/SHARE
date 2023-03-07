@@ -36,7 +36,7 @@ def _pls_setup(index_name, specific_index_name):
 
 def _pls_make_prime(index_name, specific_index_name):
     index_strategy = IndexStrategy.by_name(index_name)
-    index_strategy.pls_make_prime(specific_index_name=specific_index_name)
+    index_strategy.pls_open_for_searching(specific_index_name=specific_index_name)
 
 
 def _pls_organize_fill(index_name, specific_index_name):

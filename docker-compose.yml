@@ -47,8 +47,7 @@ services:
       node.name: one-single-node
       cluster.initial_master_nodes: one-single-node
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"  # raise memory limits a lil bit
-      # TODO: multiple users with limited permissions
-      ELASTIC_PASSWORD: ${ELASTICSEARCH8_SECRET:-secretsecret}
+      xpack.security.enabled: false  # not good for deployment
     stdin_open: true
 
   rabbitmq:

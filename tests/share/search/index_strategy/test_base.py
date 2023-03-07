@@ -15,7 +15,7 @@ class TestIndexStrategy:
     def mock_es_clients(self, settings):
         settings.ELASTICSEARCH = {
             **settings.ELASTICSEARCH,
-            'INDEXES': {
+            'INDEX_STRATEGIES': {
                 'my_es5_index': {
                     'CLUSTER_URL': 'blah',
                     'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',

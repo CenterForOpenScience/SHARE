@@ -19,12 +19,12 @@ class IndexStrategy(abc.ABC):
     def for_all_indexes(cls):
         return tuple(
             cls._load_from_config(name, config)
-            for name, config in settings.ELASTICSEARCH['INDEXES'].items()
+            for name, config in settings.ELASTICSEARCH['INDEX_STRATEGIES'].items()
         )
 
     @classmethod
     def by_name(cls, key):
-        index_config = settings.ELASTICSEARCH['INDEXES'][key]
+        index_config = settings.ELASTICSEARCH['INDEX_STRATEGIES'][key]
         return cls._load_from_config(key, index_config)
 
     @classmethod
@@ -93,7 +93,7 @@ class IndexStrategy(abc.ABC):
         return f'{self.current_index_prefix}{checksum_hex}'
 
     @property
-    def prime_alias(self):
+    def alias_for_searching(self):
         # the alias used for querying
         return f'{self.current_index_prefix}prime'
 
@@ -142,9 +142,9 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_delete')
 
     @abc.abstractmethod
-    def pls_make_prime(self, *, specific_index_name=None):
+    def pls_open_for_searching(self, *, specific_index_name=None):
         # check alias exists from name (if not, create)
-        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_make_prime')
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_open_for_searching')
 
     @property
     @abc.abstractmethod
@@ -159,11 +159,11 @@ If changing on purpose, update {self.__class__.__qualname__} with:
     def pls_check_exists(self, *, specific_index_name=None):
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_check_exists')
 
-    @abc.abstractmethod
-    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None):
-        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query__sharev2backcompat')
-
+    # TODO:
     # @abc.abstractmethod
     # def pls_handle_query(self, **kwargs):
-    #     # TODO
     #     raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query')
+
+    # optional for subclasses
+    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement pls_handle_query__sharev2backcompat')

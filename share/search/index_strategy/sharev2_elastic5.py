@@ -203,7 +203,7 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
         try:
             return self.es5_client.search(
-                index=(specific_index_name or self.prime_alias),
+                index=(specific_index_name or self.alias_for_searching),
                 body=request_body,
                 params=request_queryparams,
             )

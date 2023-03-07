@@ -1,6 +1,9 @@
 import json
 
+import elasticsearch8
+
 from share import models as db
+from share.search import exceptions
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
 from share.util import IDObfuscator
@@ -112,6 +115,17 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     def get_message_target_id(self, doc_id):
         return IDObfuscator.decode_id(doc_id)
+
+    # abstract method from IndexStrategy
+    def pls_handle_query__sharev2backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
+        try:
+            return self.es8_client.search(
+                index=(specific_index_name or self.alias_for_searching),
+                body=request_body,
+                params=request_queryparams,
+            )
+        except elasticsearch8.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         self.assert_message_type(messages_chunk.message_type)

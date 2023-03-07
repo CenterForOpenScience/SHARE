@@ -17,10 +17,10 @@ DEFAULT_INDEX_STRATEGY = 'sharev2_elastic5'  # TODO: switchable in admin
 def _get_index_strategy_and_name(requested_index_name):
     if requested_index_name is None:
         default_strategy = IndexStrategy.by_name(DEFAULT_INDEX_STRATEGY)
-        return default_strategy, default_strategy.prime_alias
+        return default_strategy, default_strategy.alias_for_searching
     for index_strategy in IndexStrategy.for_all_indexes():
         if requested_index_name == index_strategy.name:
-            return index_strategy, index_strategy.prime_alias
+            return index_strategy, index_strategy.alias_for_searching
         if requested_index_name.startswith(index_strategy.current_index_prefix):
             requested_index_exists = (
                 index_strategy
@@ -61,5 +61,5 @@ class Sharev2ElasticSearchView(views.APIView):
                 specific_index_name=requested_index_name,
             )
             return Response(data=response, headers={'Content-Type': 'application/json'})
-        except exceptions.IndexStrategyError:
+        except (exceptions.IndexStrategyError, NotImplementedError):
             return Response(status_code=418)  # TODO

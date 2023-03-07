@@ -58,18 +58,18 @@ class Elastic8IndexStrategy(IndexStrategy):
             'mappings': self.index_mappings(),
         }
 
-    # implements IndexStrategy.pls_make_prime
-    def pls_make_prime(self, *, specific_index_name=None):
-        new_prime_index = specific_index_name or self.current_index_name
-        indexes_with_prime_alias = self._indexes_with_prime_alias()
-        if indexes_with_prime_alias != {new_prime_index}:
-            indexes_with_prime_alias.discard(new_prime_index)
-            logger.warning(f'removing aliases to {indexes_with_prime_alias} and adding alias to {self.current_index_name}')
+    # implements IndexStrategy.pls_open_for_searching
+    def pls_open_for_searching(self, *, specific_index_name=None):
+        index_to_open = specific_index_name or self.current_index_name
+        indexes_open = self._indexes_open_for_searching()
+        if indexes_open != {index_to_open}:
+            indexes_open.discard(index_to_open)
+            logger.warning(f'removing aliases to {indexes_open} and adding alias to {self.current_index_name}')
             delete_actions = [
-                {'remove': {'index': index_name, 'alias': self.prime_alias}}
-                for index_name in indexes_with_prime_alias
+                {'remove': {'index': index_name, 'alias': self.alias_for_searching}}
+                for index_name in indexes_open
             ]
-            add_action = {'add': {'index': self.current_index_name, 'alias': self.prime_alias}}
+            add_action = {'add': {'index': self.current_index_name, 'alias': self.alias_for_searching}}
             self.es8_client.indices.update_aliases(body={
                 'actions': [
                     *delete_actions,
@@ -77,9 +77,9 @@ class Elastic8IndexStrategy(IndexStrategy):
                 ],
             })
 
-    def _indexes_with_prime_alias(self):
+    def _indexes_open_for_searching(self):
         try:
-            aliases = self.es8_client.indices.get_alias(name=self.prime_alias)
+            aliases = self.es8_client.indices.get_alias(name=self.alias_for_searching)
             return set(aliases.keys())
         except elasticsearch8.exceptions.NotFoundError:
             return set()
@@ -90,11 +90,11 @@ class Elastic8IndexStrategy(IndexStrategy):
             metric='docs',
         )
         creation_dates = self._get_index_creation_dates()
-        prime_indexes = self._indexes_with_prime_alias()
+        indexes_open = self._indexes_open_for_searching()
         index_statuses = {
             index_name: {
                 'is_current': index_name == self.current_index_name,
-                'is_prime': index_name in prime_indexes,
+                'is_open_for_searching': index_name in indexes_open,
                 'doc_count': index_stats['primaries']['docs']['count'],
                 'health': index_stats['health'],
                 'creation_date': creation_dates.get(index_name),
@@ -104,7 +104,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         if self.current_index_name not in index_statuses:
             index_statuses[self.current_index_name] = {
                 'is_current': True,
-                'is_prime': self.current_index_name in prime_indexes,
+                'is_open_for_searching': self.current_index_name in indexes_open,
                 'doc_count': 0,
                 'health': 'nonexistent',
                 'creation_date': None,

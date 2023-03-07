@@ -303,31 +303,31 @@ ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
-    'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
     'KOMBU_QUEUE_SETTINGS': {
         'serializer': 'json',
         'compression': 'zlib',
         'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
     },
-    'INDEXES': {},  # populated below based on environment variables
+    'INDEX_STRATEGIES': {},  # populated below based on environment
 }
 ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
-ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
-ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
-ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
 if ELASTICSEARCH5_URL:
-    ELASTICSEARCH['INDEXES']['sharev2_elastic5'] = {
-        'CLUSTER_URL': ELASTICSEARCH5_URL,
+    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
+        'CLUSTER_URL': ELASTICSEARCH5_URL,
         'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
         'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
     }
+ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 if ELASTICSEARCH8_URL:
-    ELASTICSEARCH['INDEXES']['sharev2_elastic8'] = {
+    ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
+    assert ELASTICSEARCH8_SECRET, 'if ELASTICSEARCH8_URL is present, so must ELASTICSEARCH8_SECRET'
+    ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
+    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
         'CLUSTER_URL': ELASTICSEARCH8_URL,
         'CLUSTER_AUTH': ':'.join((ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)),
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
     }
 
 # Seconds, not an actual celery settings
