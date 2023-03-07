@@ -20,7 +20,9 @@ class Elastic8IndexStrategy(IndexStrategy):
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         self.es8_client = elasticsearch8.Elasticsearch(
             self.cluster_url,
-            # TODO: revisit client settings
+            # auth:
+            http_auth=self.cluster_auth,
+            # retry:
             retry_on_timeout=True,
             timeout=timeout,
             # sniffing:

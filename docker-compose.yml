@@ -9,7 +9,7 @@ volumes:
     external: false
   elasticsearch_data_vol:
     external: false
-  elasticsearch8x_data_vol:
+  elastic8_data_vol:
     external: false
   rabbitmq_vol:
     external: false
@@ -42,12 +42,13 @@ services:
     ports:
       - 9208:9200
     volumes:
-      - elasticsearch8x_data_vol:/usr/share/elasticsearch/data
+      - elastic8_data_vol:/usr/share/elasticsearch/data
     environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-      node.name: elastic8
-      cluster.initial_master_nodes: elastic8
-      xpack.security.enabled: false  # not good for deployment
+      node.name: one-single-node
+      cluster.initial_master_nodes: one-single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"  # raise memory limits a lil bit
+      # TODO: multiple users with limited permissions
+      ELASTIC_PASSWORD: ${ELASTICSEARCH8_SECRET:-secretsecret}
     stdin_open: true
 
   rabbitmq:
@@ -125,6 +126,8 @@ services:
       - share_requirements_vol:/usr/local/lib/python3.11
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
     stdin_open: true
 
   web:
@@ -143,6 +146,8 @@ services:
       - share_requirements_vol:/usr/local/lib/python3.11
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
     stdin_open: true
 
   indexer:
@@ -158,5 +163,7 @@ services:
       - share_requirements_vol:/usr/local/lib/python3.11
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
     stdin_open: true
 

@@ -37,13 +37,15 @@ class IndexStrategy(abc.ABC):
         return index_strategy_class(
             name=name,
             cluster_url=index_config['CLUSTER_URL'],
+            cluster_auth=index_config.get('CLUSTER_AUTH', None),
             default_queue_name=index_config.get('DEFAULT_QUEUE', None),
             urgent_queue_name=index_config.get('URGENT_QUEUE', None),
         )
 
-    def __init__(self, name, cluster_url, default_queue_name=None, urgent_queue_name=None):
+    def __init__(self, name, cluster_url, cluster_auth=None, default_queue_name=None, urgent_queue_name=None):
         self.name = name
         self.cluster_url = cluster_url
+        self.cluster_auth = cluster_auth
         self.default_queue_name = default_queue_name or name
         self.urgent_queue_name = urgent_queue_name or f'{self.default_queue_name}.urgent'
 
