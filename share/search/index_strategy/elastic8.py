@@ -22,7 +22,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         self.es8_client = elasticsearch8.Elasticsearch(
             self.cluster_url,
             # security:
-            ca_certs=self.cluster_settings.get('CERTPATH'),
+            ca_certs=self.cluster_settings.get('CERT_PATH'),
             http_auth=self.cluster_settings.get('AUTH'),
             # retry:
             retry_on_timeout=True,

@@ -195,7 +195,7 @@ services:
       - .docker-compose.env
     environment:
       ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
-      ELASTICSEARCH8_CERTPATH: /elastic8_certs/ca/ca.crt
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
   web:
@@ -217,7 +217,7 @@ services:
       - .docker-compose.env
     environment:
       ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
-      ELASTICSEARCH8_CERTPATH: /elastic8_certs/ca/ca.crt
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
   indexer:
@@ -236,6 +236,6 @@ services:
       - .docker-compose.env
     environment:
       ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
-      ELASTICSEARCH8_CERTPATH: /elastic8_certs/ca/ca.crt
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
