@@ -353,7 +353,7 @@ class IngestJobConsumer(JobConsumer):
 
     def _queue_for_indexing(self, suid, urgent):
         messenger = (
-            IndexMessenger(self.task.app)
+            IndexMessenger(celery_app=self.task.app)
             if self.task
             else IndexMessenger()
         )
