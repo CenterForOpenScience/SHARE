@@ -98,8 +98,6 @@ INSTALLED_APPS = [
 
     'share',
     'api',
-
-    'bots.elasticsearch',
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
@@ -419,7 +417,6 @@ def route_urgent_task(name, args, kwargs, options, task=None, **kw):
 CELERY_TASK_ROUTES = [
     route_urgent_task,
     {
-        'bots.elasticsearch.*': {'queue': 'elasticsearch'},
         'share.tasks.harvest': {'queue': 'harvest'},
         'share.tasks.ingest': {'queue': 'ingest'},
     },
