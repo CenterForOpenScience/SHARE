@@ -90,7 +90,7 @@ def schedule_index_backfill(self, index_name):
     index_messenger = IndexMessenger(celery_app=self.app, index_names=[index_name])
     for suid_id_chunk in chunked_iterator:
         index_messenger.send_messages_chunk(
-            MessagesChunk(MessageType.BACKFILL_SUID, suid_id_queryset),
+            MessagesChunk(MessageType.BACKFILL_SUID, suid_id_chunk),
             urgent=False,
         )
 

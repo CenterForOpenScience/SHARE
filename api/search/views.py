@@ -21,7 +21,7 @@ def _get_index_strategy(requested_index_strategy):
         try:
             index_strategy = IndexStrategy.by_request(requested_index_strategy)
         except exceptions.IndexStrategyError as error:
-            raise http.Http404(error.message)
+            raise http.Http404(str(error))
     if not index_strategy.pls_check_exists():
         raise http.Http404(f'indexStrategy={requested_index_strategy} does not exist')
     return index_strategy
