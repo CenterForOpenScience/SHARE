@@ -70,30 +70,34 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_create(self):
-        logger.debug('Ensuring index %s', self.name)
         # check index exists (if not, create)
-        if not self.es5_client.indices.exists(index=self.name):
+        index_name = self.get_specific_indexname()
+        logger.debug('Ensuring index %s', index_name)
+        if not self.es5_client.indices.exists(index=index_name):
             (
                 self.es5_client
                 .indices
                 .create(
-                    index=self.get_specific_indexname(),
-                    settings=self.index_settings(),
-                    mappings=self.index_mappings(),
+                    index_name,
+                    body={
+                        'settings': self.index_settings(),
+                        'mappings': self.index_mappings(),
+                    },
                 )
             )
-        self.es5_client.indices.refresh(index=self.name)
+        self.es5_client.indices.refresh(index=index_name)
         logger.debug('Waiting for yellow status')
         self.es5_client.cluster.health(wait_for_status='yellow')
-        logger.info('Finished setting up Elasticsearch index %s', self.name)
+        logger.info('Finished setting up Elasticsearch index %s', index_name)
 
     # abstract method from IndexStrategy
     def pls_delete(self):
-        logger.warning(f'{self.__class__.__name__}: deleting index {self.index_name}')
+        index_name = self.get_specific_indexname()
+        logger.warning(f'{self.__class__.__name__}: deleting index {index_name}')
         (
             self.es5_client
             .indices
-            .delete(index=self.name, ignore=[400, 404])
+            .delete(index=index_name, ignore=[400, 404])
         )
 
     # abstract method from IndexStrategy
