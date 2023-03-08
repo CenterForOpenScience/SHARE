@@ -1,4 +1,5 @@
 import abc
+import collections
 import datetime
 import logging
 
@@ -20,8 +21,9 @@ class Elastic8IndexStrategy(IndexStrategy):
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         self.es8_client = elasticsearch8.Elasticsearch(
             self.cluster_url,
-            # auth:
-            http_auth=self.cluster_auth,
+            # security:
+            ca_certs=self.cluster_settings.get('CERTPATH'),
+            http_auth=self.cluster_settings.get('AUTH'),
             # retry:
             retry_on_timeout=True,
             timeout=timeout,
@@ -61,7 +63,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     # implements IndexStrategy.pls_open_for_searching
     def pls_open_for_searching(self):
         index_to_open = self.get_specific_indexname()
-        indexes_already_open = self._indexes_open_for_searching()
+        indexes_already_open = self.pls_get_indexnames_open_for_searching()
         if indexes_already_open != {index_to_open}:
             indexes_already_open.discard(index_to_open)
             logger.warning(f'removing aliases to {indexes_already_open} and adding alias to {index_to_open}')
@@ -77,7 +79,8 @@ class Elastic8IndexStrategy(IndexStrategy):
                 ],
             })
 
-    def _indexes_open_for_searching(self):
+    # abstract method from IndexStrategy
+    def pls_get_indexnames_open_for_searching(self):
         try:
             aliases = self.es8_client.indices.get_alias(name=self.alias_for_searching)
             return set(aliases.keys())
@@ -90,7 +93,7 @@ class Elastic8IndexStrategy(IndexStrategy):
             metric='docs',
         )
         creation_dates = self._get_index_creation_dates()
-        indexes_open = self._indexes_open_for_searching()
+        indexes_open = self.pls_get_indexnames_open_for_searching()
         index_statuses = {
             index_name: {
                 'is_current': index_name == self.current_index_name,
@@ -160,28 +163,33 @@ class Elastic8IndexStrategy(IndexStrategy):
             .exists(index=index_name)
         )
 
-    def _elastic_actions_with_index(self, messages_chunk):
-        indexpattern = self._indexpattern_for_update(messages_chunk.message_type)
+    def _elastic_actions_with_index(self, messages_chunk, indexnames):
         for elastic_action in self.build_elastic_actions(messages_chunk):
-            yield {
-                '_index': indexpattern,
-                **elastic_action,
-            }
+            for indexname in indexnames:
+                yield {
+                    '_index': indexname,
+                    **elastic_action,
+                }
 
     def pls_handle_messages_chunk(self, messages_chunk):
+        self.assert_message_type(messages_chunk.message_type)
+        indexnames = self.get_indexnames_for_updating(messages_chunk.message_type)
+        done_counter = collections.Counter()
         bulk_stream = streaming_bulk(
             self.es8_client,
-            self._elastic_actions_with_index(messages_chunk),
+            self._elastic_actions_with_index(messages_chunk, indexnames),
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
             message_target_id = self.get_message_target_id(response_body['_id'])
-            yield messages.IndexMessageResponse(
-                is_handled=ok,
-                index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                error_label=response_body.get('_errors'),
-            )
+            done_counter[message_target_id] += 1
+            if done_counter[message_target_id] >= len(indexnames):
+                yield messages.IndexMessageResponse(
+                    is_handled=ok,
+                    index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                    error_label=response_body,
+                )
 
     def _get_index_creation_dates(self):
         existing_index_settings = self.es8_client.indices.get_settings(
@@ -198,13 +206,3 @@ class Elastic8IndexStrategy(IndexStrategy):
                 .isoformat(timespec='minutes')
             )
         return creation_dates
-
-    def _indexpattern_for_update(self, message_type):
-        if message_type == messages.MessageType.INDEX_SUID:
-            # "index" goes to all indexes managed by this strategy
-            return self.get_indexname_for_updating()
-        elif message_type == messages.MessageType.BACKFILL_SUID:
-            # "backfill" to get the current index up-to-date
-            return self.get_specific_indexname()
-        else:
-            raise NotImplementedError(f'unknown message_type: {message_type}')

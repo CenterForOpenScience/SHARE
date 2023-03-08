@@ -315,19 +315,22 @@ ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
 if ELASTICSEARCH5_URL:
     ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
-        'CLUSTER_URL': ELASTICSEARCH5_URL,
-        'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
-        'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
+        'CLUSTER_SETTINGS': {
+            'URL': ELASTICSEARCH5_URL,
+        },
     }
 ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 if ELASTICSEARCH8_URL:
-    ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
-    assert ELASTICSEARCH8_SECRET, 'if ELASTICSEARCH8_URL is present, so must ELASTICSEARCH8_SECRET'
+    ELASTICSEARCH8_CERTPATH = os.environ.get('ELASTICSEARCH8_CERTPATH')
     ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
+    ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
     ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
-        'CLUSTER_URL': ELASTICSEARCH8_URL,
-        'CLUSTER_AUTH': ':'.join((ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)),
+        'CLUSTER_SETTINGS': {
+            'URL': ELASTICSEARCH8_URL,
+            'AUTH': (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET),
+            'CERTPATH': ELASTICSEARCH8_CERTPATH,
+        },
     }
 
 # Seconds, not an actual celery settings

@@ -17,11 +17,11 @@ class TestIndexStrategy:
             **settings.ELASTICSEARCH,
             'INDEX_STRATEGIES': {
                 'my_es5_index': {
-                    'CLUSTER_URL': 'blah',
+                    'CLUSTER_SETTINGS': {'URL': 'blah'},
                     'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
                 },
                 'my_es8_index': {
-                    'CLUSTER_URL': 'bleh',
+                    'CLUSTER_SETTINGS': {'URL': 'bleh'},
                     'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
                 },
             },

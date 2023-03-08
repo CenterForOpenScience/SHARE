@@ -167,10 +167,10 @@ def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, set
         'ACTIVE_INDEXES': [elastic_test_index_name],
         'INDEX_STRATEGIES': {
             elastic_test_index_name: {
-                'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
-                'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
                 'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
-                'CLUSTER_URL': settings.ELASTICSEARCH5_URL,
+                'CLUSTER_SETTINGS': {
+                    'URL': settings.ELASTICSEARCH5_URL,
+                },
             },
         },
     }

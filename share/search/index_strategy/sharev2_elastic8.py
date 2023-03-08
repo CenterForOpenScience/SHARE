@@ -128,7 +128,6 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             raise exceptions.IndexStrategyError() from error  # TODO: error messaging
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        self.assert_message_type(messages_chunk.message_type)
         suid_ids = set(messages_chunk.target_ids_chunk)
         record_qs = db.FormattedMetadataRecord.objects.filter(
             suid_id__in=suid_ids,

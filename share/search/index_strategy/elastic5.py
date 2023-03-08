@@ -27,7 +27,6 @@ class Elastic5IndexStrategy(IndexStrategy):
             self.cluster_url,
             retry_on_timeout=True,
             timeout=settings.ELASTICSEARCH['TIMEOUT'],
-            verify_certs=False,
             # sniff before doing anything
             sniff_on_start=should_sniff,
             # refresh nodes after a node fails to respond
@@ -50,6 +49,10 @@ class Elastic5IndexStrategy(IndexStrategy):
     # override IndexStrategy
     def alias_for_searching(self):
         return self.INDEX_NAME
+
+    # abstract method from IndexStrategy
+    def pls_get_indexnames_open_for_searching(self):
+        return {self.INDEX_NAME}
 
     # abstract method from IndexStrategy
     def current_setup(self):
@@ -112,13 +115,12 @@ class Elastic5IndexStrategy(IndexStrategy):
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
-            logger.info(f'response (ok:{ok}): {response}')
             op_type, response_body = next(iter(response.items()))
             message_target_id = self.get_message_target_id(response_body['_id'])
             yield messages.IndexMessageResponse(
                 is_handled=ok,
                 index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                error_label=response_body.get('_errors'),
+                error_label=response_body,
             )
 
     # abstract method from IndexStrategy

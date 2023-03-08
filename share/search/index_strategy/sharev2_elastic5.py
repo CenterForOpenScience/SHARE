@@ -18,6 +18,7 @@ def get_doc_id(suid_id):
 
 
 class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
+    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic5IndexStrategy:fa66177f83fbac0647cf8760f9c3dfbd6ae40499df795a684745ace94ffdcebe'
     INDEX_NAME = 'share_postrend_backcompat'
     SUBJECT_DELIMITER = '|'
 
@@ -28,6 +29,11 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
             MessageType.INDEX_SUID,
             MessageType.BACKFILL_SUID,
         }
+
+    @property
+    # override IndexStrategy.nonurgent_queue_name for back-compat
+    def nonurgent_queue_name(self):
+        return 'es-share-postrend-backcompat'
 
     def index_settings(self):
         return {
@@ -180,7 +186,7 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     def build_elastic_actions(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
         action_template = {
-            '_index': self.get_indexname_for_updating(),
+            '_index': self.INDEX_NAME,
             '_type': 'creativeworks',
         }
         suid_ids = set(messages_chunk.target_ids_chunk)

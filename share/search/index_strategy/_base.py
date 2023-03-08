@@ -9,7 +9,6 @@ from django.utils.functional import cached_property
 
 from share.search.exceptions import IndexStrategyError
 from share.search import messages
-from share import tasks
 
 
 class IndexStrategy(abc.ABC):
@@ -20,6 +19,7 @@ class IndexStrategy(abc.ABC):
       (should encapsulate its elasticsearch client library)
     * implements methods to observe and effect the lifecycle of a search index:
         * current_setup
+        * pls_get_indexnames_open_for_searching
         * pls_gather_status
         * pls_check_exists
         * pls_create
@@ -63,35 +63,29 @@ class IndexStrategy(abc.ABC):
 
     @classmethod
     def _load_from_config(cls, index_strategy_name, specific_index_name=None):
-        # required known properties: INDEX_STRATEGY_CLASS, CLUSTER_URL
         index_config = settings.ELASTICSEARCH['INDEX_STRATEGIES'][index_strategy_name]
+        assert set(index_config) == {'INDEX_STRATEGY_CLASS', 'CLUSTER_SETTINGS'}, (
+            'values in settings.ELASTICSEARCH[\'INDEX_STRATEGIES\'] must have keys: '
+            'INDEX_STRATEGY_CLASS, CLUSTER_SETTINGS'
+        )
         module_name, class_name = index_config['INDEX_STRATEGY_CLASS'].split(':', maxsplit=1)
         assert module_name.startswith('share.search.index_strategy.')
         index_strategy_class = getattr(importlib.import_module(module_name), class_name)
         assert issubclass(index_strategy_class, IndexStrategy)
         return index_strategy_class(
             name=index_strategy_name,
-            cluster_url=index_config['CLUSTER_URL'],
-            cluster_auth=index_config.get('CLUSTER_AUTH', None),
-            default_queue_name=index_config.get('DEFAULT_QUEUE', None),
-            urgent_queue_name=index_config.get('URGENT_QUEUE', None),
+            cluster_settings=index_config['CLUSTER_SETTINGS'],
             specific_index_name=specific_index_name,
         )
 
     def __init__(
         self, *,
         name,
-        cluster_url,
-        cluster_auth=None,
-        default_queue_name=None,
-        urgent_queue_name=None,
+        cluster_settings,
         specific_index_name=None,
     ):
         self.name = name
-        self.cluster_url = cluster_url
-        self.cluster_auth = cluster_auth
-        self.default_queue_name = default_queue_name or name
-        self.urgent_queue_name = urgent_queue_name or f'{self.default_queue_name}.urgent'
+        self.cluster_settings = cluster_settings
         if specific_index_name is not None:
             assert specific_index_name.startswith(self.current_index_prefix)
         self._specific_index_name = specific_index_name
@@ -100,12 +94,24 @@ class IndexStrategy(abc.ABC):
         return (
             self.urgent_queue_name
             if urgent
-            else self.default_queue_name
+            else self.nonurgent_queue_name
         )
+
+    @property
+    def nonurgent_queue_name(self):
+        return self.name
+
+    @property
+    def urgent_queue_name(self):
+        return f'{self.nonurgent_queue_name}.urgent'
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:
             raise IndexStrategyError(f'Invalid message_type "{message_type}" (expected {self.supported_message_types})')
+
+    @property
+    def cluster_url(self):
+        return self.cluster_settings['URL']
 
     @cached_property
     def current_setup_checksum(self):
@@ -147,8 +153,16 @@ class IndexStrategy(abc.ABC):
     def get_indexname_for_searching(self):
         return self._specific_index_name or self.alias_for_searching
 
-    def get_indexname_for_updating(self):
-        return self._specific_index_name or self.current_index_name
+    def get_indexnames_for_updating(self, message_type):
+        if self._specific_index_name:
+            # may override index per IndexStrategy-instance
+            return {self._specific_index_name}
+        current = self.current_index_name
+        if message_type.is_backfill:
+            # a "backfill" gets the new current index up-to-date
+            return {current}
+        indexes_open = self.pls_get_indexnames_open_for_searching()
+        return {current, *indexes_open}  # often just {current}
 
     def get_specific_indexname(self):
         return self._specific_index_name or self.current_index_name
@@ -160,10 +174,8 @@ class IndexStrategy(abc.ABC):
 Unconfirmed changes in {self.__class__.__name__}!
 Expected CURRENT_SETUP_CHECKSUM = '{self.CURRENT_SETUP_CHECKSUM}'
 ...but got '{setup_checksum}'
-for the current setup:
-{json.dumps(self.current_setup(), indent=4, sort_keys=True)}
 
-If changing on purpose, update {self.__class__.__qualname__} with:
+If changes were made on purpose, update {self.__class__.__qualname__} with:
 ```
     CURRENT_SETUP_CHECKSUM = '{setup_checksum}'
 ```''')
@@ -175,8 +187,11 @@ If changing on purpose, update {self.__class__.__qualname__} with:
 
     def pls_organize_backfill(self):
         # TODO track/check backfill status somehow (if done, don't re-do)
-        # using the non-urgent queue, schedule a task to schedule index tasks
+        from share import tasks
         tasks.schedule_index_backfill.apply_async((self.name,))
+
+    def is_current_index_open_for_searching(self):
+        return self.current_index_name in self.pls_get_indexnames_open_for_searching()
 
     @abc.abstractmethod
     def current_setup(self):
@@ -189,6 +204,10 @@ If changing on purpose, update {self.__class__.__qualname__} with:
         raise NotImplementedError(f'{self.__class__.__name__} must implement specific_index_statuses')
 
     @abc.abstractmethod
+    def pls_get_indexnames_open_for_searching(self) -> bool:
+        raise NotImplementedError(f'{self.__class__.__name__} must implement is_current_index_open_for_searching')
+
+    @abc.abstractmethod
     def pls_create(self):
         # check index exists (if not, create)
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_create')
@@ -199,7 +218,6 @@ If changing on purpose, update {self.__class__.__qualname__} with:
 
     @abc.abstractmethod
     def pls_open_for_searching(self):
-        # check alias exists from name (if not, create)
         raise NotImplementedError(f'{self.__class__.__name__} must implement pls_open_for_searching')
 
     @property

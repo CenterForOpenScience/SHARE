@@ -19,6 +19,15 @@ class MessageType(Enum):
     INDEX_SUID = 'suid'
     BACKFILL_SUID = 'fill-suid'
 
+    @property
+    def is_backfill(self):
+        return self in BACKFILL_MESSAGE_TYPES
+
+
+BACKFILL_MESSAGE_TYPES = {
+    MessageType.BACKFILL_SUID,
+}
+
 
 class IndexMessage(typing.NamedTuple):
     message_type: MessageType

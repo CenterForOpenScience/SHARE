@@ -48,7 +48,7 @@ class CeleryMessageConsumer(ConsumerMixin):
             Consumer(
                 [
                     KombuQueue(self.__index_strategy.urgent_queue_name, **kombu_queue_settings),
-                    KombuQueue(self.__index_strategy.default_queue_name, **kombu_queue_settings),
+                    KombuQueue(self.__index_strategy.nonurgent_queue_name, **kombu_queue_settings),
                 ],
                 callbacks=[self.__indexer_daemon.on_message],
                 accept=['json'],
@@ -187,7 +187,7 @@ class MessageHandlingLoop:
                 else:
                     error_count += 1
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
-                    sentry_client.captureMessage(message_response.error_label)
+                    sentry_client.captureMessage('error handling message', data=message_response.error_label)
         time_elapsed = time.time() - start_time
         if doc_count:
             logger.info('%sIndexed %d documents in %.02fs', self.log_prefix, doc_count, time_elapsed)
