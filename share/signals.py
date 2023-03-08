@@ -9,10 +9,3 @@ def post_migrate_load_sources(sender, **kwargs):
     except ProgrammingError:
         return
     management.call_command('loadsources')
-
-
-def ensure_latest_elastic_mappings(sender, **kwargs):
-    from share.search import IndexStrategy
-
-    for index_strategy in IndexStrategy.all_strategies().values():
-        index_strategy.pls_setup_as_needed()
