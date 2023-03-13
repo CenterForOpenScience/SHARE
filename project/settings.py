@@ -330,6 +330,15 @@ if ELASTICSEARCH8_URL:
             'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
         },
     }
+DEFAULT_SHAREV2_INDEX_STRATEGY = (
+    'sharev2_elastic5'
+    if ELASTICSEARCH5_URL
+    else (
+        'sharev2_elastic8'
+        if ELASTICSEARCH8_URL
+        else None
+    )
+)
 
 # Seconds, not an actual celery settings
 CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if DEBUG else 10))

@@ -25,6 +25,7 @@ from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
 from share.models.fields import DateTimeAwareJSONField
+from share.models.index_backfill import IndexBackfill
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
@@ -35,7 +36,11 @@ from share.models.sources import SourceStat
 class ShareAdminSite(admin.AdminSite):
     def get_urls(self):
         return [
-            path('search-indexes', self.admin_view(search_indexes_view)),
+            path(
+                'search-indexes',
+                self.admin_view(search_indexes_view),
+                name='search-indexes',
+            ),
             *super().get_urls(),
         ]
 
@@ -258,9 +263,28 @@ class FormattedMetadataRecordAdmin(admin.ModelAdmin):
     show_full_result_count = False
 
 
+class IndexBackfillAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'index_strategy_name',
+        'specific_indexname',
+        'error_type',
+        'error_message',
+        'error_context',
+    )
+    paginator = TimeLimitedPaginator
+    list_display = ('index_strategy_name', 'backfill_status', 'created', 'modified', 'specific_indexname')
+    show_full_result_count = False
+    search_fields = ('index_strategy_name', 'specific_indexname',)
+    actions = ('reset_to_initial',)
+
+    def reset_to_initial(self, request, queryset):
+        queryset.update(backfill_status=IndexBackfill.INITIAL)
+
+
 admin_site.register(AccessToken, AccessTokenAdmin)
 admin_site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 
+admin_site.register(IndexBackfill, IndexBackfillAdmin)
 admin_site.register(HarvestJob, HarvestJobAdmin)
 admin_site.register(IngestJob, IngestJobAdmin)
 admin_site.register(NormalizedData, NormalizedDataAdmin)

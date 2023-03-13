@@ -2,12 +2,14 @@ import abc
 import collections
 import datetime
 import logging
+import typing
 
 from django.conf import settings
 import elasticsearch8
 from elasticsearch8.helpers import streaming_bulk
 
 from share.search.index_strategy._base import IndexStrategy
+from share.search.index_status import IndexStatus
 from share.search import messages
 
 
@@ -53,74 +55,92 @@ class Elastic8IndexStrategy(IndexStrategy):
     def get_message_target_id(self, doc_id):
         return doc_id  # here so subclasses can override if needed
 
-    # implements IndexStrategy.current_setup
+    @property
+    def alias_for_searching(self):
+        return f'{self.indexname_prefix}search'
+
+    @property
+    def alias_for_keeping_live(self):
+        return f'{self.indexname_prefix}live'
+
+    # abstract method from IndexStrategy
     def current_setup(self):
         return {
             'settings': self.index_settings(),
             'mappings': self.index_mappings(),
         }
 
-    # implements IndexStrategy.pls_open_for_searching
-    def pls_open_for_searching(self):
-        index_to_open = self.get_specific_indexname()
-        indexes_already_open = self.pls_get_indexnames_open_for_searching()
-        if indexes_already_open != {index_to_open}:
-            indexes_already_open.discard(index_to_open)
-            logger.warning(f'removing aliases to {indexes_already_open} and adding alias to {index_to_open}')
-            delete_actions = [
-                {'remove': {'index': index_name, 'alias': self.alias_for_searching}}
-                for index_name in indexes_already_open
-            ]
-            add_action = {'add': {'index': index_to_open, 'alias': self.alias_for_searching}}
-            self.es8_client.indices.update_aliases(body={
-                'actions': [
-                    *delete_actions,
-                    add_action
-                ],
-            })
+    # abstract method from IndexStrategy
+    def pls_keep_live(self):
+        self.es8_client.indices.update_aliases(body={
+            'actions': [
+                {'add': {'index': self.indexname, 'alias': self.alias_for_keeping_live}}
+            ],
+        })
 
     # abstract method from IndexStrategy
-    def pls_get_indexnames_open_for_searching(self):
-        try:
-            aliases = self.es8_client.indices.get_alias(name=self.alias_for_searching)
-            return set(aliases.keys())
-        except elasticsearch8.exceptions.NotFoundError:
-            return set()
+    def pls_stop_keeping_live(self):
+        self.es8_client.indices.update_aliases(body={
+            'actions': [
+                {'remove': {'index': self.indexname, 'alias': self.alias_for_keeping_live}}
+            ],
+        })
 
-    def specific_index_statuses(self):
+    # abstract method from IndexStrategy
+    def pls_make_default_for_searching(self):
+        self._set_indexnames_for_alias(self.alias_for_searching, {self.indexname})
+
+    # abstract method from IndexStrategy
+    def get_indexname_for_searching(self):
+        indexnames = self._get_indexnames_for_alias(self.alias_for_searching)
+        assert len(indexnames) == 1
+        return indexnames.pop()
+
+    # abstract method from IndexStrategy
+    def get_indexnames_for_keeping_live(self):
+        return self._get_indexnames_for_alias(self.alias_for_keeping_live)
+
+    # abstract method from IndexStrategy
+    def specific_index_statuses(self) -> typing.Iterable[IndexStatus]:
         stats = self.es8_client.indices.stats(
-            index=self.current_index_wildcard,
+            index=self.indexname_wildcard,
             metric='docs',
         )
         creation_dates = self._get_index_creation_dates()
-        indexes_open = self.pls_get_indexnames_open_for_searching()
-        index_statuses = {
-            index_name: {
-                'is_current': index_name == self.current_index_name,
-                'is_open_for_searching': index_name in indexes_open,
-                'doc_count': index_stats['primaries']['docs']['count'],
-                'health': index_stats['health'],
-                'creation_date': creation_dates.get(index_name),
-            }
-            for index_name, index_stats in stats['indices'].items()
-        }
-        if self.current_index_name not in index_statuses:
-            index_statuses[self.current_index_name] = {
-                'is_current': True,
-                'is_open_for_searching': self.current_index_name in indexes_open,
-                'doc_count': 0,
-                'health': 'nonexistent',
-                'creation_date': None,
-            }
-        return index_statuses
+        search_indexname = self.get_indexname_for_searching()
+        live_indexnames = self.get_indexnames_for_keeping_live()
+        current_indexname = self._current_indexname
+        got_current = False
+        for indexname, index_stats in stats['indices'].items():
+            if indexname == current_indexname:
+                got_current = True
+            yield IndexStatus(
+                specific_indexname=indexname,
+                is_current=(indexname == current_indexname),
+                is_kept_live=(indexname in live_indexnames),
+                is_default_for_searching=(indexname == search_indexname),
+                creation_date=creation_dates.get(indexname),
+                doc_count=index_stats['primaries']['docs']['count'],
+                health=index_stats['health'],
+            )
+        if not got_current:
+            yield IndexStatus(
+                specific_indexname=current_indexname,
+                is_current=True,
+                is_kept_live=(current_indexname in live_indexnames),
+                is_default_for_searching=(current_indexname == search_indexname),
+                doc_count=0,
+                health='nonexistent',
+                creation_date='',
+            )
 
-    # implements IndexStrategy.pls_create
+    # abstract method from IndexStrategy
     def pls_create(self):
-        index_to_create = self.get_specific_indexname()
-        assert index_to_create == self.current_index_name, (
+        assert self.is_current, (
             'cannot create a non-current version of an index! '
-            'to proceed, use an index strategy without `specific_index_name`'
+            'to proceed, use an index strategy without `specific_indexname`'
         )
+        index_to_create = self.indexname
         logger.debug('Ensuring index %s', index_to_create)
         index_exists = (
             self.es8_client
@@ -143,9 +163,9 @@ class Elastic8IndexStrategy(IndexStrategy):
         self.es8_client.cluster.health(wait_for_status='yellow')
         logger.info('Finished setting up Elasticsearch index %s', index_to_create)
 
-    # implements IndexStrategy.pls_delete
+    # abstract method from IndexStrategy
     def pls_delete(self):
-        index_to_delete = self.get_specific_indexname()
+        index_to_delete = self.indexname
         logger.warning(f'{self.__class__.__name__}: deleting index {index_to_delete}')
         (
             self.es8_client
@@ -153,14 +173,14 @@ class Elastic8IndexStrategy(IndexStrategy):
             .delete(index=index_to_delete, ignore=[400, 404])
         )
 
-    # implements IndexStrategy.pls_check_exists
+    # abstract method from IndexStrategy
     def pls_check_exists(self):
-        index_name = self.get_specific_indexname()
-        logger.info(f'{self.__class__.__name__}: checking for index {index_name}')
+        indexname = self.indexname
+        logger.info(f'{self.__class__.__name__}: checking for index {indexname}')
         return (
             self.es8_client
             .indices
-            .exists(index=index_name)
+            .exists(index=indexname)
         )
 
     def _elastic_actions_with_index(self, messages_chunk, indexnames):
@@ -173,7 +193,7 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     def pls_handle_messages_chunk(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
-        indexnames = self.get_indexnames_for_updating(messages_chunk.message_type)
+        indexnames = self.get_indexnames_for_keeping_live(messages_chunk.message_type)
         done_counter = collections.Counter()
         bulk_stream = streaming_bulk(
             self.es8_client,
@@ -182,27 +202,57 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
+            is_handled = ok or (op_type == 'delete' and response_body.get('result') == 'not_found')
             message_target_id = self.get_message_target_id(response_body['_id'])
             done_counter[message_target_id] += 1
             if done_counter[message_target_id] >= len(indexnames):
                 yield messages.IndexMessageResponse(
-                    is_handled=ok,
+                    is_handled=is_handled,
                     index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
                     error_label=response_body,
                 )
 
     def _get_index_creation_dates(self):
         existing_index_settings = self.es8_client.indices.get_settings(
-            index=self.current_index_wildcard,
+            index=self.indexname_wildcard,
             name='index.creation_date',
         )
         creation_dates = {}
-        for index_name, index_settings in existing_index_settings.items():
+        for indexname, index_settings in existing_index_settings.items():
             timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
             timestamp_seconds = timestamp_milliseconds / 1000
-            creation_dates[index_name] = (
+            creation_dates[indexname] = (
                 datetime.datetime
                 .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
                 .isoformat(timespec='minutes')
             )
         return creation_dates
+
+    def _get_indexnames_for_alias(self, alias_name) -> set[str]:
+        try:
+            aliases = self.es8_client.indices.get_alias(name=alias_name)
+            return set(aliases.keys())
+        except elasticsearch8.exceptions.NotFoundError:
+            return set()
+
+    def _set_indexnames_for_alias(self, alias_name, indexnames):
+        already_aliased = self._get_indexnames_for_alias(alias_name)
+        want_aliased = set(indexnames)
+        if already_aliased == want_aliased:
+            logger.info(f'alias "{alias_name}" already correct ({want_aliased}), doing nothing')
+        else:
+            to_remove = already_aliased - want_aliased
+            to_add = want_aliased - already_aliased
+            logger.warning(f'alias "{alias_name}": removing indexes {to_remove} and adding indexes {to_add}')
+            self.es8_client.indices.update_aliases(body={
+                'actions': [
+                    *(
+                        {'remove': {'index': indexname, 'alias': alias_name}}
+                        for indexname in to_remove
+                    ),
+                    *(
+                        {'add': {'index': indexname, 'alias': alias_name}}
+                        for indexname in to_add
+                    ),
+                ],
+            })

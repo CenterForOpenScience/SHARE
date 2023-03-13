@@ -1,11 +1,13 @@
 import abc
 import datetime
 import logging
+import typing
 
 from django.conf import settings
 from elasticsearch5 import Elasticsearch, helpers as elastic5_helpers
 
 from share.search import messages
+from share.search.index_status import IndexStatus
 from share.search.index_strategy._base import IndexStrategy
 
 
@@ -13,9 +15,11 @@ logger = logging.getLogger(__name__)
 
 
 class Elastic5IndexStrategy(IndexStrategy):
+    SUPPORTS_BACKFILL = False
+
     # use a simple constant instead of the fancy versioning logic in base IndexStrategy
     # -- intent is to put new indexes in elastic8+ and drop elastic5 soon
-    INDEX_NAME = None
+    INDEXNAME = None
 
     # perpetuated optimizations from times long past
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
@@ -37,77 +41,77 @@ class Elastic5IndexStrategy(IndexStrategy):
 
     @property
     # override IndexStrategy
-    def current_index_prefix(self):
-        return self.INDEX_NAME
+    def indexname_prefix(self):
+        return self.INDEXNAME
 
     @property
     # override IndexStrategy
-    def current_index_name(self):
-        return self.INDEX_NAME
-
-    @property
-    # override IndexStrategy
-    def alias_for_searching(self):
-        return self.INDEX_NAME
-
-    # abstract method from IndexStrategy
-    def pls_get_indexnames_open_for_searching(self):
-        return {self.INDEX_NAME}
+    def _current_indexname(self):
+        return self.INDEXNAME
 
     # abstract method from IndexStrategy
     def current_setup(self):
         return {
+            'indexname': self.INDEXNAME,
             'settings': self.index_settings(),
             'mappings': self.index_mappings(),
         }
 
     # abstract method from IndexStrategy
-    def pls_open_for_searching(self):
+    def get_indexname_for_searching(self):
+        return self.INDEXNAME
+
+    # abstract method from IndexStrategy
+    def get_indexnames_for_keeping_live(self):
+        return {self.INDEXNAME}
+
+    # abstract method from IndexStrategy
+    def pls_make_default_for_searching(self):
         logger.info(
-            'Elastic5IndexStrategy.pls_open_for_searching doing nothing with '
+            'Elastic5IndexStrategy.pls_make_default_for_searching doing nothing with '
             'the expectation we will stop using elasticsearch5 soon'
         )
 
     # abstract method from IndexStrategy
     def pls_create(self):
         # check index exists (if not, create)
-        index_name = self.get_specific_indexname()
-        logger.debug('Ensuring index %s', index_name)
-        if not self.es5_client.indices.exists(index=index_name):
+        indexname = self.indexname
+        logger.debug('Ensuring index %s', indexname)
+        if not self.es5_client.indices.exists(index=indexname):
             (
                 self.es5_client
                 .indices
                 .create(
-                    index_name,
+                    indexname,
                     body={
                         'settings': self.index_settings(),
                         'mappings': self.index_mappings(),
                     },
                 )
             )
-        self.es5_client.indices.refresh(index=index_name)
+        self.es5_client.indices.refresh(index=indexname)
         logger.debug('Waiting for yellow status')
         self.es5_client.cluster.health(wait_for_status='yellow')
-        logger.info('Finished setting up Elasticsearch index %s', index_name)
+        logger.info('Finished setting up Elasticsearch index %s', indexname)
 
     # abstract method from IndexStrategy
     def pls_delete(self):
-        index_name = self.get_specific_indexname()
-        logger.warning(f'{self.__class__.__name__}: deleting index {index_name}')
+        indexname = self.indexname
+        logger.warning(f'{self.__class__.__name__}: deleting index {indexname}')
         (
             self.es5_client
             .indices
-            .delete(index=index_name, ignore=[400, 404])
+            .delete(index=indexname, ignore=[400, 404])
         )
 
     # abstract method from IndexStrategy
     def pls_check_exists(self):
-        index_name = self.get_specific_indexname()
-        logger.info(f'{self.__class__.__name__}: checking for index {index_name}')
+        indexname = self.indexname
+        logger.info(f'{self.__class__.__name__}: checking for index {indexname}')
         return (
             self.es5_client
             .indices
-            .exists(index=index_name)
+            .exists(index=indexname)
         )
 
     # abstract method from IndexStrategy
@@ -121,49 +125,54 @@ class Elastic5IndexStrategy(IndexStrategy):
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
             message_target_id = self.get_message_target_id(response_body['_id'])
+            is_handled = ok or (op_type == 'delete' and response_body.get('result') == 'not_found')
+            error_label = None if is_handled else response_body
             yield messages.IndexMessageResponse(
-                is_handled=ok,
+                is_handled=is_handled,
                 index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                error_label=response_body,
+                error_label=error_label,
             )
 
     # abstract method from IndexStrategy
-    def specific_index_statuses(self):
+    def specific_index_statuses(self) -> typing.Iterable[IndexStatus]:
         stats = self.es5_client.indices.stats(
-            index=self.current_index_wildcard,
+            index=self.INDEXNAME,
             metric='docs',
         )
         existing_indexes = self.es5_client.indices.get_settings(
-            index=self.current_index_wildcard,
+            index=self.INDEXNAME,
             name='index.creation_date',
         )
-        creation_dates = {}
-        for index_name, index_settings in existing_indexes.items():
+        try:
+            index_settings = existing_indexes[self.INDEXNAME]
+            index_stats = stats['indices'][self.INDEXNAME]
+        except KeyError:
+            yield IndexStatus(
+                specific_indexname=self.INDEXNAME,
+                is_current=True,
+                is_kept_live=False,
+                is_default_for_searching=True,
+                creation_date=None,
+                doc_count=0,
+                health='nonexistent',
+            )
+        else:
             timestamp_milliseconds = int(index_settings['settings']['index']['creation_date'])
             timestamp_seconds = timestamp_milliseconds / 1000
-            creation_dates[index_name] = (
+            creation_date = (
                 datetime.datetime
                 .fromtimestamp(timestamp_seconds, tz=datetime.timezone.utc)
                 .isoformat(timespec='minutes')
             )
-        index_statuses = {
-            index_name: {
-                'is_current': index_name == self.current_index_name,
-                'is_open_for_searching': True,
-                'doc_count': index_stats['primaries']['docs']['count'],
-                'creation_date': creation_dates.get(index_name),
-            }
-            for index_name, index_stats in stats['indices'].items()
-        }
-        if self.current_index_name not in index_statuses:
-            index_statuses[self.current_index_name] = {
-                'is_current': True,
-                'is_open_for_searching': False,
-                'doc_count': 0,
-                'health': 'nonexistent',
-                'creation_date': None,
-            }
-        return index_statuses
+            yield IndexStatus(
+                specific_indexname=self.INDEXNAME,
+                is_current=True,
+                is_kept_live=True,
+                is_default_for_searching=True,
+                creation_date=creation_date,
+                doc_count=index_stats['primaries']['docs']['count'],
+                health='ok?',
+            )
 
     @abc.abstractmethod
     def index_settings(self):

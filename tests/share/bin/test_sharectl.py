@@ -53,7 +53,7 @@ class TestSharectlSearch:
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
-        with mock.patch('share.bin.search.IndexStrategy.by_name', return_value=mock_index_strategy):
+        with mock.patch('share.bin.search.IndexStrategy.by_request', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
         assert mock_index_strategy.pls_setup_as_needed.mock_calls == [mock.call('foo')]
 

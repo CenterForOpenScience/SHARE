@@ -30,7 +30,7 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        index_strategy = IndexStrategy.by_name(index_name)
+        index_strategy = IndexStrategy.by_specific_index_name(index_name)
         index_strategy.pls_delete()
 
 
@@ -44,7 +44,7 @@ def setup(args, argv):
     if is_initial:
         index_strategys = IndexStrategy.all_strategies().values()
     else:
-        index_strategys = [IndexStrategy.by_name(args['<index_name>'])]
+        index_strategys = [IndexStrategy.by_request(args['<index_name>'])]
     for index_strategy in index_strategys:
         index_strategy.pls_setup_as_needed()
 
@@ -56,8 +56,8 @@ def reindex_all_suids(args, argv):
 
     Most likely useful for a freshly `setup` index (perhaps after a purge).
     """
-    index_strategy = IndexStrategy.by_name(args['<index_name>'])
-    index_strategy.pls_organize_backfill()
+    index_strategy = IndexStrategy.by_request(args['<index_name>'])
+    index_strategy.pls_setup_as_needed(start_backfill=True)
 
 
 @search.subcommand('Start the search indexing daemon')

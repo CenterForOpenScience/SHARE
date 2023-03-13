@@ -1,6 +1,17 @@
 # es8
 
 ## TODO
+- admin: confirm index refill/delete
+- admin: easy-update default index strategy for `/api/v2/search/...` and `/api/v2/feeds/...`
+- document process for new/updated index strategies
+- unit tests for IndexStrategy
+- unit tests for IndexMessenger
+- remove direct-by-url elasticsearch access (go via IndexStrategy instead)
+    - rss/atom feed
+- backcompat: search response `hits.total` 
+
+
+## DONE
 ### support multiple elastic clusters
 perform all elastic operations thru one of two interfaces:
 * share.search.IndexStrategy
@@ -25,11 +36,9 @@ add query param to existing search api to use elastic8
 view info about indexes (including current but not-yet-created)
 
 specific-index actions:
-- pls_setup (if index not created)
-- pls_organize_backfill (should normally fill automatically)
-- pls_open_for_searching (when fill is done)
-- pls_delete (when moved on to a new version)
-
-
-
-## DONE
+- pls_create
+- pls_keep_live
+- pls_start_backfill
+- pls_mark_backfill_complete
+- pls_make_default_for_searching
+- pls_delete

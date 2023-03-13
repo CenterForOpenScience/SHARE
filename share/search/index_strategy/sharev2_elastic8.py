@@ -117,10 +117,10 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return IDObfuscator.decode_id(doc_id)
 
     # abstract method from IndexStrategy
-    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None, specific_index_name=None):
+    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None):
         try:
             return self.es8_client.search(
-                index=(specific_index_name or self.alias_for_searching),
+                index=self.get_indexname_for_searching(),
                 body=request_body,
                 params=request_queryparams,
             )

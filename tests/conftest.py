@@ -174,7 +174,7 @@ def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, set
             },
         },
     }
-    index_strategy = IndexStrategy.by_name(elastic_test_index_name)
+    index_strategy = IndexStrategy.by_strategy_name(elastic_test_index_name)
     try:
         index_strategy.pls_delete()
         index_strategy.pls_setup()

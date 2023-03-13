@@ -68,31 +68,49 @@ def ingest(self, only_canonical=None, **kwargs):
 
 
 @celery.shared_task(bind=True)
-def schedule_index_backfill(self, index_name):
-    chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
-    suid_id_queryset = (
-        db.SourceUniqueIdentifier
-        .objects
-        .exclude(source_config__disabled=True)
-        .exclude(source_config__source__is_deleted=True)
-        .annotate(
-            has_fmr=models.Exists(
-                db.FormattedMetadataRecord.objects.filter(suid_id=models.OuterRef('id'))
+def schedule_index_backfill(self, index_backfill_id):
+    with transaction.atomic():
+        index_backfill = db.IndexBackfill.objects.get(id=index_backfill_id)
+        assert index_backfill.backfill_status == db.IndexBackfill.WAITING
+        index_backfill.backfill_status = db.IndexBackfill.SCHEDULING
+        index_backfill.save()
+    try:
+        suid_id_queryset = (
+            db.SourceUniqueIdentifier
+            .objects
+            .exclude(source_config__disabled=True)
+            .exclude(source_config__source__is_deleted=True)
+            .annotate(
+                has_fmr=models.Exists(
+                    db.FormattedMetadataRecord.objects.filter(suid_id=models.OuterRef('id'))
+                )
             )
+            .filter(has_fmr=True)
+            .values_list('id', flat=True)
         )
-        .filter(has_fmr=True)
-        .values_list('id', flat=True)
-    )
-    chunked_iterator = chunked(
-        suid_id_queryset.iterator(chunk_size=chunk_size),
-        size=chunk_size,
-    )
-    index_messenger = IndexMessenger(celery_app=self.app, index_names=[index_name])
-    for suid_id_chunk in chunked_iterator:
-        index_messenger.send_messages_chunk(
-            MessagesChunk(MessageType.BACKFILL_SUID, suid_id_chunk),
-            urgent=False,
+        chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        chunked_iterator = chunked(
+            suid_id_queryset.iterator(chunk_size=chunk_size),
+            size=chunk_size,
         )
+        index_messenger = IndexMessenger(
+            celery_app=self.app,
+            index_strategy_names=[index_backfill.index_strategy_name],
+        )
+        for suid_id_chunk in chunked_iterator:
+            index_messenger.send_messages_chunk(
+                MessagesChunk(MessageType.BACKFILL_SUID, suid_id_chunk),
+                urgent=False,
+            )
+    except Exception as error:
+        index_backfill.backfill_status = db.IndexBackfill.ERROR
+        index_backfill.update_error(error)
+        index_backfill.save()
+        raise error
+    else:
+        index_backfill.backfill_status = db.IndexBackfill.INDEXING
+        index_backfill.update_error(None)
+        index_backfill.save()
 
 
 @celery.shared_task(bind=True)

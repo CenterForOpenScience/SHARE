@@ -18,8 +18,8 @@ def get_doc_id(suid_id):
 
 
 class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
-    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic5IndexStrategy:fa66177f83fbac0647cf8760f9c3dfbd6ae40499df795a684745ace94ffdcebe'
-    INDEX_NAME = 'share_postrend_backcompat'
+    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic5IndexStrategy:7b6620bfafd291489e2cfea7e645b8311c2485a3012e467abfee4103f7539cc4'
+    INDEXNAME = 'share_postrend_backcompat'
     SUBJECT_DELIMITER = '|'
 
     @property
@@ -186,7 +186,7 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
     def build_elastic_actions(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
         action_template = {
-            '_index': self.INDEX_NAME,
+            '_index': self.INDEXNAME,
             '_type': 'creativeworks',
         }
         suid_ids = set(messages_chunk.target_ids_chunk)

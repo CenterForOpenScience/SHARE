@@ -1,10 +1,11 @@
+from unittest import mock
+
 import pytest
-
 import faker
-
 from lxml import etree
 
 from share.util.graph import MutableGraph
+from share.metadata_formats.sharev2_elastic import ShareV2ElasticFormatter
 
 from tests.share.normalize import factories as f
 
@@ -19,18 +20,41 @@ NAMESPACES = {'atom': 'http://www.w3.org/2005/Atom'}
 class TestFeed:
 
     @pytest.fixture()
-    def fake_items(self, index_records):
+    def fake_items(self, Graph):
         records = [
-            f.CreativeWork(
+            Graph(f.CreativeWork(
                 identifiers=[f.WorkIdentifier()],
                 agent_relations=[
                     f.Creator(),
                     f.Creator(),
                 ],
-            )
+            )).to_jsonld()
             for i in range(11)
         ]
-        return index_records(records)
+        normds = [
+            f.NormalizedDataFactory(
+                data=record,
+                raw=f.RawDatumFactory(
+                    datum='',
+                ),
+            )
+            for record in records
+        ]
+        formatter = ShareV2ElasticFormatter()
+        formatted_items = [
+            formatter.format(normd)
+            for normd in normds
+        ]
+        with mock.patch('api.feeds.views.IndexStrategy.by_request') as mock_strategy:
+            mock_strategy.pls_handle_query__api_backcompat.return_value = {
+                'hits': {
+                    'hits': [
+                        {'_source': item, '_id': item['id']}
+                        for item in formatted_items
+                    ],
+                },
+            }
+            yield formatted_items
 
     def test_atom(self, client, fake_items):
         resp = client.get('/api/v2/feeds/atom')

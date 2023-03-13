@@ -71,7 +71,7 @@ class TestIndexStrategy:
         fake_strategy.pls_handle_messages_chunk(messages_chunk)
 
     def test_pls_organize_backfill(self, fake_strategy, mock_es_client):
-        fake_strategy.pls_organize_backfill()
+        fake_strategy.pls_start_backfill()
 
     # def test_stream_actions(self, mock_es_client):
     #     input_actions = [

@@ -15,19 +15,16 @@ class IndexMessenger:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    def __init__(self, *, celery_app=None, index_names=None):
+    def __init__(self, *, celery_app=None, index_strategy_names=None):
         self.celery_app = (
             celery.current_app
             if celery_app is None
             else celery_app
         )
         self.index_strategys = (
-            tuple(IndexStrategy.all_strategies().values())
-            if index_names is None
-            else tuple(
-                IndexStrategy.by_name(index_name)
-                for index_name in index_names
-            )
+            index_strategy
+            for name, index_strategy in IndexStrategy.all_strategies().items()
+            if index_strategy_names is None or name in index_strategy_names
         )
 
     def send_message(self, message_type: MessageType, target_id, *, urgent=False):
