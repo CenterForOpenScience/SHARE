@@ -2,112 +2,113 @@ from unittest import mock
 
 import pytest
 
+from share.search.exceptions import IndexStrategyError
 from share.search.index_strategy import (
     IndexStrategy,
-    Sharev2Elastic5IndexStrategy,
-    Sharev2Elastic8IndexStrategy,
-    # TroveV0IndexStrategy,
+    sharev2_elastic5,
+    sharev2_elastic8,
 )
 
 
-class TestIndexStrategy:
-    @pytest.fixture
-    def mock_es_clients(self, settings):
-        settings.ELASTICSEARCH = {
-            **settings.ELASTICSEARCH,
-            'INDEX_STRATEGIES': {
-                'my_es5_index': {
-                    'CLUSTER_SETTINGS': {'URL': 'blah'},
-                    'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
-                },
-                'my_es8_index': {
-                    'CLUSTER_SETTINGS': {'URL': 'bleh'},
-                    'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
-                },
+@pytest.fixture
+def fake_elastic_settings(settings):
+    settings.ELASTICSEARCH = {
+        **settings.ELASTICSEARCH,
+        'INDEX_STRATEGIES': {
+            'my_es5_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'blah'},
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
             },
-        }
-        with mock.patch('share.search.index_strategy.elastic5.elasticsearch5') as es5_mockpackage:
-            with mock.patch('share.search.index_strategy.elastic8.elasticsearch8') as es8_mockpackage:
-                es5_mockclient = es5_mockpackage.Elasticsearch.return_value
-                es8_mockclient = es8_mockpackage.Elasticsearch.return_value
-                yield {
-                    'my_es5_index': es5_mockclient,
-                    'my_es8_index': es8_mockclient,
-                }
+            'my_es8_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'bleh'},
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+            },
+            'another_es8_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'bluh'},
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+            },
+        },
+    }
 
-    def test_get_by_name(self, mock_es_clients, index_name, expected_setup_class):
-        expected_strategies = {
-            'my_es5_index': Sharev2Elastic5IndexStrategy,
-            'my_es8_index': Sharev2Elastic8IndexStrategy,
-        }
-        for strategy_name, expected_setup_class in expected_strategies.items():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-            assert isinstance(index_strategy, expected_setup_class)
 
-    def test_get_all_indexes(self, mock_es_clients):
-        all_indexes = IndexStrategy.for_all_indexes()
-        assert isinstance(all_indexes, tuple)
-        assert len(all_indexes) == 2
-        strategy_names = {
-            index_strategy.name
-            for index_strategy in all_indexes
-        }
-        assert strategy_names == {'my_es5_index', 'my_es8_index'}
-        assert isinstance(all_indexes['my_es5_index'], Sharev2Elastic5IndexStrategy)
-        assert isinstance(all_indexes['my_es8_index'], Sharev2Elastic8IndexStrategy)
+@pytest.fixture
+def expected_strategy_classes(fake_elastic_settings):
+    return {
+        'my_es5_strategy': sharev2_elastic5.Sharev2Elastic5IndexStrategy,
+        'my_es8_strategy': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
+        'another_es8_strategy': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
+    }
 
-    def test_create_index(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.items():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-            mock_es_client.configure_mock(**{
-                'indices.exists.return_value': False,
-            })
-            index_strategy.pls_create()
-            mock_es_client.indices.create.assert_called_once_with(
-                index_strategy.current_index_name,
-                body={'settings': index_strategy.index_settings()},
-            )
-            mock_es_client.indices.put_mapping.assert_has_calls([
-                mock.call(
-                    doc_type=doc_type,
-                    body={doc_type: mapping},
-                    index=index_strategy.current_index_name,
-                ) for doc_type, mapping in index_strategy.index_mappings().items()
-            ], any_order=True)
 
-    def test_create_index_already_exists(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.items():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-            mock_es_client.configure_mock(**{
-                'indices.exists.return_value': True,
-            })
+@pytest.fixture
+def mock_es_clients(fake_elastic_settings):
+    with mock.patch('share.search.index_strategy.sharev2_elastic5.elasticsearch5') as es5_mockpackage:
+        with mock.patch('share.search.index_strategy.elastic8.elasticsearch8') as es8_mockpackage:
+            es5_mockclient = es5_mockpackage.Elasticsearch.return_value
+            es8_mockclient = es8_mockpackage.Elasticsearch.return_value
+            yield {
+                'my_es5_strategy': es5_mockclient,
+                'my_es8_strategy': es8_mockclient,
+                'another_es8_strategy': es8_mockclient,
+            }
+
+
+class TestBaseIndexStrategy:
+    def test_get_by_name(self, mock_es_clients, expected_strategy_classes):
+        for strategy_name, expected_strategy_class in expected_strategy_classes.items():
+            index_strategy = IndexStrategy.get_by_name(strategy_name)
+            assert isinstance(index_strategy, expected_strategy_class)
+
+    def test_all_strategies(self, mock_es_clients, expected_strategy_classes):
+        all_strategys = tuple(IndexStrategy.all_strategies())
+        assert len(all_strategys) == len(expected_strategy_classes)
+        strategy_names = {index_strategy.name for index_strategy in all_strategys}
+        assert strategy_names == set(expected_strategy_classes.keys())
+        for index_strategy in all_strategys:
+            strategy_class = expected_strategy_classes[index_strategy.name]
+            assert isinstance(index_strategy, strategy_class)
+            assert issubclass(index_strategy.SpecificIndex, IndexStrategy.SpecificIndex)
+            assert index_strategy.SpecificIndex is not IndexStrategy.SpecificIndex
+
+    def test_get_by_specific_indexname(self, mock_es_clients, expected_strategy_classes, fake_elastic_settings):
+        for strategy_name, expected_strategy_class in expected_strategy_classes.items():
+            indexname_prefix = IndexStrategy.get_by_name(strategy_name).indexname_prefix
+            specific_indexname = ''.join((indexname_prefix, 'foo'))
+            specific_index = IndexStrategy.get_specific_index(specific_indexname)
+            assert isinstance(specific_index.index_strategy, expected_strategy_class)
+            assert isinstance(specific_index, expected_strategy_class.SpecificIndex)
+            assert specific_index.indexname == specific_indexname
+            bad_indexname = 'foo_foo'  # assumed to not start with index prefix
+            with pytest.raises(IndexStrategyError):
+                IndexStrategy.get_specific_index(bad_indexname)
+
+    def test_get_by_request(self, mock_es_clients, fake_elastic_settings):
+        for strategy_name in mock_es_clients.keys():
+            index_strategy = IndexStrategy.get_by_name(strategy_name)
+            good_requests = [
+                strategy_name,
+                index_strategy.current_indexname,
+                ''.join((index_strategy.indexname_prefix, 'foo')),
+            ]
+            for good_request in good_requests:
+                for specific_index in (
+                    IndexStrategy.get_for_searching(good_request),
+                    IndexStrategy.get_for_searching(default_name=good_request),
+                    IndexStrategy.get_for_searching(None, default_name=good_request),
+                ):
+                    assert isinstance(specific_index, index_strategy.SpecificIndex)
+                    assert specific_index.index_strategy is index_strategy
+                    if good_request == strategy_name:
+                        assert specific_index == index_strategy.pls_get_default_for_searching()
+                    else:
+                        assert specific_index.indexname == good_request
+            # bad calls:
+            with pytest.raises(IndexStrategyError):
+                IndexStrategy.get_for_searching('bad-request')
             with pytest.raises(ValueError):
-                index_strategy.pls_create()
-
-    def test_delete_index(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.items():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-            index_strategy.pls_delete()
-            mock_es_client.indices.delete.assert_called_once_with(
-                index=index_strategy.current_index_name,
-                ignore=[400, 404],
-            )
-
-    def test_exists_as_expected(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.keys():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-
-    def test_pls_setup_as_needed(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.keys():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-
-    def test_pls_handle_messages(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.keys():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
-
-    def test_pls_organize_redo(self, mock_es_clients):
-        for strategy_name, mock_es_client in mock_es_clients.keys():
-            index_strategy = IndexStrategy.by_strategy_name(strategy_name)
+                IndexStrategy.get_for_searching()
+            with pytest.raises(ValueError):
+                IndexStrategy.get_for_searching(requested_name=None)
 
     # def test_stream_actions(self, mock_es_clients):
     #     input_actions = [

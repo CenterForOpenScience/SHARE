@@ -1,11 +1,38 @@
+import contextlib
 import traceback
+import typing
 
-from django.db import models
+from django.db import models, transaction
+
+from share import exceptions
+
+
+class IndexBackfillManager(models.Manager):
+    @contextlib.contextmanager
+    def get_with_mutex(self, **backfill_filter_kwargs):
+        # select_for_update provides a mutual-exclusion lock across transactions,
+        # so only one block of code wrapped in this context manager can run at once
+        # per IndexBackfill instance (to keep lifecycle actions coherent)
+        with transaction.atomic():
+            index_backfill_list = list(
+                self.filter(**backfill_filter_kwargs)
+                .select_for_update()
+            )
+            if not index_backfill_list:
+                raise exceptions.ShareException(
+                    f'found no {self.model.__name__} matching filter {backfill_filter_kwargs}'
+                )
+            if len(index_backfill_list) != 1:
+                raise exceptions.ShareException(
+                    f'may lock only one {self.model.__name__} at a time; don\'t get greedy'
+                    f' ({len(index_backfill_list)} results for filter {backfill_filter_kwargs})'
+                )
+            yield index_backfill_list[0]
 
 
 class IndexBackfill(models.Model):
     INITIAL = 'initial'         # default state; nothing else happen
-    WAITING = 'waiting'         # "schedule_index_backfill" triggered
+    WAITING = 'waiting'         # "schedule_index_backfill" enqueued
     SCHEDULING = 'scheduling'   # "schedule_index_backfill" running (indexer daemon going)
     INDEXING = 'indexing'       # "schedule_index_backfill" finished (indexer daemon continuing)
     COMPLETE = 'complete'       # admin confirmed backfill complete
@@ -27,6 +54,8 @@ class IndexBackfill(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    objects = IndexBackfillManager()  # custom manager
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__}('
@@ -39,14 +68,71 @@ class IndexBackfill(models.Model):
     def __str__(self):
         return repr(self)
 
-    def update_error(self, error):
+    @contextlib.contextmanager
+    def mutex(self):
+        with IndexBackfill.objects.get_with_mutex(pk=self.pk) as index_backfill:
+            yield index_backfill
+
+    def pls_start(self, specific_index):
+        with self.mutex() as locked_self:
+            assert specific_index.is_current
+            assert locked_self.index_strategy_name == specific_index.index_strategy.name
+            if locked_self.specific_indexname == specific_index.indexname:
+                # what is "current" has not changed -- should already be INITIAL
+                assert locked_self.backfill_status == IndexBackfill.INITIAL
+            else:
+                # what is "current" has changed! disregard backfill_status
+                locked_self.specific_indexname = specific_index.indexname
+                locked_self.backfill_status = IndexBackfill.INITIAL
+            locked_self.__update_error(None)
+            try:
+                import share.tasks
+                share.tasks.schedule_index_backfill.apply_async((locked_self.pk,))
+            except Exception as error:
+                locked_self.__update_error(error)
+            else:
+                locked_self.backfill_status = IndexBackfill.WAITING
+            finally:
+                locked_self.save()
+        self.refresh_from_db()
+
+    def pls_note_scheduling_has_begun(self):
+        with self.mutex() as locked_self:
+            assert locked_self.backfill_status == IndexBackfill.WAITING
+            locked_self.backfill_status = IndexBackfill.SCHEDULING
+            locked_self.save()
+        self.refresh_from_db()
+
+    def pls_note_scheduling_has_finished(self):
+        with self.mutex() as locked_self:
+            assert locked_self.backfill_status == IndexBackfill.SCHEDULING
+            locked_self.backfill_status = IndexBackfill.INDEXING
+            locked_self.save()
+        self.refresh_from_db()
+
+    def pls_mark_complete(self):
+        with self.mutex() as locked_self:
+            assert locked_self.backfill_status == IndexBackfill.INDEXING
+            locked_self.backfill_status = IndexBackfill.COMPLETE
+            locked_self.save()
+        self.refresh_from_db()
+
+    def pls_mark_error(self, error: typing.Optional[Exception]):
+        with self.mutex() as locked_self:
+            locked_self.__update_error(error)
+            locked_self.save()
+        self.refresh_from_db()
+
+    def __update_error(self, error):
         if isinstance(error, Exception):
             tb = traceback.TracebackException.from_exception(error)
             self.error_type = type(error).__name__
             self.error_message = str(error)
             self.error_context = '\n'.join(tb.format(chain=True))
+            self.backfill_status = self.ERROR
         elif error is None:
             self.error_type = ''
             self.error_message = ''
             self.error_context = ''
-        self.save()
+        else:
+            raise NotImplementedError(f'expected Exception or None (got {error})')

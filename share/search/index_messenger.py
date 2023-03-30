@@ -1,10 +1,21 @@
 import contextlib
+import logging
+import typing
+import urllib.parse
 
 import celery
 from django.conf import settings
+import kombu
+import kombu.simple
+from kombu.utils import amq_manager
+from raven.contrib.django.raven_compat.models import client as sentry_client
+import requests
 
 from share.search.messages import MessagesChunk, MessageType
 from share.search.index_strategy import IndexStrategy
+
+
+logger = logging.getLogger(__name__)
 
 
 class IndexMessenger:
@@ -15,17 +26,60 @@ class IndexMessenger:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    def __init__(self, *, celery_app=None, index_strategy_names=None):
+    def __init__(self, *, celery_app=None, index_strategys=None):
         self.celery_app = (
             celery.current_app
             if celery_app is None
             else celery_app
         )
-        self.index_strategys = (
-            index_strategy
-            for name, index_strategy in IndexStrategy.all_strategies().items()
-            if index_strategy_names is None or name in index_strategy_names
-        )
+        self.index_strategys = index_strategys or tuple(IndexStrategy.all_strategies())
+
+    def incoming_messagequeue_iter(self, channel) -> typing.Iterable[kombu.Queue]:
+        for index_strategy in self.index_strategys:
+            yield kombu.Queue(channel=channel, name=index_strategy.urgent_messagequeue_name)
+            yield kombu.Queue(channel=channel, name=index_strategy.nonurgent_messagequeue_name)
+
+    def outgoing_messagequeue_iter(self, connection, message_type: MessageType, urgent: bool) -> typing.Iterable[kombu.simple.SimpleQueue]:
+        for index_strategy in self.index_strategys:
+            if message_type in index_strategy.supported_message_types:
+                yield connection.SimpleQueue(
+                    name=(
+                        index_strategy.urgent_messagequeue_name
+                        if urgent
+                        else index_strategy.nonurgent_messagequeue_name
+                    ),
+                )
+
+    def get_queue_depth(self, queue_name: str):
+        try:
+            rabbitmqueuerl = urllib.parse.urlunsplit((
+                'http',                    # scheme
+                ':'.join((                  # netloc (host:port)
+                    settings.RABBITMQ_HOST,
+                    settings.RABBITMQ_MGMT_PORT,
+                )),
+                '/'.join((                  # path
+                    'api',
+                    'queues',
+                    urllib.parse.quote_plus(settings.RABBITMQ_VHOST),
+                    urllib.parse.quote_plus(queue_name),
+                )),
+                None,                       # query
+                None,                       # fragment
+            ))
+            resp = requests.get(
+                rabbitmqueuerl,
+                auth=(settings.RABBITMQ_USERNAME, settings.RABBITMQ_PASSWORD),
+            )
+            logger.critical(f'>>> {resp.json()}')
+            return resp.json().get('messages', 0)
+        except Exception as error:
+            sentry_client.captureException()
+            return f'(error getting queue depth: {error})'
+
+        with self.celery_app.pool.acquire(block=True) as connection:
+            rabbit_manager = amq_manager.get_manager(connection)
+            return rabbit_manager.get_queue_depth(settings.RABBITMQ_VHOST, queue_name)
 
     def send_message(self, message_type: MessageType, target_id, *, urgent=False):
         self.send_messages_chunk(
@@ -34,22 +88,31 @@ class IndexMessenger:
         )
 
     def send_messages_chunk(self, messages_chunk: MessagesChunk, *, urgent=False):
-        queue_names = (
-            index_strategy.get_queue_name(urgent)
-            for index_strategy in self.index_strategys
-            if messages_chunk.message_type in index_strategy.supported_message_types
-        )
-        queue_settings = settings.ELASTICSEARCH['KOMBU_QUEUE_SETTINGS']
+        with self._open_message_queues(messages_chunk.message_type, urgent) as message_queues:
+            self._put_messages_chunk(messages_chunk, message_queues)
+
+    def stream_message_chunks(
+        self,
+        message_type: MessageType,
+        id_stream: typing.Iterable[int],
+        *,
+        chunk_size,
+        urgent=False,
+    ):
+        with self._open_message_queues(message_type, urgent) as message_queues:
+            for messages_chunk in MessagesChunk.stream_chunks(message_type, id_stream, chunk_size):
+                self._put_messages_chunk(messages_chunk, message_queues)
+
+    @contextlib.contextmanager
+    def _open_message_queues(self, message_type, urgent):
         with self.celery_app.pool.acquire(block=True) as connection:
-            # gather all the queues in one context manager so they're all closed
-            # once we're done
-            with contextlib.ExitStack() as kombu_queue_contexts:
-                kombu_queues = [
-                    kombu_queue_contexts.enter_context(
-                        connection.SimpleQueue(queue_name, **queue_settings)
-                    )
-                    for queue_name in queue_names
-                ]
-                for message_dict in messages_chunk.as_dicts():
-                    for kombu_queue in kombu_queues:
-                        kombu_queue.put(message_dict, retry=True, retry_policy=self.retry_policy)
+            with contextlib.ExitStack() as queue_stack:
+                yield tuple(
+                    queue_stack.enter_context(messagequeue)
+                    for messagequeue in self.outgoing_messagequeue_iter(connection, message_type, urgent)
+                )
+
+    def _put_messages_chunk(self, messages_chunk, message_queues):
+        for message_dict in messages_chunk.as_dicts():
+            for message_queue in message_queues:
+                message_queue.put(message_dict, retry=True, retry_policy=self.retry_policy)

@@ -9,10 +9,10 @@ from django.db import transaction
 from share.harvest.scheduler import HarvestScheduler
 from share import models as db
 from share.search.index_messenger import IndexMessenger
-from share.search.messages import MessageType, MessagesChunk
+from share.search.index_strategy import IndexStrategy
+from share.search.messages import MessageType
 from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
-from share.util import chunked
 from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
 
@@ -68,12 +68,9 @@ def ingest(self, only_canonical=None, **kwargs):
 
 
 @celery.shared_task(bind=True)
-def schedule_index_backfill(self, index_backfill_id):
-    with transaction.atomic():
-        index_backfill = db.IndexBackfill.objects.get(id=index_backfill_id)
-        assert index_backfill.backfill_status == db.IndexBackfill.WAITING
-        index_backfill.backfill_status = db.IndexBackfill.SCHEDULING
-        index_backfill.save()
+def schedule_index_backfill(self, index_backfill_pk):
+    index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
+    index_backfill.pls_note_scheduling_has_begun()
     try:
         suid_id_queryset = (
             db.SourceUniqueIdentifier
@@ -89,28 +86,20 @@ def schedule_index_backfill(self, index_backfill_id):
             .values_list('id', flat=True)
         )
         chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
-        chunked_iterator = chunked(
-            suid_id_queryset.iterator(chunk_size=chunk_size),
-            size=chunk_size,
-        )
-        index_messenger = IndexMessenger(
+        IndexMessenger(
             celery_app=self.app,
-            index_strategy_names=[index_backfill.index_strategy_name],
+            index_strategys=[IndexStrategy.get_by_name(index_backfill.index_strategy_name)],
+        ).stream_message_chunks(
+            MessageType.BACKFILL_SUID,
+            suid_id_queryset.iterator(chunk_size=chunk_size),
+            chunk_size=chunk_size,
+            urgent=False,
         )
-        for suid_id_chunk in chunked_iterator:
-            index_messenger.send_messages_chunk(
-                MessagesChunk(MessageType.BACKFILL_SUID, suid_id_chunk),
-                urgent=False,
-            )
     except Exception as error:
-        index_backfill.backfill_status = db.IndexBackfill.ERROR
-        index_backfill.update_error(error)
-        index_backfill.save()
+        index_backfill.pls_mark_error(error)
         raise error
     else:
-        index_backfill.backfill_status = db.IndexBackfill.INDEXING
-        index_backfill.update_error(None)
-        index_backfill.save()
+        index_backfill.pls_note_scheduling_has_finished()
 
 
 @celery.shared_task(bind=True)

@@ -8,8 +8,10 @@ from django.contrib.syndication.views import Feed
 from django.http import HttpResponseGone
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
+from raven.contrib.django.raven_compat.models import client as sentry_client
 
 from share.search import IndexStrategy
+from share.search.exceptions import IndexStrategyError
 from share.util.xml import strip_illegal_xml_chars
 
 
@@ -39,9 +41,9 @@ class MetadataRecordsRSS(Feed):
     def get_object(self, request):
         self._order = request.GET.get('order')
         elastic_query = request.GET.get('elasticQuery')
-        self._index_strategy = IndexStrategy.by_request(
-            request=request,
-            default=settings.DEFAULT_SHAREV2_INDEX_STRATEGY,
+        self._index_strategy = IndexStrategy.get_for_searching(
+            request.GET.get('indexStrategy'),
+            default_name=settings.DEFAULT_SHAREV2_INDEX_STRATEGY,
         )
 
         if self._order not in {'date_modified', 'date_updated', 'date_created', 'date_published'}:
@@ -62,12 +64,12 @@ class MetadataRecordsRSS(Feed):
         return elastic_data
 
     def items(self, obj):
-        elastic_response = self._index_strategy.pls_handle_query__api_backcompat(
-            request_body=obj,
-        )
-        json_response = elastic_response.json()
-
-        if elastic_response.status_code != 200 or 'error' in json_response:
+        try:
+            json_response = self._index_strategy.pls_handle_query__sharev2_backcompat(
+                request_body=obj,
+            )
+        except IndexStrategyError:
+            sentry_client.captureException()
             return
 
         def get_item(hit):

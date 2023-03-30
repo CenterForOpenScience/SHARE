@@ -1,13 +1,16 @@
 import json
 import logging
 
+from django.conf import settings
 import elasticsearch5
 
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import exceptions
-from share.search.messages import MessageType
-from share.search.index_strategy.elastic5 import Elastic5IndexStrategy
+from share.search import exceptions, messages
+from share.search.index_status import IndexStatus
+from share.search.index_strategy._base import IndexStrategy
+from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
 from share.util import IDObfuscator
+from share.util.checksum_iris import ChecksumIri
 
 
 logger = logging.getLogger(__name__)
@@ -17,25 +20,109 @@ def get_doc_id(suid_id):
     return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
 
 
-class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
-    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic5IndexStrategy:7b6620bfafd291489e2cfea7e645b8311c2485a3012e467abfee4103f7539cc4'
-    INDEXNAME = 'share_postrend_backcompat'
-    SUBJECT_DELIMITER = '|'
+# using a static, single-index strategy to represent the existing "share_postrend_backcompat"
+# search index in elastic5, with intent to put new work in elastic8+ and drop elastic5 soon.
+# (see share.search.index_strategy.sharev2_elastic8 for this same index in elastic8)
+class Sharev2Elastic5IndexStrategy(IndexStrategy):
+    CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
+        checksumalgorithm_name='sha-256',
+        salt='Sharev2Elastic5IndexStrategy',
+        hexdigest='7b6620bfafd291489e2cfea7e645b8311c2485a3012e467abfee4103f7539cc4',
+    )
+    STATIC_INDEXNAME = 'share_postrend_backcompat'
 
-    @property
-    # abstract method from IndexStrategy
-    def supported_message_types(self):
-        return {
-            MessageType.INDEX_SUID,
-            MessageType.BACKFILL_SUID,
-        }
+    # perpetuated optimizations from times long past
+    MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        should_sniff = settings.ELASTICSEARCH['SNIFF']
+        self.es5_client = elasticsearch5.Elasticsearch(
+            self.cluster_url,
+            retry_on_timeout=True,
+            timeout=settings.ELASTICSEARCH['TIMEOUT'],
+            # sniff before doing anything
+            sniff_on_start=should_sniff,
+            # refresh nodes after a node fails to respond
+            sniff_on_connection_fail=should_sniff,
+            # and also every 60 seconds
+            sniffer_timeout=60 if should_sniff else None,
+        )
+
+    # override IndexStrategy
     @property
-    # override IndexStrategy.nonurgent_queue_name for back-compat
-    def nonurgent_queue_name(self):
+    def nonurgent_messagequeue_name(self):
         return 'es-share-postrend-backcompat'
 
-    def index_settings(self):
+    # override IndexStrategy
+    @property
+    def urgent_messagequeue_name(self):
+        return f'{self.nonurgent_messagequeue_name}.urgent'
+
+    # override IndexStrategy
+    @property
+    def indexname_prefix(self):
+        return self.STATIC_INDEXNAME
+
+    # override IndexStrategy
+    @property
+    def current_indexname(self):
+        return self.STATIC_INDEXNAME
+
+    # abstract method from IndexStrategy
+    def compute_strategy_checksum(self):
+        return ChecksumIri.digest_json(
+            'sha-256',
+            salt=self.__class__.__name__,
+            raw_json={
+                'indexname': self.STATIC_INDEXNAME,
+                'mappings': self._index_mappings(),
+                'settings': self._index_settings(),
+            }
+        )
+
+    # abstract method from IndexStrategy
+    def pls_make_default_for_searching(self, specific_index):
+        assert specific_index.index_strategy is self
+        assert specific_index.indexname == self.STATIC_INDEXNAME
+
+    # abstract method from IndexStrategy
+    def pls_get_default_for_searching(self):
+        return self.for_specific_index(self.STATIC_INDEXNAME)
+
+    # abstract method from IndexStrategy
+    def each_specific_index(self):
+        yield self.for_specific_index(self.STATIC_INDEXNAME)
+
+    # abstract method from IndexStrategy
+    def pls_handle_messages_chunk(self, messages_chunk):
+        self.assert_message_type(messages_chunk.message_type)
+        bulk_stream = elasticsearch5.helpers.streaming_bulk(
+            self.es5_client,
+            self._build_elastic_actions(messages_chunk),
+            max_chunk_bytes=self.MAX_CHUNK_BYTES,
+            raise_on_error=False,
+        )
+        for (ok, response) in bulk_stream:
+            op_type, response_body = next(iter(response.items()))
+            message_target_id = self._get_message_target_id(response_body['_id'])
+            is_done = ok or (op_type == 'delete' and response_body.get('result') == 'not_found')
+            error_label = None if is_done else response_body
+            yield messages.IndexMessageResponse(
+                is_done=is_done,
+                index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                error_label=error_label,
+            )
+
+    # abstract method from IndexStrategy
+    @property
+    def supported_message_types(self):
+        return {
+            messages.MessageType.INDEX_SUID,
+            messages.MessageType.BACKFILL_SUID,
+        }
+
+    def _index_settings(self):
         return {
             'analysis': {
                 'filter': {
@@ -79,13 +166,13 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
                 'tokenizer': {
                     'subject_tokenizer': {
                         'type': 'path_hierarchy',
-                        'delimiter': self.SUBJECT_DELIMITER,
+                        'delimiter': '|',
                     }
                 }
             }
         }
 
-    def index_mappings(self):
+    def _index_mappings(self):
         autocomplete_field = {
             'autocomplete': {
                 'type': 'string',
@@ -94,7 +181,6 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
                 'include_in_all': False
             }
         }
-
         exact_field = {
             'exact': {
                 'type': 'keyword',
@@ -104,7 +190,6 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
                 'ignore_above': 10922
             }
         }
-
         return {
             'creativeworks': {
                 'dynamic': 'strict',
@@ -178,15 +263,12 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
             },
         }
 
-    # abstract method from Elastic5IndexStrategy
-    def get_message_target_id(self, doc_id):
+    def _get_message_target_id(self, doc_id):
         return IDObfuscator.decode_id(doc_id)
 
-    # abstract method from Elastic5IndexStrategy
-    def build_elastic_actions(self, messages_chunk):
-        self.assert_message_type(messages_chunk.message_type)
+    def _build_elastic_actions(self, messages_chunk):
         action_template = {
-            '_index': self.INDEXNAME,
+            '_index': self.STATIC_INDEXNAME,
             '_type': 'creativeworks',
         }
         suid_ids = set(messages_chunk.target_ids_chunk)
@@ -222,13 +304,111 @@ class Sharev2Elastic5IndexStrategy(Elastic5IndexStrategy):
             }
             yield action
 
-    # abstract method from IndexStrategy
-    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None):
-        try:
-            return self.es5_client.search(
-                index=self.get_indexname_for_searching(),
-                body=request_body,
-                params=request_queryparams,
+    class SpecificIndex(IndexStrategy.SpecificIndex):
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_make_default_for_searching(self):
+            logger.info(
+                'pls_make_default_for_searching doing nothing with '
+                'the expectation we will stop using elasticsearch5 soon'
             )
-        except elasticsearch5.TransportError as error:
-            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_create(self):
+            # check index exists (if not, create)
+            logger.debug('Ensuring index %s', self.indexname)
+            if not self.index_strategy.es5_client.indices.exists(index=self.indexname):
+                (
+                    self.es5_client
+                    .indices
+                    .create(
+                        self.indexname,
+                        body={
+                            'settings': self._index_settings(),
+                            'mappings': self._index_mappings(),
+                        },
+                    )
+                )
+            self.es5_client.indices.refresh(index=self.indexname)
+            logger.debug('Waiting for yellow status')
+            self.es5_client.cluster.health(wait_for_status='yellow')
+            logger.info('Finished setting up Elasticsearch index %s', self.indexname)
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_start_keeping_live(self):
+            pass  # there is just the one index, always kept live
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_stop_keeping_live(self):
+            raise exceptions.IndexStrategyError(
+                f'{self.__class__.__qualname__} is implemented for only one index, '
+                f'"{self.indexname}", which is always kept live (until elasticsearch5 '
+                'support is dropped)'
+            )
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_delete(self):
+            logger.warning(f'{self.__class__.__name__}: deleting index {self.indexname}')
+            (
+                self.index_strategy.es5_client
+                .indices
+                .delete(index=self.indexname, ignore=[400, 404])
+            )
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_check_exists(self):
+            return (
+                self.index_strategy.es5_client
+                .indices
+                .exists(index=self.indexname)
+            )
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_get_status(self) -> IndexStatus:
+            stats = (
+                self.index_strategy.es5_client
+                .indices
+                .stats(index=self.indexname, metric='docs')
+            )
+            existing_indexes = (
+                self.index_strategy.es5_client
+                .indices
+                .get_settings(index=self.indexname, name='index.creation_date')
+            )
+            try:
+                index_settings = existing_indexes[self.indexname]
+                index_stats = stats['indices'][self.indexname]
+            except KeyError:
+                # not yet created
+                return IndexStatus(
+                    index_strategy_name=self.index_strategy.name,
+                    specific_indexname=self.indexname,
+                    is_kept_live=False,
+                    is_default_for_searching=True,
+                    creation_date=None,
+                    doc_count=0,
+                    health='nonexistent',
+                )
+            return IndexStatus(
+                index_strategy_name=self.index_strategy.name,
+                specific_indexname=self.indexname,
+                is_kept_live=True,
+                is_default_for_searching=True,
+                creation_date=_timestamp_to_readable_datetime(
+                    index_settings['settings']['index']['creation_date'],
+                ),
+                doc_count=index_stats['primaries']['docs']['count'],
+                health='ok?',
+            )
+
+        # optional method from IndexStrategy.SpecificIndex
+        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None):
+            '''the definitive sharev2-search api: passthru to elasticsearch version 5
+            '''
+            try:
+                return self.index_strategy.es5_client.search(
+                    index=self.indexname,
+                    body=request_body,
+                    params=request_queryparams,
+                )
+            except elasticsearch5.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging

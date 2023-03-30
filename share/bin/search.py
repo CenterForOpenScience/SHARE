@@ -4,6 +4,7 @@ from project.celery import app as celery_app
 
 from share.bin.util import command
 from share.search import IndexStrategy
+from share.search.exceptions import IndexStrategyError
 from share.search.daemon import IndexerDaemon
 
 
@@ -30,34 +31,38 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        index_strategy = IndexStrategy.by_specific_index_name(index_name)
-        index_strategy.pls_delete()
+        specific_index = IndexStrategy.get_specific_index(index_name)
+        specific_index.pls_delete()
 
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup <index_name>
+    Usage: {0} search setup <index_or_strategy_name>
            {0} search setup --initial
     """
     is_initial = args.get('--initial')
     if is_initial:
-        index_strategys = IndexStrategy.all_strategies().values()
+        specific_indexes = [
+            index_strategy.for_current_index()
+            for index_strategy in IndexStrategy.all_strategies()
+        ]
     else:
-        index_strategys = [IndexStrategy.by_request(args['<index_name>'])]
-    for index_strategy in index_strategys:
-        index_strategy.pls_setup_as_needed()
-
-
-@search.subcommand('Queue daemon messages to reindex all suids')
-def reindex_all_suids(args, argv):
-    """
-    Usage: {0} search reindex_all_suids <index_name>
-
-    Most likely useful for a freshly `setup` index (perhaps after a purge).
-    """
-    index_strategy = IndexStrategy.by_request(args['<index_name>'])
-    index_strategy.pls_setup_as_needed(start_backfill=True)
+        index_or_strategy_name = args['<index_or_strategy_name>']
+        try:
+            specific_indexes = [
+                IndexStrategy.get_by_name(index_or_strategy_name).for_current_index(),
+            ]
+        except IndexStrategyError:
+            try:
+                specific_indexes = [
+                    IndexStrategy.get_specific_index(index_or_strategy_name),
+                ]
+            except IndexStrategyError:
+                raise IndexStrategyError(f'unrecognized index or strategy name "{index_or_strategy_name}"')
+    for specific_index in specific_indexes:
+        specific_index.pls_create()
+        specific_index.pls_start_keeping_live()
 
 
 @search.subcommand('Start the search indexing daemon')

@@ -10,14 +10,10 @@ from django.db import transaction
 from django.utils import timezone
 
 from oauth2_provider.models import AccessToken, Application
-from urllib3.connection import ConnectionError
-from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
 from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
-from share.models import FormattedMetadataRecord
-from share.search import MessageType, IndexStrategy
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
@@ -139,75 +135,6 @@ def ExpectedGraph(Graph):
     def expected_graph(*args, **kwargs):
         return Graph(*args, **kwargs, normalize_fields=True)
     return expected_graph
-
-
-@pytest.fixture(scope='session')
-def elastic_test_index_name():
-    return 'test_share'
-
-
-@pytest.fixture(params=['es5', 'es8'])
-def elastic_test_cluster_url(request, settings):
-    if request.param == 'es5':
-        return settings.ELASTICSEARCH5_URL
-    if request.param == 'es8':
-        return settings.ELASTICSEARCH8_URL
-    raise ValueError(request.param)
-
-
-@pytest.fixture()
-def elastic_test_settings(elastic_test_index_name, elastic_test_cluster_url, settings):
-    old_elasticsearch_settings = settings.ELASTICSEARCH
-    settings.ELASTICSEARCH = {
-        **old_elasticsearch_settings,
-        'TIMEOUT': 5,
-        'PRIMARY_INDEX': elastic_test_index_name,
-        'LEGACY_INDEX': elastic_test_index_name,
-        'BACKCOMPAT_INDEX': elastic_test_index_name,
-        'ACTIVE_INDEXES': [elastic_test_index_name],
-        'INDEX_STRATEGIES': {
-            elastic_test_index_name: {
-                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
-                'CLUSTER_SETTINGS': {
-                    'URL': settings.ELASTICSEARCH5_URL,
-                },
-            },
-        },
-    }
-    index_strategy = IndexStrategy.by_strategy_name(elastic_test_index_name)
-    try:
-        index_strategy.pls_delete()
-        index_strategy.pls_setup()
-        try:
-            yield
-        finally:
-            index_strategy.pls_delete()
-    except (ConnectionError, ElasticConnectionError):
-        raise pytest.skip('Elasticsearch unavailable')
-
-
-@pytest.fixture()
-def index_records(elastic_test_settings):
-    def _index_records(normalized_graphs):
-        normalized_datums = [
-            factories.NormalizedDataFactory(
-                data=GraphBuilder()(ng).to_jsonld(),
-                raw=factories.RawDatumFactory(
-                    datum='',
-                ),
-            )
-            for ng in normalized_graphs
-        ]
-        suids = [nd.raw.suid for nd in normalized_datums]
-        for normd, suid in zip(normalized_datums, suids):
-            FormattedMetadataRecord.objects.save_formatted_records(
-                suid=suid,
-                record_formats=['sharev2_elastic'],
-                normalized_datum=normd,
-            )
-        SearchHelper().handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
-        return normalized_datums
-    return _index_records
 
 
 def rolledback_transaction(loglabel):

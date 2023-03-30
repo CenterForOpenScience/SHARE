@@ -5,11 +5,10 @@ import threading
 import time
 
 from django.conf import settings
-from kombu import Queue as KombuQueue
 from kombu.mixins import ConsumerMixin
 from raven.contrib.django.raven_compat.models import client as sentry_client
 
-from share.search import exceptions, messages, IndexStrategy
+from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 
 
 logger = logging.getLogger(__name__)
@@ -43,13 +42,10 @@ class CeleryMessageConsumer(ConsumerMixin):
 
     # for ConsumerMixin -- specifies rabbit queues to consume, registers on_message callback
     def get_consumers(self, Consumer, channel):
-        kombu_queue_settings = settings.ELASTICSEARCH['KOMBU_QUEUE_SETTINGS']
+        index_messenger = IndexMessenger(index_strategys=[self.__index_strategy])
         return [
             Consumer(
-                [
-                    KombuQueue(self.__index_strategy.urgent_queue_name, **kombu_queue_settings),
-                    KombuQueue(self.__index_strategy.nonurgent_queue_name, **kombu_queue_settings),
-                ],
+                queues=tuple(index_messenger.incoming_messagequeue_iter(channel)),
                 callbacks=[self.__indexer_daemon.on_message],
                 accept=['json'],
                 prefetch_count=self.PREFETCH_COUNT,
@@ -65,7 +61,7 @@ class IndexerDaemon:
 
     @classmethod
     def start_daemonthreads(cls, celery_app, stop_event):
-        for index_strategy in IndexStrategy.all_strategies().values():
+        for index_strategy in IndexStrategy.all_strategies():
             indexer_daemon = cls(index_strategy=index_strategy, stop_event=stop_event)
             indexer_daemon.start_loops_and_queues()
             consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
@@ -89,12 +85,9 @@ class IndexerDaemon:
     def start_loops_and_queues(self):
         if self.__thread_pool:
             raise exceptions.DaemonSetupError('IndexerDaemon already set up!')
-
         supported_message_types = self.__index_strategy.supported_message_types
-
         self.__thread_pool = ThreadPoolExecutor(max_workers=len(supported_message_types) + 1)
         self.__thread_pool.submit(self.__wait_on_stop_event)
-
         # for each type of message to be handled, one queue for incoming messages and a
         # __message_handling_loop thread that handles messages from the queue
         for message_type in supported_message_types:
@@ -182,7 +175,7 @@ class MessageHandlingLoop:
                 target_id = message_response.index_message.target_id
                 daemon_message = daemon_messages_by_target_id.pop(target_id)
                 daemon_message.ack()  # finally set it free
-                if message_response.is_handled:
+                if message_response.is_done:
                     doc_count += 1
                 else:
                     error_count += 1

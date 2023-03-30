@@ -1,9 +1,16 @@
+import logging
+
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
 
 from share.admin.util import admin_url
 from share.models.index_backfill import IndexBackfill
+from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import IndexStrategy
+from share.search.index_strategy.sharev2_elastic5 import Sharev2Elastic5IndexStrategy
+
+
+logger = logging.getLogger(__name__)
 
 
 def search_indexes_view(request):
@@ -12,7 +19,7 @@ def search_indexes_view(request):
             request,
             'admin/search-indexes.html',
             context={
-                'indexes_by_strategy': _indexes_by_strategy(),
+                'index_status_by_strategy': _index_status_by_strategy(),
             },
         )
     if request.method == 'POST':
@@ -22,86 +29,98 @@ def search_indexes_view(request):
         return HttpResponseRedirect('')
 
 
-def _indexes_by_strategy():
+def _index_status_by_strategy():
+    backfill_by_indexname = {
+        backfill.specific_indexname: backfill
+        for backfill in (
+            IndexBackfill.objects
+            .filter(index_strategy_name__in=IndexStrategy.all_strategies_by_name().keys())
+        )
+    }
     status_by_strategy = {}
-    backfill_by_index = _backfill_by_index()
-    for index_strategy in IndexStrategy.all_strategies().values():
-        status_by_strategy[index_strategy.name] = [
-            (index_status, backfill_by_index.get(index_status.specific_indexname))
-            for index_status in index_strategy.specific_index_statuses()
-        ]
+    for index_strategy in IndexStrategy.all_strategies():
+        current_index = index_strategy.for_current_index()
+        status_by_strategy[index_strategy.name] = {
+            'current': {
+                'status': current_index.pls_get_status(),
+                'backfill': _serialize_backfill(
+                    current_index,
+                    backfill_by_indexname.get(current_index.indexname),
+                ),
+            },
+            'prior': sorted((
+                specific_index.pls_get_status()
+                for specific_index in index_strategy.each_specific_index()
+                if not specific_index.is_current
+            ), reverse=True),
+        }
     return status_by_strategy
 
 
-def _backfill_by_index():
-    all_strategies = IndexStrategy.all_strategies()
-    backfill_by_index = {}
-    for backfill in IndexBackfill.objects.filter(index_strategy_name__in=all_strategies.keys()):
-        current_indexname = all_strategies[backfill.index_strategy_name].indexname
-        backfill_by_index[backfill.specific_indexname] = {
+def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: IndexBackfill):
+    if not specific_index.is_current:
+        return {}
+    if not backfill:
+        return {
             'can_start_backfill': (
-                backfill.specific_indexname == current_indexname
-                and backfill.backfill_status == IndexBackfill.INITIAL
+                not isinstance(specific_index.index_strategy, Sharev2Elastic5IndexStrategy)
+                and specific_index.pls_check_exists()
             ),
-            'can_mark_backfill_complete': (backfill.backfill_status == IndexBackfill.INDEXING),
-            'is_complete': (backfill.backfill_status == IndexBackfill.COMPLETE),
-            'backfill_status': backfill.backfill_status,
-            'backfill_modified': backfill.modified.isoformat(timespec='minutes'),
-            'backfill_admin_url': admin_url(backfill),
         }
-    for index_strategy in all_strategies.values():
-        if (
-            index_strategy.SUPPORTS_BACKFILL
-            and index_strategy.indexname not in backfill_by_index
-            and index_strategy.pls_check_exists()
-        ):
-            backfill_by_index[index_strategy.indexname] = {
-                'can_start_backfill': True,
-            }
-    return backfill_by_index
+    return {
+        'backfill_status': backfill.backfill_status,
+        'backfill_modified': backfill.modified.isoformat(timespec='minutes'),
+        'backfill_admin_url': admin_url(backfill),
+        'backfill_queue_depth': IndexMessenger().get_queue_depth(
+            specific_index.index_strategy.nonurgent_messagequeue_name,
+        ),
+        'can_start_backfill': (backfill.backfill_status == IndexBackfill.INITIAL),
+        'can_mark_backfill_complete': (backfill.backfill_status == IndexBackfill.INDEXING),
+        'is_complete': (backfill.backfill_status == IndexBackfill.COMPLETE),
+    }
 
 
 def _pls_create(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.assert_setup_is_current()
-    index_strategy.pls_setup_as_needed()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    assert specific_index.is_current
+    specific_index.pls_create()
 
 
-def _pls_keep_live(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.pls_keep_live()
+def _pls_start_keeping_live(specific_indexname):
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    specific_index.pls_start_keeping_live()
 
 
 def _pls_stop_keeping_live(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.pls_stop_keeping_live()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    specific_index.pls_stop_keeping_live()
 
 
 def _pls_start_backfill(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.assert_setup_is_current()
-    index_strategy.pls_start_backfill()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    assert specific_index.is_current
+    specific_index.index_strategy.get_or_create_backfill().pls_start(specific_index)
 
 
 def _pls_mark_backfill_complete(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.pls_mark_backfill_complete()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    specific_index.index_strategy.get_or_create_backfill().pls_mark_complete()
 
 
 def _pls_make_default_for_searching(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    index_strategy.pls_make_default_for_searching()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    specific_index.index_strategy.pls_make_default_for_searching(specific_index)
 
 
 def _pls_delete(specific_indexname):
-    index_strategy = IndexStrategy.by_request(specific_indexname)
-    assert not index_strategy.is_current
-    index_strategy.pls_delete()
+    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+    assert not specific_index.is_current
+    specific_index.pls_delete()
 
 
 PLS_DOERS = {
     'create': _pls_create,
-    'keep_live': _pls_keep_live,
+    'start_keeping_live': _pls_start_keeping_live,
     'start_backfill': _pls_start_backfill,
     'mark_backfill_complete': _pls_mark_backfill_complete,
     'make_default_for_searching': _pls_make_default_for_searching,

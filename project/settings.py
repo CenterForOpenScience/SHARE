@@ -299,20 +299,14 @@ STATICFILES_FINDERS = (
 
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
-    'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
-    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
-    'KOMBU_QUEUE_SETTINGS': {
-        'serializer': 'json',
-        'compression': 'zlib',
-        'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-    },
+    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 20)),
     'INDEX_STRATEGIES': {},  # populated below based on environment
 }
 ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
 if ELASTICSEARCH5_URL:
     ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5:Sharev2Elastic5IndexStrategy',
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
         'CLUSTER_SETTINGS': {
             'URL': ELASTICSEARCH5_URL,
         },
@@ -323,7 +317,7 @@ if ELASTICSEARCH8_URL:
     ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
     ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
     ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8:Sharev2Elastic8IndexStrategy',
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
         'CLUSTER_SETTINGS': {
             'URL': ELASTICSEARCH8_URL,
             'AUTH': (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET),
@@ -352,6 +346,7 @@ RABBITMQ_USERNAME = os.environ.get('RABBITMQ_USERNAME', 'guest')
 RABBITMQ_PASSWORD = os.environ.get('RABBITMQ_PASSWORD', 'guest')
 RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'localhost')
 RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+RABBITMQ_MGMT_PORT = os.environ.get('RABBITMQ_MGMT_PORT', '15672')
 RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.format(RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_VHOST))

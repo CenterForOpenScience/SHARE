@@ -7,11 +7,17 @@ from share.search import exceptions
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
 from share.util import IDObfuscator
+from share.util.checksum_iris import ChecksumIri
 
 
 class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
-    CURRENT_SETUP_CHECKSUM = 'urn:checksum:sha-256:Sharev2Elastic8IndexStrategy:051323d554d2acc761c858b73f54d96c015ed7168def5b5f6c77cd6e42cb958f'
+    CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
+        checksumalgorithm_name='sha-256',
+        salt='Sharev2Elastic8IndexStrategy',
+        hexdigest='5ef50fba9311fd5c5413509d00134991517955697dd7dc7e1bf212e052ceb04f',
+    )
 
+    # abstract method from IndexStrategy
     @property
     def supported_message_types(self):
         return {
@@ -19,6 +25,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             messages.MessageType.BACKFILL_SUID,
         }
 
+    # abstract method from Elastic8IndexStrategy
     def index_settings(self):
         return {
             'analysis': {
@@ -26,7 +33,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     'autocomplete_filter': {
                         'type': 'edge_ngram',
                         'min_gram': 1,
-                        'max_gram': 20
+                        'max_gram': 20,
                     }
                 },
                 'analyzer': {
@@ -61,6 +68,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             }
         }
 
+    # abstract method from Elastic8IndexStrategy
     def index_mappings(self):
         exact_field = {
             'exact': {
@@ -71,9 +79,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 'ignore_above': 10922
             }
         }
-
         return {
-            'dynamic': 'strict',
+            'dynamic': False,
             'properties': {
                 'affiliations': {'type': 'text', 'fields': exact_field},
                 'contributors': {'type': 'text', 'fields': exact_field},
@@ -110,23 +117,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             ]
         }
 
-    def get_doc_id(self, message_target_id):
-        return IDObfuscator.encode_id(message_target_id, db.SourceUniqueIdentifier)
-
-    def get_message_target_id(self, doc_id):
-        return IDObfuscator.decode_id(doc_id)
-
-    # abstract method from IndexStrategy
-    def pls_handle_query__api_backcompat(self, request_body, request_queryparams=None):
-        try:
-            return self.es8_client.search(
-                index=self.get_indexname_for_searching(),
-                body=request_body,
-                params=request_queryparams,
-            )
-        except elasticsearch8.TransportError as error:
-            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-
+    # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         suid_ids = set(messages_chunk.target_ids_chunk)
         record_qs = db.FormattedMetadataRecord.objects.filter(
@@ -144,6 +135,14 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         for leftover_suid_id in suid_ids:
             yield self._build_delete_action(leftover_suid_id)
 
+    # override Elastic8IndexStrategy
+    def get_doc_id(self, message_target_id):
+        return IDObfuscator.encode_id(message_target_id, db.SourceUniqueIdentifier)
+
+    # override Elastic8IndexStrategy
+    def get_message_target_id(self, doc_id):
+        return IDObfuscator.decode_id(doc_id)
+
     def _build_index_action(self, target_id, source_doc):
         return {
             '_op_type': 'index',
@@ -156,3 +155,16 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             '_op_type': 'delete',
             '_id': self.get_doc_id(target_id),
         }
+
+    class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
+        # optional method from IndexStrategy.SpecificIndex
+        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None):
+            # TODO: mangle request/response for limited backcompat with elasticsearch5
+            try:
+                return self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    body=request_body,
+                    params=request_queryparams,
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging

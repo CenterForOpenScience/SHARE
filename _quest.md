@@ -37,8 +37,9 @@ view info about indexes (including current but not-yet-created)
 
 specific-index actions:
 - pls_create
-- pls_keep_live
+- pls_start_keeping_live
 - pls_start_backfill
 - pls_mark_backfill_complete
 - pls_make_default_for_searching
+- pls_stop_keeping_live
 - pls_delete

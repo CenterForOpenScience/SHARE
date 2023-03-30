@@ -2,17 +2,28 @@ from unittest import mock
 
 import pytest
 
-from share.search.index_strategy import (
-    IndexStrategy,
-    Elastic8IndexStrategy,
-    # TroveV0IndexStrategy,
-)
+from share.search.index_strategy.sharev2_elastic8 import Elastic8IndexStrategy
+from share.search import messages
+from share.util.checksum_iris import ChecksumIri
 
 
 FAKE_ACTION_ITERATOR = object()
 
 
 class FakeElastic8IndexStrategy(Elastic8IndexStrategy):
+    CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
+        checksumalgorithm_name='sha-256',
+        salt='FakeElastic8IndexStrategy',
+        hexdigest='5371df2d0e3daaa9f1c344d14384cdbe65000f2b449b1c2f30ae322b0321eb12',
+    )
+
+    @property
+    def supported_message_types(self):
+        return {
+            messages.MessageType.INDEX_SUID,
+            messages.MessageType.BACKFILL_SUID,
+        }
+
     def index_settings(self):
         return {'my-settings': 'lol'}
 
@@ -31,48 +42,49 @@ class TestIndexStrategy:
             yield es8_mockclient
 
     @pytest.fixture
-    def fake_strategy(self):
-        return FakeElastic8IndexStrategy(
+    def fake_strategy(self, mock_es_client):
+        strat = FakeElastic8IndexStrategy(
             name='fake_es8',
-            cluster_url='http://nowhere.example/',
+            cluster_settings={'URL': 'http://nowhere.example:12345/'},
         )
+        strat.assert_strategy_is_current()
+        return strat
 
-    def test_elastic8_index_strategy(self, fake_strategy, mock_es_client):
-        mock_es_client.configure_mock(**{
-            'indices.exists.return_value': False,
-        })
-        fake_strategy.pls_create()
+    @pytest.fixture
+    def fake_specific_index(self, fake_strategy):
+        return fake_strategy.for_current_index()
+
+    def test_pls_create(self, fake_specific_index, mock_es_client):
+        mock_es_client.indices.exists.return_value = False
+        fake_specific_index.pls_create()
+        mock_es_client.indices.exists.assert_called_once_with(
+            index=fake_specific_index.indexname,
+        )
         mock_es_client.indices.create.assert_called_once_with(
-            fake_strategy.current_index_name,
-            body={
-                'settings': fake_strategy.index_settings(),
-                'mappings': fake_strategy.index_mappings(),
-            },
+            index=fake_specific_index.indexname,
+            settings=fake_specific_index.index_strategy.index_settings(),
+            mappings=fake_specific_index.index_strategy.index_mappings(),
         )
-
-    def test_create_index_already_exists(self, fake_strategy, mock_es_client):
-        mock_es_client.configure_mock(**{
-            'indices.exists.return_value': True,
-        })
-        fake_strategy.pls_create(fake_strategy.current_index_name)
+        # already exists:
+        mock_es_client.reset_mock()
+        mock_es_client.indices.exists.return_value = True,
+        fake_specific_index.pls_create()
+        mock_es_client.indices.exists.assert_called_once_with(
+            index=fake_specific_index.indexname,
+        )
         mock_es_client.indices.create.assert_not_called()
 
-    def test_delete_index(self, fake_strategy, mock_es_client):
-        fake_strategy.pls_delete()
+    def test_delete_index(self, fake_specific_index, mock_es_client):
+        fake_specific_index.pls_delete()
         mock_es_client.indices.delete.assert_called_once_with(
-            index=fake_strategy.current_index_name,
+            index=fake_specific_index.indexname,
             ignore=[400, 404],
         )
 
-    def test_pls_setup_as_needed(self, fake_strategy, mock_es_client):
-        fake_strategy.pls_setup_as_needed()
-
-    def test_pls_handle_messages_chunk(self, fake_strategy, mock_es_client):
-        fake_strategy.pls_handle_messages_chunk(messages_chunk)
-
-    def test_pls_organize_backfill(self, fake_strategy, mock_es_client):
-        fake_strategy.pls_start_backfill()
-
+    # def test_pls_handle_messages_chunk(self, fake_specific_index, mock_es_client):
+    #     fake_specific_index.index_strategy.pls_handle_messages_chunk(
+    #     )
+    #
     # def test_stream_actions(self, mock_es_client):
     #     input_actions = [
     #         {'index': {'foo': 0}},
@@ -181,4 +193,3 @@ class TestIndexStrategy:
 
     #     mock_es_client.indices.get_alias.assert_called_once_with(name=alias_name)
     #     mock_es_client.indices.update_aliases.assert_not_called()
-
