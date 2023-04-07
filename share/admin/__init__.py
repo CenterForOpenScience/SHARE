@@ -48,6 +48,10 @@ class ShareAdminSite(admin.AdminSite):
 admin_site = ShareAdminSite()
 
 
+class ShareUserAdmin(admin.ModelAdmin):
+    search_fields = ['username']
+
+
 @linked_fk('raw')
 @linked_fk('source')
 @linked_many(
@@ -294,7 +298,7 @@ admin_site.register(RawDatum, RawDatumAdmin)
 admin_site.register(SiteBanner, SiteBannerAdmin)
 
 admin_site.register(Harvester)
-admin_site.register(ShareUser)
+admin_site.register(ShareUser, ShareUserAdmin)
 admin_site.register(Source, SourceAdmin)
 admin_site.register(SourceConfig, SourceConfigAdmin)
 admin_site.register(SourceStat, SourceStatAdmin)
