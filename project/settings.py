@@ -300,7 +300,7 @@ STATICFILES_FINDERS = (
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
-    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 20)),
+    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
     'INDEX_STRATEGIES': {},  # populated below based on environment
 }
 ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
