@@ -94,25 +94,26 @@ class Elastic8IndexStrategy(IndexStrategy):
             self.es8_client,
             self._elastic_actions_with_index(messages_chunk, indexnames),
             raise_on_error=False,
+            max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
         for (ok, response) in bulk_stream:
-            for op_type, response_body in response.items():
-                is_done = ok or (
-                    op_type == 'delete'
-                    and response_body.get('result') == 'not_found'
-                )
-                message_target_id = self.get_message_target_id(response_body['_id'])
-                done_counter[message_target_id] += 1
-                if done_counter[message_target_id] >= len(indexnames):
-                    yield messages.IndexMessageResponse(
-                        is_done=is_done,
-                        index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                        error_label=(
-                            None
-                            if ok
-                            else response_body
-                        )
+            (op_type, response_body) = next(iter(response.items()))
+            is_done = ok or (
+                op_type == 'delete'
+                and response_body.get('result') == 'not_found'
+            )
+            message_target_id = self.get_message_target_id(response_body['_id'])
+            done_counter[message_target_id] += 1
+            if done_counter[message_target_id] >= len(indexnames):
+                yield messages.IndexMessageResponse(
+                    is_done=is_done,
+                    index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                    error_label=(
+                        None
+                        if ok
+                        else response_body
                     )
+                )
 
     # abstract method from IndexStrategy
     def pls_make_default_for_searching(self, specific_index: 'SpecificIndex'):

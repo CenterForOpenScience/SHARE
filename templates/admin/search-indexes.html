@@ -21,25 +21,14 @@ section, table {
           <th>{% trans "created" %}</th>
           <th>{% trans "is kept live" %}</th>
           <th>{% trans "is default for searching" %}</th>
-          <th>{% trans "backfill" %}</th>
           <th>{% trans "doc count" %}</th>
           <th>{% trans "actions" %}</th>
+          <th>{% trans "backfill" %}</th>
         </tr>
         <tr>
           <td>{{ indexes.current.status.creation_date|default:"--" }}</td>
           <td>{% if indexes.current.status.is_kept_live %}✓{% endif %}</td>
           <td>{% if indexes.current.status.is_default_for_searching %}✓{% endif %}</td>
-          <td>
-            {% if indexes.current.backfill.backfill_admin_url %}
-              <a href={{indexes.current.backfill.backfill_admin_url}}>
-                {{ indexes.current.backfill.backfill_status }}
-                ({{ indexes.current.backfill.backfill_modified }})
-              </a>
-              <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
-            {% else %}
-            --
-            {% endif %}
-          </td>
           <td>{{ indexes.current.status.doc_count }}</td>
           <td>
             {% if not indexes.current.status.creation_date %}
@@ -77,6 +66,17 @@ section, table {
               <input type="hidden" name="pls_do" value="make_default_for_searching" />
               <input type="submit" value="{% trans "make default for searching" %}" />
             </form>
+            {% endif %}
+          </td>
+          <td>
+            {% if indexes.current.backfill.backfill_admin_url %}
+              <a href={{indexes.current.backfill.backfill_admin_url}}>
+                {{ indexes.current.backfill.backfill_status }}
+                ({{ indexes.current.backfill.backfill_modified }})
+              </a>
+              <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
+            {% else %}
+            --
             {% endif %}
           </td>
         </tr>

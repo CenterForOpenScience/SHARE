@@ -7,7 +7,6 @@ import celery
 from django.conf import settings
 import kombu
 import kombu.simple
-from kombu.utils import amq_manager
 from raven.contrib.django.raven_compat.models import client as sentry_client
 import requests
 
@@ -53,33 +52,28 @@ class IndexMessenger:
     def get_queue_depth(self, queue_name: str):
         try:
             rabbitmqueuerl = urllib.parse.urlunsplit((
-                'http',                    # scheme
-                ':'.join((                  # netloc (host:port)
+                'http',     # scheme
+                ':'.join((  # netloc (host:port)
                     settings.RABBITMQ_HOST,
                     settings.RABBITMQ_MGMT_PORT,
                 )),
-                '/'.join((                  # path
+                '/'.join((  # path
                     'api',
                     'queues',
                     urllib.parse.quote_plus(settings.RABBITMQ_VHOST),
                     urllib.parse.quote_plus(queue_name),
                 )),
-                None,                       # query
-                None,                       # fragment
+                None,       # query
+                None,       # fragment
             ))
             resp = requests.get(
                 rabbitmqueuerl,
                 auth=(settings.RABBITMQ_USERNAME, settings.RABBITMQ_PASSWORD),
             )
-            logger.critical(f'>>> {resp.json()}')
             return resp.json().get('messages', 0)
-        except Exception as error:
+        except Exception:
             sentry_client.captureException()
-            return f'(error getting queue depth: {error})'
-
-        with self.celery_app.pool.acquire(block=True) as connection:
-            rabbit_manager = amq_manager.get_manager(connection)
-            return rabbit_manager.get_queue_depth(settings.RABBITMQ_VHOST, queue_name)
+            return '??'
 
     def send_message(self, message_type: MessageType, target_id, *, urgent=False):
         self.send_messages_chunk(

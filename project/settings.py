@@ -301,6 +301,7 @@ ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
+    'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
     'INDEX_STRATEGIES': {},  # populated below based on environment
 }
 ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')

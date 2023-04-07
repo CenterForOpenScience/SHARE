@@ -168,15 +168,15 @@ class MessageHandlingLoop:
                 target_ids_chunk=tuple(daemon_messages_by_target_id.keys()),
             )
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
-                target_id = message_response.index_message.target_id
-                for daemon_message in daemon_messages_by_target_id.pop(target_id):
-                    daemon_message.ack()  # finally set it free
                 if message_response.is_done:
                     doc_count += 1
                 else:
                     error_count += 1
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
                     sentry_client.captureMessage('error handling message', data=message_response.error_label)
+                target_id = message_response.index_message.target_id
+                for daemon_message in daemon_messages_by_target_id.pop(target_id):
+                    daemon_message.ack()  # finally set it free
             if daemon_messages_by_target_id:  # should be empty by now
                 logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
                 sentry_client.captureMessage('unhandled daemon messages??', data=daemon_messages_by_target_id)
@@ -187,3 +187,6 @@ class MessageHandlingLoop:
             logger.debug('%sRecieved no messages for %.02fs', self.log_prefix, time_elapsed)
         if error_count:
             logger.error('%sEncountered %d errors!', self.log_prefix, error_count)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}("{self.index_strategy.name}", {repr(self.message_type)})'

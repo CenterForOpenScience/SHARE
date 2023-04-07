@@ -7,7 +7,6 @@ from share.admin.util import admin_url
 from share.models.index_backfill import IndexBackfill
 from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import IndexStrategy
-from share.search.index_strategy.sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 
 
 logger = logging.getLogger(__name__)
@@ -62,20 +61,21 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
         return {}
     if not backfill:
         return {
-            'can_start_backfill': (
-                not isinstance(specific_index.index_strategy, Sharev2Elastic5IndexStrategy)
-                and specific_index.pls_check_exists()
-            ),
+            'can_start_backfill': specific_index.pls_check_exists(),
         }
+    nonurgent_queue_size = IndexMessenger().get_queue_depth(
+        specific_index.index_strategy.nonurgent_messagequeue_name,
+    )
     return {
         'backfill_status': backfill.backfill_status,
         'backfill_modified': backfill.modified.isoformat(timespec='minutes'),
         'backfill_admin_url': admin_url(backfill),
-        'backfill_queue_depth': IndexMessenger().get_queue_depth(
-            specific_index.index_strategy.nonurgent_messagequeue_name,
-        ),
+        'backfill_queue_depth': nonurgent_queue_size,
         'can_start_backfill': (backfill.backfill_status == IndexBackfill.INITIAL),
-        'can_mark_backfill_complete': (backfill.backfill_status == IndexBackfill.INDEXING),
+        'can_mark_backfill_complete': (
+            backfill.backfill_status == IndexBackfill.INDEXING
+            and nonurgent_queue_size == 0
+        ),
         'is_complete': (backfill.backfill_status == IndexBackfill.COMPLETE),
     }
 
