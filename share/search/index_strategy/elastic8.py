@@ -96,7 +96,6 @@ class Elastic8IndexStrategy(IndexStrategy):
             raise_on_error=False,
         )
         for (ok, response) in bulk_stream:
-            # op_type, response_body = next(iter(response.items()))
             for op_type, response_body in response.items():
                 is_done = ok or (
                     op_type == 'delete'
@@ -108,7 +107,11 @@ class Elastic8IndexStrategy(IndexStrategy):
                     yield messages.IndexMessageResponse(
                         is_done=is_done,
                         index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                        error_label=response_body,
+                        error_label=(
+                            None
+                            if ok
+                            else response_body
+                        )
                     )
 
     # abstract method from IndexStrategy

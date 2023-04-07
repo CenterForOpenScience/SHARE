@@ -70,7 +70,7 @@ section, table {
               <input type="hidden" name="pls_do" value="mark_backfill_complete" />
               <input type="submit" value="{% trans "mark backfill complete" %}" />
             </form>
-            {% elif not indexes.current.status.is_default_for_searching %}
+            {% elif indexes.current.backfill.is_complete and not indexes.current.status.is_default_for_searching %}
             <form method="post">
               {% csrf_token %}
               <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />

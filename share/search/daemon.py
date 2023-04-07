@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import collections
 import logging
 import queue as local_queue
 import threading
@@ -142,7 +143,7 @@ class MessageHandlingLoop:
         logger.info('%sStarted', self.log_prefix)
 
     def _get_daemon_messages(self):
-        daemon_messages_by_target_id = {}
+        daemon_messages_by_target_id = collections.defaultdict(list)
         while len(daemon_messages_by_target_id) < self.chunk_size:
             try:
                 # If we have any messages queued up, push them through ASAP
@@ -151,12 +152,7 @@ class MessageHandlingLoop:
                     if daemon_messages_by_target_id
                     else UNPRESSURED_TIMEOUT
                 ))
-                target_id = daemon_message.target_id
-                if target_id in daemon_messages_by_target_id:
-                    # skip processing duplicate messages in one chunk
-                    daemon_message.ack()
-                else:
-                    daemon_messages_by_target_id[target_id] = daemon_message
+                daemon_messages_by_target_id[daemon_message.target_id].append(daemon_message)
             except local_queue.Empty:
                 break
         return daemon_messages_by_target_id
@@ -169,18 +165,21 @@ class MessageHandlingLoop:
         if daemon_messages_by_target_id:
             messages_chunk = messages.MessagesChunk(
                 message_type=self.message_type,
-                target_ids_chunk=set(daemon_messages_by_target_id.keys()),
+                target_ids_chunk=tuple(daemon_messages_by_target_id.keys()),
             )
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
                 target_id = message_response.index_message.target_id
-                daemon_message = daemon_messages_by_target_id.pop(target_id)
-                daemon_message.ack()  # finally set it free
+                for daemon_message in daemon_messages_by_target_id.pop(target_id):
+                    daemon_message.ack()  # finally set it free
                 if message_response.is_done:
                     doc_count += 1
                 else:
                     error_count += 1
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
                     sentry_client.captureMessage('error handling message', data=message_response.error_label)
+            if daemon_messages_by_target_id:  # should be empty by now
+                logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
+                sentry_client.captureMessage('unhandled daemon messages??', data=daemon_messages_by_target_id)
         time_elapsed = time.time() - start_time
         if doc_count:
             logger.info('%sIndexed %d documents in %.02fs', self.log_prefix, doc_count, time_elapsed)

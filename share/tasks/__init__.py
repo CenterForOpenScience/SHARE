@@ -84,6 +84,7 @@ def schedule_index_backfill(self, index_backfill_pk):
             )
             .filter(has_fmr=True)
             .values_list('id', flat=True)
+            .distinct()
         )
         chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         IndexMessenger(
