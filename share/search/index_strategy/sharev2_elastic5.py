@@ -3,6 +3,7 @@ import logging
 
 from django.conf import settings
 import elasticsearch5
+import elasticsearch5.helpers
 
 from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
 from share.search import exceptions, messages
