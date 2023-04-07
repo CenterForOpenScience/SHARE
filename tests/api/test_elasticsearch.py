@@ -1,6 +1,5 @@
 from unittest import mock
 
-from django.http import QueryDict
 from django.test.client import Client
 
 
@@ -69,7 +68,7 @@ class TestElasticSearchProxy:
                 assert post_resp.json() == {'clop': 'clip'}
                 mock_handle_query.assert_called_once_with(
                     request_body={'blib': 'blob'},
-                    request_queryparams=QueryDict('q=foo'),
+                    request_queryparams={'q': 'foo'},
                 )
                 # GET:
                 mock_handle_query.reset_mock()
@@ -78,5 +77,5 @@ class TestElasticSearchProxy:
                 assert get_resp.json() == {'clop': 'clip'}
                 mock_handle_query.assert_called_once_with(
                     request_body={},
-                    request_queryparams=QueryDict('q=foo'),
+                    request_queryparams={'q': 'foo'},
                 )

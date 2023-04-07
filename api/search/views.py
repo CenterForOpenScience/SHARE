@@ -28,7 +28,7 @@ class Sharev2ElasticSearchView(views.APIView):
         return self._handle_request(request)
 
     def _handle_request(self, request):
-        queryparams = request.query_params.copy()
+        queryparams = request.query_params.dict()
         requested_index_strategy = queryparams.pop('indexStrategy', None)
         if 'scroll' in queryparams:
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
