@@ -128,6 +128,12 @@ class Elastic8IndexStrategy(IndexStrategy):
         # will error if you try to invoke lifecycle hooks
         return self.for_specific_index(self._alias_for_searching)
 
+    # override from IndexStrategy
+    def pls_mark_backfill_complete(self):
+        super().pls_mark_backfill_complete()
+        # explicit refresh after bulk operation
+        self.es8_client.indices.refresh(index=self.current_indexname)
+
     @property
     def _alias_for_searching(self):
         return f'{self.indexname_prefix}search'

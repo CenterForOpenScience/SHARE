@@ -14,7 +14,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='Sharev2Elastic8IndexStrategy',
-        hexdigest='5ef50fba9311fd5c5413509d00134991517955697dd7dc7e1bf212e052ceb04f',
+        hexdigest='bcaa90e8fa8a772580040a8edbedb5f727202d1fca20866948bc0eb0e935e51f',
     )
 
     # abstract method from IndexStrategy
@@ -29,13 +29,6 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     def index_settings(self):
         return {
             'analysis': {
-                'filter': {
-                    'autocomplete_filter': {
-                        'type': 'edge_ngram',
-                        'min_gram': 1,
-                        'max_gram': 20,
-                    }
-                },
                 'analyzer': {
                     'default': {
                         # same as 'standard' analyzer, plus html_strip

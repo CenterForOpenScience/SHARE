@@ -74,7 +74,9 @@ section, table {
                 {{ indexes.current.backfill.backfill_status }}
                 ({{ indexes.current.backfill.backfill_modified }})
               </a>
-              <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
+              {% if not indexes.current.backfill.is_complete %}
+                <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
+              {% endif %}
             {% else %}
             --
             {% endif %}

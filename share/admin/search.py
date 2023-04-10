@@ -99,12 +99,12 @@ def _pls_stop_keeping_live(specific_indexname):
 def _pls_start_backfill(specific_indexname):
     specific_index = IndexStrategy.get_specific_index(specific_indexname)
     assert specific_index.is_current
-    specific_index.index_strategy.get_or_create_backfill().pls_start(specific_index)
+    specific_index.index_strategy.pls_start_backfill()
 
 
 def _pls_mark_backfill_complete(specific_indexname):
     specific_index = IndexStrategy.get_specific_index(specific_indexname)
-    specific_index.index_strategy.get_or_create_backfill().pls_mark_complete()
+    specific_index.index_strategy.pls_mark_backfill_complete()
 
 
 def _pls_make_default_for_searching(specific_indexname):

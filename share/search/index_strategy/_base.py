@@ -166,6 +166,12 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         (index_backfill, _) = IndexBackfill.objects.get_or_create(index_strategy_name=self.name)
         return index_backfill
 
+    def pls_start_backfill(self):
+        self.get_or_create_backfill().pls_start(self)
+
+    def pls_mark_backfill_complete(self):
+        self.get_or_create_backfill().pls_mark_complete()
+
     @property
     @abc.abstractmethod
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:

@@ -73,16 +73,16 @@ class IndexBackfill(models.Model):
         with IndexBackfill.objects.get_with_mutex(pk=self.pk) as index_backfill:
             yield index_backfill
 
-    def pls_start(self, specific_index):
+    def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
-            assert specific_index.is_current
-            assert locked_self.index_strategy_name == specific_index.index_strategy.name
-            if locked_self.specific_indexname == specific_index.indexname:
+            assert locked_self.index_strategy_name == index_strategy.name
+            current_index = index_strategy.for_current_index()
+            if locked_self.specific_indexname == current_index.indexname:
                 # what is "current" has not changed -- should already be INITIAL
                 assert locked_self.backfill_status == IndexBackfill.INITIAL
             else:
                 # what is "current" has changed! disregard backfill_status
-                locked_self.specific_indexname = specific_index.indexname
+                locked_self.specific_indexname = current_index.indexname
                 locked_self.backfill_status = IndexBackfill.INITIAL
             locked_self.__update_error(None)
             try:
