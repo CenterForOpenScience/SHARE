@@ -24,6 +24,7 @@ from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
+from share.models.feature_flag import FeatureFlag
 from share.models.fields import DateTimeAwareJSONField
 from share.models.index_backfill import IndexBackfill
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
@@ -285,20 +286,24 @@ class IndexBackfillAdmin(admin.ModelAdmin):
         queryset.update(backfill_status=IndexBackfill.INITIAL)
 
 
+class FeatureFlagAdmin(admin.ModelAdmin):
+    readonly_fields = ('name',)
+    search_fields = ('name',)
+
+
 admin_site.register(AccessToken, AccessTokenAdmin)
 admin_site.register(CeleryTaskResult, CeleryTaskResultAdmin)
-
-admin_site.register(IndexBackfill, IndexBackfillAdmin)
+admin_site.register(FeatureFlag, FeatureFlagAdmin)
+admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin_site.register(HarvestJob, HarvestJobAdmin)
+admin_site.register(Harvester)
+admin_site.register(IndexBackfill, IndexBackfillAdmin)
 admin_site.register(IngestJob, IngestJobAdmin)
 admin_site.register(NormalizedData, NormalizedDataAdmin)
-admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin_site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin_site.register(RawDatum, RawDatumAdmin)
-admin_site.register(SiteBanner, SiteBannerAdmin)
-
-admin_site.register(Harvester)
 admin_site.register(ShareUser, ShareUserAdmin)
+admin_site.register(SiteBanner, SiteBannerAdmin)
 admin_site.register(Source, SourceAdmin)
 admin_site.register(SourceConfig, SourceConfigAdmin)
 admin_site.register(SourceStat, SourceStatAdmin)

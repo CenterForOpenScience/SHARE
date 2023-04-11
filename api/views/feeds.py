@@ -43,7 +43,7 @@ class MetadataRecordsRSS(Feed):
         elastic_query = request.GET.get('elasticQuery')
         self._index_strategy = IndexStrategy.get_for_searching(
             request.GET.get('indexStrategy'),
-            default_name=settings.DEFAULT_SHAREV2_INDEX_STRATEGY,
+            with_default_fallback=True,
         )
 
         if self._order not in {'date_modified', 'date_updated', 'date_created', 'date_published'}:

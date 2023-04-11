@@ -1,5 +1,4 @@
 from django import http
-from django.conf import settings
 
 from rest_framework import views
 from rest_framework.parsers import JSONParser
@@ -35,7 +34,7 @@ class Sharev2ElasticSearchView(views.APIView):
         try:
             specific_index = IndexStrategy.get_for_searching(
                 requested_index_strategy,
-                default_name=settings.DEFAULT_SHAREV2_INDEX_STRATEGY,
+                with_default_fallback=True,
             )
         except exceptions.IndexStrategyError as error:
             raise http.Http404(str(error))

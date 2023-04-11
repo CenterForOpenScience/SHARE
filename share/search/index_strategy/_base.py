@@ -5,6 +5,7 @@ import typing
 
 from django.conf import settings
 
+from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
@@ -66,7 +67,7 @@ class IndexStrategy(abc.ABC):
         raise IndexStrategyError(f'unrecognized indexname "{specific_indexname}"')
 
     @classmethod
-    def get_for_searching(cls, requested_name=None, *, default_name=None) -> 'IndexStrategy.SpecificIndex':
+    def get_for_searching(cls, requested_name=None, *, with_default_fallback: bool = False) -> 'IndexStrategy.SpecificIndex':
         if requested_name is not None:
             try:  # could be a strategy name
                 return cls.get_by_name(requested_name).pls_get_default_for_searching()
@@ -75,9 +76,17 @@ class IndexStrategy(abc.ABC):
                     return cls.get_specific_index(requested_name)
                 except IndexStrategyError:
                     raise IndexStrategyError(f'unknown name: "{requested_name}"')
-        if default_name is not None:
-            return cls.get_for_searching(default_name)
-        raise ValueError('either default_name or requested_name must be non-None')
+        if with_default_fallback:
+            return cls.get_for_searching(cls._default_strategyname_for_searching())
+        raise ValueError('either provide non-None requested_name or with_default_fallback=True')
+
+    @classmethod
+    def _default_strategyname_for_searching(cls) -> str:
+        return (
+            'sharev2_elastic8'
+            if FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
+            else 'sharev2_elastic5'
+        )
 
     @classmethod
     def _load_from_settings(cls, index_strategy_name, index_strategy_settings):

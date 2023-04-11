@@ -91,17 +91,13 @@ class TestBaseIndexStrategy:
                 ''.join((index_strategy.indexname_prefix, 'foo')),
             ]
             for good_request in good_requests:
-                for specific_index in (
-                    IndexStrategy.get_for_searching(good_request),
-                    IndexStrategy.get_for_searching(default_name=good_request),
-                    IndexStrategy.get_for_searching(None, default_name=good_request),
-                ):
-                    assert isinstance(specific_index, index_strategy.SpecificIndex)
-                    assert specific_index.index_strategy is index_strategy
-                    if good_request == strategy_name:
-                        assert specific_index == index_strategy.pls_get_default_for_searching()
-                    else:
-                        assert specific_index.indexname == good_request
+                specific_index = IndexStrategy.get_for_searching(good_request)
+                assert isinstance(specific_index, index_strategy.SpecificIndex)
+                assert specific_index.index_strategy is index_strategy
+                if good_request == strategy_name:
+                    assert specific_index == index_strategy.pls_get_default_for_searching()
+                else:
+                    assert specific_index.indexname == good_request
             # bad calls:
             with pytest.raises(IndexStrategyError):
                 IndexStrategy.get_for_searching('bad-request')
