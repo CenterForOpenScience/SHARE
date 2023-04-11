@@ -1,13 +1,9 @@
 # es8
 
 ## TODO
-- admin: confirm index refill/delete
-- admin: easy-update default index strategy for `/api/v2/search/...` and `/api/v2/feeds/...`
 - document process for new/updated index strategies
 - unit tests for IndexStrategy
 - unit tests for IndexMessenger
-- remove direct-by-url elasticsearch access (go via IndexStrategy instead)
-    - rss/atom feed
 - backcompat: search response `hits.total` 
 
 
@@ -32,6 +28,9 @@ add sharev2_elastic8 copy of existing index
 
 add query param to existing search api to use elastic8
 
+- remove direct-by-url elasticsearch access (go via IndexStrategy instead)
+    - rss/atom feed
+
 ### admin controls
 view info about indexes (including current but not-yet-created)
 
@@ -43,3 +42,6 @@ specific-index actions:
 - pls_make_default_for_searching
 - pls_stop_keeping_live
 - pls_delete
+
+- admin: confirm index refill/delete
+- admin: easy-update default index strategy for `/api/v2/search/...` and `/api/v2/feeds/...`

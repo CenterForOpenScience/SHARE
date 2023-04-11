@@ -48,10 +48,10 @@ services:
     command: >
       bash -c '
         if [ x$${ELASTIC_PASSWORD} == x ]; then
-          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          echo "Set the ELASTIC_PASSWORD environment variable in the .docker-compose.elastic8.env file";
           exit 1;
         elif [ x$${KIBANA_PASSWORD} == x ]; then
-          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          echo "Set the KIBANA_PASSWORD environment variable in the .docker-compose.elastic8.env file";
           exit 1;
         fi;
         if [ ! -f config/certs/ca.zip ]; then
@@ -99,9 +99,8 @@ services:
     volumes:
       - elastic8_data_vol:/usr/share/elasticsearch/data
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs/
+    env_file: .docker-compose.elastic8.env
     environment:
-      - ELASTIC_PASSWORD=secretsecret
-      - KIBANA_PASSWORD=kibanakibana
       - node.name=singlenode
       - cluster.initial_master_nodes=singlenode
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit
@@ -193,8 +192,9 @@ services:
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+      - .docker-compose.elastic8.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
@@ -215,8 +215,9 @@ services:
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+      - .docker-compose.elastic8.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
@@ -234,8 +235,9 @@ services:
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+      - .docker-compose.elastic8.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTICSEARCH8_SECRET:-secretsecret}
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
