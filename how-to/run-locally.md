@@ -29,11 +29,11 @@ docker-compose up requirements
 ```
 
 ### 2. structured data
-there are ~~two~~three services that store persistent data: `postgres`, `elasticsearch`, and `elastic8`
+there are two services that store more-or-less persistent data: `postgres` and `elastic8`
 
 let's start them from the host machine:
 ```
-docker-compose up -d postgres elasticsearch elastic8
+docker-compose up -d postgres elastic8
 ```
 
 since we're not installing anything more on the host machine, it'll be useful to open

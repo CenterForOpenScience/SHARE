@@ -304,7 +304,10 @@ ELASTICSEARCH = {
     'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
     'INDEX_STRATEGIES': {},  # populated below based on environment
 }
-ELASTICSEARCH5_URL = os.environ.get('ELASTICSEARCH_URL')
+ELASTICSEARCH5_URL = (
+    os.environ.get('ELASTICSEARCH5_URL')
+    or os.environ.get('ELASTICSEARCH_URL')
+)
 if ELASTICSEARCH5_URL:
     ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
@@ -325,7 +328,7 @@ if ELASTICSEARCH8_URL:
             'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
         },
     }
-DEFAULT_SHAREV2_INDEX_STRATEGY = (
+DEFAULT_INDEX_STRATEGY_FOR_SEARCHING = (
     'sharev2_elastic5'
     if ELASTICSEARCH5_URL
     else (

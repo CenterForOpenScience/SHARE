@@ -85,7 +85,7 @@ class IndexStrategy(abc.ABC):
         return (
             'sharev2_elastic8'
             if FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
-            else 'sharev2_elastic5'
+            else settings.DEFAULT_INDEX_STRATEGY_FOR_SEARCHING
         )
 
     @classmethod
