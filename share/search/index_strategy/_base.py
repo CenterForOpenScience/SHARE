@@ -270,5 +270,5 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         #     raise NotImplementedError
 
         # optional for subclasses
-        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None):
+        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None) -> dict:
             raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_query__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')

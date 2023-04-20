@@ -151,13 +151,22 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None):
-            # TODO: mangle request/response for limited backcompat with elasticsearch5
+        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None) -> dict:
+            es8_request_body = {
+                **request_body,
+                'track_total_hits': True,
+            }
             try:
-                return self.index_strategy.es8_client.search(
+                json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    body=request_body,
+                    body=es8_request_body,
                     params=request_queryparams,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            # mangle response for some limited backcompat with elasticsearch5
+            try:
+                json_response['hits']['total'] = json_response['hits']['total']['value']
+            except KeyError:
+                pass
+            return json_response

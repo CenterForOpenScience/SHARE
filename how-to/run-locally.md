@@ -1,6 +1,10 @@
 # SHARE Quickstart or: How I Learned to Stop Worrying and Love the Dock
 
-this guide guides you through setting up SHARE locally using Docker.
+this guide guides you through setting up SHARE locally using Docker
+for development and manual testing.
+
+this guide does NOT guide you to anything appropriate for the open Internet.
+
 
 ## pre-requisites
 - [git](https://git-scm.com/)
@@ -55,57 +59,62 @@ sharectl search setup --initial
 ```
 
 ### 3. start 'em up
-all other services can now be started (from the host machine):
+all other services can now be started from the host machine (upping `worker` ups all)
 ```
-docker-compose up -d rabbitmq worker web indexer frontend
+docker-compose up -d worker
 ```
 
 ## handy commands
 
-### start a docker shell
+### start a shell in a container
+there are several ways to open a shell with SHARE's python environment (including
+django's `manage.py` and SHARE's own `sharectl` utility, defined in `share/bin/`)
 
-this is the same command you ran in step 2:
+if `worker` is already up, can open a shell within that container:
+```
+docker-compose exec worker bash
+```
 
+if no services are up, can open a shell within a new, temporary `worker` container:
 ```
 docker-compose run --rm --no-deps worker bash
 ```
+(remove `--no-deps` if you'd like the other services started automatically)
 
 ### start a django shell
-
-this should be run inside the docker shell (see previous):
+this should be run inside a container (see previous):
 
 ```
 python manage.py shell_plus
 ```
 
 ## admin interface
-http://localhost:8003/admin -- (admin/password)
+http://localhost:8003/admin (username: "admin", password: "password")
 
-## harvesting data
+## using with local [osf.io](https://github.com/CenterForOpenScience/osf.io)
+0. [set up your local osf with docker](https://github.com/CenterForOpenScience/osf.io/blob/HEAD/README-docker-compose.md), if you haven't already
+1. in a SHARE container, run `python manage.py add_local_osf_user` and copy the access token from the output.
+    ```
+    # python manage.py add_local_osf_user
+    added user "my-local-osf" for local osf
+    access-token: THISISMYACCESSTOKENITISLONGANDINSCRUTABLEANDSECRET
+    ```
+2. add settings to your local osf's `website/settings/local.py`, including the access token from step 1:
+    ```
+    SHARE_ENABLED = True
+    SHARE_PROVIDER_PREPEND = 'local'
+    SHARE_URL = 'http://192.168.168.167:8003/'
+    SHARE_API_TOKEN = 'THISISMYACCESSTOKENITISLONGANDINSCRUTABLEANDSECRET'
+    ```
+    (you may need to restart osf services that use these settings)
+3. use the osf admin interface at `http://localhost:8001` to connect osf providers (can skip this step if you're only interested in osf:Project records)
+    1. at `/provider_asset_files/create`, add a small icon (PNG or JPEG) with name `square_color_no_transparent` for the provider(s) you want
+    2. on each provider detail page (e.g. `/preprint_provider/<id>/`), click the "Setup Share Source" button
+    > TODO: streamline this process -- is the icon really necessary?
+4. make things "public" on your local osf to start populating indexes
+
+
 > TODO: once share.osf.io/oaipmh is reliable, make it easy to init a local deployment by harvesting data from there
-
-> also TODO: put some thought into unconvoluting the whole harvest-scheduling, ingest-disabling system
-
-for now, maybe grab a day of data from arxiv.org? at the moment, the `Source` needs to be marked
-`canonical` for the system to ingest its data -- either:
-  - update it in the admin interface: http://localhost:8003/admin/share/source/
-  - update it from the django shell:
-    ```
-    Source.objects.filter(name='org.arxiv').update(canonical=True)
-    ```
-
-next, choose a recent date, and start a harvest task for it from the docker shell:
-
-```
-sharectl schedule -t org.arxiv YYYY-MM-DD
-```
-
-you could watch its progress several different ways:
-  - looking at task queues in the rabbitmq management interface at http://localhost:15673/ (guest/guest)
-  - following the `worker` container's logs: `docker-compose logs -f worker`
-  - checking the result count as you refresh the search interface at http://localhost:8003/share/discover
-  - watching `IngestJob` statuses update in the admin at http://localhost:8003/admin/share/ingestjob/ (admin/password)
-    - useful for debugging! if ingest fails, the `IngestJob` will contain the error type, message, and stack trace
 
 ## troubleshooting
 - my containers keep mysteriously dying!
