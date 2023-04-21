@@ -1,48 +1,38 @@
+from unittest import mock
+
 import pytest
 
-from share.search.index_strategy import IndexStrategy
 
-
-@pytest.fixture(scope='session')
-def elastic_test_index_name():
-    return 'test_share'
-
-
-@pytest.fixture(params=['es5', 'es8'])
-def elastic_test_cluster_url(request, settings):
-    if request.param == 'es5':
-        return settings.ELASTICSEARCH5_URL
-    if request.param == 'es8':
-        return settings.ELASTICSEARCH8_URL
-    raise ValueError(request.param)
-
-
-@pytest.fixture()
-def actual_elasticsearch(elastic_test_index_name, elastic_test_cluster_url, settings):
-    old_elasticsearch_settings = settings.ELASTICSEARCH
+@pytest.fixture
+def fake_elastic_strategies(settings):
     settings.ELASTICSEARCH = {
-        **old_elasticsearch_settings,
-        'TIMEOUT': 5,
-        'PRIMARY_INDEX': elastic_test_index_name,
-        'LEGACY_INDEX': elastic_test_index_name,
-        'BACKCOMPAT_INDEX': elastic_test_index_name,
-        'ACTIVE_INDEXES': [elastic_test_index_name],
+        **settings.ELASTICSEARCH,
         'INDEX_STRATEGIES': {
-            elastic_test_index_name: {
+            'my_es5_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'blah'},
                 'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
-                'CLUSTER_SETTINGS': {
-                    'URL': settings.ELASTICSEARCH5_URL,
-                },
+            },
+            'my_es8_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'bleh'},
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+            },
+            'another_es8_strategy': {
+                'CLUSTER_SETTINGS': {'URL': 'bluh'},
+                'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
             },
         },
     }
-    index_strategy = IndexStrategy.get_by_name(elastic_test_index_name)
-    try:
-        index_strategy.pls_delete()
-        index_strategy.pls_setup()
-        try:
-            yield
-        finally:
-            index_strategy.pls_delete()
-    except Exception as error:
-        raise pytest.skip(f'Elasticsearch unavailable? (error: {error})')
+    return tuple(settings.ELASTICSEARCH['INDEX_STRATEGIES'].keys())
+
+
+@pytest.fixture
+def mock_elastic_clients(fake_elastic_strategies):
+    with mock.patch('share.search.index_strategy.sharev2_elastic5.elasticsearch5') as es5_mockpackage:
+        with mock.patch('share.search.index_strategy.elastic8.elasticsearch8') as es8_mockpackage:
+            es5_mockclient = es5_mockpackage.Elasticsearch.return_value
+            es8_mockclient = es8_mockpackage.Elasticsearch.return_value
+            yield {
+                'my_es5_strategy': es5_mockclient,
+                'my_es8_strategy': es8_mockclient,
+                'another_es8_strategy': es8_mockclient,
+            }
