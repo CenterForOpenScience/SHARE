@@ -107,11 +107,12 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         for (ok, response) in bulk_stream:
             op_type, response_body = next(iter(response.items()))
             message_target_id = self._get_message_target_id(response_body['_id'])
-            is_done = ok or (op_type == 'delete' and response_body.get('result') == 'not_found')
-            error_label = None if is_done else response_body
+            is_done = ok or (op_type == 'delete' and response_body.get('status') == 404)
+            error_label = None if is_done else str(response_body)
             yield messages.IndexMessageResponse(
                 is_done=is_done,
                 index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
+                status_code=response_body.get('status'),
                 error_label=error_label,
             )
 

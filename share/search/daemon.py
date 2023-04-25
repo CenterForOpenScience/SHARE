@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 import collections
 import logging
 import queue as local_queue
+import random
 import threading
 import time
 
@@ -14,8 +15,16 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 
 logger = logging.getLogger(__name__)
 
-UNPRESSURED_TIMEOUT = 3     # three seconds
-QUICK_TIMEOUT = 0.1         # one tenth of one second
+
+UNPRESSURED_TIMEOUT = 3         # seconds
+QUICK_TIMEOUT = 0.1             # seconds
+MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
+MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
+MAXIMUM_BACKOFF_TIMEOUT = 60    # seconds
+
+
+class TooFastSlowDown(Exception):
+    pass
 
 
 class CeleryMessageConsumer(ConsumerMixin):
@@ -121,12 +130,25 @@ class IndexerDaemon:
                 log_prefix=log_prefix,
             )
             while not self.stop_event.is_set():
-                loop.iterate_once()
+                try:
+                    loop.iterate_once()
+                except TooFastSlowDown:
+                    self.__back_off()
         except Exception as e:
             sentry_client.captureException()
             logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
         finally:
             self.stop()
+
+    def __back_off(self):
+        last_backoff_timeout = getattr(self, '__last_backoff_timeout', UNPRESSURED_TIMEOUT)
+        backoff_timeout = min(
+            MAXIMUM_BACKOFF_TIMEOUT,
+            last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
+        )
+        self.__last_backoff_timeout = backoff_timeout
+        logger.warning(f'{repr(self)}: Backing off (pause for {backoff_timeout:.2} seconds)')
+        self.stop_event.wait(timeout=backoff_timeout)
 
     def __repr__(self):
         return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
@@ -140,9 +162,14 @@ class MessageHandlingLoop:
         self.log_prefix = log_prefix
         self.stop_event = stop_event
         self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        self._leftover_daemon_messages_by_target_id = None
         logger.info('%sStarted', self.log_prefix)
 
     def _get_daemon_messages(self):
+        daemon_messages_by_target_id = self._leftover_daemon_messages_by_target_id
+        if daemon_messages_by_target_id is not None:
+            self._leftover_daemon_messages_by_target_id = None
+            return daemon_messages_by_target_id
         daemon_messages_by_target_id = collections.defaultdict(list)
         while len(daemon_messages_by_target_id) < self.chunk_size:
             try:
@@ -170,6 +197,9 @@ class MessageHandlingLoop:
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
                 if message_response.is_done:
                     doc_count += 1
+                elif message_response.status_code == 429:  # 429 Too Many Requests
+                    self._leftover_daemon_messages_by_target_id = daemon_messages_by_target_id
+                    raise TooFastSlowDown
                 else:
                     error_count += 1
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)

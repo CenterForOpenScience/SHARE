@@ -60,6 +60,7 @@ class IndexMessage(typing.NamedTuple):
 class IndexMessageResponse(typing.NamedTuple):
     is_done: bool
     index_message: IndexMessage
+    status_code: int
     error_label: typing.Optional[str]
 
 

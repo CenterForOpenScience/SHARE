@@ -32,7 +32,7 @@ class FakeIndexStrategyForDaemonTest:
             self.next_message_ready.clear()  # clear so the test thread can wait on it again.
             self.next_message_released.clear()  # clear so this thread can...
             wait_for(self.next_message_released)  # ...wait until the test thread says go again.
-            yield messages.IndexMessageResponse(True, index_message, None)
+            yield messages.IndexMessageResponse(True, index_message, 201, None)
         self.message_stream_done.set()
 
 
