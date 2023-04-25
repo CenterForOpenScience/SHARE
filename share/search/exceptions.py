@@ -15,3 +15,11 @@ class DaemonIndexingError(ShareException):
 
 class IndexStrategyError(ShareException):
     pass
+
+
+class SearchApiError(ShareException):
+    pass
+
+
+class InvalidSearchParam(SearchApiError):
+    pass

@@ -1,13 +1,31 @@
 import json
+import typing
 
 import elasticsearch8
 
 from share import models as db
 from share.search import exceptions
-from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
+from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
+from share.search import search_params
+# from share.search.search_response import ApiSearchResponse
 from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
+
+
+SEARCHABLE_TEXT_FIELDS = (  # TODO: is this all?
+    'title',
+    'description',
+    'tags',
+    'contributors',
+    'source_unique_id',
+)
+PHRASE_DELIMITER = '"'
+OSFMAP__SHAREV2 = {
+    'title': 'title',
+    'description': 'description',
+    # TODO ...
+}
 
 
 class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
@@ -151,20 +169,14 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            es8_request_body = {
-                **(request_body or {}),
-                'track_total_hits': True,
-            }
-            try:
-                json_response = self.index_strategy.es8_client.search(
-                    index=self.indexname,
-                    # NOTE: the `body` param is deprecated; remove this backcompat method by ES9
-                    body=es8_request_body,
-                    params=request_queryparams or {},
-                )
-            except elasticsearch8.TransportError as error:
-                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+            json_response = self._send_search_request(
+                request_body={
+                    **request_body,
+                    'track_total_hits': True,
+                },
+                request_queryparams=request_queryparams,
+            )
             try:  # mangle response for some limited backcompat with elasticsearch5
                 es8_total = json_response['hits']['total']
                 json_response['hits']['total'] = es8_total['value']
@@ -172,3 +184,72 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             except KeyError:
                 pass
             return json_response
+
+        def pls_handle_index_card_search(
+            self,
+            card_search_params: search_params.IndexCardSearchParams,
+        ):  # -> ApiSearchResponse:
+            es8_response = self._send_search_request(
+                request_body={
+                    'query': {
+                        'bool': {
+                            'filter': list(
+                                self._es8_filter_iter(search_params.card_search_filter_set),
+                            ),
+                            'should': list(
+                                self._es8_text_query_iter(search_params.card_search_text_set),
+                            ),
+                        },
+                    },
+                    'highlight': {
+                        fieldname: {}
+                        for fieldname in self.SEARCHABLE_TEXT_FIELDS
+                    },
+                },
+            )
+            return es8_response  # TODO: return shaclbasket
+
+        def _send_search_request(self, *, request_body=None, request_queryparams=None):
+            try:
+                json_response = self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    body=request_body,
+                    params=request_queryparams,
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            return json_response
+
+        def _propertypath_to_fieldname(self, property_path):
+            raise NotImplementedError('TODO')
+
+        def _es8_filter_iter(self, filter_set: frozenset[search_params.SearchFilter]) -> typing.Iterable[dict]:
+            for search_filter in filter_set:
+                fieldname = self._propertypath_to_fieldname(search_filter.property_path)
+                yield {
+                    'terms': {
+                        fieldname: list(search_filter.filter_value_set),
+                    }
+                }
+
+        def _es8_text_query_iter(self, query_text_set: typing.Iterable[str]) -> typing.Iterable[dict]:
+            for query_text in query_text_set:
+                in_phrase = False
+                remaining = query_text
+                while remaining:  # TODO: move quote-parsing to a reusable place?
+                    before_delim, delim, remaining = remaining.partition(self.PHRASE_DELIMITER)
+                    query_part = before_delim.strip()
+                    if query_part:
+                        if in_phrase:
+                            multimatch_type = ('phrase' if delim else 'phrase_prefix')
+                        else:
+                            multimatch_type = ('most_fields' if delim else 'bool_prefix')
+                        yield {
+                            'multi_match': {
+                                'query': query_part,
+                                'type': multimatch_type,
+                                'fields': SEARCHABLE_TEXT_FIELDS,
+                            }
+                        }
+                    if delim:
+                        in_phrase = (not in_phrase)

@@ -5,11 +5,17 @@ import typing
 
 from django.conf import settings
 
+from share.search import messages
 from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
-from share.search import messages
+from share.search.search_params import (
+    IndexCardSearchParams,
+    IndexPropertySearchParams,
+    IndexValueSearchParams,
+)
+from share.search.search_response import ApiSearchResponse
 from share.util.checksum_iris import ChecksumIri
 
 
@@ -273,10 +279,15 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_stop_keeping_live(self):
             raise NotImplementedError
 
-        # @abc.abstractmethod
-        # def pls_handle_query(self, **kwargs) -> TODO:  # (type consistent with search api model)
-        #     raise NotImplementedError
-
         # optional for subclasses
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_query__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+            raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+
+        def pls_handle_index_card_search(self, card_search_params: IndexCardSearchParams) -> ApiSearchResponse:
+            raise NotImplementedError
+
+        def pls_handle_index_property_search(self, property_search_params: IndexPropertySearchParams) -> ApiSearchResponse:
+            raise NotImplementedError
+
+        def pls_handle_index_value_search(self, value_search_params: IndexValueSearchParams) -> ApiSearchResponse:
+            raise NotImplementedError

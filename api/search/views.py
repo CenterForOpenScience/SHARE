@@ -39,10 +39,11 @@ class Sharev2ElasticSearchView(views.APIView):
         except exceptions.IndexStrategyError as error:
             raise http.Http404(str(error))
         try:
-            response_json = specific_index.pls_handle_query__sharev2_backcompat(
+            response_json = specific_index.pls_handle_search__sharev2_backcompat(
                 request_body=request.data,
                 request_queryparams=queryparams,
             )
             return Response(data=response_json, headers={'Content-Type': 'application/json'})
         except (exceptions.IndexStrategyError, NotImplementedError) as error:
+            raise
             return Response(status=418, data=str(error))  # TODO

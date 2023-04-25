@@ -54,7 +54,7 @@ class TestFeed:
         ]
         with mock.patch('api.views.feeds.IndexStrategy.get_for_searching') as mock_get_for_searching:
             mock_strategy = mock_get_for_searching.return_value
-            mock_strategy.pls_handle_query__sharev2_backcompat.return_value = {
+            mock_strategy.pls_handle_search__sharev2_backcompat.return_value = {
                 'hits': {
                     'hits': [
                         {'_source': item, '_id': item['id']}

@@ -53,29 +53,29 @@ class TestElasticSearchProxy:
             '/api/v2/search/creativeworks/_search/?q=foo',
         )
         with mock.patch('api.search.views.IndexStrategy') as mock_IndexStrategy:
-            mock_handle_query = (
+            mock_handle_search = (
                 mock_IndexStrategy
                 .get_for_searching
                 .return_value
-                .pls_handle_query__sharev2_backcompat
+                .pls_handle_search__sharev2_backcompat
             )
-            mock_handle_query.return_value = {'clop': 'clip'}
+            mock_handle_search.return_value = {'clop': 'clip'}
             for url in urls:
                 # POST:
-                mock_handle_query.reset_mock()
+                mock_handle_search.reset_mock()
                 post_resp = client.post(url, '{"blib":"blob"}', content_type='application/json')
                 assert post_resp.status_code == 200
                 assert post_resp.json() == {'clop': 'clip'}
-                mock_handle_query.assert_called_once_with(
+                mock_handle_search.assert_called_once_with(
                     request_body={'blib': 'blob'},
                     request_queryparams={'q': 'foo'},
                 )
                 # GET:
-                mock_handle_query.reset_mock()
+                mock_handle_search.reset_mock()
                 get_resp = client.get(url)
                 assert get_resp.status_code == 200
                 assert get_resp.json() == {'clop': 'clip'}
-                mock_handle_query.assert_called_once_with(
+                mock_handle_search.assert_called_once_with(
                     request_body={},
                     request_queryparams={'q': 'foo'},
                 )

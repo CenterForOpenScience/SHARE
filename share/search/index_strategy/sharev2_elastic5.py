@@ -405,7 +405,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             )
 
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             '''the definitive sharev2-search api: passthru to elasticsearch version 5
             '''
             try:

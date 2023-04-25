@@ -1,19 +1,6 @@
 """share URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.9/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.urls import include, re_path as url
+from django.urls import include, path, re_path as url
 from django.conf import settings
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -25,6 +12,7 @@ from api.views import APIVersionRedirectView, source_icon_view
 
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
+from share.search import views as search_views
 
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
@@ -43,6 +31,9 @@ urlpatterns = [
         permanent=False
     ), name='favicon'),
     url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
+    path('index-card-search', view=search_views.IndexCardSearchView.as_view(), name='index-card-search'),
+    path('index-property-search', view=search_views.IndexPropertySearchView.as_view(), name='index-property-search'),
+    path('index-value-search', view=search_views.IndexValueSearchView.as_view(), name='index-value-search'),
 ]
 
 if settings.DEBUG:
