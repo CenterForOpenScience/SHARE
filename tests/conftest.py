@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import json
 import logging
@@ -137,6 +138,7 @@ def ExpectedGraph(Graph):
     return expected_graph
 
 
+@contextlib.contextmanager
 def rolledback_transaction(loglabel):
     class ExpectedRollback(Exception):
         pass
@@ -161,7 +163,8 @@ def class_scoped_django_db(django_db_setup, django_db_blocker, request):
     or use directly in another class-scoped fixture.
     """
     with django_db_blocker.unblock():
-        yield from rolledback_transaction(f'class_scoped_django_db({request.node})')
+        with rolledback_transaction(f'class_scoped_django_db({request.node})'):
+            yield
 
 
 @pytest.fixture(scope='function')
@@ -172,4 +175,5 @@ def nested_django_db(class_scoped_django_db, request):
 
     recommend using via the `nested_django_db` mark
     """
-    yield from rolledback_transaction(f'nested_django_db({request.node})')
+    with rolledback_transaction(f'nested_django_db({request.node})'):
+        yield

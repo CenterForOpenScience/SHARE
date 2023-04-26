@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import contextlib
 import collections
 import logging
 import queue as local_queue
@@ -16,7 +17,7 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 logger = logging.getLogger(__name__)
 
 
-UNPRESSURED_TIMEOUT = 3         # seconds
+UNPRESSURED_TIMEOUT = 1         # seconds
 QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
@@ -53,9 +54,11 @@ class CeleryMessageConsumer(ConsumerMixin):
     # for ConsumerMixin -- specifies rabbit queues to consume, registers on_message callback
     def get_consumers(self, Consumer, channel):
         index_messenger = IndexMessenger(index_strategys=[self.__index_strategy])
+        queues = tuple(index_messenger.incoming_messagequeue_iter(channel))
+        logger.debug('%r: Consuming from queues %r', self, queues)
         return [
             Consumer(
-                queues=tuple(index_messenger.incoming_messagequeue_iter(channel)),
+                queues=queues,
                 callbacks=[self.__indexer_daemon.on_message],
                 accept=['json'],
                 prefetch_count=self.PREFETCH_COUNT,
@@ -70,16 +73,21 @@ class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
 
     @classmethod
-    def start_daemonthreads(cls, celery_app, stop_event):
+    def start_daemonthreads(cls, celery_app, stop_event, *, daemonthread_context=None):
         for index_strategy in IndexStrategy.all_strategies():
-            indexer_daemon = cls(index_strategy=index_strategy, stop_event=stop_event)
+            indexer_daemon = cls(
+                index_strategy=index_strategy,
+                stop_event=stop_event,
+                daemonthread_context=daemonthread_context,
+            )
             indexer_daemon.start_loops_and_queues()
             consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
             threading.Thread(target=consumer.run).start()
 
-    def __init__(self, index_strategy, stop_event):
+    def __init__(self, index_strategy, stop_event, *, daemonthread_context=None):
         self.stop_event = stop_event
         self.__index_strategy = index_strategy  # TODO: error if index not ready
+        self.__daemonthread_context = daemonthread_context or contextlib.nullcontext
         self.__thread_pool = None
         self.__local_message_queues = {}
 
@@ -120,35 +128,23 @@ class IndexerDaemon:
                 continue
 
     def __message_handling_loop(self, message_type):
-        try:
-            log_prefix = f'{repr(self)} MessageHandlingLoop: '
-            loop = MessageHandlingLoop(
-                index_strategy=self.__index_strategy,
-                message_type=message_type,
-                local_message_queue=self.__local_message_queues[message_type],
-                stop_event=self.stop_event,
-                log_prefix=log_prefix,
-            )
-            while not self.stop_event.is_set():
-                try:
+        with self.__daemonthread_context():
+            try:
+                log_prefix = f'{repr(self)} MessageHandlingLoop: '
+                loop = MessageHandlingLoop(
+                    index_strategy=self.__index_strategy,
+                    message_type=message_type,
+                    local_message_queue=self.__local_message_queues[message_type],
+                    stop_event=self.stop_event,
+                    log_prefix=log_prefix,
+                )
+                while not self.stop_event.is_set():
                     loop.iterate_once()
-                except TooFastSlowDown:
-                    self.__back_off()
-        except Exception as e:
-            sentry_client.captureException()
-            logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
-        finally:
-            self.stop()
-
-    def __back_off(self):
-        last_backoff_timeout = getattr(self, '__last_backoff_timeout', UNPRESSURED_TIMEOUT)
-        backoff_timeout = min(
-            MAXIMUM_BACKOFF_TIMEOUT,
-            last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
-        )
-        self.__last_backoff_timeout = backoff_timeout
-        logger.warning(f'{repr(self)}: Backing off (pause for {backoff_timeout:.2} seconds)')
-        self.stop_event.wait(timeout=backoff_timeout)
+            except Exception as e:
+                sentry_client.captureException()
+                logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
+            finally:
+                self.stop()
 
     def __repr__(self):
         return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
@@ -164,6 +160,12 @@ class MessageHandlingLoop:
         self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         self._leftover_daemon_messages_by_target_id = None
         logger.info('%sStarted', self.log_prefix)
+
+    def iterate_once(self):
+        try:
+            self._iterate_once()
+        except TooFastSlowDown:
+            self._back_off()
 
     def _get_daemon_messages(self):
         daemon_messages_by_target_id = self._leftover_daemon_messages_by_target_id
@@ -184,7 +186,7 @@ class MessageHandlingLoop:
                 break
         return daemon_messages_by_target_id
 
-    def iterate_once(self):
+    def _iterate_once(self):
         # each message corresponds to one action on this daemon's index
         start_time = time.time()
         doc_count, error_count = 0, 0
@@ -217,6 +219,16 @@ class MessageHandlingLoop:
             logger.debug('%sRecieved no messages for %.02fs', self.log_prefix, time_elapsed)
         if error_count:
             logger.error('%sEncountered %d errors!', self.log_prefix, error_count)
+
+    def _back_off(self):
+        last_backoff_timeout = getattr(self, '__last_backoff_timeout', UNPRESSURED_TIMEOUT)
+        backoff_timeout = min(
+            MAXIMUM_BACKOFF_TIMEOUT,
+            last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
+        )
+        self.__last_backoff_timeout = backoff_timeout
+        logger.warning(f'{self.log_prefix}Backing off (pause for {backoff_timeout:.2} seconds)')
+        self.stop_event.wait(timeout=backoff_timeout)
 
     def __repr__(self):
         return f'{self.__class__.__name__}("{self.index_strategy.name}", {repr(self.message_type)})'

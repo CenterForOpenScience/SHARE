@@ -159,13 +159,13 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             try:
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
+                    # NOTE: the `body` param is deprecated; remove this backcompat method by ES9
                     body=es8_request_body,
                     params=request_queryparams,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            # mangle response for some limited backcompat with elasticsearch5
-            try:
+            try:  # mangle response for some limited backcompat with elasticsearch5
                 json_response['hits']['total'] = json_response['hits']['total']['value']
             except KeyError:
                 pass

@@ -388,7 +388,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     is_default_for_searching=True,
                     creation_date=None,
                     doc_count=0,
-                    health='nonexistent',
                 )
             return IndexStatus(
                 index_strategy_name=self.index_strategy.name,
@@ -399,7 +398,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     index_settings['settings']['index']['creation_date'],
                 ),
                 doc_count=index_stats['primaries']['docs']['count'],
-                health='ok?',
             )
 
         # optional method from IndexStrategy.SpecificIndex

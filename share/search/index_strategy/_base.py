@@ -37,6 +37,10 @@ class IndexStrategy(abc.ABC):
     __all_strategys_by_name = None  # cache for cls.all_strategies_by_name()
 
     @classmethod
+    def reset_strategy_cache(self):
+        self.__all_strategys_by_name = None
+
+    @classmethod
     def all_strategies_by_name(cls) -> 'dict[str, IndexStrategy]':
         if cls.__all_strategys_by_name is None:
             cls.__all_strategys_by_name = {

@@ -211,7 +211,6 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0)),
-        'TEST': {'SERIALIZE': False},
     },
 }
 
@@ -324,7 +323,11 @@ if ELASTICSEARCH8_URL:
         'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
         'CLUSTER_SETTINGS': {
             'URL': ELASTICSEARCH8_URL,
-            'AUTH': (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET),
+            'AUTH': (
+                (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
+                if ELASTICSEARCH8_SECRET is not None
+                else None
+            ),
             'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
         },
     }

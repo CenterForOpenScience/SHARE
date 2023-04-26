@@ -1,6 +1,5 @@
 import abc
 import collections
-import dataclasses
 import logging
 import typing
 
@@ -30,10 +29,10 @@ class Elastic8IndexStrategy(IndexStrategy):
             self.cluster_url,
             # security:
             ca_certs=self.cluster_settings.get('CERT_PATH'),
-            http_auth=self.cluster_settings.get('AUTH'),
+            basic_auth=self.cluster_settings.get('AUTH'),
             # retry:
             retry_on_timeout=True,
-            timeout=timeout,
+            request_timeout=timeout,
             # sniffing:
             sniff_on_start=should_sniff,
             sniff_before_requests=should_sniff,
@@ -178,8 +177,8 @@ class Elastic8IndexStrategy(IndexStrategy):
         if already_aliased == want_aliased:
             logger.info(f'alias "{alias_name}" already correct ({want_aliased}), doing nothing')
         else:
-            to_remove = already_aliased - want_aliased
-            to_add = want_aliased - already_aliased
+            to_remove = tuple(already_aliased - want_aliased)
+            to_add = tuple(want_aliased - already_aliased)
             logger.warning(f'alias "{alias_name}": removing indexes {to_remove} and adding indexes {to_add}')
             self.es8_client.indices.update_aliases(body={
                 'actions': [
@@ -298,9 +297,3 @@ class Elastic8IndexStrategy(IndexStrategy):
                 indexname=self.indexname,
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
-
-    @dataclasses.dataclass
-    class Elastic8Message:
-        doc_id: str
-        op_type: str  # 'index' or 'delete'
-        source_doc: typing.Optional[str]

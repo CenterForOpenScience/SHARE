@@ -14,14 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
+        python-version: ['3.11']  # TODO: 3.12
+        postgres-version: ['10', '11', '12', '13', '14', '15']
     runs-on: ubuntu-latest
-
-
+    container: python:${{ matrix.python-version }}-slim
     services:
-
       postgres:
-        image: postgres:10
+        image: postgres:${{ matrix.postgres-version }}
         env:
           POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
@@ -30,32 +29,25 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
-
-      elasticsearch:
+      elasticsearch8:
+        image: elasticsearch:8.7.0
+        env:
+          xpack.security.enabled: false
+          node.name: singlenode
+          cluster.initial_master_nodes: singlenode
+      elasticsearch5:
         image: elasticsearch:5.4
         env:
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-        ports:
-          - 9200:9200
-
+      rabbitmq:
+        image: rabbitmq:management
     steps:
       - uses: actions/checkout@v3
 
       - name: install non-py dependencies
-        run: sudo apt-get install libxml2-dev libxslt1-dev libpq-dev
+        run: apt-get update && apt-get install -y libxml2-dev libxslt1-dev libpq-dev git gcc
 
-      - name: set up python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            dev-requirements.txt
-
-      - name: install py dependencies
+      - name: install py dependencies  # TODO: cache
         run: pip install -r dev-requirements.txt
 
       - name: install share
@@ -69,7 +61,10 @@ jobs:
           coverage run -m pytest -x --create-db
           coverage run --append -m behave
         env:
+          DATABASE_HOST: postgres
           DATABASE_PASSWORD: postgres
+          ELASTICSEARCH8_URL: http://elasticsearch8:9200/
+          RABBITMQ_HOST: rabbitmq
 
       - name: send coverage report
         run: coveralls --service=github

@@ -32,7 +32,7 @@ class TestRawDatum:
         with pytest.raises(IntegrityError) as e:
             rd.save()
 
-        assert 'null value in column "suid_id" violates not-null constraint' in e.value.args[0]
+        assert 'null value in column "suid_id"' in e.value.args[0]
 
     def test_store_data(self, source_config):
         rd = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
