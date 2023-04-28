@@ -25,7 +25,7 @@ def search_indexes_view(request):
         specific_indexname = request.POST['specific_indexname']
         pls_doer = PLS_DOERS[request.POST['pls_do']]
         pls_doer(specific_indexname)
-        return HttpResponseRedirect('')
+        return HttpResponseRedirect(request.path)
 
 
 def _index_status_by_strategy():
