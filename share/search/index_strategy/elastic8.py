@@ -132,7 +132,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     def pls_mark_backfill_complete(self):
         super().pls_mark_backfill_complete()
         # explicit refresh after bulk operation
-        self.es8_client.indices.refresh(index=self.current_indexname)
+        self.for_current_index().pls_refresh()
 
     @property
     def _alias_for_searching(self):
@@ -240,49 +240,54 @@ class Elastic8IndexStrategy(IndexStrategy):
             indexname = self.indexname
             logger.info(f'{self.__class__.__name__}: checking for index {indexname}')
             return (
-                self.index_strategy.es8_client
-                .indices
+                self.index_strategy.es8_client.indices
                 .exists(index=indexname)
             )
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_create(self):
             assert self.is_current, (
-                'cannot create a non-current version of an index! '
-                'to proceed, use an index strategy without `specific_indexname`'
+                'cannot create a non-current version of an index!'
+                ' maybe try `index_strategy.for_current_index()`?'
             )
             index_to_create = self.indexname
             logger.debug('Ensuring index %s', index_to_create)
             index_exists = (
-                self.index_strategy.es8_client
-                .indices
+                self.index_strategy.es8_client.indices
                 .exists(index=index_to_create)
             )
             if not index_exists:
                 logger.warning('Creating index %s', index_to_create)
                 (
-                    self.index_strategy.es8_client
-                    .indices
+                    self.index_strategy.es8_client.indices
                     .create(
                         index=index_to_create,
                         settings=self.index_strategy.index_settings(),
                         mappings=self.index_strategy.index_mappings(),
                     )
                 )
-            self.index_strategy.es8_client.indices.refresh(index=index_to_create)
-            logger.debug('Waiting for yellow status')
-            self.index_strategy.es8_client.cluster.health(wait_for_status='yellow')
-            logger.info('Finished setting up Elasticsearch index %s', index_to_create)
+                self.pls_refresh()
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def pls_refresh(self):
+            (
+                self.index_strategy.es8_client.indices
+                .refresh(index=self.indexname)
+            )
+            logger.debug('%r: Waiting for yellow status', self)
+            (
+                self.index_strategy.es8_client.cluster
+                .health(wait_for_status='yellow')
+            )
+            logger.info('%r: Refreshed', self)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_delete(self):
-            index_to_delete = self.indexname
-            logger.warning(f'{self.__class__.__name__}: deleting index {index_to_delete}')
             (
-                self.index_strategy.es8_client
-                .indices
-                .delete(index=index_to_delete, ignore=[400, 404])
+                self.index_strategy.es8_client.indices
+                .delete(index=self.indexname, ignore=[400, 404])
             )
+            logger.warning('%r: deleted', self)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_start_keeping_live(self):
@@ -290,6 +295,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                 indexname=self.indexname,
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
+            logger.info('%r: now kept live', self)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_stop_keeping_live(self):
@@ -297,3 +303,4 @@ class Elastic8IndexStrategy(IndexStrategy):
                 indexname=self.indexname,
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
+            logger.warning('%r: no longer kept live', self)

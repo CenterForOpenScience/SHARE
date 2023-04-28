@@ -73,7 +73,8 @@ class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
 
     @classmethod
-    def start_daemonthreads(cls, celery_app, stop_event, *, daemonthread_context=None):
+    def start_daemonthreads(cls, celery_app, *, daemonthread_context=None) -> threading.Event:
+        stop_event = threading.Event()
         for index_strategy in IndexStrategy.all_strategies():
             indexer_daemon = cls(
                 index_strategy=index_strategy,
@@ -83,6 +84,7 @@ class IndexerDaemon:
             indexer_daemon.start_loops_and_queues()
             consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
             threading.Thread(target=consumer.run).start()
+        return stop_event
 
     def __init__(self, index_strategy, stop_event, *, daemonthread_context=None):
         self.stop_event = stop_event

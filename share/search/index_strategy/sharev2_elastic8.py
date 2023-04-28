@@ -151,9 +151,9 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body, request_queryparams=None) -> dict:
+        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             es8_request_body = {
-                **request_body,
+                **(request_body or {}),
                 'track_total_hits': True,
             }
             try:
@@ -161,7 +161,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     index=self.indexname,
                     # NOTE: the `body` param is deprecated; remove this backcompat method by ES9
                     body=es8_request_body,
-                    params=request_queryparams,
+                    params=request_queryparams or {},
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging

@@ -64,6 +64,7 @@ jobs:
           DATABASE_HOST: postgres
           DATABASE_PASSWORD: postgres
           ELASTICSEARCH8_URL: http://elasticsearch8:9200/
+          ELASTICSEARCH5_URL: http://elasticsearch5:9200/
           RABBITMQ_HOST: rabbitmq
 
       - name: send coverage report

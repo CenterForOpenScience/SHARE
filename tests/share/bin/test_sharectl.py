@@ -70,12 +70,7 @@ class TestSharectlSearch:
         assert mock_current_index.pls_start_keeping_live.mock_calls == [mock.call()]
 
     def test_daemon(self, settings):
-
-        def side_effect__start_daemonthreads(_, stop_event):
-            stop_event.set()
-
         with mock.patch('share.bin.search.IndexerDaemon') as mock_daemon:
-            mock_daemon.start_daemonthreads.side_effect = side_effect__start_daemonthreads
             run_sharectl('search', 'daemon')
             mock_daemon.start_daemonthreads.assert_called_once()
 

@@ -1,5 +1,3 @@
-import threading
-
 from project.celery import app as celery_app
 
 from share.bin.util import command
@@ -70,8 +68,7 @@ def daemon(args, argv):
     """
     Usage: {0} search daemon
     """
-    stop_event = threading.Event()
-    IndexerDaemon.start_daemonthreads(celery_app, stop_event)
+    stop_event = IndexerDaemon.start_daemonthreads(celery_app)
     try:
         stop_event.wait()
     except KeyboardInterrupt:
