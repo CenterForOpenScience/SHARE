@@ -17,7 +17,7 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 logger = logging.getLogger(__name__)
 
 
-UNPRESSURED_TIMEOUT = 1         # seconds
+UNPRESSURED_TIMEOUT = 3         # seconds
 QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
@@ -161,6 +161,7 @@ class MessageHandlingLoop:
         self.stop_event = stop_event
         self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         self._leftover_daemon_messages_by_target_id = None
+        self._reset_backoff_timeout()
         logger.info('%sStarted', self.log_prefix)
 
     def iterate_once(self):
@@ -168,6 +169,8 @@ class MessageHandlingLoop:
             self._iterate_once()
         except TooFastSlowDown:
             self._back_off()
+        else:
+            self._reset_backoff_timeout()
 
     def _get_daemon_messages(self):
         daemon_messages_by_target_id = self._leftover_daemon_messages_by_target_id
@@ -223,14 +226,16 @@ class MessageHandlingLoop:
             logger.error('%sEncountered %d errors!', self.log_prefix, error_count)
 
     def _back_off(self):
-        last_backoff_timeout = getattr(self, '__last_backoff_timeout', UNPRESSURED_TIMEOUT)
         backoff_timeout = min(
             MAXIMUM_BACKOFF_TIMEOUT,
-            last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
+            self._last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
         )
-        self.__last_backoff_timeout = backoff_timeout
+        self._last_backoff_timeout = backoff_timeout
         logger.warning(f'{self.log_prefix}Backing off (pause for {backoff_timeout:.2} seconds)')
         self.stop_event.wait(timeout=backoff_timeout)
+
+    def _reset_backoff_timeout(self):
+        self._last_backoff_timeout = UNPRESSURED_TIMEOUT
 
     def __repr__(self):
         return f'{self.__class__.__name__}("{self.index_strategy.name}", {repr(self.message_type)})'
