@@ -2,6 +2,7 @@ import logging
 
 from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
 from share.admin.util import admin_url
 from share.models.index_backfill import IndexBackfill
@@ -18,6 +19,7 @@ def search_indexes_view(request):
             request,
             'admin/search-indexes.html',
             context={
+                'search_url_prefix': _search_url_prefix(),
                 'index_status_by_strategy': _index_status_by_strategy(),
             },
         )
@@ -26,6 +28,11 @@ def search_indexes_view(request):
         pls_doer = PLS_DOERS[request.POST['pls_do']]
         pls_doer(specific_indexname)
         return HttpResponseRedirect(request.path)
+
+
+def _search_url_prefix():
+    api_url = reverse('api:search')
+    return f'{api_url}?indexStrategy='  # append strategyname or indexname
 
 
 def _index_status_by_strategy():

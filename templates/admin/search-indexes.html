@@ -29,7 +29,7 @@ section, table {
           <td>{{ indexes.current.status.creation_date|default:"--" }}</td>
           <td>{% if indexes.current.status.is_kept_live %}✓{% endif %}</td>
           <td>{% if indexes.current.status.is_default_for_searching %}✓{% endif %}</td>
-          <td>{{ indexes.current.status.doc_count }}</td>
+          <td><a href="{{search_url_prefix}}{{indexes.current.status.specific_indexname}}" target="_blank">{{ indexes.current.status.doc_count }}</a></td>
           <td>
             {% if not indexes.current.status.creation_date %}
             <form method="post">
@@ -101,7 +101,7 @@ section, table {
             <td>{{ index_status.creation_date }}</td>
             <td>{% if index_status.is_kept_live %}✓{% endif %}</td>
             <td>{% if index_status.is_default_for_searching %}✓{% endif %}</td>
-            <td>{{ index_status.doc_count }}</td>
+            <td><a href="{{search_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{{ index_status.doc_count }}</a></td>
             <td>
               {% if index_status.is_kept_live %}
               <form method="post">
