@@ -1,4 +1,5 @@
 import logging
+import re
 
 import requests
 
@@ -96,7 +97,7 @@ class CreateSourceSerializer(UpdateSourceSerializer):
 
         icon_file = self._fetch_icon_file(icon_url)
 
-        username = long_title.replace(' ', '_').lower()
+        username = re.sub(r'[^\w.@+-]', '_', long_title).lower()
         name = validated_data.pop('name', username)
 
         with transaction.atomic():

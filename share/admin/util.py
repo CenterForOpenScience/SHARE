@@ -31,14 +31,18 @@ def append_to_cls_property(cls, property_name, value):
     setattr(cls, property_name, tuple([*old_values, value]))
 
 
-def admin_link(linked_obj):
-    url = reverse(
+def admin_url(linked_obj):
+    return reverse(
         'admin:{}_{}_change'.format(
             linked_obj._meta.app_label,
             linked_obj._meta.model_name,
         ),
         args=[linked_obj.id]
     )
+
+
+def admin_link_html(linked_obj):
+    url = admin_url(linked_obj)
     return format_html('<a href="{}">{}</a>', url, repr(linked_obj))
 
 
@@ -48,7 +52,7 @@ def linked_fk(field_name):
     def add_link(cls):
         def link(self, instance):
             linked_obj = getattr(instance, field_name)
-            return admin_link(linked_obj)
+            return admin_link_html(linked_obj)
         link_field = '{}_link'.format(field_name)
         link.short_description = field_name.replace('_', ' ')
         setattr(cls, link_field, link)
@@ -71,7 +75,7 @@ def linked_many(field_name, order_by=None, select_related=None):
             return format_html(
                 '<ol>{}</ol>',
                 format_html(''.join(
-                    '<li>{}</li>'.format(admin_link(obj))
+                    '<li>{}</li>'.format(admin_link_html(obj))
                     for obj in linked_qs
                 ))
             )

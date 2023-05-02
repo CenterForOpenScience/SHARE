@@ -7,7 +7,9 @@ version: '3.4'
 volumes:
   postgres_data_vol:
     external: false
-  elasticsearch_data_vol:
+  elastic8_data_vol:
+    external: false
+  elastic8_cert_vol:
     external: false
   rabbitmq_vol:
     external: false
@@ -25,14 +27,83 @@ services:
   # Backend Services #
   ####################
 
-  elasticsearch:
-    image: elasticsearch:5.4
-    ports:
-      - 9203:9200
-    environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+  elastic8_setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
     volumes:
-      - elasticsearch_data_vol:/usr/share/elasticsearch/data
+      - elastic8_cert_vol:/usr/share/elasticsearch/config/certs
+    user: "0"
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-secretsecret}
+      KIBANA_PASSWORD: ${KIBANA_PASSWORD:-kibanakibana}
+    command: >
+      bash -c '
+        if [ x$${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable";
+          exit 1;
+        elif [ x$${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f config/certs/certs.zip ]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: singlenode\n"\
+          "    dns:\n"\
+          "      - elastic8\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi
+        echo "Setting file permissions"
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s --cacert config/certs/ca/ca.crt https://elastic8:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "Setting kibana_system password";
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:$${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elastic8:9200/_security/user/kibana_system/_password -d "{\"password\":\"$${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/singlenode/singlenode.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+
+  elastic8:
+    depends_on:
+      elastic8_setup:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    ports:
+      - 9208:9200
+    volumes:
+      - elastic8_data_vol:/usr/share/elasticsearch/data
+      - elastic8_cert_vol:/usr/share/elasticsearch/config/certs/
+    environment:
+      - ELASTIC_PASSWORD=secretsecret
+      - node.name=singlenode
+      - cluster.initial_master_nodes=singlenode
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/singlenode/singlenode.key
+      - xpack.security.http.ssl.certificate=certs/singlenode/singlenode.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/singlenode/singlenode.key
+      - xpack.security.transport.ssl.certificate=certs/singlenode/singlenode.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
     stdin_open: true
 
   rabbitmq:
@@ -76,15 +147,15 @@ services:
       - apt-get update &&
         apt-get install -y gcc &&
         pip install -r requirements.txt -r dev-requirements.txt &&
-        (python3 -m compileall /usr/local/lib/python3.9 || true) &&
-        rm -Rf /python3.9/* &&
+        (python3 -m compileall /usr/local/lib/python3.11 || true) &&
+        rm -Rf /python3.11/* &&
         apt-get remove -y gcc &&
-        cp -Rf -p /usr/local/lib/python3.9 / &&
+        cp -Rf -p /usr/local/lib/python3.11 / &&
         python3 setup.py develop
     restart: 'no'
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/python3.9
+      - share_requirements_vol:/python3.11
 
   frontend:
     image: quay.io/centerforopenscience/share-web:develop-local
@@ -102,13 +173,17 @@ services:
       - postgres
       - rabbitmq
       - web
-      - elasticsearch
+      - elastic8
       - indexer
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.9
+      - share_requirements_vol:/usr/local/lib/python3.11
+      - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
   web:
@@ -119,13 +194,17 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-      - elasticsearch
+      - elastic8
       - frontend
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.9
+      - share_requirements_vol:/usr/local/lib/python3.11
+      - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 
   indexer:
@@ -134,11 +213,15 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-      - elasticsearch
+      - elastic8
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.9
+      - share_requirements_vol:/usr/local/lib/python3.11
+      - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
 

@@ -13,4 +13,11 @@
 <h1 id="site-name" class="admin_header"><img class="logo" id="login_logo" src="{% static 'img/share.png' %}"/><a href="{% url 'admin:index' %}"></a></h1>
 {% endblock %}
 
-{% block nav-global %}{% endblock %}
+{% block nav-global %}
+<nav>
+    <ul>
+        <li><a href="{% url 'admin:index' %}">postgres tables</a></li>
+        <li><a href="{% url 'admin:search-indexes' %}">elasticsearch indexes</a></li>
+    </ul>
+</nav>
+{% endblock %}

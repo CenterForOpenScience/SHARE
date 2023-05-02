@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
@@ -17,13 +17,16 @@ from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
 from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
+from share.admin.search import search_indexes_view
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
 from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
+from share.models.feature_flag import FeatureFlag
 from share.models.fields import DateTimeAwareJSONField
+from share.models.index_backfill import IndexBackfill
 from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
@@ -31,7 +34,23 @@ from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat
 
 
-admin.site.register(CeleryTaskResult, CeleryTaskResultAdmin)
+class ShareAdminSite(admin.AdminSite):
+    def get_urls(self):
+        return [
+            path(
+                'search-indexes',
+                self.admin_view(search_indexes_view),
+                name='search-indexes',
+            ),
+            *super().get_urls(),
+        ]
+
+
+admin_site = ShareAdminSite()
+
+
+class ShareUserAdmin(admin.ModelAdmin):
+    search_fields = ['username']
 
 
 @linked_fk('raw')
@@ -249,21 +268,44 @@ class FormattedMetadataRecordAdmin(admin.ModelAdmin):
     show_full_result_count = False
 
 
-admin.site.unregister(AccessToken)
-admin.site.register(AccessToken, AccessTokenAdmin)
+class IndexBackfillAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'index_strategy_name',
+        'specific_indexname',
+        'error_type',
+        'error_message',
+        'error_context',
+    )
+    paginator = TimeLimitedPaginator
+    list_display = ('index_strategy_name', 'backfill_status', 'created', 'modified', 'specific_indexname')
+    show_full_result_count = False
+    search_fields = ('index_strategy_name', 'specific_indexname',)
+    actions = ('reset_to_initial',)
 
-admin.site.register(HarvestJob, HarvestJobAdmin)
-admin.site.register(IngestJob, IngestJobAdmin)
-admin.site.register(NormalizedData, NormalizedDataAdmin)
-admin.site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
-admin.site.register(ProviderRegistration, ProviderRegistrationAdmin)
-admin.site.register(RawDatum, RawDatumAdmin)
-admin.site.register(SiteBanner, SiteBannerAdmin)
+    def reset_to_initial(self, request, queryset):
+        queryset.update(backfill_status=IndexBackfill.INITIAL)
 
-admin.site.register(Harvester)
-admin.site.register(ShareUser)
-admin.site.register(Source, SourceAdmin)
-admin.site.register(SourceConfig, SourceConfigAdmin)
-admin.site.register(SourceStat, SourceStatAdmin)
-admin.site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
-admin.site.register(Transformer)
+
+class FeatureFlagAdmin(admin.ModelAdmin):
+    readonly_fields = ('name',)
+    search_fields = ('name',)
+
+
+admin_site.register(AccessToken, AccessTokenAdmin)
+admin_site.register(CeleryTaskResult, CeleryTaskResultAdmin)
+admin_site.register(FeatureFlag, FeatureFlagAdmin)
+admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
+admin_site.register(HarvestJob, HarvestJobAdmin)
+admin_site.register(Harvester)
+admin_site.register(IndexBackfill, IndexBackfillAdmin)
+admin_site.register(IngestJob, IngestJobAdmin)
+admin_site.register(NormalizedData, NormalizedDataAdmin)
+admin_site.register(ProviderRegistration, ProviderRegistrationAdmin)
+admin_site.register(RawDatum, RawDatumAdmin)
+admin_site.register(ShareUser, ShareUserAdmin)
+admin_site.register(SiteBanner, SiteBannerAdmin)
+admin_site.register(Source, SourceAdmin)
+admin_site.register(SourceConfig, SourceConfigAdmin)
+admin_site.register(SourceStat, SourceStatAdmin)
+admin_site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
+admin_site.register(Transformer)

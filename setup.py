@@ -109,9 +109,5 @@ setup(
             'sharev2_elastic = share.metadata_formats.sharev2_elastic:ShareV2ElasticFormatter',
             'oai_dc = share.metadata_formats.oai_dc:OaiDcFormatter',
         ],
-        'share.search.index_setup': [
-            'postrend_backcompat = share.search.index_setup:PostRendBackcompatIndexSetup',
-            'trove_v0 = share.search.index_setup:TroveV0IndexSetup',
-        ],
     }
 )

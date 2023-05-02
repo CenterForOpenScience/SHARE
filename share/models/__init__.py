@@ -7,3 +7,7 @@ from share.models.ingest import *  # noqa
 from share.models.jobs import *  # noqa
 from share.models.sources import *  # noqa
 from share.models.celery import *  # noqa
+from share.models.index_backfill import IndexBackfill  # noqa
+from share.models.feature_flag import FeatureFlag  # noqa
+
+# TODO: replace all the `import *  # noqa` above with explicit imports and a full __all__

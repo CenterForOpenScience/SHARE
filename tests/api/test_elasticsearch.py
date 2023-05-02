@@ -1,158 +1,81 @@
-from furl import furl
 from unittest import mock
-import pytest
+
+from django.test.client import Client
 
 
 class TestElasticSearchProxy:
-
-    def test_cannot_put(self, client):
-        assert client.put('/api/v2/search/').status_code == 405
-        assert client.put('/api/v2/search/thing').status_code == 405
-        assert client.put('/api/v2/search/_count').status_code == 405
-        assert client.put('/api/v2/search/_search').status_code == 405
-        assert client.put('/api/v2/search/type/index').status_code == 405
-        assert client.put('/api/v2/search/type/index/_thing').status_code == 405
-
-    def test_cannot_delete(self, client):
-        assert client.delete('/api/v2/search/').status_code == 405
-        assert client.delete('/api/v2/search/thing').status_code == 405
-        assert client.delete('/api/v2/search/_count').status_code == 405
-        assert client.delete('/api/v2/search/_search').status_code == 405
-        assert client.delete('/api/v2/search/type/index').status_code == 405
-        assert client.delete('/api/v2/search/type/index/_thing').status_code == 405
-
-    def test_cannot_access_bulk(self, client):
-        assert client.delete('/api/v2/search/_bulk').status_code == 405
-        assert client.delete('/api/v2/search/_bulk?test').status_code == 405
-        assert client.delete('/api/v2/search/type/_bulk?foo').status_code == 405
-        assert client.delete('/api/v2/search/type/index/_bulk').status_code == 405
-
-    def test_scroll_forbidden(self, client):
-        assert client.post('/api/v2/search/_search/scroll').status_code == 403
-        assert client.post('/api/v2/search/_search/?scroll=1m').status_code == 403
-        assert client.get('/api/v2/search/_search/scroll').status_code == 403
-        assert client.get('/api/v2/search/_search/?scroll=1m').status_code == 403
-
-    @pytest.mark.parametrize('url', [
-        '/api/v2/search/type',
-        '/api/v2/search/type/',
-        '/api/v2/search/type/id',
-        '/api/v2/search/type/id/',
-        '/api/v2/search/type/id/some/thing/else',
-        '/api/v2/search/type/id/some/thing/else/',
-        '/api/v2/search/type/id/_search',
-        '/api/v2/search/type/id/_search/',
-        '/api/v2/search/type/id/some/thing/else/_search',
-        '/api/v2/search/type/id/some/thing/else/_search/',
-        '/api/v2/search/type/id/some/thing/else/_count',
-        '/api/v2/search/type/id/some/thing/else/_count/',
-        '/api/v2/search/_coun',
-        '/api/v2/search/__count',
-        '/api/v2/search/_counttttttttttt',
-        '/api/v2/search/_sear',
-        '/api/v2/search/__search',
-        '/api/v2/search/_searchh',
-        '/api/v2/search/_sugges',
-        '/api/v2/search/__suggest',
-        '/api/v2/search/_ssuggest',
-    ])
-    def test_limitted_post(self, url, client):
-        with mock.patch('api.search.views.requests.post') as post:
-            post.return_value = mock.Mock(status_code=500, json=lambda: {})
-            assert client.post(url, '{}', content_type='application/json').status_code in (403, 405)
-
-    @pytest.mark.parametrize('url', [
-        '/api/v2/search/type',
-        '/api/v2/search/type/',
-        '/api/v2/search/type/id/some/thing/else',
-        '/api/v2/search/type/id/some/thing/else/',
-        '/api/v2/search/type/id/_search',
-        '/api/v2/search/type/id/_search/',
-        '/api/v2/search/type/id/some/thing/else/_search',
-        '/api/v2/search/type/id/some/thing/else/_search/',
-        '/api/v2/search/type/id/some/thing/else/_count',
-        '/api/v2/search/type/id/some/thing/else/_count/',
-        '/api/v2/search/_coun',
-        '/api/v2/search/__count',
-        '/api/v2/search/_counttttttttttt',
-        '/api/v2/search/_sear',
-        '/api/v2/search/__search',
-        '/api/v2/search/_searchh',
-        '/api/v2/search/_mapping',
-        '/api/v2/search/__mappings',
-        '/api/v2/search/_mappingss',
-    ])
-    def test_limitted_get(self, url, client):
-        with mock.patch('api.search.views.requests.get') as get:
-            get.return_value = mock.Mock(status_code=500, json=lambda: {})
-            assert client.post(url).status_code == 403
-
-    def test_post_search(self, client):
-        urls = (
-            '/api/v2/search/_search',
-            '/api/v2/search/_search/',
-            '/api/v2/search/_suggest',
-            '/api/v2/search/_suggest/',
-            '/api/v2/search/type/_count',
-            '/api/v2/search/type/_count/',
-            '/api/v2/search/type/_search',
-            '/api/v2/search/type/_search/',
-            '/api/v2/search/type/_suggest',
-            '/api/v2/search/type/_suggest/',
-        )
-        with mock.patch('api.search.views.requests.post') as post:
-            post.return_value = mock.Mock(status_code=200, json=lambda: {})
-            for url in urls:
-                assert client.post(url, '{}', content_type='application/json').status_code == 200
-
-    def test_cannot_post(self, client):
-        urls = (
+    def test_invalid_paths(self):
+        client = Client()
+        invalid_paths = (
+            '/api/v2/search/type',
+            '/api/v2/search/type/',
+            '/api/v2/search/type/id',
+            '/api/v2/search/type/id/',
+            '/api/v2/search/type/id/some/thing/else',
+            '/api/v2/search/type/id/some/thing/else/',
+            '/api/v2/search/type/id/_search',
+            '/api/v2/search/type/id/_search/',
+            '/api/v2/search/type/id/some/thing/else/_search',
+            '/api/v2/search/type/id/some/thing/else/_search/',
+            '/api/v2/search/type/id/some/thing/else/_count',
+            '/api/v2/search/type/id/some/thing/else/_count/',
+            '/api/v2/search/_coun',
+            '/api/v2/search/__count',
+            '/api/v2/search/_counttttttttttt',
+            '/api/v2/search/_sear',
+            '/api/v2/search/__search',
+            '/api/v2/search/_searchh',
+            '/api/v2/search/_sugges',
+            '/api/v2/search/__suggest',
+            '/api/v2/search/_ssuggest',
             '/api/v2/search/_mappings/',
             '/api/v2/search/_mappings',
             '/api/v2/search/_mappings/creativeworks',
             '/api/v2/search/_mappings/creativeworks/',
+            '/api/v2/search/creativeworks/_search/scroll',
+            '/api/v2/search/_search/?scroll=1m',
         )
-        with mock.patch('api.search.views.requests.post') as post:
-            post.return_value = mock.Mock(status_code=500, json=lambda: {})
-            for url in urls:
-                assert client.post(url, '{}', content_type='application/json').status_code == 405
+        for invalid_path in invalid_paths:
+            assert client.get(invalid_path).status_code == 404
+            assert client.put(invalid_path).status_code == 404
+            assert client.post(invalid_path).status_code == 404
+            assert client.delete(invalid_path).status_code == 404
 
-    @pytest.mark.parametrize('url', [
-        '/api/v2/search/_search',
-        '/api/v2/search/_search/',
-        '/api/v2/search/type/_count',
-        '/api/v2/search/type/_count/',
-        '/api/v2/search/type/_search',
-        '/api/v2/search/type/_search/',
-        '/api/v2/search/_mappings/',
-        '/api/v2/search/_mappings',
-        '/api/v2/search/_mappings/creativeworks',
-        '/api/v2/search/_mappings/creativeworks/',
-        '/api/v2/search/creativeworks/some-id',
-        '/api/v2/search/creativeworks/some-id/',
-        '/api/v2/search/agent/some-id/',
-        '/api/v2/search/agent/some_id/',
-    ])
-    def test_get_search(self, url, client):
-        with mock.patch('api.search.views.requests.get') as get:
-            get.return_value = mock.Mock(status_code=200, json=lambda: {})
-            assert client.get(url).status_code == 200
+    def test_scroll_forbidden(self):
+        client = Client()
+        assert client.post('/api/v2/search/creativeworks/_search?scroll=1m').status_code == 403
+        assert client.post('/api/v2/search/creativeworks/_search/?q=foo&scroll=1m').status_code == 403
 
-    def test_cannot_get(self, client):
+    def test_search(self):
+        client = Client()
         urls = (
-            '/api/v2/search/_suggest',
-            '/api/v2/search/_suggest/',
-            '/api/v2/search/type/_suggest',
-            '/api/v2/search/type/_suggest/',
+            '/api/v2/search/creativeworks/_search?q=foo',
+            '/api/v2/search/creativeworks/_search/?q=foo',
         )
-        with mock.patch('api.search.views.requests.get') as get:
-            get.return_value = mock.Mock(status_code=500, json=lambda: {})
+        with mock.patch('api.search.views.IndexStrategy') as mock_IndexStrategy:
+            mock_handle_query = (
+                mock_IndexStrategy
+                .get_for_searching
+                .return_value
+                .pls_handle_query__sharev2_backcompat
+            )
+            mock_handle_query.return_value = {'clop': 'clip'}
             for url in urls:
-                assert client.get(url).status_code == 405
-
-    def test_elastic_proxy(self, client, settings):
-        with mock.patch('api.search.views.requests.get') as get:
-            get.return_value = mock.Mock(status_code=200, json=lambda: {})
-            client.get('/api/v2/search/_search')
-            elastic_url = furl('{}{}/{}'.format(settings.ELASTICSEARCH['URL'], settings.ELASTICSEARCH['PRIMARY_INDEX'], '_search'))
-            get.assert_called_with(elastic_url)
+                # POST:
+                mock_handle_query.reset_mock()
+                post_resp = client.post(url, '{"blib":"blob"}', content_type='application/json')
+                assert post_resp.status_code == 200
+                assert post_resp.json() == {'clop': 'clip'}
+                mock_handle_query.assert_called_once_with(
+                    request_body={'blib': 'blob'},
+                    request_queryparams={'q': 'foo'},
+                )
+                # GET:
+                mock_handle_query.reset_mock()
+                get_resp = client.get(url)
+                assert get_resp.status_code == 200
+                assert get_resp.json() == {'clop': 'clip'}
+                mock_handle_query.assert_called_once_with(
+                    request_body={},
+                    request_queryparams={'q': 'foo'},
+                )

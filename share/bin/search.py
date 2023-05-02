@@ -1,15 +1,9 @@
-import threading
-
 from project.celery import app as celery_app
 
-from django.conf import settings
-from django.db.models import Exists, OuterRef
-
 from share.bin.util import command
-from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
-from share.search import MessageType, SearchIndexer
-from share.search.daemon import SearchIndexerDaemon
-from share.search.elastic_manager import ElasticManager
+from share.search import IndexStrategy
+from share.search.exceptions import IndexStrategyError
+from share.search.daemon import IndexerDaemon
 
 
 @command('Manage Elasticsearch')
@@ -35,71 +29,38 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        ElasticManager().delete_index(index_name)
+        specific_index = IndexStrategy.get_specific_index(index_name)
+        specific_index.pls_delete()
 
 
 @search.subcommand('Create indicies and apply mappings')
 def setup(args, argv):
     """
-    Usage: {0} search setup <index_name>
+    Usage: {0} search setup <index_or_strategy_name>
            {0} search setup --initial
     """
     is_initial = args.get('--initial')
-
     if is_initial:
-        index_names = settings.ELASTICSEARCH['ACTIVE_INDEXES']
+        specific_indexes = [
+            index_strategy.for_current_index()
+            for index_strategy in IndexStrategy.all_strategies()
+        ]
     else:
-        index_names = [args['<index_name>']]
-
-    elastic_manager = ElasticManager()
-    for index_name in index_names:
-        print(f'creating elasticsearch index "{index_name}"...')
-        elastic_manager.create_index(index_name)
-
-    if is_initial:
-        primary_index = index_names[0]
-        elastic_manager.update_primary_alias(primary_index)
-
-
-@search.subcommand('Update mappings for an existing index')
-def update_mappings(args, argv):
-    """
-    Usage: {0} search update_mappings <index_name>
-    """
-    ElasticManager().update_mappings(args['<index_name>'])
-
-
-@search.subcommand('Set the "primary" index used to serve search results')
-def set_primary(args, argv):
-    """
-    Usage: {0} search set_primary <index_name>
-    """
-    ElasticManager().update_primary_alias(args['<index_name>'])
-
-
-@search.subcommand('Queue daemon messages to reindex all suids')
-def reindex_all_suids(args, argv):
-    """
-    Usage: {0} search reindex_all_suids <index_name>
-
-    Most likely useful for a freshly `setup` index (perhaps after a purge).
-    """
-    # TODO check for a specific format of FMR, not just that *any* FMR exists
-    suid_id_queryset = (
-        SourceUniqueIdentifier.objects
-        .annotate(
-            has_fmr=Exists(
-                FormattedMetadataRecord.objects.filter(suid_id=OuterRef('id'))
-            )
-        )
-        .filter(has_fmr=True)
-        .values_list('id', flat=True)
-    )
-    SearchIndexer().send_messages(
-        message_type=MessageType.INDEX_SUID,
-        target_ids=suid_id_queryset,
-        index_names=[args['<index_name>']],
-    )
+        index_or_strategy_name = args['<index_or_strategy_name>']
+        try:
+            specific_indexes = [
+                IndexStrategy.get_by_name(index_or_strategy_name).for_current_index(),
+            ]
+        except IndexStrategyError:
+            try:
+                specific_indexes = [
+                    IndexStrategy.get_specific_index(index_or_strategy_name),
+                ]
+            except IndexStrategyError:
+                raise IndexStrategyError(f'unrecognized index or strategy name "{index_or_strategy_name}"')
+    for specific_index in specific_indexes:
+        specific_index.pls_create()
+        specific_index.pls_start_keeping_live()
 
 
 @search.subcommand('Start the search indexing daemon')
@@ -107,11 +68,7 @@ def daemon(args, argv):
     """
     Usage: {0} search daemon
     """
-    elastic_manager = ElasticManager()
-    stop_event = threading.Event()
-    for index_name in settings.ELASTICSEARCH['ACTIVE_INDEXES']:
-        SearchIndexerDaemon.start_indexer_in_thread(celery_app, stop_event, elastic_manager, index_name)
-
+    stop_event = IndexerDaemon.start_daemonthreads(celery_app)
     try:
         stop_event.wait()
     except KeyboardInterrupt:

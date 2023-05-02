@@ -6,22 +6,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  checks: write
+  checks: write  # for coveralls
 
 jobs:
-
   run_tests:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.11']  # TODO: 3.12
+        postgres-version: ['10', '11', '12', '13', '14', '15']
     runs-on: ubuntu-latest
-
-
     services:
-
       postgres:
-        image: postgres:10
+        image: postgres:${{ matrix.postgres-version }}
         env:
           POSTGRES_PASSWORD: postgres
         # Set health checks to wait until postgres has started
@@ -32,21 +29,32 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-
-      elasticsearch:
+      elasticsearch8:
+        image: elasticsearch:8.7.0
+        env:
+          xpack.security.enabled: false
+          node.name: singlenode
+          cluster.initial_master_nodes: singlenode
+        ports:
+          - 9208:9200
+      elasticsearch5:
         image: elasticsearch:5.4
         env:
           ES_JAVA_OPTS: "-Xms512m -Xmx512m"
         ports:
-          - 9200:9200
-
+          - 9205:9200
+      rabbitmq:
+        image: rabbitmq:management
+        ports:
+          - 5672:5672
+          - 15672:15672
     steps:
       - uses: actions/checkout@v3
 
       - name: install non-py dependencies
-        run: sudo apt-get install libxml2-dev libxslt1-dev libpq-dev
+        run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt1-dev libpq-dev git gcc
 
-      - name: set up python ${{ matrix.python-version }}
+      - name: set up python${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -70,8 +78,8 @@ jobs:
           coverage run --append -m behave
         env:
           DATABASE_PASSWORD: postgres
+          ELASTICSEARCH8_URL: http://localhost:9208/
+          ELASTICSEARCH5_URL: http://localhost:9205/
 
-      - name: send coverage report
-        run: coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: coveralls
+        uses: coverallsapp/github-action@v2
