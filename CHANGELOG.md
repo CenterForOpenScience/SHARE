@@ -1,11 +1,12 @@
 # Change Log
 
 # [23.0.0] - 2023-05-03
-- add elasticsearch8 to local dev environment
+- upgrade to python 3.11
+- upgrade to elasticsearch 8
 - add `share.search.index_strategy` to act as a slippery abstraction layer between search-engine backend and planned friendly search api
-- configure two index strategies (and make it easy to add more in the future):
-  - `sharev2_elastic5`: the existing/legacy SHAREv2 search index as exists on elasticsearch5 and exposed via `/api/v2/search/creativeworks/_search`
-  - `sharev2_elastic8`: a mirror/replacement for `sharev2_elastic5` with all the same `_source` docs (but possible incompatibilities for the existing pass-thru api)
+  - configure two index strategies (and make it easy to add more in the future):
+    - `sharev2_elastic5`: the existing/legacy SHAREv2 search index as exists on elasticsearch5 and exposed via `/api/v2/search/creativeworks/_search`
+    - `sharev2_elastic8`: a mirror/replacement for `sharev2_elastic5` with all the same `_source` docs (but possible incompatibilities for the existing pass-thru api)
 - add a happy-path index-backfill workflow to the admin interface at `/admin/search-indexes`
   - when changing index-strategy settings/mappings/whatever, the "happy path" is to create, backfill, verify a new copy of the index; then switch which is used for searching, verify again, and finally delete the old index.
   - not intended to have the power of a full elasticsearch management interface -- just enough visibility to see whether things are going ok and where to start looking if something goes wrong
