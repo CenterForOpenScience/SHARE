@@ -172,6 +172,19 @@ class MessageHandlingLoop:
         else:
             self._reset_backoff_timeout()
 
+    def _raise_if_backfill_noncurrent(self):
+        if self.message_type.is_backfill:
+            index_backfill = self.index_strategy.get_or_create_backfill()
+            if index_backfill.specific_indexname != self.index_strategy.current_indexname:
+                raise exceptions.DaemonSetupError(
+                    'IndexerDaemon observes conflicting currence:'
+                    f'\n\tIndexBackfill (from database) says current is "{index_backfill.specific_indexname}"'
+                    f'\n\tIndexStrategy (from static code) says current is "{self.index_strategy.current_indexname}"'
+                    '\n\t(may be the daemon is running old code -- will die and retry,'
+                    ' but if this keeps happening you may need to reset backfill_status'
+                    ' to INITIAL and restart the backfill)'
+                )
+
     def _get_daemon_messages(self):
         daemon_messages_by_target_id = self._leftover_daemon_messages_by_target_id
         if daemon_messages_by_target_id is not None:
@@ -197,6 +210,7 @@ class MessageHandlingLoop:
         doc_count, error_count = 0, 0
         daemon_messages_by_target_id = self._get_daemon_messages()
         if daemon_messages_by_target_id:
+            self._raise_if_backfill_noncurrent()
             messages_chunk = messages.MessagesChunk(
                 message_type=self.message_type,
                 target_ids_chunk=tuple(daemon_messages_by_target_id.keys()),

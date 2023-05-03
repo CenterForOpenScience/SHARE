@@ -223,5 +223,6 @@ services:
     environment:
       ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
+    restart: unless-stopped
     stdin_open: true
 
