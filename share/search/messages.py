@@ -30,7 +30,9 @@ class MessageType(enum.Enum):
 
 
 class IntMessageType(enum.IntEnum):
-    # NO_TYPE = 0 (implicit)
+    '''for mapping MessageType to int and back again
+    '''
+    # NO_TYPE = 0
     INDEX_AGENT = 1
     INDEX_CREATIVEWORK = 2
     INDEX_TAG = 3
@@ -61,7 +63,7 @@ class IndexMessageResponse(typing.NamedTuple):
     is_done: bool
     index_message: IndexMessage
     status_code: int
-    error_label: typing.Optional[str]
+    error_label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass

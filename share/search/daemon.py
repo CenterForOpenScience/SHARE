@@ -17,7 +17,7 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 logger = logging.getLogger(__name__)
 
 
-UNPRESSURED_TIMEOUT = 3         # seconds
+UNPRESSURED_TIMEOUT = 1         # seconds
 QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
@@ -86,8 +86,12 @@ class IndexerDaemon:
             threading.Thread(target=consumer.run).start()
         return stop_event
 
-    def __init__(self, index_strategy, stop_event, *, daemonthread_context=None):
-        self.stop_event = stop_event
+    def __init__(self, index_strategy, *, stop_event=None, daemonthread_context=None):
+        self.stop_event = (
+            stop_event
+            if stop_event is not None
+            else threading.Event()
+        )
         self.__index_strategy = index_strategy  # TODO: error if index not ready
         self.__daemonthread_context = daemonthread_context or contextlib.nullcontext
         self.__thread_pool = None
@@ -119,8 +123,11 @@ class IndexerDaemon:
         daemon_message = messages.DaemonMessage.from_received_message(message)
         local_message_queue = self.__local_message_queues.get(daemon_message.message_type)
         if local_message_queue is None:
-            logger.warning('%r: unknown message type "%s"', self, daemon_message.message_type)
-            raise exceptions.DaemonMessageError(f'Received message with unexpected type "{daemon_message.message_type}" (message: {message})')
+            raise exceptions.DaemonMessageError(
+                f'Received message with unsupported type "{daemon_message.message_type}"'
+                f' (message: {message})'
+                f' (supported message types: {self.__index_strategy.supported_message_types})'
+            )
         # Keep blocking on put() until there's space in the queue or it's time to stop
         while not self.stop_event.is_set():
             try:
@@ -145,6 +152,7 @@ class IndexerDaemon:
             except Exception as e:
                 sentry_client.captureException()
                 logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
+                raise
             finally:
                 self.stop()
 
@@ -232,12 +240,10 @@ class MessageHandlingLoop:
                 logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
                 sentry_client.captureMessage('unhandled daemon messages??', data=daemon_messages_by_target_id)
         time_elapsed = time.time() - start_time
-        if doc_count:
-            logger.info('%sIndexed %d documents in %.02fs', self.log_prefix, doc_count, time_elapsed)
+        if doc_count or error_count:
+            logger.info('%sIndexed %d documents in %.02fs (with %d errors)', self.log_prefix, doc_count, time_elapsed, error_count)
         else:
             logger.debug('%sRecieved no messages for %.02fs', self.log_prefix, time_elapsed)
-        if error_count:
-            logger.error('%sEncountered %d errors!', self.log_prefix, error_count)
 
     def _back_off(self):
         backoff_timeout = min(
