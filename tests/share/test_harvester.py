@@ -10,16 +10,16 @@ from share.harvest.serialization import DeprecatedDefaultSerializer
 from tests import factories
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestHarvesterInterface:
 
-    @pytest.fixture(params=[(True, True), (True, False), (False, True), (False, False)])
-    def source_config(self, request):
+    @pytest.fixture(scope='class', params=[(True, True), (True, False), (False, True), (False, False)])
+    def source_config(self, request, class_scoped_django_db):
         config_disabled, source_deleted = request.param
         return factories.SourceConfigFactory(disabled=config_disabled, source__is_deleted=source_deleted)
 
-    @pytest.fixture
-    def harvester(self, source_config):
+    @pytest.fixture(scope='class')
+    def harvester(self, source_config, class_scoped_django_db):
         return source_config.get_harvester()
 
     def test_passes_kwargs(self, source_config):
@@ -52,8 +52,8 @@ class TestHarvesterInterface:
         with pytest.raises(NotImplementedError):
             harvester.fetch_by_id('myid')
 
-    def test_fetch_date(self, harvester):
-        harvester.fetch_date_range = mock.Mock()
+    def test_fetch_date(self, harvester, monkeypatch):
+        monkeypatch.setattr(harvester, 'fetch_date_range', mock.Mock(), raising=False)
 
         harvester.fetch_date(pendulum.parse('2016-01-05'), custom='kwarg')
 
@@ -110,21 +110,21 @@ class TestHarvesterInterface:
         list(harvester.fetch())
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestHarvesterBackwardsCompat:
 
-    @pytest.fixture(autouse=True)
-    def source_config(self):
+    @pytest.fixture(scope='class')
+    def source_config(self, class_scoped_django_db):
         return factories.SourceConfigFactory()
 
-    @pytest.fixture
-    def harvester(self, source_config):
+    @pytest.fixture(scope='class')
+    def harvester(self, source_config, class_scoped_django_db):
         harvester = source_config.get_harvester()
         harvester.serializer = DeprecatedDefaultSerializer()
         return harvester
 
-    def test_fetch_date_range_calls_do_harvest(self, harvester):
-        harvester.do_harvest = mock.Mock()
+    def test_fetch_date_range_calls_do_harvest(self, harvester, monkeypatch):
+        monkeypatch.setattr(harvester, 'do_harvest', mock.Mock(), raising=False)
 
         BaseHarvester._do_fetch(
             harvester,
@@ -142,7 +142,7 @@ class TestHarvesterBackwardsCompat:
         assert isinstance(harvester.serializer.serialize(b'data'), str)
         assert isinstance(harvester.serializer.serialize({'data': 'value'}), str)
 
-    def test_calls_shift_range(self, harvester):
-        harvester.shift_range = mock.Mock(return_value=(1, 2))
+    def test_calls_shift_range(self, harvester, monkeypatch):
+        monkeypatch.setattr(harvester, 'shift_range', mock.Mock(return_value=(1, 2)), raising=False)
         list(harvester.fetch())
         assert harvester.shift_range.called is True

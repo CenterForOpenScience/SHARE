@@ -1,4 +1,3 @@
-import datetime
 import functools
 import logging
 
@@ -115,11 +114,9 @@ class TaskResultCleaner:
     TaskModel = CeleryTaskResult
 
     TASK_TTLS = {
-        'bots.elasticsearch.tasks.index_sources': datetime.timedelta(minutes=10),
     }
 
     NO_ARCHIVE = {
-        'bots.elasticsearch.tasks.index_sources',
     }
 
     def __init__(self, expires, bucket=None, delete=True, chunk_size=5000):

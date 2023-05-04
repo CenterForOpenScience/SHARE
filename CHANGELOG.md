@@ -1,5 +1,19 @@
 # Change Log
 
+# [23.0.0] - 2023-05-03
+- upgrade to python 3.11
+- upgrade to elasticsearch 8
+- add `share.search.index_strategy` to act as a slippery abstraction layer between search-engine backend and planned friendly search api
+  - configure two index strategies (and make it easy to add more in the future):
+    - `sharev2_elastic5`: the existing/legacy SHAREv2 search index as exists on elasticsearch5 and exposed via `/api/v2/search/creativeworks/_search`
+    - `sharev2_elastic8`: a mirror/replacement for `sharev2_elastic5` with all the same `_source` docs (but possible incompatibilities for the existing pass-thru api)
+- add a happy-path index-backfill workflow to the admin interface at `/admin/search-indexes`
+  - when changing index-strategy settings/mappings/whatever, the "happy path" is to create, backfill, verify a new copy of the index; then switch which is used for searching, verify again, and finally delete the old index.
+  - not intended to have the power of a full elasticsearch management interface -- just enough visibility to see whether things are going ok and where to start looking if something goes wrong
+- for testing, support `indexStrategy` query param to `/api/v2/search/creativeworks/_search`, `/api/feeds/rss`, `/api/feeds/atom`
+  - may request a configured strategy (e.g. `indexStrategy=sharev2_elastic8`) or a specific version of an index within a strategy (e.g. `indexStrategy=sharev2_elastic8__bcaa90e8fa8a772580040a8edbedb5f727202d1fca20866948bc0eb0e935e51f`)
+- add `FeatureFlag` model, use it to switch default search strategy (`name="elastic_eight_default"`)
+
 # [22.0.1] - 2022-08-29
 - add `suid` value to `sharev2_elastic` index
 

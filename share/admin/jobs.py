@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, admin_link, SourceConfigFilter
+from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, admin_link_html, SourceConfigFilter
 from share.models.jobs import AbstractBaseJob, IngestJob
 from share.tasks import ingest
 
@@ -78,7 +78,7 @@ class IngestJobAdmin(BaseJobAdmin):
         return obj.suid.identifier
 
     def most_recent_suid_raw(self, obj):
-        return admin_link(obj.suid.most_recent_raw_datum())
+        return admin_link_html(obj.suid.most_recent_raw_datum())
 
     def reingest(self, request, queryset):
         self._enqueue_tasks(queryset)

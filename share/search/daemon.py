@@ -1,58 +1,64 @@
 from concurrent.futures import ThreadPoolExecutor
+import contextlib
+import collections
 import logging
 import queue as local_queue
+import random
 import threading
 import time
 
-from kombu import Queue as KombuQueue
+from django.conf import settings
 from kombu.mixins import ConsumerMixin
+from raven.contrib.django.raven_compat.models import client as sentry_client
 
-from raven.contrib.django.raven_compat.models import client
-
-from share.search.exceptions import DaemonSetupError, DaemonMessageError, DaemonIndexingError
-from share.search.messages import IndexableMessage
+from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 
 
 logger = logging.getLogger(__name__)
 
-LOOP_TIMEOUT = 5
+
+UNPRESSURED_TIMEOUT = 1         # seconds
+QUICK_TIMEOUT = 0.1             # seconds
+MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
+MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
+MAXIMUM_BACKOFF_TIMEOUT = 60    # seconds
+
+
+class TooFastSlowDown(Exception):
+    pass
 
 
 class CeleryMessageConsumer(ConsumerMixin):
     PREFETCH_COUNT = 7500
 
-    def __init__(self, celery_app, indexer_daemon, elastic_manager):
+    def __init__(self, celery_app, indexer_daemon, index_strategy):
         self.connection = celery_app.pool.acquire(block=True)
         self.celery_app = celery_app
         self.__indexer_daemon = indexer_daemon
-        self.__elastic_manager = elastic_manager
+        self.__index_strategy = index_strategy
 
     # overrides ConsumerMixin.run
     def run(self):
         logger.info('%r: Starting', self)
-
         threading.Thread(target=self.__wait_for_stop).start()
-
         logger.debug('%r: Delegating to Kombu.run', self)
         return super().run()
 
     def __wait_for_stop(self):
         while not (self.should_stop or self.__indexer_daemon.stop_event.is_set()):
-            self.__indexer_daemon.stop_event.wait(timeout=LOOP_TIMEOUT)
+            self.__indexer_daemon.stop_event.wait(timeout=UNPRESSURED_TIMEOUT)
         logger.warning('%r: Stopping', self)
         self.should_stop = True
         self.__indexer_daemon.stop_event.set()
 
     # for ConsumerMixin -- specifies rabbit queues to consume, registers on_message callback
     def get_consumers(self, Consumer, channel):
-        kombu_queue_settings = self.__elastic_manager.settings['KOMBU_QUEUE_SETTINGS']
-        index_settings = self.__elastic_manager.settings['INDEXES'][self.__indexer_daemon.index_name]
+        index_messenger = IndexMessenger(index_strategys=[self.__index_strategy])
+        queues = tuple(index_messenger.incoming_messagequeue_iter(channel))
+        logger.debug('%r: Consuming from queues %r', self, queues)
         return [
             Consumer(
-                [
-                    KombuQueue(index_settings['URGENT_QUEUE'], **kombu_queue_settings),
-                    KombuQueue(index_settings['DEFAULT_QUEUE'], **kombu_queue_settings),
-                ],
+                queues=queues,
                 callbacks=[self.__indexer_daemon.on_message],
                 accept=['json'],
                 prefetch_count=self.PREFETCH_COUNT,
@@ -60,48 +66,41 @@ class CeleryMessageConsumer(ConsumerMixin):
         ]
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__indexer_daemon.index_name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
 
 
-class SearchIndexerDaemon:
-
+class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
 
     @classmethod
-    def start_indexer_in_thread(cls, celery_app, stop_event, elastic_manager, index_name):
-        indexer_daemon = cls(
-            index_name=index_name,
-            elastic_manager=elastic_manager,
-            stop_event=stop_event,
+    def start_daemonthreads(cls, celery_app, *, daemonthread_context=None) -> threading.Event:
+        stop_event = threading.Event()
+        for index_strategy in IndexStrategy.all_strategies():
+            indexer_daemon = cls(
+                index_strategy=index_strategy,
+                stop_event=stop_event,
+                daemonthread_context=daemonthread_context,
+            )
+            indexer_daemon.start_loops_and_queues()
+            consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
+            threading.Thread(target=consumer.run).start()
+        return stop_event
+
+    def __init__(self, index_strategy, *, stop_event=None, daemonthread_context=None):
+        self.stop_event = (
+            stop_event
+            if stop_event is not None
+            else threading.Event()
         )
-        indexer_daemon.start_loops_and_queues()
-
-        consumer = CeleryMessageConsumer(celery_app, indexer_daemon, elastic_manager)
-        threading.Thread(target=consumer.run).start()
-
-    def __init__(self, index_name, elastic_manager, stop_event):
-        self.index_name = index_name
-        self.stop_event = stop_event
-        self.__elastic_manager = elastic_manager
-
-        self.__index_setup = self.__elastic_manager.get_index_setup(index_name)
-
+        self.__index_strategy = index_strategy  # TODO: error if index not ready
+        self.__daemonthread_context = daemonthread_context or contextlib.nullcontext
         self.__thread_pool = None
-        self.__incoming_message_queues = {}
-        self.__outgoing_action_queue = None
+        self.__local_message_queues = {}
 
     def stop(self):
-        if not self.stop_event.is_set():
-            logger.warning('%r: Stopping', self)
-            self.__thread_pool.shutdown(wait=False)
-            self.stop_event.set()
-
-    @property
-    def all_queues_empty(self):
-        return self.__outgoing_action_queue.empty() and all(
-            message_queue.empty()
-            for message_queue in self.__incoming_message_queues.values()
-        )
+        logger.warning('%r: Stopping', self)
+        self.__thread_pool.shutdown(wait=False)
+        self.stop_event.set()
 
     def __wait_on_stop_event(self):
         self.stop_event.wait()
@@ -109,204 +108,154 @@ class SearchIndexerDaemon:
 
     def start_loops_and_queues(self):
         if self.__thread_pool:
-            raise DaemonSetupError('SearchIndexerDaemon already set up!')
-
-        supported_message_types = self.__index_setup.supported_message_types
-
-        self.__thread_pool = ThreadPoolExecutor(max_workers=len(supported_message_types) + 2)
+            raise exceptions.DaemonSetupError('IndexerDaemon already set up!')
+        supported_message_types = self.__index_strategy.supported_message_types
+        self.__thread_pool = ThreadPoolExecutor(max_workers=len(supported_message_types) + 1)
         self.__thread_pool.submit(self.__wait_on_stop_event)
-
-        # one outgoing action queue and one thread that sends those actions to elastic
-        self.__outgoing_action_queue = local_queue.Queue(maxsize=self.MAX_LOCAL_QUEUE_SIZE)
-        self.__thread_pool.submit(self.__outgoing_action_loop)
-
-        # for each type of message handler, one queue for incoming messages and a
-        # __incoming_message_loop thread that pulls from the queue, builds actions, and
-        # pushes those actions to the outgoing action queue
+        # for each type of message to be handled, one queue for incoming messages and a
+        # __message_handling_loop thread that handles messages from the queue
         for message_type in supported_message_types:
-            message_queue = local_queue.Queue(maxsize=self.MAX_LOCAL_QUEUE_SIZE)
-            self.__incoming_message_queues[message_type] = message_queue
-            self.__thread_pool.submit(self.__incoming_message_loop, message_type)
+            local_message_queue = local_queue.Queue(maxsize=self.MAX_LOCAL_QUEUE_SIZE)
+            self.__local_message_queues[message_type] = local_message_queue
+            self.__thread_pool.submit(self.__message_handling_loop, message_type)
 
     def on_message(self, body, message):
-        wrapped_message = IndexableMessage.wrap(message)
-
-        message_queue = self.__incoming_message_queues.get(wrapped_message.message_type)
-        if message_queue is None:
-            logger.warning('%r: unknown message type "%s"', self, wrapped_message.message_type)
-            raise DaemonMessageError(f'Received message with unexpected type "{wrapped_message.message_type}" (message: {message})')
-
-        message_queue.put(wrapped_message)
-
-    def __incoming_message_loop(self, message_type):
-        try:
-            log_prefix = f'{repr(self)} IncomingMessageLoop({message_type}): '
-            loop = IncomingMessageLoop(
-                message_queue=self.__incoming_message_queues[message_type],
-                outgoing_action_queue=self.__outgoing_action_queue,
-                action_generator=self.__index_setup.build_action_generator(self.index_name, message_type),
-                chunk_size=self.__elastic_manager.settings['CHUNK_SIZE'],
-                log_prefix=log_prefix,
+        daemon_message = messages.DaemonMessage.from_received_message(message)
+        local_message_queue = self.__local_message_queues.get(daemon_message.message_type)
+        if local_message_queue is None:
+            raise exceptions.DaemonMessageError(
+                f'Received message with unsupported type "{daemon_message.message_type}"'
+                f' (message: {message})'
+                f' (supported message types: {self.__index_strategy.supported_message_types})'
             )
+        # Keep blocking on put() until there's space in the queue or it's time to stop
+        while not self.stop_event.is_set():
+            try:
+                local_message_queue.put(daemon_message, timeout=UNPRESSURED_TIMEOUT)
+                break
+            except local_queue.Full:
+                continue
 
-            while not self.stop_event.is_set():
-                loop.iterate_once(self.stop_event)
-
-        except Exception as e:
-            client.captureException()
-            logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
-        finally:
-            self.stop()
-
-    def __outgoing_action_loop(self):
-        try:
-            log_prefix = f'{repr(self)} OutgoingActionLoop: '
-            loop = OutgoingActionLoop(
-                action_queue=self.__outgoing_action_queue,
-                elastic_manager=self.__elastic_manager,
-                chunk_size=self.__elastic_manager.settings['CHUNK_SIZE'],
-                log_prefix=log_prefix,
-            )
-
-            while not self.stop_event.is_set():
-                loop.iterate_once()
-
-        except Exception as e:
-            client.captureException()
-            logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
-        finally:
-            self.stop()
+    def __message_handling_loop(self, message_type):
+        with self.__daemonthread_context():
+            try:
+                log_prefix = f'{repr(self)} MessageHandlingLoop: '
+                loop = MessageHandlingLoop(
+                    index_strategy=self.__index_strategy,
+                    message_type=message_type,
+                    local_message_queue=self.__local_message_queues[message_type],
+                    stop_event=self.stop_event,
+                    log_prefix=log_prefix,
+                )
+                while not self.stop_event.is_set():
+                    loop.iterate_once()
+            except Exception as e:
+                sentry_client.captureException()
+                logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
+                raise
+            finally:
+                self.stop()
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.index_name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
 
 
-class IncomingMessageLoop:
-    def __init__(self, message_queue, outgoing_action_queue, action_generator, chunk_size, log_prefix):
-        self.message_queue = message_queue
-        self.outgoing_action_queue = outgoing_action_queue
-        self.action_generator = action_generator
-        self.chunk_size = chunk_size
+class MessageHandlingLoop:
+    def __init__(self, index_strategy, message_type, local_message_queue, stop_event, log_prefix):
+        self.index_strategy = index_strategy
+        self.message_type = message_type
+        self.local_message_queue = local_message_queue
         self.log_prefix = log_prefix
-
-        logger.info('%sStarted', self.log_prefix)
-
-    def _get_target_id_chunk(self):
-        messages_by_id = {}
-        target_id_chunk = []
-        while len(target_id_chunk) < self.chunk_size:
-            try:
-                # If we have any messages queued up, push them through ASAP
-                message = self.message_queue.get(timeout=.1 if target_id_chunk else LOOP_TIMEOUT)
-
-                if message.target_id in messages_by_id:
-                    # skip processing duplicate messages in one chunk
-                    message.ack()
-                else:
-                    messages_by_id[message.target_id] = message
-                    target_id_chunk.append(message.target_id)
-            except local_queue.Empty:
-                break
-        return target_id_chunk, messages_by_id
-
-    def iterate_once(self, stop_event):
-        target_id_chunk, messages_by_id = self._get_target_id_chunk()
-
-        if not target_id_chunk:
-            logger.debug('%sRecieved no messages to queue up', self.log_prefix)
-            return
-
-        start = time.time()
-        logger.debug('%sPreparing %d docs to be indexed', self.log_prefix, len(target_id_chunk))
-
-        success_count = 0
-        # at this point, we have a chunk of messages, each with exactly one pk
-        # each message should turn into one elastic action/doc
-        for target_id, action in self.action_generator(target_id_chunk):
-            message = messages_by_id.pop(target_id)
-
-            # Keep blocking on put() until there's space in the queue or it's time to stop
-            while not stop_event.is_set():
-                try:
-                    self.outgoing_action_queue.put((message, action), timeout=LOOP_TIMEOUT)
-                    success_count += 1
-                    break
-                except local_queue.Full:
-                    continue
-
-        if messages_by_id:
-            # worth noting...
-            logger.warning(
-                'IncomingMessageLoop: action generator skipped some target_ids!\ntarget_id_chunk: %s\nleftover_messages_by_id: %s',
-                target_id_chunk,
-                messages_by_id,
-            )
-            # ...but not stopping
-            for message in messages_by_id.values():
-                message.ack()
-
-        logger.info('%sPrepared %d docs to be indexed in %.02fs', self.log_prefix, success_count, time.time() - start)
-
-
-class OutgoingActionLoop:
-    # ok the thing here is that we want to wait to ack the message until
-    # its action is successfully sent to elastic -- this keeps the message
-    # in the rabbit queue so if something explodes, the message will be retried
-    # once things recover
-
-    # how this works now is self.action_chunk_iter makes a generator that yields actions
-    # and *also* side-effects the corresponding messages into self.messages_awaiting_elastic
-    # keyed by the message's target_id -- this is nice because we can use elastic's
-    # streaming_bulk helper to avoid too much chunking in memory (...tho it may not make much
-    # difference, depending how much the elastic helpers hold in memory) and use the _id on
-    # each successful response to find and ack the respective message
-
-    MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
-
-    def __init__(self, action_queue, elastic_manager, chunk_size, log_prefix):
-        self.action_queue = action_queue
-        self.elastic_manager = elastic_manager
-        self.chunk_size = chunk_size
-        self.log_prefix = log_prefix
-
-        self.messages_awaiting_elastic = {}
-
+        self.stop_event = stop_event
+        self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        self._leftover_daemon_messages_by_target_id = None
+        self._reset_backoff_timeout()
         logger.info('%sStarted', self.log_prefix)
 
     def iterate_once(self):
+        try:
+            self._iterate_once()
+        except TooFastSlowDown:
+            self._back_off()
+        else:
+            self._reset_backoff_timeout()
+
+    def _raise_if_backfill_noncurrent(self):
+        if self.message_type.is_backfill:
+            index_backfill = self.index_strategy.get_or_create_backfill()
+            if index_backfill.specific_indexname != self.index_strategy.current_indexname:
+                raise exceptions.DaemonSetupError(
+                    'IndexerDaemon observes conflicting currence:'
+                    f'\n\tIndexBackfill (from database) says current is "{index_backfill.specific_indexname}"'
+                    f'\n\tIndexStrategy (from static code) says current is "{self.index_strategy.current_indexname}"'
+                    '\n\t(may be the daemon is running old code -- will die and retry,'
+                    ' but if this keeps happening you may need to reset backfill_status'
+                    ' to INITIAL and restart the backfill)'
+                )
+
+    def _get_daemon_messages(self):
+        daemon_messages_by_target_id = self._leftover_daemon_messages_by_target_id
+        if daemon_messages_by_target_id is not None:
+            self._leftover_daemon_messages_by_target_id = None
+            return daemon_messages_by_target_id
+        daemon_messages_by_target_id = collections.defaultdict(list)
+        while len(daemon_messages_by_target_id) < self.chunk_size:
+            try:
+                # If we have any messages queued up, push them through ASAP
+                daemon_message = self.local_message_queue.get(timeout=(
+                    QUICK_TIMEOUT
+                    if daemon_messages_by_target_id
+                    else UNPRESSURED_TIMEOUT
+                ))
+                daemon_messages_by_target_id[daemon_message.target_id].append(daemon_message)
+            except local_queue.Empty:
+                break
+        return daemon_messages_by_target_id
+
+    def _iterate_once(self):
+        # each message corresponds to one action on this daemon's index
         start_time = time.time()
-        doc_count = 0
-        action_chunk = self.action_chunk_iter()
-        elastic_stream = self.elastic_manager.stream_actions(action_chunk)
-
-        for (ok, op_type, response) in elastic_stream:
-            if not ok and not (op_type == 'delete' and response['status'] == 404):
-                raise DaemonIndexingError(ok, response)
-
-            message = self.messages_awaiting_elastic.pop(str(response['_id']))
-            message.ack()
-
+        doc_count, error_count = 0, 0
+        daemon_messages_by_target_id = self._get_daemon_messages()
+        if daemon_messages_by_target_id:
+            self._raise_if_backfill_noncurrent()
+            messages_chunk = messages.MessagesChunk(
+                message_type=self.message_type,
+                target_ids_chunk=tuple(daemon_messages_by_target_id.keys()),
+            )
+            for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
+                if message_response.is_done:
+                    doc_count += 1
+                elif message_response.status_code == 429:  # 429 Too Many Requests
+                    self._leftover_daemon_messages_by_target_id = daemon_messages_by_target_id
+                    raise TooFastSlowDown
+                else:
+                    error_count += 1
+                    logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
+                    sentry_client.captureMessage('error handling message', data=message_response.error_label)
+                target_id = message_response.index_message.target_id
+                for daemon_message in daemon_messages_by_target_id.pop(target_id):
+                    daemon_message.ack()  # finally set it free
+            if daemon_messages_by_target_id:  # should be empty by now
+                logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
+                sentry_client.captureMessage('unhandled daemon messages??', data=daemon_messages_by_target_id)
         time_elapsed = time.time() - start_time
-        if doc_count:
-            logger.info('%sIndexed %d documents in %.02fs', self.log_prefix, doc_count, time_elapsed)
+        if doc_count or error_count:
+            logger.info('%sIndexed %d documents in %.02fs (with %d errors)', self.log_prefix, doc_count, time_elapsed, error_count)
         else:
             logger.debug('%sRecieved no messages for %.02fs', self.log_prefix, time_elapsed)
 
-        if self.messages_awaiting_elastic:
-            raise DaemonIndexingError(f'Messages left awaiting elastic! ¿something happened? {self.messages_awaiting_elastic}')
+    def _back_off(self):
+        backoff_timeout = min(
+            MAXIMUM_BACKOFF_TIMEOUT,
+            self._last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
+        )
+        self._last_backoff_timeout = backoff_timeout
+        logger.warning(f'{self.log_prefix}Backing off (pause for {backoff_timeout:.2} seconds)')
+        self.stop_event.wait(timeout=backoff_timeout)
 
-    def action_chunk_iter(self):
-        for _ in range(self.chunk_size):
-            try:
-                message, action = self.action_queue.get(timeout=LOOP_TIMEOUT)
-                if (
-                    action is None
-                    or '_id' not in action
-                    or action['_id'] in self.messages_awaiting_elastic
-                ):
-                    message.ack()
-                    continue
-                self.messages_awaiting_elastic[str(action['_id'])] = message
-                yield action
-            except local_queue.Empty:
-                return
+    def _reset_backoff_timeout(self):
+        self._last_backoff_timeout = UNPRESSURED_TIMEOUT
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}("{self.index_strategy.name}", {repr(self.message_type)})'

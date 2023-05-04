@@ -13,7 +13,6 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import include, re_path as url
 from django.conf import settings
 from django.views.generic.base import RedirectView
@@ -24,10 +23,11 @@ from osf_oauth2_adapter import views as osf_oauth2_adapter_views
 
 from api.views import APIVersionRedirectView, source_icon_view
 
+from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin_site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),

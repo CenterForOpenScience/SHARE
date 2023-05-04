@@ -9,7 +9,7 @@ from share.models.ingest import SourceUniqueIdentifier
 from tests import factories
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestIngestScheduler:
 
     @pytest.fixture
@@ -21,6 +21,10 @@ class TestIngestScheduler:
     def mock_ingest(self):
         with mock.patch('share.ingest.scheduler.ingest') as mock_ingest:
             yield mock_ingest
+
+    @pytest.fixture(scope='class')
+    def suid(self, class_scoped_django_db):
+        return factories.SourceUniqueIdentifierFactory()
 
     @pytest.mark.parametrize('raw_ages, selected_raw', [
         ([0, 1, 2], 0),
@@ -40,8 +44,7 @@ class TestIngestScheduler:
         ('succeeded', True, 'created'),
         ('succeeded', False, 'succeeded'),
     ])
-    def test_schedule(self, raw_ages, selected_raw, claim, prior_status, superfluous, expected_status):
-        suid = factories.SourceUniqueIdentifierFactory()
+    def test_schedule(self, suid, raw_ages, selected_raw, claim, prior_status, superfluous, expected_status):
         raws = [
             factories.RawDatumFactory(
                 suid=suid,
@@ -67,14 +70,14 @@ class TestIngestScheduler:
         assert job.status == getattr(IngestJob.STATUS, expected_status)
         assert job.claimed == claim
 
-    def test_reingest(self, mock_consume):
-        raw = factories.RawDatumFactory()
+    def test_reingest(self, suid, mock_consume):
+        raw = factories.RawDatumFactory(suid=suid)
         job = IngestScheduler().reingest(raw.suid)
         assert job.claimed
         mock_consume.assert_called_once_with(job_id=job.id, exhaust=False, superfluous=True)
 
-    def test_reingest_async(self, mock_ingest):
-        raw = factories.RawDatumFactory()
+    def test_reingest_async(self, suid, mock_ingest):
+        raw = factories.RawDatumFactory(suid=suid)
         job = IngestScheduler().reingest_async(raw.suid)
         assert job.claimed
         mock_ingest.delay.assert_called_once_with(job_id=job.id, exhaust=False, superfluous=True)
@@ -109,7 +112,7 @@ class TestIngestScheduler:
             suids.add(suid)
 
         actual_jobs = IngestScheduler().bulk_schedule(
-            SourceUniqueIdentifier.objects.all(),
+            SourceUniqueIdentifier.objects.filter(id__in=[suid.id for suid in suids]),
             claim=claim,
             superfluous=superfluous,
         )

@@ -1,25 +1,26 @@
+import contextlib
 import datetime
 import json
+import logging
 import random
 import string
 
 import pytest
 
+from django.db import transaction
 from django.utils import timezone
 
 from oauth2_provider.models import AccessToken, Application
-from urllib3.connection import ConnectionError
-from elasticsearch.exceptions import ConnectionError as ElasticConnectionError
 
 from share.models import NormalizedData, RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
-from share.models import FormattedMetadataRecord
-from share.search import MessageType, SearchIndexer
-from share.search.elastic_manager import ElasticManager
 
 from tests import factories
 from tests.share.normalize.factories import GraphBuilder
+
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -137,66 +138,42 @@ def ExpectedGraph(Graph):
     return expected_graph
 
 
-@pytest.fixture
-def elastic_test_index_name():
-    return 'test_share'
-
-
-@pytest.fixture
-def elastic_test_manager(settings, elastic_test_index_name):
-    # ideally these settings changes would be encapsulated by ElasticManager, but there's
-    # still code that uses the settings directly, so using the pytest-django fixture for now
-    settings.ELASTICSEARCH = {
-        **settings.ELASTICSEARCH,
-        'TIMEOUT': 5,
-        'PRIMARY_INDEX': elastic_test_index_name,
-        'LEGACY_INDEX': elastic_test_index_name,
-        'BACKCOMPAT_INDEX': elastic_test_index_name,
-        'ACTIVE_INDEXES': [elastic_test_index_name],
-        'INDEXES': {
-            elastic_test_index_name: {
-                'DEFAULT_QUEUE': f'{elastic_test_index_name}_queue',
-                'URGENT_QUEUE': f'{elastic_test_index_name}_queue.urgent',
-                'INDEX_SETUP': 'postrend_backcompat',
-            },
-        },
-    }
-    elastic_manager = ElasticManager()
+@contextlib.contextmanager
+def rolledback_transaction(loglabel):
+    class ExpectedRollback(Exception):
+        pass
     try:
-        elastic_manager.delete_index(elastic_test_index_name)
-        elastic_manager.create_index(elastic_test_index_name)
-
-        try:
-            yield elastic_manager
-        finally:
-            elastic_manager.delete_index(elastic_test_index_name)
-
-    except (ConnectionError, ElasticConnectionError):
-        raise pytest.skip('Elasticsearch unavailable')
+        with transaction.atomic():
+            print(f'{loglabel}: started transaction')
+            yield
+            raise ExpectedRollback('this is an expected rollback; all is well')
+    except ExpectedRollback:
+        print(f'{loglabel}: rolled back transaction (as planned)')
+    else:
+        raise ExpectedRollback('expected a rollback but did not get one; something is wrong')
 
 
-@pytest.fixture
-def index_records(elastic_test_manager):
+@pytest.fixture(scope='class')
+def class_scoped_django_db(django_db_setup, django_db_blocker, request):
+    """a class-scoped version of the `django_db` mark
+    (so we can use class-scoped fixtures to set up data
+    for use across several tests)
 
-    def _index_records(normalized_graphs):
-        normalized_datums = [
-            factories.NormalizedDataFactory(
-                data=GraphBuilder()(ng).to_jsonld(),
-                raw=factories.RawDatumFactory(
-                    datum='',
-                ),
-            )
-            for ng in normalized_graphs
-        ]
-        suids = [nd.raw.suid for nd in normalized_datums]
-        for normd, suid in zip(normalized_datums, suids):
-            FormattedMetadataRecord.objects.save_formatted_records(
-                suid=suid,
-                record_formats=['sharev2_elastic'],
-                normalized_datum=normd,
-            )
-        indexer = SearchIndexer(elastic_manager=elastic_test_manager)
-        indexer.handle_messages_sync(MessageType.INDEX_SUID, [suid.id for suid in suids])
-        return normalized_datums
+    recommend using via the `nested_django_db` fixture,
+    or use directly in another class-scoped fixture.
+    """
+    with django_db_blocker.unblock():
+        with rolledback_transaction(f'class_scoped_django_db({request.node})'):
+            yield
 
-    return _index_records
+
+@pytest.fixture(scope='function')
+def nested_django_db(class_scoped_django_db, request):
+    """wrap each function and the entire class in transactions
+    (so fixtures can have scope='class' for reuse across tests,
+    but what happens in each test stays in that test)
+
+    recommend using via the `nested_django_db` mark
+    """
+    with rolledback_transaction(f'nested_django_db({request.node})'):
+        yield

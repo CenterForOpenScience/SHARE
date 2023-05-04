@@ -10,11 +10,11 @@ from share.celery import TaskResultCleaner, CeleryTaskResult
 from tests import factories
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 class TestResultArchiver:
 
-    @pytest.fixture(autouse=True)
-    def task_result_data(self):
+    @pytest.fixture(scope='class', autouse=True)
+    def task_result_data(self, class_scoped_django_db):
         return factories.CeleryTaskResultFactory.create_batch(100)
 
     def test_delete_false(self):

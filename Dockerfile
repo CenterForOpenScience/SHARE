@@ -1,4 +1,4 @@
-FROM python:3.6-slim-buster as app
+FROM python:3.11-slim as app
 
 RUN apt-get update \
     && apt-get install -y \
@@ -26,7 +26,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN pip install -U pip
-RUN pip install uwsgi==2.0.16
+RUN pip install uwsgi==2.0.21
 
 COPY ./requirements.txt /code/requirements.txt
 COPY ./constraints.txt /code/constraints.txt

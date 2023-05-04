@@ -1,71 +1,159 @@
-from enum import Enum
+import abc
+import dataclasses
+import enum
 import logging
+import typing
+
+from share.search import exceptions
+from share.util import chunked
+
 
 logger = logging.getLogger(__name__)
 
 
-class MessageType(Enum):
+class MessageType(enum.Enum):
+    # for specific sharev2 types:
     INDEX_AGENT = 'Agent'
     INDEX_CREATIVEWORK = 'CreativeWork'
     INDEX_TAG = 'Tag'
     INDEX_SUBJECT = 'Subject'
-
+    # for suid/pid-focused records:
     INDEX_SUID = 'suid'
-
-
-class IndexableMessage:
-    PROTOCOL_VERSION = None
-
-    @classmethod
-    def wrap(cls, message):
-        version = message.payload.get('version', 0)
-        for klass in cls.__subclasses__():
-            if klass.PROTOCOL_VERSION == version:
-                return klass(message)
-        raise ValueError('Invalid version "{}"'.format(version))
+    BACKFILL_SUID = 'backfill-suid'
 
     @property
+    def is_backfill(self):
+        return self in BACKFILL_MESSAGE_TYPES
+
+    def __int__(self):  # allows casting to integer with `int(message_type)`
+        return int(IntMessageType[self.name])
+
+
+class IntMessageType(enum.IntEnum):
+    '''for mapping MessageType to int and back again
+    '''
+    # NO_TYPE = 0
+    INDEX_AGENT = 1
+    INDEX_CREATIVEWORK = 2
+    INDEX_TAG = 3
+    INDEX_SUBJECT = 4
+    INDEX_SUID = 5
+    BACKFILL_SUID = 6
+
+
+if __debug__:
+    def _enum_keys(an_enum_class):
+        return frozenset(an_enum_class.__members__.keys())
+
+    # require that IntMessageType has the same keys MessageType has
+    assert _enum_keys(MessageType) == _enum_keys(IntMessageType)
+
+
+BACKFILL_MESSAGE_TYPES = {
+    MessageType.BACKFILL_SUID,
+}
+
+
+class IndexMessage(typing.NamedTuple):
+    message_type: MessageType
+    target_id: int
+
+
+class IndexMessageResponse(typing.NamedTuple):
+    is_done: bool
+    index_message: IndexMessage
+    status_code: int
+    error_label: typing.Optional[str] = None
+
+
+@dataclasses.dataclass
+class MessagesChunk:
+    message_type: MessageType
+    target_ids_chunk: typing.Iterable[int]
+
+    def as_dicts(self):
+        int_message_type = int(self.message_type)
+        for target_id in self.target_ids_chunk:
+            yield DaemonMessage.compose_however(int_message_type, target_id)
+
+    def as_tuples(self):
+        for target_id in self.target_ids_chunk:
+            yield IndexMessage(
+                message_type=self.message_type,
+                target_id=target_id,
+            )
+
+    @classmethod
+    def stream_chunks(
+        cls,
+        message_type: MessageType,
+        id_stream: typing.Iterable[int],
+        chunk_size: int,
+    ) -> 'typing.Iterable[MessagesChunk]':
+        for id_chunk in chunked(id_stream, chunk_size):
+            yield cls(message_type, id_chunk)
+
+
+class DaemonMessage(abc.ABC):
+    PROTOCOL_VERSION = None
+
+    @staticmethod
+    def compose_however(message_type: typing.Union[int, MessageType], target_id: int) -> dict:
+        '''pass-thru to PreferedDaemonMessageSubclass.compose
+        '''
+        return V3Message.compose(message_type, target_id)
+
+    @classmethod
+    def from_received_message(cls, kombu_message):
+        version = kombu_message.payload.get('version', 0)
+        for message_class in cls.__subclasses__():
+            if message_class.PROTOCOL_VERSION == version:
+                return message_class(kombu_message=kombu_message)
+        raise ValueError('Invalid version "{}"'.format(version))
+
+    @classmethod
+    @abc.abstractmethod
+    def compose(cls, message_type: MessageType, target_id: int) -> dict:
+        raise NotImplementedError
+
+    @property
+    @abc.abstractmethod
     def message_type(self):
         raise NotImplementedError
 
     @property
+    @abc.abstractmethod
     def target_id(self):
         raise NotImplementedError
 
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, *, kombu_message=None):
+        self.kombu_message = kombu_message
 
     def ack(self):
-        return self.message.ack()
+        if self.kombu_message is None:
+            raise exceptions.DaemonMessageError('ack! called DaemonMessage.ack() but there is nothing to ack')
+        return self.kombu_message.ack()
 
     def requeue(self):
-        return self.message.reject_log_error(logger, Exception, requeue=True)
+        if self.kombu_message is None:
+            raise exceptions.DaemonMessageError('called DaemonMessage.requeue() but there is nothing to requeue')
+        return self.kombu_message.reject_log_error(logger, Exception, requeue=True)
 
     def __repr__(self):
         return f'<{self.__class__.__name__}({self.message_type}, {self.target_id})>'
 
+    def __hash__(self):
+        return hash((self.message_type, self.target_id))
 
-class V1Message(IndexableMessage):
-    """
-    {
-        "version": 1,
-        "model": "<model_name>",
-        "ids": [id1, id2, id3...],
-    }
-    """
-    PROTOCOL_VERSION = 1
-
-    @property
-    def message_type(self):
-        return MessageType(self.message.payload['model'])
-
-    @property
-    def target_id(self):
-        assert len(self.message.payload['ids']) == 1
-        return self.message.payload['ids'][0]
+    def __eq__(self, other):
+        return (
+            isinstance(other, DaemonMessage)
+            and self.message_type == other.message_type
+            and self.target_id == other.target_id
+        )
 
 
-class V2Message(IndexableMessage):
+class V2Message(DaemonMessage):
     """
     e.g.
     {
@@ -76,10 +164,55 @@ class V2Message(IndexableMessage):
     """
     PROTOCOL_VERSION = 2
 
+    @classmethod
+    def compose(cls, message_type: MessageType, target_id: int) -> dict:
+        return {
+            'version': 2,
+            'message_type': message_type.name,
+            'target_id': target_id,
+        }
+
     @property
     def message_type(self):
-        return MessageType(self.message.payload['message_type'])
+        return MessageType(self.kombu_message.payload['message_type'])
 
     @property
     def target_id(self):
-        return self.message.payload['target_id']
+        return self.kombu_message.payload['target_id']
+
+
+class V3Message(DaemonMessage):
+    """
+    the message is a two-ple of integers (int_message_type, target_id)
+    -- minimalist, for there may be many
+    {
+        "version": 3,
+        "m": [2, 7],
+    }
+    """
+    PROTOCOL_VERSION = 3
+
+    @classmethod
+    def compose(cls, message_type: MessageType, target_id: int) -> dict:
+        return {
+            'version': 3,
+            'm': (int(message_type), target_id),
+        }
+
+    @property
+    def _message_twople(self) -> (int, int):
+        return self.kombu_message.payload['m']
+
+    @property
+    def int_message_type(self) -> IntMessageType:
+        msg_type_int, _ = self._message_twople
+        return IntMessageType(msg_type_int)
+
+    @property
+    def message_type(self) -> MessageType:
+        return MessageType[self.int_message_type.name]
+
+    @property
+    def target_id(self) -> int:
+        _, target_id = self._message_twople
+        return target_id

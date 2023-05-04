@@ -26,7 +26,7 @@ def test_task_calls_consumer(task, Consumer, kwargs, monkeypatch):
     assert Consumer.consume.call_args == ((), kwargs)
 
 
-@pytest.mark.django_db
+@pytest.mark.usefixtures('nested_django_db')
 @pytest.mark.parametrize('Consumer, JobFactory', [
     (HarvestJobConsumer, factories.HarvestJobFactory),
     (IngestJobConsumer, factories.IngestJobFactory),

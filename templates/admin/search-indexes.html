@@ -1,0 +1,145 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+<style>
+section, table {
+  padding-left: 2em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>{% trans "elasticsearch indexes" %}</h1>
+{% for index_strategy_name, indexes in index_status_by_strategy.items %}
+  <section>
+    <h2><i>{{ index_strategy_name }}</i> index strategy</h2>
+    <section>
+      <h3>current index: <i>{{indexes.current.status.specific_indexname}}</i></h3>
+      <table>
+        <tr>
+          <th>{% trans "created" %}</th>
+          <th>{% trans "is kept live" %}</th>
+          <th>{% trans "is default for searching" %}</th>
+          <th>{% trans "doc count" %}</th>
+          <th>{% trans "actions" %}</th>
+          <th>{% trans "backfill" %}</th>
+        </tr>
+        <tr>
+          <td>{{ indexes.current.status.creation_date|default:"--" }}</td>
+          <td>{% if indexes.current.status.is_kept_live %}✓{% endif %}</td>
+          <td>{% if indexes.current.status.is_default_for_searching %}✓{% endif %}</td>
+          <td><a href="{{search_url_prefix}}{{indexes.current.status.specific_indexname}}" target="_blank">{{ indexes.current.status.doc_count }}</a></td>
+          <td>
+            {% if not indexes.current.status.creation_date %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
+              <input type="hidden" name="pls_do" value="create" />
+              <input type="submit" value="{% trans "create" %}" />
+            </form>
+            {% elif not indexes.current.status.is_kept_live %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
+              <input type="hidden" name="pls_do" value="start_keeping_live" />
+              <input type="submit" value="{% trans "start keeping live" %}" />
+            </form>
+            {% elif indexes.current.backfill.can_start_backfill %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
+              <input type="hidden" name="pls_do" value="start_backfill" />
+              <input type="submit" value="{% trans "start backfill" %}" />
+            </form>
+            {% elif indexes.current.backfill.can_mark_backfill_complete %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
+              <input type="hidden" name="pls_do" value="mark_backfill_complete" />
+              <input type="submit" value="{% trans "mark backfill complete" %}" />
+            </form>
+            {% elif indexes.current.backfill.is_complete and not indexes.current.status.is_default_for_searching %}
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
+              <input type="hidden" name="pls_do" value="make_default_for_searching" />
+              <input type="submit" value="{% trans "make default for searching" %}" />
+            </form>
+            {% endif %}
+          </td>
+          <td>
+            {% if indexes.current.backfill.backfill_admin_url %}
+              <a href={{indexes.current.backfill.backfill_admin_url}}>
+                {{ indexes.current.backfill.backfill_status }}
+                ({{ indexes.current.backfill.backfill_modified }})
+              </a>
+              {% if not indexes.current.backfill.is_complete %}
+                <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
+              {% endif %}
+            {% else %}
+            --
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+    </section>
+    {% if indexes.prior %}
+      <section>
+        <h3>prior indexes</h3>
+        <table>
+          <tr>
+            <th>{% trans "created" %}</th>
+            <th>{% trans "is kept live" %}</th>
+            <th>{% trans "is default for searching" %}</th>
+            <th>{% trans "doc count" %}</th>
+            <th>{% trans "actions" %}</th>
+            <th>{% trans "index name" %}</th>
+          </tr>
+          {% for index_status in indexes.prior %}
+          <tr>
+            <td>{{ index_status.creation_date }}</td>
+            <td>{% if index_status.is_kept_live %}✓{% endif %}</td>
+            <td>{% if index_status.is_default_for_searching %}✓{% endif %}</td>
+            <td><a href="{{search_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{{ index_status.doc_count }}</a></td>
+            <td>
+              {% if index_status.is_kept_live %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
+                <input type="hidden" name="pls_do" value="stop_keeping_live" />
+                <input type="submit" value="{% trans "stop keeping live" %}" />
+              </form>
+              {% if not index_status.is_default_for_searching %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
+                <input type="hidden" name="pls_do" value="make_default_for_searching" />
+                <input type="submit" value="{% trans "make default for searching" %}" />
+              </form>
+              {% endif %}
+              {% else %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
+                <input type="hidden" name="pls_do" value="start_keeping_live" />
+                <input type="submit" value="{% trans "start keeping live" %}" />
+              </form>
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
+                <input type="hidden" name="pls_do" value="delete" />
+                <!-- TODO: confirm destructive action -->
+                <input type="submit" value="{% trans "delete" %}" />
+              </form>
+              {% endif %}
+            </td>
+            <td><i>{{ index_status.specific_indexname }}</i></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </section>
+    {% endif %}
+  </section>
+{% endfor %}
+{% endblock %}

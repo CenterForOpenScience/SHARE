@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from distutils.util import strtobool
 
 from django.utils.log import DEFAULT_LOGGING
 
@@ -19,6 +18,15 @@ from celery.schedules import crontab
 import jwe
 
 from share import __version__
+
+
+def strtobool(s: str) -> bool:
+    s = s.lower()
+    if s in ('t', 'true', '1'):
+        return True
+    if s in ('f', 'false', '0'):
+        return False
+    raise ValueError(f'unboolable string: "{s}"')
 
 
 def split(string, delim):
@@ -61,7 +69,7 @@ JSON_API_FORMAT_FIELD_NAMES = 'camelize'
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -90,8 +98,6 @@ INSTALLED_APPS = [
 
     'share',
     'api',
-
-    'bots.elasticsearch',
 ]
 
 HARVESTER_SCOPES = 'upload_normalized_manuscript upload_raw_data'
@@ -205,7 +211,6 @@ DATABASES = {
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
         'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0)),
-        'TEST': {'SERIALIZE': False},
     },
 }
 
@@ -293,45 +298,48 @@ STATICFILES_FINDERS = (
 
 ELASTICSEARCH = {
     'SNIFF': bool(os.environ.get('ELASTICSEARCH_SNIFF')),
-    'URL': os.environ.get('ELASTICSEARCH_URL', 'http://localhost:9200/'),
-    'PRIMARY_INDEX': os.environ.get('ELASTICSEARCH_PRIMARY_INDEX', 'share'),
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
-    'INDEX_VERSIONS': split(os.environ.get('ELASTICSEARCH_INDEX_VERSIONS', ''), ','),
-    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 25)),
-    'KOMBU_QUEUE_SETTINGS': {
-        'serializer': 'json',
-        'compression': 'zlib',
-        'no_ack': False,  # WHY KOMBU THAT'S NOT HOW ENGLISH WORKS
-    },
-    # NOTE: "active" indexes will receive new records from the indexer daemon -- be sure they're set up first
-    'ACTIVE_INDEXES': split(os.environ.get('ELASTICSEARCH_ACTIVE_INDEXES', 'share_postrend_backcompat'), ','),
-    # NOTE: indexes here won't be created automatically -- run `sharectl search setup <index_name>` BEFORE the daemon starts
-    'INDEXES': {
-        # 'share_v3': {
-        #     'DEFAULT_QUEUE': 'es-triton-share',
-        #     'URGENT_QUEUE': 'es-triton-share.urgent',
-        #     'INDEX_SETUP': 'share_classic',
-        # },
-        # 'share_customtax_1': {
-        #     'DEFAULT_QUEUE': 'es-share',
-        #     'URGENT_QUEUE': 'es-share.urgent',
-        #     'INDEX_SETUP': 'share_classic',
-        # },
-        'share_postrend_backcompat': {
-            'DEFAULT_QUEUE': 'es-share-postrend-backcompat',
-            'URGENT_QUEUE': 'es-share-postrend-backcompat.urgent',
-            'INDEX_SETUP': 'postrend_backcompat',
-        },
-        # 'trove_v0': {
-        #     'DEFAULT_QUEUE': 'es-trove-v0',
-        #     'URGENT_QUEUE': 'es-trove-v0.urgent',
-        #     'INDEX_SETUP': 'trove_v0',
-        # },
-    },
-    # ease the transition
-    'LEGACY_INDEX': 'share_customtax_1',
-    'BACKCOMPAT_INDEX': 'share_postrend_backcompat',
+    'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
+    'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
+    'INDEX_STRATEGIES': {},  # populated below based on environment
 }
+ELASTICSEARCH5_URL = (
+    os.environ.get('ELASTICSEARCH5_URL')
+    or os.environ.get('ELASTICSEARCH_URL')
+)
+if ELASTICSEARCH5_URL:
+    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
+        'CLUSTER_SETTINGS': {
+            'URL': ELASTICSEARCH5_URL,
+        },
+    }
+ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
+if ELASTICSEARCH8_URL:
+    ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
+    ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
+    ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
+    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
+        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+        'CLUSTER_SETTINGS': {
+            'URL': ELASTICSEARCH8_URL,
+            'AUTH': (
+                (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
+                if ELASTICSEARCH8_SECRET is not None
+                else None
+            ),
+            'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
+        },
+    }
+DEFAULT_INDEX_STRATEGY_FOR_SEARCHING = (
+    'sharev2_elastic5'
+    if ELASTICSEARCH5_URL
+    else (
+        'sharev2_elastic8'
+        if ELASTICSEARCH8_URL
+        else None
+    )
+)
 
 # Seconds, not an actual celery settings
 CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if DEBUG else 10))
@@ -345,6 +353,7 @@ RABBITMQ_USERNAME = os.environ.get('RABBITMQ_USERNAME', 'guest')
 RABBITMQ_PASSWORD = os.environ.get('RABBITMQ_PASSWORD', 'guest')
 RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'localhost')
 RABBITMQ_PORT = os.environ.get('RABBITMQ_PORT', '5672')
+RABBITMQ_MGMT_PORT = os.environ.get('RABBITMQ_MGMT_PORT', '15672')
 RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.format(RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_VHOST))
@@ -419,7 +428,6 @@ def route_urgent_task(name, args, kwargs, options, task=None, **kw):
 CELERY_TASK_ROUTES = [
     route_urgent_task,
     {
-        'bots.elasticsearch.*': {'queue': 'elasticsearch'},
         'share.tasks.harvest': {'queue': 'harvest'},
         'share.tasks.ingest': {'queue': 'ingest'},
     },

@@ -22,7 +22,6 @@ class TaskNameFilter(admin.SimpleListFilter):
         celery_app.autodiscover_tasks([
             'share',
             'share.janitor',
-            'bots.elasticsearch',
         ], force=True)
         return sorted((x, x) for x in celery_app.tasks.keys())
 
