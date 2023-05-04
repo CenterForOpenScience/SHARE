@@ -16,7 +16,7 @@ CHUNK_SIZE = 2000
 
 class Command(BaseShareCommand):
     def add_arguments(self, parser):
-        parser.add_argument('metadata_formats', nargs='+', help='metadata format name (see entry points in setup.py)')
+        parser.add_argument('metadata_formats', nargs='*', help='metadata format name (see entry points in setup.py)')
 
         source_config_group = parser.add_mutually_exclusive_group(required=True)
         source_config_group.add_argument('--source-config', '-c', action='append', help='format data from these source configs')
@@ -33,13 +33,16 @@ class Command(BaseShareCommand):
         suid_start_id = options['suid_start_id']
         pls_ensure_ingest_jobs = options['pls_ensure_ingest_jobs']
         pls_reformat = options['pls_reformat']
-        pls_reingest = options['pls_reingest']
+        pls_renormalize = options['pls_renormalize']
 
         valid_formats = Extensions.get_names('share.metadata_formats')
-        if any(mf not in valid_formats for mf in metadata_formats):
-            invalid_formats = set(metadata_formats).difference(valid_formats)
-            self.stderr.write(f'Invalid metadata format(s): {invalid_formats}. Valid formats: {valid_formats}')
-            return
+        if metadata_formats:
+            if any(mf not in valid_formats for mf in metadata_formats):
+                invalid_formats = set(metadata_formats).difference(valid_formats)
+                self.stderr.write(f'Invalid metadata format(s): {invalid_formats}. Valid formats: {valid_formats}')
+                return
+        else:
+            metadata_formats = list(valid_formats)  # all
 
         source_config_ids = self.get_source_config_ids(options)
         if not source_config_ids:
@@ -51,7 +54,7 @@ class Command(BaseShareCommand):
             self.ensure_ingest_jobs_exist(base_suid_qs)
 
         while True:
-            last_successful_suid = self.enqueue_job_chunk(base_suid_qs, suid_start_id, metadata_formats, pls_reingest)
+            last_successful_suid = self.enqueue_job_chunk(base_suid_qs, suid_start_id, metadata_formats, pls_renormalize)
             if last_successful_suid is None:
                 break
             suid_start_id = int(last_successful_suid) + 1
@@ -123,7 +126,7 @@ class Command(BaseShareCommand):
         unjobbed_suids = base_suid_qs.filter(latest_ingest_job_id=None)
         IngestScheduler().bulk_schedule(unjobbed_suids)
 
-    def enqueue_job_chunk(self, base_suid_qs, suid_start_id, metadata_formats, pls_reingest):
+    def enqueue_job_chunk(self, base_suid_qs, suid_start_id, metadata_formats, pls_renormalize):
         result_chunk = tuple(
             base_suid_qs
             .filter(id__gte=suid_start_id)
@@ -148,7 +151,7 @@ class Command(BaseShareCommand):
         for job_id in job_ids:
             ingest.delay(
                 job_id=job_id,
-                superfluous=pls_reingest,  # whether to start from RawDatum or NormalizedDatum
+                superfluous=pls_renormalize,  # whether to start from RawDatum or NormalizedDatum
                 metadata_formats=metadata_formats,
             )
         self.stdout.write(f'queued tasks for {len(result_chunk)} IngestJobs (last suid: {last_suid_id})...')

@@ -149,15 +149,22 @@ class SourceConfigAdmin(admin.ModelAdmin):
                 r'^(?P<config_id>.+)/harvest/$',
                 self.admin_site.admin_view(self.harvest),
                 name='source-config-harvest'
+            ),
+            url(
+                r'^(?P<config_id>.+)/ingest/$',
+                self.admin_site.admin_view(self.start_ingest),
+                name='source-config-ingest'
             )
         ] + super().get_urls()
 
     def source_config_actions(self, obj):
-        if obj.harvester_id is None:
-            return ''
         return format_html(
-            '<a class="button" href="{}">Harvest</a>',
-            reverse('admin:source-config-harvest', args=[obj.pk]),
+            ' '.join((
+                ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_id else ''),
+                ('<a class="button" href="{ingest_href}">Ingest</a>' if not obj.disabled else ''),
+            )),
+            harvest_href=reverse('admin:source-config-harvest', args=[obj.pk]),
+            ingest_href=reverse('admin:source-config-ingest', args=[obj.pk]),
         )
     source_config_actions.short_description = 'Actions'
 
@@ -165,13 +172,11 @@ class SourceConfigAdmin(admin.ModelAdmin):
         config = self.get_object(request, config_id)
         if config.harvester_id is None:
             raise ValueError('You need a harvester to harvest.')
-
         if request.method == 'POST':
             form = HarvestForm(request.POST)
             if form.is_valid():
                 for job in HarvestScheduler(config, claim_jobs=True).range(form.cleaned_data['start'], form.cleaned_data['end']):
                     tasks.harvest.apply_async((), {'job_id': job.id, 'superfluous': form.cleaned_data['superfluous']})
-
                 self.message_user(request, 'Started harvesting {}!'.format(config.label))
                 url = reverse('admin:share_harvestjob_changelist', current_app=self.admin_site.name)
                 return HttpResponseRedirect(url)
@@ -181,13 +186,29 @@ class SourceConfigAdmin(admin.ModelAdmin):
                 if field in request.GET:
                     initial[field] = request.GET[field]
             form = HarvestForm(initial=initial)
-
         context = self.admin_site.each_context(request)
         context['opts'] = self.model._meta
         context['form'] = form
         context['source_config'] = config
         context['title'] = 'Harvest {}'.format(config.label)
         return TemplateResponse(request, 'admin/harvest.html', context)
+
+    def start_ingest(self, request, config_id):
+        config = self.get_object(request, config_id)
+        if request.method == 'POST':
+            tasks.schedule_reingest.apply_async((config.pk,), {
+                'pls_renormalize': request.POST.get('pls_renormalize', False),
+                'pls_reformat': request.POST.get('pls_reformat', False),
+            })
+            url = reverse(
+                'admin:share_sourceconfig_changelist',
+                current_app=self.admin_site.name,
+            )
+            return HttpResponseRedirect(url)
+        else:
+            context = self.admin_site.each_context(request)
+            context['source_config'] = config
+            return TemplateResponse(request, 'admin/start-ingest.html', context)
 
 
 @linked_fk('user')

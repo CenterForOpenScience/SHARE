@@ -166,7 +166,9 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
             try:  # mangle response for some limited backcompat with elasticsearch5
-                json_response['hits']['total'] = json_response['hits']['total']['value']
+                es8_total = json_response['hits']['total']
+                json_response['hits']['total'] = es8_total['value']
+                json_response['hits']['_total'] = es8_total
             except KeyError:
                 pass
             return json_response
