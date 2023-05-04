@@ -67,6 +67,22 @@ def ingest(self, only_canonical=None, **kwargs):
     IngestJobConsumer(task=self, only_canonical=only_canonical).consume(**kwargs)
 
 
+@celery.shared_task()
+def schedule_reingest(source_config_pk, pls_renormalize=False, pls_reformat=False):
+    source_config = db.SourceConfig.objects.get(pk=source_config_pk)
+    assert not source_config.disabled
+    assert not source_config.source.is_deleted
+    # TODO: something nice like IndexBackfill, instead of this
+    from django.core import management
+    management.call_command(
+        'format_metadata_records',
+        source_config=[source_config.label],
+        pls_ensure_ingest_jobs=True,
+        pls_renormalize=pls_renormalize,
+        pls_reformat=pls_reformat,
+    )
+
+
 @celery.shared_task(bind=True)
 def schedule_index_backfill(self, index_backfill_pk):
     index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
