@@ -77,12 +77,6 @@ def schedule_index_backfill(self, index_backfill_pk):
             .objects
             .exclude(source_config__disabled=True)
             .exclude(source_config__source__is_deleted=True)
-            .annotate(
-                has_fmr=models.Exists(
-                    db.FormattedMetadataRecord.objects.filter(suid_id=models.OuterRef('id'))
-                )
-            )
-            .filter(has_fmr=True)
             .values_list('id', flat=True)
             .distinct()
         )
