@@ -1,5 +1,11 @@
 # Change Log
 
+# [23.0.3] - 2023-05-05
+- admin interface: allow re-ingesting all data for a source config
+    (see "ingest" buttons at `/admin/share/sourceconfig/`)
+- address possible cause of some backfill gaps
+- fix logging errors
+
 # [23.0.0] - 2023-05-03
 - upgrade to python 3.11
 - upgrade to elasticsearch 8
