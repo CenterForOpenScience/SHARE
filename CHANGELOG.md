@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.0.4] - 2023-05-05
+- fix a typo
+
 # [23.0.3] - 2023-05-05
 - admin interface: allow re-ingesting all data for a source config
     (see "ingest" buttons at `/admin/share/sourceconfig/`)
