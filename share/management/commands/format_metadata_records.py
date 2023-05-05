@@ -26,7 +26,7 @@ class Command(BaseShareCommand):
         parser.add_argument('--suid-start-id', '-s', type=int, default=0, help='resume based on the previous run\'s last successful suid')
         parser.add_argument('--pls-ensure-ingest-jobs', '-j', action='store_true', help='before starting, ensure that all relevant suids have ingest jobs')
         parser.add_argument('--pls-reformat', '-r', action='store_true', help='re-format records that are already in these formats')
-        parser.add_argument('--pls-reingest', '-i', action='store_true', help='re-ingest records from raw, ignoring old normalizeddata')
+        parser.add_argument('--pls-renormalize', '-i', action='store_true', help='re-normalize records from raw, ignoring old normalizeddata')
 
     def handle(self, *args, **options):
         metadata_formats = options['metadata_formats']
