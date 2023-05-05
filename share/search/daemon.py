@@ -231,8 +231,8 @@ class MessageHandlingLoop:
                     raise TooFastSlowDown
                 else:
                     error_count += 1
-                    logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_label)
-                    sentry_client.captureMessage('error handling message', data=message_response.error_label)
+                    logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_text)
+                    sentry_client.captureMessage('error handling message', error_text=message_response.error_text)
                 target_id = message_response.index_message.target_id
                 for daemon_message in daemon_messages_by_target_id.pop(target_id):
                     daemon_message.ack()  # finally set it free

@@ -108,7 +108,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                     is_done=is_done,
                     index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
                     status_code=response_body.get('status'),
-                    error_label=(
+                    error_text=(
                         None
                         if ok
                         else str(response_body)

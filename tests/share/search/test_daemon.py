@@ -171,7 +171,7 @@ class TestIndexerDaemon:
                         is_done=False,
                         index_message=messages.IndexMessage(messages_chunk.message_type, target_id),
                         status_code=418,
-                        error_label='i am a teapot',
+                        error_text='i am a teapot',
                     )
 
         with mock.patch('share.search.daemon.sentry_client') as mock_sentry:
@@ -205,7 +205,7 @@ class TestIndexerDaemon:
                             is_done=False,
                             index_message=messages.IndexMessage(messages_chunk.message_type, target_id),
                             status_code=429,
-                            error_label='too many!',
+                            error_text='too many!',
                         )
                     else:
                         yield messages.IndexMessageResponse(
