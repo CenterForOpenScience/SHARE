@@ -589,6 +589,3 @@ if DEBUG and os.environ.get('TOOLBAR', False):
         'SHOW_TOOLBAR_CALLBACK': lambda _: True
     }
     ALLOWED_HOSTS.append('localhost')
-
-if DEBUG and os.environ.get('PROF', False):
-    MIDDLEWARE += ('api.middleware.ProfileMiddleware', )
