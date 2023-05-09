@@ -57,6 +57,7 @@ SENSITIVE_DATA_KEY = jwe.kdf(SECRET_KEY.encode('utf-8'), SALT.encode('utf-8'))
 DEBUG = bool(os.environ.get('DEBUG', True))
 
 VERSION = __version__
+GIT_COMMIT = os.environ.get('GIT_COMMIT', None)
 
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
 
@@ -236,15 +237,29 @@ LOGIN_REDIRECT_URL = os.environ.get('LOGIN_REDIRECT_URL', 'http://localhost:8000
 
 if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
-# else:
+
 if os.environ.get('USE_SENTRY'):
-    INSTALLED_APPS += [
-        'raven.contrib.django.raven_compat',
-    ]
-    RAVEN_CONFIG = {
-        'dsn': os.environ.get('SENTRY_DSN', None),
-        'release': os.environ.get('GIT_COMMIT', None),
-    }
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    sentry_sdk.init(
+        dsn=os.environ.get('SENTRY_DSN', None),
+        release=(
+            '-'.join((VERSION, GIT_COMMIT))
+            if GIT_COMMIT
+            else VERSION
+        ),
+        send_default_pii=False,
+        request_bodies=False,
+        debug=DEBUG,
+        integrations=[
+            DjangoIntegration(
+                transaction_style='endpoint',
+                middleware_spans=True,
+                signals_spans=True,
+                cache_spans=True,
+            ),
+        ],
+    )
 
 
 # TODO REMOVE BEFORE PRODUCTION
@@ -454,58 +469,24 @@ LOGGING = {
         }
     },
     'handlers': {
-        'sentry': {
-            'level': 'ERROR',  # To capture more than ERROR, change to WARNING, INFO, etc.
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'tags': {'custom-tag': 'x'},
-        },
-        'console': {
+        'stream-to-stderr': {
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
-            'formatter': 'console'
+            'level': LOG_LEVEL,
+            'formatter': 'console',
         },
     },
     'loggers': {
         '': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False
-        },
-        'bots': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False
-        },
-        'elasticsearch': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False
-        },
-        'share': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
+            'level': ('DEBUG' if DEBUG else 'INFO'),
+            'handlers': ['stream-to-stderr'],
             'propagate': False
         },
         'django.db.backends': {
             'level': 'ERROR',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'raven': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'sentry.errors': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
+            'handlers': ['stream-to-stderr'],
             'propagate': False,
         },
     },
-    'root': {
-        'level': 'WARNING',
-        'handlers': ['sentry'],
-    }
 }
 
 # shell_plus convenience utilities

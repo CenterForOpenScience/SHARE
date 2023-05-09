@@ -10,7 +10,7 @@ from celery.utils.time import maybe_timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from raven.contrib.django.raven_compat.models import client
+import sentry_sdk
 
 from share.util import chunked
 from share.models import CeleryTaskResult
@@ -29,8 +29,8 @@ def die_on_unhandled(func):
         except Exception as e:
             err = e
             try:
-                client.captureException()
                 logger.exception('Celery internal method %s failed', func)
+                sentry_sdk.capture_exception()
             finally:
                 if err:
                     raise SystemExit(57)  # Something a bit less generic than 1 or -1

@@ -125,7 +125,7 @@ class TestIndexerDaemon:
             def pls_handle_messages_chunk(self, messages_chunk):
                 raise UnexpectedError
 
-        with mock.patch('share.search.daemon.sentry_client') as mock_sentry:
+        with mock.patch('share.search.daemon.sentry_sdk') as mock_sentry:
             with mock.patch('share.search.daemon.logger') as mock_logger:
                 with _daemon_running(
                     FakeIndexStrategyWithUnexpectedError(),
@@ -136,7 +136,7 @@ class TestIndexerDaemon:
                     assert daemon.stop_event.wait(timeout=10), (
                         'daemon should have stopped after an unexpected error'
                     )
-                    mock_sentry.captureException.assert_called_once()
+                    mock_sentry.capture_exception.assert_called_once()
                     mock_logger.exception.assert_called_once()
 
     def test_noncurrent_backfill(self):
@@ -174,7 +174,7 @@ class TestIndexerDaemon:
                         error_text='i am a teapot',
                     )
 
-        with mock.patch('share.search.daemon.sentry_client') as mock_sentry:
+        with mock.patch('share.search.daemon.sentry_sdk') as mock_sentry:
             with mock.patch('share.search.daemon.logger') as mock_logger:
                 with _daemon_running(FakeIndexStrategyWithMessageError()) as daemon:
                     message = FakeCeleryMessage(messages.MessageType.INDEX_SUID, 1)
@@ -184,7 +184,7 @@ class TestIndexerDaemon:
                         'daemon should not have stopped for a message error'
                     )
                     # and logged
-                    mock_sentry.captureMessage.assert_called_once()
+                    mock_sentry.capture_message.assert_called_once()
                     mock_logger.error.assert_called_once()
                     # but the message acked
                     assert message.acked

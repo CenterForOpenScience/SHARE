@@ -7,8 +7,8 @@ import celery
 from django.conf import settings
 import kombu
 import kombu.simple
-from raven.contrib.django.raven_compat.models import client as sentry_client
 import requests
+import sentry_sdk
 
 from share.search.messages import MessagesChunk, MessageType
 from share.search.index_strategy import IndexStrategy
@@ -72,7 +72,7 @@ class IndexMessenger:
             )
             return resp.json().get('messages', 0)
         except Exception:
-            sentry_client.captureException()
+            sentry_sdk.capture_exception()
             return '??'
 
     def send_message(self, message_type: MessageType, target_id, *, urgent=False):

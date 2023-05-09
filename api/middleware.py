@@ -5,7 +5,7 @@ import pstats
 from django.conf import settings
 from django.http import HttpResponse
 
-from raven.contrib.django.raven_compat.models import client as sentry_client
+import sentry_sdk
 
 from api.deprecation import get_view_func_deprecation_level, DeprecationLevel
 
@@ -61,14 +61,13 @@ class DeprecationMiddleware:
         deprecation_level = get_view_func_deprecation_level(view_func)
 
         if deprecation_level in (DeprecationLevel.LOGGED, DeprecationLevel.HIDDEN):
-            sentry_client.captureMessage('Deprecated view usage', data={
-                'request': {
-                    'path': request.path,
-                    'method': request.method,
-                },
-                'deprecation_level': deprecation_level,
-                'HIDE_DEPRECATED_VIEWS': settings.HIDE_DEPRECATED_VIEWS,
-            })
+            sentry_sdk.capture_message('\n\t'.join((
+                'Deprecated view usage:',
+                f'request.path: {request.path}',
+                f'request.method: {request.method}',
+                f'deprecation_level: {deprecation_level}',
+                f'HIDE_DEPRECATED_VIEWS: {settings.HIDE_DEPRECATED_VIEWS}',
+            )))
 
         if settings.HIDE_DEPRECATED_VIEWS and deprecation_level == DeprecationLevel.HIDDEN:
             return HttpResponse(
