@@ -147,15 +147,15 @@ services:
       - apt-get update &&
         apt-get install -y gcc &&
         pip install -r requirements.txt -r dev-requirements.txt &&
-        (python3 -m compileall /usr/local/lib/python3.11 || true) &&
-        rm -Rf /python3.11/* &&
+        (python3 -m compileall /usr/local/lib/python3.10 || true) &&
+        rm -Rf /python3.10/* &&
         apt-get remove -y gcc &&
-        cp -Rf -p /usr/local/lib/python3.11 / &&
+        cp -Rf -p /usr/local/lib/python3.10 / &&
         python3 setup.py develop
     restart: 'no'
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/python3.11
+      - share_requirements_vol:/python3.10
 
   frontend:
     image: quay.io/centerforopenscience/share-web:develop-local
@@ -177,7 +177,7 @@ services:
       - indexer
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.11
+      - share_requirements_vol:/usr/local/lib/python3.10
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -198,7 +198,7 @@ services:
       - frontend
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.11
+      - share_requirements_vol:/usr/local/lib/python3.10
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -216,7 +216,7 @@ services:
       - elastic8
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.11
+      - share_requirements_vol:/usr/local/lib/python3.10
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env

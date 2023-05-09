@@ -58,6 +58,12 @@ class RealElasticTestCase(TransactionTestCase):
         self.current_index.pls_delete()
         IndexStrategy.clear_strategy_cache()
 
+    def enterContext(self, context_manager):
+        # TestCase.enterContext added in python3.11 -- implementing here until then
+        result = context_manager.__enter__()
+        self.addCleanup(lambda: context_manager.__exit__(None, None, None))
+        return result
+
     @contextlib.contextmanager
     def _daemon_up(self):
         stop_event = IndexerDaemon.start_daemonthreads(
