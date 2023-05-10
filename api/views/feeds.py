@@ -1,14 +1,14 @@
 from xml.sax.saxutils import unescape
-from furl import furl
 import json
 import logging
-import pendulum
 
 from django.contrib.syndication.views import Feed
 from django.http import HttpResponseGone
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
-from raven.contrib.django.raven_compat.models import client as sentry_client
+from furl import furl
+import pendulum
+import sentry_sdk
 
 from share.search import IndexStrategy
 from share.search.exceptions import IndexStrategyError
@@ -69,7 +69,7 @@ class MetadataRecordsRSS(Feed):
                 request_body=obj,
             )
         except IndexStrategyError:
-            sentry_client.captureException()
+            sentry_sdk.capture_exception()
             return
 
         def get_item(hit):

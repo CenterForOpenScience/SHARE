@@ -9,7 +9,7 @@ import time
 
 from django.conf import settings
 from kombu.mixins import ConsumerMixin
-from raven.contrib.django.raven_compat.models import client as sentry_client
+import sentry_sdk
 
 from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 
@@ -150,7 +150,7 @@ class IndexerDaemon:
                 while not self.stop_event.is_set():
                     loop.iterate_once()
             except Exception as e:
-                sentry_client.captureException()
+                sentry_sdk.capture_exception()
                 logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
                 raise
             finally:
@@ -232,13 +232,13 @@ class MessageHandlingLoop:
                 else:
                     error_count += 1
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_text)
-                    sentry_client.captureMessage('error handling message', error_text=message_response.error_text)
+                    sentry_sdk.capture_message(f'error handling message: {message_response}')
                 target_id = message_response.index_message.target_id
                 for daemon_message in daemon_messages_by_target_id.pop(target_id):
                     daemon_message.ack()  # finally set it free
             if daemon_messages_by_target_id:  # should be empty by now
                 logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
-                sentry_client.captureMessage('unhandled daemon messages??', unhandled_messages=dict(daemon_messages_by_target_id))
+                sentry_sdk.capture_message(f'unhandled daemon messages: {dict(daemon_messages_by_target_id)}')
         time_elapsed = time.time() - start_time
         if doc_count or error_count:
             logger.info('%sIndexed %d documents in %.02fs (with %d errors)', self.log_prefix, doc_count, time_elapsed, error_count)
