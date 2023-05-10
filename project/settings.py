@@ -253,7 +253,7 @@ if os.environ.get('USE_SENTRY'):
         debug=DEBUG,
         integrations=[
             DjangoIntegration(
-                transaction_style='endpoint',
+                transaction_style='url',
                 middleware_spans=True,
                 signals_spans=True,
                 cache_spans=True,
