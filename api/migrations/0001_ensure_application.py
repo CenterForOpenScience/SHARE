@@ -19,10 +19,6 @@ def ensure_application(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ('api', '0001_create_application'),
-    ]
-
     dependencies = [
         ('oauth2_provider', '0002_08_updates'),
         ('share', '0061_ensure_auto_users'),
