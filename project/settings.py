@@ -457,7 +457,7 @@ CELERY_TASK_QUEUES = {
 
 
 # Logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+LOG_LEVEL = os.environ.get('LOG_LEVEL', default=('INFO' if DEBUG else 'WARNING')).upper()
 
 LOGGING = {
     'version': 1,
@@ -466,18 +466,21 @@ LOGGING = {
         'console': {
             '()': 'colorlog.ColoredFormatter',
             'format': '%(cyan)s[%(asctime)s]%(purple)s[%(threadName)s]%(log_color)s[%(levelname)s][%(name)s]: %(reset)s%(message)s'
-        }
+        },
+        'json': {
+            '()': 'project.logging_formatter.JsonLogFormatter',
+        },
     },
     'handlers': {
         'stream-to-stderr': {
             'class': 'logging.StreamHandler',
             'level': LOG_LEVEL,
-            'formatter': 'console',
+            'formatter': ('console' if DEBUG else 'json'),
         },
     },
     'loggers': {
         '': {
-            'level': ('DEBUG' if DEBUG else 'INFO'),
+            'level': LOG_LEVEL,
             'handlers': ['stream-to-stderr'],
             'propagate': False
         },
