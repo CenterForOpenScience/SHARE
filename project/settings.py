@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
-from django.utils.log import DEFAULT_LOGGING
-
 from celery.schedules import crontab
 import jwe
 
@@ -32,9 +30,6 @@ def strtobool(s: str) -> bool:
 def split(string, delim):
     return tuple(map(str.strip, filter(None, string.split(delim))))
 
-
-# Suppress select django deprecation messages
-LOGGING = DEFAULT_LOGGING
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
