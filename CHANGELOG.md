@@ -1,5 +1,12 @@
 # Change Log
 
+# [23.0.5] - 2023-05-11
+- downgrade to python 3.10 (for now)
+- improve logging
+    - replace `raven` (deprecated) with `sentry-sdk`
+    - add logging formatter for json with `severity` (for logging in deployments)
+- remove squashed migrations, dead code
+
 # [23.0.4] - 2023-05-05
 - fix a typo
 
