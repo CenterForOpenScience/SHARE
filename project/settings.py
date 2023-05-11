@@ -452,7 +452,7 @@ CELERY_TASK_QUEUES = {
 
 
 # Logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', default=('INFO' if DEBUG else 'WARNING')).upper()
+LOG_LEVEL = os.environ.get('LOG_LEVEL', default='INFO').upper()
 
 LOGGING = {
     'version': 1,
@@ -464,6 +464,7 @@ LOGGING = {
         },
         'json': {
             '()': 'project.logging_formatter.JsonLogFormatter',
+            'format': '[%(asctime)s][%(threadName)s][%(levelname)s][%(name)s]: %(message)s'
         },
     },
     'handlers': {
