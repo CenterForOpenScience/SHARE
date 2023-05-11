@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.0.6] - 2023-05-11
+- make `SourceConfig.disabled` prevent `harvest` tasks running
+
 # [23.0.5] - 2023-05-11
 - downgrade to python 3.10 (for now)
 - improve logging
