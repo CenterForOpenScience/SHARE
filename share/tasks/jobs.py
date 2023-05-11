@@ -59,13 +59,15 @@ class JobConsumer:
             force (bool, optional):
         Additional keyword arguments passed to _consume_job, along with superfluous and force
         """
-        with self._locked_job(job_id) as job:
+        with self._locked_job(job_id, force=force) as job:
             if job is None:
                 if job_id is None:
                     logger.info('No %ss are currently available', self.Job.__name__)
+                    return
                 else:
-                    logger.error('Could not load/lock/consume %s(id=%s)', self.Job.__name__, job_id)
-                return
+                    message = f'Could not find/lock {self.Job.__name__}(id={job_id})'
+                    logger.error(message)
+                    raise self.Job.DoesNotExist(message)
 
             assert self.task or not exhaust, 'Cannot pass exhaust=True unless running in an async context'
             if exhaust and job_id is None:
@@ -119,12 +121,14 @@ class JobConsumer:
             claimed=True
         )
 
-    def _locked_job(self, job_id):
-        qs = (
-            self.Job.objects.all()
-            .exclude(source_config__disabled=True)
-            .exclude(source_config__source__is_deleted=True)
-        )
+    def _locked_job(self, job_id, force=False):
+        qs = self.Job.objects.all()
+        if not force:
+            qs = (
+                qs
+                .exclude(source_config__disabled=True)
+                .exclude(source_config__source__is_deleted=True)
+            )
         if job_id is not None:
             logger.debug('Loading %s %d', self.Job.__name__, job_id)
             qs = qs.filter(id=job_id)

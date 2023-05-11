@@ -50,9 +50,9 @@ class TestHarvestTask:
 
     @pytest.mark.parametrize('source_config_kwargs, task_kwargs, lock_config, exception', [
         ({}, {}, True, HarvesterConcurrencyError),
-        ({'disabled': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
-        ({'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
-        ({'disabled': True, 'source__is_deleted': True}, {'ignore_disabled': True}, True, HarvesterConcurrencyError),
+        ({'disabled': True}, {}, True, HarvestJob.DoesNotExist),
+        ({'source__is_deleted': True}, {}, True, HarvestJob.DoesNotExist),
+        ({'disabled': True, 'source__is_deleted': True}, {}, True, HarvestJob.DoesNotExist),
     ])
     def test_failure_cases(self, source_config_kwargs, task_kwargs, lock_config, exception):
         source_config = factories.SourceConfigFactory(**source_config_kwargs)
@@ -73,8 +73,6 @@ class TestHarvestTask:
         ({}, {'force': True}, True),
         ({'disabled': True}, {'force': True}, True),
         ({'disabled': True}, {'force': True}, False),
-        ({'disabled': True}, {'ignore_disabled': True}, False),
-        ({'source__is_deleted': True}, {'ignore_disabled': True}, False),
         ({'source__is_deleted': True}, {'force': True}, False),
         ({'source__is_deleted': True}, {'force': True}, True),
     ])
