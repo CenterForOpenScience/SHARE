@@ -31,9 +31,9 @@ urlpatterns = [
         permanent=False
     ), name='favicon'),
     url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
-    path('index-card-search', view=search_views.IndexCardSearchView.as_view(), name='index-card-search'),
-    path('index-property-search', view=search_views.IndexPropertySearchView.as_view(), name='index-property-search'),
-    path('index-value-search', view=search_views.IndexValueSearchView.as_view(), name='index-value-search'),
+    path('index-card-search', view=search_views.CardsearchView.as_view(), name='index-card-search'),
+    path('index-property-search', view=search_views.PropertysearchView.as_view(), name='index-property-search'),
+    path('index-value-search', view=search_views.ValuesearchView.as_view(), name='index-value-search'),
 ]
 
 if settings.DEBUG:

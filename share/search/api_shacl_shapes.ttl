@@ -2,7 +2,7 @@
 @prefix shacl: http://www.w3.org/ns/shacl#
 @prefix trove: https://share.osf.io/trove/2023/
 
-trove:IndexCardSearch a shacl:NodeShape, rdfs:Class ;
+trove:Cardsearch a shacl:NodeShape, rdfs:Class ;
     rdfs:label "index-card search"@en ;
     rdfs:comment "primary data of a /index-card-search response"@en ;
     shacl:property [
@@ -18,11 +18,11 @@ trove:IndexCardSearch a shacl:NodeShape, rdfs:Class ;
         shacl:node trove:SearchResult ;
     ] ;
     shacl:property [
-        shacl:path trove:relatedPropertySearch ;
-        shacl:node trove:IndexPropertySearch ;
+        shacl:path trove:relatedPropertysearch ;
+        shacl:node trove:Propertysearch ;
     ] .
 
-trove:IndexPropertySearch a shacl:NodeShape, rdfs:Class ;
+trove:Propertysearch a shacl:NodeShape, rdfs:Class ;
     rdfs:label "index-property search"@en ;
     rdfs:comment "primary data of a /index-property-search response"@en ;
     shacl:property [
@@ -42,7 +42,7 @@ trove:IndexPropertySearch a shacl:NodeShape, rdfs:Class ;
         shacl:node trove:SearchResult ;
     ] .
 
-trove:IndexValueSearch a shacl:NodeShape, rdfs:Class ;
+trove:Valuesearch a shacl:NodeShape, rdfs:Class ;
     rdfs:comment "primary data of a /index-value-search response"@en ;
     shacl:property [
         shacl:path trove:totalResultCount ;
@@ -76,10 +76,10 @@ trove:IndexValueSearch a shacl:NodeShape, rdfs:Class ;
     ] .
 
 trove:SearchResult a shacl:NodeShape, rdfs:Class ;
-    rdfs:comment "connects a search to an IndexCard (with evidence of match)"@en ;
+    rdfs:comment "connects a search to an Card (with evidence of match)"@en ;
     shacl:property [
         shacl:path trove:indexCard ;
-        shacl:node trove:IndexCard ;
+        shacl:node trove:Card ;
         shacl:minCount 1 ;
         shacl:maxCount 1 ;
     ] ;
@@ -90,14 +90,14 @@ trove:SearchResult a shacl:NodeShape, rdfs:Class ;
     ] ;
     shacl:property [
         shacl:path trove:evidenceRecordSet ;
-        shacl:node trove:IndexCard ;
+        shacl:node trove:Card ;
     ] ;
     shacl:property [
         shacl:path trove:recordResultCount ;
         shacl:datatype xsd:integer ;
     ] .
 
-trove:IndexCard a shacl:NodeShape, rdfs:Class ;
+trove:Card a shacl:NodeShape, rdfs:Class ;
     shacl:property [
         shacl:path trove:resourceType ;
         shacl:nodeKind shacl:IRI ;

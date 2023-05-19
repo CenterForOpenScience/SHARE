@@ -11,7 +11,7 @@ from share.search import exceptions
 
 # two special characters in search text:
 NEGATE_WORD_OR_PHRASE = '-'
-PHRASE_QUOTATION_MARK = '"'
+DOUBLE_QUOTATION_MARK = '"'
 
 # jsonapi query-param parsing
 QUERYPARAM_FAMILY_REGEX = re.compile(r'^[a-zA-Z0-9][-_a-zA-Z0-9]*(?=\[|$)')
@@ -60,90 +60,108 @@ class JsonapiQueryparamName:
 
 
 @dataclasses.dataclass(frozen=True)
-class SearchTextSegment:
+class Textsegment:
     text: str
-    is_fuzzy: bool
-    is_negated: bool
-    is_openended: bool
+    is_fuzzy: bool = True
+    is_negated: bool = False
+    is_openended: bool = False
 
     def __post_init__(self):
-        if self.is_negated and self.is_openended:
-            raise ValueError(f'{self}: cannot have both is_negated and is_openended')
         if self.is_negated and self.is_fuzzy:
             raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
 
-    @classmethod
-    def from_text(cls, search_text: str) -> typing.Iterable['SearchTextSegment']:
-        '''parse search text into words and quoted phrases
-        '''
-        in_quotes = False
-        phrase_prefix = None
-        remaining = search_text
-        while remaining:
-            text_chunk, quote_mark, remaining = remaining.partition(PHRASE_QUOTATION_MARK)
-            if text_chunk.strip():
-                is_negated = (phrase_prefix == NEGATE_WORD_OR_PHRASE)
-                is_openended = (
-                    not is_negated
-                    and not quote_mark
-                    and not remaining
-                )
-                if in_quotes:
-                    yield cls(
-                        text=text_chunk,
-                        is_fuzzy=False,
-                        is_negated=is_negated,
-                        is_openended=is_openended,
-                    )
-                else:  # not in_quotes
-                    words = cls.split_into_words(
-                        text_chunk,
-                        is_openended=is_openended,
-                    )
-                    yield from words
-                    # additional fuzzy-phrase segments, because written order might help
-                    for is_negated, fuzzy_phrase in itertools.groupby(
-                        words,
-                        key=lambda word: word.is_negated,
-                    ):
-                        if not is_negated and len(fuzzy_phrase) > 1:
-                            yield cls(
-                                text=' '.join(fuzzy_phrase),
-                                is_fuzzy=True,
-                                is_negated=False,
-                                is_openended=is_openended,
-                            )
-            if quote_mark:
-                if in_quotes:  # end quote
-                    in_quotes = False
-                    phrase_prefix = None
-                else:  # begin quote
-                    in_quotes = True
-                    phrase_prefix = text_chunk[-1:]
-
-    @classmethod
-    def split_into_words(cls, text: str, *, is_openended: bool) -> typing.Iterable['SearchTextSegment']:
+    def wordset(self) -> typing.Iterable[tuple[bool, typing.Iterable['Textsegment']]]:
         try:
-            (*words, last_word) = text.split()
+            (*words, lastword) = self.text.split()
         except ValueError:
             pass  # no words
         else:
             for word in words:
-                yield cls.from_word(word, is_openended=False)
-            yield cls.from_word(last_word, is_openended=is_openended)
+                yield Textsegment.from_word(
+                    word,
+                    is_openended=False,
+                    is_fuzzy=self.is_fuzzy,
+                )
+            if words:
+                yield Textsegment.from_word(
+                    lastword,
+                    is_openended=self.is_openended,
+                    is_fuzzy=self.is_fuzzy,
+                )
 
     @classmethod
-    def from_word(cls, word: str, *, is_openended: bool) -> 'SearchTextSegment':
-        if word.startswith(NEGATE_WORD_OR_PHRASE):
+    def from_str(cls, text: str) -> typing.Iterable['Textsegment']:
+        '''parse search text into words and quoted phrases
+        '''
+        in_quotes = False
+        last_quote_prefix = None
+        text_remaining = text
+        while text_remaining:
+            text_chunk, quote_mark, text_remaining = text_remaining.partition(DOUBLE_QUOTATION_MARK)
+            is_openended = (
+                not quote_mark
+                and not text_remaining
+            )
+            if in_quotes:
+                yield cls(
+                    text=text_chunk,
+                    is_fuzzy=False,
+                    is_negated=(last_quote_prefix == NEGATE_WORD_OR_PHRASE),
+                    is_openended=is_openended,
+                )
+            else:
+                yield from cls._from_fuzzy_text(
+                    text_chunk,
+                    is_openended=is_openended,
+                )
+            if quote_mark:
+                if in_quotes:  # end quote
+                    in_quotes = False
+                    last_quote_prefix = None
+                else:  # begin quote
+                    in_quotes = True
+                    last_quote_prefix = text_chunk[-1:]
+
+    @classmethod
+    def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
+        (*wordgroups, lastgroup) = itertools.groupby(
+            text_chunk.split(),
+            key=lambda word: word.startswith(NEGATE_WORD_OR_PHRASE),
+        )
+        for word_negated, words in wordgroups:
+            yield from cls._from_fuzzy_wordgroup(word_negated, words)
+        yield from cls._from_fuzzy_wordgroup(*lastgroup, is_openended=True)
+
+    @classmethod
+    def _from_fuzzy_wordgroup(cls, word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
+        if word_negated:
+            for word in words:
+                yield cls(
+                    text=word[len(NEGATE_WORD_OR_PHRASE):],  # remove prefix
+                    is_fuzzy=False,
+                    is_negated=True,
+                    is_openended=False,
+                )
+        else:  # nothing negated; keep the phrase in one fuzzy segment
+            yield cls(
+                text=' '.join(words),
+                is_fuzzy=True,
+                is_negated=False,
+                is_openended=is_openended,
+            )
+
+    @classmethod
+    def from_word(cls, word: str, *, is_openended: bool, is_fuzzy: bool) -> 'Textsegment':
+        if is_fuzzy and word.startswith(NEGATE_WORD_OR_PHRASE):
             is_negated = True
             word = word[len(NEGATE_WORD_OR_PHRASE):]  # remove prefix
         else:
             is_negated = False
         return cls(
             text=word,
-            is_fuzzy=(not is_negated),
+            is_fuzzy=(is_fuzzy and not is_negated),
             is_negated=is_negated,
-            is_openended=is_openended,
+            is_openended=(is_openended and not is_negated),
         )
 
 
@@ -176,22 +194,27 @@ class SearchFilter:
 
 
 @dataclasses.dataclass(frozen=True)
-class IndexCardSearchParams:
-    card_search_text_set: frozenset[SearchTextSegment]
-    card_search_filter_set: frozenset[SearchFilter]
+class CardsearchParams:
+    cardsearch_text: str
+    cardsearch_textsegment_list: tuple[Textsegment]
+    cardsearch_filter_set: frozenset[SearchFilter]
     include: typing.Optional[frozenset[tuple[str]]] = None
     sort: typing.Optional[str] = None
 
     @classmethod
     def from_request(cls, request: http.HttpRequest):
         queryparams_by_family = _jsonapi_queryparams(request)
+        cardsearch_text = ' '.join(
+            param_value
+            for _, param_value
+            in queryparams_by_family.get('cardSearchText', ())
+        )
         return cls(
-            card_search_text_set=frozenset(itertools.chain(*(
-                SearchTextSegment.from_text(param_value)
-                for _, param_value
-                in queryparams_by_family.get('cardSearchText', ())
-            ))),
-            card_search_filter_set=frozenset(
+            cardsearch_text=cardsearch_text,
+            cardsearch_textsegment_list=frozenset(
+                Textsegment.from_str(cardsearch_text),
+            ),
+            cardsearch_filter_set=frozenset(
                 SearchFilter.from_filter_param(param_name, param_value)
                 for (param_name, param_value)
                 in queryparams_by_family.get('cardSearchFilter', ())
@@ -201,19 +224,19 @@ class IndexCardSearchParams:
 
 
 @dataclasses.dataclass(frozen=True)
-class IndexPropertySearchParams:
-    property_search_text_set: frozenset[str]
-    property_search_filter_set: frozenset[SearchFilter]
-    card_search_text_set: frozenset[str]
-    card_search_filter_set: frozenset[SearchFilter]
+class PropertysearchParams:
+    propertysearch_textsegment_list: frozenset[str]
+    propertysearch_filter_set: frozenset[SearchFilter]
+    cardsearch_textsegment_list: frozenset[str]
+    cardsearch_filter_set: frozenset[SearchFilter]
 
 
 @dataclasses.dataclass(frozen=True)
-class IndexValueSearchParams:
-    value_search_text_set: frozenset[str]
-    value_search_filter_set: frozenset[SearchFilter]
-    card_search_text_set: frozenset[str]
-    card_search_filter_set: frozenset[SearchFilter]
+class ValuesearchParams:
+    valuesearch_textsegment_list: frozenset[str]
+    valuesearch_filter_set: frozenset[SearchFilter]
+    cardsearch_textsegment_list: frozenset[str]
+    cardsearch_filter_set: frozenset[SearchFilter]
 
 
 def _jsonapi_queryparams(request: http.HttpRequest) -> dict[

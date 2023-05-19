@@ -207,13 +207,14 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 pass
             return json_response
 
-        def pls_handle_index_card_search(
+        def pls_handle_cardsearch(
             self,
-            card_search_params: search_params.IndexCardSearchParams,
+            cardsearch_params: search_params.CardsearchParams,
         ):  # -> ApiSearchResponse:
             es8_query = {
-                'bool': self._cardsearch_bool_query(card_search_params),
+                'bool': self._cardsearch_bool_query(cardsearch_params),
             }
+
             logger.critical(json.dumps(es8_query, indent=2))
             try:
                 json_response = self.index_strategy.es8_client.search(
@@ -221,7 +222,11 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     query=es8_query,
                     highlight={
                         'fields': {
-                            fieldname: {}
+                            fieldname: {
+                                'highlight_query': {
+                                    'match': cardsearch_params.cardsearch_text,
+                                }
+                            }
                             for fieldname in TEXT_FIELDS
                         },
                     },
@@ -244,72 +249,70 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 'must_not': [],
                 'should': [],
             }
-            for text_segment in search_params.card_search_text_set:
-                if text_segment.is_negated:
+            for textsegment in search_params.cardsearch_textsegment_list:
+                if textsegment.is_negated:
                     bool_query['must_not'].append(
-                        self._excluded_text_query(text_segment)
-                    )
-                elif text_segment.is_fuzzy:
-                    bool_query['should'].extend(
-                        self._fuzzy_query_each_text_field(text_segment)
+                        self._excluded_text_query(textsegment)
                     )
                 else:
-                    bool_query['must'].append(
-                        self._exact_text_query(text_segment)
-                    )
-                    # also put in 'should' for the relevance
                     bool_query['should'].extend(
-                        self._fuzzy_query_each_text_field(text_segment)
+                        self._fuzzy_text_query_iter(textsegment)
                     )
+                    if not textsegment.is_fuzzy:
+                        bool_query['must'].append(
+                            self._exact_text_query(textsegment)
+                        )
             return bool_query
 
         def _cardsearch_filter(self, search_params) -> typing.Iterable[dict]:
-            for search_filter in search_params.card_search_filter_set:
+            for search_filter in search_params.cardsearch_filter_set:
                 fieldname = self._filter_path_to_fieldname(search_filter.property_path)
                 yield {'terms': {
                     fieldname: list(search_filter.value_set),
                 }}
 
-        def _excluded_text_query(self, text_segment: search_params.SearchTextSegment):
-            return {'combined_fields': {
-                'query': text_segment.text,
+        def _excluded_text_query(self, textsegment: search_params.Textsegment):
+            return {'multi_match': {
+                'type': 'phrase',
+                'query': textsegment.text,
                 'fields': TEXT_FIELDS,
             }}
 
-        def _exact_text_query(self, text_segment: search_params.SearchTextSegment):
-            assert not text_segment.is_fuzzy
-            if text_segment.is_openended:
+        def _exact_text_query(self, textsegment: search_params.Textsegment):
+            assert not textsegment.is_fuzzy
+            if textsegment.is_openended:
                 return {'multi_match': {
                     'type': 'phrase_prefix',
-                    'query': text_segment.text,
+                    'query': textsegment.text,
                     'fields': TEXT_FIELDS,
                 }}
             return {'multi_match': {
                 'type': 'phrase',
-                'query': text_segment.text,
+                'query': textsegment.text,
                 'fields': TEXT_FIELDS,
             }}
 
-        def _fuzzy_query_each_text_field(self, text_segment: search_params.SearchTextSegment):
-            wordcount = len(text_segment.text.split())
+        def _fuzzy_text_query_iter(self, textsegment: search_params.Textsegment):
+            wordcount = len(textsegment.text.split())
 
             def _fuzzy_text_query(field_name: str):
                 yield {'match': {
                     field_name: {
-                        'query': text_segment.text,
+                        'query': textsegment.text,
                         'fuzziness': 'AUTO',
                     },
                 }}
-                yield {(
-                    'match_phrase_prefix'
-                    if text_segment.is_openended
-                    else 'match_phrase'
-                ): {
-                    field_name: {
-                        'query': text_segment.text,
-                        'slop': wordcount,
-                    },
-                }}
+                if wordcount > 1:
+                    yield {(
+                        'match_phrase_prefix'
+                        if textsegment.is_openended
+                        else 'match_phrase'
+                    ): {
+                        field_name: {
+                            'query': textsegment.text,
+                            'slop': wordcount,
+                        },
+                    }}
 
             for field_name in TEXT_FIELDS:
                 yield from _fuzzy_text_query(field_name)
