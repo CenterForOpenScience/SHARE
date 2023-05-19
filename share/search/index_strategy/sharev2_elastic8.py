@@ -1,7 +1,9 @@
 import json
+import logging
 import typing
 
 import elasticsearch8
+import rdflib
 
 from share import models as db
 from share.search import exceptions
@@ -13,18 +15,34 @@ from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
 
 
-SEARCHABLE_TEXT_FIELDS = (  # TODO: is this all?
+logger = logging.getLogger(__name__)
+
+
+# TODO: use the actual terms referenced by OSFMAP (DCTERMS, etc.)
+OSFMAP = rdflib.Namespace('https://osf.io/vocab/2023/')
+
+TEXT_FIELDS = (  # TODO: is this all?
     'title',
     'description',
     'tags',
-    'contributors',
-    'source_unique_id',
 )
-PHRASE_DELIMITER = '"'
-OSFMAP__SHAREV2 = {
-    'title': 'title',
-    'description': 'description',
-    # TODO ...
+KEYWORD_FIELDS_BY_OSFMAP = {
+    OSFMAP.identifier: 'identifiers',
+    OSFMAP.creator: 'lists.contributors.identifiers',  # note: contributor types lumped together
+    OSFMAP.publisher: 'lists.publishers.identifiers',
+    OSFMAP.subject: 'subjects',  # note: |-delimited taxonomic path
+    OSFMAP.language: 'language',
+    OSFMAP.resourceType: 'types',  # TODO: map type hierarchy
+    OSFMAP.resourceTypeGeneral: 'types',
+    OSFMAP.affiliatedInstitution: 'lists.affiliations.identifiers',
+    OSFMAP.funder: 'lists.funders.identifiers',
+    OSFMAP.keyword: 'tags.exact',
+}
+DATE_FIELDS_BY_OSFMAP = {
+    # missing: OSFMAP.embargoEndDate, OSFMAP.dateOfCopyright
+    OSFMAP.date: 'date',
+    OSFMAP.created: 'date_published',  # note: NOT 'date_created'
+    OSFMAP.modified: 'date_updated',  # note: NOT 'date_modified'
 }
 
 
@@ -170,13 +188,17 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            json_response = self._send_search_request(
-                request_body={
-                    **request_body,
-                    'track_total_hits': True,
-                },
-                request_queryparams=request_queryparams,
-            )
+            try:
+                json_response = self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    body={
+                        **request_body,
+                        'track_total_hits': True,
+                    },
+                    params=(request_queryparams or {}),
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
             try:  # mangle response for some limited backcompat with elasticsearch5
                 es8_total = json_response['hits']['total']
                 json_response['hits']['total'] = es8_total['value']
@@ -189,67 +211,105 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             self,
             card_search_params: search_params.IndexCardSearchParams,
         ):  # -> ApiSearchResponse:
-            es8_response = self._send_search_request(
-                request_body={
-                    'query': {
-                        'bool': {
-                            'filter': list(
-                                self._es8_filter_iter(search_params.card_search_filter_set),
-                            ),
-                            'should': list(
-                                self._es8_text_query_iter(search_params.card_search_text_set),
-                            ),
-                        },
-                    },
-                    'highlight': {
-                        fieldname: {}
-                        for fieldname in self.SEARCHABLE_TEXT_FIELDS
-                    },
-                },
-            )
-            return es8_response  # TODO: return shaclbasket
-
-        def _send_search_request(self, *, request_body=None, request_queryparams=None):
+            es8_query = {
+                'bool': self._cardsearch_bool_query(card_search_params),
+            }
+            logger.critical(json.dumps(es8_query, indent=2))
             try:
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    body=request_body,
-                    params=request_queryparams,
+                    query=es8_query,
+                    highlight={
+                        'fields': {
+                            fieldname: {}
+                            for fieldname in TEXT_FIELDS
+                        },
+                    },
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return json_response
+            return json_response.body  # TODO: return shaclbasket
 
-        def _propertypath_to_fieldname(self, property_path):
-            raise NotImplementedError('TODO')
+        def _filter_path_to_fieldname(self, filter_path: tuple[str]):
+            try:
+                # TODO: better
+                return KEYWORD_FIELDS_BY_OSFMAP[OSFMAP[filter_path[0]]]
+            except KeyError:
+                raise NotImplementedError('TODO')
 
-        def _es8_filter_iter(self, filter_set: frozenset[search_params.SearchFilter]) -> typing.Iterable[dict]:
-            for search_filter in filter_set:
-                fieldname = self._propertypath_to_fieldname(search_filter.property_path)
-                yield {
-                    'terms': {
-                        fieldname: list(search_filter.filter_value_set),
-                    }
-                }
+        def _cardsearch_bool_query(self, search_params) -> dict:
+            bool_query = {
+                'filter': list(self._cardsearch_filter(search_params)),
+                'must': [],
+                'must_not': [],
+                'should': [],
+            }
+            for text_segment in search_params.card_search_text_set:
+                if text_segment.is_negated:
+                    bool_query['must_not'].append(
+                        self._excluded_text_query(text_segment)
+                    )
+                elif text_segment.is_fuzzy:
+                    bool_query['should'].extend(
+                        self._fuzzy_query_each_text_field(text_segment)
+                    )
+                else:
+                    bool_query['must'].append(
+                        self._exact_text_query(text_segment)
+                    )
+                    # also put in 'should' for the relevance
+                    bool_query['should'].extend(
+                        self._fuzzy_query_each_text_field(text_segment)
+                    )
+            return bool_query
 
-        def _es8_text_query_iter(self, query_text_set: typing.Iterable[str]) -> typing.Iterable[dict]:
-            for query_text in query_text_set:
-                in_phrase = False
-                remaining = query_text
-                while remaining:  # TODO: move quote-parsing to a reusable place?
-                    before_delim, delim, remaining = remaining.partition(self.PHRASE_DELIMITER)
-                    query_part = before_delim.strip()
-                    if query_part:
-                        if in_phrase:
-                            multimatch_type = ('phrase' if delim else 'phrase_prefix')
-                        else:
-                            multimatch_type = ('most_fields' if delim else 'bool_prefix')
-                        yield {
-                            'multi_match': {
-                                'query': query_part,
-                                'type': multimatch_type,
-                                'fields': SEARCHABLE_TEXT_FIELDS,
-                            }
-                        }
-                    if delim:
-                        in_phrase = (not in_phrase)
+        def _cardsearch_filter(self, search_params) -> typing.Iterable[dict]:
+            for search_filter in search_params.card_search_filter_set:
+                fieldname = self._filter_path_to_fieldname(search_filter.property_path)
+                yield {'terms': {
+                    fieldname: list(search_filter.value_set),
+                }}
+
+        def _excluded_text_query(self, text_segment: search_params.SearchTextSegment):
+            return {'combined_fields': {
+                'query': text_segment.text,
+                'fields': TEXT_FIELDS,
+            }}
+
+        def _exact_text_query(self, text_segment: search_params.SearchTextSegment):
+            assert not text_segment.is_fuzzy
+            if text_segment.is_openended:
+                return {'multi_match': {
+                    'type': 'phrase_prefix',
+                    'query': text_segment.text,
+                    'fields': TEXT_FIELDS,
+                }}
+            return {'multi_match': {
+                'type': 'phrase',
+                'query': text_segment.text,
+                'fields': TEXT_FIELDS,
+            }}
+
+        def _fuzzy_query_each_text_field(self, text_segment: search_params.SearchTextSegment):
+            wordcount = len(text_segment.text.split())
+
+            def _fuzzy_text_query(field_name: str):
+                yield {'match': {
+                    field_name: {
+                        'query': text_segment.text,
+                        'fuzziness': 'AUTO',
+                    },
+                }}
+                yield {(
+                    'match_phrase_prefix'
+                    if text_segment.is_openended
+                    else 'match_phrase'
+                ): {
+                    field_name: {
+                        'query': text_segment.text,
+                        'slop': wordcount,
+                    },
+                }}
+
+            for field_name in TEXT_FIELDS:
+                yield from _fuzzy_text_query(field_name)

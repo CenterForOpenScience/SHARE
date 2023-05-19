@@ -15,7 +15,7 @@ from share.search.search_params import (
     IndexPropertySearchParams,
     IndexValueSearchParams,
 )
-from share.search.search_response import ApiSearchResponse
+# from share.search.search_response import ApiSearchResponse
 from share.util.checksum_iris import ChecksumIri
 
 
@@ -283,11 +283,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
 
-        def pls_handle_index_card_search(self, card_search_params: IndexCardSearchParams) -> ApiSearchResponse:
+        def pls_handle_index_card_search(self, card_search_params: IndexCardSearchParams):  # -> ApiSearchResponse:
             raise NotImplementedError
 
-        def pls_handle_index_property_search(self, property_search_params: IndexPropertySearchParams) -> ApiSearchResponse:
+        def pls_handle_index_property_search(self, property_search_params: IndexPropertySearchParams):  # -> ApiSearchResponse:
             raise NotImplementedError
 
-        def pls_handle_index_value_search(self, value_search_params: IndexValueSearchParams) -> ApiSearchResponse:
+        def pls_handle_index_value_search(self, value_search_params: IndexValueSearchParams):  # -> ApiSearchResponse:
             raise NotImplementedError

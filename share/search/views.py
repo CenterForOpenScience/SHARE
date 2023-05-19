@@ -13,9 +13,9 @@ class IndexCardSearchView(View):
         )
         # TODO: get shaclbasket, render via content negotiation
         search_response_json = search_index.pls_handle_index_card_search(
-            search_params.IndexCardSearchParams.from_querydicts((request.GET, request.POST))
+            search_params.IndexCardSearchParams.from_request(request)
         )
-        return JsonResponse(search_response_json)
+        return JsonResponse(search_response_json, safe=False)
 
 
 class IndexPropertySearchView(View):
