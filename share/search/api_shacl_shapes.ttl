@@ -8,9 +8,13 @@ trove:Cardsearch a shacl:NodeShape, rdfs:Class ;
     shacl:property [
         shacl:path trove:totalResultCount ;
         shacl:datatype xsd:integer ;
+        shacl:or (
+            [ shacl:datatype xsd:string ]
+            [ shacl:in (trove:ten-thousands-and-more) ]
+        ) ;
     ] ;
     shacl:property [
-        shacl:path trove:recordSearchParams ;
+        shacl:path trove:cardsearchParams ;
         shacl:node trove:SearchParameters
     ] ;
     shacl:property [
@@ -34,7 +38,7 @@ trove:Propertysearch a shacl:NodeShape, rdfs:Class ;
         shacl:node trove:SearchParameters
     ] ;
     shacl:property [
-        shacl:path trove:recordSearchParams ;
+        shacl:path trove:cardsearchParams ;
         shacl:node trove:SearchParameters
     ] ;
     shacl:property [
@@ -60,14 +64,14 @@ trove:Valuesearch a shacl:NodeShape, rdfs:Class ;
         shacl:node trove:SearchFilter ;
     ] ;
     shacl:property [
-        shacl:path trove:recordSearchText ;
+        shacl:path trove:cardsearchText ;
         shacl:or (
             [ shacl:datatype xsd:string ]
             [ shacl:datatype rdf:langString ]
         ) ;
     ] ;
     shacl:property [
-        shacl:path trove:recordSearchFilter ;
+        shacl:path trove:cardsearchFilter ;
         shacl:node trove:SearchFilter ;
     ] ;
     shacl:property [
@@ -93,7 +97,7 @@ trove:SearchResult a shacl:NodeShape, rdfs:Class ;
         shacl:node trove:Card ;
     ] ;
     shacl:property [
-        shacl:path trove:recordResultCount ;
+        shacl:path trove:cardCount ;
         shacl:datatype xsd:integer ;
     ] .
 
@@ -170,8 +174,8 @@ trove:TextMatchEvidence a shacl:NodeShape, rdfs:Class ;
         shacl:maxCount 1 ;
     ] ;
     shacl:property [
-        shacl:path trove:recordIri ;
-        shacl:nodeKind shacl:IRI ;
+        shacl:path trove:card ;
+        shacl:node trove:Card ;
     ] .
 
 trove:RequiredPropertyPathPropertyShape a shacl:PropertyShape ;

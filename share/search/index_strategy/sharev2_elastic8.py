@@ -214,26 +214,43 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             es8_query = {
                 'bool': self._cardsearch_bool_query(cardsearch_params),
             }
-
             logger.critical(json.dumps(es8_query, indent=2))
             try:
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=es8_query,
-                    highlight={
-                        'fields': {
-                            fieldname: {
-                                'highlight_query': {
-                                    'match': cardsearch_params.cardsearch_text,
-                                }
-                            }
-                            for fieldname in TEXT_FIELDS
-                        },
-                    },
+                    highlight=self._highlight_request(cardsearch_params),
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return json_response.body  # TODO: return shaclbasket
+            return json_response.body  # TODO:
+            cardsearch_iri = EPHEMERAL[ChecksumIri.from_dataclass_instance(cardsearch_params)]
+            cardsearch_focus = gather.Focus(
+                iris={cardsearch_iri},
+                type_iris={TROVE.Cardsearch},
+            )
+            return gather.Basket.from_iterable(
+                self._gather_cardsearch_response(cardsearch_params, es8_response=json_response),
+                focus=cardsearch_focus,
+            )
+
+        def _highlight_request(self, cardsearch_params):
+            return {
+                'fields': {
+                    fieldname: {
+                        'highlight_query': {
+                            'match': {
+                                fieldname: cardsearch_params.cardsearch_text,
+                            }
+                        }
+                    }
+                    for fieldname in TEXT_FIELDS
+                },
+            }
+
+        def _gather_cardsearch_response(self, cardsearch_params, es8_response):
+            total = es8_response['hits']['total']
+            # TODO: params
 
         def _filter_path_to_fieldname(self, filter_path: tuple[str]):
             try:
@@ -316,3 +333,61 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
             for field_name in TEXT_FIELDS:
                 yield from _fuzzy_text_query(field_name)
+
+
+CARDSEARCH = gather.GatheringNorms(
+    focustype_iris={
+        TROVE.Card,
+        TROVE.Cardsearch,
+        TROVE.Propertysearch,
+        TROVE.Valuesearch,
+    },
+)
+class Cardsearch(gather.Gathering):
+    iris = {
+        TROVE['index_strategy/':'sharev2_elastic8/': 'cardsearch'],
+    }
+
+    def __init__(self, search_params, es8_response):
+        self.search_params = search_params
+        self.es8_response = es8_response
+
+    @property
+    def cardsearch_iri(self):
+        raise NotImplementedError
+
+    def gatherer_kwargs(self, focus):
+        return {
+            **super().gatherer_kwargs(focus),
+            'search_params': self.search_params,
+            'es8_response': self.es8_response,
+        }
+
+
+@Cardsearch.gatherer(
+    TROVE.totalResultCount,
+    focustype_iris={TROVE.Cardsearch},
+)
+def gather_count(focus, es8_response):
+    total = es8_response['hits']['total']
+    if total['op'] == 'eq':
+        yield int(total['value'])
+    elif total['op'] == 'gte':
+        yield TROVE['ten-thousands-and-more']
+
+
+@Cardsearch.gatherer(
+    TROVE.searchResult,
+    focustype_iris={TROVE.Cardsearch},
+)
+def gather_results(focus, search_params, es8_response):
+    for search_hit in es8_response['hits']['hits']:
+        search_result = gather.Focus(
+            iris={ephemeral_iri(
+            focustype_iris={TROVE.SearchResult},
+        )
+        yield (TROVE.searchResult, search_result)
+        yield (search_result, TROVE.indexCard, gather.Focus(
+            iris={SHARE_SUID[search_hit['id']]},
+            type_iris={TROVE.
+        ))
