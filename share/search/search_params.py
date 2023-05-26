@@ -3,27 +3,38 @@ import enum
 import itertools
 import re
 import typing
+import urllib
 
-from django import http
+from django.http import QueryDict
 
 from share.search import exceptions
 
 
-# two special characters in search text:
+###
+# special characters in search text:
 NEGATE_WORD_OR_PHRASE = '-'
 DOUBLE_QUOTATION_MARK = '"'
 
-# jsonapi query-param parsing
-QUERYPARAM_FAMILY_REGEX = re.compile(r'^[a-zA-Z0-9][-_a-zA-Z0-9]*(?=\[|$)')
-QUERYPARAM_MEMBER_REGEX = re.compile(r'\[(?P<member_name>[a-zA-Z0-9][-_a-zA-Z0-9]*)?\]')
+
+###
+# jsonapi query parameter parsing:
+# https://jsonapi.org/format/#query-parameters
+QUERYPARAM_FAMILY_REGEX = re.compile(
+    r'^[a-zA-Z0-9]'     # initial alphanumeric,
+    r'[-_a-zA-Z0-9]*'   # - and _ ok from then,
+    r'(?=\[|$)'         # followed by [ or end.
+)
+QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
+    r'\['                   # open square-bracket,
+    r'(?P<member_name>'     # 'member_name' group,
+    r'[a-zA-Z0-9]'          # starts alphanumeric,
+    r'[-_a-zA-Z0-9]*'       # allow - or _ within,
+    r')?'                   # empty brackets fine,
+    r'\]'                   # need an end bracket.
+)
+# is common (but not required) for a query parameter
+# value to be split (on comma) into a list of values
 QUERYPARAM_VALUES_DELIM = ','
-
-
-class FilterOperator(enum.Enum):
-    ANY_OF = 'any-of'
-    NONE_OF = 'none-of'
-    BEFORE = 'before'
-    AFTER = 'after'
 
 
 @dataclasses.dataclass(frozen=True)
@@ -40,7 +51,7 @@ class JsonapiQueryparamName:
         next_position = family_match.end()
         bracketed_names = []
         while next_position < len(queryparam_name):
-            bracketed_match = QUERYPARAM_MEMBER_REGEX.match(queryparam_name, next_position)
+            bracketed_match = QUERYPARAM_FAMILYMEMBER_REGEX.match(queryparam_name, next_position)
             if not bracketed_match:
                 raise ValueError(f'invalid queryparam name "{queryparam_name}"')
             bracketed_names.append(bracketed_match.group('member_name'))
@@ -58,6 +69,33 @@ class JsonapiQueryparamName:
             ),
         ))
 
+
+JsonapiQueryParams = dict[
+    str,  # keyed by queryparam family
+    list[tuple[JsonapiQueryparamName, str]],
+]
+
+
+def queryparams_from_iri(iri: str) -> JsonapiQueryParams:
+    _parsed_iri = urllib.parse.urlparse(iri)
+    return queryparams_from_querydict(QueryDict(_parsed_iri.query))
+
+
+def queryparams_from_querydict(querydict: QueryDict) -> JsonapiQueryParams:
+    _queryparams: JsonapiQueryParams = {}
+    for _unparsed_name, _param_value_list in querydict.lists():
+        _parsed_name = JsonapiQueryparamName.from_str(_unparsed_name)
+        for param_value in _param_value_list:
+            (
+                _queryparams
+                .setdefault(_parsed_name.family, [])
+                .append((_parsed_name, param_value))
+            )
+    return _queryparams
+
+
+###
+# search api parameters
 
 @dataclasses.dataclass(frozen=True)
 class Textsegment:
@@ -167,19 +205,26 @@ class Textsegment:
 
 @dataclasses.dataclass(frozen=True)
 class SearchFilter:
+    class FilterOperator(enum.Enum):
+        ANY_OF = 'any-of'
+        NONE_OF = 'none-of'
+        BEFORE = 'before'
+        AFTER = 'after'
+
     filter_family: str
     property_path: tuple[str]
     value_set: frozenset[str]
-    operator: str
+    operator: FilterOperator
 
     @classmethod
     def from_filter_param(cls, param_name: JsonapiQueryparamName, param_value: str):
         try:  # "filter[<serialized_path>][<operator>]"
             (serialized_path, operator_value) = param_name.bracketed_names
+            operator = SearchFilter.FilterOperator[operator_value]
         except ValueError:
             try:  # "filter[<serialized_path>]" (with default operator)
                 (serialized_path,) = param_name.bracketed_names
-                operator = FilterOperator.ANY_OF.value
+                operator = SearchFilter.FilterOperator.ANY_OF
             except ValueError:
                 raise exceptions.InvalidSearchParam(
                     f'expected 1 or 2 bracketed queryparam-name segments, '
@@ -200,25 +245,27 @@ class CardsearchParams:
     cardsearch_filter_set: frozenset[SearchFilter]
     include: typing.Optional[frozenset[tuple[str]]] = None
     sort: typing.Optional[str] = None
+    index_strategy_name: typing.Optional[str] = None
 
     @classmethod
-    def from_request(cls, request: http.HttpRequest):
-        queryparams_by_family = _jsonapi_queryparams(request)
-        cardsearch_text = ' '.join(
+    def from_iri(cls, iri: str):
+        _queryparams = queryparams_from_iri(iri)
+        _cardsearch_text = ' '.join(
             param_value
             for _, param_value
-            in queryparams_by_family.get('cardSearchText', ())
+            in _queryparams.get('cardSearchText', ())
         )
         return cls(
-            cardsearch_text=cardsearch_text,
+            cardsearch_text=_cardsearch_text,
             cardsearch_textsegment_list=frozenset(
-                Textsegment.from_str(cardsearch_text),
+                Textsegment.from_str(_cardsearch_text),
             ),
             cardsearch_filter_set=frozenset(
                 SearchFilter.from_filter_param(param_name, param_value)
                 for (param_name, param_value)
-                in queryparams_by_family.get('cardSearchFilter', ())
+                in _queryparams.get('cardSearchFilter', ())
             ),
+            index_strategy_name=_queryparams.get('indexStrategy'),
             # TODO: include, sort
         )
 
@@ -237,22 +284,3 @@ class ValuesearchParams:
     valuesearch_filter_set: frozenset[SearchFilter]
     cardsearch_textsegment_list: frozenset[str]
     cardsearch_filter_set: frozenset[SearchFilter]
-
-
-def _jsonapi_queryparams(request: http.HttpRequest) -> dict[
-        str,  # keyed by queryparam family
-        list[tuple[JsonapiQueryparamName, str]],
-]:
-    by_family = {}
-    for querydict in (request.GET, request.POST):
-        if not querydict:
-            continue
-        for unparsed_param_name, param_value_list in querydict.lists():
-            parsed_param_name = JsonapiQueryparamName.from_str(unparsed_param_name)
-            for param_value in param_value_list:
-                (
-                    by_family
-                    .setdefault(parsed_param_name.family, [])
-                    .append((parsed_param_name, param_value))
-                )
-    return by_family

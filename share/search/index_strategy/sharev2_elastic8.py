@@ -335,14 +335,6 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 yield from _fuzzy_text_query(field_name)
 
 
-CARDSEARCH = gather.GatheringNorms(
-    focustype_iris={
-        TROVE.Card,
-        TROVE.Cardsearch,
-        TROVE.Propertysearch,
-        TROVE.Valuesearch,
-    },
-)
 class Cardsearch(gather.Gathering):
     iris = {
         TROVE['index_strategy/':'sharev2_elastic8/': 'cardsearch'],
