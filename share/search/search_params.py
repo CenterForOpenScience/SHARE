@@ -5,7 +5,7 @@ import logging
 import typing
 
 from share.search import exceptions
-from share.search.jsonapi import (
+from share.search.jsonapi_queryparams import (
     JsonapiQueryparamName,
     split_queryparam_value,
     queryparams_from_querystring,
@@ -177,11 +177,6 @@ class CardsearchParams:
             index_strategy_name=_queryparams.get('indexStrategy'),
             # TODO: include, sort
         )
-
-    def cardsearch_iri(self):
-        return 'http://trove.example/foo'
-        # TODO
-        return EPHEMERAL[ChecksumIri.from_dataclass_instance(self)]
 
 
 @dataclasses.dataclass(frozen=True)

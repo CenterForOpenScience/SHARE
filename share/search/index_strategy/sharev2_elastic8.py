@@ -12,7 +12,7 @@ from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import search_params
-from share.search.trovesearch_gathering import TROVE, card_iri
+from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
 
@@ -213,12 +213,13 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def pls_handle_cardsearch(
             self,
             cardsearch_params: search_params.CardsearchParams,
-        ) -> gather.RdfTripleDictionary:
+        ) -> typing.Iterable[gather.GathererYield]:
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(cardsearch_params),
                     highlight=self._highlight_request(cardsearch_params),
+                    source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
@@ -227,42 +228,37 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def _highlight_request(self, cardsearch_params):
             return {
                 'fields': {
-                    fieldname: {}
-                    for fieldname in TEXT_FIELDS
+                    _fieldname: {}
+                    for _fieldname in TEXT_FIELDS
                 },
             }
 
-        def _cardsearch_response(self, cardsearch_params, es8_response) -> gather.RdfTripleDictionary:
+        def _cardsearch_response(self, cardsearch_params, es8_response) -> typing.Iterable[gather.GathererYield]:
             _es8_total = es8_response['hits']['total']
             _total = (
                 _es8_total['value']
                 if _es8_total['relation'] == 'eq'
                 else TROVE['ten-thousands-and-more']
             )
-            return {
-                cardsearch_params.cardsearch_iri(): {
-                    TROVE.totalResultCount: {_total},
-                    TROVE.searchResult: {
-                        frozenset(self._searchresult_blanknode(search_hit))
-                        for search_hit in es8_response['hits']['hits']
-                    },
-                },
-            }
-
-        def _searchresult_blanknode(self, es8_hit):
-            yield (gather.RDF.type, TROVE.SearchResult)
-            yield (TROVE.indexCard, gather.Focus.new(
-                card_iri(suid_id=es8_hit['_id']),
-                TROVE.IndexCard,
-            ))
-            yield (TROVE.indexCard, es8_hit['_id'])
-            for _fieldname, _highlight_list in es8_hit.get('highlight', {}).items():
-                for _highlight in _highlight_list:
-                    yield (TROVE.matchEvidence, frozenset((
+            yield (gather.RDF.type, TROVE.Cardsearch)
+            yield (TROVE.totalResultCount, _total)
+            for _es8_hit in es8_response['hits']['hits']:
+                _card_iri = card_iri_for_suid(suid_id=_es8_hit['_id'])
+                yield (_card_iri, gather.RDF.type, TROVE.Card)
+                _text_evidence_twoples = (
+                    (TROVE.matchEvidence, frozenset((
                         (gather.RDF.type, TROVE.TextMatchEvidence),
                         (TROVE.propertyPath, self._fieldname_to_osfmap_iri(_fieldname)),
                         (TROVE.matchingHighlight, gather.Text.new(_highlight, language_iris={TROVE.UnknownLanguage})),
                     )))
+                    for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()
+                    for _highlight in _highlight_list
+                )
+                yield (TROVE.searchResult, frozenset((
+                    (gather.RDF.type, TROVE.SearchResult),
+                    (TROVE.indexCard, _card_iri),
+                    *_text_evidence_twoples,
+                )))
 
         def _fieldname_to_osfmap_iri(self, fieldname: str):
             # TODO: better
