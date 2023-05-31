@@ -1,21 +1,31 @@
-from django.http import JsonResponse
+import gather
+from django.http import HttpResponse
 from django.views import View
 
-from share.search.index_strategy import IndexStrategy
-from share.search import search_params
+from share.search.trovesearch_gathering import (
+    TROVE,
+    TROVESEARCH,
+)
 
 
 class CardsearchView(View):
     def get(self, request):
-        search_index = IndexStrategy.get_for_searching(
-            request.GET.get('indexStrategy'),
-            with_default_fallback=True,
+        _search_iri = request.build_absolute_uri()
+        _search_gathering = gather.Gathering(TROVESEARCH)
+        _search_gathering.ask(
+            gather.Focus.new(_search_iri, {TROVE.Cardsearch}),
+            {
+                # TODO: build from jsonapi `include`/`fields` (with static defaults)
+                TROVE.totalResultCount: {},
+                TROVE.searchResult: {
+                    TROVE.indexCard,
+                },
+            },
         )
-        # TODO: get shaclbasket, render via content negotiation
-        search_response_json = search_index.pls_handle_cardsearch(
-            search_params.CardsearchParams.from_request(request)
+        _turt = gather.tripledict_as_turtle(
+            _search_gathering.leaf_a_record(),
         )
-        return JsonResponse(search_response_json, safe=False)
+        return HttpResponse(_turt)
 
 
 class PropertysearchView(View):

@@ -42,4 +42,4 @@ xmltodict==0.12.0  # MIT
 # Allows custom-rendered IDs, hiding null values, and including data in error responses
 git+https://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos0
 
-git+https://github.com/aaxelb/gather.git@0.2023.7
+git+https://github.com/aaxelb/gather.git@0.2023.12

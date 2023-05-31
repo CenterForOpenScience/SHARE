@@ -1,8 +1,10 @@
+import itertools
 import json
 import logging
 import typing
 
 import elasticsearch8
+import gather
 import rdflib
 
 from share import models as db
@@ -10,7 +12,7 @@ from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import search_params
-# from share.search.search_response import ApiSearchResponse
+from share.search.trovesearch_gathering import TROVE, card_iri
 from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
 
@@ -21,11 +23,12 @@ logger = logging.getLogger(__name__)
 # TODO: use the actual terms referenced by OSFMAP (DCTERMS, etc.)
 OSFMAP = rdflib.Namespace('https://osf.io/vocab/2023/')
 
-TEXT_FIELDS = (  # TODO: is this all?
-    'title',
-    'description',
-    'tags',
-)
+TEXT_FIELDS_BY_OSFMAP = {
+    OSFMAP.title: 'title',
+    OSFMAP.description: 'description',
+    OSFMAP.keyword: 'tags',
+}
+TEXT_FIELDS = tuple(TEXT_FIELDS_BY_OSFMAP.values())
 KEYWORD_FIELDS_BY_OSFMAP = {
     OSFMAP.identifier: 'identifiers',
     OSFMAP.creator: 'lists.contributors.identifiers',  # note: contributor types lumped together
@@ -210,47 +213,72 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def pls_handle_cardsearch(
             self,
             cardsearch_params: search_params.CardsearchParams,
-        ):  # -> ApiSearchResponse:
-            es8_query = {
-                'bool': self._cardsearch_bool_query(cardsearch_params),
-            }
-            logger.critical(json.dumps(es8_query, indent=2))
+        ) -> gather.RdfTripleDictionary:
             try:
-                json_response = self.index_strategy.es8_client.search(
+                _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=es8_query,
+                    query=self._cardsearch_query(cardsearch_params),
                     highlight=self._highlight_request(cardsearch_params),
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return json_response.body  # TODO:
-            cardsearch_iri = EPHEMERAL[ChecksumIri.from_dataclass_instance(cardsearch_params)]
-            cardsearch_focus = gather.Focus(
-                iris={cardsearch_iri},
-                type_iris={TROVE.Cardsearch},
-            )
-            return gather.Basket.from_iterable(
-                self._gather_cardsearch_response(cardsearch_params, es8_response=json_response),
-                focus=cardsearch_focus,
-            )
+            return self._cardsearch_response(cardsearch_params, _es8_response)
 
         def _highlight_request(self, cardsearch_params):
             return {
                 'fields': {
-                    fieldname: {
-                        'highlight_query': {
-                            'match': {
-                                fieldname: cardsearch_params.cardsearch_text,
-                            }
-                        }
-                    }
+                    fieldname: {}
                     for fieldname in TEXT_FIELDS
                 },
             }
 
-        def _gather_cardsearch_response(self, cardsearch_params, es8_response):
-            total = es8_response['hits']['total']
-            # TODO: params
+        def _cardsearch_response(self, cardsearch_params, es8_response) -> gather.RdfTripleDictionary:
+            _es8_total = es8_response['hits']['total']
+            _total = (
+                _es8_total['value']
+                if _es8_total['relation'] == 'eq'
+                else TROVE['ten-thousands-and-more']
+            )
+            return {
+                cardsearch_params.cardsearch_iri(): {
+                    TROVE.totalResultCount: {_total},
+                    TROVE.searchResult: {
+                        frozenset(self._searchresult_blanknode(search_hit))
+                        for search_hit in es8_response['hits']['hits']
+                    },
+                },
+            }
+
+        def _searchresult_blanknode(self, es8_hit):
+            yield (gather.RDF.type, TROVE.SearchResult)
+            yield (TROVE.indexCard, gather.Focus.new(
+                card_iri(suid_id=es8_hit['_id']),
+                TROVE.IndexCard,
+            ))
+            yield (TROVE.indexCard, es8_hit['_id'])
+            for _fieldname, _highlight_list in es8_hit.get('highlight', {}).items():
+                for _highlight in _highlight_list:
+                    yield (TROVE.matchEvidence, frozenset((
+                        (gather.RDF.type, TROVE.TextMatchEvidence),
+                        (TROVE.propertyPath, self._fieldname_to_osfmap_iri(_fieldname)),
+                        (TROVE.matchingHighlight, gather.Text.new(_highlight, language_iris={TROVE.UnknownLanguage})),
+                    )))
+
+        def _fieldname_to_osfmap_iri(self, fieldname: str):
+            # TODO: better
+            _possibilities = itertools.chain(
+                KEYWORD_FIELDS_BY_OSFMAP.items(),
+                TEXT_FIELDS_BY_OSFMAP.items(),
+            )
+            try:
+                return next(
+                    _iri
+                    for _iri, _fieldname
+                    in _possibilities
+                    if _fieldname == fieldname
+                )
+            except KeyError:
+                raise NotImplementedError('TODO')
 
         def _filter_path_to_fieldname(self, filter_path: tuple[str]):
             try:
@@ -259,8 +287,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             except KeyError:
                 raise NotImplementedError('TODO')
 
-        def _cardsearch_bool_query(self, search_params) -> dict:
-            bool_query = {
+        def _cardsearch_query(self, search_params) -> dict:
+            _bool_query = {
                 'filter': list(self._cardsearch_filter(search_params)),
                 'must': [],
                 'must_not': [],
@@ -268,18 +296,19 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             }
             for textsegment in search_params.cardsearch_textsegment_list:
                 if textsegment.is_negated:
-                    bool_query['must_not'].append(
+                    _bool_query['must_not'].append(
                         self._excluded_text_query(textsegment)
                     )
                 else:
-                    bool_query['should'].extend(
+                    _bool_query['should'].extend(
                         self._fuzzy_text_query_iter(textsegment)
                     )
                     if not textsegment.is_fuzzy:
-                        bool_query['must'].append(
+                        _bool_query['must'].append(
                             self._exact_text_query(textsegment)
                         )
-            return bool_query
+            logger.critical(f'>>> {json.dumps(_bool_query, indent=2)}')
+            return {'bool': _bool_query}
 
         def _cardsearch_filter(self, search_params) -> typing.Iterable[dict]:
             for search_filter in search_params.cardsearch_filter_set:
@@ -333,53 +362,3 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
             for field_name in TEXT_FIELDS:
                 yield from _fuzzy_text_query(field_name)
-
-
-class Cardsearch(gather.Gathering):
-    iris = {
-        TROVE['index_strategy/':'sharev2_elastic8/': 'cardsearch'],
-    }
-
-    def __init__(self, search_params, es8_response):
-        self.search_params = search_params
-        self.es8_response = es8_response
-
-    @property
-    def cardsearch_iri(self):
-        raise NotImplementedError
-
-    def gatherer_kwargs(self, focus):
-        return {
-            **super().gatherer_kwargs(focus),
-            'search_params': self.search_params,
-            'es8_response': self.es8_response,
-        }
-
-
-@Cardsearch.gatherer(
-    TROVE.totalResultCount,
-    focustype_iris={TROVE.Cardsearch},
-)
-def gather_count(focus, es8_response):
-    total = es8_response['hits']['total']
-    if total['op'] == 'eq':
-        yield int(total['value'])
-    elif total['op'] == 'gte':
-        yield TROVE['ten-thousands-and-more']
-
-
-@Cardsearch.gatherer(
-    TROVE.searchResult,
-    focustype_iris={TROVE.Cardsearch},
-)
-def gather_results(focus, search_params, es8_response):
-    for search_hit in es8_response['hits']['hits']:
-        search_result = gather.Focus(
-            iris={ephemeral_iri(
-            focustype_iris={TROVE.SearchResult},
-        )
-        yield (TROVE.searchResult, search_result)
-        yield (search_result, TROVE.indexCard, gather.Focus(
-            iris={SHARE_SUID[search_hit['id']]},
-            type_iris={TROVE.
-        ))

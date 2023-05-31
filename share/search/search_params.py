@@ -1,97 +1,24 @@
 import dataclasses
 import enum
 import itertools
-import re
+import logging
 import typing
-import urllib
-
-from django.http import QueryDict
 
 from share.search import exceptions
+from share.search.jsonapi import (
+    JsonapiQueryparamName,
+    split_queryparam_value,
+    queryparams_from_querystring,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 ###
 # special characters in search text:
 NEGATE_WORD_OR_PHRASE = '-'
 DOUBLE_QUOTATION_MARK = '"'
-
-
-###
-# jsonapi query parameter parsing:
-# https://jsonapi.org/format/#query-parameters
-QUERYPARAM_FAMILY_REGEX = re.compile(
-    r'^[a-zA-Z0-9]'     # initial alphanumeric,
-    r'[-_a-zA-Z0-9]*'   # - and _ ok from then,
-    r'(?=\[|$)'         # followed by [ or end.
-)
-QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
-    r'\['                   # open square-bracket,
-    r'(?P<member_name>'     # 'member_name' group,
-    r'[a-zA-Z0-9]'          # starts alphanumeric,
-    r'[-_a-zA-Z0-9]*'       # allow - or _ within,
-    r')?'                   # empty brackets fine,
-    r'\]'                   # need an end bracket.
-)
-# is common (but not required) for a query parameter
-# value to be split (on comma) into a list of values
-QUERYPARAM_VALUES_DELIM = ','
-
-
-@dataclasses.dataclass(frozen=True)
-class JsonapiQueryparamName:
-    family: str
-    bracketed_names: tuple[str]
-
-    @classmethod
-    def from_str(cls, queryparam_name: str) -> 'JsonapiQueryparamName':
-        family_match = QUERYPARAM_FAMILY_REGEX.match(queryparam_name)
-        if not family_match:
-            raise ValueError(f'invalid queryparam name "{queryparam_name}"')
-        family = family_match.group()
-        next_position = family_match.end()
-        bracketed_names = []
-        while next_position < len(queryparam_name):
-            bracketed_match = QUERYPARAM_FAMILYMEMBER_REGEX.match(queryparam_name, next_position)
-            if not bracketed_match:
-                raise ValueError(f'invalid queryparam name "{queryparam_name}"')
-            bracketed_names.append(bracketed_match.group('member_name'))
-            next_position = bracketed_match.end()
-        if next_position != len(queryparam_name):
-            raise ValueError(f'invalid queryparam name "{queryparam_name}"')
-        return cls(family, tuple(bracketed_names))
-
-    def __str__(self):
-        return ''.join((
-            self.family,
-            *(
-                f'[{bracketed_name}]'
-                for bracketed_name in self.bracketed_names
-            ),
-        ))
-
-
-JsonapiQueryParams = dict[
-    str,  # keyed by queryparam family
-    list[tuple[JsonapiQueryparamName, str]],
-]
-
-
-def queryparams_from_iri(iri: str) -> JsonapiQueryParams:
-    _parsed_iri = urllib.parse.urlparse(iri)
-    return queryparams_from_querydict(QueryDict(_parsed_iri.query))
-
-
-def queryparams_from_querydict(querydict: QueryDict) -> JsonapiQueryParams:
-    _queryparams: JsonapiQueryParams = {}
-    for _unparsed_name, _param_value_list in querydict.lists():
-        _parsed_name = JsonapiQueryparamName.from_str(_unparsed_name)
-        for param_value in _param_value_list:
-            (
-                _queryparams
-                .setdefault(_parsed_name.family, [])
-                .append((_parsed_name, param_value))
-            )
-    return _queryparams
 
 
 ###
@@ -108,74 +35,70 @@ class Textsegment:
         if self.is_negated and self.is_fuzzy:
             raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
 
-    def wordset(self) -> typing.Iterable[tuple[bool, typing.Iterable['Textsegment']]]:
-        try:
-            (*words, lastword) = self.text.split()
-        except ValueError:
-            pass  # no words
-        else:
-            for word in words:
-                yield Textsegment.from_word(
-                    word,
-                    is_openended=False,
-                    is_fuzzy=self.is_fuzzy,
-                )
-            if words:
-                yield Textsegment.from_word(
-                    lastword,
-                    is_openended=self.is_openended,
-                    is_fuzzy=self.is_fuzzy,
-                )
-
     @classmethod
     def from_str(cls, text: str) -> typing.Iterable['Textsegment']:
         '''parse search text into words and quoted phrases
         '''
-        in_quotes = False
-        last_quote_prefix = None
-        text_remaining = text
-        while text_remaining:
-            text_chunk, quote_mark, text_remaining = text_remaining.partition(DOUBLE_QUOTATION_MARK)
-            is_openended = (
-                not quote_mark
-                and not text_remaining
-            )
-            if in_quotes:
-                yield cls(
-                    text=text_chunk,
-                    is_fuzzy=False,
-                    is_negated=(last_quote_prefix == NEGATE_WORD_OR_PHRASE),
-                    is_openended=is_openended,
-                )
-            else:
-                yield from cls._from_fuzzy_text(
-                    text_chunk,
-                    is_openended=is_openended,
-                )
-            if quote_mark:
-                if in_quotes:  # end quote
-                    in_quotes = False
-                    last_quote_prefix = None
+        _in_quotes = False
+        _last_quote_prefix = None
+        _text_remaining = text
+        while _text_remaining:
+            (
+                _text_chunk,
+                _quote_mark,
+                _text_remaining,
+            ) = _text_remaining.partition(DOUBLE_QUOTATION_MARK)
+            if _text_chunk:
+                _is_openended = not (_quote_mark or _text_remaining)
+                if _in_quotes:
+                    yield cls(
+                        text=_text_chunk,
+                        is_fuzzy=False,
+                        is_negated=(_last_quote_prefix == NEGATE_WORD_OR_PHRASE),
+                        is_openended=_is_openended,
+                    )
+                else:
+                    yield from cls._from_fuzzy_text(
+                        _text_chunk,
+                        is_openended=_is_openended,
+                    )
+            if _quote_mark:
+                if _in_quotes:  # end quote
+                    _in_quotes = False
+                    _last_quote_prefix = None
                 else:  # begin quote
-                    in_quotes = True
-                    last_quote_prefix = text_chunk[-1:]
+                    _in_quotes = True
+                    _last_quote_prefix = _text_chunk[-1:]
 
     @classmethod
     def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
-        (*wordgroups, lastgroup) = itertools.groupby(
-            text_chunk.split(),
-            key=lambda word: word.startswith(NEGATE_WORD_OR_PHRASE),
+        logger.critical(f'from fuzzy: {text_chunk}')
+        _all_wordgroups = (
+            (_word_negated, list(_words))
+            for (_word_negated, _words) in itertools.groupby(
+                text_chunk.split(),
+                key=lambda word: word.startswith(NEGATE_WORD_OR_PHRASE),
+            )
         )
-        for word_negated, words in wordgroups:
-            yield from cls._from_fuzzy_wordgroup(word_negated, words)
-        yield from cls._from_fuzzy_wordgroup(*lastgroup, is_openended=True)
+        (*_wordgroups, (_lastgroup_negated, _lastgroup_words)) = _all_wordgroups
+        for _word_negated, _words in _wordgroups:
+            yield from cls._from_fuzzy_wordgroup(
+                _word_negated,
+                _words,
+                is_openended=False,
+            )
+        yield from cls._from_fuzzy_wordgroup(
+            _lastgroup_negated,
+            _lastgroup_words,
+            is_openended=is_openended,
+        )
 
     @classmethod
     def _from_fuzzy_wordgroup(cls, word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
         if word_negated:
-            for word in words:
+            for _word in words:
                 yield cls(
-                    text=word[len(NEGATE_WORD_OR_PHRASE):],  # remove prefix
+                    text=_word[len(NEGATE_WORD_OR_PHRASE):],  # remove prefix
                     is_fuzzy=False,
                     is_negated=True,
                     is_openended=False,
@@ -187,20 +110,6 @@ class Textsegment:
                 is_negated=False,
                 is_openended=is_openended,
             )
-
-    @classmethod
-    def from_word(cls, word: str, *, is_openended: bool, is_fuzzy: bool) -> 'Textsegment':
-        if is_fuzzy and word.startswith(NEGATE_WORD_OR_PHRASE):
-            is_negated = True
-            word = word[len(NEGATE_WORD_OR_PHRASE):]  # remove prefix
-        else:
-            is_negated = False
-        return cls(
-            text=word,
-            is_fuzzy=(is_fuzzy and not is_negated),
-            is_negated=is_negated,
-            is_openended=(is_openended and not is_negated),
-        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -232,8 +141,8 @@ class SearchFilter:
                 )
         return cls(
             filter_family=param_name.family,
-            property_path=tuple(serialized_path.split(QUERYPARAM_VALUES_DELIM)),
-            value_set=frozenset(param_value.split(QUERYPARAM_VALUES_DELIM)),
+            property_path=tuple(split_queryparam_value(serialized_path)),
+            value_set=frozenset(split_queryparam_value(param_value)),
             operator=operator,
         )
 
@@ -248,8 +157,8 @@ class CardsearchParams:
     index_strategy_name: typing.Optional[str] = None
 
     @classmethod
-    def from_iri(cls, iri: str):
-        _queryparams = queryparams_from_iri(iri)
+    def from_querystring(cls, querystring: str):
+        _queryparams = queryparams_from_querystring(querystring)
         _cardsearch_text = ' '.join(
             param_value
             for _, param_value
@@ -268,6 +177,11 @@ class CardsearchParams:
             index_strategy_name=_queryparams.get('indexStrategy'),
             # TODO: include, sort
         )
+
+    def cardsearch_iri(self):
+        return 'http://trove.example/foo'
+        # TODO
+        return EPHEMERAL[ChecksumIri.from_dataclass_instance(self)]
 
 
 @dataclasses.dataclass(frozen=True)
