@@ -2,6 +2,7 @@ import typing
 
 import gather
 
+from share.metadata_formats.osfmap import osfmap_labeler
 from share.util.checksum_iris import ChecksumIri
 
 ###
@@ -28,17 +29,6 @@ class RdfAsJsonapi:
     def __init__(self, gathering: gather.Gathering):
         self._norms = gathering.norms
         self._tripledict = gathering.leaf_a_record()
-        self._simple_context = {
-            self._membername_for_iri(_iri): _iri
-            for _iri in self._norms.vocabulary.keys()
-        }
-        self._reverse_context = {
-            _iri: _membername
-            for _membername, _iri in self._simple_context.items()
-        }
-        _missing = set(self._norms.vocabulary.keys()).difference(self._reverse_context.keys())
-        if _missing:
-            raise ValueError(f'namespace clobber! missing {_missing}')
         self.__twopledict_cache = {}
         self.__resource_id_cache = {}
         self.__resource_type_cache = {}
@@ -76,7 +66,7 @@ class RdfAsJsonapi:
             'attributes': gather.twopledict_as_jsonld(
                 _attributes,
                 self._norms.vocabulary,
-                self._reverse_context,
+                osfmap_labeler.all_labels_by_iri(),  # TODO: labeler param
             ),
             # TODO: links, meta?
         }
@@ -141,7 +131,7 @@ class RdfAsJsonapi:
                     raw_json=gather.twopledict_as_jsonld(
                         _twopledict,
                         self._norms.vocabulary,
-                        self._reverse_context,
+                        osfmap_labeler.all_labels_by_iri(),  # TODO: labeler param
                     ),
                 )
             else:

@@ -1,13 +1,16 @@
-import itertools
 import json
 import logging
 import typing
 
 import elasticsearch8
 import gather
-import rdflib
 
 from share import models as db
+from share.metadata_formats.osfmap import (
+    osfmap_labeler,
+    OSFMAP,
+    DCTERMS,
+)
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
@@ -20,32 +23,34 @@ from share.util.checksum_iris import ChecksumIri
 logger = logging.getLogger(__name__)
 
 
-# TODO: use the actual terms referenced by OSFMAP (DCTERMS, etc.)
-OSFMAP = rdflib.Namespace('https://osf.io/vocab/2023/')
-
+# connect terms in OSFMAP_VOCAB to fields in `sharev2_elastic`
 TEXT_FIELDS_BY_OSFMAP = {
-    OSFMAP.title: 'title',
-    OSFMAP.description: 'description',
+    DCTERMS.title: 'title',
+    DCTERMS.description: 'description',
     OSFMAP.keyword: 'tags',
 }
 TEXT_FIELDS = tuple(TEXT_FIELDS_BY_OSFMAP.values())
 KEYWORD_FIELDS_BY_OSFMAP = {
-    OSFMAP.identifier: 'identifiers',
-    OSFMAP.creator: 'lists.contributors.identifiers',  # note: contributor types lumped together
-    OSFMAP.publisher: 'lists.publishers.identifiers',
-    OSFMAP.subject: 'subjects',  # note: |-delimited taxonomic path
-    OSFMAP.language: 'language',
-    OSFMAP.resourceType: 'types',  # TODO: map type hierarchy
-    OSFMAP.resourceTypeGeneral: 'types',
+    DCTERMS.identifier: 'identifiers',
+    DCTERMS.creator: 'lists.contributors.identifiers',  # NOTE: contributor types lumped together
+    DCTERMS.publisher: 'lists.publishers.identifiers',
+    DCTERMS.subject: 'subjects',  # NOTE: |-delimited taxonomic path
+    DCTERMS.language: 'language',
+    gather.RDF.type: 'types',  # TODO: map known type iris
+    DCTERMS.type: 'types',     # TODO: map known type strings
     OSFMAP.affiliatedInstitution: 'lists.affiliations.identifiers',
     OSFMAP.funder: 'lists.funders.identifiers',
     OSFMAP.keyword: 'tags.exact',
 }
 DATE_FIELDS_BY_OSFMAP = {
-    # missing: OSFMAP.embargoEndDate, OSFMAP.dateOfCopyright
-    OSFMAP.date: 'date',
-    OSFMAP.created: 'date_published',  # note: NOT 'date_created'
-    OSFMAP.modified: 'date_updated',  # note: NOT 'date_modified'
+    DCTERMS.date: 'date',
+    # DCTERMS.available
+    # DCTERMS.dateCopyrighted
+    DCTERMS.created: 'date_published',  # NOTE: not 'date_created'
+    DCTERMS.modified: 'date_updated',  # NOTE: not 'date_modified'
+    # DCTERMS.dateSubmitted
+    # DCTERMS.dateAccepted
+    # OSFMAP.withdrawn
 }
 
 
@@ -249,7 +254,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     (TROVE.matchEvidence, frozenset((
                         (gather.RDF.type, TROVE.TextMatchEvidence),
                         (TROVE.propertyPath, self._fieldname_to_propertypath(_fieldname)),
-                        (TROVE.matchingHighlight, gather.Text.new(_highlight, language_iris=())),
+                        (TROVE.matchingHighlight, gather.text(_highlight, language_iris=())),
                     )))
                     for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()
                     for _highlight in _highlight_list
@@ -261,28 +266,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 )))
 
         def _fieldname_to_propertypath(self, fieldname: str):
-            # TODO: better
-            _possibilities = itertools.chain(
-                KEYWORD_FIELDS_BY_OSFMAP.items(),
-                TEXT_FIELDS_BY_OSFMAP.items(),
-            )
             try:
-                _property = next(
-                    _iri
-                    for _iri, _fieldname
-                    in _possibilities
-                    if _fieldname == fieldname
-                )
-                return (_property,)  # TODO: handle len > 1
+                _iri = osfmap_labeler.get_iri(fieldname)
+                return (_iri,)  # only len 1 for now
             except KeyError:
-                raise NotImplementedError('TODO')
+                raise NotImplementedError('TODO: 400 response?')
 
         def _filter_path_to_fieldname(self, filter_path: tuple[str]):
+            if len(filter_path) != 1:
+                raise NotImplementedError('TODO: multi-step filter paths')
+            (_label,) = filter_path
             try:
-                # TODO: better
-                return KEYWORD_FIELDS_BY_OSFMAP[OSFMAP[filter_path[0]]]
+                return KEYWORD_FIELDS_BY_OSFMAP[osfmap_labeler.get_iri(_label)]
             except KeyError:
-                raise NotImplementedError('TODO')
+                raise NotImplementedError('TODO: 400 response?')
 
         def _cardsearch_query(self, search_params) -> dict:
             _bool_query = {
@@ -338,7 +335,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def _fuzzy_text_query_iter(self, textsegment: search_params.Textsegment):
             wordcount = len(textsegment.text.split())
 
-            def _fuzzy_text_query(_fieldname: str):
+            def _field_query_iter(_fieldname: str):
                 yield {'match': {
                     _fieldname: {
                         'query': textsegment.text,
@@ -359,4 +356,4 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     }}
 
             for _field in TEXT_FIELDS:
-                yield from _fuzzy_text_query(_field)
+                yield from _field_query_iter(_field)
