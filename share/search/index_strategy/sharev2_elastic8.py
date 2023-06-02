@@ -248,8 +248,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _text_evidence_twoples = (
                     (TROVE.matchEvidence, frozenset((
                         (gather.RDF.type, TROVE.TextMatchEvidence),
-                        (TROVE.propertyPath, self._fieldname_to_osfmap_iri(_fieldname)),
-                        (TROVE.matchingHighlight, gather.Text.new(_highlight, language_iris={TROVE.UnknownLanguage})),
+                        (TROVE.propertyPath, self._fieldname_to_propertypath(_fieldname)),
+                        (TROVE.matchingHighlight, gather.Text.new(_highlight, language_iris=())),
                     )))
                     for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()
                     for _highlight in _highlight_list
@@ -260,19 +260,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     *_text_evidence_twoples,
                 )))
 
-        def _fieldname_to_osfmap_iri(self, fieldname: str):
+        def _fieldname_to_propertypath(self, fieldname: str):
             # TODO: better
             _possibilities = itertools.chain(
                 KEYWORD_FIELDS_BY_OSFMAP.items(),
                 TEXT_FIELDS_BY_OSFMAP.items(),
             )
             try:
-                return next(
+                _property = next(
                     _iri
                     for _iri, _fieldname
                     in _possibilities
                     if _fieldname == fieldname
                 )
+                return (_property,)  # TODO: handle len > 1
             except KeyError:
                 raise NotImplementedError('TODO')
 
@@ -337,24 +338,25 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def _fuzzy_text_query_iter(self, textsegment: search_params.Textsegment):
             wordcount = len(textsegment.text.split())
 
-            def _fuzzy_text_query(field_name: str):
+            def _fuzzy_text_query(_fieldname: str):
                 yield {'match': {
-                    field_name: {
+                    _fieldname: {
                         'query': textsegment.text,
                         'fuzziness': 'AUTO',
                     },
                 }}
                 if wordcount > 1:
-                    yield {(
+                    _queryname = (
                         'match_phrase_prefix'
                         if textsegment.is_openended
                         else 'match_phrase'
-                    ): {
-                        field_name: {
+                    )
+                    yield {_queryname: {
+                        _fieldname: {
                             'query': textsegment.text,
                             'slop': wordcount,
                         },
                     }}
 
-            for field_name in TEXT_FIELDS:
-                yield from _fuzzy_text_query(field_name)
+            for _field in TEXT_FIELDS:
+                yield from _fuzzy_text_query(_field)

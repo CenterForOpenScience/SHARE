@@ -7,9 +7,9 @@ from django.views import View
 from share.search.search_params import CardsearchParams
 from share.search.trovesearch_gathering import (
     TROVE,
-    TROVESEARCH,
+    trovesearch,
 )
-from share.search.trovesearch_jsonapi import jsonapi_document
+from share.search.rdf_as_jsonapi import RdfAsJsonapi
 
 
 logger = logging.getLogger(__name__)
@@ -18,23 +18,26 @@ logger = logging.getLogger(__name__)
 class CardsearchView(View):
     def get(self, request):
         _search_iri = request.build_absolute_uri()
-        _search_gathering = gather.Gathering(
-            norms=TROVESEARCH,
-            search_params=CardsearchParams.from_querystring(request.META['QUERY_STRING']),
-        )
+        _search_gathering = trovesearch.new_gathering({
+            'search_params': CardsearchParams.from_querystring(
+                request.META['QUERY_STRING'],
+            ),
+        })
         _search_gathering.ask(
             gather.Focus.new(_search_iri, TROVE.Cardsearch),
             {
                 # TODO: build from jsonapi `include`/`fields` (with static defaults)
-                TROVE.totalResultCount: {},
+                TROVE.totalResultCount: None,
+                TROVE.cardsearchText: None,
+                TROVE.cardsearchFilter: None,
                 TROVE.searchResult: {
-                    TROVE.indexCard,
+                    TROVE.indexCard: {
+                        TROVE.resourceMetadata,
+                    },
                 },
             },
         )
-        _leaft = _search_gathering.leaf_a_record()
-        logger.critical(gather.tripledict_as_turtle(_leaft))
-        _jsonapi = jsonapi_document(_search_iri, _leaft)
+        _jsonapi = RdfAsJsonapi(_search_gathering).jsonapi_datum_document(_search_iri)
         return JsonResponse(_jsonapi)
 
 

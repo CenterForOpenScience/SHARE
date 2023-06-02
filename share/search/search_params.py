@@ -115,6 +115,7 @@ class Textsegment:
 @dataclasses.dataclass(frozen=True)
 class SearchFilter:
     class FilterOperator(enum.Enum):
+        # TODO: use iris from TROVE IriNamespace
         ANY_OF = 'any-of'
         NONE_OF = 'none-of'
         BEFORE = 'before'
