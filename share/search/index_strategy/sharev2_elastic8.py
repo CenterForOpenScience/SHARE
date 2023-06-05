@@ -45,8 +45,8 @@ KEYWORD_FIELDS_BY_OSFMAP = {
     DCTERMS.publisher: 'lists.publishers.identifiers',
     DCTERMS.subject: 'subjects',  # NOTE: |-delimited taxonomic path
     DCTERMS.language: 'language',
-    gather.RDF.type: 'types',  # TODO: map known type iris
-    DCTERMS.type: 'types',     # TODO: map known type strings
+    gather.RDF.type: 'types',
+    DCTERMS.type: 'types',
     OSFMAP.affiliatedInstitution: 'lists.affiliations.identifiers',
     OSFMAP.funder: 'lists.funders.identifiers',
     OSFMAP.keyword: 'tags.exact',
@@ -209,7 +209,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     body={
-                        **request_body,
+                        **(request_body or {}),
                         'track_total_hits': True,
                     },
                     params=(request_queryparams or {}),

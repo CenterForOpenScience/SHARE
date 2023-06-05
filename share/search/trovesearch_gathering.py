@@ -19,12 +19,6 @@ from share.util import IDObfuscator
 ###
 # an iri namespace for troves of metadata
 TROVE = gather.IriNamespace('https://share.osf.io/vocab/trove/')
-# TODO acrostic
-# turtles
-# ramble;
-# owl
-# very
-# eyeful.
 
 # some assumed-safe assumptions for iris in trovespace:
 # - a name ending in forward slash (`/`) is a namespace
@@ -175,15 +169,6 @@ TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
         gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
         gather.RDFS.label: {
             gather.text('resourceIdentifier', language_iris={
-                gather.IANA_LANGUAGE.en,
-                JSONAPI_MEMBERNAME,
-            }),
-        },
-    },
-    TROVE.resourceType: {
-        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-        gather.RDFS.label: {
-            gather.text('resourceType', language_iris={
                 gather.IANA_LANGUAGE.en,
                 JSONAPI_MEMBERNAME,
             }),
@@ -388,13 +373,12 @@ def gather_card(focus, *, search_params):
         suid_id=_suid_id,
         record_format='osfmap_jsonld',  # TODO: choose by queryparam
     )
+    # TODO: do not parse the json here -- get identifiers based on suid
     _json_metadata = json.loads(_record.formatted_metadata)
-    for _identifier in _json_metadata.get('identifiers', ()):
-        yield (TROVE.resourceIdentifier, _identifier)
-    for _type in _json_metadata.get('types', ()):
-        yield (TROVE.resourceType, gather.text(_type, language_iris={TROVE.RandomTypes}))  # TODO: defined iris
+    for _identifier_obj in _json_metadata.get('identifier', ()):
+        yield (TROVE.resourceIdentifier, gather.text(_identifier_obj['@value'], language_iris=()))
     yield (
-        TROVE.resourceMetadata,  # TODO: to osfmap
+        TROVE.resourceMetadata,
         gather.text(_record.formatted_metadata, language_iris={gather.RDF.JSON})
     )
 

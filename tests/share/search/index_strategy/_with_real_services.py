@@ -114,7 +114,7 @@ class RealElasticTestCase(TransactionTestCase):
         assert responses[0].is_done
         assert responses[0].index_message.target_id == formatted_record.suid_id
         self.current_index.pls_refresh()
-        search_response = self.current_index.pls_handle_query__sharev2_backcompat()
+        search_response = self.current_index.pls_handle_search__sharev2_backcompat()
         hits = search_response['hits']['hits']
         assert len(hits) == 1
         assert hits[0]['_source'] == json.loads(formatted_record.formatted_metadata)
@@ -135,7 +135,7 @@ class RealElasticTestCase(TransactionTestCase):
             self.current_index.pls_refresh()
             index_status = self.current_index.pls_get_status()
             if index_status.doc_count:
-                search_response = self.current_index.pls_handle_query__sharev2_backcompat()
+                search_response = self.current_index.pls_handle_search__sharev2_backcompat()
                 hits = search_response['hits']['hits']
                 assert len(hits) == 1
                 assert hits[0]['_source'] == json.loads(formatted_record.formatted_metadata)
