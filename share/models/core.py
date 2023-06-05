@@ -207,15 +207,15 @@ class NormalizedData(models.Model):
 
 class FormattedMetadataRecordManager(models.Manager):
     def get_or_create_formatted_record(self, suid_id, record_format, normalized_datum=None):
-        try:
-            return self.get(suid=suid_id, record_format=record_format)
-        except self.model.DoesNotExist:
-            (_record,) = self.save_formatted_records(
-                suid_id=suid_id,
-                record_formats=[record_format],
-                normalized_datum=normalized_datum,
-            )
-            return _record
+        # try:
+        #     return self.get(suid=suid_id, record_format=record_format)
+        # except self.model.DoesNotExist:
+        (_record,) = self.save_formatted_records(
+            suid_id=suid_id,
+            record_formats=[record_format],
+            normalized_datum=normalized_datum,
+        )
+        return _record
 
     def delete_formatted_records(self, suid):
         records = []

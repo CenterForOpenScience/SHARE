@@ -2,6 +2,7 @@ import typing
 
 import gather
 
+from share.search.rdf_as_jsonld import RdfAsJsonld
 from share.util.checksum_iris import ChecksumIri
 from share.util.rdfutil import IriLabeler
 
@@ -26,10 +27,15 @@ class RdfAsJsonapi:
     __resource_id_cache: dict[_ResourceKey, str]
     __resource_type_cache: dict[_ResourceKey, str]
 
-    def __init__(self, gathering: gather.Gathering):
-        self._norms = gathering.norms
-        self._labeler = IriLabeler(gathering.norms.vocabulary)
-        self._tripledict = gathering.leaf_a_record()
+    def __init__(
+        self,
+        data: gather.RdfTripleDictionary,
+        vocabulary: gather.RdfTripleDictionary,
+    ):
+        self._vocabulary = vocabulary
+        self._labeler = IriLabeler(vocabulary)
+        self._tripledict = data
+        self._as_jsonld = RdfAsJsonld(vocabulary, self._labeler)
         self.__twopledict_cache = {}
         self.__resource_id_cache = {}
         self.__resource_type_cache = {}
@@ -64,12 +70,7 @@ class RdfAsJsonapi:
         _resource_obj = {
             'id': self._resource_id(resource_key),
             'type': self._resource_type(resource_key),
-            'attributes': gather.twopledict_as_jsonld(
-                _attributes,
-                self._norms.vocabulary,
-                self._labeler.all_labels_by_iri(),  # TODO: labeler param?
-                expand_rdfjson_values=True,
-            ),
+            'attributes': self._as_jsonld.twopledict_as_jsonld(_attributes),
             # TODO: links, meta?
         }
         _relationships_obj = self._jsonapi_relationships(_relationships)
@@ -80,7 +81,7 @@ class RdfAsJsonapi:
     def _jsonapi_relationships(self, relationships: gather.RdfTwopleDictionary):
         _relationships = {}
         for _iri, _obj_set in relationships.items():
-            _relation_types = self._norms.vocabulary[_iri][gather.RDF.type]
+            _relation_types = self._vocabulary[_iri][gather.RDF.type]
             if gather.OWL.FunctionalProperty in _relation_types:
                 if len(_obj_set) > 1:
                     raise ValueError(
@@ -96,7 +97,7 @@ class RdfAsJsonapi:
         return _relationships
 
     def _membername_for_iri(self, iri: str):
-        _twopledict = self._norms.vocabulary.get(iri, {})
+        _twopledict = self._vocabulary.get(iri, {})
         try:
             return next(
                 _text.unicode_text
@@ -130,11 +131,7 @@ class RdfAsJsonapi:
                 _checksum_iri = ChecksumIri.digest_json(
                     'sha-256',
                     salt='blanknode',
-                    raw_json=gather.twopledict_as_jsonld(
-                        _twopledict,
-                        self._norms.vocabulary,
-                        self._labeler.all_labels_by_iri(),  # TODO: labeler param
-                    ),
+                    raw_json=self._as_jsonld.twopledict_as_jsonld(_twopledict),
                 )
             else:
                 raise ValueError(f'expected str or frozenset (got {resource_key})')
@@ -175,7 +172,7 @@ class RdfAsJsonapi:
         try:
             return (
                 JSONAPI_RELATIONSHIP
-                in self._norms.vocabulary[iri][gather.RDF.type]
+                in self._vocabulary[iri][gather.RDF.type]
             )
         except KeyError:
             return False

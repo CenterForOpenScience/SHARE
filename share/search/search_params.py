@@ -4,6 +4,7 @@ import itertools
 import logging
 import typing
 
+from share.schema.osfmap import osfmap_labeler
 from share.search import exceptions
 from share.search.jsonapi_queryparams import (
     JsonapiQueryparamName,
@@ -129,22 +130,35 @@ class SearchFilter:
     @classmethod
     def from_filter_param(cls, param_name: JsonapiQueryparamName, param_value: str):
         try:  # "filter[<serialized_path>][<operator>]"
-            (serialized_path, operator_value) = param_name.bracketed_names
-            operator = SearchFilter.FilterOperator[operator_value]
+            (_serialized_path, _operator_value) = param_name.bracketed_names
         except ValueError:
             try:  # "filter[<serialized_path>]" (with default operator)
-                (serialized_path,) = param_name.bracketed_names
-                operator = SearchFilter.FilterOperator.ANY_OF
+                (_serialized_path,) = param_name.bracketed_names
             except ValueError:
                 raise exceptions.InvalidSearchParam(
                     f'expected 1 or 2 bracketed queryparam-name segments, '
                     f'got {len(param_name.bracketed_names)} (in "{param_name}")'
                 )
+            else:  # default operator
+                _operator = SearchFilter.FilterOperator.ANY_OF
+        else:  # given operator
+            try:
+                _operator = SearchFilter.FilterOperator(_operator_value)
+            except ValueError:
+                raise ValueError(f'unrecognized search-filter operator "{_operator}"')
+        _value_list = []
+        for _value in split_queryparam_value(param_value):
+            try:
+                _iri = osfmap_labeler.get_iri(_value)
+            except KeyError:
+                _value_list.append(_value)  # assume iri already
+            else:
+                _value_list.append(_iri)
         return cls(
             filter_family=param_name.family,
-            property_path=tuple(split_queryparam_value(serialized_path)),
-            value_set=frozenset(split_queryparam_value(param_value)),
-            operator=operator,
+            property_path=tuple(split_queryparam_value(_serialized_path)),
+            value_set=frozenset(_value_list),
+            operator=_operator,
         )
 
 

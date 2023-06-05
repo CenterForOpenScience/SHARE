@@ -1,10 +1,10 @@
+import datetime
 import json
 import typing
 
 from gather import (
     focus,
     text,
-    twopledict_as_jsonld,
     IANA_LANGUAGE,
     GatheringOrganizer,
 )
@@ -15,8 +15,8 @@ from share.schema.osfmap import (
     DCTERMS,
     FOAF,
     OSFMAP,
-    FULL_DATE,
 )
+from share.search.rdf_as_jsonld import RdfAsJsonld
 from share.util.rdfutil import SHAREv2
 from share.util.graph import MutableGraph, MutableNode
 from .base import MetadataFormatter
@@ -33,12 +33,15 @@ class OsfmapJsonldFormatter(MetadataFormatter):
         })
         _gathering.ask_all_about(_central_focus)
         _tripledict = _gathering.leaf_a_record()
-        _jsondict = twopledict_as_jsonld(
-            _tripledict[_central_focus.single_iri()],
+        _rdf_as_jsonld = RdfAsJsonld(
             OSFMAP_NORMS.vocabulary,
-            osfmap_labeler.all_labels_by_iri(),
+            osfmap_labeler,
         )
-        return json.dumps(_jsondict)
+        _jsonld = _rdf_as_jsonld.tripledict_as_nested_jsonld(
+            _tripledict,
+            _central_focus.single_iri(),
+        )
+        return json.dumps(_jsonld)
 
 
 ###
@@ -68,14 +71,14 @@ def _gather_work(focus, *, normd, mnode):
         else ()
     )
     yield (DCTERMS.title, text(mnode['title'], language_iris=_language_iris))
-    yield (DCTERMS.description, text(mnode['_description'], language_iris=_language_iris))
-    yield (DCTERMS.created, text(mnode['date_published'], language_iris=FULL_DATE))
-    yield (DCTERMS.modified, text(mnode['date_updated'], language_iris=FULL_DATE))
-    yield (DCTERMS.date, text((
+    yield (DCTERMS.description, text(mnode['description'], language_iris=_language_iris))
+    yield (DCTERMS.created, _date_or_none(mnode['date_published']))
+    yield (DCTERMS.modified, _date_or_none(mnode['date_updated']))
+    yield (DCTERMS.date, _date_or_none(
         mnode['date_published']
         or mnode['date_updated']
-        or normd.created_at.isoformat()
-    ), language_iris=FULL_DATE))
+        or normd.created_at
+    ))
     yield (DCTERMS.rights, text(mnode['free_to_read_type'], language_iris=()))
     yield (DCTERMS.available, text(mnode['free_to_read_date'], language_iris=()))
     yield (DCTERMS.rights, text(mnode['rights'], language_iris=()))
@@ -84,7 +87,7 @@ def _gather_work(focus, *, normd, mnode):
     yield (OSFMAP.dateWithdrawn, text(mnode['withdrawn'], language_iris=()))  # TODO: is boolean, not date
     yield (OSFMAP.withdrawalJustification, text(mnode['justification'], language_iris=()))  # TODO: not in OSFMAP
     for _subject in mnode['subjects']:
-        yield (OSFMAP.subject, text(_subject['name'], language_iris=()))  # TODO: iri? lineage?
+        yield (DCTERMS.subject, text(_subject['name'], language_iris=()))  # TODO: iri? lineage?
     for _tag in mnode['tags']:
         yield (OSFMAP.keyword, text(_tag['name'], language_iris=()))
     for _agent_relation in mnode['agent_relations']:
@@ -111,12 +114,11 @@ def _gather_work(focus, *, normd, mnode):
 def _gather_agent(focus, *, normd, mnode):
     for _iri in focus.iris:
         yield (DCTERMS.identifier, text(_iri, language_iris=()))
-    if SHAREv2.person in mnode.schema_type.type_lineage:
+    if 'Person' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Person)
-    if SHAREv2.organization in mnode.schema_type.type_lineage:
+    if 'Organization' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Organization)
     yield (FOAF.name, text(mnode['name'], language_iris=()))
-    yield (SHAREv2.location, text(mnode['location'], language_iris=()))
     for _agent_relation in mnode['outgoing_agent_relations']:
         yield (
             OSFMAP.affiliation,
@@ -158,6 +160,19 @@ def _has_parent(mnode: MutableNode) -> bool:
     )
 
 
+def _date_or_none(maybe_date) -> typing.Optional[datetime.date]:
+    if isinstance(maybe_date, str):
+        _datetime = datetime.datetime.fromisoformat(maybe_date)
+        return _datetime.date()
+    if isinstance(maybe_date, datetime.datetime):
+        return maybe_date.date()
+    if isinstance(maybe_date, datetime.date):
+        return maybe_date
+    if maybe_date is None:
+        return None
+    raise ValueError(f'expected datetime.date, str, or None (got {maybe_date})')
+
+
 def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
     _sharev2_type = mnode.type
     _sharev2_concrete_type = mnode.concrete_type
@@ -182,11 +197,11 @@ def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
 
 def _agentwork_relation_iri(agentwork_relation: MutableNode):
     _sharev2_types = set(agentwork_relation.schema_type.type_lineage)
-    if 'creator' in _sharev2_types:
+    if 'Creator' in _sharev2_types:
         return DCTERMS.creator
-    if 'funder' in _sharev2_types:
+    if 'Funder' in _sharev2_types:
         return OSFMAP.funder  # TODO: different kind of osfmap expression
-    if ('publisher' in _sharev2_types) or ('host' in _sharev2_types):
+    if ('Publisher' in _sharev2_types) or ('Host' in _sharev2_types):
         return DCTERMS.publisher
     return DCTERMS.contributor
 

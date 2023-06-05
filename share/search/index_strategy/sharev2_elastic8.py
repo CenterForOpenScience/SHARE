@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import typing
@@ -14,7 +15,11 @@ from share.schema.osfmap import (
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
-from share.search import search_params
+from share.search.search_params import (
+    CardsearchParams,
+    SearchFilter,
+    Textsegment,
+)
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
@@ -30,6 +35,10 @@ TEXT_FIELDS_BY_OSFMAP = {
     OSFMAP.keyword: 'tags',
 }
 TEXT_FIELDS = tuple(TEXT_FIELDS_BY_OSFMAP.values())
+TEXT_IRIS_BY_FIELDNAME = {
+    _fieldname: _iri
+    for _iri, _fieldname in TEXT_FIELDS_BY_OSFMAP.items()
+}
 KEYWORD_FIELDS_BY_OSFMAP = {
     DCTERMS.identifier: 'identifiers',
     DCTERMS.creator: 'lists.contributors.identifiers',  # NOTE: contributor types lumped together
@@ -217,7 +226,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_cardsearch(
             self,
-            cardsearch_params: search_params.CardsearchParams,
+            cardsearch_params: CardsearchParams,
         ) -> typing.Iterable[gather.GathererYield]:
             try:
                 _es8_response = self.index_strategy.es8_client.search(
@@ -253,7 +262,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _text_evidence_twoples = (
                     (TROVE.matchEvidence, frozenset((
                         (gather.RDF.type, TROVE.TextMatchEvidence),
-                        (TROVE.propertyPath, self._fieldname_to_propertypath(_fieldname)),
+                        (TROVE.propertyPath, self._propertypath_for_text_field(_fieldname)),
                         (TROVE.matchingHighlight, gather.text(_highlight, language_iris=())),
                     )))
                     for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()
@@ -265,60 +274,127 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     *_text_evidence_twoples,
                 )))
 
-        def _fieldname_to_propertypath(self, fieldname: str):
+        def _propertypath_for_text_field(self, fieldname: str):
             try:
-                _iri = osfmap_labeler.get_iri(fieldname)
-                return (_iri,)  # only len 1 for now
+                return (TEXT_IRIS_BY_FIELDNAME[fieldname],)  # only paths of length one, for now
             except KeyError:
-                raise NotImplementedError('TODO: 400 response?')
+                raise NotImplementedError(f'could not find iri for field "{fieldname}"')
 
-        def _filter_path_to_fieldname(self, filter_path: tuple[str]):
+        def _filter_path_to_fieldname(self, filter_path: tuple[str], field_dict: dict):
             if len(filter_path) != 1:
                 raise NotImplementedError('TODO: multi-step filter paths')
             (_label,) = filter_path
             try:
-                return KEYWORD_FIELDS_BY_OSFMAP[osfmap_labeler.get_iri(_label)]
+                return field_dict[osfmap_labeler.get_iri(_label)]
             except KeyError:
                 raise NotImplementedError('TODO: 400 response?')
 
         def _cardsearch_query(self, search_params) -> dict:
             _bool_query = {
-                'filter': list(self._cardsearch_filter(search_params)),
+                'filter': [],
                 'must': [],
                 'must_not': [],
                 'should': [],
             }
-            for textsegment in search_params.cardsearch_textsegment_list:
-                if textsegment.is_negated:
+            for _search_filter in search_params.cardsearch_filter_set:
+                if _search_filter.operator == SearchFilter.FilterOperator.NONE_OF:
+                    _bool_query['must_not'].append(self._terms_filter(_search_filter))
+                elif _search_filter.operator == SearchFilter.FilterOperator.ANY_OF:
+                    _bool_query['filter'].append(self._terms_filter(_search_filter))
+                else:  # before, after
+                    _bool_query['filter'].append(self._date_filter(_search_filter))
+            for _textsegment in search_params.cardsearch_textsegment_list:
+                if _textsegment.is_negated:
                     _bool_query['must_not'].append(
-                        self._excluded_text_query(textsegment)
+                        self._excluded_text_query(_textsegment)
                     )
                 else:
                     _bool_query['should'].extend(
-                        self._fuzzy_text_query_iter(textsegment)
+                        self._fuzzy_text_query_iter(_textsegment)
                     )
-                    if not textsegment.is_fuzzy:
+                    if not _textsegment.is_fuzzy:
                         _bool_query['must'].append(
-                            self._exact_text_query(textsegment)
+                            self._exact_text_query(_textsegment)
                         )
-            logger.critical(f'>>> {json.dumps(_bool_query, indent=2)}')
             return {'bool': _bool_query}
 
-        def _cardsearch_filter(self, search_params) -> typing.Iterable[dict]:
-            for search_filter in search_params.cardsearch_filter_set:
-                fieldname = self._filter_path_to_fieldname(search_filter.property_path)
-                yield {'terms': {
+        def _terms_filter(self, search_filter) -> dict:
+            fieldname = self._filter_path_to_fieldname(
+                search_filter.property_path,
+                KEYWORD_FIELDS_BY_OSFMAP,
+            )
+            if fieldname != 'types':
+                return {'terms': {
                     fieldname: list(search_filter.value_set),
                 }}
+            _typeterms = {'terms': {
+                fieldname: [
+                    self._type_value_for_iri(_iri)
+                    for _iri in search_filter.value_set
+                ],
+            }}
+            _must_have_lineage = {
+                OSFMAP.ProjectComponent,
+                OSFMAP.RegistrationComponent
+            }.intersection(search_filter.value_set)
+            if _must_have_lineage:
+                return {'bool': {
+                    'filter': [
+                        _typeterms,
+                        {'exists': {'field': 'lists.lineage'}},
+                    ],
+                }}
+            _must_not_have_lineage = {
+                OSFMAP.Project,
+                OSFMAP.Registration
+            }.intersection(search_filter.value_set)
+            if _must_not_have_lineage:
+                return {'bool': {
+                    'filter': _typeterms,
+                    'must_not': {'exists': {'field': 'lists.lineage'}},
+                }}
+            return _typeterms
 
-        def _excluded_text_query(self, textsegment: search_params.Textsegment):
+        def _date_filter(self, search_filter):
+            if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
+                _range_op = 'lt'
+                _value = min(search_filter.value_set)  # lean on that isoformat
+            elif search_filter.operator == SearchFilter.FilterOperator.AFTER:
+                _range_op = 'gte'
+                _value = max(search_filter.value_set)  # lean on that isoformat
+            else:
+                raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
+            _date_value = datetime.datetime.fromisoformat(_value).date()
+            _fieldname = self._filter_path_to_fieldname(
+                search_filter.property_path,
+                DATE_FIELDS_BY_OSFMAP,
+            )
+            return {'range': {
+                _fieldname: {
+                    _range_op: f'{_date_value}||/d',  # round to the day
+                }
+            }}
+
+        def _type_value_for_iri(self, type_iri):
+            try:
+                return {
+                    OSFMAP.Project: 'project',
+                    OSFMAP.ProjectComponent: 'project',
+                    OSFMAP.Registration: 'registration',
+                    OSFMAP.RegistrationComponent: 'registration',
+                    OSFMAP.Preprint: 'preprint',
+                }[type_iri]
+            except KeyError:
+                return type_iri
+
+        def _excluded_text_query(self, textsegment: Textsegment):
             return {'multi_match': {
                 'type': 'phrase',
                 'query': textsegment.text,
                 'fields': TEXT_FIELDS,
             }}
 
-        def _exact_text_query(self, textsegment: search_params.Textsegment):
+        def _exact_text_query(self, textsegment: Textsegment):
             assert not textsegment.is_fuzzy
             if textsegment.is_openended:
                 return {'multi_match': {
@@ -332,7 +408,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 'fields': TEXT_FIELDS,
             }}
 
-        def _fuzzy_text_query_iter(self, textsegment: search_params.Textsegment):
+        def _fuzzy_text_query_iter(self, textsegment: Textsegment):
             wordcount = len(textsegment.text.split())
 
             def _field_query_iter(_fieldname: str):

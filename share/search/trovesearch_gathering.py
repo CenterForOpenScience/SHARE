@@ -33,6 +33,283 @@ TROVE = gather.IriNamespace('https://share.osf.io/vocab/trove/')
 #   index card (for the iri with `#` and after removed)
 # - TODO: each iri is an irL that resolves to rdf, html
 
+TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
+    # types:
+    TROVE.Card: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('index-card', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.Cardsearch: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('index-card-search', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.Propertysearch: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('index-property-search', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.Valuesearch: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('index-value-search', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.SearchResult: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('search-result', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.TextMatchEvidence: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('TextMatchEvidence', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.IriMatchEvidence: {
+        gather.RDF.type: {gather.RDFS.Class},
+        gather.RDFS.label: {
+            gather.text('IriMatchEvidence', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    # attributes:
+    TROVE.totalResultCount: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('totalResultCount', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.cardsearchText: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('cardSearchText', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.propertysearchText: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('propertySearchText', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.valuesearchText: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('valueSearchText', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.cardsearchFilter: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('cardSearchFilter', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.propertysearchFilter: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('propertySearchFilter', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.valuesearchFilter: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('valueSearchFilter', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.matchEvidence: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('matchEvidence', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.resourceIdentifier: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('resourceIdentifier', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.resourceType: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('resourceType', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.resourceMetadata: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('resourceMetadata', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.matchingHighlight: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
+        gather.RDFS.label: {
+            gather.text('matchingHighlight', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.propertyPath: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty},
+        gather.RDFS.label: {
+            gather.text('propertyPath', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.filterType: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty},
+        gather.RDFS.label: {
+            gather.text('filterType', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.filterValue: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('filterValue', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    # relationships:
+    TROVE.searchResult: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_RELATIONSHIP},
+        gather.RDFS.label: {
+            gather.text('searchResultPage', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.evidenceCard: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
+        gather.RDFS.label: {
+            gather.text('evidenceCard', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.relatedPropertysearch: {
+        gather.RDF.type: {gather.RDF.Property, JSONAPI_RELATIONSHIP},
+        gather.RDFS.label: {
+            gather.text('relatedPropertySearch', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.indexCard: {
+        gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
+        gather.RDFS.label: {
+            gather.text('indexCard', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    # filter operator values:
+    TROVE['any-of']: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('any-of', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE['none-of']: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('none-of', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.before: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('before', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+    TROVE.after: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('after', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
+}
+
 
 TROVESEARCH = gather.GatheringNorms(
     namestory=(
@@ -51,296 +328,11 @@ TROVESEARCH = gather.GatheringNorms(
         TROVE.Propertysearch,
         TROVE.Valuesearch,
     },
-    vocabulary={
-        # types:
-        TROVE.Card: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('index-card', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.Cardsearch: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('index-card-search', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.Propertysearch: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('index-property-search', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.Valuesearch: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('index-value-search', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.SearchResult: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('search-result', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.TextMatchEvidence: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('TextMatchEvidence', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.IriMatchEvidence: {
-            gather.RDF.type: {gather.RDFS.Class},
-            gather.RDFS.label: {
-                gather.text('IriMatchEvidence', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        # attributes:
-        TROVE.totalResultCount: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('totalResultCount', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.cardsearchText: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('cardSearchText', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.propertysearchText: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('propertySearchText', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.valuesearchText: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('valueSearchText', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.cardsearchFilter: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('cardSearchFilter', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.propertysearchFilter: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('propertySearchFilter', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.valuesearchFilter: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('valueSearchFilter', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.matchEvidence: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('matchEvidence', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.resourceIdentifier: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('resourceIdentifier', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.resourceType: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('resourceType', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.resourceMetadata: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('resourceMetadata', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.matchingHighlight: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_ATTRIBUTE},
-            gather.RDFS.label: {
-                gather.text('matchingHighlight', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.propertyPath: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty},
-            gather.RDFS.label: {
-                gather.text('propertyPath', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.filterType: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty},
-            gather.RDFS.label: {
-                gather.text('filterType', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.filterValue: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('filterValue', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        # relationships:
-        TROVE.searchResult: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_RELATIONSHIP},
-            gather.RDFS.label: {
-                gather.text('searchResultPage', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.evidenceCard: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-            gather.RDFS.label: {
-                gather.text('evidenceCard', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.relatedPropertysearch: {
-            gather.RDF.type: {gather.RDF.Property, JSONAPI_RELATIONSHIP},
-            gather.RDFS.label: {
-                gather.text('relatedPropertySearch', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.indexCard: {
-            gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-            gather.RDFS.label: {
-                gather.text('indexCard', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        # filter operator values:
-        TROVE['any-of']: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('any-of', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE['none-of']: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('none-of', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.before: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('before', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        TROVE.after: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('after', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-        # other properties:
-        gather.RDF.type: {
-            gather.RDF.type: {gather.RDF.Property},
-            gather.RDFS.label: {
-                gather.text('@type', language_iris={
-                    gather.IANA_LANGUAGE.en,
-                    JSONAPI_MEMBERNAME,
-                }),
-            },
-        },
-    },
+    vocabulary=TROVESEARCH_VOCAB,
 )
 
 
-trovesearch = gather.GatheringOrganizer(
+trovesearch_by_indexstrategy = gather.GatheringOrganizer(
     namestory=(
         gather.text('trove search', language_iris={gather.IANA_LANGUAGE.en}),
     ),
@@ -349,7 +341,7 @@ trovesearch = gather.GatheringOrganizer(
 )
 
 
-@trovesearch.gatherer(TROVE.cardsearchText)
+@trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
 def gather_cardsearch_text(focus, *, search_params):
     yield (TROVE.cardsearchText, gather.text(
         search_params.cardsearch_text,
@@ -357,7 +349,7 @@ def gather_cardsearch_text(focus, *, search_params):
     ))
 
 
-@trovesearch.gatherer(TROVE.cardsearchFilter)
+@trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchFilter)
 def gather_cardsearch_filter(focus, *, search_params):
     for _filter in search_params.cardsearch_filter_set:
         _filter_values = (
@@ -371,7 +363,7 @@ def gather_cardsearch_filter(focus, *, search_params):
         )))
 
 
-@trovesearch.gatherer(
+@trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Cardsearch},
 )
 def gather_cardsearch(focus, *, search_params):
@@ -386,7 +378,7 @@ def gather_cardsearch(focus, *, search_params):
     yield from _specific_index.pls_handle_cardsearch(search_params)
 
 
-@trovesearch.gatherer(
+@trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Card},
 )
 def gather_card(focus, *, search_params):

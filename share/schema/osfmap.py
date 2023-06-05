@@ -393,6 +393,18 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             text('OmittedMetadata', language_iris={IANA_LANGUAGE.en}),
         },
     },
+    FOAF.Person: {
+        RDF.type: {RDFS.Class},
+        RDFS.label: {
+            text('Person', language_iris={IANA_LANGUAGE.en}),
+        },
+    },
+    FOAF.Organization: {
+        RDF.type: {RDFS.Class},
+        RDFS.label: {
+            text('Organization', language_iris={IANA_LANGUAGE.en}),
+        },
+    },
 }
 
 
