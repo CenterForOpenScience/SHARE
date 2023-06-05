@@ -39,12 +39,12 @@ class IriLabeler:
                 _iri: _label
                 for _label, _iri in self.all_iris_by_label().items()
             }
-            _missing = (
-                set(self.__iris_by_label.keys())
-                .difference(_labels_by_iri)
+            _missing_iris = (
+                set(self.__iris_by_label.values())
+                .difference(_labels_by_iri.keys())
             )
-            if _missing:
-                raise ValueError(f'vocab label collision! missing {_missing}')
+            if _missing_iris:
+                raise ValueError(f'vocab label collision! missing labels for {_missing_iris}')
             self.__labels_by_iri = _labels_by_iri
             return _labels_by_iri
 

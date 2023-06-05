@@ -1,20 +1,15 @@
-import typing
-
 from gather import (
+    text,
     IriNamespace,
     OWL,
     RDF,
     RDFS,
-    text,
     IANA_LANGUAGE,
     RdfTripleDictionary,
     GatheringNorms,
-    GatheringOrganizer,
 )
 
-from share import models as db
 from share.util.rdfutil import IriLabeler
-from .base import MetadataFormatter
 
 
 # standard namespaces:
@@ -420,22 +415,3 @@ OSFMAP_NORMS = GatheringNorms(
 )
 
 osfmap_labeler = IriLabeler(OSFMAP_VOCAB)
-
-osfmap_from_normd = GatheringOrganizer(
-    namestory=(
-        text('sharev2-normd', language_iris=()),
-    ),
-    norms=OSFMAP_NORMS,
-    gatherer_kwargnames={'_normd'},
-)
-
-
-@osfmap_from_normd.gatherer(DCTERMS.identifier)
-def _gather_identifier(focus, *, normd):
-    # TODO: focuskwargs? somehow pass gatherer a share.util.graph.MutableNode
-    pass
-
-
-class OsfmapJsonldFormatter(MetadataFormatter):
-    def format(self, normalized_data: db.NormalizedData) -> typing.Optional[str]:
-        pass

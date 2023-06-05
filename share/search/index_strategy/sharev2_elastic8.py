@@ -6,7 +6,7 @@ import elasticsearch8
 import gather
 
 from share import models as db
-from share.metadata_formats.osfmap import (
+from share.schema.osfmap import (
     osfmap_labeler,
     OSFMAP,
     DCTERMS,

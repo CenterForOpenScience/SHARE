@@ -2,8 +2,8 @@ import typing
 
 import gather
 
-from share.metadata_formats.osfmap import osfmap_labeler
 from share.util.checksum_iris import ChecksumIri
+from share.util.rdfutil import IriLabeler
 
 ###
 # rendering responses as jsonapi
@@ -28,6 +28,7 @@ class RdfAsJsonapi:
 
     def __init__(self, gathering: gather.Gathering):
         self._norms = gathering.norms
+        self._labeler = IriLabeler(gathering.norms.vocabulary)
         self._tripledict = gathering.leaf_a_record()
         self.__twopledict_cache = {}
         self.__resource_id_cache = {}
@@ -66,7 +67,8 @@ class RdfAsJsonapi:
             'attributes': gather.twopledict_as_jsonld(
                 _attributes,
                 self._norms.vocabulary,
-                osfmap_labeler.all_labels_by_iri(),  # TODO: labeler param
+                self._labeler.all_labels_by_iri(),  # TODO: labeler param?
+                expand_rdfjson_values=True,
             ),
             # TODO: links, meta?
         }
@@ -131,7 +133,7 @@ class RdfAsJsonapi:
                     raw_json=gather.twopledict_as_jsonld(
                         _twopledict,
                         self._norms.vocabulary,
-                        osfmap_labeler.all_labels_by_iri(),  # TODO: labeler param
+                        self._labeler.all_labels_by_iri(),  # TODO: labeler param
                     ),
                 )
             else:

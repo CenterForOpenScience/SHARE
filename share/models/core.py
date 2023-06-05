@@ -206,19 +206,35 @@ class NormalizedData(models.Model):
 
 
 class FormattedMetadataRecordManager(models.Manager):
+    def get_or_create_formatted_record(self, suid_id, record_format, normalized_datum=None):
+        try:
+            return self.get(suid=suid_id, record_format=record_format)
+        except self.model.DoesNotExist:
+            (_record,) = self.save_formatted_records(
+                suid_id=suid_id,
+                record_formats=[record_format],
+                normalized_datum=normalized_datum,
+            )
+            return _record
+
     def delete_formatted_records(self, suid):
         records = []
         for record_format in Extensions.get_names('share.metadata_formats'):
             formatter = Extensions.get('share.metadata_formats', record_format)()
             formatted_record = formatter.format_as_deleted(suid)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
+            record = self._save_formatted_record(suid.id, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
 
-    def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
+    def save_formatted_records(self, suid=None, record_formats=None, normalized_datum=None, suid_id=None):
+        if suid is None:
+            _suid_id = suid_id
+        else:
+            assert suid_id is None, 'expected suid or suid_id, not both'
+            _suid_id = suid.id
         if normalized_datum is None:
-            normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+            normalized_datum = NormalizedData.objects.filter(raw__suid_id=_suid_id).order_by('-created_at').first()
         if record_formats is None:
             record_formats = Extensions.get_names('share.metadata_formats')
 
@@ -226,22 +242,22 @@ class FormattedMetadataRecordManager(models.Manager):
         for record_format in record_formats:
             formatter = Extensions.get('share.metadata_formats', record_format)()
             formatted_record = formatter.format(normalized_datum)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
+            record = self._save_formatted_record(_suid_id, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
 
-    def _save_formatted_record(self, suid, record_format, formatted_record):
+    def _save_formatted_record(self, suid_id, record_format, formatted_record):
         if formatted_record:
             record, _ = self.update_or_create(
-                suid=suid,
+                suid_id=suid_id,
                 record_format=record_format,
                 defaults={
                     'formatted_metadata': formatted_record,
                 },
             )
         else:
-            self.filter(suid=suid, record_format=record_format).delete()
+            self.filter(suid_id=suid_id, record_format=record_format).delete()
             record = None
         return record
 

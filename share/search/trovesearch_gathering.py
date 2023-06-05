@@ -390,11 +390,11 @@ def gather_cardsearch(focus, *, search_params):
     focustype_iris={TROVE.Card},
 )
 def gather_card(focus, *, search_params):
-    # TODO: batch gatherer? load all records in one query
+    # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)
-    _record = db.FormattedMetadataRecord.objects.get(
+    _record = db.FormattedMetadataRecord.objects.get_or_create_formatted_record(
         suid_id=_suid_id,
-        record_format='sharev2_elastic',  # TODO: osfmap_json (choose by queryparam)
+        record_format='osfmap_jsonld',  # TODO: choose by queryparam
     )
     _json_metadata = json.loads(_record.formatted_metadata)
     for _identifier in _json_metadata.get('identifiers', ()):

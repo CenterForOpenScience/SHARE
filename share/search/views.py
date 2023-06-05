@@ -24,7 +24,7 @@ class CardsearchView(View):
             ),
         })
         _search_gathering.ask(
-            gather.Focus.new(_search_iri, TROVE.Cardsearch),
+            gather.focus(_search_iri, TROVE.Cardsearch),
             {
                 # TODO: build from jsonapi `include`/`fields` (with static defaults)
                 TROVE.totalResultCount: None,
