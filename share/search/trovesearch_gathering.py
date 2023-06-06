@@ -5,6 +5,7 @@ from django.conf import settings
 import gather
 
 from share import models as db
+from share.metadata_formats.osfmap_jsonld import OsfmapJsonldFormatter
 from share.search import exceptions
 from share.search.search_params import CardsearchParams
 from share.search.index_strategy import IndexStrategy
@@ -28,6 +29,7 @@ TROVE = gather.IriNamespace('https://share.osf.io/vocab/trove/')
 # - TODO: each iri is an irL that resolves to rdf, html
 
 TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
+
     # types:
     TROVE.Card: {
         gather.RDF.type: {gather.RDFS.Class},
@@ -92,6 +94,7 @@ TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
             }),
         },
     },
+
     # attributes:
     TROVE.totalResultCount: {
         gather.RDF.type: {gather.OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
@@ -219,6 +222,7 @@ TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
             }),
         },
     },
+
     # relationships:
     TROVE.searchResult: {
         gather.RDF.type: {gather.RDF.Property, JSONAPI_RELATIONSHIP},
@@ -256,6 +260,7 @@ TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
             }),
         },
     },
+
     # filter operator values:
     TROVE['any-of']: {
         gather.RDF.type: {gather.RDF.Property},
@@ -302,8 +307,7 @@ TROVESEARCH = gather.GatheringNorms(
             JSONAPI_MEMBERNAME,
             gather.IANA_LANGUAGE.en,
         }),
-        gather.Text('search for index cards that describe items', language_iris={
-            TROVE.phrase,
+        gather.Text('search for index cards that describe resources', language_iris={
             gather.IANA_LANGUAGE.en,
         }),
     ),
@@ -369,17 +373,28 @@ def gather_cardsearch(focus, *, search_params):
 def gather_card(focus, *, search_params):
     # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)
-    _record = db.FormattedMetadataRecord.objects.get_or_create_formatted_record(
-        suid_id=_suid_id,
-        record_format='osfmap_jsonld',  # TODO: choose by queryparam
+    _normalized_datum = (
+        db.NormalizedData.objects
+        .filter(raw__suid_id=_suid_id)
+        .order_by('-created_at')
+        .first()
     )
-    # TODO: do not parse the json here -- get identifiers based on suid
-    _json_metadata = json.loads(_record.formatted_metadata)
+    # TODO: when osfmap formatter is solid, store as formatted record instead
+    # _record = db.FormattedMetadataRecord.objects.get_or_create_formatted_record(
+    #     suid_id=_suid_id,
+    #     record_format='osfmap_jsonld',
+    # )
+    _resource_metadata = OsfmapJsonldFormatter().format(_normalized_datum)
+    # TODO: do not parse the json here -- store identifiers by suid
+    _json_metadata = json.loads(_resource_metadata)
     for _identifier_obj in _json_metadata.get('identifier', ()):
-        yield (TROVE.resourceIdentifier, gather.text(_identifier_obj['@value'], language_iris=()))
+        yield (
+            TROVE.resourceIdentifier,
+            gather.text(_identifier_obj['@value'], language_iris=()),
+        )
     yield (
         TROVE.resourceMetadata,
-        gather.text(_record.formatted_metadata, language_iris={gather.RDF.JSON})
+        gather.text(_resource_metadata, language_iris={gather.RDF.JSON})
     )
 
 

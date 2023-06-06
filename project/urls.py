@@ -17,6 +17,9 @@ from share.search import views as search_views
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api/v3/index-card-search', view=search_views.CardsearchView.as_view(), name='index-card-search'),
+    path('api/v3/index-property-search', view=search_views.PropertysearchView.as_view(), name='index-property-search'),
+    path('api/v3/index-value-search', view=search_views.ValuesearchView.as_view(), name='index-value-search'),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
@@ -31,9 +34,6 @@ urlpatterns = [
         permanent=False
     ), name='favicon'),
     url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
-    path('index-card-search', view=search_views.CardsearchView.as_view(), name='index-card-search'),
-    path('index-property-search', view=search_views.PropertysearchView.as_view(), name='index-property-search'),
-    path('index-value-search', view=search_views.ValuesearchView.as_view(), name='index-value-search'),
 ]
 
 if settings.DEBUG:

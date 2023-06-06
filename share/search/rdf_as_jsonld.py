@@ -87,16 +87,17 @@ class RdfAsJsonld:
         )
         if _yes_nest:
             self.__nestvisited_iris.add(rdfobject)
-            return {
-                self.iri_to_shortlabel(_pred): self._list_or_single_value(
+            _nested_obj = {'@id': rdfobject}
+            for _pred, _objectset in tripledict[rdfobject].items():
+                _label = self.iri_to_shortlabel(_pred)
+                _nested_obj[_label] = self._list_or_single_value(
                     _pred,
                     [  # recursion:
                         self.__nested_rdfobject_as_jsonld(tripledict, _obj)
                         for _obj in _objectset
                     ],
                 )
-                for _pred, _objectset in tripledict[rdfobject].items()
-            }
+            return _nested_obj
         else:
             return self.rdfobject_as_jsonld(rdfobject)
 
