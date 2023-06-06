@@ -7,6 +7,7 @@ import typing
 from share.schema.osfmap import osfmap_labeler
 from share.search import exceptions
 from share.search.jsonapi_queryparams import (
+    JsonapiQueryparamDict,
     JsonapiQueryparamName,
     split_queryparam_value,
     queryparams_from_querystring,
@@ -23,7 +24,7 @@ DOUBLE_QUOTATION_MARK = '"'
 
 
 ###
-# search api parameters
+# dataclasses for parsed search-api query parameters
 
 @dataclasses.dataclass(frozen=True)
 class Textsegment:
@@ -37,7 +38,11 @@ class Textsegment:
             raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
 
     @classmethod
-    def from_str(cls, text: str) -> typing.Iterable['Textsegment']:
+    def split_str(cls, text: str) -> frozenset['Textsegment']:
+        return frozenset(cls._split_str(text))
+
+    @classmethod
+    def _split_str(cls, text: str) -> typing.Iterable['Textsegment']:
         '''parse search text into words and quoted phrases
         '''
         _in_quotes = False
@@ -128,6 +133,14 @@ class SearchFilter:
     operator: FilterOperator
 
     @classmethod
+    def for_queryparam_family(cls, queryparams: JsonapiQueryparamDict, queryparam_family: str):
+        return frozenset(
+            cls.from_filter_param(param_name, param_value)
+            for (param_name, param_value)
+            in queryparams.get(queryparam_family, ())
+        )
+
+    @classmethod
     def from_filter_param(cls, param_name: JsonapiQueryparamName, param_value: str):
         try:  # "filter[<serialized_path>][<operator>]"
             (_serialized_path, _operator_value) = param_name.bracketed_names
@@ -136,8 +149,8 @@ class SearchFilter:
                 (_serialized_path,) = param_name.bracketed_names
             except ValueError:
                 raise exceptions.InvalidSearchParam(
-                    f'expected 1 or 2 bracketed queryparam-name segments, '
-                    f'got {len(param_name.bracketed_names)} (in "{param_name}")'
+                    f'expected one or two bracketed queryparam-name segments'
+                    f' ({len(param_name.bracketed_names)} in "{param_name}")'
                 )
             else:  # default operator
                 _operator = SearchFilter.FilterOperator.ANY_OF
@@ -165,46 +178,93 @@ class SearchFilter:
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams:
     cardsearch_text: str
-    cardsearch_textsegment_list: tuple[Textsegment]
+    cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
-    include: typing.Optional[frozenset[tuple[str]]] = None
-    sort: typing.Optional[str] = None
-    index_strategy_name: typing.Optional[str] = None
+    include: frozenset[tuple[str]]
+    sort: str
+    index_strategy_name: str
 
     @classmethod
-    def from_querystring(cls, querystring: str):
-        _queryparams = queryparams_from_querystring(querystring)
-        _cardsearch_text = ' '.join(
-            param_value
-            for _, param_value
-            in _queryparams.get('cardSearchText', ())
-        )
-        return cls(
+    def from_querystring(cls, querystring: str) -> 'CardsearchParams':  # TODO py3.11: typing.Self
+        return cls.from_queryparams(queryparams_from_querystring(querystring))
+
+    @staticmethod
+    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'CardsearchParams':
+        _cardsearch_text = _get_text_queryparam(queryparams, 'cardSearchText')
+        return CardsearchParams(
             cardsearch_text=_cardsearch_text,
-            cardsearch_textsegment_list=frozenset(
-                Textsegment.from_str(_cardsearch_text),
-            ),
-            cardsearch_filter_set=frozenset(
-                SearchFilter.from_filter_param(param_name, param_value)
-                for (param_name, param_value)
-                in _queryparams.get('cardSearchFilter', ())
-            ),
-            index_strategy_name=_queryparams.get('indexStrategy'),
-            # TODO: include, sort
+            cardsearch_textsegment_set=Textsegment.split_str(_cardsearch_text),
+            cardsearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
+            index_strategy_name=_get_index_strategy_name(queryparams),
+            include=None,  # TODO
+            sort=None,  # TODO
         )
 
 
 @dataclasses.dataclass(frozen=True)
-class PropertysearchParams:
-    propertysearch_textsegment_list: frozenset[str]
+class PropertysearchParams(CardsearchParams):
+    # includes fields from CardsearchParams, because a
+    # propertysearch is run in context of a cardsearch
+    propertysearch_text: str
+    propertysearch_textsegment_set: frozenset[str]
     propertysearch_filter_set: frozenset[SearchFilter]
-    cardsearch_textsegment_list: frozenset[str]
-    cardsearch_filter_set: frozenset[SearchFilter]
+
+    # override CardsearchParams
+    @staticmethod
+    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'PropertysearchParams':
+        _propertysearch_text = _get_text_queryparam(queryparams, 'propertySearchText')
+        return PropertysearchParams(
+            **dataclasses.asdict(
+                CardsearchParams.from_queryparams(queryparams),
+            ),
+            propertysearch_text=_propertysearch_text,
+            propertysearch_textsegment_set=Textsegment.split_str(_propertysearch_text),
+            propertysearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'propertySearchFilter'),
+        )
 
 
 @dataclasses.dataclass(frozen=True)
-class ValuesearchParams:
-    valuesearch_textsegment_list: frozenset[str]
+class ValuesearchParams(CardsearchParams):
+    # includes fields from CardsearchParams, because a
+    # valuesearch is always in context of a cardsearch
+    valuesearch_text: str
+    valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
-    cardsearch_textsegment_list: frozenset[str]
-    cardsearch_filter_set: frozenset[SearchFilter]
+
+    # override CardsearchParams
+    @staticmethod
+    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'ValuesearchParams':
+        _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
+        return ValuesearchParams(
+            **dataclasses.asdict(
+                CardsearchParams.from_queryparams(queryparams),
+            ),
+            valuesearch_text=_valuesearch_text,
+            valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
+            valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),
+        )
+
+
+###
+# local helpers
+
+def _get_text_queryparam(queryparams: JsonapiQueryparamDict, queryparam_family: str) -> str:
+    '''concat all values for the given queryparam family into one str
+    '''
+    return ' '.join(
+        param_value
+        for _, param_value
+        in queryparams.get(queryparam_family, ())
+    )
+
+
+def _get_index_strategy_name(queryparams: JsonapiQueryparamDict):
+    _paramlist = queryparams.get('indexStrategy')
+    if not _paramlist:
+        return None
+    try:
+        ((_, _paramvalue),) = _paramlist
+    except ValueError:
+        raise ValueError(f'expected at most one indexStrategy value, got {_paramlist}')
+    else:
+        return _paramvalue

@@ -6,9 +6,11 @@ import gather
 
 from share import models as db
 from share.metadata_formats.osfmap_jsonld import OsfmapJsonldFormatter
-from share.search import exceptions
-from share.search.search_params import CardsearchParams
-from share.search.index_strategy import IndexStrategy
+from share.search.search_request import (
+    CardsearchParams,
+    PropertysearchParams,
+    ValuesearchParams,
+)
 from share.search.rdf_as_jsonapi import (
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
@@ -261,7 +263,16 @@ TROVESEARCH_VOCAB: gather.RdfTripleDictionary = {
         },
     },
 
-    # filter operator values:
+    # values:
+    TROVE['ten-thousands-and-more']: {
+        gather.RDF.type: {gather.RDF.Property},
+        gather.RDFS.label: {
+            gather.text('ten-thousands-and-more', language_iris={
+                gather.IANA_LANGUAGE.en,
+                JSONAPI_MEMBERNAME,
+            }),
+        },
+    },
     TROVE['any-of']: {
         gather.RDF.type: {gather.RDF.Property},
         gather.RDFS.label: {
@@ -326,51 +337,126 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         gather.text('trove search', language_iris={gather.IANA_LANGUAGE.en}),
     ),
     norms=TROVESEARCH,
-    gatherer_kwargnames={'search_params'},
+    gatherer_kwargnames={'search_params', 'specific_index'},
 )
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
-def gather_cardsearch_text(focus, *, search_params):
-    yield (TROVE.cardsearchText, gather.text(
-        search_params.cardsearch_text,
-        language_iris=(),
-    ))
+def gather_cardsearch_text(focus, *, specific_index, search_params):
+    yield (TROVE.cardsearchText, gather.text(search_params.cardsearch_text, language_iris=()))
+
+
+@trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchText)
+def gather_propertysearch_text(focus, *, specific_index, search_params):
+    yield (TROVE.propertysearchText, gather.text(search_params.propertysearch_text, language_iris=()))
+
+
+@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
+def gather_valuesearch_text(focus, *, specific_index, search_params):
+    yield (TROVE.valuesearchText, gather.text(search_params.valuesearch_text, language_iris=()))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchFilter)
-def gather_cardsearch_filter(focus, *, search_params):
+def gather_cardsearch_filter(focus, *, specific_index, search_params):
     for _filter in search_params.cardsearch_filter_set:
-        _filter_values = (
-            (TROVE.filterValue, _value)
-            for _value in _filter.value_set
+        yield (TROVE.cardsearchFilter, _filter_as_blanknode(_filter))
+
+
+@trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchFilter)
+def gather_propertysearch_filter(focus, *, specific_index, search_params):
+    for _filter in search_params.propertysearch_filter_set:
+        yield (TROVE.propertysearchFilter, _filter_as_blanknode(_filter))
+
+
+@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
+def gather_valuesearch_filter(focus, *, specific_index, search_params):
+    for _filter in search_params.valuesearch_filter_set:
+        yield (TROVE.valuesearchFilter, _filter_as_blanknode(_filter))
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    TROVE.totalResultCount,
+    TROVE.searchResult,
+    focustype_iris={TROVE.Cardsearch},
+)
+def gather_cardsearch(focus, *, specific_index, search_params):
+    assert isinstance(search_params, CardsearchParams)
+    _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
+    yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
+    for _result in _cardsearch_resp.search_result_page:
+        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        _text_evidence_twoples = (
+            (TROVE.matchEvidence, frozenset((
+                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (TROVE.propertyPath, _evidence.property_path),
+                (TROVE.matchingHighlight, _evidence.matching_highlight),
+                # TODO: card_iri (for propertysearch, valuesearch)
+            )))
+            for _evidence in _result.text_match_evidence
         )
-        yield (TROVE.cardsearchFilter, frozenset((
-            (TROVE.propertyPath, _filter.property_path),  # tuple => sequence
-            (TROVE.filterType, TROVE[_filter.operator.value]),
-            *_filter_values,
+        yield (TROVE.searchResult, frozenset((
+            (gather.RDF.type, TROVE.SearchResult),
+            (TROVE.indexCard, _result.card_iri),
+            *_text_evidence_twoples,
         )))
 
 
 @trovesearch_by_indexstrategy.gatherer(
-    focustype_iris={TROVE.Cardsearch},
+    focustype_iris={TROVE.Propertysearch},
 )
-def gather_cardsearch(focus, *, search_params):
-    assert isinstance(search_params, CardsearchParams)
-    try:
-        _specific_index = IndexStrategy.get_for_searching(
-            search_params.index_strategy_name,
-            with_default_fallback=True,
+def gather_propertysearch(focus, *, specific_index, search_params):
+    assert isinstance(search_params, PropertysearchParams)
+    _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
+    yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
+    for _result in _propertysearch_resp.search_result_page:
+        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        _text_evidence_twoples = (
+            (TROVE.matchEvidence, frozenset((
+                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (TROVE.propertyPath, _evidence.property_path),
+                (TROVE.matchingHighlight, _evidence.matching_highlight),
+                (TROVE.card, _evidence.card_iri),
+            )))
+            for _evidence in _result.text_match_evidence
         )
-    except exceptions.IndexStrategyError as error:
-        raise Exception('TODO: 404') from error
-    yield from _specific_index.pls_handle_cardsearch(search_params)
+        yield (TROVE.searchResult, frozenset((
+            (gather.RDF.type, TROVE.SearchResult),
+            (TROVE.indexCard, _result.card_iri),
+            *_text_evidence_twoples,
+        )))
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    focustype_iris={TROVE.Valuesearch},
+)
+def gather_valuesearch(focus, *, specific_index, search_params):
+    assert isinstance(search_params, ValuesearchParams)
+    _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
+    yield (TROVE.WOOP, gather.text(json.dumps(_valuesearch_resp), language_iris={gather.RDF.JSON}))
+    return  # TODO
+    yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
+    for _result in _valuesearch_resp.search_result_page:
+        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        _text_evidence_twoples = (
+            (TROVE.matchEvidence, frozenset((
+                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (TROVE.propertyPath, _evidence.property_path),
+                (TROVE.matchingHighlight, _evidence.matching_highlight),
+                (TROVE.card, _evidence.card_iri),
+            )))
+            for _evidence in _result.text_match_evidence
+        )
+        yield (TROVE.searchResult, frozenset((
+            (gather.RDF.type, TROVE.SearchResult),
+            (TROVE.indexCard, _result.card_iri),
+            *_text_evidence_twoples,
+        )))
 
 
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Card},
 )
-def gather_card(focus, *, search_params):
+def gather_card(focus, *, specific_index, search_params):
     # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)
     _normalized_datum = (
@@ -424,3 +510,19 @@ def card_iri_for_suid(*, suid_id: typing.Union[str, int]) -> str:
         else IDObfuscator.encode_id(suid_id, db.SourceUniqueIdentifier)
     )
     return SHARE_SUID[_suid_id]
+
+
+###
+# local helpers
+
+def _filter_as_blanknode(search_filter) -> frozenset:
+    _filter_values = (
+        (TROVE.filterValue, _value)
+        for _value in search_filter.value_set
+    )
+    return frozenset((
+        # property_path is a tuple, which becomes an rdf sequence
+        (TROVE.propertyPath, search_filter.property_path),
+        (TROVE.filterType, TROVE[search_filter.operator.value]),
+        *_filter_values,
+    ))

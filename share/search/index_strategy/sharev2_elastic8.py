@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging
-import typing
 
 import elasticsearch8
 import gather
@@ -15,10 +14,19 @@ from share.schema.osfmap import (
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
-from share.search.search_params import (
+from share.search.search_request import (
     CardsearchParams,
+    PropertysearchParams,
+    ValuesearchParams,
     SearchFilter,
     Textsegment,
+)
+from share.search.search_response import (
+    CardsearchResponse,
+    PropertysearchResponse,
+    ValuesearchResponse,
+    TextMatchEvidence,
+    SearchResult,
 )
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
@@ -224,55 +232,78 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 pass
             return json_response
 
-        def pls_handle_cardsearch(
-            self,
-            cardsearch_params: CardsearchParams,
-        ) -> typing.Iterable[gather.GathererYield]:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(cardsearch_params),
-                    highlight=self._highlight_request(cardsearch_params),
+                    highlight=self._highlight_config(),
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
             return self._cardsearch_response(cardsearch_params, _es8_response)
 
-        def _highlight_request(self, cardsearch_params):
-            return {
-                'fields': {
-                    _fieldname: {}
-                    for _fieldname in TEXT_FIELDS
-                },
-            }
+        def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
+            raise NotImplementedError
+            try:
+                _es8_response = self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    query=self._propertysearch_query(propertysearch_params),
+                    highlight=self._highlight_config(),
+                    source=False,  # no need to get _source; _id is enough
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            return self._propertysearch_response(propertysearch_params, _es8_response)
 
-        def _cardsearch_response(self, cardsearch_params, es8_response) -> typing.Iterable[gather.GathererYield]:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+            try:
+                _es8_response = self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    query=self._cardsearch_query(valuesearch_params),
+                    aggs=self._valuesearch_aggs(valuesearch_params),
+                    size=0,  # just the aggregations, no cardsearch results
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            return _es8_response
+            return self._valuesearch_response(valuesearch_params, _es8_response)
+
+        def _highlight_config(self):
+            return {'fields': {
+                _fieldname: {}
+                for _fieldname in TEXT_FIELDS
+            }}
+
+        def _cardsearch_response(self, cardsearch_params, es8_response) -> CardsearchResponse:
             _es8_total = es8_response['hits']['total']
             _total = (
                 _es8_total['value']
                 if _es8_total['relation'] == 'eq'
                 else TROVE['ten-thousands-and-more']
             )
-            yield (gather.RDF.type, TROVE.Cardsearch)
-            yield (TROVE.totalResultCount, _total)
+            _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = card_iri_for_suid(suid_id=_es8_hit['_id'])
-                yield (_card_iri, gather.RDF.type, TROVE.Card)
-                _text_evidence_twoples = (
-                    (TROVE.matchEvidence, frozenset((
-                        (gather.RDF.type, TROVE.TextMatchEvidence),
-                        (TROVE.propertyPath, self._propertypath_for_text_field(_fieldname)),
-                        (TROVE.matchingHighlight, gather.text(_highlight, language_iris=())),
-                    )))
+                _text_evidence = (
+                    TextMatchEvidence(
+                        property_path=self._propertypath_for_text_field(_fieldname),
+                        matching_highlight=gather.text(_highlight, language_iris=()),
+                        card_iri=_card_iri,
+                    )
                     for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()
                     for _highlight in _highlight_list
                 )
-                yield (TROVE.searchResult, frozenset((
-                    (gather.RDF.type, TROVE.SearchResult),
-                    (TROVE.indexCard, _card_iri),
-                    *_text_evidence_twoples,
-                )))
+                _results.append(SearchResult(
+                    card_iri=_card_iri,
+                    text_match_evidence=_text_evidence,
+                ))
+            return CardsearchResponse(
+                total_result_count=_total,
+                search_result_page=_results,
+                related_propertysearch_set=(),
+            )
 
         def _propertypath_for_text_field(self, fieldname: str):
             try:
@@ -303,7 +334,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     _bool_query['filter'].append(self._terms_filter(_search_filter))
                 else:  # before, after
                     _bool_query['filter'].append(self._date_filter(_search_filter))
-            for _textsegment in search_params.cardsearch_textsegment_list:
+            for _textsegment in search_params.cardsearch_textsegment_set:
                 if _textsegment.is_negated:
                     _bool_query['must_not'].append(
                         self._excluded_text_query(_textsegment)
@@ -323,16 +354,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 search_filter.property_path,
                 KEYWORD_FIELDS_BY_OSFMAP,
             )
-            if fieldname != 'types':
-                return {'terms': {
-                    fieldname: list(search_filter.value_set),
-                }}
+            if fieldname == 'types':
+                return self._typeterms_filter(search_filter)
+            return {'terms': {
+                fieldname: list(search_filter.value_set),
+            }}
+
+        def _typeterms_filter(self, search_filter):
             _typeterms = {'terms': {
-                fieldname: [
+                'types': [
                     self._type_value_for_iri(_iri)
                     for _iri in search_filter.value_set
                 ],
             }}
+            # HACK: sharev2_elastic does not distinguish root from component
             _must_have_lineage = {
                 OSFMAP.ProjectComponent,
                 OSFMAP.RegistrationComponent
@@ -353,7 +388,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                     'filter': _typeterms,
                     'must_not': {'exists': {'field': 'lists.lineage'}},
                 }}
-            return _typeterms
+            return _typeterms  # no need for a compound query
 
         def _date_filter(self, search_filter):
             if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
@@ -433,3 +468,23 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
             for _field in TEXT_FIELDS:
                 yield from _field_query_iter(_field)
+
+        def _propertysearch_query(self, search_params: PropertysearchParams) -> dict:
+            # search indexcards containing property definitions (rdf:type rdf:Property)
+            # count records in the outer-cardsearch context that use each property
+            raise NotImplementedError
+
+        def _valuesearch_aggs(self, search_params: ValuesearchParams) -> dict:
+            # search indexcards for iris that are used as values for a given property
+            # count records in the outer-cardsearch context that use each value
+            return {
+                'values_in_cardsearch_results': {
+                    'terms': {'field': _fieldname},
+                },
+                'values_in_all': {
+                    'global': {},
+                    'aggs': {
+                        'terms': {'field': _fieldname},
+                    },
+                },
+            }

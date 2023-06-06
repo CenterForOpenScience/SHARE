@@ -4,13 +4,14 @@ import logging
 import typing
 
 from django.conf import settings
+import gather
 
 from share.search import messages
 from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
-from share.search.search_params import (
+from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
     ValuesearchParams,
@@ -283,7 +284,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
 
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams):  # -> ApiSearchResponse:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> typing.Iterable[gather.GathererYield]:
             raise NotImplementedError
 
         def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams):  # -> ApiSearchResponse:

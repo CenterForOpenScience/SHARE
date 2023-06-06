@@ -85,21 +85,24 @@ class RdfAsJsonld:
             and (rdfobject not in self.__nestvisited_iris)
             and (rdfobject in tripledict)
         )
-        if _yes_nest:
-            self.__nestvisited_iris.add(rdfobject)
-            _nested_obj = {'@id': rdfobject}
-            for _pred, _objectset in tripledict[rdfobject].items():
-                _label = self.iri_to_shortlabel(_pred)
-                _nested_obj[_label] = self._list_or_single_value(
-                    _pred,
-                    [  # recursion:
-                        self.__nested_rdfobject_as_jsonld(tripledict, _obj)
-                        for _obj in _objectset
-                    ],
-                )
-            return _nested_obj
-        else:
+        if not _yes_nest:
             return self.rdfobject_as_jsonld(rdfobject)
+        self.__nestvisited_iris.add(rdfobject)
+        _nested_obj = (
+            {}
+            if rdfobject.startswith('_:')  # HACK: non-blank blank nodes (stop that)
+            else {'@id': rdfobject}
+        )
+        for _pred, _objectset in tripledict[rdfobject].items():
+            _label = self.iri_to_shortlabel(_pred)
+            _nested_obj[_label] = self._list_or_single_value(
+                _pred,
+                [  # recursion:
+                    self.__nested_rdfobject_as_jsonld(tripledict, _obj)
+                    for _obj in _objectset
+                ],
+            )
+        return _nested_obj
 
     def _list_or_single_value(self, predicate_iri, objectset):
         _only_one_object = gather.OWL.FunctionalProperty in (

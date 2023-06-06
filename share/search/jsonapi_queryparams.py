@@ -59,19 +59,19 @@ class JsonapiQueryparamName:
         ))
 
 
-JsonapiQueryparams = dict[
+JsonapiQueryparamDict = dict[
     str,  # keyed by queryparam family
     list[tuple[JsonapiQueryparamName, str]],
 ]
 
 
-def queryparams_from_iri(iri: str) -> JsonapiQueryparams:
+def queryparams_from_iri(iri: str) -> JsonapiQueryparamDict:
     _parsed_iri = urllib.parse.urlparse(iri)
     return queryparams_from_querystring(QueryDict(_parsed_iri.query))
 
 
-def queryparams_from_querystring(querystring: str) -> JsonapiQueryparams:
-    _queryparams: JsonapiQueryparams = {}
+def queryparams_from_querystring(querystring: str) -> JsonapiQueryparamDict:
+    _queryparams: JsonapiQueryparamDict = {}
     _querydict = QueryDict(querystring)
     for _unparsed_name, _param_value_list in _querydict.lists():
         _parsed_name = JsonapiQueryparamName.from_str(_unparsed_name)

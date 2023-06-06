@@ -90,6 +90,12 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             text('description', language_iris={IANA_LANGUAGE.en}),
         },
     },
+    OSFMAP.affiliation: {
+        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDFS.label: {
+            text('affiliation', language_iris={IANA_LANGUAGE.en}),
+        },
+    },
     OSFMAP.affiliatedInstitution: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
         RDFS.label: {

@@ -113,7 +113,8 @@ def _gather_work(focus, *, normd, mnode):
 })
 def _gather_agent(focus, *, normd, mnode):
     for _iri in focus.iris:
-        yield (DCTERMS.identifier, text(_iri, language_iris=()))
+        if not _iri.startswith('_:'):  # HACK: non-blank blank node (stop that)
+            yield (DCTERMS.identifier, text(_iri, language_iris=()))
     if 'Person' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Person)
     if 'Organization' in mnode.schema_type.type_lineage:
@@ -135,8 +136,6 @@ def _gather_agent(focus, *, normd, mnode):
 # helpers:
 
 def _iris_for_mnode(mnode: MutableNode) -> typing.Iterable[str]:
-    if mnode is None:
-        breakpoint()
     _identifiers = set(mnode['identifiers'])
     if _identifiers:
         for _identifier in _identifiers:
