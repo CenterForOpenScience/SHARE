@@ -245,6 +245,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             return self._cardsearch_response(cardsearch_params, _es8_response)
 
         def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
+            # search indexcards containing property definitions (rdf:type rdf:Property)
+            # count records in the outer-cardsearch context that use each property
             raise NotImplementedError
             try:
                 _es8_response = self.index_strategy.es8_client.search(
@@ -258,6 +260,9 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             return self._propertysearch_response(propertysearch_params, _es8_response)
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+            # search indexcards for iris that are used as values for a given property
+            # count records in the outer-cardsearch context that use each value
+            raise NotImplementedError
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
@@ -267,7 +272,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return _es8_response
+            return dict(_es8_response)
             return self._valuesearch_response(valuesearch_params, _es8_response)
 
         def _highlight_config(self):
@@ -470,21 +475,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 yield from _field_query_iter(_field)
 
         def _propertysearch_query(self, search_params: PropertysearchParams) -> dict:
-            # search indexcards containing property definitions (rdf:type rdf:Property)
-            # count records in the outer-cardsearch context that use each property
             raise NotImplementedError
 
         def _valuesearch_aggs(self, search_params: ValuesearchParams) -> dict:
-            # search indexcards for iris that are used as values for a given property
-            # count records in the outer-cardsearch context that use each value
+            _fieldname = KEYWORD_FIELDS_BY_OSFMAP[search_params.valuesearch_property_iri]
             return {
                 'values_in_cardsearch_results': {
                     'terms': {'field': _fieldname},
                 },
-                'values_in_all': {
+                'in_all': {
                     'global': {},
                     'aggs': {
-                        'terms': {'field': _fieldname},
+                        'values_in_all': {
+                            'terms': {'field': _fieldname},
+                        },
                     },
                 },
             }

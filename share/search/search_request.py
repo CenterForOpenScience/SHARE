@@ -195,7 +195,7 @@ class CardsearchParams:
             cardsearch_text=_cardsearch_text,
             cardsearch_textsegment_set=Textsegment.split_str(_cardsearch_text),
             cardsearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
-            index_strategy_name=_get_index_strategy_name(queryparams),
+            index_strategy_name=_get_single_value(queryparams, 'indexStrategy'),
             include=None,  # TODO
             sort=None,  # TODO
         )
@@ -227,6 +227,7 @@ class PropertysearchParams(CardsearchParams):
 class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
+    valuesearch_property_iri: str
     valuesearch_text: str
     valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
@@ -235,10 +236,14 @@ class ValuesearchParams(CardsearchParams):
     @staticmethod
     def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'ValuesearchParams':
         _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
+        _valuesearch_property_label = _get_single_value(queryparams, 'valueSearchProperty')
+        if not _valuesearch_property_label:
+            raise ValueError('TODO: 400 valueSearchProperty required')
         return ValuesearchParams(
             **dataclasses.asdict(
                 CardsearchParams.from_queryparams(queryparams),
             ),
+            valuesearch_property_iri=osfmap_labeler.get_iri(_valuesearch_property_label),
             valuesearch_text=_valuesearch_text,
             valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
             valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),
@@ -258,13 +263,13 @@ def _get_text_queryparam(queryparams: JsonapiQueryparamDict, queryparam_family: 
     )
 
 
-def _get_index_strategy_name(queryparams: JsonapiQueryparamDict):
-    _paramlist = queryparams.get('indexStrategy')
+def _get_single_value(queryparams: JsonapiQueryparamDict, queryparam_family: str):
+    _paramlist = queryparams.get(queryparam_family)
     if not _paramlist:
         return None
     try:
         ((_, _paramvalue),) = _paramlist
     except ValueError:
-        raise ValueError(f'expected at most one indexStrategy value, got {_paramlist}')
+        raise ValueError(f'expected at most one {queryparam_family} value, got {_paramlist}')
     else:
         return _paramvalue
