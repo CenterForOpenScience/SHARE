@@ -90,7 +90,7 @@ services:
       - elastic8_data_vol:/usr/share/elasticsearch/data
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs/
     environment:
-      - ELASTIC_PASSWORD=secretsecret
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-secretsecret}
       - node.name=singlenode
       - cluster.initial_master_nodes=singlenode
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit
