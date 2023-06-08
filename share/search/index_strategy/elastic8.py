@@ -239,7 +239,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         def pls_check_exists(self):
             indexname = self.indexname
             logger.info(f'{self.__class__.__name__}: checking for index {indexname}')
-            return (
+            return bool(
                 self.index_strategy.es8_client.indices
                 .exists(index=indexname)
             )

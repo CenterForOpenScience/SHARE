@@ -308,13 +308,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
     class SpecificIndex(IndexStrategy.SpecificIndex):
         # abstract method from IndexStrategy.SpecificIndex
-        def pls_make_default_for_searching(self):
-            logger.info(
-                'pls_make_default_for_searching doing nothing with '
-                'the expectation we will stop using elasticsearch5 soon'
-            )
-
-        # abstract method from IndexStrategy.SpecificIndex
         def pls_create(self):
             # check index exists (if not, create)
             logger.debug('Ensuring index %s', self.indexname)
@@ -365,7 +358,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_check_exists(self):
-            return (
+            return bool(
                 self.index_strategy.es5_client.indices
                 .exists(index=self.indexname)
             )

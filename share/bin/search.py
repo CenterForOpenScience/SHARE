@@ -39,28 +39,39 @@ def setup(args, argv):
     Usage: {0} search setup <index_or_strategy_name>
            {0} search setup --initial
     """
-    is_initial = args.get('--initial')
-    if is_initial:
-        specific_indexes = [
-            index_strategy.for_current_index()
-            for index_strategy in IndexStrategy.all_strategies()
+    _is_initial = args.get('--initial')
+    if _is_initial:
+        _specific_indexes = [
+            _index_strategy.for_current_index()
+            for _index_strategy in IndexStrategy.all_strategies()
         ]
     else:
-        index_or_strategy_name = args['<index_or_strategy_name>']
+        _index_or_strategy_name = args['<index_or_strategy_name>']
         try:
-            specific_indexes = [
-                IndexStrategy.get_by_name(index_or_strategy_name).for_current_index(),
+            _specific_indexes = [
+                IndexStrategy.get_by_name(_index_or_strategy_name).for_current_index(),
             ]
         except IndexStrategyError:
             try:
-                specific_indexes = [
-                    IndexStrategy.get_specific_index(index_or_strategy_name),
+                _specific_indexes = [
+                    IndexStrategy.get_specific_index(_index_or_strategy_name),
                 ]
             except IndexStrategyError:
-                raise IndexStrategyError(f'unrecognized index or strategy name "{index_or_strategy_name}"')
-    for specific_index in specific_indexes:
-        specific_index.pls_create()
-        specific_index.pls_start_keeping_live()
+                raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')
+    for _specific_index in _specific_indexes:
+        _index_strategy = _specific_index.index_strategy
+        _preexisting_index_count = sum(
+            _index.pls_check_exists()
+            for _index in _index_strategy.each_specific_index()
+        )
+        _specific_index.pls_create()
+        _specific_index.pls_start_keeping_live()
+        if _is_initial:  # there's nothing back to fill; consider backfill already complete
+            _backfill = _index_strategy.get_or_create_backfill()
+            _backfill.backfill_status = _backfill.COMPLETE
+            _backfill.save()
+        if not _preexisting_index_count:  # first index for a strategy is automatic default
+            _index_strategy.pls_make_default_for_searching(_specific_index)
 
 
 @search.subcommand('Start the search indexing daemon')
