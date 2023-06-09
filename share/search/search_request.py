@@ -78,7 +78,6 @@ class Textsegment:
 
     @classmethod
     def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
-        logger.critical(f'from fuzzy: {text_chunk}')
         _all_wordgroups = (
             (_word_negated, list(_words))
             for (_word_negated, _words) in itertools.groupby(

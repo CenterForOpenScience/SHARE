@@ -237,7 +237,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(cardsearch_params),
-                    highlight=self._highlight_config(),
+                    highlight=self._highlight_text_fields(),
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
@@ -252,7 +252,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._propertysearch_query(propertysearch_params),
-                    highlight=self._highlight_config(),
+                    highlight=self._highlight_text_fields(),
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
@@ -262,20 +262,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             # search indexcards for iris that are used as values for a given property
             # count records in the outer-cardsearch context that use each value
-            raise NotImplementedError
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(valuesearch_params),
                     aggs=self._valuesearch_aggs(valuesearch_params),
+                    highlight=self._highlight_text_fields(),
                     size=0,  # just the aggregations, no cardsearch results
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return dict(_es8_response)
+            return dict(_es8_response)  # for dev
             return self._valuesearch_response(valuesearch_params, _es8_response)
 
-        def _highlight_config(self):
+        def _highlight_text_fields(self):
             return {'fields': {
                 _fieldname: {}
                 for _fieldname in TEXT_FIELDS
