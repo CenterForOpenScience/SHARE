@@ -1,28 +1,24 @@
+import datetime
 from typing import Optional
 
 from django.db import models
 from django.db.models.functions import Coalesce
 
+from share.util import BaseJSONAPIMeta
+
 
 class SourceUniqueIdentifier(models.Model):
-    identifier = models.TextField()
+    '''identifies a metadata record from some external system
+    '''
+    identifier = models.TextField()  # no restrictions on identifier format
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
+    record_focus_piri = models.ForeignKey('PersistentIri', null=True, blank=True, on_delete=models.PROTECT, related_name='+')
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
 
     class Meta:
         unique_together = ('identifier', 'source_config')
-
-    @property
-    def ingest_job(self):
-        """fetch the most recent IngestJob for this suid
-
-        (hopefully) temporary -- will be replaced by the inverse relation of a OneToOneField on IngestJob
-        """
-        return self.ingest_jobs.order_by(
-            Coalesce('date_started', 'date_created').desc(nulls_last=True)
-        ).first()
 
     def most_recent_raw_datum(self):
         """fetch the most recent RawDatum for this suid
@@ -44,6 +40,5 @@ class SourceUniqueIdentifier(models.Model):
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
 
-    __str__ = __repr__
-
-
+    def __str__(self):
+        return self.__repr__()

@@ -1,4 +1,4 @@
-__all__ = ('FormattedIndexCard',)
+__all__ = ('FormattedIndexcard',)
 
 from django.db import models
 from model_utils import Choices
@@ -8,7 +8,7 @@ from share.util import BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
 
-class FormattedIndexCardManager(models.Manager):
+class FormattedIndexcardManager(models.Manager):
     def get_or_create_formatted_record(self, suid_id, record_format):
         try:
             return self.get(suid=suid_id, record_format=record_format)
@@ -60,14 +60,14 @@ class FormattedIndexCardManager(models.Manager):
         return record
 
 
-class FormattedIndexCard(models.Model):
-    RECORD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
+class FormattedIndexcard(models.Model):
+    CARD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
 
-    objects = FormattedIndexCardManager()
+    objects = FormattedIndexcardManager()
 
     id = models.AutoField(primary_key=True)
     suid = models.ForeignKey('SourceUniqueIdentifier', on_delete=models.CASCADE)
-    record_format = models.TextField(choices=RECORD_FORMAT)
+    record_format = models.TextField(choices=CARD_FORMAT)
     date_modified = models.DateTimeField(auto_now=True)
     formatted_metadata = models.TextField()  # could be JSON, XML, or whatever
 

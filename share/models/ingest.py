@@ -15,12 +15,13 @@ from django.utils.deconstruct import deconstructible
 
 from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
+from share.models.source_unique_identifier import SourceUniqueIdentifier
 from share.util import chunked, placeholders, BaseJSONAPIMeta
 from share.util.extensions import Extensions
 
 
 logger = logging.getLogger(__name__)
-__all__ = ('Source', 'RawDatum', 'SourceConfig', 'Harvester', 'Transformer', 'SourceUniqueIdentifier')
+__all__ = ('Source', 'SourceConfig', 'RawDatum', )
 
 
 class SourceIcon(models.Model):
@@ -98,26 +99,31 @@ class Source(models.Model):
 
 
 class SourceConfigManager(NaturalKeyManager):
-    def get_or_create_push_config(self, user, transformer_key):
-        config_label = '{}.{}'.format(user.username, transformer_key)
+    def get_or_create_push_config(self, user, transformer_key=None):
+        _config_label = '.'.join((
+            user.username,
+            transformer_key or 'rdf',  # TODO: something cleaner?
+        ))
         try:
-            return SourceConfig.objects.get(label=config_label)
+            _config = SourceConfig.objects.get(label=_config_label)
         except SourceConfig.DoesNotExist:
-            source, _ = Source.objects.get_or_create(
-                user=user,
+            _source, _ = Source.objects.get_or_create(
+                user_id=user.id,
                 defaults={
                     'name': user.username,
                     'long_title': user.username,
                 }
             )
-            config, _ = SourceConfig.objects.get_or_create(
-                label=config_label,
+            _config, _ = SourceConfig.objects.get_or_create(
+                label=_config_label,
                 defaults={
-                    'source': source,
-                    'transformer': Transformer.objects.get(key=transformer_key),
+                    'source': _source,
+                    'transformer_key': transformer_key,
                 }
             )
-            return config
+        assert _config.source.user_id == user.id
+        assert _config.transformer_key == transformer_key
+        return _config
 
 
 class SourceConfig(models.Model):
@@ -132,7 +138,7 @@ class SourceConfig(models.Model):
     rate_limit_period = models.PositiveIntegerField(default=1)
 
     # Allow null for push sources
-    harvester = models.ForeignKey('Harvester', null=True, on_delete=models.CASCADE)
+    harvester_key = models.TextField(null=True)
     harvester_kwargs = models.JSONField(null=True, blank=True)
     harvest_interval = models.DurationField(default=datetime.timedelta(days=1))
     harvest_after = models.TimeField(default='02:00')
@@ -143,9 +149,7 @@ class SourceConfig(models.Model):
         'This should never be set to True by default. '
     ))
 
-    # Allow null for push sources
-    # TODO put pushed data through a transformer, add a JSONLDTransformer or something for backward compatibility
-    transformer = models.ForeignKey('Transformer', null=True, on_delete=models.CASCADE)
+    transformer_key = models.TextField(null=True)
     transformer_kwargs = models.JSONField(null=True, blank=True)
 
     regulator_steps = models.JSONField(null=True, blank=True)
@@ -168,14 +172,16 @@ class SourceConfig(models.Model):
 
         **kwargs: passed to the harvester's initializer
         """
-        return self.harvester.get_class()(self, **kwargs)
+        _harvester_class = Extensions.get('share.harvesters', self.harvester_key)
+        return _harvester_class(self, **kwargs)
 
     def get_transformer(self, **kwargs):
         """Return a transformer instance configured for this SourceConfig.
 
         **kwargs: passed to the transformer's initializer
         """
-        return self.transformer.get_class()(self, **kwargs)
+        _transformer_class = Extensions.get('share.transformers', self.transformer_key)
+        return _transformer_class(self, **kwargs)
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):
@@ -230,6 +236,7 @@ class RawDatumManager(FuzzyCountManager):
                 ), [(raw_id, job.id) for raw_id in chunk])
         return True
 
+    # TODO: remove `store_chunk` (and the rest of the non-rdf legacy pipeline)
     def store_chunk(self, source_config, data, limit=None, db=DEFAULT_DB_ALIAS):
         """Store a large amount of data for a single source_config.
 
@@ -352,6 +359,7 @@ class RawDatumJob(models.Model):
 class RawDatum(models.Model):
 
     datum = models.TextField()
+    mediatype = models.TextField(null=True, blank=True)
 
     suid = models.ForeignKey(SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='raw_data')
 
