@@ -23,11 +23,12 @@ from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
-from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
+from share.models.core import NormalizedData, ShareUser
 from share.models.feature_flag import FeatureFlag
 from share.models.fields import DateTimeAwareJSONField
+from share.models.formatted_metadata_record import FormattedMetadataRecord
 from share.models.index_backfill import IndexBackfill
-from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
+from share.models.ingest import RawDatum, Source, SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
 from share.models.registration import ProviderRegistration
@@ -317,7 +318,6 @@ admin_site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 admin_site.register(FeatureFlag, FeatureFlagAdmin)
 admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin_site.register(HarvestJob, HarvestJobAdmin)
-admin_site.register(Harvester)
 admin_site.register(IndexBackfill, IndexBackfillAdmin)
 admin_site.register(IngestJob, IngestJobAdmin)
 admin_site.register(NormalizedData, NormalizedDataAdmin)
@@ -329,4 +329,3 @@ admin_site.register(Source, SourceAdmin)
 admin_site.register(SourceConfig, SourceConfigAdmin)
 admin_site.register(SourceStat, SourceStatAdmin)
 admin_site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
-admin_site.register(Transformer)

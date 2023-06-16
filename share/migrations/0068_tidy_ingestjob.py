@@ -7,14 +7,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0068_remove_extra_ingestjobs'),
+        ('share', '0067_remove_extra_ingestjobs'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='ingestjob',
             name='suid',
-            field=models.OneToOneField(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='ingest_job', to='share.sourceuniqueidentifier'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='ingest_job', to='share.sourceuniqueidentifier'),
         ),
         migrations.AlterUniqueTogether(
             name='ingestjob',
@@ -39,5 +39,9 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='ingestjob',
             name='transformer_version',
+        ),
+        migrations.AlterModelOptions(
+            name='ingestjob',
+            options={'ordering': ('-date_modified',)},
         ),
     ]

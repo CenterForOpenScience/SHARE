@@ -61,13 +61,13 @@ class FormattedMetadataRecordManager(models.Manager):
 
 
 class FormattedMetadataRecord(models.Model):
-    CARD_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
+    METADATA_FORMAT = Choices(*Extensions.get_names('share.metadata_formats'))
 
     objects = FormattedMetadataRecordManager()
 
     id = models.AutoField(primary_key=True)
     suid = models.ForeignKey('SourceUniqueIdentifier', on_delete=models.CASCADE)
-    record_format = models.TextField(choices=CARD_FORMAT)
+    record_format = models.TextField(choices=METADATA_FORMAT)
     date_modified = models.DateTimeField(auto_now=True)
     formatted_metadata = models.TextField()  # could be JSON, XML, or whatever
 

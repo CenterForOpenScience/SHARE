@@ -2,8 +2,8 @@ from django.db import models
 from django.db import transaction
 import gather
 
-from share.models.ingest import RawDatum
-from share.models.persistent_iri import PersistentIri
+from share.models import RawDatum  # TODO: break this dependency
+from trove.models.persistent_iri import PersistentIri
 
 
 class RdfIndexcardManager(models.Manager):
@@ -52,23 +52,25 @@ class ThruRdfIndexcardFocusPiris(models.Model):
     persistent_iri = models.ForeignKey(PersistentIri, on_delete=models.CASCADE)
 
     class Meta:
-        constraints = [
+        unique_together = [
             # no focus_iri duplicates allowed within an index card...
-            models.UniqueConstraint('rdf_indexcard', 'persistent_iri'),
-            # ...or across index cards extracted from the same raw datum
-            models.UniqueConstraint('rdf_indexcard__from_raw_datum', 'persistent_iri'),
+            ('rdf_indexcard', 'persistent_iri'),
         ]
+        # ...or across index cards extracted from the same raw datum (TODO: django4)
+        # constraints = [
+        #     models.UniqueConstraint('rdf_indexcard__from_raw_datum', 'persistent_iri'),
+        # ]
 
 
 class DerivedIndexcard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    from_full_indexcard = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
-    format_piri = models.ForeignKey(PersistentIri, related_name='+')
+    from_rdf_indexcard = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
+    format_piri = models.ForeignKey(PersistentIri, on_delete=models.PROTECT, related_name='+')
     formatted_card = models.TextField()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint('from_rdf_indexcard', 'format_piri'),
+        unique_together = [
+            ('from_rdf_indexcard', 'format_piri'),
         ]

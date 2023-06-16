@@ -27,7 +27,7 @@ class BaseJobAdmin(admin.ModelAdmin):
     list_filter = ('status', SourceConfigFilter, )
     list_select_related = ('source_config', )
     actions = ('restart_tasks', )
-    readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', 'source_config_version', )
+    readonly_fields = ('task_id', 'error_type', 'error_message', 'error_context', 'completions', 'date_started', )
     show_full_result_count = False
     paginator = TimeLimitedPaginator
 
@@ -44,7 +44,7 @@ class BaseJobAdmin(admin.ModelAdmin):
 
 class HarvestJobAdmin(BaseJobAdmin):
     list_display = ('id', 'source_config_', 'status_', 'start_date_', 'end_date_', 'error_type', 'share_version', 'harvest_job_actions', )
-    readonly_fields = BaseJobAdmin.readonly_fields + ('harvester_version', 'start_date', 'end_date', 'harvest_job_actions',)
+    readonly_fields = BaseJobAdmin.readonly_fields + ('start_date', 'end_date', 'harvest_job_actions',)
 
     def start_date_(self, obj):
         return obj.start_date.isoformat()
@@ -71,7 +71,7 @@ class IngestJobAdmin(BaseJobAdmin):
     actions = ('reingest', 'reingest_without_shareobject', )
     list_display = ('id', 'source_config_', 'suid_', 'status_', 'date_started', 'error_type', 'share_version', )
     list_select_related = BaseJobAdmin.list_select_related + ('suid',)
-    readonly_fields = BaseJobAdmin.readonly_fields + ('transformer_version', 'regulator_version', 'retries', 'most_recent_suid_raw',)
+    readonly_fields = BaseJobAdmin.readonly_fields + ('retries', 'most_recent_suid_raw',)
     show_full_result_count = False
 
     def suid_(self, obj):

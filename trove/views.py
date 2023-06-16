@@ -1,14 +1,15 @@
 import datetime
 
+from django import http
 from django.views.generic.base import TemplateView
 import gather
 
-from share import models as db
 from share.util import rdfutil
+from trove import models as db
 
 
 class _IndexcardContextBuilder:
-    def __init__(self, labeler: rdfutil.IriLabeler, indexcard: db.RdfIndexcard):
+    def __init__(self, indexcard: db.RdfIndexcard, labeler: rdfutil.IriLabeler):
         self._labeler = labeler
         self._tripledict = indexcard.as_rdf_tripledict()
         self._visiting = set()
@@ -70,7 +71,7 @@ class _IndexcardContextBuilder:
     def _iri_context(self, iri: str) -> dict:
         return {
             'iri': iri,
-            'label': self._labeler.get_label(iri),
+            'label': iri,  # TODO: self._labeler.get_label(iri),
         }
 
 
@@ -79,9 +80,13 @@ class BrowsePiriView(TemplateView):
 
     def get_context_data(self, **kwargs):
         _context = super().get_context_data(**kwargs)
-        _piri = self._get_piri(kwargs['piri'])
+        try:
+            # TODO: support some prefixes for convenience
+            _piri = db.PersistentIri.objects.get_from_str(kwargs['piri'])
+        except db.PersistentIri.DoesNotExist:
+            raise http.Http404
         _context['rdf_indexcard_list'] = [
-            _IndexcardContextBuilder(_labeler, _indexcard).build(_piri)
+            _IndexcardContextBuilder(_indexcard, labeler=None).build(_piri)
             for _indexcard in self._get_indexcards(_piri)
         ]
         return _context

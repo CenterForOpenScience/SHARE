@@ -1,11 +1,9 @@
 # NOTE: The order of these imports actually matter
 from share.models.formatted_metadata_record import FormattedMetadataRecord
-from share.models.suid import SourceUniqueIdentifier
+from share.models.source_unique_identifier import SourceUniqueIdentifier
 from share.models.index_backfill import IndexBackfill
 from share.models.feature_flag import FeatureFlag
-from share.models.share_user import ShareUser
-from share.models.normalized_data import NormalizedData
-from share.models.core import *  # noqa
+from share.models.core import ShareUser, NormalizedData
 from share.models.ingest import *  # noqa
 from share.models.registration import *  # noqa
 from share.models.banner import *  # noqa

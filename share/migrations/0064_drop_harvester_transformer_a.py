@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0061_ensure_auto_users'),
+        ('share', '0063_featureflag'),
     ]
 
     operations = [

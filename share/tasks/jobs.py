@@ -12,8 +12,8 @@ from share.models import (
     IngestJob,
     NormalizedData,
     RawDatum,
+    FormattedMetadataRecord,
 )
-from share.models.core import FormattedMetadataRecord
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import IndexMessenger

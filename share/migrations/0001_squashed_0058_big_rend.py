@@ -11,7 +11,6 @@ import django.db.models.deletion
 import django.utils.timezone
 import share.models.core
 import share.models.fields
-import share.models.indexes
 import share.models.ingest
 import share.models.jobs
 import share.models.validators

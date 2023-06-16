@@ -2,6 +2,7 @@ import re
 import typing
 
 from django.core.exceptions import ValidationError
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 import gather
 
@@ -52,18 +53,19 @@ def validate_schemeless_iri(schemeless_iri):
 
 
 class PersistentIriManager(models.Manager):
-    def save_from_str(self, iri: str) -> 'PersistentIri':
-        _scheme_match = IRI_SCHEME_REGEX.match(iri)
-        if not _scheme_match:
-            raise ValueError(f'does not look like an iri (got "{iri}")')
-        _scheme = _scheme_match.group()
-        _schemeless_iri = iri[_scheme_match.end():]
-        _authorityless_scheme = (
-            ''
-            if _schemeless_iri.startswith(COLON_SLASH_SLASH)
-            else _scheme
+    def get_from_str(self, iri: str) -> 'PersistentIri':
+        try:
+            (_, _authorityless_scheme, _schemeless_iri) = self._split_iri(iri)
+        except ValueError:
+            raise self.model.DoesNotExist
+        return self.get(
+            authorityless_scheme=_authorityless_scheme,
+            schemeless_iri=_schemeless_iri,
         )
+
+    def save_from_str(self, iri: str) -> 'PersistentIri':
         # may raise if invalid
+        (_scheme, _authorityless_scheme, _schemeless_iri) = self._split_iri(iri)
         (_piri, _created) = self.get_or_create(
             authorityless_scheme=_authorityless_scheme,
             schemeless_iri=_schemeless_iri,
@@ -96,6 +98,19 @@ class PersistentIriManager(models.Manager):
             _piris.append(self.save_from_str(_sameas_iri))
         return _piris
 
+    def _split_iri(self, iri: str):
+        _scheme_match = IRI_SCHEME_REGEX.match(iri)
+        if not _scheme_match:
+            raise ValueError(f'does not look like an iri (got "{iri}")')
+        _scheme = _scheme_match.group()
+        _schemeless_iri = iri[_scheme_match.end():]
+        _authorityless_scheme = (
+            ''
+            if _schemeless_iri.startswith(COLON_SLASH_SLASH)
+            else _scheme
+        )
+        return (_scheme, _authorityless_scheme, _schemeless_iri)
+
 
 # wild assertion:
 #   if two IRIs differ only in their `scheme`
@@ -105,8 +120,6 @@ class PersistentIriManager(models.Manager):
 #  (and helps avoid hand-wringing about "http" vs "https" --
 #   use either or both, it's fine))
 class PersistentIri(models.Model):
-    objects = PersistentIriManager()
-
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
@@ -116,14 +129,19 @@ class PersistentIri(models.Model):
         validators=[validate_iri_scheme_or_empty],
     )
     # the remainder of the IRI after the scheme, including the initial ":"
-    schemeless_iri = models.TextField(validators=[validate_schemeless_iri]),
+    schemeless_iri = models.TextField(validators=[validate_schemeless_iri])
 
     # all schemes seen with this IRI -- not indexed or used for comparison
-    seen_scheme_set = models.ArrayField(
+    seen_scheme_set = ArrayField(
         models.TextField(validators=[validate_iri_scheme]),
     )
 
+    objects = PersistentIriManager()
+
     class Meta:
+        unique_together = [
+            ('authorityless_scheme', 'schemeless_iri'),
+        ]
         constraints = [
             models.CheckConstraint(
                 name='has_at_least_one_scheme',
@@ -145,7 +163,6 @@ class PersistentIri(models.Model):
                     & ~models.Q(schemeless_iri__startswith=COLON_SLASH_SLASH)
                 )
             )),
-            models.UniqueConstraint('authorityless_scheme', 'schemeless_iri'),
         ]
 
     def as_str(self) -> str:

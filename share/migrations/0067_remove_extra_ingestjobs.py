@@ -25,7 +25,7 @@ def fake_undo(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0067_rdf'),
+        ('share', '0066_drop_harvester_transformer_c'),
     ]
 
     operations = [
