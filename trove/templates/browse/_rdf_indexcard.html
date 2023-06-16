@@ -1,0 +1,16 @@
+<article class='Browse__indexcard VisibleNest'>
+    <header>
+        <a rel='bookmark' href='/browse///{{indexcard_context.focus.iri}}'><dfn id='{{indexcard_context.focus.iri}}'>{{indexcard_context.focus.label}}</dfn></a>
+        <!--a href='#rdf:type'>is-a</a>
+        <ul class='Browse__value_set'>
+            {% for focus_type in record.focus_type_set %}
+            <li class='Browse__value'><a href='#{{focus_type}}'>{{focus_type}}</a></li>
+            {% endfor %}
+        </ul-->
+    </header>
+    {% include 'browse/_nested_twopleset.html' with nested_twopleset=indexcard_context.nested_twopleset only %}
+    <footer>
+        <!-- TODO address>record from <a href='#{{record.record_source}}'>{{record.record_source}}</a></address -->
+    </footer>
+</article>
+

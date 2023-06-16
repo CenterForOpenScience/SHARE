@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'osf_oauth2_adapter',
 
     'share',
+    'trove',
     'api',
 ]
 

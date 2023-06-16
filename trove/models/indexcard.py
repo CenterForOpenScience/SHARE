@@ -42,8 +42,8 @@ class RdfIndexcard(models.Model):
     card_as_turtle = models.TextField()  # TODO: max length?
     # TODO: card_as_turtle_checksum_iri
 
-    def as_rdf(self) -> gather.RdfTripleDictionary:
-        raise NotImplementedError
+    def as_rdf_tripledict(self) -> gather.RdfTripleDictionary:
+        return gather.tripledict_from_turtle(self.card_as_turtle)
 
 
 # an explicit thru-table for RdfIndexcard.focus_iris, to allow additional constraint

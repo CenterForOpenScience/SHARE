@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% load static %}
+        <link rel='stylesheet' href='{% static "css/browse.css" %}' />
+    </head>
+    <body class='BrowseWrapper'> <!-- TODO: style='--initial-turn: {{random_seed}}turn;'-->
+        {% for _indexcard in rdf_indexcard_list %}
+            <section class='Browse'>
+                <h1>browse</h1>
+                {% include 'browse/_rdf_indexcard.html' with indexcard=_indexcard only %}
+            </section>
+        {% endfor %}
+    </body>
+</html>

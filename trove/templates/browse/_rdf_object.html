@@ -1,0 +1,10 @@
+{% if rdf_object.iri %}
+    <a href="/browse///{{rdf_object.iri}}">{{rdf_object.label}}</a>
+{% endif %}
+{% if rdf_object.literal %}
+    <q>{{rdf_object.literal.value}}</q>
+    <!-- TODO: datatype/language -->
+{% endif %}
+{% if rdf_object.nested_twopleset %}
+    {% include 'browse/_nested_twopleset.html' with nested_twopleset=rdf_object.nested_twopleset only %}
+{% endif %}
