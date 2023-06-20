@@ -1,9 +1,6 @@
 from django.db import transaction
-from django.db.models import Subquery, OuterRef
-from django.db.models.functions import Coalesce
 
-from share.models import IngestJob, RawDatum
-from share.regulate import Regulator
+from share.models import IngestJob
 from share.tasks import ingest
 from share.tasks.jobs import IngestJobConsumer
 
@@ -24,16 +21,10 @@ class IngestScheduler:
         job = suid.ingest_job
         created = False
         if job is None:
-            # TODO clean this up once ingest jobs and suids are one-to-one
-            raw_id = self._last_raw_qs(suid).first()
             job, created = IngestJob.objects.get_or_create(
-                raw_id=raw_id,
-                source_config_version=suid.source_config.version,
-                transformer_version=suid.source_config.transformer.version,
-                regulator_version=Regulator.VERSION,
+                suid=suid,
                 defaults={
                     'claimed': claim,
-                    'suid': suid,
                     'source_config': suid.source_config,
                 },
             )
@@ -45,19 +36,12 @@ class IngestScheduler:
         return job
 
     def bulk_schedule(self, suid_qs, superfluous=False, claim=False):
-        qs = suid_qs.annotate(
-            last_raw_id=Subquery(self._last_raw_qs(OuterRef('id')))
-        ).select_related('source_config', 'source_config__transformer')
+        qs = suid_qs.select_related('source_config')
 
         def job_kwargs(suid):
             kwargs = {
-                'raw_id': suid.last_raw_id,
                 'suid': suid,
-                'source_config': suid.source_config,
                 'claimed': claim,
-                'source_config_version': suid.source_config.version,
-                'transformer_version': suid.source_config.transformer.version,
-                'regulator_version': Regulator.VERSION,
             }
             if superfluous:
                 kwargs['status'] = IngestJob.STATUS.created
@@ -103,10 +87,3 @@ class IngestScheduler:
             'exhaust': False,
             'superfluous': True,
         }
-
-    def _last_raw_qs(self, suid_q):
-        return RawDatum.objects.filter(
-            suid=suid_q
-        ).order_by(
-            Coalesce('datestamp', 'date_created').desc(nulls_last=True)
-        ).values_list('id', flat=True)[:1]

@@ -1,4 +1,4 @@
-from share.normalize.regulate import Regulator
+from share.regulate import Regulator
 from share.util import sharev2_to_rdf
 from ._base import BaseRdfExtractor
 

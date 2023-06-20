@@ -36,18 +36,9 @@ class Command(BaseCommand):
             receiver(post_save, sender=self.apps.get_model('share.ShareUser'), dispatch_uid='__fake__.share.models.share_user_post_save_handler')(user_post_save)
 
         with transaction.atomic():
-            self.known_harvesters = self.sync_drivers('share.harvesters', self.apps.get_model('share.Harvester'))
-            self.known_transformers = self.sync_drivers('share.transformers', self.apps.get_model('share.Transformer'))
+            self.known_harvesters = set(Extensions.get_names('share.harvesters'))
+            self.known_transformers = set(Extensions.get_names('share.transformers'))
             self.update_sources(source_dirs, overwrite=options.get('overwrite'))
-
-    def sync_drivers(self, namespace, model):
-        names = set(Extensions.get_names(namespace))
-        for key in names:
-            model.objects.update_or_create(key=key)
-        missing = model.objects.exclude(key__in=names).values_list('key', flat=True)
-        if missing:
-            print('Warning: Missing {} drivers: {}'.format(model._meta.model_name, missing))
-        return names
 
     def update_sources(self, source_dirs, overwrite):
         Source = self.apps.get_model('share.Source')
@@ -80,11 +71,13 @@ class Command(BaseCommand):
 
     def update_source_config(self, source, serialized, overwrite):
         label = serialized.pop('label')
-        if serialized['harvester'] and serialized['harvester'] not in self.known_harvesters:
-            print('Unknown harvester {}! Skipping source config {}'.format(serialized['harvester'], label))
+        _harvester_key = serialized['harvester_key'] = serialized.pop('harvester', None)
+        _transformer_key = serialized['transformer_key'] = serialized.pop('transformer', None)
+        if _harvester_key and _harvester_key not in self.known_harvesters:
+            print('Unknown harvester {}! Skipping source config {}'.format(_harvester_key, label))
             return
-        if serialized['transformer'] and serialized['transformer'] not in self.known_transformers:
-            print('Unknown transformer {}! Skipping source config {}'.format(serialized['transformer'], label))
+        if _transformer_key and _transformer_key not in self.known_transformers:
+            print('Unknown transformer {}! Skipping source config {}'.format(_transformer_key, label))
             return
 
         SourceConfig = self.apps.get_model('share.SourceConfig')

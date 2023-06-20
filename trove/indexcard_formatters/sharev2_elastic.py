@@ -8,7 +8,7 @@ from share.util.names import get_related_agent_name
 from share.util.rdfutil import SHAREv2
 from share.util import IDObfuscator
 
-from .base import MetadataFormatter
+from ._base import IndexcardFormatter
 
 
 def format_type(type_name):
@@ -50,29 +50,10 @@ def strip_empty_values(thing):
     return thing
 
 
-class ShareV2ElasticFormatter(MetadataFormatter):
+class ShareV2ElasticFormatter(IndexcardFormatter):
     FORMAT_IRI = SHAREv2.sharev2_elastic
 
-    def format_as_deleted(self, suid):
-        # a document with is_deleted:True will be deleted from the elastic index
-        # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord
-        return json.dumps({
-            'id': IDObfuscator.encode(suid),
-            'is_deleted': True,
-        })
-
-    def format(self, normalized_datum):
-        mgraph = MutableGraph.from_jsonld(normalized_datum.data)
-        central_work = mgraph.get_central_node(guess=True)
-
-        if not central_work or central_work.concrete_type != 'abstractcreativework':
-            return None
-
-        suid = normalized_datum.raw.suid
-
-        if central_work['is_deleted']:
-            return self.format_as_deleted(suid)
-
+    def pls_format_indexcard(self, rdf_indexcard: RdfIndexcard):
         source_name = suid.source_config.source.long_title
         return json.dumps(strip_empty_values({
             'id': IDObfuscator.encode(suid),
@@ -238,3 +219,4 @@ class ShareV2ElasticFormatter(MetadataFormatter):
             *parent_lineage,
             parent_data,
         )
+

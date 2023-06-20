@@ -10,7 +10,6 @@ __all__ = ('swallow', 'extract', 'excrete')
 
 import hashlib
 import logging
-import typing
 
 from django.db import transaction
 from django.utils import timezone
@@ -18,10 +17,10 @@ import gather
 
 from share.exceptions import IngestError
 from share.extract import get_rdf_extractor_class
-from share.ingest.scheduler import IngestScheduler
 from share.search.index_messenger import IndexMessenger
 from share.search.messages import MessageType
-from share import models as db
+from share import models as share_db
+from trove import models as trove_db
 
 
 logger = logging.getLogger(__name__)
@@ -34,9 +33,9 @@ def swallow(
     record_identifier: str,
     record_mediatype: str,
     record_focus_iri: str,
-    user: db.ShareUser,
+    user: share_db.ShareUser,
     datestamp=None,  # default "now"
-) -> db.RawDatum:
+) -> share_db.IngestJob:
     '''swallow: store a given record by checksum; queue for extraction
 
     will create (or update) one of each:
@@ -49,9 +48,9 @@ def swallow(
         raise IngestError('datum_identifier required (for suid\'s sake)')
     if not isinstance(record, str):
         raise IngestError('datum must be a string')
-    _source_config = db.SourceConfig.objects.get_or_create_push_config(user)
-    _focus_piri = db.PersistentIri.objects.save_from_str(record_focus_iri)
-    _suid, _suid_created = db.SourceUniqueIdentifier.objects.get_or_create(
+    _source_config = share_db.SourceConfig.objects.get_or_create_push_config(user)
+    _focus_piri = trove_db.PersistentIri.objects.save_for_iri(record_focus_iri)
+    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
         source_config=_source_config,
         identifier=record_identifier,
         defaults={
@@ -67,7 +66,7 @@ def swallow(
             )
         _suid.record_focus_piri = _focus_piri
         _suid.save()
-    _raw, _raw_created = db.RawDatum.objects.update_or_create(
+    _raw, _raw_created = share_db.RawDatum.objects.update_or_create(
         suid=_suid,
         sha256=hashlib.sha256(record.encode()).hexdigest(),
         defaults={
@@ -76,17 +75,16 @@ def swallow(
             'datestamp': (datestamp or timezone.now()),
         },
     )
-    # create (or update) an IngestJob and enqueue a task
-    IngestScheduler().schedule(_raw.suid)
-    return _raw
+    # TODO
+    return IngestScheduler().schedule(_raw.suid, _raw.id)
 
 
-def extract(raw: db.RawDatum) -> typing.Iterable[db.RdfIndexcard]:
+def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
     '''extract: gather rdf graph from a record; store as index card(s)
 
     will create (or update):
-        RdfIndexcard
-        DerivedIndexcard
+        RdfIndexcard (all extracted metadata)
+        FormattedIndexcard (formatted version of RdfIndexcard
     '''
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     _tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
@@ -94,7 +92,7 @@ def extract(raw: db.RawDatum) -> typing.Iterable[db.RdfIndexcard]:
     # TODO handle _focus_iri not found
     # TODO if not _tripledict: raw.save(update_fields=['no_output'])
     _cards = [
-        db.RdfIndexcard.objects.save_indexcard(
+        trove_db.RdfIndexcard.objects.save_indexcard(
             from_raw_datum=raw,
             focus_iri=_focus_iri,
             card_as_tripledict=_tripledict,
@@ -103,11 +101,12 @@ def extract(raw: db.RawDatum) -> typing.Iterable[db.RdfIndexcard]:
     # any iri that has the focus iri as prefix is interpreted as a separate vocab term
     for _iri, _twopledict in _tripledict.items():
         if _iri.startswith(_focus_iri) and (_iri != _focus_iri):
-            _cards.append(db.RdfIndexcard.objects.save_indexcard(
+            _cards.append(trove_db.RdfIndexcard.objects.save_indexcard(
                 from_raw_datum=raw,
                 focus_iri=_iri,
                 card_as_tripledict={_iri: _twopledict},
             ))
+    # TODO: DerivedIndexcards
     return _cards
 
 

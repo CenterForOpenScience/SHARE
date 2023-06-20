@@ -23,10 +23,9 @@ from share.harvest.scheduler import HarvestScheduler
 from share.ingest.scheduler import IngestScheduler
 from share.models.banner import SiteBanner
 from share.models.celery import CeleryTaskResult
-from share.models.core import NormalizedData, ShareUser
+from share.models.core import NormalizedData, ShareUser, FormattedMetadataRecord
 from share.models.feature_flag import FeatureFlag
 from share.models.fields import DateTimeAwareJSONField
-from share.models.formatted_metadata_record import FormattedMetadataRecord
 from share.models.index_backfill import IndexBackfill
 from share.models.ingest import RawDatum, Source, SourceConfig, SourceUniqueIdentifier
 from share.models.jobs import HarvestJob

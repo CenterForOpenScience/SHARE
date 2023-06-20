@@ -1,6 +1,11 @@
 from dateutil import parser
 
 from lxml import etree
+import gather
+
+
+OAI = gather.IriNamespace('http://www.openarchives.org/OAI/2.0/')
+OAI_DC = gather.IriNamespace('http://www.openarchives.org/OAI/2.0/oai_dc/')
 
 
 def format_datetime(dt):
@@ -13,8 +18,8 @@ def format_datetime(dt):
 
 XML_NAMESPACES = {
     'dc': 'http://purl.org/dc/elements/1.1/',
-    'oai': 'http://www.openarchives.org/OAI/2.0/',
-    'oai_dc': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+    'oai': str(OAI),
+    'oai_dc': str(OAI_DC),
     'oai-identifier': 'http://www.openarchives.org/OAI/2.0/oai-identifier',
     'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
 }

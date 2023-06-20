@@ -1,11 +1,16 @@
 import datetime
 import json
 import logging
+import typing
 
 import elasticsearch8
 import gather
 
-from share import models as db
+from share.models import (
+    FeatureFlag,
+    FormattedMetadataRecord,
+    SourceUniqueIdentifier,
+)
 from share.schema.osfmap import (
     osfmap_labeler,
     OSFMAP,
@@ -31,6 +36,8 @@ from share.search.search_response import (
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
 from share.util.checksum_iris import ChecksumIri
+from share.util.rdfutil import SHAREv2
+from trove.models import DerivedIndexcard
 
 
 logger = logging.getLogger(__name__)
@@ -174,24 +181,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         suid_ids = set(messages_chunk.target_ids_chunk)
-        record_qs = db.FormattedMetadataRecord.objects.filter(
-            suid_id__in=suid_ids,
-            record_format='sharev2_elastic',
-        )
-        for record in record_qs:
-            suid_ids.discard(record.suid_id)
-            source_doc = json.loads(record.formatted_metadata)
-            if source_doc.pop('is_deleted', False):
-                yield self._build_delete_action(record.suid_id)
+        for _suid_id, _serialized_doc in self._load_docs(suid_ids):
+            suid_ids.discard(_suid_id)
+            _source_doc = json.loads(_serialized_doc)
+            if _source_doc.pop('is_deleted', False):
+                yield self._build_delete_action(_suid_id)
             else:
-                yield self._build_index_action(record.suid_id, source_doc)
+                yield self._build_index_action(_suid_id, _source_doc)
         # delete any that don't have the expected FormattedMetadataRecord
-        for leftover_suid_id in suid_ids:
-            yield self._build_delete_action(leftover_suid_id)
+        for _leftover_suid_id in suid_ids:
+            yield self._build_delete_action(_leftover_suid_id)
 
     # override Elastic8IndexStrategy
     def get_doc_id(self, message_target_id):
-        return IDObfuscator.encode_id(message_target_id, db.SourceUniqueIdentifier)
+        return IDObfuscator.encode_id(message_target_id, SourceUniqueIdentifier)
 
     # override Elastic8IndexStrategy
     def get_message_target_id(self, doc_id):
@@ -209,6 +212,23 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             '_op_type': 'delete',
             '_id': self.get_doc_id(target_id),
         }
+
+    def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
+            _card_qs = (
+                DerivedIndexcard.objects
+                .latest_by_suid_ids(suid_ids, with_suid_id_annotation=True)
+                .filter(format_iri=SHAREv2.sharev2_elastic)
+            )
+            for _card in _card_qs:
+                yield (_card.suid_id, _card.formatted_card)
+        else:
+            _record_qs = FormattedMetadataRecord.objects.filter(
+                suid_id__in=suid_ids,
+                record_format='sharev2_elastic',
+            )
+            for _record in _record_qs:
+                yield (_record.suid_id, _record.formatted_metadata)
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex

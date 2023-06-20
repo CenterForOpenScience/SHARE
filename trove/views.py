@@ -82,7 +82,7 @@ class BrowsePiriView(TemplateView):
         _context = super().get_context_data(**kwargs)
         try:
             # TODO: support some prefixes for convenience
-            _piri = db.PersistentIri.objects.get_from_str(kwargs['piri'])
+            _piri = db.PersistentIri.objects.get_for_iri(kwargs['piri'])
         except db.PersistentIri.DoesNotExist:
             raise http.Http404
         _context['rdf_indexcard_list'] = [

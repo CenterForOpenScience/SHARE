@@ -17,8 +17,8 @@ from share.models import (
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import IndexMessenger
-from share.search.messages import MessageType
 from share.util import chunked
+from trove import digestive_tract
 
 
 logger = logging.getLogger(__name__)
@@ -177,6 +177,7 @@ class HarvestJobConsumer(JobConsumer):
 
     def _current_versions(self, job):
         return {
+            'share_version': settings.VERSION,
             'source_config_version': job.source_config.version,
             'harvester_version': job.source_config.harvester.version,
         }
@@ -232,14 +233,8 @@ class HarvestJobConsumer(JobConsumer):
         # HACK to allow scheduling ingest tasks without cyclical imports
         from share.tasks import ingest
 
-        job_kwargs = {
-            'source_config': job.source_config,
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
         created_jobs = IngestJob.objects.bulk_get_or_create(
-            [IngestJob(raw_id=datum.id, suid_id=datum.suid_id, **job_kwargs) for datum in datums]
+            [IngestJob(suid_id=datum.suid_id) for datum in datums]
         )
         if not settings.INGEST_ONLY_CANONICAL_DEFAULT or job.source_config.source.canonical:
             for job in created_jobs:
@@ -271,11 +266,7 @@ class IngestJobConsumer(JobConsumer):
         return super().consume(job_id=job_id, **kwargs)
 
     def _current_versions(self, job):
-        return {
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
+        return {'share_version': settings.VERSION}
 
     def _filter_ready(self, qs):
         qs = super()._filter_ready(qs)
@@ -285,12 +276,31 @@ class IngestJobConsumer(JobConsumer):
             )
         return qs
 
-    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
+    def _consume_job(self, job, superfluous, force, index=True, urgent=False,
                      pls_format_metadata=True, metadata_formats=None):
+        _most_recent_raw = job.suid.most_recent_raw_datum()
+        digestive_tract.extract(_most_recent_raw)
+        self._legacy_ingest(
+            job,
+            superfluous,
+            _most_recent_raw,
+            pls_format_metadata,
+            metadata_formats,
+        )
+        if pls_format_metadata:
+            digestive_tract.excrete(
+                job.suid,
+                urgent=urgent,
+                index_messenger=(
+                    IndexMessenger(celery_app=self.task.app)
+                    if self.task
+                    else None
+                ),
+            )
+
+    def _legacy_ingest(self, job, superfluous, most_recent_raw, pls_format_metadata, metadata_formats):
         datum = None
         graph = None
-
-        most_recent_raw = job.suid.most_recent_raw_datum()
 
         # Check whether we've already done transform/regulate
         if not superfluous:
@@ -311,16 +321,11 @@ class IngestJobConsumer(JobConsumer):
             job.ingested_normalized_data.add(datum)
 
         if pls_format_metadata:
-            records = FormattedMetadataRecord.objects.save_formatted_records(
+            FormattedMetadataRecord.objects.save_formatted_records(
                 job.suid,
                 record_formats=metadata_formats,
                 normalized_datum=datum,
             )
-            # TODO consider whether to handle the possible but rare-to-nonexistent case where
-            # `records` is empty this time but there were records in the past -- would need to
-            # remove the previous from the index
-            if records and index:
-                self._queue_for_indexing(job.suid, urgent)
 
     def _transform(self, job, raw):
         transformer = job.suid.source_config.get_transformer()
@@ -348,11 +353,3 @@ class IngestJobConsumer(JobConsumer):
         except exceptions.RegulateError as e:
             job.fail(e)
             return None
-
-    def _queue_for_indexing(self, suid, urgent):
-        messenger = (
-            IndexMessenger(celery_app=self.task.app)
-            if self.task
-            else IndexMessenger()
-        )
-        messenger.send_message(MessageType.INDEX_SUID, suid.id, urgent=urgent)

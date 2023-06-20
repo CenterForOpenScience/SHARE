@@ -5,6 +5,10 @@ class ExtensionsError(Exception):
     pass
 
 
+def on_extension_load_error(manager, entrypoint, exception):
+    raise ExtensionsError(f'Error loading {entrypoint}') from exception
+
+
 class Extensions:
     """Lazy singleton container for stevedore extensions.
 
@@ -38,7 +42,7 @@ class Extensions:
     @classmethod
     def _load_namespace(cls, namespace):
         try:
-            manager = extension.ExtensionManager(namespace)
+            manager = extension.ExtensionManager(namespace, on_load_failure_callback=on_extension_load_error)
             cls._managers[namespace] = manager
             return manager
         except Exception as exc:
