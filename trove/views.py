@@ -1,20 +1,27 @@
 import datetime
+import logging
 
 from django import http
+from django.views import View
 from django.views.generic.base import TemplateView
 import gather
 
+from share import exceptions
 from share.util import rdfutil
-from trove import models as db
+from trove import digestive_tract
+from trove import models as trove_db
+
+
+logger = logging.getLogger(__name__)
 
 
 class _IndexcardContextBuilder:
-    def __init__(self, indexcard: db.RdfIndexcard, labeler: rdfutil.IriLabeler):
+    def __init__(self, indexcard: trove_db.RdfIndexcard, labeler: rdfutil.IriLabeler):
         self._labeler = labeler
         self._tripledict = indexcard.as_rdf_tripledict()
         self._visiting = set()
 
-    def build(self, piri: db.PersistentIri) -> dict:
+    def build(self, piri: trove_db.PersistentIri) -> dict:
         _iri = piri.find_equivalent_iri(self._tripledict)
         self._visiting.add(_iri)
         _indexcard_context = {
@@ -82,11 +89,34 @@ class BrowsePiriView(TemplateView):
         _context = super().get_context_data(**kwargs)
         try:
             # TODO: support some prefixes for convenience
-            _piri = db.PersistentIri.objects.get_for_iri(kwargs['piri'])
-        except db.PersistentIri.DoesNotExist:
+            _piri = trove_db.PersistentIri.objects.get_for_iri(kwargs['piri'])
+        except trove_db.PersistentIri.DoesNotExist:
             raise http.Http404
         _context['rdf_indexcard_list'] = [
             _IndexcardContextBuilder(_indexcard, labeler=None).build(_piri)
             for _indexcard in self._get_indexcards(_piri)
         ]
         return _context
+
+
+class RdfPushView(View):
+    def get(self, request):
+        raise NotImplementedError  # TODO: show this user's most recently pushed rdf for this pid
+
+    def put(self, request, iri):
+        if not request.user:
+            raise Exception('no user')
+        # TODO: permissions, validate pid against user source
+        try:
+            digestive_tract.swallow(
+                from_user=request.user,
+                record=request.body,
+                record_mediatype=request.content_type,
+                record_focus_iri=iri,
+            )
+        except exceptions.IngestError as e:
+            logger.exception(str(e))
+            return http.HttpResponse(str(e), status=400)
+        else:
+            # TODO: include link to view ingestjob status (returned by `swallow`)
+            return http.HttpResponse(status=201)

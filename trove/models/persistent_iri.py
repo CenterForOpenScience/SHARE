@@ -1,6 +1,5 @@
 import dataclasses
 import re
-import typing
 
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
@@ -64,11 +63,9 @@ def validate_iri_scheme_or_empty(iri_scheme):
     if '' != iri_scheme:  # empty string allowed
         validate_iri_scheme(iri_scheme)
 
-def validate_schemeless_iri(*args, **kwargs):
-    pass
 
 class PersistentIriManager(models.Manager):
-    def queryset_from_iri(self, iri: str):
+    def queryset_for_iri(self, iri: str):
         try:
             _split = SchemeSplitIri.from_iri(iri)
         except ValueError:
@@ -80,7 +77,7 @@ class PersistentIriManager(models.Manager):
             )
 
     def get_for_iri(self, iri: str) -> 'PersistentIri':
-        return self.queryset_from_iri(iri).get()  # may raise PersistentIri.DoesNotExist
+        return self.queryset_for_iri(iri).get()  # may raise PersistentIri.DoesNotExist
 
     def save_for_iri(self, iri: str) -> 'PersistentIri':
         # may raise if invalid
@@ -96,12 +93,6 @@ class PersistentIriManager(models.Manager):
             _piri.scheme_list.append(_split.scheme)
             _piri.save()
         return _piri
-
-    def save_multiple_from_str(self, iris: typing.Iterable[str]) -> list['PersistentIri']:
-        _piris = []
-        for _iri in iris:
-            _piris.append(self.save_for_iri(_iri))
-        return _piris
 
     def save_equivalent_piris(
         self,
@@ -136,9 +127,8 @@ class PersistentIri(models.Model):
     )
     # the remainder of the IRI after the scheme (not including the ":")
     schemeless_iri = models.TextField()
-
     # all schemes seen with this IRI, in the order they were seen
-    # not indexed or used for comparison
+    # (not indexed or used for comparison; just for making iri string)
     scheme_list = ArrayField(
         models.TextField(validators=[validate_iri_scheme]),
     )
@@ -158,7 +148,7 @@ class PersistentIri(models.Model):
                 name='authorityless_scheme__is_empty_or_known',
                 check=(
                     models.Q(authorityless_scheme='')
-                    | models.Q(scheme_list__contains=models.F('authorityless_scheme'))
+                    | models.Q(scheme_list__contains=[models.F('authorityless_scheme')])
                 ),
             ),
             models.CheckConstraint(name='has_authority_or_no_need_for_one', check=(
@@ -166,7 +156,6 @@ class PersistentIri(models.Model):
                 models.Q(schemeless_iri__startswith=SLASH_SLASH, authorityless_scheme='')
                 | (  # ...or the IRI has no authority (and the scheme is important)
                     ~models.Q(authorityless_scheme='')
-                    & models.Q(schemeless_iri__startswith=COLON)
                     & ~models.Q(schemeless_iri__startswith=SLASH_SLASH)
                 )
             )),

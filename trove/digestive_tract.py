@@ -29,11 +29,10 @@ logger = logging.getLogger(__name__)
 @transaction.atomic
 def swallow(
     *,  # all keyword-args
+    from_user: share_db.ShareUser,
     record: str,
-    record_identifier: str,
     record_mediatype: str,
     record_focus_iri: str,
-    user: share_db.ShareUser,
     datestamp=None,  # default "now"
 ) -> share_db.IngestJob:
     '''swallow: store a given record by checksum; queue for extraction
@@ -44,15 +43,13 @@ def swallow(
         SourceUniqueIdentifier (by what name do/would they know it?)
         RawDatum ("it", a metadata record)
     '''
-    if not record_identifier:
-        raise IngestError('datum_identifier required (for suid\'s sake)')
     if not isinstance(record, str):
         raise IngestError('datum must be a string')
-    _source_config = share_db.SourceConfig.objects.get_or_create_push_config(user)
+    _source_config = share_db.SourceConfig.objects.get_or_create_push_config(from_user)
     _focus_piri = trove_db.PersistentIri.objects.save_for_iri(record_focus_iri)
     _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
         source_config=_source_config,
-        identifier=record_identifier,
+        identifier=record_focus_iri,
         defaults={
             'record_focus_piri': _focus_piri,
         },
@@ -75,7 +72,8 @@ def swallow(
             'datestamp': (datestamp or timezone.now()),
         },
     )
-    # TODO
+    # TODO: clean up this path (circular import suggests badly organized)
+    from share.ingest.scheduler import IngestScheduler
     return IngestScheduler().schedule(_raw.suid, _raw.id)
 
 
@@ -84,13 +82,17 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
 
     will create (or update):
         RdfIndexcard (all extracted metadata)
-        FormattedIndexcard (formatted version of RdfIndexcard
+        DerivedIndexcard (formatted version of RdfIndexcard)
     '''
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     _tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
     _focus_iri = raw.suid.record_focus_piri.find_equivalent_iri(_tripledict)
     # TODO handle _focus_iri not found
     # TODO if not _tripledict: raw.save(update_fields=['no_output'])
+    # TODO normalize tripledict:
+    #   - synonymous iris grouped (only one as subject-key, others under owl:sameAs)
+    #   - focus has rdf:type
+    #   - no subject-key iris which collide by trove_db.PersistentIri equivalence
     _cards = [
         trove_db.RdfIndexcard.objects.save_indexcard(
             from_raw_datum=raw,
