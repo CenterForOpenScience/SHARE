@@ -86,4 +86,4 @@ class TestJobConsumer:
         else:
             assert not consumer.task.apply_async.called
         assert consumer._consume_job.call_count == 1
-        assert consumer._consume_job.call_args == ((job,), {'force': False, 'superfluous': False})
+        assert consumer._consume_job.call_args == ((job,), {'superfluous': False})

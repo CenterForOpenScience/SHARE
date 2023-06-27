@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
 
+from share.models.core import ShareUser
 from share.models.fields import EncryptedJSONField
 from share.models.fuzzycount import FuzzyCountManager
 from share.models.source_unique_identifier import SourceUniqueIdentifier
@@ -100,6 +101,7 @@ class Source(models.Model):
 
 class SourceConfigManager(NaturalKeyManager):
     def get_or_create_push_config(self, user, transformer_key=None):
+        assert isinstance(user, ShareUser)
         _config_label = '.'.join((
             user.username,
             transformer_key or 'rdf',  # TODO: something cleaner?

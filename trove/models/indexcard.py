@@ -19,15 +19,17 @@ class RdfIndexcardManager(models.Manager):
             raise ValueError('non-zero focus_piris required')
         _existing = self.filter(from_raw_datum=from_raw_datum, focus_piris__in=_focus_piris)
         _existing.delete()  # TODO: safety rails?
-        return self.create(
+        _focustype_piris = [
+            PersistentIri.objects.save_for_iri(_iri)
+            for _iri in tripledict[focus_iri].get(gather.RDF.type, ())
+        ]
+        _indexcard = self.create(
             from_raw_datum=from_raw_datum,
-            card_as_turtle=gather.leaf__turtle(tripledict),
-            focus_piris=_focus_piris,
-            focustype_piris=[
-                PersistentIri.objects.save_for_iri(_iri)
-                for _iri in tripledict[focus_iri].get(gather.RDF.type, ())
-            ],
+            card_as_turtle=gather.tripledict_as_turtle(tripledict),
         )
+        _indexcard.focus_piris.set(_focus_piris)
+        _indexcard.focustype_piris.set(_focustype_piris)
+        return _indexcard
 
 
 class RdfIndexcard(models.Model):

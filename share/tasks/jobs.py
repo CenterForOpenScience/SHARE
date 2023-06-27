@@ -43,7 +43,7 @@ class JobConsumer:
         """
         raise NotImplementedError
 
-    def consume(self, job_id=None, exhaust=True, superfluous=False, force=False, **kwargs):
+    def consume(self, job_id=None, exhaust=True, superfluous=False, **kwargs):
         """Consume the given job, or consume an available job if no job is specified.
 
         Parameters:
@@ -56,10 +56,9 @@ class JobConsumer:
             superfluous (bool, optional): Consuming a job should be idempotent, and subsequent runs may
                 skip doing work that has already been done. If superfluous=True, however, will do all
                 work whether or not it's already been done. Default False.
-            force (bool, optional):
-        Additional keyword arguments passed to _consume_job, along with superfluous and force
+        Additional keyword arguments passed to _consume_job, along with superfluous
         """
-        with self._locked_job(job_id, force=force) as job:
+        with self._locked_job(job_id) as job:
             if job is None:
                 if job_id is None:
                     logger.info('No %ss are currently available', self.Job.__name__)
@@ -71,9 +70,6 @@ class JobConsumer:
 
             assert self.task or not exhaust, 'Cannot pass exhaust=True unless running in an async context'
             if exhaust and job_id is None:
-                if force:
-                    logger.warning('propagating force=True until queue exhaustion')
-
                 logger.debug('Spawning another task to consume %s', self.Job.__name__)
                 res = self.task.apply_async(self.task.request.args, self.task.request.kwargs)
                 logger.info('Spawned %r', res)
@@ -81,7 +77,7 @@ class JobConsumer:
             if self._prepare_job(job, superfluous=superfluous):
                 logger.info('Consuming %r', job)
                 with job.handle():
-                    self._consume_job(job, **kwargs, superfluous=superfluous, force=force)
+                    self._consume_job(job, **kwargs, superfluous=superfluous)
 
     def _prepare_job(self, job, superfluous):
         if job.status == self.Job.STATUS.skipped:
@@ -92,11 +88,7 @@ class JobConsumer:
         if self.task and self.task.request.id:
             # Additional attributes for the celery backend
             # Allows for better analytics of currently running tasks
-            self.task.update_state(meta={
-                'job_id': job.id,
-                'source': job.source_config.source.long_title,
-                'source_config': job.source_config.label,
-            })
+            self.task.update_state(meta={'job_id': job.id})
 
             job.task_id = self.task.request.id
             job.save(update_fields=('task_id',))
@@ -121,14 +113,8 @@ class JobConsumer:
             claimed=True
         )
 
-    def _locked_job(self, job_id, force=False):
+    def _locked_job(self, job_id):
         qs = self.Job.objects.all()
-        if not force:
-            qs = (
-                qs
-                .exclude(source_config__disabled=True)
-                .exclude(source_config__source__is_deleted=True)
-            )
         if job_id is not None:
             logger.debug('Loading %s %d', self.Job.__name__, job_id)
             qs = qs.filter(id=job_id)
@@ -163,6 +149,15 @@ class JobConsumer:
             logger.warning('A newer version of %r already exists, skipping...', job)
             return False
 
+    def _maybe_skip_by_source_config(self, job, source_config) -> bool:
+        if source_config.disabled:
+            job.skip('source_config disabled')
+            return True
+        if source_config.source.is_deleted:
+            job.skip('source deleted')
+            return True
+        return False
+
 
 class HarvestJobConsumer(JobConsumer):
     Job = HarvestJob
@@ -182,14 +177,16 @@ class HarvestJobConsumer(JobConsumer):
             'harvester_version': job.source_config.harvester.version,
         }
 
-    def _consume_job(self, job, force, superfluous, limit=None, ingest=True):
+    def _consume_job(self, job, superfluous, limit=None, ingest=True):
+        if self._maybe_skip_by_source_config(job, job.source_config):
+            return
         try:
             if ingest:
-                datum_gen = (datum for datum in self._harvest(job, force, limit) if datum.created or superfluous)
+                datum_gen = (datum for datum in self._harvest(job, limit) if datum.created or superfluous)
                 for chunk in chunked(datum_gen, 500):
                     self._bulk_schedule_ingest(job, chunk)
             else:
-                for _ in self._harvest(job, force, limit):
+                for _ in self._harvest(job, limit):
                     pass
         except HarvesterConcurrencyError as e:
             if not self.task:
@@ -204,14 +201,14 @@ class HarvestJobConsumer(JobConsumer):
                 countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.task.request.retries, 60 * 15)
             )
 
-    def _harvest(self, job, force, limit):
+    def _harvest(self, job, limit):
         error = None
         datum_ids = []
         logger.info('Harvesting %r', job)
         harvester = job.source_config.get_harvester()
 
         try:
-            for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=limit, force=force):
+            for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=limit):
                 datum_ids.append(datum.id)
                 yield datum
         except Exception as e:
@@ -272,21 +269,24 @@ class IngestJobConsumer(JobConsumer):
         qs = super()._filter_ready(qs)
         if self.only_canonical:
             qs = qs.filter(
-                source_config__source__canonical=True,
+                suid__source_config__source__canonical=True,
             )
         return qs
 
-    def _consume_job(self, job, superfluous, force, index=True, urgent=False,
+    def _consume_job(self, job, superfluous, index=True, urgent=False,
                      pls_format_metadata=True, metadata_formats=None):
+        if self._maybe_skip_by_source_config(job, job.suid.source_config):
+            return
         _most_recent_raw = job.suid.most_recent_raw_datum()
         digestive_tract.extract(_most_recent_raw)
-        self._legacy_ingest(
-            job,
-            superfluous,
-            _most_recent_raw,
-            pls_format_metadata,
-            metadata_formats,
-        )
+        # TODO:
+        # self._legacy_ingest(
+        #     job,
+        #     superfluous,
+        #     _most_recent_raw,
+        #     pls_format_metadata,
+        #     metadata_formats,
+        # )
         if pls_format_metadata:
             digestive_tract.excrete(
                 job.suid,

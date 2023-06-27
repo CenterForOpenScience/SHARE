@@ -5,10 +5,10 @@
         <link rel='stylesheet' href='{% static "css/browse.css" %}' />
     </head>
     <body class='BrowseWrapper'> <!-- TODO: style='--initial-turn: {{random_seed}}turn;'-->
-        {% for _indexcard in rdf_indexcard_list %}
+        <h1>browse</h1>
+        {% for indexcard in rdf_indexcard_list %}
             <section class='Browse'>
-                <h1>browse</h1>
-                {% include 'browse/_rdf_indexcard.html' with indexcard=_indexcard only %}
+                {% include 'browse/_rdf_indexcard.html' with indexcard_context=indexcard only %}
             </section>
         {% endfor %}
     </body>

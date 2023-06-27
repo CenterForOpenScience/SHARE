@@ -13,7 +13,7 @@ from api.views import APIVersionRedirectView, source_icon_view
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
 from share.search import views as search_views
-from trove import views as trove_views
+
 
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
@@ -21,10 +21,7 @@ urlpatterns = [
     path('api/v3/index-card-search', view=search_views.CardsearchView.as_view(), name='api-index-card-search'),
     path('api/v3/index-property-search', view=search_views.PropertysearchView.as_view(), name='api-index-property-search'),
     path('api/v3/index-value-search', view=search_views.ValuesearchView.as_view(), name='api-index-value-search'),
-    path('trove/index-card-search', view=search_views.CardsearchView.as_view(), name='trove-index-card-search'),
-    path('trove/index-property-search', view=search_views.PropertysearchView.as_view(), name='trove-index-property-search'),
-    path('trove/index-value-search', view=search_views.ValuesearchView.as_view(), name='trove-index-value-search'),
-    path('trove/browse///<path:piri>', view=trove_views.BrowsePiriView.as_view(), name='trove-browse-piri'),
+    path('trove/', include('trove.urls', namespace='trove')),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),

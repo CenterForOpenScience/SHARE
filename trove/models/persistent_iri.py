@@ -161,7 +161,17 @@ class PersistentIri(models.Model):
             )),
         ]
 
-    def as_str(self) -> str:
+    def __repr__(self):
+        return ''.join((
+            f'<{self.__class__.__qualname__}(',
+            f'schemeless_iri="{self.schemeless_iri}",',
+            f' scheme_list={self.scheme_list},',
+            f' authorityless_scheme="{self.authorityless_scheme}")',
+        ))
+
+    __str__ = __repr__
+
+    def build_iri(self) -> str:
         _scheme = (
             self.authorityless_scheme
             or self.choose_a_scheme()
@@ -192,13 +202,13 @@ class PersistentIri(models.Model):
         )
 
     def find_equivalent_iri(self, tripledict: gather.RdfTripleDictionary) -> str:
-        _piri_as_str = self.as_str()
-        if _piri_as_str in tripledict:
-            return _piri_as_str
+        _piri_iri = self.build_iri()
+        if _piri_iri in tripledict:
+            return _piri_iri
         for _iri, _twopledict in tripledict.items():
             _sameas_set = _twopledict.get(gather.OWL.sameAs, set())
             _is_equivalent = (
-                _piri_as_str in _sameas_set
+                _piri_iri in _sameas_set
                 or self.equivalent_to_iri(_iri)
                 or any(
                     self.equivalent_to_iri(_sameas_iri)
@@ -207,4 +217,4 @@ class PersistentIri(models.Model):
             )
             if _is_equivalent:
                 return _iri
-        raise ValueError(f'could not find "{_piri_as_str}" or equivalent')
+        raise ValueError(f'could not find "{_piri_iri}" or equivalent in {tripledict}')

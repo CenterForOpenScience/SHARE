@@ -160,7 +160,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def source_config_actions(self, obj):
         return format_html(
             ' '.join((
-                ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_id else ''),
+                ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_key else ''),
                 ('<a class="button" href="{ingest_href}">Ingest</a>' if not obj.disabled else ''),
             )),
             harvest_href=reverse('admin:source-config-harvest', args=[obj.pk]),
@@ -170,7 +170,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
 
     def harvest(self, request, config_id):
         config = self.get_object(request, config_id)
-        if config.harvester_id is None:
+        if config.harvester_key is None:
             raise ValueError('You need a harvester to harvest.')
         if request.method == 'POST':
             form = HarvestForm(request.POST)
@@ -256,6 +256,8 @@ class SourceStatAdmin(admin.ModelAdmin):
 @linked_fk('source_config')
 @linked_fk('ingest_job')  # technically not fk but still works
 @linked_many('formattedmetadatarecord_set')
+@linked_many('raw_data')
+@linked_many('record_focus_piri_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = TimeLimitedPaginator

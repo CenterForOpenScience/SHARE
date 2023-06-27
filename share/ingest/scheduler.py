@@ -18,22 +18,16 @@ class IngestScheduler:
             superfluous: If the job already exists and has completed, re-enqueue it.
             claim: Prevent the regularly scheduled `ingest` task from choosing this job.
         """
-        job = suid.ingest_job
-        created = False
-        if job is None:
-            job, created = IngestJob.objects.get_or_create(
-                suid=suid,
-                defaults={
-                    'claimed': claim,
-                    'source_config': suid.source_config,
-                },
-            )
-        if not created:
-            job.claimed = claim
-            if superfluous and job.status not in IngestJob.READY_STATUSES:
-                job.status = IngestJob.STATUS.created
-            job.save(update_fields=('status', 'claimed'))
-        return job
+        try:
+            _job = suid.ingest_job
+        except IngestJob.DoesNotExist:
+            _job = IngestJob.objects.create(suid=suid, claimed=claim)
+        else:  # pre-existing IngestJob
+            _job.claimed = claim
+            if superfluous and _job.status not in IngestJob.READY_STATUSES:
+                _job.status = IngestJob.STATUS.created
+            _job.save(update_fields=('status', 'claimed'))
+        return _job
 
     def bulk_schedule(self, suid_qs, superfluous=False, claim=False):
         qs = suid_qs.select_related('source_config')

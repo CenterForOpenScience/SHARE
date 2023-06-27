@@ -8,7 +8,7 @@ django-cors-headers==3.7.0  # MIT
 django-extensions==3.1.3  # MIT
 django-filter==2.4.0  # BSD
 django-model-utils==4.1.1  # BSD
-django-oauth-toolkit==1.2.0  # BSD
+django-oauth-toolkit==1.7.1  # BSD
 django-prettyjson==0.4.1  # BSD 3 Clause
 django-revproxy==0.10.0  # MPL 2.0
 django==3.2.5  # BSD 3 Clause
