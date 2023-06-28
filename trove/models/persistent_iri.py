@@ -217,4 +217,4 @@ class PersistentIri(models.Model):
             )
             if _is_equivalent:
                 return _iri
-        raise ValueError(f'could not find "{_piri_iri}" or equivalent in {tripledict}')
+        raise ValueError(f'could not find "{_piri_iri}" or equivalent in {set(tripledict.keys())}')

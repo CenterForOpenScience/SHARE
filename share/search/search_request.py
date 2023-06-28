@@ -161,7 +161,7 @@ class SearchFilter:
         _value_list = []
         for _value in split_queryparam_value(param_value):
             try:
-                _iri = osfmap_labeler.get_iri(_value)
+                _iri = osfmap_labeler.iri_for_label(_value)
             except KeyError:
                 _value_list.append(_value)  # assume iri already
             else:
@@ -242,7 +242,7 @@ class ValuesearchParams(CardsearchParams):
             **dataclasses.asdict(
                 CardsearchParams.from_queryparams(queryparams),
             ),
-            valuesearch_property_iri=osfmap_labeler.get_iri(_valuesearch_property_label),
+            valuesearch_property_iri=osfmap_labeler.iri_for_label(_valuesearch_property_label),
             valuesearch_text=_valuesearch_text,
             valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
             valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),

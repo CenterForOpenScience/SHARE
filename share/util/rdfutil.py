@@ -35,12 +35,13 @@ class IriLabeler:
         try:
             return self.__labels_by_iri
         except AttributeError:
+            _iris_by_label = self.all_iris_by_label()
             _labels_by_iri = {
                 _iri: _label
-                for _label, _iri in self.all_iris_by_label().items()
+                for _label, _iri in _iris_by_label.items()
             }
             _missing_iris = (
-                set(self.__iris_by_label.values())
+                set(_iris_by_label.values())
                 .difference(_labels_by_iri.keys())
             )
             if _missing_iris:
@@ -48,11 +49,17 @@ class IriLabeler:
             self.__labels_by_iri = _labels_by_iri
             return _labels_by_iri
 
-    def get_iri(self, label: str) -> str:
+    def iri_for_label(self, label: str) -> str:
         return self.all_iris_by_label()[label]  # may raise KeyError
 
-    def get_label(self, iri: str) -> str:
+    def label_for_iri(self, iri: str) -> str:
         return self.all_labels_by_iri()[iri]  # may raise KeyError
+
+    def get_label_or_iri(self, iri: str) -> str:
+        try:
+            return self.label_for_iri(iri)
+        except KeyError:
+            return iri
 
     def _find_label(self, iri: str) -> str:
         _labelset = (

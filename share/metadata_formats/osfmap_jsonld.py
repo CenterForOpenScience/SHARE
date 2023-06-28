@@ -49,7 +49,7 @@ class OsfmapJsonldFormatter(MetadataFormatter):
 
 osfmap_from_normd = GatheringOrganizer(
     namestory=(
-        text('sharev2-normd', language_iris=()),
+        text('sharev2-normd'),
     ),
     norms=OSFMAP_NORMS,
     gatherer_kwargnames={'mnode', 'normd'},
@@ -63,15 +63,15 @@ osfmap_from_normd = GatheringOrganizer(
 })
 def _gather_work(focus, *, normd, mnode):
     for _iri in focus.iris:
-        yield (DCTERMS.identifier, text(_iri, language_iris=()))
+        yield (DCTERMS.identifier, text(_iri))
     _language_tag = mnode['language']
-    _language_iris = (
-        {IANA_LANGUAGE[_language_tag]}
+    _language_iri = (
+        IANA_LANGUAGE[_language_tag]
         if _language_tag
-        else ()
+        else None
     )
-    yield (DCTERMS.title, text(mnode['title'], language_iris=_language_iris))
-    yield (DCTERMS.description, text(mnode['description'], language_iris=_language_iris))
+    yield (DCTERMS.title, text(mnode['title'], language_iri=_language_iri))
+    yield (DCTERMS.description, text(mnode['description'], language_iri=_language_iri))
     yield (DCTERMS.created, _date_or_none(mnode['date_published']))
     yield (DCTERMS.modified, _date_or_none(mnode['date_updated']))
     yield (DCTERMS.date, _date_or_none(
@@ -79,17 +79,17 @@ def _gather_work(focus, *, normd, mnode):
         or mnode['date_updated']
         or normd.created_at
     ))
-    yield (DCTERMS.rights, text(mnode['free_to_read_type'], language_iris=()))
-    yield (DCTERMS.available, text(mnode['free_to_read_date'], language_iris=()))
-    yield (DCTERMS.rights, text(mnode['rights'], language_iris=()))
-    yield (DCTERMS.language, text(_language_tag, language_iris=()))
-    yield (OSFMAP.registration_form, text(mnode['registration_form'], language_iris=()))  # TODO: not in OSFMAP
-    yield (OSFMAP.dateWithdrawn, text(mnode['withdrawn'], language_iris=()))  # TODO: is boolean, not date
-    yield (OSFMAP.withdrawalJustification, text(mnode['justification'], language_iris=()))  # TODO: not in OSFMAP
+    yield (DCTERMS.rights, text(mnode['free_to_read_type']))
+    yield (DCTERMS.available, text(mnode['free_to_read_date']))
+    yield (DCTERMS.rights, text(mnode['rights']))
+    yield (DCTERMS.language, text(_language_tag))
+    yield (OSFMAP.registration_type, text(mnode['registration_type']))  # TODO: not in OSFMAP
+    yield (OSFMAP.dateWithdrawn, text(mnode['withdrawn']))  # TODO: is boolean, not date
+    yield (OSFMAP.withdrawalJustification, text(mnode['justification']))  # TODO: not in OSFMAP
     for _subject in mnode['subjects']:
-        yield (DCTERMS.subject, text(_subject['name'], language_iris=()))  # TODO: iri? lineage?
+        yield (DCTERMS.subject, text(_subject['name']))  # TODO: iri? lineage?
     for _tag in mnode['tags']:
-        yield (OSFMAP.keyword, text(_tag['name'], language_iris=()))
+        yield (OSFMAP.keyword, text(_tag['name']))
     for _agent_relation in mnode['agent_relations']:
         yield (
             _agentwork_relation_iri(_agent_relation),
@@ -114,12 +114,12 @@ def _gather_work(focus, *, normd, mnode):
 def _gather_agent(focus, *, normd, mnode):
     for _iri in focus.iris:
         if not _iri.startswith('_:'):  # HACK: non-blank blank node (stop that)
-            yield (DCTERMS.identifier, text(_iri, language_iris=()))
+            yield (DCTERMS.identifier, text(_iri))
     if 'Person' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Person)
     if 'Organization' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Organization)
-    yield (FOAF.name, text(mnode['name'], language_iris=()))
+    yield (FOAF.name, text(mnode['name']))
     for _agent_relation in mnode['outgoing_agent_relations']:
         yield (
             OSFMAP.affiliation,
@@ -195,13 +195,19 @@ def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
 
 
 def _agentwork_relation_iri(agentwork_relation: MutableNode):
-    _sharev2_types = set(agentwork_relation.schema_type.type_lineage)
-    if 'Creator' in _sharev2_types:
+    _sharev2_relation_types = set(agentwork_relation.schema_type.type_lineage)
+    if 'Creator' in _sharev2_relation_types:
         return DCTERMS.creator
-    if 'Funder' in _sharev2_types:
+    if 'Contributor' in _sharev2_relation_types:
+        return DCTERMS.contributor
+    if 'Funder' in _sharev2_relation_types:
         return OSFMAP.funder  # TODO: different kind of osfmap expression
-    if ('Publisher' in _sharev2_types) or ('Host' in _sharev2_types):
+    if ('Publisher' in _sharev2_relation_types) or ('Host' in _sharev2_relation_types):
         return DCTERMS.publisher
+    # generic AgentWorkRelation
+    _sharev2_agent_types = set(agentwork_relation['agent'].schema_type.type_lineage)
+    if 'Organization' in _sharev2_agent_types:
+        return OSFMAP.affiliatedInstitution
     return DCTERMS.contributor
 
 

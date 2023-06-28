@@ -4,336 +4,333 @@ from gather import (
     OWL,
     RDF,
     RDFS,
-    IANA_LANGUAGE,
     RdfTripleDictionary,
     GatheringNorms,
 )
 
+from share.search.rdf_as_jsonapi import JSONAPI_MEMBERNAME
 from share.util.rdfutil import IriLabeler
 
 
-# standard namespaces:
+# standard namespaces
 DCTERMS = IriNamespace('http://purl.org/dc/terms/')
 FOAF = IriNamespace('http://xmlns.com/foaf/0.1/')
-RFC3339 = IriNamespace('https://www.rfc-editor.org/rfc/rfc3339.txt#')
-FULL_DATE = RFC3339['full-date']
 
-# defined but evolving:
+# application-specific vocab (may still evolve)
 OSFMAP = IriNamespace('https://osf.io/vocab/2023/')
 OSFMAP_VOCAB: RdfTripleDictionary = {
-
     ###
     # properties:
     DCTERMS.identifier: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('identifier', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('identifier', language_tag='en'),
         },
     },
     DCTERMS.creator: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('creator', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('creator', language_tag='en'),
         },
     },
     DCTERMS.title: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('title', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('title', language_tag='en'),
         },
     },
     DCTERMS.publisher: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('publisher', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('publisher', language_tag='en'),
         },
     },
     DCTERMS.subject: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('subject', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('subject', language_tag='en'),
         },
     },
     DCTERMS.contributor: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('contributor', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('contributor', language_tag='en'),
         },
     },
     DCTERMS.language: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('language', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('language', language_tag='en'),
         },
     },
     RDF.type: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('resourceType', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('resourceType', language_tag='en'),
         },
     },
     DCTERMS.type: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('resourceNature', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('resourceNature', language_tag='en'),
         },
     },
     DCTERMS.rights: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('rights', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('rights', language_tag='en'),
         },
     },
     DCTERMS.description: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('description', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('description', language_tag='en'),
         },
     },
     OSFMAP.affiliation: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('affiliation', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('affiliation', language_tag='en'),
         },
     },
     OSFMAP.affiliatedInstitution: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('affiliatedInstitution', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('affiliatedInstitution', language_tag='en'),
         },
     },
     OSFMAP.funder: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('funder', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('funder', language_tag='en'),
         },
     },
     OSFMAP.keyword: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('keyword', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('keyword', language_tag='en'),
         },
     },
     OWL.sameAs: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('sameAs', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('sameAs', language_tag='en'),
         },
     },
     DCTERMS.date: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('date', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('date', language_tag='en'),
         },
     },
     DCTERMS.available: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateAvailable', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateAvailable', language_tag='en'),
         },
     },
     DCTERMS.dateCopyrighted: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateCopyrighted', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateCopyrighted', language_tag='en'),
         },
     },
     DCTERMS.created: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateCreated', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateCreated', language_tag='en'),
         },
     },
     DCTERMS.modified: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateModified', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateModified', language_tag='en'),
         },
     },
     DCTERMS.dateSubmitted: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateSubmitted', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateSubmitted', language_tag='en'),
         },
     },
     DCTERMS.dateAccepted: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateAccepted', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateAccepted', language_tag='en'),
         },
     },
     OSFMAP.withdrawn: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('dateWithdrawn', language_iris={FULL_DATE}),
+        JSONAPI_MEMBERNAME: {
+            text('dateWithdrawn', language_tag='en'),
         },
     },
     OSFMAP.isContainedBy: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('isContainedBy', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('isContainedBy', language_tag='en'),
         },
     },
     DCTERMS.hasPart: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasPart', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasPart', language_tag='en'),
         },
     },
     DCTERMS.isPartOf: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('isPartOf', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('isPartOf', language_tag='en'),
         },
     },
     OSFMAP.hasRoot: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasRoot', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasRoot', language_tag='en'),
         },
     },
     DCTERMS.references: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('references', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('references', language_tag='en'),
         },
     },
     DCTERMS.hasVersion: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasVersion', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasVersion', language_tag='en'),
         },
     },
     DCTERMS.isVersionOf: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('isVersionOf', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('isVersionOf', language_tag='en'),
         },
     },
     OSFMAP.supplements: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('supplements', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('supplements', language_tag='en'),
         },
     },
     OSFMAP.isSupplementedBy: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('isSupplementedBy', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('isSupplementedBy', language_tag='en'),
         },
     },
     OSFMAP.archivedAt: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('archivedAt', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('archivedAt', language_tag='en'),
         },
     },
     OSFMAP.hasAnalyticCodeResource: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasAnalyticCodeResource', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasAnalyticCodeResource', language_tag='en'),
         },
     },
     OSFMAP.hasDataResource: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasDataResource', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasDataResource', language_tag='en'),
         },
     },
     OSFMAP.hasMaterialsResource: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasMaterialsResource', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasMaterialsResource', language_tag='en'),
         },
     },
     OSFMAP.hasPapersResource: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasPapersResource', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasPapersResource', language_tag='en'),
         },
     },
     OSFMAP.hasSupplementalResource: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasSupplementalResource', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasSupplementalResource', language_tag='en'),
         },
     },
     OSFMAP.hasPreregisteredAnalysisPlan: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasPreregisteredAnalysisPlan', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasPreregisteredAnalysisPlan', language_tag='en'),
         },
     },
     OSFMAP.hasPreregisteredStudyPlan: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('hasPreregisteredStudyPlan', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('hasPreregisteredStudyPlan', language_tag='en'),
         },
     },
     OSFMAP.omits: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('omits', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('omits', language_tag='en'),
         },
     },
     FOAF.name: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('name', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('name', language_tag='en'),
         },
     },
     OSFMAP.funderIdentifierType: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
-        RDFS.label: {
-            text('funderIdentifierType', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('funderIdentifierType', language_tag='en'),
         },
     },
     OSFMAP.awardNumber: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('awardNumber', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('awardNumber', language_tag='en'),
         },
     },
     OSFMAP.awardURI: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('awardURI', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('awardURI', language_tag='en'),
         },
     },
     OSFMAP.awardTitle: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('awardTitle', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('awardTitle', language_tag='en'),
         },
     },
     OSFMAP.fileName: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('fileName', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('fileName', language_tag='en'),
         },
     },
     OSFMAP.filePath: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('filePath', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('filePath', language_tag='en'),
         },
     },
     OSFMAP.format: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('mediaType', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('mediaType', language_tag='en'),
         },
     },
     OSFMAP.versionNumber: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('versionNumber', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('versionNumber', language_tag='en'),
         },
     },
     OSFMAP.omittedMetadataProperty: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            text('omittedMetadataProperty', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('omittedMetadataProperty', language_tag='en'),
         },
     },
 
@@ -341,74 +338,74 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
     # types:
     OSFMAP.Project: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Project', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Project', language_tag='en'),
         },
     },
     OSFMAP.ProjectComponent: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('ProjectComponent', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('ProjectComponent', language_tag='en'),
         },
     },
     OSFMAP.Registration: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Registration', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Registration', language_tag='en'),
         },
     },
     OSFMAP.RegistrationComponent: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('RegistrationComponent', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('RegistrationComponent', language_tag='en'),
         },
     },
     OSFMAP.Preprint: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Preprint', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Preprint', language_tag='en'),
         },
     },
     OSFMAP.File: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('File', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('File', language_tag='en'),
         },
     },
     OSFMAP.Agent: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Agent', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Agent', language_tag='en'),
         },
     },
     OSFMAP.Funder: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Funder', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Funder', language_tag='en'),
         },
     },
     OSFMAP.FileVersion: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('FileVersion', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('FileVersion', language_tag='en'),
         },
     },
     OSFMAP.OmittedMetadata: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('OmittedMetadata', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('OmittedMetadata', language_tag='en'),
         },
     },
     FOAF.Person: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Person', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Person', language_tag='en'),
         },
     },
     FOAF.Organization: {
         RDF.type: {RDFS.Class},
-        RDFS.label: {
-            text('Organization', language_iris={IANA_LANGUAGE.en}),
+        JSONAPI_MEMBERNAME: {
+            text('Organization', language_tag='en'),
         },
     },
 }
@@ -416,9 +413,9 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
 
 OSFMAP_NORMS = GatheringNorms(
     namestory=(
-        text('OSFMAP', language_iris={IANA_LANGUAGE.en}),
-        text('OSF Metadata Application Profile', language_iris={IANA_LANGUAGE.en}),
-        text('Open Science Framework Metadata Application Profile', language_iris={IANA_LANGUAGE.en}),
+        text('OSFMAP', language_tag='en'),
+        text('OSF Metadata Application Profile', language_tag='en'),
+        text('Open Science Framework Metadata Application Profile', language_tag='en'),
     ),
     vocabulary=OSFMAP_VOCAB,
     focustype_iris={

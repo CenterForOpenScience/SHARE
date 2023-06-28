@@ -1,9 +1,11 @@
 import datetime
+import random
 
 from django import http
 from django.views.generic.base import TemplateView
 import gather
 
+from share.schema.osfmap import osfmap_labeler
 from share.util import rdfutil
 from trove import models as trove_db
 
@@ -19,15 +21,14 @@ class BrowseIriView(TemplateView):
         except trove_db.PersistentIri.DoesNotExist:
             raise http.Http404
         _context['rdf_indexcard_list'] = [
-            _IndexcardContextBuilder(_indexcard, labeler=None).build(_piri)
+            _IndexcardContextBuilder(_indexcard, labeler=osfmap_labeler).build(_piri)
             for _indexcard in self._get_indexcards(_piri)
         ]
+        _context['random_ratio'] = random.random()
         return _context
 
     def _get_indexcards(self, piri: trove_db.PersistentIri):
-        return trove_db.RdfIndexcard.objects.filter(
-            focus_piris=piri,
-        )
+        return trove_db.RdfIndexcard.objects.filter(focus_piris=piri)
 
 
 class _IndexcardContextBuilder:
@@ -93,5 +94,5 @@ class _IndexcardContextBuilder:
     def _iri_context(self, iri: str) -> dict:
         return {
             'iri': iri,
-            'label': iri,  # TODO: self._labeler.get_label(iri),
+            'label': self._labeler.get_label_or_iri(iri),
         }

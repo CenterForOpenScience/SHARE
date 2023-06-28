@@ -2,6 +2,7 @@
     margin: 0;
     padding: 1rem;
     background-color: #fedbae;
+    backdrop-filter: hue-rotate(var(--random-turn));
 }
 
 .Browse {

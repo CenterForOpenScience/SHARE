@@ -11,12 +11,6 @@ class RdfAsJsonld:
         self.vocabulary = vocabulary
         self.labeler = labeler
 
-    def iri_to_shortlabel(self, iri: str):
-        try:
-            return self.labeler.get_label(iri)
-        except KeyError:
-            return iri
-
     def simple_jsonld_context(self):
         return self.labeler.all_iris_by_label()
 
@@ -26,29 +20,28 @@ class RdfAsJsonld:
                 gather.twopleset_as_twopledict(rdfobject),
             )
         elif isinstance(rdfobject, gather.Text):
-            if not rdfobject.language_iris:
+            if not rdfobject.language_iri:
                 return {'@value': rdfobject.unicode_text}
-            if gather.RDF.JSON in rdfobject.language_iris:
+            if rdfobject.language_iri == gather.RDF.JSON:
                 # NOTE: does not reset jsonld context
                 return json.loads(rdfobject.unicode_text)
-            try:  # TODO: preserve multiple language iris somehow
-                _language_tag = next(
-                    gather.IriNamespace.without_namespace(_iri, namespace=gather.IANA_LANGUAGE)
-                    for _iri in rdfobject.language_iris
-                    if _iri in gather.IANA_LANGUAGE
+            try:
+                _language_tag = gather.IriNamespace.without_namespace(
+                    rdfobject.language_iri,
+                    namespace=gather.IANA_LANGUAGE,
                 )
-            except StopIteration:  # got a non-standard language iri
+            except ValueError:  # non-standard language iri
                 return {
                     '@value': rdfobject.unicode_text,
-                    '@type': next(iter(rdfobject.language_iris)),
+                    '@type': rdfobject.language_iri,
                 }
-            else:  # got a language tag
+            else:  # standard language tag
                 return {
                     '@value': rdfobject.unicode_text,
                     '@language': _language_tag,
                 }
         elif isinstance(rdfobject, str):
-            return {'@id': self.iri_to_shortlabel(rdfobject)}
+            return {'@id': self.labeler.get_label_or_iri(rdfobject)}
         elif isinstance(rdfobject, (float, int)):
             return {'@value': rdfobject}
         elif isinstance(rdfobject, datetime.date):
@@ -64,7 +57,7 @@ class RdfAsJsonld:
     def twopledict_as_jsonld(self, twopledict: gather.RdfTwopleDictionary) -> dict:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
-            _key = self.iri_to_shortlabel(_pred)
+            _key = self.labeler.get_label_or_iri(_pred)
             _jsonld[_key] = self._list_or_single_value(_pred, [
                 self.rdfobject_as_jsonld(_obj)
                 for _obj in _objectset
@@ -94,7 +87,7 @@ class RdfAsJsonld:
             else {'@id': rdfobject}
         )
         for _pred, _objectset in tripledict[rdfobject].items():
-            _label = self.iri_to_shortlabel(_pred)
+            _label = self.labeler.get_label_or_iri(_pred)
             _nested_obj[_label] = self._list_or_single_value(
                 _pred,
                 [  # recursion:

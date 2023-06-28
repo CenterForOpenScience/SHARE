@@ -4,7 +4,7 @@
         {% load static %}
         <link rel='stylesheet' href='{% static "css/browse.css" %}' />
     </head>
-    <body class='BrowseWrapper'> <!-- TODO: style='--initial-turn: {{random_seed}}turn;'-->
+    <body class='BrowseWrapper' style='--random-turn: {{random_ratio}}turn;'>
         <h1>browse</h1>
         {% for indexcard in rdf_indexcard_list %}
             <section class='Browse'>

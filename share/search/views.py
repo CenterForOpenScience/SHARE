@@ -4,7 +4,7 @@ import gather
 from django import http
 from django.views import View
 
-from share.schema.osfmap import OSFMAP_VOCAB
+from share.schema.osfmap import osfmap_labeler
 from share.search import exceptions
 from share.search.index_strategy import IndexStrategy
 from share.search.search_request import (
@@ -14,23 +14,13 @@ from share.search.search_request import (
 )
 from share.search.trovesearch_gathering import (
     TROVE,
-    TROVESEARCH_VOCAB,
+    trovesearch_labeler,
     trovesearch_by_indexstrategy,
 )
 from share.search.rdf_as_jsonapi import RdfAsJsonapi
 
 
 logger = logging.getLogger(__name__)
-
-
-_TROVESEARCH_OSFMAP_VOCAB = {
-    **TROVESEARCH_VOCAB,
-    **OSFMAP_VOCAB,
-}
-if __debug__:
-    if len(_TROVESEARCH_OSFMAP_VOCAB) != (len(TROVESEARCH_VOCAB) + len(OSFMAP_VOCAB)):
-        _duplicate_keys = set(TROVESEARCH_VOCAB).intersection(OSFMAP_VOCAB)
-        raise ValueError(f'vocab collision! duplicate keys: {_duplicate_keys}')
 
 
 DEFAULT_CARDSEARCH_ASK = {
@@ -124,7 +114,8 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
 
 
 def _search_response(response_data: gather.RdfTripleDictionary, search_iri: str):
-    _as_jsonapi = RdfAsJsonapi(response_data, _TROVESEARCH_OSFMAP_VOCAB)
+    # TODO: use osfmap_labeler for propertypaths
+    _as_jsonapi = RdfAsJsonapi(response_data, trovesearch_labeler)
     return http.JsonResponse(
         _as_jsonapi.jsonapi_datum_document(search_iri),
         json_dumps_params={'indent': 2},

@@ -341,7 +341,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 raise NotImplementedError('TODO: multi-step filter paths')
             (_label,) = filter_path
             try:
-                return field_dict[osfmap_labeler.get_iri(_label)]
+                return field_dict[osfmap_labeler.iri_for_label(_label)]
             except KeyError:
                 raise NotImplementedError('TODO: 400 response?')
 

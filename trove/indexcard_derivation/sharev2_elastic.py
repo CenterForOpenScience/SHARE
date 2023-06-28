@@ -2,26 +2,15 @@ import json
 import re
 
 from django.conf import settings
+import gather
 
-from share.util.graph import MutableGraph
+from share.schema.osfmap import DCTERMS
 from share.util.names import get_related_agent_name
-from share.util.rdfutil import SHAREv2
 from share.util import IDObfuscator
+from share import models as share_db
+from trove import models as trove_db
 
-from ._base import IndexcardFormatter
-
-
-def format_type(type_name):
-    # convert from PascalCase to lower case with spaces between words
-    return re.sub(r'\B([A-Z])', r' \1', type_name).lower()
-
-
-def format_node_type(node):
-    return format_type(node.schema_type.name)
-
-
-def format_node_type_lineage(node):
-    return [format_type(t) for t in node.schema_type.type_lineage]
+from ._base import IndexcardDerivation
 
 
 # values that, for the purpose of indexing in elasticsearch, are equivalent to absence
@@ -50,50 +39,71 @@ def strip_empty_values(thing):
     return thing
 
 
-class ShareV2ElasticFormatter(IndexcardFormatter):
-    FORMAT_IRI = SHAREv2.sharev2_elastic
+class ShareV2ElasticDerivation(IndexcardDerivation):
+    __tripledict = None
 
-    def pls_format_indexcard(self, rdf_indexcard: RdfIndexcard):
-        source_name = suid.source_config.source.long_title
-        return json.dumps(strip_empty_values({
-            'id': IDObfuscator.encode(suid),
-            'sources': [source_name],
-            'source_config': suid.source_config.label,
-            'source_unique_id': suid.identifier,
-
-            'type': format_node_type(central_work),
-            'types': format_node_type_lineage(central_work),
-
-            # attributes:
-            'date_created': suid.get_date_first_seen().isoformat(),
-            'date_modified': normalized_datum.created_at.isoformat(),
-            'date_published': central_work['date_published'],
-            'date_updated': central_work['date_updated'],
-            'description': central_work['description'] or '',
-            'justification': central_work['justification'],
-            'language': central_work['language'],
-            'registration_type': central_work['registration_type'],
-            'retracted': bool(central_work['withdrawn']),
-            'title': central_work['title'],
-            'withdrawn': central_work['withdrawn'],
-
-            'date': (
-                central_work['date_published']
-                or central_work['date_updated']
-                or normalized_datum.created_at.isoformat()
-            ),
-
-            # agent relations:
-            'affiliations': self._get_related_agent_names(central_work, ['agentworkrelation']),
-            'contributors': self._get_related_agent_names(central_work, [
-                'contributor',
-                'creator',
-                'principalinvestigator',
-                'principalinvestigatorcontact',
+    def derive_indexcard(self, rdf_indexcard: trove_db.RdfIndexcard):
+        try:
+            _suid = rdf_indexcard.get_backcompat_sharev2_suid()
+        except share_db.SourceUniqueIdentifier.DoesNotExist:
+            _suid = rdf_indexcard.get_suid()
+        _tripledict = rdf_indexcard.as_rdf_tripledict()
+        _focus_iri = rdf_indexcard.focus_iri
+        _focus_twopledict = _tripledict[_focus_iri]
+        _source_name = _suid.source_config.source.long_title
+        _derived_sharev2 = {
+            ###
+            # metadata about the record/indexcard in this system
+            'id': IDObfuscator.encode(_suid),
+            'date_created': _suid.created.isoformat(),
+            'date_modified': rdf_indexcard.modified.isoformat(),
+            'sources': [_source_name],
+            'source_config': _suid.source_config.label,
+            'source_unique_id': _suid.identifier,
+            ###
+            # metadata about a resource in whichever other system
+            'type': _single_type(_focus_twopledict),
+            'types': [
+                _format_type(_type)
+                for _type in _focus_twopledict.get(gather.RDF.type, ())
+            ],
+            'date_published': _single_value(_focus_twopledict, [
+                DCTERMS.created,
+                DCTERMS.date,
             ]),
-            'funders': self._get_related_agent_names(central_work, ['funder']),
-            'publishers': self._get_related_agent_names(central_work, ['publisher']),
-            'hosts': self._get_related_agent_names(central_work, ['host']),
+            'date_updated': _single_value(_focus_twopledict, [
+                DCTERMS.modified,
+                DCTERMS.date,
+            ]),
+            'description': _single_value(_focus_twopledict, DCTERMS.description),
+            'justification': _single_value(_focus_twopledict, OSFMAP.withdrawalJustification),
+            'language': _single_value(_focus_twopledict, DCTERMS.language),
+            'registration_type': _single_value(_focus_twopledict, OSFMAP.registration_type),
+            'retracted': bool(_single_value(_focus_twopledict, OSFMAP.dateWithdrawn)),
+            'title': _single_value(_focus_twopledict, DCTERMS.title),
+            'withdrawn': _single_value(_focus_twopledict, OSFMAP.dateWithdrawn),
+            'date': _single_value(_focus_twopledict, [
+                DCTERMS.date,
+                DCTERMS.created,
+                DCTERMS.modified,
+            ]),
+            # related names:
+            'affiliations': _related_names(_tripledict, _focus_iri, [
+                OSFMAP.affiliatedInstitution
+            ]),
+            'contributors': _related_names(_tripledict, _focus_iri, [
+                DCTERMS.contributor,
+                DCTERMS.creator,
+            ]),
+            'funders': _related_names(_tripledict, _focus_iri, [
+                OSFMAP.funder,
+            ]),
+            'publishers': _related_names(_tripledict, _focus_iri, [
+                DCTERMS.publisher,
+            ]),
+            'hosts': _related_names(_tripledict, _focus_iri, [
+
+            ]),
 
             # other relations:
             'identifiers': [
@@ -124,7 +134,9 @@ class ShareV2ElasticFormatter(IndexcardFormatter):
                 'hosts': self._build_related_agent_list(central_work, ['host']),
                 'lineage': self._build_work_lineage(central_work),
             },
-        }))
+        }
+        return json.dumps(strip_empty_values(_derived_sharev2))
+
 
     def _get_related_agent_names(self, work_node, relation_types):
         return [
@@ -220,3 +232,29 @@ class ShareV2ElasticFormatter(IndexcardFormatter):
             parent_data,
         )
 
+
+def _format_type(type_iri):
+    # convert from PascalCase to lower case with spaces between words
+    return re.sub(r'\B([A-Z])', r' \1', type_name).lower()
+
+
+def _single_value(twopledict, predicate_iri_or_iris):
+    # for sharev2 back-compat, some fields must have a single value
+    # (tho now the corresponding rdf property may have many values)
+    _predicate_iris = (
+        [predicate_iri_or_iris]
+        if isinstance(predicate_iri_or_iris, str)
+        else predicate_iri_or_iris
+    )
+    for _pred in _predicate_iris:
+        _obj_set = twopledict.get(_pred)
+        if _obj_set:
+            return next(iter(_obj_set))
+    return None
+
+
+def _related_names(tripledict, focus_iri, predicate_iris):
+    for _predicate_iri in predicate_iris:
+        _related_iris = tripledict.get(focus_iri, {}).get(_predicate_iri, ())
+        for _iri in _related_iris:
+            yield from tripledict.get(_iri, {}).get(FOAF.name, ())
