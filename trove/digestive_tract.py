@@ -10,7 +10,6 @@ __all__ = ('swallow', 'extract', 'excrete')
 
 import hashlib
 import logging
-import typing
 
 from django.db import transaction
 from django.utils import timezone
@@ -18,11 +17,10 @@ import gather
 import sentry_sdk
 
 from share.exceptions import IngestError
-from share.extract import get_rdf_extractor_class
-from share.search.index_messenger import IndexMessenger
-from share.search.messages import MessageType
 from share import models as share_db
 from trove import models as trove_db
+from trove.extract import get_rdf_extractor_class
+from trove.derive import INDEXCARD_DERIVERS
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +33,7 @@ def swallow(
     record: str,
     record_identifier: str,
     record_mediatype: str,
-    record_focus_iri_set: typing.Iterable[str],
+    resource_iri: str,
     datestamp=None,  # default "now"
 ) -> share_db.IngestJob:
     '''swallow: store a given record by checksum; queue for extraction
@@ -49,14 +47,13 @@ def swallow(
     if not isinstance(record, str):
         raise IngestError('datum must be a string')
     _source_config = share_db.SourceConfig.objects.get_or_create_push_config(from_user)
-    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
+    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.update_or_create(
         source_config=_source_config,
         identifier=record_identifier,
+        defaults={
+            'resource_piri': trove_db.PersistentIri.objects.get_or_create_for_iri(resource_iri),
+        },
     )
-    _suid.record_focus_piri_set.set([
-        trove_db.PersistentIri.objects.save_for_iri(_focus_iri)
-        for _focus_iri in set(record_focus_iri_set)
-    ])
     _datestamp = datestamp or timezone.now()
     _raw, _raw_created = share_db.RawDatum.objects.get_or_create(
         suid=_suid,
@@ -93,7 +90,7 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
 
     will create (or update):
         RdfIndexcard (all extracted metadata)
-        DerivedIndexcard (formatted version of RdfIndexcard)
+        PersistentIri (for each indexcard focus iri and its types)
     '''
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     # TODO normalize tripledict:
@@ -102,30 +99,39 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
     #   - no subject-key iris which collide by trove_db.PersistentIri equivalence
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
-    _cards = []
-    for _focus_piri in raw.suid.record_focus_piri_set.all():
-        _focus_iri = _focus_piri.find_equivalent_iri(_tripledict)
-        # TODO handle _focus_iri not found
-        # TODO if not _tripledict: raw.save(update_fields=['no_output'])
-        _cards.append(trove_db.RdfIndexcard.objects.save_indexcard(
-            from_raw_datum=raw,
-            focus_iri=_focus_iri,
-            tripledict=_tripledict,
-        ))
-        # any iri that has the focus iri as prefix is interpreted as a separate vocab term
-        for _iri, _twopledict in _tripledict.items():
-            if _iri.startswith(_focus_iri) and (_iri != _focus_iri):
-                _cards.append(trove_db.RdfIndexcard.objects.save_indexcard(
-                    from_raw_datum=raw,
-                    focus_iri=_iri,
-                    tripledict={_iri: _twopledict},
-                ))
-    # TODO: DerivedIndexcards
-    return _cards
+    # TODO if not _tripledict: raw.save(update_fields=['no_output'])
+    _focus_iri = raw.suid.resource_piri.find_equivalent_iri(_tripledict)
+    # TODO handle _focus_iri not found
+    _tripledicts_by_focus_iri = {_focus_iri: _tripledict}
+    # any iri that has the focus iri as prefix is interpreted as a separate vocab term
+    for _iri, _twopledict in _tripledict.items():
+        if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
+            _tripledicts_by_focus_iri[_iri] = {_iri: _twopledict}
+    _indexcards = trove_db.RdfIndexcard.objects.save_indexcards_for_raw_datum(
+        from_raw_datum=raw,
+        tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
+    )
+    return _indexcards
 
 
-def excrete(suid, *, urgent: bool, index_messenger=None):
-    '''excrete: send extracted index card to every public search index
+def excrete(indexcard: trove_db.RdfIndexcard):
+    '''excrete: derive special-purpose index card(s) from an extracted index card
     '''
-    _index_messenger = index_messenger or IndexMessenger()
-    _index_messenger.send_message(MessageType.INDEX_SUID, [suid.id], urgent=urgent)
+    for _deriver_class in INDEXCARD_DERIVERS:
+        _deriver = _deriver_class(indexcard)
+        _deriver_piri = trove_db.PersistentIri.objects.get_or_create_for_iri(_deriver.deriver_iri())
+        if _deriver.should_skip():
+            logger.info(f'excrete: skipping {_deriver} for {indexcard}')
+            trove_db.DerivedIndexcard.objects.filter(
+                upriver_card=indexcard,
+                deriver_piri=_deriver_piri,
+            ).delete()
+        else:
+            logger.info(f'excrete: invoking {_deriver} for {indexcard}')
+            trove_db.DerivedIndexcard.objects.update_or_create(
+                upriver_card=indexcard,
+                deriver_piri=_deriver_piri,
+                defaults={
+                    'card_as_text': _deriver.derive_card_as_text(),
+                },
+            )

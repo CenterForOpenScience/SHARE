@@ -33,13 +33,13 @@ class RdfIndexcardAdmin(admin.ModelAdmin):
 
 
 @admin.register(DerivedIndexcard, site=admin_site)
-@linked_fk('from_rdf_indexcard')
-@linked_fk('format_piri')
+@linked_fk('upriver_card')
+@linked_fk('deriver_piri')
 class DerivedIndexcardAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
     )
     paginator = TimeLimitedPaginator
-    list_display = ('from_rdf_indexcard', 'format_piri',)
+    list_display = ('upriver_card', 'deriver_piri',)
     show_full_result_count = False

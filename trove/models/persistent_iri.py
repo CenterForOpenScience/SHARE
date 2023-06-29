@@ -79,7 +79,7 @@ class PersistentIriManager(models.Manager):
     def get_for_iri(self, iri: str) -> 'PersistentIri':
         return self.queryset_for_iri(iri).get()  # may raise PersistentIri.DoesNotExist
 
-    def save_for_iri(self, iri: str) -> 'PersistentIri':
+    def get_or_create_for_iri(self, iri: str) -> 'PersistentIri':
         # may raise if invalid
         _split = SchemeSplitIri.from_iri(iri)
         (_piri, _created) = self.get_or_create(
@@ -99,9 +99,9 @@ class PersistentIriManager(models.Manager):
         tripledict: gather.RdfTripleDictionary,
         focus_iri: str,
     ) -> list['PersistentIri']:
-        _piris = [self.save_for_iri(focus_iri)]
+        _piris = [self.get_or_create_for_iri(focus_iri)]
         _piris.extend(
-            self.save_for_iri(_sameas_iri)
+            self.get_or_create_for_iri(_sameas_iri)
             for _sameas_iri in tripledict[focus_iri].get(gather.OWL.sameAs, ())
             if _sameas_iri != focus_iri
         )

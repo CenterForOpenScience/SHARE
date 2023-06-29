@@ -8,29 +8,30 @@ from trove.models.persistent_iri import PersistentIri
 
 class RdfIndexcardManager(models.Manager):
     @transaction.atomic
-    def save_indexcard(
+    def save_indexcards_for_raw_datum(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        focus_iri: str,
-        tripledict: gather.RdfTripleDictionary,
+        tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
     ):
-        _focus_piris = PersistentIri.objects.save_equivalent_piris(tripledict, focus_iri)
-        if not _focus_piris:
-            raise ValueError('non-zero focus_piris required')
-        _existing = self.filter(from_raw_datum=from_raw_datum, focus_piris__in=_focus_piris)
-        _existing.delete()  # TODO: safety rails?
-        _focustype_piris = [
-            PersistentIri.objects.save_for_iri(_iri)
-            for _iri in tripledict[focus_iri].get(gather.RDF.type, ())
-        ]
-        _indexcard = self.create(
-            from_raw_datum=from_raw_datum,
-            card_as_turtle=gather.tripledict_as_turtle(tripledict),
-            focus_iri=focus_iri,
-        )
-        _indexcard.focus_piris.set(_focus_piris)
-        _indexcard.focustype_piris.set(_focustype_piris)
-        return _indexcard
+        _existing = self.filter(from_raw_datum=from_raw_datum)
+        _existing.delete()  # TODO: ponder provenance -- external updates will be in a new RawDatum, so this will only delete on re-ingestion... maybe fine?
+        _indexcards = []
+        for _focus_iri, _tripledict in tripledicts_by_focus_iri.items():
+            assert _focus_iri in _tripledict, f'expected {_focus_iri} in {set(_tripledict.keys())}'
+            _focus_piris = PersistentIri.objects.save_equivalent_piris(_tripledict, _focus_iri)
+            _focustype_piris = [  # TODO: require non-zero?
+                PersistentIri.objects.get_or_create_for_iri(_iri)
+                for _iri in _tripledict[_focus_iri].get(gather.RDF.type, ())
+            ]
+            _indexcard = self.create(
+                from_raw_datum=from_raw_datum,
+                focus_iri=_focus_iri,
+                card_as_turtle=gather.tripledict_as_turtle(_tripledict),
+            )
+            _indexcard.focus_piris.set(_focus_piris)
+            _indexcard.focustype_piris.set(_focustype_piris)
+            _indexcards.append(_indexcard)
+        return _indexcards
 
 
 class RdfIndexcard(models.Model):
@@ -120,11 +121,11 @@ class DerivedIndexcard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    from_rdf_indexcard = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
-    format_piri = models.ForeignKey(PersistentIri, on_delete=models.PROTECT, related_name='+')
-    formatted_card = models.TextField()  # TODO: store by checksum
+    upriver_card = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
+    deriver_piri = models.ForeignKey(PersistentIri, on_delete=models.PROTECT, related_name='+')
+    card_as_text = models.TextField()  # TODO: store by checksum
 
     class Meta:
         unique_together = [
-            ('from_rdf_indexcard', 'format_piri'),
+            ('upriver_card', 'deriver_piri'),
         ]

@@ -21,8 +21,8 @@ class RdfIngestView(View):
         if not request.user.is_authenticated:
             breakpoint()
             return http.HttpResponse(status=401)
-        _focus_iris = request.GET.getlist('focus_iri')
-        if not _focus_iris:
+        _focus_iri = request.GET.get('focus_iri')
+        if not _focus_iri:
             return http.HttpResponse('focus_iri queryparam required', status=400)
         _record_identifier = request.GET.get('record_identifier')
         if not _record_identifier:
@@ -33,7 +33,7 @@ class RdfIngestView(View):
                 record=request.body.decode(encoding='utf-8'),
                 record_identifier=_record_identifier,
                 record_mediatype=request.content_type,
-                record_focus_iri_set=_focus_iris,
+                resource_iri=_focus_iri,
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))

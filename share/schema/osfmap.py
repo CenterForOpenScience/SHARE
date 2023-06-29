@@ -15,9 +15,10 @@ from share.util.rdfutil import IriLabeler
 # standard namespaces
 DCTERMS = IriNamespace('http://purl.org/dc/terms/')
 FOAF = IriNamespace('http://xmlns.com/foaf/0.1/')
+DCAT = IriNamespace('http://www.w3.org/ns/dcat#')
 
 # application-specific vocab (may still evolve)
-OSFMAP = IriNamespace('https://osf.io/vocab/2023/')
+OSFMAP = IriNamespace('https://osf.io/vocab/2022/')
 OSFMAP_VOCAB: RdfTripleDictionary = {
     ###
     # properties:

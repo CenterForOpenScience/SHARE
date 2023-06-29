@@ -11,6 +11,7 @@ vocab_turtles = {
     'http://www.w3.org/2002/07/owl': 'trove/vocab/owl.turtle',
     'http://www.w3.org/1999/02/22-rdf-syntax-ns#': 'trove/vocab/rdf.turtle',
     'http://www.w3.org/2000/01/rdf-schema#': 'trove/vocab/rdfs.turtle',
+    'http://www.w3.org/ns/prov#': 'trove/vocab/prov.turtle',
 }
 
 
@@ -24,7 +25,7 @@ def ingest_vocabs():
             record=_vocab_record,
             record_identifier=_file_path,
             record_mediatype='text/turtle',
-            record_focus_iri_set=[_vocab_iri],
+            resource_iri=_vocab_iri,
         )
 
 

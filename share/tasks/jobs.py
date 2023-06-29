@@ -17,6 +17,7 @@ from share.models import (
 from share.models.ingest import RawDatumJob
 from share.regulate import Regulator
 from share.search import IndexMessenger
+from share.search.messages import MessageType
 from share.util import chunked
 from trove import digestive_tract
 
@@ -58,6 +59,7 @@ class JobConsumer:
                 work whether or not it's already been done. Default False.
         Additional keyword arguments passed to _consume_job, along with superfluous
         """
+        superfluous = True  # TODO: don't leave this in
         with self._locked_job(job_id) as job:
             if job is None:
                 if job_id is None:
@@ -80,7 +82,7 @@ class JobConsumer:
                     self._consume_job(job, **kwargs, superfluous=superfluous)
 
     def _prepare_job(self, job, superfluous):
-        if job.status == self.Job.STATUS.skipped:
+        if not superfluous and job.status == self.Job.STATUS.skipped:
             # Need some way to short-circuit a superfluous retry loop
             logger.warning('%r has been marked skipped. Change its status to allow re-running it', job)
             return False
@@ -278,7 +280,10 @@ class IngestJobConsumer(JobConsumer):
         if self._maybe_skip_by_source_config(job, job.suid.source_config):
             return
         _most_recent_raw = job.suid.most_recent_raw_datum()
-        digestive_tract.extract(_most_recent_raw)
+        _indexcards = digestive_tract.extract(_most_recent_raw)
+        if pls_format_metadata:
+            for _indexcard in _indexcards:
+                digestive_tract.excrete(_indexcard)
         # TODO:
         # self._legacy_ingest(
         #     job,
@@ -287,16 +292,14 @@ class IngestJobConsumer(JobConsumer):
         #     pls_format_metadata,
         #     metadata_formats,
         # )
-        if pls_format_metadata:
-            digestive_tract.excrete(
-                job.suid,
-                urgent=urgent,
-                index_messenger=(
-                    IndexMessenger(celery_app=self.task.app)
-                    if self.task
-                    else None
-                ),
-            )
+
+        # TODO: reconsider
+        _index_messenger = (
+            IndexMessenger(celery_app=self.task.app)
+            if self.task
+            else None
+        )
+        _index_messenger.send_message(MessageType.INDEX_SUID, [job.suid_id], urgent=urgent)
 
     def _legacy_ingest(self, job, superfluous, most_recent_raw, pls_format_metadata, metadata_formats):
         datum = None
