@@ -1,6 +1,6 @@
 import logging
+import json
 
-from django.db import transaction
 from django.urls import reverse
 from rest_framework import status
 from rest_framework import generics
@@ -9,16 +9,15 @@ from rest_framework.response import Response
 import sentry_sdk
 
 from share import models
-from share.tasks import ingest
 from share.util import IDObfuscator
 from share.util.graph import MutableGraph
 from share.util.osf import guess_osf_guid
-from share.ingest.ingester import Ingester
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
+from trove import digestive_tract
 
 
 logger = logging.getLogger(__name__)
@@ -86,27 +85,17 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             suid = guess_osf_guid(MutableGraph.from_jsonld(data))
             if not suid:
                 raise ValidationError("'suid' is a required attribute")
-
-        with transaction.atomic():
-            # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
-            ingester = Ingester(data, suid).as_user(request.user).ingest(
-                pls_format_metadata=False,
-            )
-            ingester.job.reschedule(claim=True)
-
-            nd_id = models.NormalizedData.objects.filter(
-                raw=ingester.raw,
-                ingest_jobs=ingester.job
-            ).order_by('-created_at').values_list('id', flat=True).first()
-
-        async_result = ingest.delay(job_id=ingester.job.id, urgent=True)
-
-        # TODO Use an actual serializer
+        _ingest_job = digestive_tract.swallow(
+            from_user=request.user,
+            record=json.dumps(data, sort_keys=True),
+            record_identifier=suid,
+            record_mediatype=None,  # trigger legacy-sharev2 ingestion
+            resource_iri=None,  # only valid for legacy-sharev2 ingestion
+        )
+        # minimal back-compat
         return Response({
-            'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
             'type': 'NormalizedData',
             'attributes': {
-                'task': async_result.id,
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
+                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(_ingest_job)])),
             }
         }, status=status.HTTP_202_ACCEPTED)

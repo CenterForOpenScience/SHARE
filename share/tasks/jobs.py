@@ -59,7 +59,6 @@ class JobConsumer:
                 work whether or not it's already been done. Default False.
         Additional keyword arguments passed to _consume_job, along with superfluous
         """
-        superfluous = True  # TODO: don't leave this in
         with self._locked_job(job_id) as job:
             if job is None:
                 if job_id is None:
@@ -82,7 +81,7 @@ class JobConsumer:
                     self._consume_job(job, **kwargs, superfluous=superfluous)
 
     def _prepare_job(self, job, superfluous):
-        if not superfluous and job.status == self.Job.STATUS.skipped:
+        if job.status == self.Job.STATUS.skipped:
             # Need some way to short-circuit a superfluous retry loop
             logger.warning('%r has been marked skipped. Change its status to allow re-running it', job)
             return False
@@ -275,21 +274,18 @@ class IngestJobConsumer(JobConsumer):
             )
         return qs
 
-    def _consume_job(self, job, superfluous, index=True, urgent=False,
-                     pls_format_metadata=True, metadata_formats=None):
+    def _consume_job(self, job, superfluous, index=True, urgent=False, metadata_formats=None):
         if self._maybe_skip_by_source_config(job, job.suid.source_config):
             return
         _most_recent_raw = job.suid.most_recent_raw_datum()
         _indexcards = digestive_tract.extract(_most_recent_raw)
-        if pls_format_metadata:
-            for _indexcard in _indexcards:
-                digestive_tract.excrete(_indexcard)
+        for _indexcard in _indexcards:
+            digestive_tract.derive(_indexcard)
         # TODO:
         # self._legacy_ingest(
         #     job,
         #     superfluous,
         #     _most_recent_raw,
-        #     pls_format_metadata,
         #     metadata_formats,
         # )
 
@@ -301,7 +297,7 @@ class IngestJobConsumer(JobConsumer):
         )
         _index_messenger.send_message(MessageType.INDEX_SUID, [job.suid_id], urgent=urgent)
 
-    def _legacy_ingest(self, job, superfluous, most_recent_raw, pls_format_metadata, metadata_formats):
+    def _legacy_ingest(self, job, superfluous, most_recent_raw, metadata_formats):
         datum = None
         graph = None
 
@@ -323,12 +319,11 @@ class IngestJobConsumer(JobConsumer):
             )
             job.ingested_normalized_data.add(datum)
 
-        if pls_format_metadata:
-            FormattedMetadataRecord.objects.save_formatted_records(
-                job.suid,
-                record_formats=metadata_formats,
-                normalized_datum=datum,
-            )
+        FormattedMetadataRecord.objects.save_formatted_records(
+            job.suid,
+            record_formats=metadata_formats,
+            normalized_datum=datum,
+        )
 
     def _transform(self, job, raw):
         transformer = job.suid.source_config.get_transformer()

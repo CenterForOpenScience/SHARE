@@ -17,7 +17,7 @@ class MessageType(enum.Enum):
     INDEX_CREATIVEWORK = 'CreativeWork'
     INDEX_TAG = 'Tag'
     INDEX_SUBJECT = 'Subject'
-    # for suid/pid-focused records:
+    # for suid-focused records:
     INDEX_SUID = 'suid'
     BACKFILL_SUID = 'backfill-suid'
 

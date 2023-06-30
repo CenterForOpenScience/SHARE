@@ -3,7 +3,7 @@ import typing
 import gather
 
 from share.search.rdf_as_jsonld import RdfAsJsonld
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
 from share.util.rdfutil import IriLabeler
 
 ###

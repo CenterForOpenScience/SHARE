@@ -35,9 +35,9 @@ from share.search.search_response import (
 )
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
 from share.util.rdfutil import SHAREv2
-from trove.models import DerivedIndexcard
+from trove.models import DerivedIndexcard, PersistentIri
 
 
 logger = logging.getLogger(__name__)
@@ -188,7 +188,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 yield self._build_delete_action(_suid_id)
             else:
                 yield self._build_index_action(_suid_id, _source_doc)
-        # delete any that don't have the expected FormattedMetadataRecord
+        # delete any that don't have the expected card
         for _leftover_suid_id in suid_ids:
             yield self._build_delete_action(_leftover_suid_id)
 
@@ -214,17 +214,21 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         }
 
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
+        _card_qs = (
+            DerivedIndexcard.objects
+            .latest_by_suid_ids(suid_ids, with_suid_id_annotation=True)
+            .filter(deriver_piri__in=PersistentIri.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+        )
         if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
-            _card_qs = (
-                DerivedIndexcard.objects
-                .latest_by_suid_ids(suid_ids, with_suid_id_annotation=True)
-                .filter(format_iri=SHAREv2.sharev2_elastic)
-            )
             for _card in _card_qs:
-                yield (_card.suid_id, _card.formatted_card)
-        else:
+                yield (_card.suid_id, _card.card_as_text)
+        else:  # draw from both DerivedIndexcard and FormattedMetadataRecord
+            _remaining_suids = set(suid_ids)
+            for _card in _card_qs:
+                yield (_card.suid_id, _card.card_as_text)
+                _remaining_suids.discard(_card.suid_id)
             _record_qs = FormattedMetadataRecord.objects.filter(
-                suid_id__in=suid_ids,
+                suid_id__in=_remaining_suids,
                 record_format='sharev2_elastic',
             )
             for _record in _record_qs:

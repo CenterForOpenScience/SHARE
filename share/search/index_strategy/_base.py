@@ -4,7 +4,6 @@ import logging
 import typing
 
 from django.conf import settings
-import gather
 
 from share.search import messages
 from share.models.feature_flag import FeatureFlag
@@ -16,8 +15,12 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
 )
-# from share.search.search_response import ApiSearchResponse
-from share.util.checksum_iris import ChecksumIri
+from share.search.search_response import (
+    CardsearchResponse,
+    PropertysearchResponse,
+    ValuesearchResponse,
+)
+from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)
@@ -284,11 +287,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
 
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> typing.Iterable[gather.GathererYield]:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
             raise NotImplementedError
 
-        def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams):  # -> ApiSearchResponse:
+        def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
             raise NotImplementedError
 
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams):  # -> ApiSearchResponse:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             raise NotImplementedError

@@ -4,7 +4,7 @@ import pytest
 
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
 
 
 FAKE_ACTION_ITERATOR = object()

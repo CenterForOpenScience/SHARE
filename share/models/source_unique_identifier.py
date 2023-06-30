@@ -12,7 +12,7 @@ class SourceUniqueIdentifier(models.Model):
     '''
     identifier = models.TextField()  # no restrictions on identifier format
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
-    resource_piri = models.ForeignKey('trove.PersistentIri', null=True, on_delete=models.PROTECT, related_name='+')
+    resource_piri = models.ForeignKey('trove.PersistentIri', null=True, on_delete=models.PROTECT, related_name='synonymous_suid_set')
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass

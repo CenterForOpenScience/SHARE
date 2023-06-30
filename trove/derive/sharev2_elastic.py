@@ -4,11 +4,12 @@ import re
 
 import gather
 
-from share.schema.osfmap import DCTERMS, OSFMAP, FOAF, RDF, DCAT
+from share.schema.osfmap import OSFMAP
 from share.schema import ShareV2Schema
 from share.util import IDObfuscator
 from share.util.rdfutil import SHAREv2
 from share import models as share_db
+from trove.vocab import DCTERMS, FOAF, RDF, DCAT
 
 from ._base import IndexcardDeriver
 
@@ -48,7 +49,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
         _allowed_focustype_iris = {
-            SHAREv2.abstractcreativework,
+            SHAREv2.AbstractCreativeWork,
             OSFMAP.Project,
             OSFMAP.ProjectComponent,
             OSFMAP.Registration,
@@ -60,7 +61,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     # abstract method from IndexcardDeriver
     def derive_card_as_text(self):
-        try:
+        try:  # maintain doc id in the sharev2 index
             _suid = self.upriver_card.get_backcompat_sharev2_suid()
         except share_db.SourceUniqueIdentifier.DoesNotExist:
             _suid = self.upriver_card.get_suid()
@@ -69,6 +70,8 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             ###
             # metadata about the record/indexcard in this system
             'id': IDObfuscator.encode(_suid),
+            'indexcard_id': self.upriver_card.id,
+            'rawdatum_id': self.upriver_card.from_raw_datum_id,
             'date_created': _suid.get_date_first_seen().isoformat(),
             'date_modified': self.upriver_card.modified.isoformat(),
             'sources': [_source_name],
@@ -110,7 +113,10 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                 'lineage': self._work_lineage_list(self.focus_iri),
             },
         }
-        return json.dumps(strip_empty_values(_derived_sharev2))
+        return json.dumps(
+            strip_empty_values(_derived_sharev2),
+            sort_keys=True,
+        )
 
     def _related_names(self, *predicate_iris):
         _obj_iter = gather.objects_by_pathset(

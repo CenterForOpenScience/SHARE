@@ -68,7 +68,7 @@ def ingest(self, only_canonical=None, **kwargs):
 
 
 @celery.shared_task()
-def schedule_reingest(source_config_pk, pls_renormalize=False, pls_reformat=False):
+def schedule_reingest(source_config_pk, pls_extract_again=False, pls_derive_again=False):
     source_config = db.SourceConfig.objects.get(pk=source_config_pk)
     assert not source_config.disabled
     assert not source_config.source.is_deleted

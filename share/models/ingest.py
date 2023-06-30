@@ -1,5 +1,6 @@
 import contextlib
 import datetime
+import hashlib
 import logging
 
 from django.core import validators
@@ -12,6 +13,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
+import sentry_sdk
 
 from share.models.core import ShareUser
 from share.models.fields import EncryptedJSONField
@@ -347,6 +349,31 @@ class RawDatumManager(FuzzyCountManager):
             logger.debug('Found existing %r', rd)
 
         return rd
+
+    def store_datum_for_suid(self, *, suid, datum: str, mediatype, datestamp):
+        _filled_datestamp = datestamp or timezone.now()
+        _raw, _raw_created = self.get_or_create(
+            suid=suid,
+            sha256=hashlib.sha256(datum.encode()).hexdigest(),
+            defaults={
+                'datum': datum,
+                'mediatype': mediatype,
+                'datestamp': _filled_datestamp,
+            },
+        )
+        if not _raw_created:
+            if _raw.datum != datum:
+                _msg = f'hash collision!? {_raw.sha256}\n===\n{_raw.datum}\n===\n{datum}'
+                logger.critical(_msg)
+                sentry_sdk.capture_message(_msg)
+            _raw.mediatype = mediatype
+            # keep the latest datestamp
+            if not _raw.datestamp:
+                _raw.datestamp = _filled_datestamp
+            elif datestamp and datestamp > _raw.datestamp:
+                _raw.datestamp = datestamp
+            _raw.save(update_fields=('mediatype', 'datestamp'))
+        return _raw
 
 
 # Explicit through table to match legacy names

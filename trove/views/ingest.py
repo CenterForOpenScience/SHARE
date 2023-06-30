@@ -19,8 +19,8 @@ class RdfIngestView(View):
         # TODO: better error responses (jsonapi? shacl:ValidationReport?)
         # TODO: permissions, validate focus_iri domain with user Source?
         if not request.user.is_authenticated:
-            breakpoint()
             return http.HttpResponse(status=401)
+        # TODO: declare params as dataclass
         _focus_iri = request.GET.get('focus_iri')
         if not _focus_iri:
             return http.HttpResponse('focus_iri queryparam required', status=400)

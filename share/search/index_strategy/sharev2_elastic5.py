@@ -11,7 +11,7 @@ from share.search.index_status import IndexStatus
 from share.search.index_strategy._base import IndexStrategy
 from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
 from share.util import IDObfuscator
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)

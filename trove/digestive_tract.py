@@ -1,26 +1,27 @@
 '''a small interface for ingesting metadata records
 
-leaning (perhaps too far) into the "ingest" metaphor
+leaning (perhaps too far) into "ingest" as metaphor
 
 swallow: store a given record by checksum; queue for extraction
 extract: gather rdf graph from a record; store as index card(s)
-excrete: send extracted index card to every public search index
+derive: build other kinds of index cards from the extracted rdf
 '''
-__all__ = ('swallow', 'extract', 'excrete')
+__all__ = ('swallow', 'extract', 'derive')
 
-import hashlib
+import copy
 import logging
+import typing
 
+import celery
 from django.db import transaction
-from django.utils import timezone
 import gather
-import sentry_sdk
 
-from share.exceptions import IngestError
 from share import models as share_db
 from trove import models as trove_db
+from trove.exceptions import DigestiveError
 from trove.extract import get_rdf_extractor_class
-from trove.derive import INDEXCARD_DERIVERS
+from trove.derive import DERIVER_SET
+from trove.vocab import RDFS
 
 
 logger = logging.getLogger(__name__)
@@ -32,8 +33,8 @@ def swallow(
     from_user: share_db.ShareUser,
     record: str,
     record_identifier: str,
-    record_mediatype: str,
-    resource_iri: str,
+    record_mediatype: typing.Optional[str],  # passing None indicates sharev2 backcompat
+    resource_iri: typing.Optional[str],  # may be None only if record_mediatype=None
     datestamp=None,  # default "now"
 ) -> share_db.IngestJob:
     '''swallow: store a given record by checksum; queue for extraction
@@ -45,44 +46,38 @@ def swallow(
         RawDatum ("it", a metadata record)
     '''
     if not isinstance(record, str):
-        raise IngestError('datum must be a string')
+        raise DigestiveError('datum must be a string')
     _source_config = share_db.SourceConfig.objects.get_or_create_push_config(from_user)
+    if record_mediatype is not None and resource_iri is None:
+        raise DigestiveError('resource_iri required')
+    _resource_piri = (
+        trove_db.PersistentIri.objects.get_or_create_for_iri(resource_iri)
+        if resource_iri is not None
+        else None
+    )
     _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.update_or_create(
         source_config=_source_config,
         identifier=record_identifier,
         defaults={
-            'resource_piri': trove_db.PersistentIri.objects.get_or_create_for_iri(resource_iri),
+            'resource_piri': _resource_piri
         },
     )
-    _datestamp = datestamp or timezone.now()
-    _raw, _raw_created = share_db.RawDatum.objects.get_or_create(
+    share_db.RawDatum.objects.store_datum_for_suid(
         suid=_suid,
-        sha256=hashlib.sha256(record.encode()).hexdigest(),
-        defaults={
-            'datum': record,
-            'mediatype': record_mediatype,
-            'datestamp': _datestamp,
-        },
+        datum=record,
+        mediatype=record_mediatype,
+        datestamp=datestamp,
     )
-    if not _raw_created:
-        if _raw.datum != record:
-            _msg = f'hash collision!?\n===\n{_raw.datum}\n===\n{record}'
-            logger.critical(_msg)
-            sentry_sdk.capture_message(_msg)
-        _raw.mediatype = record_mediatype
-        # keep the latest datestamp
-        if (not _raw.datestamp) or (_raw.datestamp < _datestamp):
-            _raw.datestamp = _datestamp
-        _raw.save(update_fields=('mediatype', 'datestamp'))
-    _schedule_ingest(_suid)
+    return _schedule_ingest(_suid)
 
 
-def _schedule_ingest(suid):
+def _schedule_ingest(suid) -> share_db.IngestJob:
     # TODO: clean up this path (circular imports suggest badly organized)
     from share.ingest.scheduler import IngestScheduler
     _ingest_job = IngestScheduler().schedule(suid, claim=True)
     from share.tasks import ingest
     ingest.delay(job_id=_ingest_job.id, exhaust=False)
+    return _ingest_job
 
 
 def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
@@ -91,6 +86,8 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
     will create (or update):
         RdfIndexcard (all extracted metadata)
         PersistentIri (for each indexcard focus iri and its types)
+    will delete:
+        RdfIndexcard (any previously extracted from the record)
     '''
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     # TODO normalize tripledict:
@@ -99,35 +96,51 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.RdfIndexcard]:
     #   - no subject-key iris which collide by trove_db.PersistentIri equivalence
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
-    # TODO if not _tripledict: raw.save(update_fields=['no_output'])
-    _focus_iri = raw.suid.resource_piri.find_equivalent_iri(_tripledict)
-    # TODO handle _focus_iri not found
-    _tripledicts_by_focus_iri = {_focus_iri: _tripledict}
-    # any iri that has the focus iri as prefix is interpreted as a separate vocab term
-    for _iri, _twopledict in _tripledict.items():
-        if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
-            _tripledicts_by_focus_iri[_iri] = {_iri: _twopledict}
-    _indexcards = trove_db.RdfIndexcard.objects.save_indexcards_for_raw_datum(
+    try:
+        _focus_iri = raw.suid.resource_piri.find_equivalent_iri(_tripledict)
+    except ValueError:
+        _tripledicts_by_focus_iri = {}
+    else:
+        _tripledicts_by_focus_iri = {_focus_iri: _tripledict}
+        # special case: any subject iri prefixed by the focus iri gets
+        # treated as a separate vocab term and gets its own index card
+        for _iri, _twopledict in _tripledict.items():
+            if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
+                _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
+                gather.add_triple_to_tripledict(
+                    (_iri, RDFS.isDefinedBy, _focus_iri),
+                    _term_tripledict,
+                )
+                _tripledicts_by_focus_iri[_iri] = _term_tripledict
+    return trove_db.RdfIndexcard.objects.set_indexcards_for_raw_datum(
         from_raw_datum=raw,
         tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
     )
-    return _indexcards
 
 
-def excrete(indexcard: trove_db.RdfIndexcard):
-    '''excrete: derive special-purpose index card(s) from an extracted index card
+def derive(indexcard: trove_db.RdfIndexcard, deriver_iris=None):
+    '''derive: build other kinds of index cards from the extracted rdf
+
+    will create, update, or delete:
+        DerivedIndexcard
     '''
-    for _deriver_class in INDEXCARD_DERIVERS:
-        _deriver = _deriver_class(indexcard)
+    if deriver_iris is None:
+        _deriver_classes = DERIVER_SET
+    else:
+        _deriver_classes = [
+            _deriver_class
+            for _deriver_class in DERIVER_SET
+            if _deriver_class.deriver_iri() in deriver_iris
+        ]
+    for _deriver_class in _deriver_classes:
+        _deriver = _deriver_class(upriver_card=indexcard)
         _deriver_piri = trove_db.PersistentIri.objects.get_or_create_for_iri(_deriver.deriver_iri())
         if _deriver.should_skip():
-            logger.info(f'excrete: skipping {_deriver} for {indexcard}')
             trove_db.DerivedIndexcard.objects.filter(
                 upriver_card=indexcard,
                 deriver_piri=_deriver_piri,
             ).delete()
         else:
-            logger.info(f'excrete: invoking {_deriver} for {indexcard}')
             trove_db.DerivedIndexcard.objects.update_or_create(
                 upriver_card=indexcard,
                 deriver_piri=_deriver_piri,
@@ -135,3 +148,19 @@ def excrete(indexcard: trove_db.RdfIndexcard):
                     'card_as_text': _deriver.derive_card_as_text(),
                 },
             )
+
+
+### BEGIN celery tasks
+
+@celery.shared_task(acks_late=True)
+def task__extract_and_derive(raw_id: int):
+    _raw = share_db.RawDatum.objects.get(id=raw_id)
+    _indexcards = extract(_raw)
+    for _indexcard in _indexcards:
+        derive(_indexcard)
+
+
+@celery.shared_task(acks_late=True)
+def task__single_derive(indexcard_id: int, deriver_iri: str):
+    _indexcard = trove_db.RdfIndexcard.objects.get(id=indexcard_id)
+    derive(_indexcard, deriver_iris=[deriver_iri])

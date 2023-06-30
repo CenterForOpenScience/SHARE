@@ -1,9 +1,9 @@
-import dataclasses
 import re
 
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models.functions import Substr, StrIndex
 import gather
 
 
@@ -13,8 +13,9 @@ IRI_SCHEME_REGEX = re.compile(
     r'[a-z]'            # one letter from the english alphabet
     r'[a-z0-9+-.]*'     # zero or more letters, decimal numerals, or the symbols `+`, `-`, or `.`
 )
+IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNORECASE)
 COLON = ':'
-SLASH_SLASH = '//'
+COLON_SLASH_SLASH = '://'
 
 
 # for choosing among multiple schemes
@@ -24,28 +25,15 @@ IRI_SCHEME_PREFERENCE_ORDER = (
 )
 
 
-@dataclasses.dataclass
-class SchemeSplitIri:
-    scheme: str
-    iri_remainder: str
-    has_authority: bool
-
-    @classmethod
-    def from_iri(cls, iri: str):
-        (_scheme, _colon, _remainder) = iri.partition(COLON)
-        if not IRI_SCHEME_REGEX.fullmatch(_scheme):
-            raise ValueError(f'does not look like an iri (got "{iri}")')
-        return cls(
-            scheme=_scheme,
-            iri_remainder=_remainder,
-            has_authority=_remainder.startswith(SLASH_SLASH),
-        )
-
-    @property
-    def scheme_if_authorityless(self) -> str:
-        if self.has_authority:
-            return ''
-        return self.scheme
+def split_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
+    _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
+    if not _scheme_match:
+        raise ValueError(f'does not look like an iri (got "{iri}")')
+    _scheme = _scheme_match.group().lower()
+    _remainder = iri[_scheme_match.end():]
+    if _remainder.startswith(COLON_SLASH_SLASH):
+        return (_remainder, _scheme)
+    return (iri, _scheme)
 
 
 def validate_iri_scheme(iri_scheme):
@@ -57,126 +45,124 @@ def validate_iri_scheme(iri_scheme):
         raise ValidationError('not a valid iri scheme')
 
 
-def validate_iri_scheme_or_empty(iri_scheme):
-    '''raise a django ValidationError if not a valid iri scheme or empty string
+def validate_sufficiently_unique_iri(suffuniq_iri: str):
+    '''raise a django ValidationError if not a valid "sufficiently unique iri"
+
+     based on a wild assertion:
+       if two IRIs differ only in their `scheme`
+       and have non-empty `authority` component,
+       they may safely be considered equivalent.
+     (while this is not strictly true, it should be true enough and helps avoid
+     hand-wringing about "http" vs "https" -- use either or both, it's fine)
     '''
-    if '' != iri_scheme:  # empty string allowed
-        validate_iri_scheme(iri_scheme)
+    if not isinstance(suffuniq_iri, str):
+        raise ValidationError('not a string')
+    (_maybescheme, _colonslashslash, _remainder) = suffuniq_iri.partition(COLON_SLASH_SLASH)
+    if _colonslashslash:
+        if _maybescheme:
+            raise ValidationError('iri containing "://" should start with it')
+    else:
+        (_scheme, _colon, _remainder) = suffuniq_iri.partition(COLON)
+        if not _colon:
+            raise ValidationError('an iri needs a colon')
+        validate_iri_scheme(_scheme)
+    if not _remainder:
+        raise ValidationError('need more iri beyond a scheme')
 
 
 class PersistentIriManager(models.Manager):
     def queryset_for_iri(self, iri: str):
-        try:
-            _split = SchemeSplitIri.from_iri(iri)
-        except ValueError:
-            return self.none()  # TODO: would it be better to raise?
-        else:
-            return self.filter(
-                authorityless_scheme=_split.scheme_if_authorityless,
-                schemeless_iri=_split.iri_remainder,
-            )
+        # may raise if invalid
+        (_suffuniq_iri, _) = split_sufficiently_unique_iri_and_scheme(iri)
+        return self.filter(sufficiently_unique_iri=_suffuniq_iri)
 
     def get_for_iri(self, iri: str) -> 'PersistentIri':
         return self.queryset_for_iri(iri).get()  # may raise PersistentIri.DoesNotExist
 
     def get_or_create_for_iri(self, iri: str) -> 'PersistentIri':
         # may raise if invalid
-        _split = SchemeSplitIri.from_iri(iri)
+        (_suffuniq_iri, _scheme) = split_sufficiently_unique_iri_and_scheme(iri)
         (_piri, _created) = self.get_or_create(
-            authorityless_scheme=_split.scheme_if_authorityless,
-            schemeless_iri=_split.iri_remainder,
-            defaults={
-                'scheme_list': [_split.scheme],
-            },
+            sufficiently_unique_iri=_suffuniq_iri,
+            defaults={'scheme_list': [_scheme]},
         )
-        if _split.scheme not in _piri.scheme_list:
-            _piri.scheme_list.append(_split.scheme)
+        if _scheme not in _piri.scheme_list:
+            _piri.scheme_list.append(_scheme)
             _piri.save()
         return _piri
 
-    def save_equivalent_piris(
+    def save_equivalent_piri_set(
         self,
         tripledict: gather.RdfTripleDictionary,
         focus_iri: str,
     ) -> list['PersistentIri']:
-        _piris = [self.get_or_create_for_iri(focus_iri)]
-        _piris.extend(
+        _piri_set = [self.get_or_create_for_iri(focus_iri)]
+        _piri_set.extend(
             self.get_or_create_for_iri(_sameas_iri)
             for _sameas_iri in tripledict[focus_iri].get(gather.OWL.sameAs, ())
             if _sameas_iri != focus_iri
         )
-        return _piris
+        return _piri_set
 
 
-# wild assertion:
-#   if two IRIs differ only in their `scheme`
-#   and have non-empty `authority` component,
-#   they may safely be considered equivalent.
-# (while this is not strictly true, it should be true enough
-#  (and helps avoid hand-wringing about "http" vs "https" --
-#   use either or both, it's fine))
 class PersistentIri(models.Model):
+    objects = PersistentIriManager()
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    # empty string if the IRI uses "://" (and therefore has an `authority` component)
-    # otherwise the IRI `scheme` (which implicitly does not use IP or DNS for naming)
-    authorityless_scheme = models.TextField(
-        blank=True,
-        validators=[validate_iri_scheme_or_empty],
+    # if the IRI has "://" after its `scheme` (and therefore has an `authority` defined
+    # using IP or DNS or similar), the substring starting with "://" is "unique enough"
+    # -- otherwise, use the full IRI
+    sufficiently_unique_iri = models.TextField(
+        unique=True,
+        validators=[validate_sufficiently_unique_iri],
     )
-    # the remainder of the IRI after the scheme (not including the ":")
-    schemeless_iri = models.TextField()
     # all schemes seen with this IRI, in the order they were seen
     # (not indexed or used for comparison; just for making iri string)
     scheme_list = ArrayField(
         models.TextField(validators=[validate_iri_scheme]),
     )
 
-    objects = PersistentIriManager()
-
     class Meta:
-        unique_together = [
-            ('authorityless_scheme', 'schemeless_iri'),
-        ]
         constraints = [
             models.CheckConstraint(
-                name='has_at_least_one_scheme',
-                check=models.Q(scheme_list__len__gt=0),
-            ),
-            models.CheckConstraint(
-                name='authorityless_scheme__is_empty_or_known',
+                name='%(app_label)s_%(class)s_suffuniq_iri_matches_scheme_list',
                 check=(
-                    models.Q(authorityless_scheme='')
-                    | models.Q(scheme_list__contains=[models.F('authorityless_scheme')])
+                    # sufficiently_unique_iri contains ":" (to avoid Substr breaking)...
+                    models.Q(sufficiently_unique_iri__contains=COLON)
+                    & (  # ...and either...
+                        models.Q(  # ...starts with "://" (with non-empty scheme_list)...
+                            sufficiently_unique_iri__startswith=COLON_SLASH_SLASH,
+                            scheme_list__len__gt=0,
+                        )
+                        | models.Q(  # ...or starts with the only item in scheme_list.
+                            scheme_list=[Substr(
+                                'sufficiently_unique_iri',
+                                1,  # start of string (1-indexed)
+                                StrIndex('sufficiently_unique_iri', models.Value(COLON)) - 1,
+                            )],
+                        )
+                    )
                 ),
             ),
-            models.CheckConstraint(name='has_authority_or_no_need_for_one', check=(
-                # either the IRI has an authority (and we mostly ignore the scheme)
-                models.Q(schemeless_iri__startswith=SLASH_SLASH, authorityless_scheme='')
-                | (  # ...or the IRI has no authority (and the scheme is important)
-                    ~models.Q(authorityless_scheme='')
-                    & ~models.Q(schemeless_iri__startswith=SLASH_SLASH)
-                )
-            )),
         ]
 
     def __repr__(self):
-        return ''.join((
-            f'<{self.__class__.__qualname__}(',
-            f'schemeless_iri="{self.schemeless_iri}",',
-            f' scheme_list={self.scheme_list},',
-            f' authorityless_scheme="{self.authorityless_scheme}")',
-        ))
+        return (
+            f'<{self.__class__.__qualname__}("{self.sufficiently_unique_iri}",'
+            f' scheme_list={self.scheme_list}, id={self.id})'
+        )
 
     __str__ = __repr__
 
     def build_iri(self) -> str:
-        _scheme = (
-            self.authorityless_scheme
-            or self.choose_a_scheme()
+        _suffuniq_iri = self.sufficiently_unique_iri
+        return (
+            ''.join((self.choose_a_scheme(), _suffuniq_iri))
+            if _suffuniq_iri.startswith(COLON_SLASH_SLASH)
+            else _suffuniq_iri
         )
-        return ''.join((_scheme, COLON, self.schemeless_iri))
 
     def choose_a_scheme(self) -> str:
         try:
@@ -195,11 +181,8 @@ class PersistentIri(models.Model):
         return _scheme
 
     def equivalent_to_iri(self, iri: str):
-        _split = SchemeSplitIri.from_iri(iri)
-        return (
-            self.schemeless_iri == _split.iri_remainder
-            and self.authorityless_scheme == _split.scheme_if_authorityless
-        )
+        (_suffuniq_iri, _) = split_sufficiently_unique_iri_and_scheme(iri)
+        return (self.sufficiently_unique_iri == _suffuniq_iri)
 
     def find_equivalent_iri(self, tripledict: gather.RdfTripleDictionary) -> str:
         _piri_iri = self.build_iri()

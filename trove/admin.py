@@ -6,21 +6,23 @@ from trove.models import PersistentIri, RdfIndexcard, DerivedIndexcard
 
 
 @admin.register(PersistentIri, site=admin_site)
+@linked_many('synonymous_suid_set')
+@linked_many('rdf_indexcard_set')
 class PersistentIriAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
     )
     paginator = TimeLimitedPaginator
-    list_display = ('schemeless_iri', 'scheme_list', 'created', 'modified')
+    list_display = ('sufficiently_unique_iri', 'scheme_list', 'created', 'modified')
     show_full_result_count = False
-    search_fields = ('schemeless_iri',)
+    search_fields = ('sufficiently_unique_iri',)
 
 
 @admin.register(RdfIndexcard, site=admin_site)
 @linked_fk('from_raw_datum')
-@linked_many('focus_piris')
-@linked_many('focustype_piris')
+@linked_many('focus_piri_set')
+@linked_many('focustype_piri_set')
 class RdfIndexcardAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',

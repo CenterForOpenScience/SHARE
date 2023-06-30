@@ -3,23 +3,27 @@ from django.db import transaction
 import gather
 
 from share import models as share_db  # TODO: break this dependency
+from trove.exceptions import DigestiveError
 from trove.models.persistent_iri import PersistentIri
 
 
 class RdfIndexcardManager(models.Manager):
     @transaction.atomic
-    def save_indexcards_for_raw_datum(
+    def set_indexcards_for_raw_datum(
         self, *,
         from_raw_datum: share_db.RawDatum,
         tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
     ):
-        _existing = self.filter(from_raw_datum=from_raw_datum)
-        _existing.delete()  # TODO: ponder provenance -- external updates will be in a new RawDatum, so this will only delete on re-ingestion... maybe fine?
+        _prior_indexcards = self.filter(from_raw_datum=from_raw_datum)
+        _prior_indexcards.delete()  # TODO: ponder provenance -- external updates will be in a new RawDatum, so this will only delete on re-ingestion... maybe fine?
+        from_raw_datum.no_output = (not tripledicts_by_focus_iri)
+        from_raw_datum.save(update_fields=['no_output'])
         _indexcards = []
         for _focus_iri, _tripledict in tripledicts_by_focus_iri.items():
-            assert _focus_iri in _tripledict, f'expected {_focus_iri} in {set(_tripledict.keys())}'
-            _focus_piris = PersistentIri.objects.save_equivalent_piris(_tripledict, _focus_iri)
-            _focustype_piris = [  # TODO: require non-zero?
+            if _focus_iri not in _tripledict:
+                raise DigestiveError(f'expected {_focus_iri} in {set(_tripledict.keys())}')
+            _focus_piri_set = PersistentIri.objects.save_equivalent_piri_set(_tripledict, _focus_iri)
+            _focustype_piri_set = [  # TODO: require non-zero?
                 PersistentIri.objects.get_or_create_for_iri(_iri)
                 for _iri in _tripledict[_focus_iri].get(gather.RDF.type, ())
             ]
@@ -28,8 +32,8 @@ class RdfIndexcardManager(models.Manager):
                 focus_iri=_focus_iri,
                 card_as_turtle=gather.tripledict_as_turtle(_tripledict),
             )
-            _indexcard.focus_piris.set(_focus_piris)
-            _indexcard.focustype_piris.set(_focustype_piris)
+            _indexcard.focus_piri_set.set(_focus_piri_set)
+            _indexcard.focustype_piri_set.set(_focustype_piri_set)
             _indexcards.append(_indexcard)
         return _indexcards
 
@@ -37,25 +41,30 @@ class RdfIndexcardManager(models.Manager):
 class RdfIndexcard(models.Model):
     objects = RdfIndexcardManager()
 
+    # auto:
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    card_as_turtle = models.TextField()  # TODO: max length? store by checksum?
-    focus_iri = models.TextField()
+    # required:
     from_raw_datum = models.ForeignKey(
         share_db.RawDatum,
         on_delete=models.CASCADE,
         related_name='rdf_indexcard_set',
     )
-    focus_piris = models.ManyToManyField(
-        PersistentIri,
-        through='ThruRdfIndexcardFocusPiris',
-        related_name='+',
-    )
-    focustype_piris = models.ManyToManyField(
-        PersistentIri,
-        related_name='+',
-    )
+    focus_iri = models.TextField()  # exact iri used in card_as_turtle
+    card_as_turtle = models.TextField()  # TODO: max length? store by checksum?
+
+    # distant:
+    focus_piri_set = models.ManyToManyField(PersistentIri, related_name='rdf_indexcard_set')
+    focustype_piri_set = models.ManyToManyField(PersistentIri, related_name='+')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('from_raw_datum', 'focus_iri'),
+                name='%(app_label)s_%(class)s_rawdatum_focusiri',
+            ),
+        ]
 
     def as_rdf_tripledict(self) -> gather.RdfTripleDictionary:
         return gather.tripledict_from_turtle(self.card_as_turtle)
@@ -76,22 +85,6 @@ class RdfIndexcard(models.Model):
             ),
             identifier=_suid.identifier,
         )
-
-
-# an explicit thru-table for RdfIndexcard.focus_piris, to allow additional constraint
-class ThruRdfIndexcardFocusPiris(models.Model):
-    rdf_indexcard = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
-    focus_piri = models.ForeignKey(PersistentIri, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = [
-            # no focus_piri duplicates allowed within an index card...
-            ('rdf_indexcard', 'focus_piri'),
-        ]
-        # ...or across index cards extracted from the same raw datum (TODO sql or django4 CheckConstraint)
-        # constraints = [
-        #     models.UniqueConstraint('rdf_indexcard__from_raw_datum', 'focus_piri'),
-        # ]
 
 
 class DerivedIndexcardManager(models.Manager):
@@ -126,6 +119,9 @@ class DerivedIndexcard(models.Model):
     card_as_text = models.TextField()  # TODO: store by checksum
 
     class Meta:
-        unique_together = [
-            ('upriver_card', 'deriver_piri'),
+        constraints = [
+            models.UniqueConstraint(
+                fields=('upriver_card', 'deriver_piri'),
+                name='%(app_label)s_%(class)s_uprivercard_deriverpiri',
+            ),
         ]

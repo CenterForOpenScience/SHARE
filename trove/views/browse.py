@@ -28,7 +28,7 @@ class BrowseIriView(TemplateView):
         return _context
 
     def _get_indexcards(self, piri: trove_db.PersistentIri):
-        return trove_db.RdfIndexcard.objects.filter(focus_piris=piri)
+        return trove_db.RdfIndexcard.objects.filter(focus_piri_set=piri)
 
 
 class _IndexcardContextBuilder:

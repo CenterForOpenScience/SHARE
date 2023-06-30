@@ -9,16 +9,11 @@ from gather import (
     GatheringOrganizer,
 )
 
-from share.schema.osfmap import (
-    OSFMAP_NORMS,
-    DCTERMS,
-    FOAF,
-    OSFMAP,
-    DCAT,
-)
+from share.schema.osfmap import OSFMAP_NORMS, OSFMAP
 from share.util.rdfutil import SHAREv2
 from share.util.graph import MutableNode
 from share.regulate import Regulator
+from trove.vocab import DCTERMS, FOAF, DCAT
 from ._base import BaseRdfExtractor
 
 

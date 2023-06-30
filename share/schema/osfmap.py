@@ -10,14 +10,10 @@ from gather import (
 
 from share.search.rdf_as_jsonapi import JSONAPI_MEMBERNAME
 from share.util.rdfutil import IriLabeler
+from trove.vocab import DCTERMS, FOAF
 
 
-# standard namespaces
-DCTERMS = IriNamespace('http://purl.org/dc/terms/')
-FOAF = IriNamespace('http://xmlns.com/foaf/0.1/')
-DCAT = IriNamespace('http://www.w3.org/ns/dcat#')
-
-# application-specific vocab (may still evolve)
+# TODO: define as turtle, move to trove.vocab?
 OSFMAP = IriNamespace('https://osf.io/vocab/2022/')
 OSFMAP_VOCAB: RdfTripleDictionary = {
     ###
