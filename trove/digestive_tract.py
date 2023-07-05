@@ -132,19 +132,21 @@ def derive(indexcard: trove_db.RdfIndexcard, deriver_iris=None):
             for _deriver_class in DERIVER_SET
             if _deriver_class.deriver_iri() in deriver_iris
         ]
+    _suid = indexcard.get_suid()
     for _deriver_class in _deriver_classes:
         _deriver = _deriver_class(upriver_card=indexcard)
         _deriver_piri = trove_db.PersistentIri.objects.get_or_create_for_iri(_deriver.deriver_iri())
         if _deriver.should_skip():
             trove_db.DerivedIndexcard.objects.filter(
-                upriver_card=indexcard,
+                suid=_suid,
                 deriver_piri=_deriver_piri,
             ).delete()
         else:
             trove_db.DerivedIndexcard.objects.update_or_create(
-                upriver_card=indexcard,
+                suid=_suid,
                 deriver_piri=_deriver_piri,
                 defaults={
+                    'upriver_card': indexcard,
                     'card_as_text': _deriver.derive_card_as_text(),
                 },
             )
@@ -153,14 +155,48 @@ def derive(indexcard: trove_db.RdfIndexcard, deriver_iris=None):
 ### BEGIN celery tasks
 
 @celery.shared_task(acks_late=True)
-def task__extract_and_derive(raw_id: int):
-    _raw = share_db.RawDatum.objects.get(id=raw_id)
-    _indexcards = extract(_raw)
-    for _indexcard in _indexcards:
-        derive(_indexcard)
+def task__extract_and_derive(suid_id: int):
+    try:
+        _raw = share_db.RawDatum.objects.latest_by_suid_ids([suid_id]).get()
+    except share_db.RawDatum.DoesNotExist:
+        logger.warning(f'RawDatum not found for suid_id={suid_id}')
+    else:
+        _indexcards = extract(_raw)
+        for _indexcard in _indexcards:
+            derive(_indexcard)
 
 
 @celery.shared_task(acks_late=True)
-def task__single_derive(indexcard_id: int, deriver_iri: str):
-    _indexcard = trove_db.RdfIndexcard.objects.get(id=indexcard_id)
-    derive(_indexcard, deriver_iris=[deriver_iri])
+def task__single_derive(suid_id: int, deriver_iri: str):
+    try:
+        _indexcard = (
+            trove_db.RdfIndexcard.objects
+            .latest_by_suid_ids([suid_id])
+            .get()
+        )
+    except trove_db.RdfIndexcard.DoesNotExist:
+        logger.warning(f'RdfIndexcard not found for suid_id={suid_id}')
+    else:
+        derive(_indexcard, deriver_iris=[deriver_iri])
+
+
+@celery.shared_task(acks_late=True)
+def task__schedule_extract_and_derive_for_source_config(source_config_id: int):
+    _suid_id_qs = (
+        share_db.SourceUniqueIdentifier.objects
+        .filter(source_config_id=source_config_id)
+        .values_list('id', flat=True)
+    )
+    for _id in _suid_id_qs.iterator():
+        task__extract_and_derive.apply_async((_id,))
+
+
+@celery.shared_task(acks_late=True)
+def task__schedule_derive_all(deriver_iri: str):
+    _suid_id_qs = (
+        share_db.SourceUniqueIdentifier.objects
+        .filter(raw_data__rdf_indexcard_set__isnull=False)
+        .values_list('id', flat=True)
+    )
+    for _id in _suid_id_qs.iterator():
+        task__single_derive.apply_async((_id, deriver_iri))

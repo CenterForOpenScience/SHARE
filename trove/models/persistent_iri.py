@@ -1,4 +1,5 @@
 import re
+import typing
 
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
@@ -25,7 +26,7 @@ IRI_SCHEME_PREFERENCE_ORDER = (
 )
 
 
-def split_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
+def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if not _scheme_match:
         raise ValueError(f'does not look like an iri (got "{iri}")')
@@ -72,16 +73,22 @@ def validate_sufficiently_unique_iri(suffuniq_iri: str):
 
 class PersistentIriManager(models.Manager):
     def queryset_for_iri(self, iri: str):
+        return self.queryset_for_iris((iri,))
+
+    def queryset_for_iris(self, iris: typing.Iterable[str]):
         # may raise if invalid
-        (_suffuniq_iri, _) = split_sufficiently_unique_iri_and_scheme(iri)
-        return self.filter(sufficiently_unique_iri=_suffuniq_iri)
+        _suffuniq_iris = set()
+        for _iri in iris:
+            (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(_iri)
+            _suffuniq_iris.add(_suffuniq_iri)
+        return self.filter(sufficiently_unique_iri__in=_suffuniq_iris)
 
     def get_for_iri(self, iri: str) -> 'PersistentIri':
         return self.queryset_for_iri(iri).get()  # may raise PersistentIri.DoesNotExist
 
     def get_or_create_for_iri(self, iri: str) -> 'PersistentIri':
         # may raise if invalid
-        (_suffuniq_iri, _scheme) = split_sufficiently_unique_iri_and_scheme(iri)
+        (_suffuniq_iri, _scheme) = get_sufficiently_unique_iri_and_scheme(iri)
         (_piri, _created) = self.get_or_create(
             sufficiently_unique_iri=_suffuniq_iri,
             defaults={'scheme_list': [_scheme]},
@@ -181,7 +188,7 @@ class PersistentIri(models.Model):
         return _scheme
 
     def equivalent_to_iri(self, iri: str):
-        (_suffuniq_iri, _) = split_sufficiently_unique_iri_and_scheme(iri)
+        (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(iri)
         return (self.sufficiently_unique_iri == _suffuniq_iri)
 
     def find_equivalent_iri(self, tripledict: gather.RdfTripleDictionary) -> str:

@@ -375,6 +375,20 @@ class RawDatumManager(FuzzyCountManager):
             _raw.save(update_fields=('mediatype', 'datestamp'))
         return _raw
 
+    def latest_by_suid_ids(self, suid_ids) -> models.QuerySet:
+        return self.filter(id__in=(
+            SourceUniqueIdentifier.objects
+            .filter(id__in=suid_ids)
+            .annotate(latest_rawdatum_id=models.Subquery(
+                RawDatum.objects
+                .filter(suid_id=models.OuterRef('id'))
+                .order_by(models.Coalesce('datestamp', 'date_created').desc(nulls_last=True))
+                .values('id')
+                [:1]
+            ))
+            .values('latest_rawdatum_id')
+        ))
+
 
 # Explicit through table to match legacy names
 class RawDatumJob(models.Model):

@@ -32,6 +32,7 @@ from share.models.jobs import HarvestJob
 from share.models.jobs import IngestJob
 from share.models.registration import ProviderRegistration
 from share.models.sources import SourceStat
+from trove import digestive_tract
 
 
 class ShareAdminSite(admin.AdminSite):
@@ -196,10 +197,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def start_ingest(self, request, config_id):
         config = self.get_object(request, config_id)
         if request.method == 'POST':
-            tasks.schedule_reingest.apply_async((config.pk,), {
-                'pls_renormalize': request.POST.get('pls_renormalize', False),
-                'pls_reformat': request.POST.get('pls_reformat', False),
-            })
+            digestive_tract.task__schedule_extract_and_derive_for_source_config((config.pk,))
             url = reverse(
                 'admin:share_sourceconfig_changelist',
                 current_app=self.admin_site.name,

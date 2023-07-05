@@ -5,9 +5,9 @@ from django import http
 from django.views.generic.base import TemplateView
 import gather
 
-from share.schema.osfmap import osfmap_labeler
 from share.util import rdfutil
 from trove import models as trove_db
+from trove.vocab.osfmap import osfmap_labeler
 
 
 class BrowseIriView(TemplateView):

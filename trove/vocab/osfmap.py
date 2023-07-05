@@ -13,7 +13,7 @@ from share.util.rdfutil import IriLabeler
 from trove.vocab import DCTERMS, FOAF
 
 
-# TODO: define as turtle, move to trove.vocab?
+# TODO: define as turtle, load in trove.vocab.__init__?
 OSFMAP = IriNamespace('https://osf.io/vocab/2022/')
 OSFMAP_VOCAB: RdfTripleDictionary = {
     ###

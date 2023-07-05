@@ -4,7 +4,6 @@ import gather
 from django import http
 from django.views import View
 
-from share.schema.osfmap import osfmap_labeler
 from share.search import exceptions
 from share.search.index_strategy import IndexStrategy
 from share.search.search_request import (

@@ -11,11 +11,6 @@ from share.models import (
     FormattedMetadataRecord,
     SourceUniqueIdentifier,
 )
-from share.schema.osfmap import (
-    osfmap_labeler,
-    OSFMAP,
-    DCTERMS,
-)
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
@@ -36,8 +31,9 @@ from share.search.search_response import (
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
-from share.util.rdfutil import SHAREv2
 from trove.models import DerivedIndexcard, PersistentIri
+from trove.vocab import SHAREv2, DCTERMS
+from trove.vocab.osfmap import osfmap_labeler, OSFMAP
 
 
 logger = logging.getLogger(__name__)
@@ -62,7 +58,7 @@ KEYWORD_FIELDS_BY_OSFMAP = {
     DCTERMS.language: 'language',
     gather.RDF.type: 'types',
     DCTERMS.type: 'types',
-    OSFMAP.affiliatedInstitution: 'lists.affiliations.identifiers',
+    OSFMAP.affiliation: 'lists.affiliations.identifiers',
     OSFMAP.funder: 'lists.funders.identifiers',
     OSFMAP.keyword: 'tags.exact',
 }
@@ -185,12 +181,12 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             suid_ids.discard(_suid_id)
             _source_doc = json.loads(_serialized_doc)
             if _source_doc.pop('is_deleted', False):
-                yield self._build_delete_action(_suid_id)
+                yield self.build_delete_action(_suid_id)
             else:
-                yield self._build_index_action(_suid_id, _source_doc)
+                yield self.build_index_action(_suid_id, _source_doc)
         # delete any that don't have the expected card
         for _leftover_suid_id in suid_ids:
-            yield self._build_delete_action(_leftover_suid_id)
+            yield self.build_delete_action(_leftover_suid_id)
 
     # override Elastic8IndexStrategy
     def get_doc_id(self, message_target_id):
@@ -200,23 +196,10 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     def get_message_target_id(self, doc_id):
         return IDObfuscator.decode_id(doc_id)
 
-    def _build_index_action(self, target_id, source_doc):
-        return {
-            '_op_type': 'index',
-            '_id': self.get_doc_id(target_id),
-            '_source': source_doc,
-        }
-
-    def _build_delete_action(self, target_id):
-        return {
-            '_op_type': 'delete',
-            '_id': self.get_doc_id(target_id),
-        }
-
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
         _card_qs = (
             DerivedIndexcard.objects
-            .latest_by_suid_ids(suid_ids, with_suid_id_annotation=True)
+            .filter(suid_id__in=suid_ids)
             .filter(deriver_piri__in=PersistentIri.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
         )
         if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):

@@ -12,6 +12,11 @@ FOAF = gather.IriNamespace('http://xmlns.com/foaf/0.1/')
 DCAT = gather.IriNamespace('http://www.w3.org/ns/dcat#')
 PROV = gather.IriNamespace('http://www.w3.org/ns/prov#')
 
+# a new namespace for SHARE/trove concepts
+TROVE = gather.IriNamespace('https://share.osf.io/vocab/2023/trove/')
+# a wild namespace for whatever lingers from SHAREv2
+SHAREv2 = gather.IriNamespace('https://share.osf.io/vocab/2017/sharev2/')
+
 
 @dataclasses.dataclass(frozen=True)
 class StaticVocab:

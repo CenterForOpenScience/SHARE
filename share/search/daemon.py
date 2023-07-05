@@ -237,7 +237,7 @@ class MessageHandlingLoop:
                 for daemon_message in daemon_messages_by_target_id.pop(target_id):
                     daemon_message.ack()  # finally set it free
             if daemon_messages_by_target_id:  # should be empty by now
-                logger.error('%sUnhandled messages?? %s', self.log_prefix, daemon_messages_by_target_id)
+                logger.error('%sUnhandled messages?? %s', self.log_prefix, len(daemon_messages_by_target_id))
                 sentry_sdk.capture_message(f'unhandled daemon messages: {dict(daemon_messages_by_target_id)}')
         time_elapsed = time.time() - start_time
         if doc_count or error_count:

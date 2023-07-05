@@ -4,7 +4,6 @@ import itertools
 import logging
 import typing
 
-from share.schema.osfmap import osfmap_labeler
 from share.search import exceptions
 from share.search.jsonapi_queryparams import (
     JsonapiQueryparamDict,
@@ -12,6 +11,7 @@ from share.search.jsonapi_queryparams import (
     split_queryparam_value,
     queryparams_from_querystring,
 )
+from trove.vocab.osfmap import osfmap_labeler
 
 
 logger = logging.getLogger(__name__)

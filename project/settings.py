@@ -331,18 +331,25 @@ if ELASTICSEARCH8_URL:
     ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
     ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
     ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
-    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
-        'CLUSTER_SETTINGS': {
-            'URL': ELASTICSEARCH8_URL,
-            'AUTH': (
-                (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
-                if ELASTICSEARCH8_SECRET is not None
-                else None
-            ),
-            'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
-        },
+    ELASTICSEARCH8_CLUSTER_SETTINGS = {
+        'URL': ELASTICSEARCH8_URL,
+        'AUTH': (
+            (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
+            if ELASTICSEARCH8_SECRET is not None
+            else None
+        ),
+        'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
     }
+    ELASTICSEARCH['INDEX_STRATEGIES'].update({
+        'sharev2_elastic8': {
+            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
+        },
+        'trove_iris': {
+            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_iris.TroveIrisIndexStrategy',
+            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
+        },
+    })
 DEFAULT_INDEX_STRATEGY_FOR_SEARCHING = (
     'sharev2_elastic5'
     if ELASTICSEARCH5_URL

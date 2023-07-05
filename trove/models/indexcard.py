@@ -37,6 +37,16 @@ class RdfIndexcardManager(models.Manager):
             _indexcards.append(_indexcard)
         return _indexcards
 
+    def latest_by_suid_ids(self, suid_ids, *, with_suid_id_annotation=False):
+        _queryset = self.filter(
+            from_raw_datum__in=share_db.RawDatum.objects.latest_by_suid_ids(suid_ids),
+        )
+        if with_suid_id_annotation:
+            _queryset = _queryset.annotate(
+                suid_id=models.F('from_raw_datum__suid_id'),
+            )
+        return _queryset
+
 
 class RdfIndexcard(models.Model):
     objects = RdfIndexcardManager()
@@ -87,41 +97,19 @@ class RdfIndexcard(models.Model):
         )
 
 
-class DerivedIndexcardManager(models.Manager):
-    def latest_by_suid_ids(self, suid_ids, *, with_suid_id_annotation=False):
-        _suid_qs = (
-            share_db.SourceUniqueIdentifier.objects
-            .filter(id__in=suid_ids)
-            .annotate(latest_rawdatum_id=models.Subquery(
-                share_db.RawDatum.objects
-                .filter(suid_id=models.OuterRef('id'))
-                .order_by(models.Coalesce('datestamp', 'date_created').desc(nulls_last=True))
-                .values('id')
-                [:1]
-            ))
-        )
-        _queryset = self.filter(
-            from_rdf_indexcard__from_raw_datum_id__in=_suid_qs.values('latest_rawdatum_id'),
-        )
-        if with_suid_id_annotation:
-            _queryset = _queryset.annotate(
-                suid_id=models.F('from_rdf_indexcard__from_raw_datum__suid_id'),
-            )
-        return _queryset
-
-
 class DerivedIndexcard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    upriver_card = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE)
+    suid = models.ForeignKey(share_db.SourceUniqueIdentifier, on_delete=models.CASCADE, related_name='derived_indexcard_set')
+    upriver_card = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE, related_name='derived_indexcard_set')
     deriver_piri = models.ForeignKey(PersistentIri, on_delete=models.PROTECT, related_name='+')
     card_as_text = models.TextField()  # TODO: store by checksum
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('upriver_card', 'deriver_piri'),
-                name='%(app_label)s_%(class)s_uprivercard_deriverpiri',
+                fields=('suid', 'deriver_piri'),
+                name='%(app_label)s_%(class)s_suid_deriverpiri',
             ),
         ]

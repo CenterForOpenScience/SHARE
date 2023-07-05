@@ -9,11 +9,10 @@ from gather import (
     GatheringOrganizer,
 )
 
-from share.schema.osfmap import OSFMAP_NORMS, OSFMAP
-from share.util.rdfutil import SHAREv2
 from share.util.graph import MutableNode
 from share.regulate import Regulator
-from trove.vocab import DCTERMS, FOAF, DCAT
+from trove.vocab import DCTERMS, FOAF, DCAT, SHAREv2
+from trove.vocab.osfmap import OSFMAP_NORMS, OSFMAP
 from ._base import BaseRdfExtractor
 
 
@@ -213,7 +212,7 @@ def _agentwork_relation_iri(agentwork_relation: MutableNode):
     # generic AgentWorkRelation
     _sharev2_agent_types = set(agentwork_relation['agent'].schema_type.type_lineage)
     if 'Organization' in _sharev2_agent_types:
-        return OSFMAP.affiliatedInstitution
+        return OSFMAP.affiliation
     return DCTERMS.contributor
 
 

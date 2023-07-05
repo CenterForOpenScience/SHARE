@@ -41,23 +41,45 @@ class Elastic8IndexStrategy(IndexStrategy):
             min_delay_between_sniffing=timeout,
         )
 
+    ###
+    # abstract methods for subclasses to implement
+
     @abc.abstractmethod
     def index_settings(self):
-        raise NotImplementedError  # for subclasses to implement
+        raise NotImplementedError
 
     @abc.abstractmethod
     def index_mappings(self):
-        raise NotImplementedError  # for subclasses to implement
+        raise NotImplementedError
 
     @abc.abstractmethod
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[dict]:
-        raise NotImplementedError  # for subclasses to implement
+        raise NotImplementedError
+
+    ###
+    # helper methods for subclasses to use (or override)
 
     def get_doc_id(self, message_target_id):
-        return message_target_id  # here so subclasses can override if needed
+        return str(message_target_id)
 
     def get_message_target_id(self, doc_id):
-        return doc_id  # here so subclasses can override if needed
+        return int(doc_id)
+
+    def build_index_action(self, target_id, source_doc):
+        return {
+            '_op_type': 'index',
+            '_id': self.get_doc_id(target_id),
+            '_source': source_doc,
+        }
+
+    def build_delete_action(self, target_id):
+        return {
+            '_op_type': 'delete',
+            '_id': self.get_doc_id(target_id),
+        }
+
+    ###
+    # implementation for subclasses to ignore
 
     # abstract method from IndexStrategy
     def compute_strategy_checksum(self):
@@ -114,6 +136,8 @@ class Elastic8IndexStrategy(IndexStrategy):
                         else str(response_body)
                     )
                 )
+            else:
+                logger.critical(f'not acking -- {message_target_id=} {indexnames=} {response_body=}')
 
     # abstract method from IndexStrategy
     def pls_make_default_for_searching(self, specific_index: 'SpecificIndex'):

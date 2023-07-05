@@ -105,7 +105,10 @@ class DaemonMessage(abc.ABC):
 
     @classmethod
     def from_received_message(cls, kombu_message):
-        version = kombu_message.payload.get('version', 0)
+        try:
+            version = kombu_message.payload['v']
+        except KeyError:
+            version = kombu_message.payload.get('version', 0)
         for message_class in cls.__subclasses__():
             if message_class.PROTOCOL_VERSION == version:
                 return message_class(kombu_message=kombu_message)
@@ -186,7 +189,7 @@ class V3Message(DaemonMessage):
     the message is a two-ple of integers (int_message_type, target_id)
     -- minimalist, for there may be many
     {
-        "version": 3,
+        "v": 3,
         "m": [2, 7],
     }
     """
@@ -194,8 +197,10 @@ class V3Message(DaemonMessage):
 
     @classmethod
     def compose(cls, message_type: MessageType, target_id: int) -> dict:
+        if not isinstance(target_id, int):
+            raise ValueError(target_id)
         return {
-            'version': 3,
+            'v': 3,
             'm': (int(message_type), target_id),
         }
 
@@ -215,4 +220,6 @@ class V3Message(DaemonMessage):
     @property
     def target_id(self) -> int:
         _, target_id = self._message_twople
+        if not isinstance(target_id, int):
+            raise ValueError(self.kombu_message.payload)
         return target_id

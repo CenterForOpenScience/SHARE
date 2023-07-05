@@ -3,10 +3,6 @@ import typing
 import gather
 
 
-# a wild namespace for whatever lingers from SHAREv2
-SHAREv2 = gather.IriNamespace('https://share.osf.io/vocab/2017/')
-
-
 class IriLabeler:
     def __init__(
         self,

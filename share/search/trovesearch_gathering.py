@@ -4,8 +4,7 @@ import typing
 from django.conf import settings
 import gather
 
-from share import models as db
-from share.metadata_formats.osfmap_jsonld import OsfmapJsonldFormatter
+from share import models as share_db
 from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
@@ -18,6 +17,7 @@ from share.search.rdf_as_jsonapi import (
 )
 from share.util import IDObfuscator
 from share.util.rdfutil import IriLabeler
+from trove import models as trove_db
 
 
 ###
@@ -365,15 +365,20 @@ def gather_valuesearch(focus, *, specific_index, search_params):
     focustype_iris={TROVE.Card},
 )
 def gather_card(focus, *, specific_index, search_params):
+    _focus_iris_qs = trove_db.PersistentIri.objects.queryset_for_iris(focus.iris)
+    _osfmap_indexcard = (
+        trove_db.DerivedIndexcard
+        .filter(upriver_card__focus_piri_set=_focus_iris_qs)
+    )
     # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)
+    # TODO: load DerivedIndexcard
     _normalized_datum = (
         db.NormalizedData.objects
         .filter(raw__suid_id=_suid_id)
         .order_by('-created_at')
         .first()
     )
-    # TODO: when osfmap formatter is solid, store as formatted record instead
     # _record = db.FormattedMetadataRecord.objects.get_or_create_formatted_record(
     #     suid_id=_suid_id,
     #     record_format='osfmap_jsonld',

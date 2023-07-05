@@ -4,12 +4,11 @@ import re
 
 import gather
 
-from share.schema.osfmap import OSFMAP
 from share.schema import ShareV2Schema
 from share.util import IDObfuscator
-from share.util.rdfutil import SHAREv2
 from share import models as share_db
-from trove.vocab import DCTERMS, FOAF, RDF, DCAT
+from trove.vocab import DCTERMS, FOAF, RDF, DCAT, SHAREv2
+from trove.vocab.osfmap import OSFMAP
 
 from ._base import IndexcardDeriver
 

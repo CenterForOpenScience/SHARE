@@ -108,7 +108,6 @@ setup(
         'share.metadata_formats': [
             'sharev2_elastic = share.metadata_formats.sharev2_elastic:ShareV2ElasticFormatter',
             'oai_dc = share.metadata_formats.oai_dc:OaiDcFormatter',
-            # 'osfmap_jsonld = share.metadata_formats.osfmap_jsonld:OsfmapJsonldFormatter',
         ],
     }
 )
