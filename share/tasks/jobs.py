@@ -290,12 +290,12 @@ class IngestJobConsumer(JobConsumer):
         # )
 
         # TODO: reconsider
-        _index_messenger = (
-            IndexMessenger(celery_app=self.task.app)
+        _index_messenger = IndexMessenger(celery_app=(
+            self.task.app
             if self.task
             else None
-        )
-        _index_messenger.send_message(MessageType.INDEX_SUID, [job.suid_id], urgent=urgent)
+        ))
+        _index_messenger.send_message(MessageType.INDEX_SUID, job.suid_id, urgent=urgent)
 
     def _legacy_ingest(self, job, superfluous, most_recent_raw, metadata_formats):
         datum = None

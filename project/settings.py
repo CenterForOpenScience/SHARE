@@ -432,14 +432,16 @@ CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 
 URGENT_TASK_QUEUES = {
     'share.tasks.ingest': 'ingest.urgent',
+    'trove.digestive_tract.task__extract_and_derive': 'digestive_tract.urgent',
 }
 
 
 def route_urgent_task(name, args, kwargs, options, task=None, **kw):
     """Allow routing urgent tasks to a special queue, according to URGENT_TASK_QUEUES
 
-    e.g. task.apply_async(args, kwargs, urgent=True)
+    e.g. task.apply_async(args, {**kwargs, urgent=True})
     """
+    # TODO: consider using routing_key instead?
     if name in URGENT_TASK_QUEUES and kwargs.get('urgent'):
         return {'queue': URGENT_TASK_QUEUES[name]}
 
@@ -449,6 +451,7 @@ CELERY_TASK_ROUTES = [
     {
         'share.tasks.harvest': {'queue': 'harvest'},
         'share.tasks.ingest': {'queue': 'ingest'},
+        'trove.digestive_tract.*': {'queue': 'digestive_tract'},
     },
 ]
 CELERY_TASK_QUEUES = {
@@ -457,6 +460,8 @@ CELERY_TASK_QUEUES = {
     'harvest': {},
     'ingest': {},
     'ingest.urgent': {},
+    'digestive_tract': {},
+    'digestive_tract.urgent': {},
 }
 
 

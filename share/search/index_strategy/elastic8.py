@@ -53,29 +53,24 @@ class Elastic8IndexStrategy(IndexStrategy):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[dict]:
+    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[tuple[int, dict]]:
+        # yield (message_target_id, elastic_action) pairs
         raise NotImplementedError
 
     ###
     # helper methods for subclasses to use (or override)
 
-    def get_doc_id(self, message_target_id):
-        return str(message_target_id)
-
-    def get_message_target_id(self, doc_id):
-        return int(doc_id)
-
-    def build_index_action(self, target_id, source_doc):
+    def build_index_action(self, doc_id, doc_source):
         return {
             '_op_type': 'index',
-            '_id': self.get_doc_id(target_id),
-            '_source': source_doc,
+            '_id': doc_id,
+            '_source': doc_source,
         }
 
-    def build_delete_action(self, target_id):
+    def build_delete_action(self, doc_id):
         return {
             '_op_type': 'delete',
-            '_id': self.get_doc_id(target_id),
+            '_id': doc_id,
         }
 
     ###
@@ -117,27 +112,25 @@ class Elastic8IndexStrategy(IndexStrategy):
             raise_on_error=False,
             max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
-        for (ok, response) in bulk_stream:
-            (op_type, response_body) = next(iter(response.items()))
-            is_done = ok or (
-                op_type == 'delete'
-                and response_body.get('status') == 404
-            )
-            message_target_id = self.get_message_target_id(response_body['_id'])
-            done_counter[message_target_id] += 1
-            if done_counter[message_target_id] >= len(indexnames):
+        for (_ok, _response) in bulk_stream:
+            (_op_type, _response_body) = next(iter(_response.items()))
+            _status = _response_body.get('status')
+            _docid = _response_body['_id']
+            _is_done = _ok or (_op_type == 'delete' and _status == 404)
+            _message_target_id = self.__targetid_by_docid[_docid]
+            done_counter[_message_target_id] += 1
+            if done_counter[_message_target_id] >= len(indexnames):
+                del self.__targetid_by_docid[_docid]
                 yield messages.IndexMessageResponse(
-                    is_done=is_done,
-                    index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                    status_code=response_body.get('status'),
+                    is_done=_is_done,
+                    index_message=messages.IndexMessage(messages_chunk.message_type, _message_target_id),
+                    status_code=_response_body.get('status'),
                     error_text=(
                         None
-                        if ok
-                        else str(response_body)
+                        if _ok
+                        else str(_response_body)
                     )
                 )
-            else:
-                logger.critical(f'not acking -- {message_target_id=} {indexnames=} {response_body=}')
 
     # abstract method from IndexStrategy
     def pls_make_default_for_searching(self, specific_index: 'SpecificIndex'):
@@ -167,11 +160,12 @@ class Elastic8IndexStrategy(IndexStrategy):
         return f'{self.indexname_prefix}live'
 
     def _elastic_actions_with_index(self, messages_chunk, indexnames):
-        for elastic_action in self.build_elastic_actions(messages_chunk):
-            for indexname in indexnames:
+        for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
+            self.__targetid_by_docid[_elastic_action['_id']] = _message_target_id
+            for _indexname in indexnames:
                 yield {
-                    '_index': indexname,
-                    **elastic_action,
+                    **_elastic_action,
+                    '_index': _indexname,
                 }
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:

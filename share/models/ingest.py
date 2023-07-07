@@ -10,6 +10,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.db import connection
 from django.db import connections
 from django.db import models
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.deconstruct import deconstructible
@@ -375,14 +376,14 @@ class RawDatumManager(FuzzyCountManager):
             _raw.save(update_fields=('mediatype', 'datestamp'))
         return _raw
 
-    def latest_by_suid_ids(self, suid_ids) -> models.QuerySet:
+    def latest_by_suid_filter(self, suid_filter) -> models.QuerySet:
         return self.filter(id__in=(
             SourceUniqueIdentifier.objects
-            .filter(id__in=suid_ids)
+            .filter(suid_filter)
             .annotate(latest_rawdatum_id=models.Subquery(
                 RawDatum.objects
                 .filter(suid_id=models.OuterRef('id'))
-                .order_by(models.Coalesce('datestamp', 'date_created').desc(nulls_last=True))
+                .order_by(Coalesce('datestamp', 'date_created').desc(nulls_last=True))
                 .values('id')
                 [:1]
             ))

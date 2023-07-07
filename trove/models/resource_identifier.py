@@ -71,7 +71,7 @@ def validate_sufficiently_unique_iri(suffuniq_iri: str):
         raise ValidationError('need more iri beyond a scheme')
 
 
-class PersistentIriManager(models.Manager):
+class ResourceIdentifierManager(models.Manager):
     def queryset_for_iri(self, iri: str):
         return self.queryset_for_iris((iri,))
 
@@ -83,37 +83,37 @@ class PersistentIriManager(models.Manager):
             _suffuniq_iris.add(_suffuniq_iri)
         return self.filter(sufficiently_unique_iri__in=_suffuniq_iris)
 
-    def get_for_iri(self, iri: str) -> 'PersistentIri':
-        return self.queryset_for_iri(iri).get()  # may raise PersistentIri.DoesNotExist
+    def get_for_iri(self, iri: str) -> 'ResourceIdentifier':
+        return self.queryset_for_iri(iri).get()  # may raise ResourceIdentifier.DoesNotExist
 
-    def get_or_create_for_iri(self, iri: str) -> 'PersistentIri':
+    def get_or_create_for_iri(self, iri: str) -> 'ResourceIdentifier':
         # may raise if invalid
         (_suffuniq_iri, _scheme) = get_sufficiently_unique_iri_and_scheme(iri)
-        (_piri, _created) = self.get_or_create(
+        (_identifier, _created) = self.get_or_create(
             sufficiently_unique_iri=_suffuniq_iri,
             defaults={'scheme_list': [_scheme]},
         )
-        if _scheme not in _piri.scheme_list:
-            _piri.scheme_list.append(_scheme)
-            _piri.save()
-        return _piri
+        if _scheme not in _identifier.scheme_list:
+            _identifier.scheme_list.append(_scheme)
+            _identifier.save()
+        return _identifier
 
-    def save_equivalent_piri_set(
+    def save_equivalent_identifier_set(
         self,
         tripledict: gather.RdfTripleDictionary,
         focus_iri: str,
-    ) -> list['PersistentIri']:
-        _piri_set = [self.get_or_create_for_iri(focus_iri)]
-        _piri_set.extend(
+    ) -> list['ResourceIdentifier']:
+        _identifier_set = [self.get_or_create_for_iri(focus_iri)]
+        _identifier_set.extend(
             self.get_or_create_for_iri(_sameas_iri)
             for _sameas_iri in tripledict[focus_iri].get(gather.OWL.sameAs, ())
             if _sameas_iri != focus_iri
         )
-        return _piri_set
+        return _identifier_set
 
 
-class PersistentIri(models.Model):
-    objects = PersistentIriManager()
+class ResourceIdentifier(models.Model):
+    objects = ResourceIdentifierManager()
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -163,7 +163,7 @@ class PersistentIri(models.Model):
 
     __str__ = __repr__
 
-    def build_iri(self) -> str:
+    def as_iri(self) -> str:
         _suffuniq_iri = self.sufficiently_unique_iri
         return (
             ''.join((self.choose_a_scheme(), _suffuniq_iri))
@@ -192,13 +192,13 @@ class PersistentIri(models.Model):
         return (self.sufficiently_unique_iri == _suffuniq_iri)
 
     def find_equivalent_iri(self, tripledict: gather.RdfTripleDictionary) -> str:
-        _piri_iri = self.build_iri()
-        if _piri_iri in tripledict:
-            return _piri_iri
+        _identifier_iri = self.as_iri()
+        if _identifier_iri in tripledict:
+            return _identifier_iri
         for _iri, _twopledict in tripledict.items():
             _sameas_set = _twopledict.get(gather.OWL.sameAs, set())
             _is_equivalent = (
-                _piri_iri in _sameas_set
+                _identifier_iri in _sameas_set
                 or self.equivalent_to_iri(_iri)
                 or any(
                     self.equivalent_to_iri(_sameas_iri)
@@ -207,4 +207,4 @@ class PersistentIri(models.Model):
             )
             if _is_equivalent:
                 return _iri
-        raise ValueError(f'could not find "{_piri_iri}" or equivalent in {set(tripledict.keys())}')
+        raise ValueError(f'could not find "{_identifier_iri}" or equivalent in {set(tripledict.keys())}')

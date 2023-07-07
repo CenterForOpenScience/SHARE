@@ -12,7 +12,7 @@ class SourceUniqueIdentifier(models.Model):
     '''
     identifier = models.TextField()  # no restrictions on identifier format
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
-    resource_piri = models.ForeignKey('trove.PersistentIri', null=True, on_delete=models.PROTECT, related_name='synonymous_suid_set')
+    resource_identifier = models.ForeignKey('trove.ResourceIdentifier', null=True, on_delete=models.PROTECT, related_name='suid_set')
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
@@ -23,9 +23,17 @@ class SourceUniqueIdentifier(models.Model):
     def most_recent_raw_datum(self):
         """fetch the most recent RawDatum for this suid
         """
-        return self.raw_data.order_by(
-            Coalesce('datestamp', 'date_created').desc(nulls_last=True)
-        ).first()
+        return self._most_recent_raw_datum_queryset().first()
+
+    def most_recent_raw_datum_id(self):
+        return self._most_recent_raw_datum_queryset().values_list('id', flat=True).first()
+
+    def _most_recent_raw_datum_queryset(self):
+        return (
+            self.raw_data
+            .order_by(Coalesce('datestamp', 'date_created').desc(nulls_last=True))
+            [:1]
+        )
 
     def get_date_first_seen(self) -> Optional[datetime.datetime]:
         """when the first RawDatum for this suid was added

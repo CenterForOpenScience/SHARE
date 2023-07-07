@@ -253,7 +253,6 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 @linked_fk('source_config')
 @linked_fk('ingest_job')  # technically not fk but still works
-@linked_fk('resource_piri')
 @linked_many('formattedmetadatarecord_set')
 @linked_many('raw_data')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):

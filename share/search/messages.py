@@ -101,6 +101,7 @@ class DaemonMessage(abc.ABC):
     def compose_however(message_type: typing.Union[int, MessageType], target_id: int) -> dict:
         '''pass-thru to PreferedDaemonMessageSubclass.compose
         '''
+        assert isinstance(target_id, int)
         return V3Message.compose(message_type, target_id)
 
     @classmethod

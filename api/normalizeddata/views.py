@@ -85,17 +85,16 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             suid = guess_osf_guid(MutableGraph.from_jsonld(data))
             if not suid:
                 raise ValidationError("'suid' is a required attribute")
-        _ingest_job = digestive_tract.swallow(
+        digestive_tract.swallow(
             from_user=request.user,
             record=json.dumps(data, sort_keys=True),
             record_identifier=suid,
             record_mediatype=None,  # trigger legacy-sharev2 ingestion
             resource_iri=None,  # only valid for legacy-sharev2 ingestion
+            urgent=True,
         )
         # minimal back-compat
         return Response({
             'type': 'NormalizedData',
-            'attributes': {
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(_ingest_job)])),
-            }
+            'attributes': {}
         }, status=status.HTTP_202_ACCEPTED)

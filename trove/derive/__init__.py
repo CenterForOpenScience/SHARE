@@ -13,3 +13,13 @@ DERIVER_SET = (
     # property_label?
     # osfmap_jsonld_minimal?
 )
+
+
+def get_deriver_classes(deriver_iri_filter=None):
+    if deriver_iri_filter is None:
+        return DERIVER_SET
+    return [
+        _deriver_class
+        for _deriver_class in DERIVER_SET
+        if _deriver_class.deriver_iri() in deriver_iri_filter
+    ]

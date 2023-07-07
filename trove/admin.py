@@ -2,13 +2,13 @@ from django.contrib import admin
 
 from share.admin import admin_site
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many
-from trove.models import PersistentIri, RdfIndexcard, DerivedIndexcard
+from trove.models import ResourceIdentifier, RdfIndexcard, DerivedIndexcard
 
 
-@admin.register(PersistentIri, site=admin_site)
-@linked_many('synonymous_suid_set')
+@admin.register(ResourceIdentifier, site=admin_site)
+@linked_many('suid_set')
 @linked_many('rdf_indexcard_set')
-class PersistentIriAdmin(admin.ModelAdmin):
+class ResourceIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
@@ -21,8 +21,8 @@ class PersistentIriAdmin(admin.ModelAdmin):
 
 @admin.register(RdfIndexcard, site=admin_site)
 @linked_fk('from_raw_datum')
-@linked_many('focus_piri_set')
-@linked_many('focustype_piri_set')
+@linked_many('focus_identifier_set')
+@linked_many('focustype_identifier_set')
 class RdfIndexcardAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
@@ -36,12 +36,12 @@ class RdfIndexcardAdmin(admin.ModelAdmin):
 
 @admin.register(DerivedIndexcard, site=admin_site)
 @linked_fk('upriver_card')
-@linked_fk('deriver_piri')
+@linked_fk('deriver_identifier')
 class DerivedIndexcardAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
     )
     paginator = TimeLimitedPaginator
-    list_display = ('upriver_card', 'deriver_piri',)
+    list_display = ('upriver_card', 'deriver_identifier',)
     show_full_result_count = False

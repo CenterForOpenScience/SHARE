@@ -17,18 +17,18 @@ class BrowseIriView(TemplateView):
         _context = super().get_context_data(**kwargs)
         try:
             # TODO: support some prefixes for convenience
-            _piri = trove_db.PersistentIri.objects.get_for_iri(kwargs['iri'])
-        except trove_db.PersistentIri.DoesNotExist:
+            _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(kwargs['iri'])
+        except trove_db.ResourceIdentifier.DoesNotExist:
             raise http.Http404
         _context['rdf_indexcard_list'] = [
-            _IndexcardContextBuilder(_indexcard, labeler=osfmap_labeler).build(_piri)
-            for _indexcard in self._get_indexcards(_piri)
+            _IndexcardContextBuilder(_indexcard, labeler=osfmap_labeler).build(_identifier)
+            for _indexcard in self._get_indexcards(_identifier)
         ]
         _context['random_ratio'] = random.random()
         return _context
 
-    def _get_indexcards(self, piri: trove_db.PersistentIri):
-        return trove_db.RdfIndexcard.objects.filter(focus_piri_set=piri)
+    def _get_indexcards(self, identifier: trove_db.ResourceIdentifier):
+        return trove_db.RdfIndexcard.objects.filter(focus_identifier_set=identifier)
 
 
 class _IndexcardContextBuilder:
@@ -37,8 +37,8 @@ class _IndexcardContextBuilder:
         self._tripledict = indexcard.as_rdf_tripledict()
         self._visiting = set()
 
-    def build(self, piri: trove_db.PersistentIri) -> dict:
-        _iri = piri.find_equivalent_iri(self._tripledict)
+    def build(self, identifier: trove_db.ResourceIdentifier) -> dict:
+        _iri = identifier.find_equivalent_iri(self._tripledict)
         self._visiting.add(_iri)
         _indexcard_context = {
             'focus': self._iri_context(_iri),

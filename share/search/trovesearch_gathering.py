@@ -365,10 +365,10 @@ def gather_valuesearch(focus, *, specific_index, search_params):
     focustype_iris={TROVE.Card},
 )
 def gather_card(focus, *, specific_index, search_params):
-    _focus_iris_qs = trove_db.PersistentIri.objects.queryset_for_iris(focus.iris)
+    _focus_iris_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _osfmap_indexcard = (
         trove_db.DerivedIndexcard
-        .filter(upriver_card__focus_piri_set=_focus_iris_qs)
+        .filter(upriver_card__focus_identifier_set=_focus_iris_qs)
     )
     # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)

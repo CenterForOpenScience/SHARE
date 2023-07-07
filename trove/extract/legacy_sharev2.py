@@ -17,6 +17,8 @@ from ._base import BaseRdfExtractor
 
 
 class LegacySharev2Extractor(BaseRdfExtractor):
+    extracted_focus_iri: typing.Optional[str]  # side-effected
+
     def extract_rdf(self, input_document):
         _transformer = self.source_config.get_transformer()
         _sharev2graph = _transformer.transform(input_document)
@@ -25,6 +27,7 @@ class LegacySharev2Extractor(BaseRdfExtractor):
         _central_focus = _focus_for_mnode(
             _sharev2graph.get_central_node(guess=True),
         )
+        self.extracted_focus_iri = _choose_iri(_central_focus.iris)
         _gathering = osfmap_from_normd.new_gathering({
             'source_config': self.source_config,
             'mnode': None,  # provided by focus
@@ -143,6 +146,10 @@ def _iris_for_mnode(mnode: MutableNode) -> typing.Iterable[str]:
             yield _identifier['uri']
     else:
         yield mnode.id
+
+
+def _choose_iri(iris):
+    return sorted(iris, key=len)[0]
 
 
 def _focus_for_mnode(mnode: MutableNode):

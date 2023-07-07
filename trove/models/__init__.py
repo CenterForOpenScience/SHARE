@@ -1,3 +1,3 @@
-__all__ = ('RdfIndexcard', 'DerivedIndexcard', 'PersistentIri')
+__all__ = ('RdfIndexcard', 'DerivedIndexcard', 'ResourceIdentifier')
 from .indexcard import RdfIndexcard, DerivedIndexcard
-from .persistent_iri import PersistentIri
+from .resource_identifier import ResourceIdentifier

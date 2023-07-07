@@ -1,4 +1,5 @@
 import contextlib
+import logging
 
 from django.db.models import F
 import gather
@@ -19,6 +20,9 @@ from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 
 
+logger = logging.getLogger(__name__)
+
+
 PROPERTYPATH_DELIMITER = '||'
 
 
@@ -28,6 +32,10 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         salt='TroveIrisIndexStrategy',
         hexdigest='6ab4a7e1b060aedc2f218c6800f16886da1364c5768d881d1337cd3ee8af5351',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__
 
     @property
     def supported_message_types(self):
@@ -65,7 +73,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                         'property_path': {
                             'type': 'keyword',
                         },
-                        'iri_value_set': {
+                        'iri_value': {
                             'type': 'keyword',
                         },
                     },
@@ -90,7 +98,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                         },
                     },
                 },
-            }
+            },
         }
 
     def _build_sourcedoc(self, indexcard):
@@ -104,12 +112,12 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                 _text_propertypath_values.setdefault(_property_path, set()).add(_obj)
         return {
             'focus_iri': [
-                _piri.as_iri()
-                for _piri in indexcard.focus_piri_set.all()
+                _identifier.as_iri()
+                for _identifier in indexcard.focus_identifier_set.all()
             ],
             'focustype_iri': [
-                _piri.as_iri()
-                for _piri in indexcard.focustype_piri_set.all()
+                _identifier.as_iri()
+                for _identifier in indexcard.focustype_identifier_set.all()
             ],
             'iri_property_value': [
                 {
@@ -132,16 +140,24 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _indexcard_qs = (
             trove_db.RdfIndexcard.objects
-            .filter(from_raw_datum__suid_id__in=messages_chunk.target_ids_chunk)
+            .filter(id__in=messages_chunk.target_ids_chunk)
             .annotate(_suid_id=F('from_raw_datum__suid_id'))
+            .order_by('created')
         )
-        _remaining_suid_ids = set(messages_chunk.target_ids_chunk)
+        _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard in _indexcard_qs:
-            _remaining_suid_ids.pop(_indexcard._suid_id)
-            yield self.build_index_action(_indexcard._suid_id, self._build_sourcedoc(_indexcard))
-        # delete any that don't have the expected card
-        for _leftover_suid_id in _remaining_suid_ids:
-            yield self.build_delete_action(_leftover_suid_id)
+            _remaining_indexcard_ids.discard(_indexcard.id)
+            _index_action = self.build_index_action(
+                self._get_doc_id(_indexcard),
+                self._build_sourcedoc(_indexcard),
+            )
+            yield _indexcard.id, _index_action
+        # delete any that don't have any of the expected card
+        for _leftover_indexcard_id in _remaining_indexcard_ids:
+            yield _leftover_indexcard_id, self.build_delete_action(self._get_doc_id()
+
+    def _get_doc_id(self, indexcard):
+        return str(message_target_id)
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
@@ -186,7 +202,7 @@ class _PropertyPathWalker:
     def _pathstep(self, predicate_iri):
         self._path_so_far.append(predicate_iri)
         yield _property_path_as_keyword(self._path_so_far)
-        self._path_so_far.pop(predicate_iri)
+        self._path_so_far.pop()
 
     @contextlib.contextmanager
     def _visit(self, focus_obj):

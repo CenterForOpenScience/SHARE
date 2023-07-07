@@ -31,7 +31,7 @@ from share.search.search_response import (
 from share.search.trovesearch_gathering import TROVE, card_iri_for_suid
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
-from trove.models import DerivedIndexcard, PersistentIri
+from trove.models import DerivedIndexcard, ResourceIdentifier
 from trove.vocab import SHAREv2, DCTERMS
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP
 
@@ -176,31 +176,27 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        suid_ids = set(messages_chunk.target_ids_chunk)
-        for _suid_id, _serialized_doc in self._load_docs(suid_ids):
-            suid_ids.discard(_suid_id)
+        _suid_ids = set(messages_chunk.target_ids_chunk)
+        for _suid_id, _serialized_doc in self._load_docs(_suid_ids):
+            _doc_id = self._get_doc_id(_suid_id)
+            _suid_ids.discard(_suid_id)
             _source_doc = json.loads(_serialized_doc)
             if _source_doc.pop('is_deleted', False):
-                yield self.build_delete_action(_suid_id)
+                yield _suid_id, self.build_delete_action(_doc_id)
             else:
-                yield self.build_index_action(_suid_id, _source_doc)
+                yield _suid_id, self.build_index_action(_doc_id, _source_doc)
         # delete any that don't have the expected card
-        for _leftover_suid_id in suid_ids:
-            yield self.build_delete_action(_leftover_suid_id)
+        for _leftover_suid_id in _suid_ids:
+            yield _leftover_suid_id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
 
-    # override Elastic8IndexStrategy
-    def get_doc_id(self, message_target_id):
-        return IDObfuscator.encode_id(message_target_id, SourceUniqueIdentifier)
-
-    # override Elastic8IndexStrategy
-    def get_message_target_id(self, doc_id):
-        return IDObfuscator.decode_id(doc_id)
+    def _get_doc_id(self, suid_id: int):
+        return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
 
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
         _card_qs = (
             DerivedIndexcard.objects
             .filter(suid_id__in=suid_ids)
-            .filter(deriver_piri__in=PersistentIri.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+            .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
         )
         if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
             for _card in _card_qs:
