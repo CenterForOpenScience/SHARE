@@ -126,6 +126,9 @@ class SearchFilter:
         BEFORE = 'before'
         AFTER = 'after'
 
+        def is_date_operator(self):
+            return self in (self.BEFORE, self.AFTER)
+
     filter_family: str
     property_path: tuple[str]
     value_set: frozenset[str]
@@ -160,15 +163,23 @@ class SearchFilter:
                 raise ValueError(f'unrecognized search-filter operator "{_operator}"')
         _value_list = []
         for _value in split_queryparam_value(param_value):
-            try:
-                _iri = osfmap_labeler.iri_for_label(_value)
-            except KeyError:
-                _value_list.append(_value)  # assume iri already
+            if _operator.is_date_operator():
+                _value_list.append(_value)  # TODO: vali-date
             else:
-                _value_list.append(_iri)
+                try:
+                    _iri = osfmap_labeler.iri_for_label(_value)
+                except KeyError:
+                    if ':' not in _value:
+                        raise ValueError(_value)
+                    _value_list.append(_value)  # assume iri already
+                else:
+                    _value_list.append(_iri)
         return cls(
             filter_family=param_name.family,
-            property_path=tuple(split_queryparam_value(_serialized_path)),
+            property_path=tuple(
+                osfmap_labeler.iri_for_label(_pathstep)
+                for _pathstep in split_queryparam_value(_serialized_path)
+            ),
             value_set=frozenset(_value_list),
             operator=_operator,
         )

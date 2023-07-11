@@ -1,6 +1,6 @@
 <article class='Browse__indexcard VisibleNest'>
     <header>
-        <a rel='bookmark' href='/trove/browse///{{indexcard_context.focus.iri}}'><dfn id='{{indexcard_context.focus.iri}}'>{{indexcard_context.focus.label}}</dfn></a>
+        <a rel='bookmark' href='/trove/browse///{{indexcard_context.focus.iri|urlencode}}'><dfn id='{{indexcard_context.focus.iri}}'>{{indexcard_context.focus.label}}</dfn></a>
         <!--a href='#rdf:type'>is-a</a>
         <ul class='Browse__value_set'>
             {% for focus_type in record.focus_type_set %}

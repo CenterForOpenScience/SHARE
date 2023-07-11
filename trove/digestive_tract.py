@@ -114,9 +114,9 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
                 _term_tripledict,
             )
             _tripledicts_by_focus_iri[_iri] = _term_tripledict
-    return _save_indexcards(
+    return trove_db.Indexcard.objects.save_indexcards_from_tripledicts(
         from_raw_datum=raw,
-        tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
+        rdf_tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
     )
 
 
@@ -145,38 +145,6 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
                     'derived_checksum_iri': _derived_checksum_iri,
                 },
             )
-
-
-@transaction.atomic
-def _save_indexcards(
-    from_raw_datum: share_db.RawDatum,
-    tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
-    *,
-    overwrite=False,  # TODO: use this
-) -> list[trove_db.Indexcard]:
-    from_raw_datum.no_output = (not tripledicts_by_focus_iri)
-    from_raw_datum.save(update_fields=['no_output'])
-    _indexcards = []
-    _seen_focus_identifier_set = set()
-    for _focus_iri, _tripledict in tripledicts_by_focus_iri.items():
-        _indexcard = trove_db.Indexcard.objects.save_indexcard(
-            from_raw_datum=from_raw_datum,
-            rdf_tripledict=_tripledict,
-            focus_iri=_focus_iri,
-        )
-        if not _seen_focus_identifier_set.isdisjoint(_indexcard.focus_identifier_set.all()):
-            _duplicate_focus_iris = _seen_focus_identifier_set.intersection(
-                _indexcard.focus_identifier_set.all(),
-            )
-            raise DigestiveError(f'duplicate focus iris: {_duplicate_focus_iris}')
-        _indexcards.append(_indexcard)
-    (  # delete the latest rdf (leaving archived rdf) for cards on this suid not present
-        trove_db.LatestIndexcardRdf.objects
-        .filter(indexcard__source_record_suid=from_raw_datum.suid)
-        .exclude(indexcard__in=_indexcards)
-        .delete()
-    )
-    return _indexcards
 
 
 ### BEGIN celery tasks

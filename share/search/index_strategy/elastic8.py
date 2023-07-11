@@ -121,7 +121,6 @@ class Elastic8IndexStrategy(IndexStrategy):
             _message_target_id = _targetid_by_docid[_docid]
             done_counter[_message_target_id] += 1
             if done_counter[_message_target_id] >= len(indexnames):
-                del _targetid_by_docid[_docid]
                 yield messages.IndexMessageResponse(
                     is_done=_is_done,
                     index_message=messages.IndexMessage(messages_chunk.message_type, _message_target_id),
@@ -235,9 +234,9 @@ class Elastic8IndexStrategy(IndexStrategy):
                 index_info['settings']['index']['creation_date']
             )
             doc_count = (
-                self.index_strategy.es8_client.indices
-                .stats(index=self.indexname, metric='docs')
-                ['indices'][self.indexname]['primaries']['docs']['count']
+                self.index_strategy.es8_client
+                .search(index=self.indexname, size=0, track_total_hits=True)
+                ['hits']['total']['value']
             )
             return IndexStatus(
                 index_strategy_name=self.index_strategy.name,

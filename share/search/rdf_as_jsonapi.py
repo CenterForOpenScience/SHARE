@@ -31,9 +31,10 @@ class RdfAsJsonapi:
         self,
         data: gather.RdfTripleDictionary,
         vocabulary: gather.RdfTripleDictionary,
+        labeler: IriLabeler,
     ):
         self._vocabulary = vocabulary
-        self._labeler = IriLabeler(vocabulary)
+        self._labeler = labeler
         self._tripledict = data
         self._as_jsonld = RdfAsJsonld(vocabulary, self._labeler)
         self.__twopledict_cache = {}
@@ -93,19 +94,8 @@ class RdfAsJsonapi:
                     self._identifier_object(_obj)
                     for _obj in _obj_set
                 ]
-            _relationships[self._membername_for_iri(_iri)] = {'data': _data}
+            _relationships[self._labeler.get_label_or_iri(_iri)] = {'data': _data}
         return _relationships
-
-    def _membername_for_iri(self, iri: str):
-        _twopledict = self._vocabulary.get(iri, {})
-        try:
-            return next(
-                _text.unicode_text
-                for _text in _twopledict.get(gather.RDFS.label, ())
-                if JSONAPI_MEMBERNAME in _text.language_iris
-            )
-        except StopIteration:
-            raise ValueError(f'could not find membername for <{iri}>')
 
     def _resource_twopledict(self, resource_key: _ResourceKey):
         try:
@@ -149,7 +139,7 @@ class RdfAsJsonapi:
                 raise ValueError(f'cannot find rdf:type for {resource_key}')
             for _type_iri in _type_iris:
                 try:
-                    _membername = self._membername_for_iri(_type_iri)
+                    _membername = self._labeler.get_label_or_iri(_type_iri)
                     break
                 except ValueError:
                     continue

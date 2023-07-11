@@ -16,6 +16,7 @@ class BrowseIriView(TemplateView):
     def get_context_data(self, **kwargs):
         _context = super().get_context_data(**kwargs)
         try:
+            # TODO: iri query param (stop with the `///`)
             # TODO: support some prefixes for convenience
             _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(kwargs['iri'])
         except trove_db.ResourceIdentifier.DoesNotExist:
@@ -28,7 +29,7 @@ class BrowseIriView(TemplateView):
         return _context
 
     def _get_indexcard_rdf_set(self, identifier: trove_db.ResourceIdentifier):
-        return trove_db.LatestIndexcardRdf.objects.filter(from_indexcard__focus_identifier_set=identifier)
+        return trove_db.LatestIndexcardRdf.objects.filter(indexcard__focus_identifier_set=identifier)
 
 
 class _IndexcardContextBuilder:

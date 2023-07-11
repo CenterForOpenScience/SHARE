@@ -26,7 +26,7 @@ class StaticVocab:
     turtle_focus_iri: str  # may be different from IriNamespace
 
     def turtle_filepath(self):
-        return pathlib.Path(__file__, self.turtle_filename)
+        return pathlib.Path(__file__).parent / self.turtle_filename
 
     def turtle(self):
         with open(self.turtle_filepath()) as _vocab_file:

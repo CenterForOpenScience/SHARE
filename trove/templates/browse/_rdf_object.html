@@ -1,5 +1,5 @@
 {% if rdf_object.iri %}
-    <a href="/trove/browse///{{rdf_object.iri}}">{{rdf_object.label}}</a>
+    <a href="/trove/browse///{{rdf_object.iri|urlencode}}">{{rdf_object.label}}</a>
 {% endif %}
 {% if rdf_object.literal %}
     <q>{{rdf_object.literal.value}}</q>

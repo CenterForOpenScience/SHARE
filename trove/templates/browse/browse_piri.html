@@ -5,7 +5,6 @@
         <link rel='stylesheet' href='{% static "css/browse.css" %}' />
     </head>
     <body class='BrowseWrapper' style='--random-turn: {{random_ratio}}turn;'>
-        <h1>browse</h1>
         {% for indexcard in rdf_indexcard_list %}
             <section class='Browse'>
                 {% include 'browse/_rdf_indexcard.html' with indexcard_context=indexcard only %}

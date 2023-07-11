@@ -426,4 +426,4 @@ OSFMAP_NORMS = GatheringNorms(
     },
 )
 
-osfmap_labeler = IriLabeler(OSFMAP_VOCAB)
+osfmap_labeler = IriLabeler(OSFMAP_VOCAB, label_iri=JSONAPI_MEMBERNAME)

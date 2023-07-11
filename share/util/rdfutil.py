@@ -1,5 +1,3 @@
-import typing
-
 import gather
 
 
@@ -7,11 +5,9 @@ class IriLabeler:
     def __init__(
         self,
         vocabulary: gather.RdfTripleDictionary,
-        language_iris: typing.Iterable[str] = (),
         label_iri: str = gather.RDFS.label,
     ):
         self.vocabulary = vocabulary
-        self.language_iris = frozenset(language_iris)
         self.label_iri = label_iri
 
     def all_iris_by_label(self) -> dict[str, str]:
@@ -67,10 +63,7 @@ class IriLabeler:
             return next(
                 _label.unicode_text
                 for _label in _labelset
-                if (
-                    isinstance(_label, gather.Text)
-                    and self.language_iris.issubset(_label.language_iris)
-                )
+                if isinstance(_label, gather.Text)
             )
         except StopIteration:
             raise ValueError(f'could not find label for iri "{iri}"')

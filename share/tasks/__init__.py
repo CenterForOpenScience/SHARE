@@ -15,6 +15,7 @@ from share.tasks.jobs import HarvestJobConsumer
 from share.tasks.jobs import IngestJobConsumer
 from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
+from trove import models as trove_db
 
 
 logger = logging.getLogger(__name__)
@@ -67,50 +68,43 @@ def ingest(self, only_canonical=None, **kwargs):
     IngestJobConsumer(task=self, only_canonical=only_canonical).consume(**kwargs)
 
 
-@celery.shared_task()
-def schedule_reingest(source_config_pk, pls_extract_again=False, pls_derive_again=False):
-    source_config = db.SourceConfig.objects.get(pk=source_config_pk)
-    assert not source_config.disabled
-    assert not source_config.source.is_deleted
-    # TODO: something nice like IndexBackfill, instead of this
-    from django.core import management
-    management.call_command(
-        'format_metadata_records',
-        source_config=[source_config.label],
-        pls_ensure_ingest_jobs=True,
-        pls_renormalize=pls_renormalize,
-        pls_reformat=pls_reformat,
-    )
-
-
 @celery.shared_task(bind=True)
 def schedule_index_backfill(self, index_backfill_pk):
-    index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
-    index_backfill.pls_note_scheduling_has_begun()
+    _index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
+    _index_backfill.pls_note_scheduling_has_begun()
     try:
-        suid_id_queryset = (
-            db.SourceUniqueIdentifier
-            .objects
-            .exclude(source_config__disabled=True)
-            .exclude(source_config__source__is_deleted=True)
-            .values_list('id', flat=True)
-            .distinct()
-        )
-        chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
-        IndexMessenger(
-            celery_app=self.app,
-            index_strategys=[IndexStrategy.get_by_name(index_backfill.index_strategy_name)],
-        ).stream_message_chunks(
-            MessageType.BACKFILL_SUID,
-            suid_id_queryset.iterator(chunk_size=chunk_size),
-            chunk_size=chunk_size,
+        _index_strategy = IndexStrategy.get_by_name(_index_backfill.index_strategy_name)
+        if MessageType.BACKFILL_INDEXCARD in _index_strategy.supported_message_types:
+            _messagetype = MessageType.BACKFILL_INDEXCARD
+            _id_queryset = (
+                trove_db.Indexcard.objects
+                .exclude(source_record_suid__source_config__disabled=True)
+                .exclude(source_record_suid__source_config__source__is_deleted=True)
+                .values_list('id', flat=True)
+                .distinct()
+            )
+        elif MessageType.BACKFILL_SUID in _index_strategy.supported_message_types:
+            _messagetype = MessageType.BACKFILL_SUID
+            _id_queryset = (
+                db.SourceUniqueIdentifier.objects
+                .exclude(source_config__disabled=True)
+                .exclude(source_config__source__is_deleted=True)
+                .values_list('id', flat=True)
+                .distinct()
+            )
+        _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
+        _messenger.stream_message_chunks(
+            _messagetype,
+            _id_queryset.iterator(chunk_size=_chunk_size),
+            chunk_size=_chunk_size,
             urgent=False,
         )
     except Exception as error:
-        index_backfill.pls_mark_error(error)
+        _index_backfill.pls_mark_error(error)
         raise error
     else:
-        index_backfill.pls_note_scheduling_has_finished()
+        _index_backfill.pls_note_scheduling_has_finished()
 
 
 @celery.shared_task(bind=True)

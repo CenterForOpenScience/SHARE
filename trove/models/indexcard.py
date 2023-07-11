@@ -13,7 +13,39 @@ from trove.models.resource_identifier import ResourceIdentifier
 
 class IndexcardManager(models.Manager):
     @transaction.atomic
-    def save_indexcard(
+    def save_indexcards_from_tripledicts(
+        self, *,
+        from_raw_datum: share_db.RawDatum,
+        rdf_tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
+    ) -> list['Indexcard']:
+        from_raw_datum.no_output = (not rdf_tripledicts_by_focus_iri)
+        from_raw_datum.save(update_fields=['no_output'])
+        _indexcards = []
+        _seen_focus_identifier_ids = set()
+        for _focus_iri, _tripledict in rdf_tripledicts_by_focus_iri.items():
+            _indexcard = self.save_indexcard_from_tripledict(
+                from_raw_datum=from_raw_datum,
+                rdf_tripledict=_tripledict,
+                focus_iri=_focus_iri,
+            )
+            _focus_identifier_ids = {_fid.id for _fid in _indexcard.focus_identifier_set.all()}
+            if not _seen_focus_identifier_ids.isdisjoint(_focus_identifier_ids):
+                _duplicates = (
+                    ResourceIdentifier.objects
+                    .filter(id__in=_seen_focus_identifier_ids.intersection(_focus_identifier_ids))
+                )
+                raise DigestiveError(f'duplicate focus iris: {list(_duplicates)}')
+            _indexcards.append(_indexcard)
+        (  # delete the latest rdf (leaving archived rdf) for cards on this suid not present
+            LatestIndexcardRdf.objects
+            .filter(indexcard__source_record_suid=from_raw_datum.suid)
+            .exclude(indexcard__in=_indexcards)
+            .delete()
+        )
+        return _indexcards
+
+    @transaction.atomic
+    def save_indexcard_from_tripledict(
         self, *,
         from_raw_datum: share_db.RawDatum,
         rdf_tripledict: gather.RdfTripleDictionary,
@@ -29,7 +61,12 @@ class IndexcardManager(models.Manager):
             ResourceIdentifier.objects.get_or_create_for_iri(_iri)
             for _iri in rdf_tripledict[focus_iri].get(gather.RDF.type, ())
         ]
-        _indexcard, _ = Indexcard.objects.get_or_create(source_record_suid=from_raw_datum.suid)
+        _indexcard = Indexcard.objects.filter(
+            source_record_suid=from_raw_datum.suid,
+            focus_identifier_set__in=_focus_identifier_set,
+        ).first()
+        if _indexcard is None:
+            _indexcard = Indexcard.objects.create(source_record_suid=from_raw_datum.suid)
         _indexcard.focus_identifier_set.set(_focus_identifier_set)
         _indexcard.focustype_identifier_set.set(_focustype_identifier_set)
         IndexcardRdf.save_indexcard_rdf(

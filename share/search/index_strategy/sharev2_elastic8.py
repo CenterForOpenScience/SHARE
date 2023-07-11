@@ -221,11 +221,9 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             try:
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    body={
-                        **(request_body or {}),
-                        'track_total_hits': True,
-                    },
+                    body=(request_body or {}),
                     params=(request_queryparams or {}),
+                    track_total_hits=True,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
@@ -299,7 +297,7 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _text_evidence = (
                     TextMatchEvidence(
                         property_path=self._propertypath_for_text_field(_fieldname),
-                        matching_highlight=gather.text(_highlight, language_iris=()),
+                        matching_highlight=gather.text(_highlight),  # TODO: language_iri
                         card_iri=_card_iri,
                     )
                     for _fieldname, _highlight_list in _es8_hit.get('highlight', {}).items()

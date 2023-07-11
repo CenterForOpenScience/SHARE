@@ -4,7 +4,6 @@ import typing
 from django.conf import settings
 import gather
 
-from share import models as share_db
 from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
@@ -251,17 +250,17 @@ trovesearch_labeler = IriLabeler(TROVESEARCH_VOCAB, label_iri=JSONAPI_MEMBERNAME
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
 def gather_cardsearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.cardsearchText, gather.text(search_params.cardsearch_text, language_iris=()))
+    yield (TROVE.cardsearchText, gather.text(search_params.cardsearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchText)
 def gather_propertysearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.propertysearchText, gather.text(search_params.propertysearch_text, language_iris=()))
+    yield (TROVE.propertysearchText, gather.text(search_params.propertysearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
 def gather_valuesearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.valuesearchText, gather.text(search_params.valuesearch_text, language_iris=()))
+    yield (TROVE.valuesearchText, gather.text(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchFilter)
@@ -290,6 +289,8 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
 def gather_cardsearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, CardsearchParams)
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
+    yield (TROVE.WOOP, gather.text(json.dumps(_cardsearch_resp), language_iri=gather.RDF.JSON))
+    return
     yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
     for _result in _cardsearch_resp.search_result_page:
         yield (_result.card_iri, gather.RDF.type, TROVE.Card)
@@ -340,7 +341,7 @@ def gather_propertysearch(focus, *, specific_index, search_params):
 def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
-    yield (TROVE.WOOP, gather.text(json.dumps(_valuesearch_resp), language_iris={gather.RDF.JSON}))
+    yield (TROVE.WOOP, gather.text(json.dumps(_valuesearch_resp), language_iri=gather.RDF.JSON))
     return  # TODO
     yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     for _result in _valuesearch_resp.search_result_page:
@@ -367,8 +368,8 @@ def gather_valuesearch(focus, *, specific_index, search_params):
 def gather_card(focus, *, specific_index, search_params):
     _focus_iris_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _osfmap_indexcard = (
-        trove_db.DerivedIndexcard
-        .filter(upriver_card__focus_identifier_set=_focus_iris_qs)
+        trove_db.DerivedIndexcard.objects
+        .filter(upriver_indexcard__focus_identifier_set=_focus_iris_qs)
     )
     # TODO: batch gatherer -- load all records in one query
     _suid_id = suid_id_for_card_focus(focus)
@@ -389,11 +390,11 @@ def gather_card(focus, *, specific_index, search_params):
     for _identifier_obj in _json_metadata.get('identifier', ()):
         yield (
             TROVE.resourceIdentifier,
-            gather.text(_identifier_obj['@value'], language_iris=()),
+            gather.text(_identifier_obj['@value']),
         )
     yield (
         TROVE.resourceMetadata,
-        gather.text(_resource_metadata, language_iris={gather.RDF.JSON})
+        gather.text(_resource_metadata, language_iri=gather.RDF.JSON)
     )
 
 

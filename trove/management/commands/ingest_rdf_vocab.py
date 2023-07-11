@@ -13,7 +13,7 @@ def ingest_vocabs(system_user: ShareUser):
             record=_vocab.turtle(),
             record_identifier=_vocab.turtle_filename,
             record_mediatype='text/turtle',
-            resource_iri=_vocab.turtle_focus_iri,
+            focus_iri=_vocab.turtle_focus_iri,
         )
 
 
