@@ -3,6 +3,7 @@ import json
 import logging
 import typing
 
+from django.db.models import F
 import elasticsearch8
 import gather
 
@@ -195,16 +196,17 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
         _card_qs = (
             DerivedIndexcard.objects
-            .filter(suid_id__in=suid_ids)
+            .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
             .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+            .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
         )
         if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
             for _card in _card_qs:
-                yield (_card.suid_id, _card.card_as_text)
+                yield (_card.suid_id, _card.derived_text)
         else:  # draw from both DerivedIndexcard and FormattedMetadataRecord
             _remaining_suids = set(suid_ids)
             for _card in _card_qs:
-                yield (_card.suid_id, _card.card_as_text)
+                yield (_card.suid_id, _card.derived_text)
                 _remaining_suids.discard(_card.suid_id)
             _record_qs = FormattedMetadataRecord.objects.filter(
                 suid_id__in=_remaining_suids,

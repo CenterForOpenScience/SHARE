@@ -1,7 +1,6 @@
 import contextlib
 import logging
 
-from django.db.models import F
 import gather
 
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
@@ -30,18 +29,14 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIrisIndexStrategy',
-        hexdigest='6ab4a7e1b060aedc2f218c6800f16886da1364c5768d881d1337cd3ee8af5351',
+        hexdigest='34f4820aeae6ccc38c958a5dab5ab5e41aafa32eb950f4870bfa9aeb1b460d93',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__
 
     @property
     def supported_message_types(self):
         return {
-            messages.MessageType.INDEX_SUID,
-            messages.MessageType.BACKFILL_SUID,
+            messages.MessageType.UPDATE_INDEXCARD,
+            messages.MessageType.BACKFILL_INDEXCARD,
         }
 
     def index_settings(self):
@@ -101,11 +96,11 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             },
         }
 
-    def _build_sourcedoc(self, indexcard):
-        _tripledict = indexcard.as_rdf_tripledict()
+    def _build_sourcedoc(self, indexcard_rdf):
+        _tripledict = indexcard_rdf.as_rdf_tripledict()
         _iri_propertypath_values = {}
         _text_propertypath_values = {}
-        for _property_path, _obj in _PropertyPathWalker(_tripledict).from_focus(indexcard.focus_iri):
+        for _property_path, _obj in _PropertyPathWalker(_tripledict).from_focus(indexcard_rdf.focus_iri):
             if isinstance(_obj, str):
                 _iri_propertypath_values.setdefault(_property_path, set()).add(_obj)
             elif isinstance(_obj, gather.Text):
@@ -113,11 +108,11 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         return {
             'focus_iri': [
                 _identifier.as_iri()
-                for _identifier in indexcard.focus_identifier_set.all()
+                for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all()
             ],
             'focustype_iri': [
                 _identifier.as_iri()
-                for _identifier in indexcard.focustype_identifier_set.all()
+                for _identifier in indexcard_rdf.indexcard.focustype_identifier_set.all()
             ],
             'iri_property_value': [
                 {
@@ -138,26 +133,32 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         }
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        _indexcard_qs = (
-            trove_db.RdfIndexcard.objects
-            .filter(id__in=messages_chunk.target_ids_chunk)
-            .annotate(_suid_id=F('from_raw_datum__suid_id'))
-            .order_by('created')
+        _indexcard_rdf_qs = (
+            trove_db.LatestIndexcardRdf.objects
+            .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
+            .select_related('indexcard')
+            .prefetch_related(
+                'indexcard__focus_identifier_set',
+                'indexcard__focustype_identifier_set',
+            )
         )
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
-        for _indexcard in _indexcard_qs:
-            _remaining_indexcard_ids.discard(_indexcard.id)
+        for _indexcard_rdf in _indexcard_rdf_qs:
+            _indexcard_uuid = _indexcard_rdf.indexcard.uuid
+            _remaining_indexcard_ids.discard(_indexcard_uuid)
             _index_action = self.build_index_action(
-                self._get_doc_id(_indexcard),
-                self._build_sourcedoc(_indexcard),
+                _indexcard_uuid,
+                self._build_sourcedoc(_indexcard_rdf),
             )
-            yield _indexcard.id, _index_action
+            yield _indexcard_uuid, _index_action
         # delete any that don't have any of the expected card
-        for _leftover_indexcard_id in _remaining_indexcard_ids:
-            yield _leftover_indexcard_id, self.build_delete_action(self._get_doc_id()
-
-    def _get_doc_id(self, indexcard):
-        return str(message_target_id)
+        _leftovers = (
+            trove_db.Indexcard.objects
+            .filter(id__in=_remaining_indexcard_ids)
+            .values_list('id', 'uuid')
+        )
+        for _indexcard_id, _indexcard_uuid in _leftovers:
+            yield _indexcard_id, self.build_delete_action(_indexcard_uuid)
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:

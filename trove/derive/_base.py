@@ -2,18 +2,18 @@ import abc
 
 import gather
 
-from trove.models import RdfIndexcard
+from trove.models import IndexcardRdf
 
 
 class IndexcardDeriver(abc.ABC):
-    upriver_card: RdfIndexcard
+    upriver_rdf: IndexcardRdf
     focus_iri: str
     tripledict: gather.RdfTripleDictionary
 
-    def __init__(self, upriver_card: RdfIndexcard):
-        self.upriver_card = upriver_card
-        self.focus_iri = upriver_card.focus_iri
-        self.tripledict = upriver_card.as_rdf_tripledict()
+    def __init__(self, upriver_rdf: IndexcardRdf):
+        self.upriver_rdf = upriver_rdf
+        self.focus_iri = upriver_rdf.focus_iri
+        self.tripledict = upriver_rdf.as_rdf_tripledict()
 
     ###
     # for subclasses to implement:

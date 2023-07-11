@@ -21,20 +21,20 @@ class BrowseIriView(TemplateView):
         except trove_db.ResourceIdentifier.DoesNotExist:
             raise http.Http404
         _context['rdf_indexcard_list'] = [
-            _IndexcardContextBuilder(_indexcard, labeler=osfmap_labeler).build(_identifier)
-            for _indexcard in self._get_indexcards(_identifier)
+            _IndexcardContextBuilder(_indexcard_rdf, labeler=osfmap_labeler).build(_identifier)
+            for _indexcard_rdf in self._get_indexcard_rdf_set(_identifier)
         ]
         _context['random_ratio'] = random.random()
         return _context
 
-    def _get_indexcards(self, identifier: trove_db.ResourceIdentifier):
-        return trove_db.RdfIndexcard.objects.filter(focus_identifier_set=identifier)
+    def _get_indexcard_rdf_set(self, identifier: trove_db.ResourceIdentifier):
+        return trove_db.LatestIndexcardRdf.objects.filter(from_indexcard__focus_identifier_set=identifier)
 
 
 class _IndexcardContextBuilder:
-    def __init__(self, indexcard: trove_db.RdfIndexcard, labeler: rdfutil.IriLabeler):
+    def __init__(self, indexcard_rdf: trove_db.IndexcardRdf, labeler: rdfutil.IriLabeler):
         self._labeler = labeler
-        self._tripledict = indexcard.as_rdf_tripledict()
+        self._tripledict = indexcard_rdf.as_rdf_tripledict()
         self._visiting = set()
 
     def build(self, identifier: trove_db.ResourceIdentifier) -> dict:

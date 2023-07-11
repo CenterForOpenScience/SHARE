@@ -63,14 +63,14 @@ class Elastic8IndexStrategy(IndexStrategy):
     def build_index_action(self, doc_id, doc_source):
         return {
             '_op_type': 'index',
-            '_id': doc_id,
+            '_id': str(doc_id),
             '_source': doc_source,
         }
 
     def build_delete_action(self, doc_id):
         return {
             '_op_type': 'delete',
-            '_id': doc_id,
+            '_id': str(doc_id),
         }
 
     ###
@@ -105,10 +105,11 @@ class Elastic8IndexStrategy(IndexStrategy):
             indexnames = [self.current_indexname]
         else:
             indexnames = self._get_indexnames_for_alias(self._alias_for_keeping_live)
+        _targetid_by_docid = {}
         done_counter = collections.Counter()
         bulk_stream = streaming_bulk(
             self.es8_client,
-            self._elastic_actions_with_index(messages_chunk, indexnames),
+            self._elastic_actions_with_index(messages_chunk, indexnames, _targetid_by_docid),
             raise_on_error=False,
             max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
@@ -117,10 +118,10 @@ class Elastic8IndexStrategy(IndexStrategy):
             _status = _response_body.get('status')
             _docid = _response_body['_id']
             _is_done = _ok or (_op_type == 'delete' and _status == 404)
-            _message_target_id = self.__targetid_by_docid[_docid]
+            _message_target_id = _targetid_by_docid[_docid]
             done_counter[_message_target_id] += 1
             if done_counter[_message_target_id] >= len(indexnames):
-                del self.__targetid_by_docid[_docid]
+                del _targetid_by_docid[_docid]
                 yield messages.IndexMessageResponse(
                     is_done=_is_done,
                     index_message=messages.IndexMessage(messages_chunk.message_type, _message_target_id),
@@ -159,9 +160,9 @@ class Elastic8IndexStrategy(IndexStrategy):
     def _alias_for_keeping_live(self):
         return f'{self.indexname_prefix}live'
 
-    def _elastic_actions_with_index(self, messages_chunk, indexnames):
+    def _elastic_actions_with_index(self, messages_chunk, indexnames, targetid_by_docid):
         for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
-            self.__targetid_by_docid[_elastic_action['_id']] = _message_target_id
+            targetid_by_docid[_elastic_action['_id']] = _message_target_id
             for _indexname in indexnames:
                 yield {
                     **_elastic_action,

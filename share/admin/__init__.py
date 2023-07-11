@@ -253,8 +253,10 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 @linked_fk('source_config')
 @linked_fk('ingest_job')  # technically not fk but still works
+@linked_fk('focus_identifier')
 @linked_many('formattedmetadatarecord_set')
 @linked_many('raw_data')
+@linked_many('indexcard_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = TimeLimitedPaginator

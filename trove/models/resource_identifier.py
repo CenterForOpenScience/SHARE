@@ -156,12 +156,10 @@ class ResourceIdentifier(models.Model):
         ]
 
     def __repr__(self):
-        return (
-            f'<{self.__class__.__qualname__}("{self.sufficiently_unique_iri}",'
-            f' scheme_list={self.scheme_list}, id={self.id})'
-        )
+        return f'<{self.__class__.__qualname__}({self.id}, "{self.sufficiently_unique_iri}")'
 
-    __str__ = __repr__
+    def __str__(self):
+        return repr(self)
 
     def as_iri(self) -> str:
         _suffuniq_iri = self.sufficiently_unique_iri

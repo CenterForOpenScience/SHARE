@@ -33,7 +33,7 @@ class RdfIngestView(View):
                 record=request.body.decode(encoding='utf-8'),
                 record_identifier=_record_identifier,
                 record_mediatype=request.content_type,
-                resource_iri=_focus_iri,
+                focus_iri=_focus_iri,
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))

@@ -23,7 +23,4 @@ class OsfmapJsonDeriver(IndexcardDeriver):
 
     # abstract method from IndexcardDeriver
     def derive_card_as_text(self):
-        try:  # maintain doc id in the sharev2 index
-            _suid = self.upriver_card.get_backcompat_sharev2_suid()
-        except share_db.SourceUniqueIdentifier.DoesNotExist:
-            _suid = self.upriver_card.get_suid()
+        raise NotImplementedError

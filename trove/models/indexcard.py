@@ -1,112 +1,77 @@
+import uuid
+
 from django.db import models
-from django.db.models.functions import Coalesce
 from django.db import transaction
+from django.utils.functional import cached_property
 import gather
 
 from share import models as share_db  # TODO: break this dependency
+from share.util.checksum_iri import ChecksumIri
 from trove.exceptions import DigestiveError
 from trove.models.resource_identifier import ResourceIdentifier
 
 
-class RdfIndexcardManager(models.Manager):
+class IndexcardManager(models.Manager):
     @transaction.atomic
-    def set_indexcards_for_raw_datum(
+    def save_indexcard(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
+        rdf_tripledict: gather.RdfTripleDictionary,
+        focus_iri: str,
     ):
-        _prior_indexcards = self.filter(from_raw_datum=from_raw_datum)
-        _prior_indexcards.delete()  # TODO: ponder provenance -- external updates will be in a new RawDatum, so this will only delete on re-ingestion... maybe fine?
-        from_raw_datum.no_output = (not tripledicts_by_focus_iri)
-        from_raw_datum.save(update_fields=['no_output'])
-        _indexcards = []
-        for _focus_iri, _tripledict in tripledicts_by_focus_iri.items():
-            if _focus_iri not in _tripledict:
-                raise DigestiveError(f'expected {_focus_iri} in {set(_tripledict.keys())}')
-            _focus_identifier_set = ResourceIdentifier.objects.save_equivalent_identifier_set(_tripledict, _focus_iri)
-            _focustype_identifier_set = [  # TODO: require non-zero?
-                ResourceIdentifier.objects.get_or_create_for_iri(_iri)
-                for _iri in _tripledict[_focus_iri].get(gather.RDF.type, ())
-            ]
-            _indexcard = self.create(
-                from_raw_datum=from_raw_datum,
-                focus_iri=_focus_iri,
-                rdf_as_turtle=gather.tripledict_as_turtle(_tripledict),
-            )
-            _indexcard.focus_identifier_set.set(_focus_identifier_set)
-            _indexcard.focustype_identifier_set.set(_focustype_identifier_set)
-            _indexcards.append(_indexcard)
-        return _indexcards
+        if focus_iri not in rdf_tripledict:
+            raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
+        _focus_identifier_set = (
+            ResourceIdentifier.objects
+            .save_equivalent_identifier_set(rdf_tripledict, focus_iri)
+        )
+        _focustype_identifier_set = [  # TODO: require non-zero?
+            ResourceIdentifier.objects.get_or_create_for_iri(_iri)
+            for _iri in rdf_tripledict[focus_iri].get(gather.RDF.type, ())
+        ]
+        _indexcard, _ = Indexcard.objects.get_or_create(source_record_suid=from_raw_datum.suid)
+        _indexcard.focus_identifier_set.set(_focus_identifier_set)
+        _indexcard.focustype_identifier_set.set(_focustype_identifier_set)
+        IndexcardRdf.save_indexcard_rdf(
+            indexcard=_indexcard,
+            from_raw_datum=from_raw_datum,
+            rdf_tripledict=rdf_tripledict,
+            focus_iri=focus_iri,
+        )
+        return _indexcard
 
 
-class IndexcardIdentifier(models.Model):
-    objects = RdfIndexcardManager()
-
+class Indexcard(models.Model):
+    objects = IndexcardManager()
     # auto:
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True)  # for public-api id
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
     # required:
-    suid = models.ForeignKey(
+    source_record_suid = models.ForeignKey(
         share_db.SourceUniqueIdentifier,
         on_delete=models.CASCADE,
-        related_name='indexcard_identifier_set',
+        related_name='indexcard_set',
     )
-    resource_identifier = models.ForeignKey(
+
+    # focus_identifier_set should be non-overlapping for a given source_record_suid
+    # (TODO: rework to get that enforceable with db constraints)
+    focus_identifier_set = models.ManyToManyField(
         ResourceIdentifier,
-        on_delete=models.CASCADE,
-        related_name='indexcard_identifier_set',
+        related_name='indexcard_set',
+    )
+    focustype_identifier_set = models.ManyToManyField(
+        ResourceIdentifier,
+        related_name='+',
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=('suid', 'resource_identifier'),
-                name='%(app_label)s_%(class)s_suid_focusidentifier',
-            ),
-        ]
-
-
-class RdfIndexcard(models.Model):
-    objects = RdfIndexcardManager()
-
-    # auto:
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    # required:
-    from_raw_datum = models.ForeignKey(
-        share_db.RawDatum,
-        on_delete=models.CASCADE,
-        related_name='rdf_indexcard_set',
-    )
-    indexcard_identifier = models.ForeignKey(
-        IndexcardIdentifier,
-        on_delete=models.CASCADE,
-        related_name='rdf_indexcard_set',
-    )
-    focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
-    rdf_as_turtle = models.TextField()  # TODO: store elsewhere by checksum
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=('indexcard_identifier', 'from_raw_datum'),
-                name='%(app_label)s_%(class)s_uniq_indexcardid_rawdatum',
-            ),
-        ]
-
-    def as_rdf_tripledict(self) -> gather.RdfTripleDictionary:
-        return gather.tripledict_from_turtle(self.rdf_as_turtle)
-
-    def get_suid(self) -> share_db.SourceUniqueIdentifier:
-        '''convenience to get self.from_raw_datum.suid without fetching the raw datum
-        '''
-        # database constraints (should) guarantee exactly one
-        return share_db.SourceUniqueIdentifier.objects.get(raw_data__rdf_indexcard_set=self)
+    @cached_property
+    def latest_indexcard_rdf(self) -> 'LatestIndexcardRdf':
+        return LatestIndexcardRdf.objects.get(indexcard=self)
 
     def get_backcompat_sharev2_suid(self) -> share_db.SourceUniqueIdentifier:
-        _suid = self.get_suid()
+        _suid = self.source_record_suid
         # may raise SourceUniqueIdentifier.DoesNotExist
         return share_db.SourceUniqueIdentifier.objects.get(
             source_config__in=share_db.SourceConfig.objects.filter(
@@ -116,19 +81,131 @@ class RdfIndexcard(models.Model):
             identifier=_suid.identifier,
         )
 
+    def __repr__(self):
+        return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'
 
-class DerivedIndexcard(models.Model):
+    def __str__(self):
+        return repr(self)
+
+
+class IndexcardRdf(models.Model):
+    # auto:
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    upriver_card = models.ForeignKey(RdfIndexcard, on_delete=models.CASCADE, related_name='derived_indexcard_set')
+    # required:
+    from_raw_datum = models.ForeignKey(
+        share_db.RawDatum,
+        on_delete=models.CASCADE,
+        related_name='+',
+    )
+    indexcard = models.ForeignKey(
+        Indexcard,
+        on_delete=models.CASCADE,
+        related_name='+',
+    )
+    turtle_checksum_iri = models.TextField(db_index=True)
+    focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
+    rdf_as_turtle = models.TextField()  # TODO: store elsewhere by checksum
+
+    def as_rdf_tripledict(self) -> gather.RdfTripleDictionary:
+        return gather.tripledict_from_turtle(self.rdf_as_turtle)
+
+    class Meta:
+        abstract = True
+
+    def __repr__(self):
+        return f'<{self.__class__.__qualname__}({self.id}, "{self.focus_iri}")'
+
+    def __str__(self):
+        return repr(self)
+
+    @transaction.atomic
+    @staticmethod
+    def save_indexcard_rdf(
+        indexcard: Indexcard,
+        from_raw_datum: share_db.RawDatum,
+        rdf_tripledict: gather.RdfTripleDictionary,
+        focus_iri: str,
+    ) -> 'IndexcardRdf':
+        if focus_iri not in rdf_tripledict:
+            raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
+        _rdf_as_turtle = gather.tripledict_as_turtle(rdf_tripledict)
+        _turtle_checksum_iri = str(
+            ChecksumIri.digest('sha-256', salt='', raw_data=_rdf_as_turtle),
+        )
+        _archived, _archived_created = ArchivedIndexcardRdf.objects.get_or_create(
+            indexcard=indexcard,
+            from_raw_datum=from_raw_datum,
+            turtle_checksum_iri=_turtle_checksum_iri,
+            defaults={
+                'rdf_as_turtle': _rdf_as_turtle,
+                'focus_iri': focus_iri,
+            },
+        )
+        if (not _archived_created) and (_archived.rdf_as_turtle != _rdf_as_turtle):
+            raise DigestiveError(f'hash collision? {_archived}\n===\n{_rdf_as_turtle}')
+        if from_raw_datum.is_latest():
+            _latest_indexcard_rdf, _created = LatestIndexcardRdf.objects.update_or_create(
+                indexcard=indexcard,
+                defaults={
+                    'from_raw_datum': from_raw_datum,
+                    'turtle_checksum_iri': _turtle_checksum_iri,
+                    'rdf_as_turtle': _rdf_as_turtle,
+                    'focus_iri': focus_iri,
+                },
+            )
+            return _latest_indexcard_rdf
+        return _archived
+
+
+class LatestIndexcardRdf(IndexcardRdf):
+    # just the most recent version of this indexcard
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('indexcard',),
+                name='%(app_label)s_%(class)s_uniq_indexcard',
+            ),
+        ]
+
+
+class ArchivedIndexcardRdf(IndexcardRdf):
+    # all versions of an indexcard over time (including the latest)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('indexcard', 'from_raw_datum', 'turtle_checksum_iri'),
+                name='%(app_label)s_%(class)s_uniq_archived_version',
+            ),
+        ]
+
+
+class DerivedIndexcard(models.Model):
+    # auto:
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    # required:
+    upriver_indexcard = models.ForeignKey(
+        Indexcard,
+        on_delete=models.CASCADE,
+        related_name='derived_indexcard_set',
+    )
     deriver_identifier = models.ForeignKey(ResourceIdentifier, on_delete=models.PROTECT, related_name='+')
-    card_as_text = models.TextField()  # TODO: store elsewhere by checksum
+    derived_checksum_iri = models.TextField()
+    derived_text = models.TextField()  # TODO: store elsewhere by checksum
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=('upriver_card', 'deriver_identifier'),
-                name='%(app_label)s_%(class)s_uprivercard_deriveridentifier',
+                fields=('upriver_indexcard', 'deriver_identifier'),
+                name='%(app_label)s_%(class)s_upriverindexcard_deriveridentifier',
             ),
         ]
+
+    def __repr__(self):
+        return f'<{self.__class__.__qualname__}({self.id}, {self.upriver_indexcard.uuid}, "{self.deriver_identifier.sufficiently_unique_iri}")'
+
+    def __str__(self):
+        return repr(self)

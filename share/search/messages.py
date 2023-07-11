@@ -20,6 +20,9 @@ class MessageType(enum.Enum):
     # for suid-focused records:
     INDEX_SUID = 'suid'
     BACKFILL_SUID = 'backfill-suid'
+    # for indexcard-based indexes:
+    UPDATE_INDEXCARD = 'update-indexcard'
+    BACKFILL_INDEXCARD = 'backfill-indexcard'
 
     @property
     def is_backfill(self):
@@ -39,6 +42,8 @@ class IntMessageType(enum.IntEnum):
     INDEX_SUBJECT = 4
     INDEX_SUID = 5
     BACKFILL_SUID = 6
+    UPDATE_INDEXCARD = 7
+    BACKFILL_INDEXCARD = 8
 
 
 if __debug__:

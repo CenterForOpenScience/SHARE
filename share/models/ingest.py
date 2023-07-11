@@ -376,6 +376,9 @@ class RawDatumManager(FuzzyCountManager):
             _raw.save(update_fields=('mediatype', 'datestamp'))
         return _raw
 
+    def latest_by_suid_id(self, suid_id) -> models.QuerySet:
+        return self.latest_by_suid_filter(models.Q(id=suid_id))
+
     def latest_by_suid_filter(self, suid_filter) -> models.QuerySet:
         return self.filter(id__in=(
             SourceUniqueIdentifier.objects
@@ -433,6 +436,14 @@ class RawDatum(models.Model):
     @property
     def created(self):
         return self.date_modified == self.date_created
+
+    def is_latest(self):
+        return (
+            RawDatum.objects
+            .latest_by_suid_id(self.suid_id)
+            .filter(id=self.id)
+            .exists()
+        )
 
     class Meta:
         unique_together = ('suid', 'sha256')
