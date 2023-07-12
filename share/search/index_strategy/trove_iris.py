@@ -2,6 +2,7 @@ import contextlib
 import datetime
 import json
 import logging
+import uuid
 
 import elasticsearch8
 import gather
@@ -36,7 +37,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIrisIndexStrategy',
-        hexdigest='11c504a0c6367791993dd54de98c7dbed00547d188c94412bdb7d7609c644a5d',
+        hexdigest='45d54d1fc00535672f78bc71568449556236b748c4eb01183c9d36cdc306f427',
     )
 
     @property
@@ -84,11 +85,8 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                         'property_path': {'type': 'keyword'},
                         'language_iri': {'type': 'keyword'},
                         'text_value': {
-                            'type': 'text',
-                            'index_prefixes': {  # support prefix query
-                                'min_chars': 3,
-                                'max_chars': 10,
-                            },
+                            'type': 'search_as_you_type',  # adds subfields _2gram, _3gram, _index_prefix
+                            'term_vector': 'with_positions_offsets',
                             'index_options': 'offsets',  # for faster highlighting
                             'store': True,  # avoid loading _source to render highlights
                         },
@@ -213,8 +211,10 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                     _bool_query['must_not'].append(self._iri_filter(_search_filter))
                 elif _search_filter.operator == SearchFilter.FilterOperator.ANY_OF:
                     _bool_query['filter'].append(self._iri_filter(_search_filter))
-                else:  # before, after
+                elif _search_filter.operator.is_date_operator():
                     _bool_query['filter'].append(self._date_filter(_search_filter))
+                else:
+                    raise ValueError(f'unknown filter operator {_search_filter.operator}')
             for _textsegment in search_params.cardsearch_textsegment_set:
                 if _textsegment.is_negated:
                     _bool_query['must_not'].append(
@@ -274,15 +274,10 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             }}
 
         def _exact_text_query(self, textsegment: Textsegment):
-            _queryname = (
-                # 'match_phrase_prefix'
-                'match_phrase'
-                if textsegment.is_openended
-                else 'match_phrase'
-            )
+            # TODO: textsegment.is_openended (prefix query)
             return {'nested': {
                 'path': 'nested_text',
-                'query': {_queryname: {
+                'query': {'match_phrase': {
                     'nested_text.text_value': {
                         'query': textsegment.text,
                     },
@@ -291,48 +286,32 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             }}
 
         def _fuzzy_text_query(self, textsegment: Textsegment):
-            if textsegment.is_openended:
-                (*_nonlast_words, _last_word) = textsegment.words()
-                _fuzzybool = {
-                    'minimum_should_match': 1,
-                    'should': [
-                        {'prefix': {
-                            'nested_text.text_value': {
-                                'value': _last_word,
-                            },
-                        }},
-                        {'match': {
-                            'nested_text.text_value': {
-                                'query': _last_word,
-                                'fuzziness': 'AUTO',
-                            },
-                        }},
-                    ],
-                }
-                if _nonlast_words:
-                    _fuzzybool['must'] = {'match': {
-                        'nested_text.text_value': {
-                            'query': ' '.join(_nonlast_words),
-                            'fuzziness': 'AUTO',
-                        },
-                    }}
-                _query = {'bool': _fuzzybool}
-            else:  # not openended
-                _query = {'match': {
-                    'nested_text.text_value': {
-                        'query': textsegment.text,
-                        'fuzziness': 'AUTO',
-                    },
-                }}
+            # TODO: textsegment.is_openended (prefix query)
+            _query = {'multi_match': {
+                'type': 'most_fields',
+                'query': textsegment.text,
+                'fields': [
+                    'nested_text.text_value',
+                    'nested_text.text_value._2gram',
+                    'nested_text.text_value._3gram',
+                ],
+            }}
             return {'nested': {
                 'path': 'nested_text',
                 'query': _query,
-                'inner_hits': self._text_inner_hits(),
+                'inner_hits': self._text_inner_hits()
             }}
 
-        def _text_inner_hits(self):
+        def _text_inner_hits(self, *, highlight_query=None):
+            _highlight = {
+                'type': 'unified',
+                'fields': {'nested_text.text_value': {}},
+            }
+            if highlight_query is not None:
+                _highlight['highlight_query'] = highlight_query
             return {
-                'highlight': {'fields': {'nested_text.text_value': {}}},
+                'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
+                'highlight': _highlight,
                 '_source': False,  # _source is expensive for nested docs
                 'docvalue_fields': [
                     'nested_text.property_path',
