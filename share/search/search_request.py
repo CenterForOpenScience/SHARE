@@ -37,6 +37,9 @@ class Textsegment:
         if self.is_negated and self.is_fuzzy:
             raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
 
+    def words(self):
+        return self.text.split()
+
     @classmethod
     def split_str(cls, text: str) -> frozenset['Textsegment']:
         return frozenset(cls._split_str(text))
@@ -49,7 +52,7 @@ class Textsegment:
         _last_quote_prefix = None
         _text_remaining = text
         while _text_remaining:
-            (
+            (  # split on the next "
                 _text_chunk,
                 _quote_mark,
                 _text_remaining,
@@ -79,16 +82,16 @@ class Textsegment:
     @classmethod
     def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
         _all_wordgroups = (
-            (_word_negated, list(_words))
-            for (_word_negated, _words) in itertools.groupby(
+            (_each_word_negated, list(_words))
+            for (_each_word_negated, _words) in itertools.groupby(
                 text_chunk.split(),
                 key=lambda word: word.startswith(NEGATE_WORD_OR_PHRASE),
             )
         )
         (*_wordgroups, (_lastgroup_negated, _lastgroup_words)) = _all_wordgroups
-        for _word_negated, _words in _wordgroups:
+        for _each_word_negated, _words in _wordgroups:
             yield from cls._from_fuzzy_wordgroup(
-                _word_negated,
+                _each_word_negated,
                 _words,
                 is_openended=False,
             )
@@ -99,8 +102,8 @@ class Textsegment:
         )
 
     @classmethod
-    def _from_fuzzy_wordgroup(cls, word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
-        if word_negated:
+    def _from_fuzzy_wordgroup(cls, each_word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
+        if each_word_negated:
             for _word in words:
                 yield cls(
                     text=_word[len(NEGATE_WORD_OR_PHRASE):],  # remove prefix

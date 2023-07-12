@@ -32,14 +32,11 @@ from trove.vocab.osfmap import OSFMAP, DCTERMS
 logger = logging.getLogger(__name__)
 
 
-PROPERTYPATH_DELIMITER = '||'
-
-
 class TroveIrisIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIrisIndexStrategy',
-        hexdigest='ef6918cd2cc98457385399351565f726e4d43f3877e7754711ac8d937ec49f10',
+        hexdigest='11c504a0c6367791993dd54de98c7dbed00547d188c94412bdb7d7609c644a5d',
     )
 
     @property
@@ -56,63 +53,44 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         return {
             'dynamic': 'false',
             'properties': {
-                'focus_iri': {
-                    'type': 'keyword',
-                },
-                'focustype_iri': {
-                    'type': 'keyword',
-                },
-                # 'included_predicate_iri': {
-                #     'type': 'keyword',
-                # },
-                # 'included_resource_iri': {
-                #     'type': 'keyword',
-                # },
-                # 'included_vocab_iri': {
-                #     'type': 'keyword',
-                # },
-                'iri_property_value': {
+                'focus_iri': {'type': 'keyword'},
+                'focustype_iri': {'type': 'keyword'},
+                # 'included_predicate_iri': {'type': 'keyword'},
+                # 'included_resource_iri': {'type': 'keyword'},
+                # 'included_vocab_iri': {'type': 'keyword'},
+                'nested_iri': {
                     'type': 'nested',
                     'dynamic': 'strict',
                     'properties': {
-                        'property_path': {
-                            'type': 'keyword',
-                        },
-                        'iri_value': {
-                            'type': 'keyword',
-                        },
+                        'property_path': {'type': 'keyword'},
+                        'iri_value': {'type': 'keyword'},
                     },
                 },
-                'date_property_value': {
+                'nested_date': {
                     'type': 'nested',
                     'dynamic': 'strict',
                     'properties': {
-                        'property_path': {
-                            'type': 'keyword',
-                        },
+                        'property_path': {'type': 'keyword'},
                         'date_value': {
                             'type': 'date',
                             'format': 'strict_date_optional_time',
                         },
                     },
                 },
-                'text_property_value': {
+                'nested_text': {
                     'type': 'nested',
                     'dynamic': 'strict',
                     'properties': {
-                        'property_path': {
-                            'type': 'keyword',
-                        },
-                        'language_iri': {
-                            'type': 'keyword',
-                        },
+                        'property_path': {'type': 'keyword'},
+                        'language_iri': {'type': 'keyword'},
                         'text_value': {
                             'type': 'text',
-                            'index_options': 'offsets',  # for faster highlighting
-                            'index_prefixes': {
+                            'index_prefixes': {  # support prefix query
                                 'min_chars': 3,
                                 'max_chars': 10,
                             },
+                            'index_options': 'offsets',  # for faster highlighting
+                            'store': True,  # avoid loading _source to render highlights
                         },
                     },
                 },
@@ -121,17 +99,17 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
 
     def _build_sourcedoc(self, indexcard_rdf):
         _tripledict = indexcard_rdf.as_rdf_tripledict()
-        _iri_propertypath_values = {}
-        _date_propertypath_values = {}
-        _text_propertypath_values = {}
+        _nested_iris = {}
+        _nested_dates = {}
+        _nested_texts = {}
         for _property_path, _obj in _PropertyPathWalker(_tripledict).from_focus(indexcard_rdf.focus_iri):
             if isinstance(_obj, str):
-                _iri_propertypath_values.setdefault(_property_path, set()).add(_obj)
+                _nested_iris.setdefault(_property_path, set()).add(_obj)
             elif isinstance(_obj, gather.Text):
                 if _is_date_property(_property_path[-1]):
-                    _date_propertypath_values.setdefault(_property_path, set()).add(_obj.unicode_text)
+                    _nested_dates.setdefault(_property_path, set()).add(_obj.unicode_text)
                 else:
-                    _text_propertypath_values.setdefault(_property_path, set()).add(_obj)
+                    _nested_texts.setdefault(_property_path, set()).add(_obj)
         return {
             'focus_iri': [
                 _identifier.as_iri()
@@ -141,27 +119,27 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                 _identifier.as_iri()
                 for _identifier in indexcard_rdf.indexcard.focustype_identifier_set.all()
             ],
-            'iri_property_value': [
+            'nested_iri': [
                 {
                     'property_path': _property_path_as_keyword(_propertypath),
                     'iri_value': list(_value_set),
                 }
-                for _propertypath, _value_set in _iri_propertypath_values.items()
+                for _propertypath, _value_set in _nested_iris.items()
             ],
-            'date_property_value': [
+            'nested_date': [
                 {
                     'property_path': _property_path_as_keyword(_propertypath),
                     'date_value': list(_value_set),
                 }
-                for _propertypath, _value_set in _date_propertypath_values.items()
+                for _propertypath, _value_set in _nested_dates.items()
             ],
-            'text_property_value': [
+            'nested_text': [
                 {
                     'property_path': _property_path_as_keyword(_propertypath),
                     'language_iri': _value.language_iri,
                     'text_value': _value.unicode_text,
                 }
-                for _propertypath, _value_set in _text_propertypath_values.items()
+                for _propertypath, _value_set in _nested_texts.items()
                 for _value in _value_set
             ],
         }
@@ -210,7 +188,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(cardsearch_params),
-                    # highlight=self._highlight_text_fields(),
+                    # highlight={'fields': {'nested_text.text_value': {}}},
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
@@ -244,7 +222,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                     )
                 else:
                     if _textsegment.is_fuzzy:
-                        _bool_query['should'].append(self._fuzzy_text_query(_textsegment))
+                        _bool_query['must'].append(self._fuzzy_text_query(_textsegment))
                     else:
                         _bool_query['must'].append(self._exact_text_query(_textsegment))
             logger.critical(f'>>>bool: {json.dumps(_bool_query, indent=2)}')
@@ -253,11 +231,11 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         def _iri_filter(self, search_filter) -> dict:
             _propertypath_keyword = _property_path_as_keyword(search_filter.property_path)
             return {'nested': {
-                'path': 'iri_property_value',
+                'path': 'nested_iri',
                 'query': {'bool': {
-                    'must': [
-                        {'term': {'iri_property_value.property_path': _propertypath_keyword}},
-                        {'terms': {'iri_property_value.iri_value': list(search_filter.value_set)}},
+                    'filter': [
+                        {'term': {'nested_iri.property_path': _propertypath_keyword}},
+                        {'terms': {'nested_iri.iri_value': list(search_filter.value_set)}},
                     ],
                 }},
             }}
@@ -274,11 +252,11 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             _date_value = datetime.datetime.fromisoformat(_value).date()
             _propertypath_keyword = _property_path_as_keyword(search_filter.property_path)
             return {'nested': {
-                'path': 'date_property_value',
+                'path': 'nested_date',
                 'query': {'bool': {
-                    'must': [
-                        {'term': {'date_property_value.property_path': _propertypath_keyword}},
-                        {'range': {'date_property_value.date_value': {
+                    'filter': [
+                        {'term': {'nested_date.property_path': _propertypath_keyword}},
+                        {'range': {'nested_date.date_value': {
                             _range_op: f'{_date_value}||/d',  # round to the day
                         }}},
                     ],
@@ -287,48 +265,88 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
 
         def _excluded_text_query(self, textsegment: Textsegment):
             return {'nested': {
-                'path': 'text_property_value',
+                'path': 'nested_text',
                 'query': {'match_phrase': {
-                    'text_property_value.text_value': textsegment.text,
+                    'nested_text.text_value': {
+                        'query': textsegment.text,
+                    },
                 }},
             }}
 
         def _exact_text_query(self, textsegment: Textsegment):
-            assert not textsegment.is_fuzzy
-            _querytype = (
-                'match_phrase_prefix'
+            _queryname = (
+                # 'match_phrase_prefix'
+                'match_phrase'
                 if textsegment.is_openended
                 else 'match_phrase'
             )
             return {'nested': {
-                'path': 'text_property_value',
-                'query': {_querytype: {
-                    'text_property_value.text_value': textsegment.text,
+                'path': 'nested_text',
+                'query': {_queryname: {
+                    'nested_text.text_value': {
+                        'query': textsegment.text,
+                    },
                 }},
+                'inner_hits': self._text_inner_hits(),
             }}
 
         def _fuzzy_text_query(self, textsegment: Textsegment):
-            _queryname = (
-                'match_bool_prefix'
-                if textsegment.is_openended
-                else 'match'
-            )
-            return {'nested': {
-                'path': 'text_property_value',
-                'query': {_queryname: {
-                    'text_property_value.text_value': {
+            if textsegment.is_openended:
+                (*_nonlast_words, _last_word) = textsegment.words()
+                _fuzzybool = {
+                    'minimum_should_match': 1,
+                    'should': [
+                        {'prefix': {
+                            'nested_text.text_value': {
+                                'value': _last_word,
+                            },
+                        }},
+                        {'match': {
+                            'nested_text.text_value': {
+                                'query': _last_word,
+                                'fuzziness': 'AUTO',
+                            },
+                        }},
+                    ],
+                }
+                if _nonlast_words:
+                    _fuzzybool['must'] = {'match': {
+                        'nested_text.text_value': {
+                            'query': ' '.join(_nonlast_words),
+                            'fuzziness': 'AUTO',
+                        },
+                    }}
+                _query = {'bool': _fuzzybool}
+            else:  # not openended
+                _query = {'match': {
+                    'nested_text.text_value': {
                         'query': textsegment.text,
                         'fuzziness': 'AUTO',
                     },
-                }},
+                }}
+            return {'nested': {
+                'path': 'nested_text',
+                'query': _query,
+                'inner_hits': self._text_inner_hits(),
             }}
+
+        def _text_inner_hits(self):
+            return {
+                'highlight': {'fields': {'nested_text.text_value': {}}},
+                '_source': False,  # _source is expensive for nested docs
+                'docvalue_fields': [
+                    'nested_text.property_path',
+                    'nested_text.language_iri',
+                ],
+            }
 
 
 ###
 # local utils
 
 def _property_path_as_keyword(property_path) -> str:
-    return PROPERTYPATH_DELIMITER.join(property_path)
+    assert isinstance(property_path, (list, tuple))
+    return json.dumps(property_path)
 
 
 def _is_date_property(property_iri):
