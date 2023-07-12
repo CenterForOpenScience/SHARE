@@ -5,15 +5,13 @@ import gather
 from share.search.rdf_as_jsonld import RdfAsJsonld
 from share.util.checksum_iri import ChecksumIri
 from share.util.rdfutil import IriLabeler
+from trove.vocab.trove import (
+    JSONAPI_MEMBERNAME,
+    JSONAPI_RELATIONSHIP,
+)
 
 ###
 # rendering responses as jsonapi
-
-# using linked anchors on the jsonapi spec as iris (probably fine)
-JSONAPI = gather.IriNamespace('https://jsonapi.org/format/1.1/#')
-JSONAPI_MEMBERNAME = JSONAPI['document-member-names']
-JSONAPI_RELATIONSHIP = JSONAPI['document-resource-object-relationships']
-JSONAPI_ATTRIBUTE = JSONAPI['document-resource-object-attributes']
 
 
 # a jsonapi resource may pull rdf data using an iri or blank node
@@ -32,11 +30,13 @@ class RdfAsJsonapi:
         data: gather.RdfTripleDictionary,
         vocabulary: gather.RdfTripleDictionary,
         labeler: IriLabeler,
+        id_namespace: typing.Optional[gather.IriNamespace] = None,
     ):
         self._vocabulary = vocabulary
         self._labeler = labeler
         self._tripledict = data
         self._as_jsonld = RdfAsJsonld(vocabulary, self._labeler)
+        self._id_namespace = id_namespace
         self.__twopledict_cache = {}
         self.__resource_id_cache = {}
         self.__resource_type_cache = {}
@@ -115,7 +115,11 @@ class RdfAsJsonapi:
             return self.__resource_id_cache[resource_key]
         except KeyError:
             if isinstance(resource_key, str):
-                _checksum_iri = ChecksumIri.digest('sha-256', salt='iri', raw_data=resource_key)
+                if self._id_namespace and resource_key in self._id_namespace:
+                    _id = gather.IriNamespace.without_namespace(resource_key, namespace=self._id_namespace)
+                else:
+                    _checksum_iri = ChecksumIri.digest('sha-256', salt='iri', raw_data=resource_key)
+                    _id = _checksum_iri.hexdigest
             elif isinstance(resource_key, frozenset):
                 _twopledict = self._resource_twopledict(resource_key)
                 _checksum_iri = ChecksumIri.digest_json(
@@ -123,9 +127,9 @@ class RdfAsJsonapi:
                     salt='blanknode',
                     raw_json=self._as_jsonld.twopledict_as_jsonld(_twopledict),
                 )
+                _id = _checksum_iri.hexdigest
             else:
                 raise ValueError(f'expected str or frozenset (got {resource_key})')
-            _id = _checksum_iri.hexdigest
             self.__resource_id_cache[resource_key] = _id
             return _id
 

@@ -258,10 +258,10 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             text('hasPreregisteredAnalysisPlan', language_tag='en'),
         },
     },
-    OSFMAP.hasPreregisteredStudyPlan: {
+    OSFMAP.hasPreregisteredStudyDesign: {
         RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
         JSONAPI_MEMBERNAME: {
-            text('hasPreregisteredStudyPlan', language_tag='en'),
+            text('hasPreregisteredStudyDesign', language_tag='en'),
         },
     },
     OSFMAP.omits: {
@@ -328,6 +328,12 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             text('omittedMetadataProperty', language_tag='en'),
+        },
+    },
+    OSFMAP.statedConflictOfInterest: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            text('statedConflictOfInterest', language_tag='en'),
         },
     },
 
@@ -403,6 +409,15 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             text('Organization', language_tag='en'),
+        },
+    },
+
+    ###
+    # values:
+    OSFMAP['no-conflict-of-interest']: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            text('no-conflict-of-interest', language_tag='en'),
         },
     },
 }

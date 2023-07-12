@@ -11,10 +11,12 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
 )
-from share.search.trovesearch_gathering import (
+from trove.vocab.trove import (
     TROVE,
-    TROVESEARCH_VOCAB,
-    trovesearch_labeler,
+    TROVE_VOCAB,
+    trove_labeler,
+)
+from trove.trovesearch_gathering import (
     trovesearch_by_indexstrategy,
 )
 from share.search.rdf_as_jsonapi import RdfAsJsonapi
@@ -115,7 +117,7 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
 
 def _search_response(response_data: gather.RdfTripleDictionary, search_iri: str):
     # TODO: use osfmap_labeler for propertypaths
-    _as_jsonapi = RdfAsJsonapi(response_data, TROVESEARCH_VOCAB, trovesearch_labeler)
+    _as_jsonapi = RdfAsJsonapi(response_data, TROVE_VOCAB, trove_labeler)
     return http.JsonResponse(
         _as_jsonapi.jsonapi_datum_document(search_iri),
         json_dumps_params={'indent': 2},

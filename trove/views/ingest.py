@@ -39,5 +39,5 @@ class RdfIngestView(View):
             logger.exception(str(e))
             return http.HttpResponse(str(e), status=400)
         else:
-            # TODO: include link to view ingestjob status (returned by `swallow`)
+            # TODO: include link to view status (return task id from `swallow`?)
             return http.HttpResponse(status=201)

@@ -9,9 +9,14 @@ from share import models as share_db  # TODO: break this dependency
 from share.util.checksum_iri import ChecksumIri
 from trove.exceptions import DigestiveError
 from trove.models.resource_identifier import ResourceIdentifier
+from trove.vocab.trove import TROVE_INDEXCARD
 
 
 class IndexcardManager(models.Manager):
+    def get_for_iri(self, iri: str):
+        _uuid = gather.IriNamespace.without_namespace(iri, namespace=TROVE_INDEXCARD)
+        return self.get(uuid=_uuid)
+
     @transaction.atomic
     def save_indexcards_from_tripledicts(
         self, *,
@@ -117,6 +122,9 @@ class Indexcard(models.Model):
             ),
             identifier=_suid.identifier,
         )
+
+    def get_iri(self):
+        return TROVE_INDEXCARD[str(self.uuid)]
 
     def __repr__(self):
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'

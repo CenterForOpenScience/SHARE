@@ -57,6 +57,7 @@ class Textsegment:
                 _quote_mark,
                 _text_remaining,
             ) = _text_remaining.partition(DOUBLE_QUOTATION_MARK)
+            _text_chunk = _text_chunk.strip()
             if _text_chunk:
                 _is_openended = not (_quote_mark or _text_remaining)
                 if _in_quotes:

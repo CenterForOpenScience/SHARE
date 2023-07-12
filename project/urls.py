@@ -12,7 +12,7 @@ from api.views import APIVersionRedirectView, source_icon_view
 
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
-from share.search import views as search_views
+from trove.views import search as search_views
 
 
 urlpatterns = [

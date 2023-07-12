@@ -70,4 +70,5 @@ VOCAB_SET = frozenset((
         turtle_filename='prov.turtle',
         turtle_focus_iri='http://www.w3.org/ns/prov#',
     ),
+    # TODO: osfmap, trove (load from tripledict)
 ))

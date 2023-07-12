@@ -40,7 +40,7 @@ def swallow(
     focus_iri: str,
     datestamp=None,  # default "now"
     urgent=False,
-) -> share_db.IngestJob:
+):
     '''swallow: store a given record by checksum; queue for extraction
 
     will create (or update) one of each:

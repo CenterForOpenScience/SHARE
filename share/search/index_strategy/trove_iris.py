@@ -21,10 +21,10 @@ from share.search.search_response import (
     CardsearchResponse,
     PropertysearchResponse,
     ValuesearchResponse,
-    # TextMatchEvidence,
-    # SearchResult,
+    TextMatchEvidence,
+    SearchResult,
 )
-# from share.search.trovesearch_gathering import TROVE
+from trove.trovesearch_gathering import TROVE
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.vocab.osfmap import OSFMAP, DCTERMS
@@ -37,7 +37,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIrisIndexStrategy',
-        hexdigest='45d54d1fc00535672f78bc71568449556236b748c4eb01183c9d36cdc306f427',
+        hexdigest='23dc9625d9367342aab86f53c07ecdba2b540383ce8f40683e9013629a22f330',
     )
 
     @property
@@ -55,7 +55,6 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             'dynamic': 'false',
             'properties': {
                 'focus_iri': {'type': 'keyword'},
-                'focustype_iri': {'type': 'keyword'},
                 # 'included_predicate_iri': {'type': 'keyword'},
                 # 'included_resource_iri': {'type': 'keyword'},
                 # 'included_vocab_iri': {'type': 'keyword'},
@@ -85,8 +84,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                         'property_path': {'type': 'keyword'},
                         'language_iri': {'type': 'keyword'},
                         'text_value': {
-                            'type': 'search_as_you_type',  # adds subfields _2gram, _3gram, _index_prefix
-                            'term_vector': 'with_positions_offsets',
+                            'type': 'text',
                             'index_options': 'offsets',  # for faster highlighting
                             'store': True,  # avoid loading _source to render highlights
                         },
@@ -112,10 +110,6 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             'focus_iri': [
                 _identifier.as_iri()
                 for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all()
-            ],
-            'focustype_iri': [
-                _identifier.as_iri()
-                for _identifier in indexcard_rdf.indexcard.focustype_identifier_set.all()
             ],
             'nested_iri': [
                 {
@@ -147,17 +141,14 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
             .select_related('indexcard')
-            .prefetch_related(
-                'indexcard__focus_identifier_set',
-                'indexcard__focustype_identifier_set',
-            )
+            .prefetch_related('indexcard__focus_identifier_set')
         )
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
             _indexcard_id = _indexcard_rdf.indexcard_id
             _remaining_indexcard_ids.discard(_indexcard_id)
             _index_action = self.build_index_action(
-                doc_id=_indexcard_rdf.indexcard.uuid,
+                doc_id=_indexcard_rdf.indexcard.get_iri(),
                 doc_source=self._build_sourcedoc(_indexcard_rdf),
             )
             yield _indexcard_id, _index_action
@@ -165,10 +156,9 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         _leftovers = (
             trove_db.Indexcard.objects
             .filter(id__in=_remaining_indexcard_ids)
-            .values_list('id', 'uuid')
         )
-        for _indexcard_id, _indexcard_uuid in _leftovers:
-            yield _indexcard_id, self.build_delete_action(_indexcard_uuid)
+        for _indexcard in _leftovers:
+            yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
@@ -191,7 +181,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return dict(_es8_response)  # TODO
+            return self._cardsearch_response(cardsearch_params, _es8_response)
 
         def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
             raise NotImplementedError
@@ -215,17 +205,19 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                     _bool_query['filter'].append(self._date_filter(_search_filter))
                 else:
                     raise ValueError(f'unknown filter operator {_search_filter.operator}')
+            _fuzzysegments = []
             for _textsegment in search_params.cardsearch_textsegment_set:
                 if _textsegment.is_negated:
                     _bool_query['must_not'].append(
                         self._excluded_text_query(_textsegment)
                     )
+                elif _textsegment.is_fuzzy:
+                    _fuzzysegments.append(_textsegment)
                 else:
-                    if _textsegment.is_fuzzy:
-                        _bool_query['must'].append(self._fuzzy_text_query(_textsegment))
-                    else:
-                        _bool_query['must'].append(self._exact_text_query(_textsegment))
-            logger.critical(f'>>>bool: {json.dumps(_bool_query, indent=2)}')
+                    _bool_query['must'].append(self._exact_text_query(_textsegment))
+            if _fuzzysegments:
+                _bool_query['must'].append(self._fuzzy_text_must_query(_fuzzysegments))
+                _bool_query['should'].extend(self._fuzzy_text_should_queries(_fuzzysegments))
             return {'bool': _bool_query}
 
         def _iri_filter(self, search_filter) -> dict:
@@ -275,32 +267,45 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
 
         def _exact_text_query(self, textsegment: Textsegment):
             # TODO: textsegment.is_openended (prefix query)
+            _query = {'match_phrase': {
+                'nested_text.text_value': {
+                    'query': textsegment.text,
+                },
+            }}
             return {'nested': {
                 'path': 'nested_text',
-                'query': {'match_phrase': {
-                    'nested_text.text_value': {
-                        'query': textsegment.text,
-                    },
-                }},
+                'query': _query,
                 'inner_hits': self._text_inner_hits(),
             }}
 
-        def _fuzzy_text_query(self, textsegment: Textsegment):
+        def _fuzzy_text_must_query(self, textsegments: list[Textsegment]):
             # TODO: textsegment.is_openended (prefix query)
-            _query = {'multi_match': {
-                'type': 'most_fields',
-                'query': textsegment.text,
-                'fields': [
-                    'nested_text.text_value',
-                    'nested_text.text_value._2gram',
-                    'nested_text.text_value._3gram',
-                ],
+            _query = {'match': {
+                'nested_text.text_value': {
+                    'query': ' '.join(
+                        _textsegment.text
+                        for _textsegment in textsegments
+                    ),
+                    'fuzziness': 'AUTO',
+                },
             }}
             return {'nested': {
                 'path': 'nested_text',
                 'query': _query,
                 'inner_hits': self._text_inner_hits()
             }}
+
+        def _fuzzy_text_should_queries(self, textsegments: list[Textsegment]):
+            for _textsegment in textsegments:
+                yield {'nested': {
+                    'path': 'nested_text',
+                    'query': {'match_phrase': {
+                        'nested_text.text_value': {
+                            'query': _textsegment.text,
+                            'slop': len(_textsegment.words()),
+                        },
+                    }}
+                }}
 
         def _text_inner_hits(self, *, highlight_query=None):
             _highlight = {
@@ -318,6 +323,43 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                     'nested_text.language_iri',
                 ],
             }
+
+        def _cardsearch_response(self, cardsearch_params, es8_response) -> CardsearchResponse:
+            _es8_total = es8_response['hits']['total']
+            _total = (
+                _es8_total['value']
+                if _es8_total['relation'] == 'eq'
+                else TROVE['ten-thousands-and-more']
+            )
+            _results = []
+            for _es8_hit in es8_response['hits']['hits']:
+                _card_iri = _es8_hit['_id']
+                _results.append(SearchResult(
+                    card_iri=_card_iri,
+                    text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
+                ))
+            return CardsearchResponse(
+                total_result_count=_total,
+                search_result_page=_results,
+                related_propertysearch_set=(),
+            )
+
+        def _gather_textmatch_evidence(self, es8_hit):
+            for _innerhit_group in es8_hit['inner_hits'].values():
+                for _innerhit in _innerhit_group['hits']['hits']:
+                    _property_path = tuple(
+                        json.loads(_innerhit['fields']['nested_text.property_path'][0]),
+                    )
+                    try:
+                        _language_iri = _innerhit['fields']['nested_text.language_iri'][0]
+                    except KeyError:
+                        _language_iri = None
+                    for _highlight in _innerhit['highlight']['nested_text.text_value']:
+                        yield TextMatchEvidence(
+                            property_path=_property_path,
+                            matching_highlight=gather.text(_highlight, language_iri=_language_iri),
+                            card_iri=_innerhit['_id'],
+                        )
 
 
 ###

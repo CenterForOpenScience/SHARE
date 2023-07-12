@@ -4,7 +4,7 @@ import typing
 import gather
 
 from share.search.search_request import PropertysearchParams
-from share.search.trovesearch_gathering import TROVE
+from trove.trovesearch_gathering import TROVE
 
 
 BoundedCount = typing.Union[
