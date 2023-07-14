@@ -68,6 +68,15 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         return models.NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
+        if share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
+            return Response({
+                'errors': [
+                    {'detail': (
+                        'this route was deprecated and has been removed'
+                        f' (use {reverse("trove.ingest-rdf")} instead)'
+                    )},
+                ],
+            }, status=status.HTTP_410_GONE)
         try:
             return self._do_create(request, *args, **kwargs)
         except Exception:
@@ -90,11 +99,18 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             record=json.dumps(data, sort_keys=True),
             record_identifier=suid,
             record_mediatype=None,  # trigger legacy-sharev2 ingestion
-            resource_iri=None,  # only valid for legacy-sharev2 ingestion
+            focus_iri=None,  # only valid for legacy-sharev2 ingestion
             urgent=True,
         )
-        # minimal back-compat
         return Response({
-            'type': 'NormalizedData',
-            'attributes': {}
+            'data': {
+                'type': 'NormalizedData',
+                'attributes': {},
+            },
+            'meta': {
+                'warning': (
+                    'this route is deprecated and will be removed'
+                    f' (consider {reverse("trove.ingest-rdf")} instead)'
+                ),
+            },
         }, status=status.HTTP_202_ACCEPTED)

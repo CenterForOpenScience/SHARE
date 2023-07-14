@@ -7,8 +7,7 @@ import gather
 from share.schema import ShareV2Schema
 from share.util import IDObfuscator
 from share import models as share_db
-from trove.vocab import DCTERMS, FOAF, RDF, DCAT, SHAREv2
-from trove.vocab.osfmap import OSFMAP
+from trove.vocab.iri_namespace import DCTERMS, FOAF, RDF, DCAT, SHAREv2, OSFMAP
 
 from ._base import IndexcardDeriver
 

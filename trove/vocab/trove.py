@@ -2,17 +2,10 @@ from django.conf import settings
 import gather
 
 from share.util.rdfutil import IriLabeler
+from trove.vocab.iri_namespace import TROVE, JSONAPI
 
-
-###
-# an iri namespace for troves of metadata
-TROVE = gather.IriNamespace('https://share.osf.io/vocab/trove/')
-
-# a namespace for indexcard iris
-TROVE_INDEXCARD = gather.IriNamespace(f'{settings.SHARE_API_URL}trove/index-card/')
 
 # using linked anchors on the jsonapi spec as iris (probably fine)
-JSONAPI = gather.IriNamespace('https://jsonapi.org/format/1.1/#')
 JSONAPI_MEMBERNAME = JSONAPI['document-member-names']
 JSONAPI_RELATIONSHIP = JSONAPI['document-resource-object-relationships']
 JSONAPI_ATTRIBUTE = JSONAPI['document-resource-object-attributes']
@@ -217,3 +210,11 @@ TROVE_VOCAB: gather.RdfTripleDictionary = {
 }
 
 trove_labeler = IriLabeler(TROVE_VOCAB, label_iri=JSONAPI_MEMBERNAME)
+
+
+def trove_indexcard_namespace():
+    return gather.IriNamespace(f'{settings.SHARE_API_URL}trove/index-card/')
+
+
+def trove_indexcard_iri(indexcard_uuid):
+    return trove_indexcard_namespace()[str(indexcard_uuid)]

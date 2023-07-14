@@ -14,20 +14,12 @@ form {
 {% endblock %}
 
 {% block content %}
-<h1>{% trans "schedule ingest" %}</h1>
+<h1>{% trans "schedule full (re)ingest" %}</h1>
 <section>
   <h2>for source config "{{ source_config.label }}"</h2>
   <form method="post">
     {% csrf_token %}
     <input type="hidden" name="source_config_label" value={{source_config.label}} />
-    <label>
-      <input type="checkbox" name="pls_reformat" />
-      {% trans "pls reformat (even if already formatted)" %}
-    </label>
-    <label>
-      <input type="checkbox" name="pls_renormalize" />
-      {% trans "pls renormalize (even if already normalized)" %}
-    </label>
     <input type="submit" value="{% trans "yum yum" %}" />
   </form>
 </section>

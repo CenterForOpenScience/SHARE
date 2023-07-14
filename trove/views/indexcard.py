@@ -2,16 +2,9 @@ from django import http
 from django.views import View
 import gather
 
-from share.search.rdf_as_jsonapi import RdfAsJsonapi
-from trove.trovesearch_gathering import (
-    trovesearch_by_indexstrategy,
-)
-from trove.vocab.trove import (
-    TROVE,
-    TROVE_VOCAB,
-    TROVE_INDEXCARD,
-    trove_labeler,
-)
+from trove.render import render_from_rdf
+from trove.trovesearch_gathering import trovesearch_by_indexstrategy
+from trove.vocab.trove import TROVE, trove_indexcard_iri
 
 
 class IndexcardView(View):
@@ -21,19 +14,12 @@ class IndexcardView(View):
             'search_params': None,
             'specific_index': None,
         })
-        _indexcard_iri = TROVE_INDEXCARD[str(indexcard_uuid)]
+        _indexcard_iri = trove_indexcard_iri(indexcard_uuid)
         _search_gathering.ask(
             gather.focus(_indexcard_iri, TROVE.Card),
             {},  # TODO: build from `include`/`fields`
         )
-        _response_data = _search_gathering.leaf_a_record()
-        _as_jsonapi = RdfAsJsonapi(
-            data=_response_data,
-            vocabulary=TROVE_VOCAB,
-            labeler=trove_labeler,
-            id_namespace=TROVE_INDEXCARD,
-        )
-        return http.JsonResponse(
-            _as_jsonapi.jsonapi_datum_document(_indexcard_iri),
-            json_dumps_params={'indent': 2},
+        _response_tripledict = _search_gathering.leaf_a_record()
+        return http.HttpResponse(
+            data=render_from_rdf(_response_tripledict, _indexcard_iri, 'application/api+json'),
         )

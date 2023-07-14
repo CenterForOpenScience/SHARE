@@ -8,7 +8,7 @@ from share.search.search_request import (
     ValuesearchParams,
 )
 from trove import models as trove_db
-from trove.vocab.trove import TROVE, TROVE_INDEXCARD, TROVE_VOCAB
+from trove.vocab.trove import TROVE, TROVE_VOCAB, trove_indexcard_namespace
 
 
 TROVE_GATHERING_NORMS = gather.GatheringNorms(
@@ -153,17 +153,18 @@ def gather_valuesearch(focus, *, specific_index, search_params):
 )
 def gather_card(focus, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
+    _indexcard_namespace = trove_indexcard_namespace()
     try:
         _indexcard_iri = next(
             _iri
             for _iri in focus.iris
-            if _iri in TROVE_INDEXCARD
+            if _iri in _indexcard_namespace
         )
     except StopIteration:
-        raise ValueError(f'could not find indexcard iri in {focus.iris} (looking for {TROVE_INDEXCARD})')
+        raise ValueError(f'could not find indexcard iri in {focus.iris} (looking for {_indexcard_namespace})')
     _indexcard_uuid = gather.IriNamespace.without_namespace(
         _indexcard_iri,
-        namespace=TROVE_INDEXCARD,
+        namespace=_indexcard_namespace,
     )
     _osfmap_indexcard = (
         trove_db.DerivedIndexcard.objects

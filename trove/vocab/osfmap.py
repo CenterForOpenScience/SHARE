@@ -1,6 +1,5 @@
 from gather import (
     text,
-    IriNamespace,
     OWL,
     RDF,
     RDFS,
@@ -8,13 +7,12 @@ from gather import (
     GatheringNorms,
 )
 
-from share.search.rdf_as_jsonapi import JSONAPI_MEMBERNAME
 from share.util.rdfutil import IriLabeler
-from trove.vocab import DCTERMS, FOAF
+from trove.vocab.trove import JSONAPI_MEMBERNAME
+from trove.vocab.iri_namespace import OSFMAP, DCTERMS, FOAF
 
 
 # TODO: define as turtle, load in trove.vocab.__init__?
-OSFMAP = IriNamespace('https://osf.io/vocab/2022/')
 OSFMAP_VOCAB: RdfTripleDictionary = {
     ###
     # properties:

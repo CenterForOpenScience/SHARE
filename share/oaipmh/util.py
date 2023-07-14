@@ -1,11 +1,7 @@
 from dateutil import parser
 
 from lxml import etree
-import gather
-
-
-OAI = gather.IriNamespace('http://www.openarchives.org/OAI/2.0/')
-OAI_DC = gather.IriNamespace('http://www.openarchives.org/OAI/2.0/oai_dc/')
+from trove.vocab.iri_namespace import OAI, OAI_DC
 
 
 def format_datetime(dt):

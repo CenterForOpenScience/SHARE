@@ -4,7 +4,6 @@ import typing
 
 from django.db.models import F
 import elasticsearch8
-import gather
 
 from share.models import (
     FeatureFlag,
@@ -17,46 +16,10 @@ from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
 from trove.models import DerivedIndexcard, ResourceIdentifier
-from trove.vocab import SHAREv2, DCTERMS
-from trove.vocab.osfmap import OSFMAP
+from trove.vocab.iri_namespace import SHAREv2
 
 
 logger = logging.getLogger(__name__)
-
-
-# connect terms in OSFMAP_VOCAB to fields in `sharev2_elastic`
-TEXT_FIELDS_BY_OSFMAP = {
-    DCTERMS.title: 'title',
-    DCTERMS.description: 'description',
-    OSFMAP.keyword: 'tags',
-}
-TEXT_FIELDS = tuple(TEXT_FIELDS_BY_OSFMAP.values())
-TEXT_IRIS_BY_FIELDNAME = {
-    _fieldname: _iri
-    for _iri, _fieldname in TEXT_FIELDS_BY_OSFMAP.items()
-}
-KEYWORD_FIELDS_BY_OSFMAP = {
-    DCTERMS.identifier: 'identifiers',
-    DCTERMS.creator: 'lists.contributors.identifiers',  # NOTE: contributor types lumped together
-    DCTERMS.publisher: 'lists.publishers.identifiers',
-    DCTERMS.subject: 'subjects',  # NOTE: |-delimited taxonomic path
-    DCTERMS.language: 'language',
-    gather.RDF.type: 'types',
-    DCTERMS.type: 'types',
-    OSFMAP.affiliation: 'lists.affiliations.identifiers',
-    OSFMAP.funder: 'lists.funders.identifiers',
-    OSFMAP.keyword: 'tags.exact',
-}
-DATE_FIELDS_BY_OSFMAP = {
-    DCTERMS.date: 'date',
-    # DCTERMS.available
-    # DCTERMS.dateCopyrighted
-    DCTERMS.created: 'date_published',  # NOTE: not 'date_created'
-    DCTERMS.modified: 'date_updated',  # NOTE: not 'date_modified'
-    # DCTERMS.dateSubmitted
-    # DCTERMS.dateAccepted
-    # OSFMAP.withdrawn
-}
 
 
 class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):

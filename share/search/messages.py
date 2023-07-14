@@ -12,11 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class MessageType(enum.Enum):
-    # for specific sharev2 types:
-    INDEX_AGENT = 'Agent'
-    INDEX_CREATIVEWORK = 'CreativeWork'
-    INDEX_TAG = 'Tag'
-    INDEX_SUBJECT = 'Subject'
     # for suid-focused records:
     INDEX_SUID = 'suid'
     BACKFILL_SUID = 'backfill-suid'
@@ -35,11 +30,6 @@ class MessageType(enum.Enum):
 class IntMessageType(enum.IntEnum):
     '''for mapping MessageType to int and back again
     '''
-    # NO_TYPE = 0
-    INDEX_AGENT = 1
-    INDEX_CREATIVEWORK = 2
-    INDEX_TAG = 3
-    INDEX_SUBJECT = 4
     INDEX_SUID = 5
     BACKFILL_SUID = 6
     UPDATE_INDEXCARD = 7
@@ -56,6 +46,7 @@ if __debug__:
 
 BACKFILL_MESSAGE_TYPES = {
     MessageType.BACKFILL_SUID,
+    MessageType.BACKFILL_INDEXCARD,
 }
 
 

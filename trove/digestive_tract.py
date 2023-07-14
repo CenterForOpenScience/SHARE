@@ -24,7 +24,7 @@ from trove import models as trove_db
 from trove.exceptions import DigestiveError
 from trove.extract import get_rdf_extractor_class
 from trove.derive import get_deriver_classes
-from trove.vocab import RDFS
+from trove.vocab.iri_namespace import RDFS
 
 
 logger = logging.getLogger(__name__)
@@ -97,6 +97,8 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
         _focus_iri = _extractor.extracted_focus_iri
         if not _focus_iri:
             raise DigestiveError(f'could not extract focus_iri from (sharev2) {raw}')
+        if not share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
+            _sharev2_legacy_ingest(_extractor.sharev2graph_centralnode)
     else:
         try:
             _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
@@ -156,16 +158,16 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     if _raw.is_latest():
         for _indexcard in _indexcards:
             derive(_indexcard)
-            notify_indexcard_update(_indexcard.id)
-    # TODO: remove suid-based legacy flow
-    notify_suid_update(_raw.suid_id, celery_app=task.app, urgent=urgent)
+            notify_indexcard_update(_indexcard, celery_app=task.app, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)
 def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str):
     _indexcard = trove_db.Indexcard.objects.get(id=indexcard_id)
     derive(_indexcard, deriver_iris=[deriver_iri])
-    notify_indexcard_update(_indexcard.id)
+    # TODO: avoid unnecessary work; let IndexStrategy subscribe to a specific
+    # IndexcardDeriver (perhaps by deriver-specific MessageType?)
+    notify_indexcard_update(_indexcard, celery_app=task.app)
 
 
 @celery.shared_task(acks_late=True)
@@ -191,11 +193,24 @@ def task__schedule_all_for_deriver(deriver_iri: str):
         task__derive.apply_async((_indexcard_id, deriver_iri))
 
 
-def notify_indexcard_update(indexcard_id, *, celery_app=None, urgent=False):
+def notify_indexcard_update(indexcard, *, celery_app=None, urgent=False):
     _index_messenger = IndexMessenger(celery_app=celery_app)
-    _index_messenger.send_message(MessageType.UPDATE_INDEXCARD, indexcard_id, urgent=urgent)
+    _index_messenger.send_message(MessageType.UPDATE_INDEXCARD, indexcard.id, urgent=urgent)
 
 
 def notify_suid_update(suid_id, *, celery_app=None, urgent=False):
     _index_messenger = IndexMessenger(celery_app=celery_app)
     _index_messenger.send_message(MessageType.INDEX_SUID, suid_id, urgent=urgent)
+
+
+# TODO: remove legacy ingest
+def _sharev2_legacy_ingest(from_user, raw_datum, sharev2graph_centralnode):
+    _normd = share_db.NormalizedData.objects.create(
+        data=sharev2graph_centralnode.graph.to_jsonld(),
+        source=from_user,
+        raw=raw_datum,
+    )
+    share_db.FormattedMetadataRecord.objects.save_formatted_records(
+        raw_datum.suid,
+        normalized_datum=_normd,
+    )

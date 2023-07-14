@@ -11,15 +11,9 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
 )
-from trove.vocab.trove import (
-    TROVE,
-    TROVE_VOCAB,
-    trove_labeler,
-)
-from trove.trovesearch_gathering import (
-    trovesearch_by_indexstrategy,
-)
-from share.search.rdf_as_jsonapi import RdfAsJsonapi
+from trove.vocab.iri_namespace import TROVE
+from trove.trovesearch_gathering import trovesearch_by_indexstrategy
+from trove.render import render_from_rdf
 
 
 logger = logging.getLogger(__name__)
@@ -70,7 +64,13 @@ class CardsearchView(View):
             gather.focus(_search_iri, TROVE.Cardsearch),
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
         )
-        return _search_response(_search_gathering.leaf_a_record(), _search_iri)
+        return http.HttpResponse(
+            data=render_from_rdf(
+                _search_gathering.leaf_a_record(),
+                _search_iri,
+                'application/api+json',
+            ),
+        )
 
 
 class PropertysearchView(View):
@@ -80,7 +80,13 @@ class PropertysearchView(View):
             gather.focus(_search_iri, TROVE.Propertysearch),
             DEFAULT_PROPERTYSEARCH_ASK,  # TODO: build from `include`/`fields`
         )
-        return _search_response(_search_gathering.leaf_a_record(), _search_iri)
+        return http.HttpResponse(
+            data=render_from_rdf(
+                _search_gathering.leaf_a_record(),
+                _search_iri,
+                'application/api+json',
+            ),
+        )
 
 
 class ValuesearchView(View):
@@ -90,7 +96,13 @@ class ValuesearchView(View):
             gather.focus(_search_iri, TROVE.Valuesearch),
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
         )
-        return _search_response(_search_gathering.leaf_a_record(), _search_iri)
+        return http.HttpResponse(
+            data=render_from_rdf(
+                _search_gathering.leaf_a_record(),
+                _search_iri,
+                'application/api+json',
+            ),
+        )
 
 
 ###
@@ -113,12 +125,3 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
         'specific_index': _specific_index,
     })
     return (_search_iri, _search_gathering)
-
-
-def _search_response(response_data: gather.RdfTripleDictionary, search_iri: str):
-    # TODO: use osfmap_labeler for propertypaths
-    _as_jsonapi = RdfAsJsonapi(response_data, TROVE_VOCAB, trove_labeler)
-    return http.JsonResponse(
-        _as_jsonapi.jsonapi_datum_document(search_iri),
-        json_dumps_params={'indent': 2},
-    )

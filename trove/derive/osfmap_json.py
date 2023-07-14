@@ -1,6 +1,6 @@
 import json
 
-from share.search.rdf_as_jsonld import RdfAsJsonld
+from trove.render.jsonld import RdfAsJsonld
 from trove.vocab.osfmap import OSFMAP_VOCAB, osfmap_labeler
 from trove.vocab.trove import TROVE
 from ._base import IndexcardDeriver

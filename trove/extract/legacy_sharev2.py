@@ -11,22 +11,23 @@ from gather import (
 
 from share.util.graph import MutableNode
 from share.regulate import Regulator
-from trove.vocab import DCTERMS, FOAF, DCAT, SHAREv2
-from trove.vocab.osfmap import OSFMAP_NORMS, OSFMAP
+from trove.vocab.iri_namespace import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2
+from trove.vocab.osfmap import OSFMAP_NORMS
 from ._base import BaseRdfExtractor
 
 
 class LegacySharev2Extractor(BaseRdfExtractor):
-    extracted_focus_iri: typing.Optional[str]  # side-effected
+    # side-effected by extract_rdf (to support back-compat shenanigans)
+    extracted_focus_iri: typing.Optional[str] = None
+    sharev2graph_centralnode: typing.Optional[MutableNode] = None
 
     def extract_rdf(self, input_document):
         _transformer = self.source_config.get_transformer()
         _sharev2graph = _transformer.transform(input_document)
         if _sharev2graph:  # in-place update
             Regulator(source_config=self.source_config).regulate(_sharev2graph)
-        _central_focus = _focus_for_mnode(
-            _sharev2graph.get_central_node(guess=True),
-        )
+        self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True),
+        _central_focus = _focus_for_mnode(self.sharev2graph_centralnode)
         self.extracted_focus_iri = _choose_iri(_central_focus.iris)
         _gathering = osfmap_from_normd.new_gathering({
             'source_config': self.source_config,

@@ -24,10 +24,9 @@ from share.search.search_response import (
     TextMatchEvidence,
     SearchResult,
 )
-from trove.trovesearch_gathering import TROVE
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.vocab.osfmap import OSFMAP, DCTERMS
+from trove.vocab.iri_namespace import TROVE, OSFMAP, DCTERMS
 
 
 logger = logging.getLogger(__name__)
@@ -412,20 +411,15 @@ class _PropertyPathWalker:
         for _predicate_iri, _obj_set in focus_twopledict.items():
             with self._pathstep(_predicate_iri) as _pathtuple:
                 for _obj in _obj_set:
+                    _next_twopledict = None
                     if isinstance(_obj, gather.Text):
                         yield (_pathtuple, _obj)
-                        _next_twopledict = None
                     elif isinstance(_obj, str):  # IRI
                         yield (_pathtuple, _obj)
-                        _next_twopledict = (
-                            None
-                            if _obj in self._visiting
-                            else self.tripledict.get(_obj)
-                        )
+                        if _obj in self._visiting:
+                            _next_twopledict = self.tripledict.get(_obj)
                     elif isinstance(_obj, frozenset):
                         _next_twopledict = gather.twopleset_as_twopledict(_obj)
-                    else:
-                        continue
                     if _next_twopledict and (_obj not in self._visiting):
                         with self._visit(_obj):
                             yield from self._walk_twopledict(_next_twopledict)
