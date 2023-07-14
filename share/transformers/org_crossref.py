@@ -97,7 +97,7 @@ class CreativeWork(Parser):
         ctx.DOI,
         # Links do not appear to be unique
         # Map(OneOf(ctx.URL, ctx), Try(ctx.link)),
-        Try(IRI(ctx['alternative-id']))
+        # Try(IRI(ctx['alternative-id']))
     )
 
     related_agents = Concat(

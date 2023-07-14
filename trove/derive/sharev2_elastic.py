@@ -5,6 +5,7 @@ import re
 import gather
 
 from share.schema import ShareV2Schema
+from share.schema.exceptions import SchemaKeyError
 from share.util import IDObfuscator
 from share import models as share_db
 from trove.vocab.iri_namespace import DCTERMS, FOAF, RDF, DCAT, SHAREv2, OSFMAP
@@ -207,12 +208,14 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             _typename = gather.IriNamespace.without_namespace(type_iri, namespace=SHAREv2)
         except ValueError:
             return None
-        else:
+        try:
             return ShareV2Schema().get_type(_typename)
+        except SchemaKeyError:
+            return None
 
     def _single_type(self, focus_iri):
         def _type_sortkey(sharev2_type):
-            return sharev2_type.distance_from_concrete_type()
+            return sharev2_type.distance_from_concrete_type
         _types = filter(None, (
             self._sharev2_type(_type_iri)
             for _type_iri in gather.objects_by_pathset(

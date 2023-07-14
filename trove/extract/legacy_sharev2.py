@@ -26,7 +26,7 @@ class LegacySharev2Extractor(BaseRdfExtractor):
         _sharev2graph = _transformer.transform(input_document)
         if _sharev2graph:  # in-place update
             Regulator(source_config=self.source_config).regulate(_sharev2graph)
-        self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True),
+        self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True)
         _central_focus = _focus_for_mnode(self.sharev2graph_centralnode)
         self.extracted_focus_iri = _choose_iri(_central_focus.iris)
         _gathering = osfmap_from_normd.new_gathering({

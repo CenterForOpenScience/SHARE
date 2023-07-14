@@ -14,18 +14,20 @@ from .jsonapi import RdfJsonapiRenderer
 #     'text/html': RdfHtmlRenderer,
 # }
 
+JSONAPI_MEDIATYPE = 'application/api+json'
+
 
 def render_from_rdf(
     rdf_tripledict: gather.RdfTripleDictionary,
     focus_iri: str,
-    to_mediatype: str,  # TODO: accept django.http.HttpRequest for content negotiation?
+    to_mediatype: str,  # TODO: accept django.http.HttpRequest for content negotiation? (and return HttpResponse??)
 ):
-    if to_mediatype == 'application/api+json':
+    if to_mediatype == JSONAPI_MEDIATYPE:
         _renderer = RdfJsonapiRenderer(
             data=rdf_tripledict,
             vocabulary=TROVE_VOCAB,
             labeler=trove_labeler,
-            id_namespace=trove_indexcard_namespace(),
+            id_namespace_set=[trove_indexcard_namespace()],
         )
         return json.dumps(
             _renderer.jsonapi_datum_document(focus_iri),

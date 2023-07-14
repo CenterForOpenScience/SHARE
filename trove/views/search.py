@@ -13,7 +13,7 @@ from share.search.search_request import (
 )
 from trove.vocab.iri_namespace import TROVE
 from trove.trovesearch_gathering import trovesearch_by_indexstrategy
-from trove.render import render_from_rdf
+from trove.render import render_from_rdf, JSONAPI_MEDIATYPE
 
 
 logger = logging.getLogger(__name__)
@@ -65,11 +65,12 @@ class CardsearchView(View):
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
         )
         return http.HttpResponse(
-            data=render_from_rdf(
+            content=render_from_rdf(
                 _search_gathering.leaf_a_record(),
                 _search_iri,
-                'application/api+json',
+                JSONAPI_MEDIATYPE,
             ),
+            content_type=JSONAPI_MEDIATYPE,
         )
 
 
@@ -81,11 +82,12 @@ class PropertysearchView(View):
             DEFAULT_PROPERTYSEARCH_ASK,  # TODO: build from `include`/`fields`
         )
         return http.HttpResponse(
-            data=render_from_rdf(
+            content=render_from_rdf(
                 _search_gathering.leaf_a_record(),
                 _search_iri,
-                'application/api+json',
+                JSONAPI_MEDIATYPE,
             ),
+            content_type=JSONAPI_MEDIATYPE,
         )
 
 
@@ -97,11 +99,12 @@ class ValuesearchView(View):
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
         )
         return http.HttpResponse(
-            data=render_from_rdf(
+            content=render_from_rdf(
                 _search_gathering.leaf_a_record(),
                 _search_iri,
-                'application/api+json',
+                JSONAPI_MEDIATYPE,
             ),
+            content_type=JSONAPI_MEDIATYPE,
         )
 
 

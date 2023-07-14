@@ -98,7 +98,7 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
         if not _focus_iri:
             raise DigestiveError(f'could not extract focus_iri from (sharev2) {raw}')
         if not share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
-            _sharev2_legacy_ingest(_extractor.sharev2graph_centralnode)
+            _sharev2_legacy_ingest(raw, _extractor.sharev2graph_centralnode)
     else:
         try:
             _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
@@ -204,10 +204,10 @@ def notify_suid_update(suid_id, *, celery_app=None, urgent=False):
 
 
 # TODO: remove legacy ingest
-def _sharev2_legacy_ingest(from_user, raw_datum, sharev2graph_centralnode):
+def _sharev2_legacy_ingest(raw_datum, sharev2graph_centralnode):
     _normd = share_db.NormalizedData.objects.create(
         data=sharev2graph_centralnode.graph.to_jsonld(),
-        source=from_user,
+        source=raw_datum.suid.source_config.source.user,
         raw=raw_datum,
     )
     share_db.FormattedMetadataRecord.objects.save_formatted_records(

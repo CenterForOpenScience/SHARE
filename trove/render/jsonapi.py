@@ -1,4 +1,5 @@
 import hashlib
+import json
 import typing
 
 import gather
@@ -28,6 +29,7 @@ class RdfJsonapiRenderer:
         data: gather.RdfTripleDictionary,
         vocabulary: gather.RdfTripleDictionary,
         labeler: IriLabeler,
+        id_namespace_set: typing.Iterable[gather.IriNamespace] = (),
     ):
         # given vocabulary expected to describe how predicates are represented in jsonapi:
         #   - jsonapi member name:
@@ -42,6 +44,7 @@ class RdfJsonapiRenderer:
         self._labeler = labeler
         self._tripledict = data
         self._jsonld_renderer = RdfAsJsonld(vocabulary, self._labeler)
+        self._id_namespace_set = set(id_namespace_set)
         self.__twopledict_cache = {}
         self.__resource_id_cache = {}
         self.__resource_type_cache = {}
@@ -74,8 +77,8 @@ class RdfJsonapiRenderer:
             elif _predicate != gather.RDF.type:
                 _attributes[_predicate] = _obj_set
         _resource_obj = {
-            'id': self._resource_id(iri_or_blanknode),
-            'type': self._resource_type(iri_or_blanknode),
+            'id': self.jsonapi_resource_id(iri_or_blanknode),
+            'type': self.jsonapi_resource_type(iri_or_blanknode),
             'attributes': self._jsonld_renderer.twopledict_as_jsonld(_attributes),
             # TODO: links, meta?
         }
@@ -133,14 +136,15 @@ class RdfJsonapiRenderer:
             return _twopledict
 
     def _make_resource_id_for_blanknode(self, blanknode: frozenset):
-        _blanknode_as_json = self._jsonld_renderer.twopledict_as_jsonld(
-            self._resource_twopledict(blanknode)
+        _blanknode_as_json = json.dumps(
+            self._jsonld_renderer.twopledict_as_jsonld(self._resource_twopledict(blanknode)),
+            sort_keys=True,
         )
         # content-addressed blanknode id
         return hashlib.sha256(_blanknode_as_json.encode()).hexdigest()
 
     def _make_resource_id_for_iri(self, iri: str):
-        for _iri_namespace in self.id_namespace_set:
+        for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
                 return gather.IriNamespace.without_namespace(iri, namespace=_iri_namespace)
         # hash the iri for a valid jsonapi member name
