@@ -20,7 +20,7 @@ class RdfIngestView(View):
         # TODO: permissions, validate focus_iri domain with user Source?
         if not request.user.is_authenticated:
             return http.HttpResponse(status=401)
-        # TODO: declare params as dataclass
+        # TODO: declare/validate params with dataclass
         _focus_iri = request.GET.get('focus_iri')
         if not _focus_iri:
             return http.HttpResponse('focus_iri queryparam required', status=400)
@@ -34,6 +34,7 @@ class RdfIngestView(View):
                 record_identifier=_record_identifier,
                 record_mediatype=request.content_type,
                 focus_iri=_focus_iri,
+                urgent=True,  # TODO: `urgent` query param (support non-urgent bulk ingest)
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))

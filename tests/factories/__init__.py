@@ -115,30 +115,6 @@ class HarvestJobFactory(DjangoModelFactory):
         model = models.HarvestJob
 
 
-class IngestJobFactory(DjangoModelFactory):
-    source_config = factory.SelfAttribute('suid.source_config')
-    suid = factory.SelfAttribute('raw.suid')
-    raw = factory.SubFactory(RawDatumFactory)
-    source_config_version = factory.SelfAttribute('source_config.version')
-    transformer_version = factory.SelfAttribute('source_config.transformer.version')
-    regulator_version = 1
-
-    class Meta:
-        model = models.IngestJob
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        ingest_job = super()._generate(create, attrs)
-
-        # HACK: allow overriding auto_now_add on date_created
-        date_created = attrs.pop('date_created', None)
-        if date_created is not None:
-            ingest_job.date_created = date_created
-            ingest_job.save()
-
-        return ingest_job
-
-
 class CeleryTaskResultFactory(DjangoModelFactory):
     task_id = factory.Sequence(lambda x: uuid.uuid4())
     task_name = fuzzy.FuzzyChoice(list(celery_app.tasks.keys()))

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('share', '0068_tidy_ingestjob'),
+        ('share', '0066_drop_harvester_transformer_c'),
     ]
 
     operations = [

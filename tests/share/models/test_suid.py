@@ -1,7 +1,6 @@
 import pytest
 
 from tests.factories import (
-    IngestJobFactory,
     RawDatumFactory,
     SourceUniqueIdentifierFactory,
 )
@@ -38,25 +37,6 @@ class TestSourceUniqueIdentifier:
         RawDatumFactory(suid=suid, datestamp=None, date_created='2021-01-01 00:00Z')
 
         actual = suid.most_recent_raw_datum()
-        assert expected == actual
-
-    def test_ingest_job(self):
-        suid = SourceUniqueIdentifierFactory()
-
-        IngestJobFactory(suid=suid, date_started=None, date_created='2021-01-01 00:00Z')
-        expected = IngestJobFactory(suid=suid, date_started='2021-01-02 00:00Z', date_created='2021-01-01 00:00Z')
-        IngestJobFactory(suid=suid, date_started='2021-01-01 00:00Z', date_created='2021-01-01 00:00Z')
-
-        actual = suid.ingest_job
-        assert expected == actual
-
-    def test_ingest_job__date_started_wins(self):
-        suid = SourceUniqueIdentifierFactory()
-
-        expected = IngestJobFactory(suid=suid, date_started='2021-01-02 00:00Z', date_created='2021-01-01 00:00Z')
-        IngestJobFactory(suid=suid, date_started='2021-01-01 00:00Z', date_created='2021-01-03 00:00Z')
-
-        actual = suid.ingest_job
         assert expected == actual
 
     def test_date_first_seen(self):

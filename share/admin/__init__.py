@@ -15,23 +15,27 @@ from oauth2_provider.models import AccessToken
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
-from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.search import search_indexes_view
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
-from share.ingest.scheduler import IngestScheduler
-from share.models.banner import SiteBanner
-from share.models.celery import CeleryTaskResult
-from share.models.core import NormalizedData, ShareUser, FormattedMetadataRecord
-from share.models.feature_flag import FeatureFlag
-from share.models.fields import DateTimeAwareJSONField
-from share.models.index_backfill import IndexBackfill
-from share.models.ingest import RawDatum, Source, SourceConfig, SourceUniqueIdentifier
-from share.models.jobs import HarvestJob
-from share.models.jobs import IngestJob
-from share.models.registration import ProviderRegistration
-from share.models.sources import SourceStat
+from share.models import (
+    CeleryTaskResult,
+    DateTimeAwareJSONField,
+    FeatureFlag,
+    FormattedMetadataRecord,
+    HarvestJob,
+    IndexBackfill,
+    NormalizedData,
+    ProviderRegistration,
+    RawDatum,
+    ShareUser,
+    SiteBanner,
+    Source,
+    SourceConfig,
+    SourceStat,
+    SourceUniqueIdentifier,
+)
 from trove import digestive_tract
 
 
@@ -56,10 +60,6 @@ class ShareUserAdmin(admin.ModelAdmin):
 
 @linked_fk('raw')
 @linked_fk('source')
-@linked_many(
-    'ingest_jobs',
-    order_by=['-date_created'],
-)
 class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
@@ -252,7 +252,6 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 
 @linked_fk('source_config')
-@linked_fk('ingest_job')  # technically not fk but still works
 @linked_fk('focus_identifier')
 @linked_many('formattedmetadatarecord_set')
 @linked_many('raw_data')
@@ -267,7 +266,13 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     search_fields = ('identifier',)
 
     def reingest(self, request, queryset):
-        IngestScheduler().bulk_reingest(queryset)
+        _raw_id_queryset = (
+            RawDatum.objects
+            .latest_by_suid_queryset(queryset)
+            .values_list('id', flat=True)
+        )
+        for _raw_id in _raw_id_queryset:
+            digestive_tract.task__extract_and_derive.delay(raw_id=_raw_id)
 
     def delete_formatted_records_for_suid(self, request, queryset):
         for suid in queryset:
@@ -319,7 +324,6 @@ admin_site.register(FeatureFlag, FeatureFlagAdmin)
 admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin_site.register(HarvestJob, HarvestJobAdmin)
 admin_site.register(IndexBackfill, IndexBackfillAdmin)
-admin_site.register(IngestJob, IngestJobAdmin)
 admin_site.register(NormalizedData, NormalizedDataAdmin)
 admin_site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin_site.register(RawDatum, RawDatumAdmin)

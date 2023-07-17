@@ -4,15 +4,12 @@ import uuid
 import pytest
 
 from share.tasks import harvest
-from share.tasks import ingest
 from share.tasks.jobs import HarvestJobConsumer
-from share.tasks.jobs import IngestJobConsumer
 from tests import factories
 
 
 @pytest.mark.parametrize('task, Consumer', [
     (harvest, HarvestJobConsumer),
-    (ingest, IngestJobConsumer),
 ])
 @pytest.mark.parametrize('kwargs', [
     {},
@@ -29,7 +26,6 @@ def test_task_calls_consumer(task, Consumer, kwargs, monkeypatch):
 @pytest.mark.usefixtures('nested_django_db')
 @pytest.mark.parametrize('Consumer, JobFactory', [
     (HarvestJobConsumer, factories.HarvestJobFactory),
-    (IngestJobConsumer, factories.IngestJobFactory),
 ])
 class TestJobConsumer:
 

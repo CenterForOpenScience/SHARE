@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='derivedindexcard',
             name='upriver_indexcard',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='trove.indexcard'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='derived_indexcard_set', to='trove.indexcard'),
         ),
         migrations.AddField(
             model_name='archivedindexcardrdf',

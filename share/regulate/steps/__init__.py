@@ -1,7 +1,6 @@
 import abc
 
 from share.exceptions import RegulateError
-from share.models import RegulatorLog
 
 
 class BaseStep(abc.ABC):
@@ -13,13 +12,13 @@ class BaseStep(abc.ABC):
     def info(self, description, node_id=None):
         """Log information about a change made to the graph.
         """
-        log = RegulatorLog(description=description, rejected=False, node_id=node_id)
+        log = dict(description=description, rejected=False, node_id=node_id)
         self.logs.append(log)
 
     def error(self, description, node_id=None, exception=None):
         """Indicate a severe problem with the data, halt regulation.
         """
-        log = RegulatorLog(description=description, rejected=True, node_id=node_id)
+        log = dict(description=description, rejected=True, node_id=node_id)
         self.logs.append(log)
         raise RegulateError('Regulation failed: {}'.format(description)) from exception
 
@@ -103,6 +102,6 @@ class ValidationStep(BaseStep):
     def reject(self, description, node_id=None, exception=None):
         """Indicate a regulated graph failed validation and will not be merged into the SHARE dataset.
         """
-        log = RegulatorLog(description=description, rejected=True, node_id=node_id)
+        log = dict(description=description, rejected=True, node_id=node_id)
         self.logs.append(log)
         raise RegulateError('Graph failed validation: {}'.format(description)) from exception

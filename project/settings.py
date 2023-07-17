@@ -384,16 +384,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'share.tasks.harvest',
         'schedule': 120,
     },
-    # Every 2 minutes
-    'Ingest Task': {
-        'task': 'share.tasks.ingest',
-        'schedule': 120,
-    },
-    # Executes daily at 10:30 P.M
-    'IngestJob Janitor': {
-        'task': 'share.janitor.tasks.ingestjob_janitor',
-        'schedule': crontab(hour=22, minute=30),
-    },
 }
 
 if not DEBUG:
@@ -401,10 +391,6 @@ if not DEBUG:
         **CELERY_BEAT_SCHEDULE,
         'Schedule Harvests': {
             'task': 'share.tasks.schedule_harvests',
-            'schedule': crontab(minute=0)  # hourly
-        },
-        'RawData Janitor': {
-            'task': 'share.janitor.tasks.rawdata_janitor',
             'schedule': crontab(minute=0)  # hourly
         },
         'Source Stats': {
@@ -431,7 +417,6 @@ CELERY_TASK_DEFAULT_EXCHANGE = 'share_default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 
 URGENT_TASK_QUEUES = {
-    'share.tasks.ingest': 'ingest.urgent',
     'trove.digestive_tract.task__extract_and_derive': 'digestive_tract.urgent',
 }
 
@@ -450,7 +435,6 @@ CELERY_TASK_ROUTES = [
     route_urgent_task,
     {
         'share.tasks.harvest': {'queue': 'harvest'},
-        'share.tasks.ingest': {'queue': 'ingest'},
         'trove.digestive_tract.*': {'queue': 'digestive_tract'},
     },
 ]
@@ -458,8 +442,6 @@ CELERY_TASK_QUEUES = {
     'share_default': {},
     'elasticsearch': {},
     'harvest': {},
-    'ingest': {},
-    'ingest.urgent': {},
     'digestive_tract': {},
     'digestive_tract.urgent': {},
 }
@@ -505,7 +487,6 @@ LOGGING = {
 # shell_plus convenience utilities
 SHELL_PLUS_POST_IMPORTS = (
     ('share.shell_util', '*'),
-    ('share.ingest.scheduler', 'IngestScheduler'),
 )
 
 
@@ -518,10 +499,6 @@ EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rst
 SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
-
-# Default value for IngestJobConsumer's only_canonical param.
-# Allows turning off ingestion for all non-canonical sources.
-INGEST_ONLY_CANONICAL_DEFAULT = True
 
 # Skip some of the more intensive operations on works that surpass these limits
 SHARE_LIMITS = {

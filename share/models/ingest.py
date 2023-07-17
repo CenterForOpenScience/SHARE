@@ -377,12 +377,13 @@ class RawDatumManager(FuzzyCountManager):
         return _raw
 
     def latest_by_suid_id(self, suid_id) -> models.QuerySet:
-        return self.latest_by_suid_filter(models.Q(id=suid_id))
+        return self.latest_by_suid_queryset(
+            SourceUniqueIdentifier.objects.filter(id=suid_id),
+        )
 
-    def latest_by_suid_filter(self, suid_filter) -> models.QuerySet:
+    def latest_by_suid_queryset(self, suid_queryset) -> models.QuerySet:
         return self.filter(id__in=(
-            SourceUniqueIdentifier.objects
-            .filter(suid_filter)
+            suid_queryset
             .annotate(latest_rawdatum_id=models.Subquery(
                 RawDatum.objects
                 .filter(suid_id=models.OuterRef('id'))

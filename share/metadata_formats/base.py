@@ -1,18 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from share.models.core import NormalizedData
-from share.models.ingest import SourceUniqueIdentifier
-
 
 class MetadataFormatter(ABC):
     @abstractmethod
-    def format(self, normalized_data: NormalizedData) -> Optional[str]:
+    def format(self, normalized_data) -> Optional[str]:
         """return a string representation of the given metadata in the formatter's format
         """
         raise NotImplementedError
 
-    def format_as_deleted(self, suid: SourceUniqueIdentifier) -> Optional[str]:
+    def format_as_deleted(self, suid) -> Optional[str]:
         """return a string representation of a deleted suid
 
         if returns None, the corresponding FormattedMetadataRecord will be deleted

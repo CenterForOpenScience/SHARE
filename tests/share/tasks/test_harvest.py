@@ -14,7 +14,7 @@ from django.db import DatabaseError
 from share.harvest.base import FetchResult
 from share.harvest.exceptions import HarvesterConcurrencyError
 from share.models import Source
-from share.models import HarvestJob, IngestJob
+from share.models import HarvestJob
 from share.models import RawDatum
 from share import tasks
 from share.harvest.scheduler import HarvestScheduler
@@ -129,7 +129,6 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
         assert 'DatabaseError: In a test' in job.error_context
-        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
     def test_partial_harvest_fails(self, source_config, monkeypatch):
         job = factories.HarvestJobFactory(source_config=source_config)
@@ -151,7 +150,6 @@ class TestHarvestTask:
         assert job.status == HarvestJob.STATUS.failed
         assert job.completions == 0
         assert 'ValueError: In a test' in job.error_context
-        assert IngestJob.objects.filter(status=IngestJob.STATUS.created).count() == 3
 
     def test_job_values(self, source_config):
         task_id = uuid.uuid4()
@@ -214,18 +212,6 @@ class TestHarvestTask:
             assert RawDatum.objects.filter().count() <= rediscovered + max(0, min(limit, count - rediscovered))
         else:
             assert RawDatum.objects.filter().count() == (count if limit is None or count < limit else limit)
-
-        ingest_count = IngestJob.objects.filter(status=IngestJob.STATUS.created).count()
-        if ingest:
-            if superfluous:
-                assert ingest_count == min(count, limit or 99999)
-            elif limit is not None:
-                assert ingest_count <= min(limit, count)
-                assert ingest_count >= min(limit, count) - rediscovered
-            else:
-                assert ingest_count == count - rediscovered
-        else:
-            assert ingest_count == 0
 
     def test_handles_duplicate_values(self, source_config):
         fake = Factory.create()

@@ -355,8 +355,8 @@ class TestValidator:
 
         kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first())
 
-        with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
-            mock_ingest.delay().id = '123'
+        with mock.patch('api.normalizeddata.views.digestive_tract') as mock_digestive_tract:
+            mock_digestive_tract.swallow__sharev2_legacy.return_value = '123'
             assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
     @pytest.mark.django_db
@@ -384,11 +384,11 @@ class TestValidator:
 
         kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(robot_user.oauth2_provider_accesstoken.first())
 
-        with mock.patch('api.normalizeddata.views.ingest') as mock_ingest:
-            mock_ingest.delay().id = '123'
+        with mock.patch('api.normalizeddata.views.digestive_tract') as mock_digestive_tract:
+            mock_digestive_tract.swallow__sharev2_legacy.return_value = '123'
             response = client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
         assert response.status_code == 202
         assert response.json()['data']['id'] is not None
         assert response.json()['data']['type'] == 'NormalizedData'
-        assert response.json()['data']['attributes'].keys() == {'task', 'ingest_job'}
+        assert response.json()['data']['attributes'].keys() == {'task'}

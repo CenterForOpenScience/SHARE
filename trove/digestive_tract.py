@@ -14,7 +14,6 @@ import typing
 
 import celery
 from django.db import transaction
-from django.db.models import Q
 import gather
 
 from share import models as share_db
@@ -69,7 +68,36 @@ def swallow(
         mediatype=record_mediatype,
         datestamp=datestamp,
     )
-    task__extract_and_derive.delay(_raw.id, urgent=True)
+    _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
+    return _task.id
+
+
+@transaction.atomic
+def swallow__sharev2_legacy(
+    *,  # all keyword-args
+    from_user: share_db.ShareUser,
+    record: str,
+    record_identifier: str,
+    transformer_key: str,
+    datestamp=None,  # default "now"
+    urgent=False,
+):
+    _source_config = (
+        share_db.SourceConfig.objects
+        .get_or_create_push_config(from_user, transformer_key)
+    )
+    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.update_or_create(
+        source_config=_source_config,
+        identifier=record_identifier,
+    )
+    _raw = share_db.RawDatum.objects.store_datum_for_suid(
+        suid=_suid,
+        datum=record,
+        mediatype=None,  # indicate sharev2-legacy flow
+        datestamp=datestamp,
+    )
+    _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
+    return _task.id
 
 
 def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
@@ -91,7 +119,7 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _extracted_tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
     _tripledicts_by_focus_iri = {}
-    if raw.suid.focus_identifier is None:  # back-compat
+    if raw.mediatype is None:  # back-compat
         from trove.extract.legacy_sharev2 import LegacySharev2Extractor
         assert isinstance(_extractor, LegacySharev2Extractor)
         _focus_iri = _extractor.extracted_focus_iri
@@ -174,7 +202,10 @@ def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str):
 def task__schedule_extract_and_derive_for_source_config(source_config_id: int):
     _raw_id_qs = (
         share_db.RawDatum.objects
-        .latest_by_suid_filter(Q(source_config_id=source_config_id))
+        .latest_by_suid_queryset(
+            share_db.SourceUniqueIdentifier.objects
+            .filter(source_config_id=source_config_id)
+        )
         .values_list('id', flat=True)
     )
     for _raw_id in _raw_id_qs.iterator():

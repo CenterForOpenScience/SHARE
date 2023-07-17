@@ -8,8 +8,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 import sentry_sdk
 
-from share import models
-from share.util import IDObfuscator
+from share import models as share_db
 from share.util.graph import MutableGraph
 from share.util.osf import guess_osf_guid
 from api.base.views import ShareViewSet
@@ -65,7 +64,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         return BasicNormalizedDataSerializer
 
     def get_queryset(self):
-        return models.NormalizedData.objects.all()
+        return share_db.NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
         if share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
@@ -94,22 +93,23 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             suid = guess_osf_guid(MutableGraph.from_jsonld(data))
             if not suid:
                 raise ValidationError("'suid' is a required attribute")
-        digestive_tract.swallow(
+        _task_id = digestive_tract.swallow__sharev2_legacy(
             from_user=request.user,
             record=json.dumps(data, sort_keys=True),
             record_identifier=suid,
-            record_mediatype=None,  # trigger legacy-sharev2 ingestion
-            focus_iri=None,  # only valid for legacy-sharev2 ingestion
+            transformer_key='v2_push',
             urgent=True,
         )
         return Response({
             'data': {
                 'type': 'NormalizedData',
-                'attributes': {},
+                'attributes': {
+                    'task': _task_id,
+                },
             },
             'meta': {
                 'warning': (
-                    'this route is deprecated and will be removed'
+                    'this route is deprecated and may be removed'
                     f' (consider {reverse("trove.ingest-rdf")} instead)'
                 ),
             },
