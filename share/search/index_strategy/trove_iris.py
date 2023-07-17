@@ -416,10 +416,11 @@ class _PropertyPathWalker:
                         yield (_pathtuple, _obj)
                     elif isinstance(_obj, str):  # IRI
                         yield (_pathtuple, _obj)
-                        if _obj in self._visiting:
+                        if _obj not in self._visiting:
                             _next_twopledict = self.tripledict.get(_obj)
                     elif isinstance(_obj, frozenset):
-                        _next_twopledict = gather.twopleset_as_twopledict(_obj)
-                    if _next_twopledict and (_obj not in self._visiting):
+                        if _obj not in self._visiting:
+                            _next_twopledict = gather.twopleset_as_twopledict(_obj)
+                    if _next_twopledict:
                         with self._visit(_obj):
                             yield from self._walk_twopledict(_next_twopledict)

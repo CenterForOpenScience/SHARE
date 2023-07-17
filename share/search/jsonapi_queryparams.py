@@ -43,7 +43,7 @@ class JsonapiQueryparamName:
             bracketed_match = QUERYPARAM_FAMILYMEMBER_REGEX.match(queryparam_name, next_position)
             if not bracketed_match:
                 raise ValueError(f'invalid queryparam name "{queryparam_name}"')
-            bracketed_names.append(bracketed_match.group('member_name'))
+            bracketed_names.append(bracketed_match.group('member_name') or '')
             next_position = bracketed_match.end()
         if next_position != len(queryparam_name):
             raise ValueError(f'invalid queryparam name "{queryparam_name}"')
@@ -67,7 +67,7 @@ JsonapiQueryparamDict = dict[
 
 def queryparams_from_iri(iri: str) -> JsonapiQueryparamDict:
     _parsed_iri = urllib.parse.urlparse(iri)
-    return queryparams_from_querystring(QueryDict(_parsed_iri.query))
+    return queryparams_from_querystring(_parsed_iri.query)
 
 
 def queryparams_from_querystring(querystring: str) -> JsonapiQueryparamDict:
@@ -75,11 +75,11 @@ def queryparams_from_querystring(querystring: str) -> JsonapiQueryparamDict:
     _querydict = QueryDict(querystring)
     for _unparsed_name, _param_value_list in _querydict.lists():
         _parsed_name = JsonapiQueryparamName.from_str(_unparsed_name)
-        for param_value in _param_value_list:
+        for _param_value in _param_value_list:
             (
                 _queryparams
                 .setdefault(_parsed_name.family, [])
-                .append((_parsed_name, param_value))
+                .append((_parsed_name, _param_value))
             )
     return _queryparams
 

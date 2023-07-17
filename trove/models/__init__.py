@@ -1,3 +1,10 @@
-__all__ = ('Indexcard', 'IndexcardRdf', 'LatestIndexcardRdf', 'ArchivedIndexcardRdf', 'DerivedIndexcard', 'ResourceIdentifier')
+__all__ = (
+    'ResourceIdentifier',
+    'Indexcard',
+    'IndexcardRdf',
+    'LatestIndexcardRdf',
+    'ArchivedIndexcardRdf',
+    'DerivedIndexcard',
+)
 from .indexcard import Indexcard, IndexcardRdf, LatestIndexcardRdf, ArchivedIndexcardRdf, DerivedIndexcard
 from .resource_identifier import ResourceIdentifier
