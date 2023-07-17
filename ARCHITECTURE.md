@@ -1,4 +1,6 @@
 # Architecture of SHARE/Trove
+> NOTE: this document requires update (big ol' TODO)
+
 
 This document is a starting point and reference to familiarize yourself with this codebase.
 
