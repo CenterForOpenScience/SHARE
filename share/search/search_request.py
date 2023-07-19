@@ -5,7 +5,7 @@ import logging
 import typing
 
 from share.search import exceptions
-from share.search.jsonapi_queryparams import (
+from trove.jsonapi.queryparams import (
     JsonapiQueryparamDict,
     JsonapiQueryparamName,
     split_queryparam_value,

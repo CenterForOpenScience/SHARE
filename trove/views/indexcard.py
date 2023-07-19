@@ -16,7 +16,7 @@ class IndexcardView(View):
         })
         _indexcard_iri = trove_indexcard_iri(indexcard_uuid)
         _search_gathering.ask(
-            gather.focus(_indexcard_iri, TROVE.Card),
+            gather.focus(_indexcard_iri, TROVE.Indexcard),
             {},  # TODO: build from `include`/`fields`
         )
         _response_tripledict = _search_gathering.leaf_a_record()

@@ -2,7 +2,7 @@ import json
 
 import gather
 
-from trove.vocab.trove import TROVE_VOCAB, trove_labeler, trove_indexcard_namespace
+from trove.vocab.trove import TROVE_API_VOCAB, trove_labeler, trove_indexcard_namespace
 from .jsonapi import RdfJsonapiRenderer
 
 
@@ -25,12 +25,12 @@ def render_from_rdf(
     if to_mediatype == JSONAPI_MEDIATYPE:
         _renderer = RdfJsonapiRenderer(
             data=rdf_tripledict,
-            vocabulary=TROVE_VOCAB,
+            vocabulary=TROVE_API_VOCAB,
             labeler=trove_labeler,
             id_namespace_set=[trove_indexcard_namespace()],
         )
         return json.dumps(
-            _renderer.jsonapi_datum_document(focus_iri),
+            _renderer.jsonapi_data_document(focus_iri),
             indent=2,  # TODO: pretty-print query param?
         )
     raise ValueError(f'unsupported mediatype "{to_mediatype}"')

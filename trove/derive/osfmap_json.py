@@ -1,6 +1,6 @@
 import json
 
-from trove.render.jsonld import RdfAsJsonld
+from trove.render.jsonld import RdfJsonldRenderer
 from trove.vocab.osfmap import OSFMAP_VOCAB, osfmap_labeler
 from trove.vocab.trove import TROVE
 from ._base import IndexcardDeriver
@@ -19,7 +19,7 @@ class OsfmapJsonDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     def derive_card_as_text(self):
         return json.dumps(
-            RdfAsJsonld(OSFMAP_VOCAB, osfmap_labeler).tripledict_as_nested_jsonld(
+            RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).tripledict_as_nested_jsonld(
                 self.tripledict,
                 self.focus_iri,
             )

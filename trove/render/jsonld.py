@@ -6,7 +6,7 @@ import gather
 from share.util.rdfutil import IriLabeler
 
 
-class RdfAsJsonld:
+class RdfJsonldRenderer:
     def __init__(self, vocabulary: gather.RdfTripleDictionary, labeler: IriLabeler):
         self.vocabulary = vocabulary
         self.labeler = labeler
@@ -14,7 +14,11 @@ class RdfAsJsonld:
     def simple_jsonld_context(self):
         return self.labeler.all_iris_by_label()
 
-    def rdfobject_as_jsonld(self, rdfobject: gather.RdfObject):
+    def tripledict_as_nested_jsonld(self, tripledict: gather.RdfTripleDictionary, focus_iri: str):
+        self.__nestvisited_iris = set()
+        return self.__nested_rdfobject_as_jsonld(tripledict, focus_iri)
+
+    def rdfobject_as_jsonld(self, rdfobject: gather.RdfObject) -> dict:
         if isinstance(rdfobject, frozenset):
             return self.twopledict_as_jsonld(
                 gather.twopleset_as_twopledict(rdfobject),
@@ -63,10 +67,6 @@ class RdfAsJsonld:
                 for _obj in _objectset
             ])
         return _jsonld
-
-    def tripledict_as_nested_jsonld(self, tripledict: gather.RdfTripleDictionary, focus_iri: str):
-        self.__nestvisited_iris = set()
-        return self.__nested_rdfobject_as_jsonld(tripledict, focus_iri)
 
     def __nested_rdfobject_as_jsonld(
         self,

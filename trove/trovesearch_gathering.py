@@ -8,7 +8,8 @@ from share.search.search_request import (
     ValuesearchParams,
 )
 from trove import models as trove_db
-from trove.vocab.trove import TROVE, TROVE_VOCAB, trove_indexcard_namespace
+from trove.vocab.iri_namespace import RDF
+from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
 
 
 TROVE_GATHERING_NORMS = gather.GatheringNorms(
@@ -17,12 +18,12 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms(
         gather.text('search for "index cards" that describe resources', language_tag='en'),
     ),
     focustype_iris={
-        TROVE.Card,
+        TROVE.Indexcard,
         TROVE.Cardsearch,
         TROVE.Propertysearch,
         TROVE.Valuesearch,
     },
-    vocabulary=TROVE_VOCAB,
+    vocabulary=TROVE_API_VOCAB,
 )
 
 
@@ -76,13 +77,13 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
 def gather_cardsearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, CardsearchParams)
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
-    # yield (TROVE.WOOP, gather.text(json.dumps(_cardsearch_resp), language_iri=gather.RDF.JSON))
+    # yield (TROVE.WOOP, gather.text(json.dumps(_cardsearch_resp), language_iri=RDF.JSON))
     yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
     for _result in _cardsearch_resp.search_result_page:
-        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
-                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.propertyPath, _evidence.property_path),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.indexCard, _evidence.card_iri),
@@ -90,7 +91,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
             for _evidence in _result.text_match_evidence
         )
         yield (TROVE.searchResult, frozenset((
-            (gather.RDF.type, TROVE.SearchResult),
+            (RDF.type, TROVE.SearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
@@ -104,10 +105,10 @@ def gather_propertysearch(focus, *, specific_index, search_params):
     _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
     yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
     for _result in _propertysearch_resp.search_result_page:
-        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
-                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.propertyPath, _evidence.property_path),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.card, _evidence.card_iri),
@@ -115,7 +116,7 @@ def gather_propertysearch(focus, *, specific_index, search_params):
             for _evidence in _result.text_match_evidence
         )
         yield (TROVE.searchResult, frozenset((
-            (gather.RDF.type, TROVE.SearchResult),
+            (RDF.type, TROVE.SearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
@@ -127,14 +128,14 @@ def gather_propertysearch(focus, *, specific_index, search_params):
 def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
-    yield (TROVE.WOOP, gather.text(json.dumps(_valuesearch_resp), language_iri=gather.RDF.JSON))
+    yield (TROVE.WOOP, gather.text(json.dumps(_valuesearch_resp), language_iri=RDF.JSON))
     return  # TODO
     yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     for _result in _valuesearch_resp.search_result_page:
-        yield (_result.card_iri, gather.RDF.type, TROVE.Card)
+        yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
-                (gather.RDF.type, TROVE.TextMatchEvidence),
+                (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.propertyPath, _evidence.property_path),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.card, _evidence.card_iri),
@@ -142,14 +143,14 @@ def gather_valuesearch(focus, *, specific_index, search_params):
             for _evidence in _result.text_match_evidence
         )
         yield (TROVE.searchResult, frozenset((
-            (gather.RDF.type, TROVE.SearchResult),
+            (RDF.type, TROVE.SearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
 
 
 @trovesearch_by_indexstrategy.gatherer(
-    focustype_iris={TROVE.Card},
+    focustype_iris={TROVE.Indexcard},
 )
 def gather_card(focus, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
@@ -184,7 +185,7 @@ def gather_card(focus, **kwargs):
         yield (TROVE.resourceIdentifier, _identifier.as_iri())
     yield (
         TROVE.resourceMetadata,
-        gather.text(_osfmap_indexcard.derived_text, language_iri=gather.RDF.JSON)
+        gather.text(_osfmap_indexcard.derived_text, language_iri=RDF.JSON)
     )
 
 

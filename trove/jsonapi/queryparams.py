@@ -2,6 +2,7 @@ import dataclasses
 import re
 import urllib
 
+# TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
 
 
