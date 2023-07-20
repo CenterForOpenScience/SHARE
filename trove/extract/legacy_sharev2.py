@@ -2,16 +2,11 @@ import datetime
 import typing
 
 from django.conf import settings
-from gather import (
-    focus,
-    text,
-    IANA_LANGUAGE,
-    GatheringOrganizer,
-)
+from gather import primitive_rdf, gathering
 
 from share.util.graph import MutableNode
 from share.regulate import Regulator
-from trove.vocab.iri_namespace import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2
+from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2
 from trove.vocab.osfmap import OSFMAP_NORMS
 from ._base import BaseRdfExtractor
 
@@ -40,9 +35,9 @@ class LegacySharev2Extractor(BaseRdfExtractor):
 ###
 # gathering OSFMAP-ish RDF from SHAREv2 NormalizedData
 
-osfmap_from_normd = GatheringOrganizer(
+osfmap_from_normd = gathering.GatheringOrganizer(
     namestory=(
-        text('sharev2-normd'),
+        primitive_rdf.text('sharev2-normd'),
     ),
     norms=OSFMAP_NORMS,
     gatherer_kwargnames={'mnode', 'source_config'},
@@ -56,29 +51,29 @@ osfmap_from_normd = GatheringOrganizer(
 })
 def _gather_work(focus, *, mnode, source_config):
     for _iri in focus.iris:
-        yield (DCTERMS.identifier, text(_iri))
+        yield (DCTERMS.identifier, primitive_rdf.text(_iri))
     _language_tag = mnode['language']
     _language_iri = (
-        IANA_LANGUAGE[_language_tag]
+        primitive_rdf.IANA_LANGUAGE[_language_tag]
         if _language_tag
         else None
     )
-    yield (DCTERMS.title, text(mnode['title'], language_iri=_language_iri))
-    yield (DCTERMS.description, text(mnode['description'], language_iri=_language_iri))
+    yield (DCTERMS.title, primitive_rdf.text(mnode['title'], language_iri=_language_iri))
+    yield (DCTERMS.description, primitive_rdf.text(mnode['description'], language_iri=_language_iri))
     yield (DCTERMS.created, _date_or_none(mnode['date_published']))
     yield (DCTERMS.modified, _date_or_none(mnode['date_updated']))
     yield (DCTERMS.date, _date_or_none(mnode['date_published'] or mnode['date_updated']))
-    yield (DCTERMS.rights, text(mnode['free_to_read_type']))
-    yield (DCTERMS.available, text(mnode['free_to_read_date']))
-    yield (DCTERMS.rights, text(mnode['rights']))
-    yield (DCTERMS.language, text(_language_tag))
-    yield (OSFMAP.registration_type, text(mnode['registration_type']))  # TODO: not in OSFMAP
-    yield (OSFMAP.dateWithdrawn, text(mnode['withdrawn']))  # TODO: is boolean, not date
-    yield (OSFMAP.withdrawalJustification, text(mnode['justification']))  # TODO: not in OSFMAP
+    yield (DCTERMS.rights, primitive_rdf.text(mnode['free_to_read_type']))
+    yield (DCTERMS.available, primitive_rdf.text(mnode['free_to_read_date']))
+    yield (DCTERMS.rights, primitive_rdf.text(mnode['rights']))
+    yield (DCTERMS.language, primitive_rdf.text(_language_tag))
+    yield (OSFMAP.registration_type, primitive_rdf.text(mnode['registration_type']))  # TODO: not in OSFMAP
+    yield (OSFMAP.dateWithdrawn, primitive_rdf.text(mnode['withdrawn']))  # TODO: is boolean, not date
+    yield (OSFMAP.withdrawalJustification, primitive_rdf.text(mnode['justification']))  # TODO: not in OSFMAP
     for _subject in mnode['subjects']:
-        yield (DCTERMS.subject, text(_subject['name']))  # TODO: iri? lineage?
+        yield (DCTERMS.subject, primitive_rdf.text(_subject['name']))  # TODO: iri? lineage?
     for _tag in mnode['tags']:
-        yield (OSFMAP.keyword, text(_tag['name']))
+        yield (OSFMAP.keyword, primitive_rdf.text(_tag['name']))
     for _agent_relation in mnode['agent_relations']:
         yield (
             _agentwork_relation_iri(_agent_relation),
@@ -119,12 +114,12 @@ def _gather_work_subjects(focus, *, mnode, source_config):
 def _gather_agent(focus, *, mnode, source_config):
     for _iri in focus.iris:
         if not _iri.startswith('_:'):  # HACK: non-blank blank node (stop that)
-            yield (DCTERMS.identifier, text(_iri))
+            yield (DCTERMS.identifier, primitive_rdf.text(_iri))
     if 'Person' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Person)
     if 'Organization' in mnode.schema_type.type_lineage:
         yield (DCTERMS.type, FOAF.Organization)
-    yield (FOAF.name, text(mnode['name']))
+    yield (FOAF.name, primitive_rdf.text(mnode['name']))
     for _agent_relation in mnode['outgoing_agent_relations']:
         yield (
             OSFMAP.affiliation,
@@ -154,7 +149,7 @@ def _choose_iri(iris):
 
 
 def _focus_for_mnode(mnode: MutableNode):
-    return focus(
+    return gathering.focus(
         frozenset(_iris_for_mnode(mnode)),
         frozenset(_focustype_iris(mnode)),
         {'mnode': mnode},

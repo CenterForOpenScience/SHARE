@@ -1,6 +1,6 @@
 import abc
 
-import gather
+from gather import primitive_rdf
 
 from trove.models import IndexcardRdf
 
@@ -8,12 +8,12 @@ from trove.models import IndexcardRdf
 class IndexcardDeriver(abc.ABC):
     upriver_rdf: IndexcardRdf
     focus_iri: str
-    tripledict: gather.RdfTripleDictionary
+    data: primitive_rdf.TripledictWrapper
 
     def __init__(self, upriver_rdf: IndexcardRdf):
         self.upriver_rdf = upriver_rdf
         self.focus_iri = upriver_rdf.focus_iri
-        self.tripledict = upriver_rdf.as_rdf_tripledict()
+        self.data = primitive_rdf.TripledictWrapper(upriver_rdf.as_rdf_tripledict())
 
     ###
     # for subclasses to implement:

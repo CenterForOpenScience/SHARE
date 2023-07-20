@@ -20,7 +20,7 @@ class OsfmapJsonDeriver(IndexcardDeriver):
     def derive_card_as_text(self):
         return json.dumps(
             RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).tripledict_as_nested_jsonld(
-                self.tripledict,
+                self.data.tripledict,
                 self.focus_iri,
             )
         )

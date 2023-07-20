@@ -3,7 +3,7 @@ import random
 
 from django import http
 from django.views.generic.base import TemplateView
-import gather
+from gather import primitive_rdf
 
 from share.util import rdfutil
 from trove import models as trove_db
@@ -48,7 +48,7 @@ class _IndexcardContextBuilder:
         self._visiting.remove(_iri)
         return _indexcard_context
 
-    def _nested_twopleset_context(self, twopledict: gather.RdfTwopleDictionary) -> list:
+    def _nested_twopleset_context(self, twopledict: primitive_rdf.RdfTwopleDictionary) -> list:
         _nested_twopleset = []
         for _predicate_iri, _objectset in twopledict.items():
             _nested_twopleset.append({
@@ -60,7 +60,7 @@ class _IndexcardContextBuilder:
             })
         return _nested_twopleset
 
-    def _nested_object_context(self, rdfobject: gather.RdfObject) -> dict:
+    def _nested_object_context(self, rdfobject: primitive_rdf.RdfObject) -> dict:
         if isinstance(rdfobject, str):
             _iriref_context = self._iri_context(rdfobject)
             if (rdfobject not in self._visiting) and (rdfobject in self._tripledict):
@@ -70,7 +70,7 @@ class _IndexcardContextBuilder:
                 )
                 self._visiting.remove(rdfobject)
             return _iriref_context
-        if isinstance(rdfobject, gather.Text):
+        if isinstance(rdfobject, primitive_rdf.Text):
             return {
                 'literal': {
                     'value': rdfobject.unicode_text,
@@ -87,7 +87,7 @@ class _IndexcardContextBuilder:
         if isinstance(rdfobject, frozenset):
             return {
                 'nested_twopleset': self._nested_twopleset_context(
-                    gather.twopleset_as_twopledict(rdfobject),
+                    primitive_rdf.twopleset_as_twopledict(rdfobject),
                 ),
             }
         raise ValueError(f'unrecognized rdf object: {rdfobject}')

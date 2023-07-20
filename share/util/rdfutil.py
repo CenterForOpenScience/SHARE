@@ -1,11 +1,13 @@
-import gather
+from gather import primitive_rdf
+
+from trove.vocab.namespaces import RDFS
 
 
 class IriLabeler:
     def __init__(
         self,
-        vocabulary: gather.RdfTripleDictionary,
-        label_iri: str = gather.RDFS.label,
+        vocabulary: primitive_rdf.RdfTripleDictionary,
+        label_iri: str = RDFS.label,
     ):
         self.vocabulary = vocabulary
         self.label_iri = label_iri
@@ -63,7 +65,7 @@ class IriLabeler:
             return next(
                 _label.unicode_text
                 for _label in _labelset
-                if isinstance(_label, gather.Text)
+                if isinstance(_label, primitive_rdf.Text)
             )
         except StopIteration:
             raise ValueError(f'could not find label for iri "{iri}"')

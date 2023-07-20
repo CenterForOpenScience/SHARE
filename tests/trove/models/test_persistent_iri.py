@@ -1,8 +1,8 @@
 from django.db import IntegrityError
 from django.test import TestCase
-import gather
 
 from trove.models import ResourceIdentifier
+from trove.vocab.namespaces import OWL
 
 
 class TestResourceIdentifier(TestCase):
@@ -114,18 +114,18 @@ class TestResourceIdentifier(TestCase):
             }),
             ('blarg:blerg', {
                 'blog:blig': {
-                    gather.OWL.sameAs: {'blip://blop.example/blig'},
+                    OWL.sameAs: {'blip://blop.example/blig'},
                 },
                 'blarg:blerg': {
-                    gather.OWL.sameAs: {'blip://blop.example/blep', 'bir://wibbleplop.example/la'},
+                    OWL.sameAs: {'blip://blop.example/blep', 'bir://wibbleplop.example/la'},
                 },
             }),
             ('blarg:blerg', {
                 'blog:blig': {
-                    gather.OWL.sameAs: {'blip://blop.example/blig'},
+                    OWL.sameAs: {'blip://blop.example/blig'},
                 },
                 'blarg:blerg': {
-                    gather.OWL.sameAs: {'blip://blop.example/blep', 'bip://wibbleplop.example/la'},
+                    OWL.sameAs: {'blip://blop.example/blep', 'bip://wibbleplop.example/la'},
                 },
             }),
         ]

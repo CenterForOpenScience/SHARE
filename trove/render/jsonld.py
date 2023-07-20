@@ -1,38 +1,39 @@
 import datetime
 import json
 
-import gather
+from gather import primitive_rdf
 
 from share.util.rdfutil import IriLabeler
+from trove.vocab.namespaces import RDF, OWL
 
 
 class RdfJsonldRenderer:
-    def __init__(self, vocabulary: gather.RdfTripleDictionary, labeler: IriLabeler):
+    def __init__(self, vocabulary: primitive_rdf.RdfTripleDictionary, labeler: IriLabeler):
         self.vocabulary = vocabulary
         self.labeler = labeler
 
     def simple_jsonld_context(self):
         return self.labeler.all_iris_by_label()
 
-    def tripledict_as_nested_jsonld(self, tripledict: gather.RdfTripleDictionary, focus_iri: str):
+    def tripledict_as_nested_jsonld(self, tripledict: primitive_rdf.RdfTripleDictionary, focus_iri: str):
         self.__nestvisited_iris = set()
         return self.__nested_rdfobject_as_jsonld(tripledict, focus_iri)
 
-    def rdfobject_as_jsonld(self, rdfobject: gather.RdfObject) -> dict:
+    def rdfobject_as_jsonld(self, rdfobject: primitive_rdf.RdfObject) -> dict:
         if isinstance(rdfobject, frozenset):
             return self.twopledict_as_jsonld(
-                gather.twopleset_as_twopledict(rdfobject),
+                primitive_rdf.twopleset_as_twopledict(rdfobject),
             )
-        elif isinstance(rdfobject, gather.Text):
+        elif isinstance(rdfobject, primitive_rdf.Text):
             if not rdfobject.language_iri:
                 return {'@value': rdfobject.unicode_text}
-            if rdfobject.language_iri == gather.RDF.JSON:
+            if rdfobject.language_iri == RDF.JSON:
                 # NOTE: does not reset jsonld context
                 return json.loads(rdfobject.unicode_text)
             try:
-                _language_tag = gather.IriNamespace.without_namespace(
+                _language_tag = primitive_rdf.IriNamespace.without_namespace(
                     rdfobject.language_iri,
-                    namespace=gather.IANA_LANGUAGE,
+                    namespace=primitive_rdf.IANA_LANGUAGE,
                 )
             except ValueError:  # non-standard language iri
                 return {
@@ -58,7 +59,7 @@ class RdfJsonldRenderer:
             ]}
         raise ValueError(f'unrecognized RdfObject (got {rdfobject})')
 
-    def twopledict_as_jsonld(self, twopledict: gather.RdfTwopleDictionary) -> dict:
+    def twopledict_as_jsonld(self, twopledict: primitive_rdf.RdfTwopleDictionary) -> dict:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
             _key = self.labeler.get_label_or_iri(_pred)
@@ -70,8 +71,8 @@ class RdfJsonldRenderer:
 
     def __nested_rdfobject_as_jsonld(
         self,
-        tripledict: gather.RdfTripleDictionary,
-        rdfobject: gather.RdfObject,
+        tripledict: primitive_rdf.RdfTripleDictionary,
+        rdfobject: primitive_rdf.RdfObject,
     ):
         _yes_nest = (
             isinstance(rdfobject, str)
@@ -98,10 +99,10 @@ class RdfJsonldRenderer:
         return _nested_obj
 
     def _list_or_single_value(self, predicate_iri, objectset):
-        _only_one_object = gather.OWL.FunctionalProperty in (
+        _only_one_object = OWL.FunctionalProperty in (
             self.vocabulary
             .get(predicate_iri, {})
-            .get(gather.RDF.type, ())
+            .get(RDF.type, ())
         )
         if _only_one_object:
             if len(objectset) > 1:

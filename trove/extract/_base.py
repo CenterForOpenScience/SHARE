@@ -1,6 +1,6 @@
 import abc
 
-import gather
+from gather import primitive_rdf
 
 
 class BaseRdfExtractor(abc.ABC):
@@ -8,5 +8,5 @@ class BaseRdfExtractor(abc.ABC):
         self.source_config = source_config
 
     @abc.abstractmethod
-    def extract_rdf(self, input_document: str) -> gather.RdfTripleDictionary:
+    def extract_rdf(self, input_document: str) -> primitive_rdf.RdfTripleDictionary:
         raise NotImplementedError

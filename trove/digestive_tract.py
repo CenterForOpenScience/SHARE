@@ -14,7 +14,7 @@ import typing
 
 import celery
 from django.db import transaction
-import gather
+from gather import primitive_rdf
 
 from share import models as share_db
 from share.search import IndexMessenger, MessageType
@@ -23,7 +23,7 @@ from trove import models as trove_db
 from trove.exceptions import DigestiveError
 from trove.extract import get_rdf_extractor_class
 from trove.derive import get_deriver_classes
-from trove.vocab.iri_namespace import RDFS
+from trove.vocab.namespaces import RDFS
 
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
     #   - focus should have rdf:type
     #   - no subject-key iris which collide by trove_db.ResourceIdentifier equivalence
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
-    _extracted_tripledict: gather.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
+    _extracted_tripledict: primitive_rdf.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
     _tripledicts_by_focus_iri = {}
     if raw.mediatype is None:  # back-compat
         from trove.extract.legacy_sharev2 import LegacySharev2Extractor
@@ -139,9 +139,8 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
     for _iri, _twopledict in _extracted_tripledict.items():
         if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
             _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
-            gather.add_triple_to_tripledict(
+            primitive_rdf.TripledictWrapper(_term_tripledict).add_triple(
                 (_iri, RDFS.isDefinedBy, _focus_iri),
-                _term_tripledict,
             )
             _tripledicts_by_focus_iri[_iri] = _term_tripledict
     return trove_db.Indexcard.objects.save_indexcards_from_tripledicts(

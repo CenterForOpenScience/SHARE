@@ -3,25 +3,26 @@ import uuid
 from django.db import models
 from django.db import transaction
 from django.utils.functional import cached_property
-import gather
+from gather import primitive_rdf
 
 from share import models as share_db  # TODO: break this dependency
 from share.util.checksum_iri import ChecksumIri
 from trove.exceptions import DigestiveError
 from trove.models.resource_identifier import ResourceIdentifier
+from trove.vocab.namespaces import RDF
 from trove.vocab.trove import trove_indexcard_iri, trove_indexcard_namespace
 
 
 class IndexcardManager(models.Manager):
     def get_for_iri(self, iri: str):
-        _uuid = gather.IriNamespace.without_namespace(iri, namespace=trove_indexcard_namespace())
+        _uuid = primitive_rdf.IriNamespace.without_namespace(iri, namespace=trove_indexcard_namespace())
         return self.get(uuid=_uuid)
 
     @transaction.atomic
     def save_indexcards_from_tripledicts(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledicts_by_focus_iri: dict[str, gather.RdfTripleDictionary],
+        rdf_tripledicts_by_focus_iri: dict[str, primitive_rdf.RdfTripleDictionary],
     ) -> list['Indexcard']:
         from_raw_datum.no_output = (not rdf_tripledicts_by_focus_iri)
         from_raw_datum.save(update_fields=['no_output'])
@@ -53,7 +54,7 @@ class IndexcardManager(models.Manager):
     def save_indexcard_from_tripledict(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledict: gather.RdfTripleDictionary,
+        rdf_tripledict: primitive_rdf.RdfTripleDictionary,
         focus_iri: str,
     ):
         if focus_iri not in rdf_tripledict:
@@ -64,7 +65,7 @@ class IndexcardManager(models.Manager):
         )
         _focustype_identifier_set = [  # TODO: require non-zero?
             ResourceIdentifier.objects.get_or_create_for_iri(_iri)
-            for _iri in rdf_tripledict[focus_iri].get(gather.RDF.type, ())
+            for _iri in rdf_tripledict[focus_iri].get(RDF.type, ())
         ]
         _indexcard = Indexcard.objects.filter(
             source_record_suid=from_raw_datum.suid,
@@ -153,8 +154,8 @@ class IndexcardRdf(models.Model):
     focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
     rdf_as_turtle = models.TextField()  # TODO: store elsewhere by checksum
 
-    def as_rdf_tripledict(self) -> gather.RdfTripleDictionary:
-        return gather.tripledict_from_turtle(self.rdf_as_turtle)
+    def as_rdf_tripledict(self) -> primitive_rdf.RdfTripleDictionary:
+        return primitive_rdf.tripledict_from_turtle(self.rdf_as_turtle)
 
     class Meta:
         abstract = True
@@ -170,12 +171,12 @@ class IndexcardRdf(models.Model):
     def save_indexcard_rdf(
         indexcard: Indexcard,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledict: gather.RdfTripleDictionary,
+        rdf_tripledict: primitive_rdf.RdfTripleDictionary,
         focus_iri: str,
     ) -> 'IndexcardRdf':
         if focus_iri not in rdf_tripledict:
             raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
-        _rdf_as_turtle = gather.tripledict_as_turtle(rdf_tripledict)
+        _rdf_as_turtle = primitive_rdf.tripledict_as_turtle(rdf_tripledict)
         _turtle_checksum_iri = str(
             ChecksumIri.digest('sha-256', salt='', raw_data=_rdf_as_turtle),
         )

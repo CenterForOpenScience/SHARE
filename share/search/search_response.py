@@ -1,10 +1,10 @@
 import dataclasses
 import typing
 
-import gather
+from gather import primitive_rdf
 
 from share.search.search_request import PropertysearchParams
-from trove.vocab.iri_namespace import TROVE
+from trove.vocab.namespaces import TROVE
 
 
 BoundedCount = typing.Union[
@@ -16,7 +16,7 @@ BoundedCount = typing.Union[
 @dataclasses.dataclass
 class TextMatchEvidence:
     property_path: tuple[str, ...]
-    matching_highlight: gather.text
+    matching_highlight: primitive_rdf.Text
     card_iri: typing.Optional[str]  # may be left implicit
 
 

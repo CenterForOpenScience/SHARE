@@ -1,16 +1,12 @@
+import contextlib
+import datetime
+import enum
 import hashlib
 import json
 from typing import Iterable, Union
 
-from gather.primitive_rdf import (
-    TripledictWrapper,
-    RdfTripleDictionary,
-    twopleset_as_twopledict,
-    Text,
-    IriNamespace,
-)
+from gather import primitive_rdf
 
-from trove.render.jsonld import RdfJsonldRenderer
 from trove.vocab.trove import (
     RDF,
     JSONAPI_MEMBERNAME,
@@ -25,129 +21,151 @@ from trove.vocab.trove import (
 _IriOrBlanknode = Union[str, frozenset]
 
 
-class RdfJsonapiRenderer:
-    def __init__(self, jsonapi_vocab: RdfTripleDictionary, data: RdfTripleDictionary):
-        # given vocabulary expected to describe how to represent rdf data as
-        # jsonapi resources (using prefix jsonapi: <https://jsonapi.org/format/1.1/#>)
-        #   - jsonapi member name:
-        #       `<iri> jsonapi:document-member-names "foo"@en`
-        #   - jsonapi attribute:
-        #       `<predicate_iri> rdf:type jsonapi:document-resource-object-attributes`
-        #   - jsonapi relationship:
-        #       `<predicate_iri> rdf:type jsonapi:document-resource-object-relationships`
-        #   - to-one relationship or single-value attribute:
-        #       `<predicate_iri> rdf:type owl:FunctionalProperty`
-        self._vocab = TripledictWrapper(jsonapi_vocab)
-        self._data = TripledictWrapper(data)
-        self._identifier_object_cache = {}
-        self._to_include = set()
+class _FieldType(enum.Enum):
+    ATTR = 'attributes'
+    REL = 'relationships'
+    META = 'meta'
 
-    def jsonapi_error_document(self) -> dict:
-        raise NotImplementedError  # TODO
+
+class RdfJsonapiRenderer:
+    '''render rdf data into jsonapi resources, guided by a given rdf vocabulary
+
+    the given vocab describes how rdf predicates and classes in the data should
+    map to jsonapi fields and resource objects in the rendered output, using
+    `prefix jsonapi: <https://jsonapi.org/format/1.1/#>` and linked anchors in
+    the jsonapi spec to represent jsonapi concepts:
+      - jsonapi member name:
+          `<iri> jsonapi:document-member-names "foo"@en`
+      - jsonapi attribute:
+          `<predicate_iri> rdf:type jsonapi:document-resource-object-attributes`
+      - jsonapi relationship:
+          `<predicate_iri> rdf:type jsonapi:document-resource-object-relationships`
+      - to-one relationship or single-value attribute:
+          `<predicate_iri> rdf:type owl:FunctionalProperty`
+
+    note: does not support relationship links (or many other jsonapi features)
+    '''
+    __to_include = None
+
+    def __init__(
+        self,
+        jsonapi_vocab: primitive_rdf.RdfTripleDictionary,
+        data: primitive_rdf.RdfTripleDictionary,
+        id_namespace_set: set[primitive_rdf.IriNamespace] = None,
+    ):
+        self._vocab = primitive_rdf.TripledictWrapper(jsonapi_vocab)
+        self._data = primitive_rdf.TripledictWrapper(data)
+        self._identifier_object_cache = {}
+        # TODO: move "id namespace" to vocab (property on each type)
+        self._id_namespace_set = id_namespace_set or set()
 
     def render_data_document(self, primary_iris: Union[str, Iterable[str]]) -> dict:
-        _document = {
-            'data': None,
-            'included': [],
-        }
-        self._to_include = set()
-        _single_datum = isinstance(primary_iris, str)
-        if _single_datum:
-            _already_included = {primary_iris}
-            _document['data'] = self.render_resource_object(primary_iris)
-        else:
-            _already_included = set(primary_iris)
-            _document['data'] = [
-                self.render_resource_object(_iri)
-                for _iri in primary_iris
-            ]
-        while self._to_include:
-            _next = self._to_include.pop()
-            if _next not in _already_included:
-                _already_included.add(_next)
-                _document['included'].append(self.render_resource_object(_next))
+        _primary_data = None
+        _included_data = []
+        with self._contained__to_include() as _to_include:
+            _single_datum = isinstance(primary_iris, str)
+            if _single_datum:
+                _already_included = {primary_iris}
+                _primary_data = self.render_resource_object(primary_iris)
+            else:
+                _already_included = set(primary_iris)
+                _primary_data = [
+                    self.render_resource_object(_iri)
+                    for _iri in primary_iris
+                ]
+            while _to_include:
+                _next = _to_include.pop()
+                if _next not in _already_included:
+                    _already_included.add(_next)
+                    _included_data.append(self.render_resource_object(_next))
+        _document = {'data': _primary_data}
+        if _included_data:
+            _document['included'] = _included_data
         return _document
 
     def render_resource_object(self, iri_or_blanknode: _IriOrBlanknode) -> dict:
-        # TODO: links, meta?
         _resource_object = {**self.render_identifier_object(iri_or_blanknode)}
         _twopledict = (
-            (self._data.get(iri_or_blanknode) or {})
+            (self._data.tripledict.get(iri_or_blanknode) or {})
             if isinstance(iri_or_blanknode, str)
-            else twopleset_as_twopledict(iri_or_blanknode)
+            else primitive_rdf.twopleset_as_twopledict(iri_or_blanknode)
         )
         for _pred, _obj_set in _twopledict.items():
-            self._render_field(_pred, _obj_set, into=_resource_object)
+            if _pred != RDF.type:
+                self._render_field(_pred, _obj_set, into=_resource_object)
+        if isinstance(iri_or_blanknode, str):
+            _resource_object.setdefault('links', {})['self'] = iri_or_blanknode
         return _resource_object
 
     def render_identifier_object(self, iri_or_blanknode: _IriOrBlanknode):
         try:
             return self._identifier_object_cache[iri_or_blanknode]
         except KeyError:
-            _id_obj = {}
             if isinstance(iri_or_blanknode, str):
-                _id_obj['id'] = self._resource_id_for_iri(iri_or_blanknode)
-                _id_obj['type'] = self._membername_for_types(
-                    list(self._vocab.q(iri_or_blanknode, RDF.type)),
-                )
+                _type_iris = list(self._data.q(iri_or_blanknode, RDF.type))
+                _id_obj = {
+                    'id': self._resource_id_for_iri(iri_or_blanknode),
+                    'type': self._membername_for_iris(_type_iris),
+                }
             elif isinstance(iri_or_blanknode, frozenset):
-                _id_obj['id'] = self._resource_id_for_blanknode(iri_or_blanknode)
-                _id_obj['type'] = self._membername_for_types([
+                _type_iris = [
                     _obj
                     for _pred, _obj in iri_or_blanknode
                     if _pred == RDF.type
-                ])
+                ]
+                _id_obj = {
+                    'id': self._resource_id_for_blanknode(iri_or_blanknode),
+                    'type': self._membername_for_iris(_type_iris),
+                }
             else:
                 raise ValueError(f'expected str or frozenset (got {iri_or_blanknode})')
             self._identifier_object_cache[iri_or_blanknode] = _id_obj
             return _id_obj
 
-    def _membername_for_types(self, type_iris):
-        for _type_iri in type_iris:
+    def _membername_for_iris(self, iris: list[str]):
+        for _iri in iris:
             try:
-                _membername = next(self._vocab.q(_type_iri, JSONAPI_MEMBERNAME))
-                assert isinstance(_membername, Text)
-                return _membername.unicode_text
-            except StopIteration:
+                return self._membername_for_iri(_iri)
+            except ValueError:
                 pass
-        raise ValueError(f'could not find jsonapi type for {type_iris}')
+        raise ValueError(f'could not find valid membername for any of {iris}')
 
-    def _resource_twopledict(self, iri_or_blanknode: _IriOrBlanknode):
+    def _membername_for_iri(self, iri: str, *, iri_fallback=False):
         try:
-            return self.__twopledict_cache[iri_or_blanknode]
-        except KeyError:
-            if isinstance(iri_or_blanknode, str):
-                _twopledict = self._data.get_twopledict(iri_or_blanknode)
-            elif isinstance(iri_or_blanknode, frozenset):
-                _twopledict = twopleset_as_twopledict(iri_or_blanknode)
-            else:
-                raise ValueError(f'expected str or frozenset (got {iri_or_blanknode})')
-            self.__twopledict_cache[iri_or_blanknode] = _twopledict
-            return _twopledict
+            _membername = next(self._vocab.q(iri, JSONAPI_MEMBERNAME))
+        except StopIteration:
+            pass
+        else:
+            if isinstance(_membername, primitive_rdf.Text):
+                return _membername.unicode_text
+            raise ValueError(f'found non-text membername {_membername}')
+        if iri_fallback:
+            return iri
+        raise ValueError(f'could not find membername for <{iri}>')
 
     def _resource_id_for_blanknode(self, blanknode: frozenset):
-        _blanknode_as_json = json.dumps(
-            self._jsonld_renderer.twopledict_as_jsonld(self._resource_twopledict(blanknode)),
-            sort_keys=True,
-        )
-        # content-addressed blanknode id
-        return hashlib.sha256(_blanknode_as_json.encode()).hexdigest()
+        # content-addressed blanknode id (maybe-TODO: care about hash stability,
+        # tho don't need it with cached render_identifier_object implementation)
+        return hashlib.sha256(str(blanknode).encode()).hexdigest()
 
     def _resource_id_for_iri(self, iri: str):
         for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
-                return IriNamespace.without_namespace(iri, namespace=_iri_namespace)
-        # hash the iri for a valid jsonapi member name
+                return primitive_rdf.IriNamespace.without_namespace(iri, namespace=_iri_namespace)
+        # as fallback, hash the iri for a valid jsonapi member name
         return hashlib.sha256(iri.encode()).hexdigest()
 
     def _render_field(self, predicate_iri, object_set, *, into: dict):
-        _field_types = set(self._vocab.q(predicate_iri, RDF.type))
-        _is_relationship = (JSONAPI_RELATIONSHIP in _field_types)
-        _is_attribute = (JSONAPI_ATTRIBUTE in _field_types)
+        _is_relationship = self._vocab.has_triple(
+            (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP),
+        )
+        _is_attribute = self._vocab.has_triple(
+            (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE),
+        )
         _doc_key = 'meta'  # unless configured for jsonapi, default to unstructured 'meta'
         try:
-            _field_key = next(self._vocab.q(predicate_iri, JSONAPI_MEMBERNAME))
-        except StopIteration:
+            _field_key = self._membername_for_iri(predicate_iri)
+        except ValueError:
             _field_key = predicate_iri  # use the full iri as key
         else:  # got a valid membername; may go in attributes or relationships
             if _is_relationship:
@@ -155,30 +173,66 @@ class RdfJsonapiRenderer:
             elif _is_attribute:
                 _doc_key = 'attributes'
         if _is_relationship:
-            _data = self._relationship_valuelist(object_set)
-            self._to_include.update(object_set)
+            self._pls_include(object_set)
+            _datalist = self._relationship_datalist(object_set)
+            _fieldvalue = {'data': self._one_or_many(predicate_iri, _datalist)}
         else:
-            _data = self._attribute_valuelist(object_set)
-        if OWL.FunctionalProperty in _field_types:
-            if len(_data) > 1:
-                raise ValueError(
-                    f'multiple objects for to-one relation <{predicate_iri}> ({_data})'
-                )
-            try:
-                _data = _data[0]
-            except IndexError:
-                _data = None
-        into.setdefault(_doc_key, {})[_field_key] = (
-            {'data': _data}
-            if _is_relationship
-            else _data
-        )
+            _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(object_set))
+        # update the given `into` resource object
+        into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
 
-    def _relationship_valuelist(self, object_set):
+    def _one_or_many(self, predicate_iri: str, datalist: list):
+        _only_one = self._vocab.has_triple((predicate_iri, RDF.type, OWL.FunctionalProperty))
+        if _only_one:
+            if len(datalist) > 1:
+                raise ValueError(f'multiple objects for to-one relation <{predicate_iri}>: {datalist}')
+            return (datalist[0] if datalist else None)
+        return datalist
+
+    def _attribute_datalist(self, object_set):
+        return [
+            self._render_attribute_datum(_obj)
+            for _obj in object_set
+        ]
+
+    def _relationship_datalist(self, object_set):
         return [
             self.render_identifier_object(_obj)
             for _obj in object_set
         ]
 
-    def _attribute_valuelist(self, object_set):
-        raise NotImplementedError('TODO')
+    @contextlib.contextmanager
+    def _contained__to_include(self):
+        assert self.__to_include is None
+        self.__to_include = set()
+        try:
+            yield self.__to_include
+        finally:
+            self.__to_include = None
+
+    def _pls_include(self, items):
+        if self.__to_include is not None:
+            self.__to_include.update(items)
+
+    def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> dict:
+        if isinstance(rdfobject, frozenset):
+            _json_blanknode = {}
+            for _pred, _obj_set in primitive_rdf.twopleset_as_twopledict(rdfobject).items():
+                _key = self._membername_for_iri(_pred, iri_fallback=True)
+                _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
+            return _json_blanknode
+        if isinstance(rdfobject, primitive_rdf.Text):
+            if rdfobject.language_iri == RDF.JSON:
+                return json.loads(rdfobject.unicode_text)
+            return rdfobject.unicode_text  # TODO: decide how to represent language
+        elif isinstance(rdfobject, str):
+            try:  # maybe it's a jsonapi resource
+                return self.render_identifier_object(rdfobject)
+            except Exception:
+                return rdfobject
+        elif isinstance(rdfobject, (float, int)):
+            return rdfobject
+        elif isinstance(rdfobject, datetime.date):
+            # just "YYYY-MM-DD"
+            return datetime.date.isoformat(rdfobject)
+        raise ValueError(f'unrecognized RdfObject (got {rdfobject})')

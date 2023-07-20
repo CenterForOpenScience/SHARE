@@ -6,7 +6,7 @@ from django.conf import settings
 from share.util.graph import MutableGraph
 from share.util.names import get_related_agent_name
 from share.util import IDObfuscator
-from trove.vocab.iri_namespace import SHAREv2
+from trove.vocab.namespaces import SHAREv2
 
 from .base import MetadataFormatter
 

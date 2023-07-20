@@ -5,7 +5,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.functions import Substr, StrIndex
-import gather
+from gather import primitive_rdf
+
+from trove.vocab.namespaces import OWL
 
 
 # quoth <https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2>:
@@ -100,13 +102,13 @@ class ResourceIdentifierManager(models.Manager):
 
     def save_equivalent_identifier_set(
         self,
-        tripledict: gather.RdfTripleDictionary,
+        tripledict: primitive_rdf.RdfTripleDictionary,
         focus_iri: str,
     ) -> list['ResourceIdentifier']:
         _identifier_set = [self.get_or_create_for_iri(focus_iri)]
         _identifier_set.extend(
             self.get_or_create_for_iri(_sameas_iri)
-            for _sameas_iri in tripledict[focus_iri].get(gather.OWL.sameAs, ())
+            for _sameas_iri in tripledict[focus_iri].get(OWL.sameAs, ())
             if _sameas_iri != focus_iri
         )
         return _identifier_set
@@ -189,12 +191,12 @@ class ResourceIdentifier(models.Model):
         (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(iri)
         return (self.sufficiently_unique_iri == _suffuniq_iri)
 
-    def find_equivalent_iri(self, tripledict: gather.RdfTripleDictionary) -> str:
+    def find_equivalent_iri(self, tripledict: primitive_rdf.RdfTripleDictionary) -> str:
         _identifier_iri = self.as_iri()
         if _identifier_iri in tripledict:
             return _identifier_iri
         for _iri, _twopledict in tripledict.items():
-            _sameas_set = _twopledict.get(gather.OWL.sameAs, set())
+            _sameas_set = _twopledict.get(OWL.sameAs, set())
             _is_equivalent = (
                 _identifier_iri in _sameas_set
                 or self.equivalent_to_iri(_iri)

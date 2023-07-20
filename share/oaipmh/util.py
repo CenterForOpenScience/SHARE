@@ -1,7 +1,7 @@
 from dateutil import parser
 
 from lxml import etree
-from trove.vocab.iri_namespace import OAI, OAI_DC
+from trove.vocab.namespaces import OAI, OAI_DC
 
 
 def format_datetime(dt):

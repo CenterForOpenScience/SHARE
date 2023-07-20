@@ -2,13 +2,13 @@ import datetime
 import json
 import re
 
-import gather
+from gather import primitive_rdf
 
 from share.schema import ShareV2Schema
 from share.schema.exceptions import SchemaKeyError
 from share.util import IDObfuscator
 from share import models as share_db
-from trove.vocab.iri_namespace import DCTERMS, FOAF, RDF, DCAT, SHAREv2, OSFMAP
+from trove.vocab.namespaces import DCTERMS, FOAF, RDF, DCAT, SHAREv2, OSFMAP
 
 from ._base import IndexcardDeriver
 
@@ -55,7 +55,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             OSFMAP.RegistrationComponent,
             OSFMAP.Preprint,
         }
-        _focustype_iris = gather.objects_by_pathset(self.tripledict, self.focus_iri, RDF.type)
+        _focustype_iris = self.data.q(self.focus_iri, RDF.type)
         return _allowed_focustype_iris.isdisjoint(_focustype_iris)
 
     # abstract method from IndexcardDeriver
@@ -118,8 +118,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         )
 
     def _related_names(self, *predicate_iris):
-        _obj_iter = gather.objects_by_pathset(
-            self.tripledict,
+        _obj_iter = self.data.q(
             self.focus_iri,
             {
                 _predicate_iri: FOAF.name
@@ -144,8 +143,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         # for sharev2 back-compat, some fields must have a single value
         # (tho now the corresponding rdf property may have many values)
         for _pred in predicate_iris:
-            _object_iter = gather.objects_by_pathset(
-                self.tripledict,
+            _object_iter = self.data.q(
                 focus_iri or self.focus_iri,
                 _pred,  # one at a time to preserve given order
             )
@@ -156,8 +154,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         return None
 
     def _string_list(self, *predicate_iris, focus_iri=None):
-        _object_iter = gather.objects_by_pathset(
-            self.tripledict,
+        _object_iter = self.data.q(
             focus_iri or self.focus_iri,
             predicate_iris,
         )
@@ -174,17 +171,16 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             'papers': OSFMAP.hasPapersResource,
             'supplements': OSFMAP.hasSupplementalResource,
         }
-        _focus_twopledict = self.tripledict[self.focus_iri]
+        _focus_predicates = set(self.data.tripledict[self.focus_iri].keys())
         return {
-            _key: (_iri in _focus_twopledict)
-            for _key, _iri in _osf_artifact_types.items()
+            _key: (_pred in _focus_predicates)
+            for _key, _pred in _osf_artifact_types.items()
         }
 
     def _related_agent_list(self, *predicate_iris, focus_iri=None):
         _agent_list = []
         for _predicate_iri in predicate_iris:
-            _agent_iri_iter = gather.objects_by_pathset(
-                self.tripledict,
+            _agent_iri_iter = self.data.q(
                 focus_iri or self.focus_iri,
                 _predicate_iri,
             )
@@ -205,7 +201,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     def _sharev2_type(self, type_iri):
         try:
-            _typename = gather.IriNamespace.without_namespace(type_iri, namespace=SHAREv2)
+            _typename = primitive_rdf.IriNamespace.without_namespace(type_iri, namespace=SHAREv2)
         except ValueError:
             return None
         try:
@@ -218,8 +214,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             return sharev2_type.distance_from_concrete_type
         _types = filter(None, (
             self._sharev2_type(_type_iri)
-            for _type_iri in gather.objects_by_pathset(
-                self.tripledict,
+            for _type_iri in self.data.q(
                 focus_iri,
                 RDF.type,
             )
@@ -232,18 +227,14 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
     def _type_list(self, focus_iri):
         return [
             self._format_type_iri(_type_iri)
-            for _type_iri in gather.objects_by_pathset(
-                self.tripledict,
-                focus_iri,
-                RDF.type,
-            )
+            for _type_iri in self.data.q(focus_iri, RDF.type)
         ]
 
     def _format_type_iri(self, focus_iri):
         if focus_iri in SHAREv2:
-            _typename = gather.IriNamespace.without_namespace(focus_iri, namespace=SHAREv2)
+            _typename = primitive_rdf.IriNamespace.without_namespace(focus_iri, namespace=SHAREv2)
         elif focus_iri in OSFMAP:
-            _typename = gather.IriNamespace.without_namespace(focus_iri, namespace=OSFMAP)
+            _typename = primitive_rdf.IriNamespace.without_namespace(focus_iri, namespace=OSFMAP)
         else:
             return focus_iri  # oh well
         return self._format_typename(_typename)
@@ -276,6 +267,6 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 def _obj_to_string_or_none(obj):
     if obj is None:
         return None
-    if isinstance(obj, gather.Text):
+    if isinstance(obj, primitive_rdf.Text):
         return obj.unicode_text
     return str(obj)

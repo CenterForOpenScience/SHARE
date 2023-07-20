@@ -5,7 +5,7 @@ import logging
 import uuid
 
 import elasticsearch8
-import gather
+from gather import primitive_rdf
 
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import exceptions
@@ -26,7 +26,7 @@ from share.search.search_response import (
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.vocab.iri_namespace import TROVE, OSFMAP, DCTERMS
+from trove.vocab.namespaces import TROVE, OSFMAP, DCTERMS
 
 
 logger = logging.getLogger(__name__)
@@ -100,7 +100,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
         for _property_path, _obj in _PropertyPathWalker(_tripledict).from_focus(indexcard_rdf.focus_iri):
             if isinstance(_obj, str):
                 _nested_iris.setdefault(_property_path, set()).add(_obj)
-            elif isinstance(_obj, gather.Text):
+            elif isinstance(_obj, primitive_rdf.Text):
                 if _is_date_property(_property_path[-1]):
                     _nested_dates.setdefault(_property_path, set()).add(_obj.unicode_text)
                 else:
@@ -356,7 +356,7 @@ class TroveIrisIndexStrategy(Elastic8IndexStrategy):
                     for _highlight in _innerhit['highlight']['nested_text.text_value']:
                         yield TextMatchEvidence(
                             property_path=_property_path,
-                            matching_highlight=gather.text(_highlight, language_iri=_language_iri),
+                            matching_highlight=primitive_rdf.text(_highlight, language_iri=_language_iri),
                             card_iri=_innerhit['_id'],
                         )
 
@@ -384,7 +384,7 @@ def _is_date_property(property_iri):
 
 
 class _PropertyPathWalker:
-    def __init__(self, tripledict: gather.RdfTripleDictionary):
+    def __init__(self, tripledict: primitive_rdf.RdfTripleDictionary):
         self.tripledict = tripledict
         self._visiting = set()
         self._path_so_far = []
@@ -407,12 +407,12 @@ class _PropertyPathWalker:
         yield
         self._visiting.discard(focus_obj)
 
-    def _walk_twopledict(self, focus_twopledict: gather.RdfTwopleDictionary):
+    def _walk_twopledict(self, focus_twopledict: primitive_rdf.RdfTwopleDictionary):
         for _predicate_iri, _obj_set in focus_twopledict.items():
             with self._pathstep(_predicate_iri) as _pathtuple:
                 for _obj in _obj_set:
                     _next_twopledict = None
-                    if isinstance(_obj, gather.Text):
+                    if isinstance(_obj, primitive_rdf.Text):
                         yield (_pathtuple, _obj)
                     elif isinstance(_obj, str):  # IRI
                         yield (_pathtuple, _obj)
@@ -420,7 +420,7 @@ class _PropertyPathWalker:
                             _next_twopledict = self.tripledict.get(_obj)
                     elif isinstance(_obj, frozenset):
                         if _obj not in self._visiting:
-                            _next_twopledict = gather.twopleset_as_twopledict(_obj)
+                            _next_twopledict = primitive_rdf.twopleset_as_twopledict(_obj)
                     if _next_twopledict:
                         with self._visit(_obj):
                             yield from self._walk_twopledict(_next_twopledict)

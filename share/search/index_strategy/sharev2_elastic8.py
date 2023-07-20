@@ -16,7 +16,7 @@ from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
 from trove.models import DerivedIndexcard, ResourceIdentifier
-from trove.vocab.iri_namespace import SHAREv2
+from trove.vocab.namespaces import SHAREv2
 
 
 logger = logging.getLogger(__name__)

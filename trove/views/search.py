@@ -1,8 +1,8 @@
 import logging
 
-import gather
 from django import http
 from django.views import View
+from gather import gathering
 
 from share.search import exceptions
 from share.search.index_strategy import IndexStrategy
@@ -11,7 +11,7 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
 )
-from trove.vocab.iri_namespace import TROVE
+from trove.vocab.namespaces import TROVE
 from trove.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.render import render_from_rdf, JSONAPI_MEDIATYPE
 
@@ -61,8 +61,8 @@ class CardsearchView(View):
     def get(self, request):
         _search_iri, _search_gathering = _parse_request(request, CardsearchParams)
         _search_gathering.ask(
-            gather.focus(_search_iri, TROVE.Cardsearch),
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
+            focus=gathering.focus(_search_iri, TROVE.Cardsearch),
         )
         return http.HttpResponse(
             content=render_from_rdf(
@@ -78,8 +78,8 @@ class PropertysearchView(View):
     def get(self, request):
         _search_iri, _search_gathering = _parse_request(request, PropertysearchParams)
         _search_gathering.ask(
-            gather.focus(_search_iri, TROVE.Propertysearch),
             DEFAULT_PROPERTYSEARCH_ASK,  # TODO: build from `include`/`fields`
+            focus=gathering.focus(_search_iri, TROVE.Propertysearch),
         )
         return http.HttpResponse(
             content=render_from_rdf(
@@ -95,8 +95,8 @@ class ValuesearchView(View):
     def get(self, request):
         _search_iri, _search_gathering = _parse_request(request, ValuesearchParams)
         _search_gathering.ask(
-            gather.focus(_search_iri, TROVE.Valuesearch),
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
+            focus=gathering.focus(_search_iri, TROVE.Valuesearch),
         )
         return http.HttpResponse(
             content=render_from_rdf(
