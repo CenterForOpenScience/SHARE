@@ -2,7 +2,6 @@ import datetime
 from typing import Optional
 
 from django.db import models
-from django.db.models.functions import Coalesce
 
 from share.util import BaseJSONAPIMeta
 

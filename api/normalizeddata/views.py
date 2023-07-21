@@ -72,7 +72,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
                 'errors': [
                     {'detail': (
                         'this route was deprecated and has been removed'
-                        f' (use {reverse("trove.ingest-rdf")} instead)'
+                        f' (use {reverse("trove:ingest-rdf")} instead)'
                     )},
                 ],
             }, status=status.HTTP_410_GONE)
@@ -110,7 +110,7 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             'meta': {
                 'warning': (
                     'this route is deprecated and may be removed'
-                    f' (consider {reverse("trove.ingest-rdf")} instead)'
+                    f' (consider {reverse("trove:ingest-rdf")} instead)'
                 ),
             },
         }, status=status.HTTP_202_ACCEPTED)

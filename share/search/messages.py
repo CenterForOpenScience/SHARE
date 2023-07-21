@@ -18,6 +18,9 @@ class MessageType(enum.Enum):
     # for indexcard-based indexes:
     UPDATE_INDEXCARD = 'update-indexcard'
     BACKFILL_INDEXCARD = 'backfill-indexcard'
+    # for identifier-based indexes:
+    IDENTIFIER_INDEXED = 'identifier-indexed'
+    BACKFILL_IDENTIFIER = 'backfill-identifier'
 
     @property
     def is_backfill(self):
@@ -34,6 +37,8 @@ class IntMessageType(enum.IntEnum):
     BACKFILL_SUID = 6
     UPDATE_INDEXCARD = 7
     BACKFILL_INDEXCARD = 8
+    IDENTIFIER_INDEXED = 9
+    BACKFILL_IDENTIFIER = 10
 
 
 if __debug__:
@@ -47,6 +52,7 @@ if __debug__:
 BACKFILL_MESSAGE_TYPES = {
     MessageType.BACKFILL_SUID,
     MessageType.BACKFILL_INDEXCARD,
+    MessageType.BACKFILL_IDENTIFIER,
 }
 
 

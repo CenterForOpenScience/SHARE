@@ -9,7 +9,7 @@ from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
 from share.search import exceptions, messages
 from share.search.index_status import IndexStatus
 from share.search.index_strategy._base import IndexStrategy
-from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
+from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
 
@@ -391,7 +391,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 specific_indexname=self.indexname,
                 is_kept_live=True,
                 is_default_for_searching=True,
-                creation_date=_timestamp_to_readable_datetime(
+                creation_date=timestamp_to_readable_datetime(
                     index_settings['settings']['index']['creation_date'],
                 ),
                 doc_count=index_stats['primaries']['docs']['count'],

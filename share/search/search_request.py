@@ -133,7 +133,6 @@ class SearchFilter:
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER)
 
-    filter_family: str
     property_path: tuple[str]
     value_set: frozenset[str]
     operator: FilterOperator
@@ -179,7 +178,6 @@ class SearchFilter:
                 else:
                     _value_list.append(_iri)
         return cls(
-            filter_family=param_name.family,
             property_path=tuple(
                 osfmap_labeler.iri_for_label(_pathstep)
                 for _pathstep in split_queryparam_value(_serialized_path)
@@ -241,7 +239,7 @@ class PropertysearchParams(CardsearchParams):
 class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
-    valuesearch_property_iri: str
+    valuesearch_property_path: tuple[str]
     valuesearch_text: str
     valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
@@ -250,14 +248,15 @@ class ValuesearchParams(CardsearchParams):
     @staticmethod
     def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'ValuesearchParams':
         _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
-        _valuesearch_property_label = _get_single_value(queryparams, 'valueSearchProperty')
-        if not _valuesearch_property_label:
-            raise ValueError('TODO: 400 valueSearchProperty required')
+        _raw_property_path = _get_single_value(queryparams, 'valueSearchPropertyPath')
+        if not _raw_property_path:
+            raise ValueError('TODO: 400 valueSearchPropertyPath required')
         return ValuesearchParams(
-            **dataclasses.asdict(
-                CardsearchParams.from_queryparams(queryparams),
+            **dataclasses.asdict(CardsearchParams.from_queryparams(queryparams)),
+            valuesearch_property_path=tuple(
+                osfmap_labeler.iri_for_label(_pathstep)
+                for _pathstep in split_queryparam_value(_raw_property_path)
             ),
-            valuesearch_property_iri=osfmap_labeler.iri_for_label(_valuesearch_property_label),
             valuesearch_text=_valuesearch_text,
             valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
             valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),

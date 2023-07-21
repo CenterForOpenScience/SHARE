@@ -433,3 +433,17 @@ OSFMAP_NORMS = gathering.GatheringNorms(
 )
 
 osfmap_labeler = IriLabeler(OSFMAP_VOCAB, label_iri=JSONAPI_MEMBERNAME)
+
+
+def is_date_property(property_iri):
+    # TODO: better inference (rdfs:range?)
+    return property_iri in {
+        DCTERMS.date,
+        DCTERMS.available,
+        DCTERMS.created,
+        DCTERMS.modified,
+        DCTERMS.dateCopyrighted,
+        DCTERMS.dateSubmitted,
+        DCTERMS.dateAccepted,
+        OSFMAP.withdrawn,
+    }

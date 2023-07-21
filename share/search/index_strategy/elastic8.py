@@ -10,7 +10,7 @@ from elasticsearch8.helpers import streaming_bulk
 from share.search.index_strategy._base import IndexStrategy
 from share.search.index_status import IndexStatus
 from share.search import messages
-from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
+from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util.checksum_iri import ChecksumIri
 
 
@@ -230,7 +230,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                 [self.indexname]
             )
             index_aliases = set(index_info['aliases'].keys())
-            creation_date = _timestamp_to_readable_datetime(
+            creation_date = timestamp_to_readable_datetime(
                 index_info['settings']['index']['creation_date']
             )
             doc_count = (

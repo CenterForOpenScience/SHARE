@@ -171,6 +171,14 @@ class ResourceIdentifier(models.Model):
             else _suffuniq_iri
         )
 
+    def iris_list(self) -> list[str]:
+        if self.sufficiently_unique_iri.startswith(COLON_SLASH_SLASH):
+            return [
+                ''.join((_scheme, self.sufficiently_unique_iri))
+                for _scheme in self.scheme_list
+            ]
+        return [self.sufficiently_unique_iri]
+
     def choose_a_scheme(self) -> str:
         try:
             (_scheme,) = self.scheme_list

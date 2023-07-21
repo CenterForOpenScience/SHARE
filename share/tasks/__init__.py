@@ -62,32 +62,38 @@ def schedule_index_backfill(self, index_backfill_pk):
     _index_backfill.pls_note_scheduling_has_begun()
     try:
         _index_strategy = IndexStrategy.get_by_name(_index_backfill.index_strategy_name)
-        if MessageType.BACKFILL_INDEXCARD in _index_strategy.supported_message_types:
-            _messagetype = MessageType.BACKFILL_INDEXCARD
-            _id_queryset = (
-                trove_db.Indexcard.objects
-                .exclude(source_record_suid__source_config__disabled=True)
-                .exclude(source_record_suid__source_config__source__is_deleted=True)
-                .values_list('id', flat=True)
-                .distinct()
-            )
-        elif MessageType.BACKFILL_SUID in _index_strategy.supported_message_types:
-            _messagetype = MessageType.BACKFILL_SUID
-            _id_queryset = (
-                db.SourceUniqueIdentifier.objects
-                .exclude(source_config__disabled=True)
-                .exclude(source_config__source__is_deleted=True)
-                .values_list('id', flat=True)
-                .distinct()
-            )
-        _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
-        _messenger.stream_message_chunks(
-            _messagetype,
-            _id_queryset.iterator(chunk_size=_chunk_size),
-            chunk_size=_chunk_size,
-            urgent=False,
-        )
+        _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+
+        def _send_messages_if_supported(messagetype, targetid_queryset):
+            if messagetype in _index_strategy.supported_message_types:
+                _messenger.stream_message_chunks(
+                    messagetype,
+                    targetid_queryset.iterator(chunk_size=_chunk_size),
+                    chunk_size=_chunk_size,
+                    urgent=False,
+                )
+        _send_messages_if_supported(MessageType.BACKFILL_INDEXCARD, (
+            trove_db.Indexcard.objects
+            .exclude(source_record_suid__source_config__disabled=True)
+            .exclude(source_record_suid__source_config__source__is_deleted=True)
+            .values_list('id', flat=True)
+            .distinct()
+        ))
+        _send_messages_if_supported(MessageType.BACKFILL_SUID, (
+            db.SourceUniqueIdentifier.objects
+            .exclude(source_config__disabled=True)
+            .exclude(source_config__source__is_deleted=True)
+            .values_list('id', flat=True)
+            .distinct()
+        ))
+        _send_messages_if_supported(MessageType.BACKFILL_IDENTIFIER, (
+            trove_db.ResourceIdentifier.objects
+            .exclude(suid_set__source_config__disabled=True)
+            .exclude(suid_set__source_config__source__is_deleted=True)
+            .values_list('id', flat=True)
+            .distinct()
+        ))
     except Exception as error:
         _index_backfill.pls_mark_error(error)
         raise error

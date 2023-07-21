@@ -103,6 +103,8 @@ def gather_cardsearch(focus, *, specific_index, search_params):
 def gather_propertysearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, PropertysearchParams)
     _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
+    yield (TROVE.WOOP, _literal_json(_propertysearch_resp))
+    return
     yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
     for _result in _propertysearch_resp.search_result_page:
         yield (_result.card_iri, RDF.type, TROVE.Indexcard)
