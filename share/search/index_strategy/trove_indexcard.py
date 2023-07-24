@@ -6,6 +6,7 @@ import logging
 import uuid
 from typing import Iterable
 
+from django.conf import settings
 import elasticsearch8
 from gather import primitive_rdf
 
@@ -13,6 +14,7 @@ from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search.index_strategy._util import path_as_keyword
 from share.search import exceptions
 from share.search import messages
+from share.search.index_messenger import IndexMessenger
 from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
@@ -30,7 +32,7 @@ from share.search.search_response import (
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE
+from trove.vocab.namespaces import TROVE, FOAF, RDFS, DCTERMS
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +42,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='cf20a301e17ffde32a1253a340f2e4f65d2a4dbefe786cce1e64da2de0a51aae',
+        hexdigest='9955178b6e2f86639b06fd6f0808f74eae147c7abe31e5cd40bc77ec09431156',
     )
 
     @property
@@ -96,6 +98,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                             'type': 'text',
                             'index_options': 'offsets',  # for faster highlighting
                             'store': True,  # avoid loading _source to render highlights
+                            'fields': {
+                                'raw': {'type': 'keyword'},
+                            },
                         },
                     },
                 },
@@ -169,6 +174,25 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         for _indexcard in _leftovers:
             yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
 
+    # override Elastic8IndexStrategy
+    def pls_handle_messages_chunk(self, messages_chunk):
+        yield from super().pls_handle_messages_chunk(messages_chunk)
+        # overridden to add follow-up:
+        if not messages_chunk.message_type.is_backfill:
+            _identifier_id_queryset = (
+                trove_db.ResourceIdentifier.objects
+                .filter(indexcard_set__id__in=messages_chunk.target_ids_chunk)
+                .values_list('id', flat=True)
+            )
+            _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+            # TODO: check whether there's a race condition -- wait for refresh?
+            IndexMessenger().stream_message_chunks(
+                messages.MessageType.IDENTIFIER_INDEXED,
+                _identifier_id_queryset.iterator(chunk_size=_chunk_size),
+                chunk_size=_chunk_size,
+                urgent=True,
+            )
+
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             return self.index_strategy.es8_client.search(
@@ -214,6 +238,99 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             #     operator=SearchFilter.FilterOperator.ANY_OF,
             # )
             raise NotImplementedError('TODO: just static PropertysearchResponse somewhere')
+
+        def get_identifier_value_usage(self, identifier: trove_db.ResourceIdentifier):
+            _filter_cards_with_identifier = {'nested': {
+                'path': 'nested_iri',
+                'query': {'terms': {
+                    'nested_iri.iri_value': identifier.iris_list(),
+                }},
+            }}
+            _indexcard_agg = {
+                'in_nested_iri': {
+                    'nested': {'path': 'nested_iri'},
+                    'aggs': {
+                        'with_identifier': {
+                            'filter': {'terms': {
+                                'nested_iri.iri_value': identifier.iris_list(),
+                            }},
+                            'aggs': {
+                                'for_property': {'terms': {
+                                    'field': 'nested_iri.property_iri',
+                                }},
+                                'for_path_from_focus': {'terms': {
+                                    'field': 'nested_iri.path_from_focus',
+                                }},
+                                'for_path_from_subject': {'terms': {
+                                    'field': 'nested_iri.path_from_nearest_subject',
+                                }},
+                            },
+                        },
+                    },
+                },
+                'in_nested_text': {
+                    'nested': {'path': 'nested_text'},
+                    'aggs': {
+                        'about_identifier': {
+                            'filter': {'terms': {
+                                'nested_text.nearest_subject_iri': identifier.iris_list(),
+                            }},
+                            'aggs': {
+                                'related_text': {'terms': {
+                                    'field': 'nested_text.text_value.raw',
+                                }},
+                                'namelike_text_properties': {
+                                    'filter': {'terms': {
+                                        'nested_text.path_from_nearest_subject': [
+                                            json.dumps([_iri])
+                                            for _iri in (FOAF.name, RDFS.label, DCTERMS.title)
+                                        ],
+                                    }},
+                                    'aggs': {
+                                        'namelike_text': {'terms': {
+                                            'field': 'nested_text.text_value.raw',
+                                        }},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            try:
+                _es8_response = self.index_strategy.es8_client.search(
+                    index=self.indexname,
+                    query=_filter_cards_with_identifier,
+                    size=0,  # ignore cardsearch hits; just want the aggs
+                    aggs=_indexcard_agg,
+                )
+            except elasticsearch8.TransportError as error:
+                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            _iri_results = _es8_response['aggregations']['in_nested_iri']['with_identifier']
+            _text_results = _es8_response['aggregations']['in_nested_text']['about_identifier']
+            return {
+                'iri': identifier.iris_list(),
+                'count_for_property': {
+                    _bucket['key']: _bucket['doc_count']
+                    for _bucket in _iri_results['for_property']['buckets']
+                },
+                'count_for_path_from_focus': {
+                    _bucket['key']: _bucket['doc_count']
+                    for _bucket in _iri_results['for_path_from_focus']['buckets']
+                },
+                'count_for_path_from_any_subject': {
+                    _bucket['key']: _bucket['doc_count']
+                    for _bucket in _iri_results['for_path_from_subject']['buckets']
+                },
+                'count_for_namelike_text': {
+                    _bucket['key']: _bucket['doc_count']
+                    for _bucket in _text_results['namelike_text_properties']['namelike_text']['buckets']
+                },
+                'count_for_related_text': {
+                    _bucket['key']: _bucket['doc_count']
+                    for _bucket in _text_results['related_text']['buckets']
+                },
+            }
 
 
 ###

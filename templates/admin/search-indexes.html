@@ -35,8 +35,8 @@ section, table {
             <form method="post">
               {% csrf_token %}
               <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
-              <input type="hidden" name="pls_do" value="create" />
-              <input type="submit" value="{% trans "create" %}" />
+              <input type="hidden" name="pls_do" value="setup" />
+              <input type="submit" value="{% trans "setup" %}" />
             </form>
             {% elif not indexes.current.status.is_kept_live %}
             <form method="post">

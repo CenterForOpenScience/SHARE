@@ -87,10 +87,10 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
     }
 
 
-def _pls_create(specific_indexname):
+def _pls_setup(specific_indexname):
     specific_index = IndexStrategy.get_specific_index(specific_indexname)
     assert specific_index.is_current
-    specific_index.pls_create()
+    specific_index.pls_setup()
 
 
 def _pls_start_keeping_live(specific_indexname):
@@ -126,7 +126,7 @@ def _pls_delete(specific_indexname):
 
 
 PLS_DOERS = {
-    'create': _pls_create,
+    'setup': _pls_setup,
     'start_keeping_live': _pls_start_keeping_live,
     'start_backfill': _pls_start_backfill,
     'mark_backfill_complete': _pls_mark_backfill_complete,

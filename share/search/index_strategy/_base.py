@@ -255,6 +255,21 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def is_current(self):
             return self.indexname == self.index_strategy.current_indexname
 
+        def pls_setup(self, *, skip_backfill=False):
+            assert self.is_current, 'cannot setup a non-current index'
+            _preexisting_index_count = sum(
+                _index.pls_check_exists()
+                for _index in self.index_strategy.each_specific_index()
+            )
+            self.pls_create()
+            self.pls_start_keeping_live()
+            if skip_backfill:
+                _backfill = self.index_strategy.get_or_create_backfill()
+                _backfill.backfill_status = _backfill.COMPLETE
+                _backfill.save()
+            if not _preexisting_index_count:  # first index for a strategy is automatic default
+                self.index_strategy.pls_make_default_for_searching(self)
+
         @abc.abstractmethod
         def pls_get_status(self) -> IndexStatus:
             raise NotImplementedError

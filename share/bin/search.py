@@ -59,19 +59,9 @@ def setup(args, argv):
             except IndexStrategyError:
                 raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')
     for _specific_index in _specific_indexes:
-        _index_strategy = _specific_index.index_strategy
-        _preexisting_index_count = sum(
-            _index.pls_check_exists()
-            for _index in _index_strategy.each_specific_index()
+        _specific_index.pls_setup(
+            skip_backfill=_is_initial,  # for initial setup, there's nothing back to fill
         )
-        _specific_index.pls_create()
-        _specific_index.pls_start_keeping_live()
-        if _is_initial:  # there's nothing back to fill; consider backfill already complete
-            _backfill = _index_strategy.get_or_create_backfill()
-            _backfill.backfill_status = _backfill.COMPLETE
-            _backfill.save()
-        if not _preexisting_index_count:  # first index for a strategy is automatic default
-            _index_strategy.pls_make_default_for_searching(_specific_index)
 
 
 @search.subcommand('Start the search indexing daemon')
