@@ -42,3 +42,17 @@ class RdfIngestView(View):
         else:
             # TODO: include link to view status (return task id from `swallow`?)
             return http.HttpResponse(status=201)
+
+    def delete(self, request):
+        # TODO: cleaner permissions
+        if not request.user.is_authenticated:
+            return http.HttpResponse(status=401)
+        # TODO: declare/validate params with dataclass
+        _record_identifier = request.GET.get('record_identifier')
+        if not _record_identifier:
+            return http.HttpResponse('record_identifier queryparam required', status=400)
+        digestive_tract.expel(
+            from_user=request.user,
+            record_identifier=_record_identifier,
+        )
+        return http.HttpResponse(status=200)

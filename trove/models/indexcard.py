@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.db import transaction
 from django.utils.functional import cached_property
+from django.utils import timezone
 from gather import primitive_rdf
 
 from share import models as share_db  # TODO: break this dependency
@@ -23,6 +24,7 @@ class IndexcardManager(models.Manager):
         self, *,
         from_raw_datum: share_db.RawDatum,
         rdf_tripledicts_by_focus_iri: dict[str, primitive_rdf.RdfTripleDictionary],
+        undelete: bool = False,
     ) -> list['Indexcard']:
         from_raw_datum.no_output = (not rdf_tripledicts_by_focus_iri)
         from_raw_datum.save(update_fields=['no_output'])
@@ -33,6 +35,7 @@ class IndexcardManager(models.Manager):
                 from_raw_datum=from_raw_datum,
                 rdf_tripledict=_tripledict,
                 focus_iri=_focus_iri,
+                undelete=undelete,
             )
             _focus_identifier_ids = {_fid.id for _fid in _indexcard.focus_identifier_set.all()}
             if not _seen_focus_identifier_ids.isdisjoint(_focus_identifier_ids):
@@ -42,12 +45,13 @@ class IndexcardManager(models.Manager):
                 )
                 raise DigestiveError(f'duplicate focus iris: {list(_duplicates)}')
             _indexcards.append(_indexcard)
-        (  # delete the latest rdf (leaving archived rdf) for cards on this suid not present
-            LatestIndexcardRdf.objects
-            .filter(indexcard__source_record_suid=from_raw_datum.suid)
-            .exclude(indexcard__in=_indexcards)
-            .delete()
-        )
+        # cards seen previously on this suid (but not this time) treated as deleted
+        for _indexcard_to_delete in (
+            Indexcard.objects
+            .filter(source_record_suid=from_raw_datum.suid)
+            .exclude(id__in=[_card.id for _card in _indexcards])
+        ):
+            _indexcard_to_delete.pls_delete()
         return _indexcards
 
     @transaction.atomic
@@ -56,6 +60,7 @@ class IndexcardManager(models.Manager):
         from_raw_datum: share_db.RawDatum,
         rdf_tripledict: primitive_rdf.RdfTripleDictionary,
         focus_iri: str,
+        undelete: bool = False,
     ):
         if focus_iri not in rdf_tripledict:
             raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
@@ -73,6 +78,9 @@ class IndexcardManager(models.Manager):
         ).first()
         if _indexcard is None:
             _indexcard = Indexcard.objects.create(source_record_suid=from_raw_datum.suid)
+        if undelete and _indexcard.deleted:
+            _indexcard.deleted = None
+            _indexcard.save()
         _indexcard.focus_identifier_set.set(_focus_identifier_set)
         _indexcard.focustype_identifier_set.set(_focustype_identifier_set)
         IndexcardRdf.save_indexcard_rdf(
@@ -90,6 +98,9 @@ class Indexcard(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True)  # for public-api id
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    # optional:
+    deleted = models.DateTimeField(null=True, blank=True)
 
     # required:
     source_record_suid = models.ForeignKey(
@@ -126,6 +137,22 @@ class Indexcard(models.Model):
 
     def get_iri(self):
         return trove_indexcard_iri(self.uuid)
+
+    @transaction.atomic
+    def pls_delete(self):
+        # do not actually delete Indexcard, just mark deleted:
+        self.deleted = timezone.now()
+        self.save()
+        (  # actually delete LatestIndexcardRdf:
+            LatestIndexcardRdf.objects
+            .filter(indexcard=self)
+            .delete()
+        )
+        (  # actually delete DerivedIndexcard:
+            DerivedIndexcard.objects
+            .filter(upriver_indexcard=self)
+            .delete()
+        )
 
     def __repr__(self):
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'
@@ -191,7 +218,7 @@ class IndexcardRdf(models.Model):
         )
         if (not _archived_created) and (_archived.rdf_as_turtle != _rdf_as_turtle):
             raise DigestiveError(f'hash collision? {_archived}\n===\n{_rdf_as_turtle}')
-        if from_raw_datum.is_latest():
+        if not indexcard.deleted and from_raw_datum.is_latest():
             _latest_indexcard_rdf, _created = LatestIndexcardRdf.objects.update_or_create(
                 indexcard=indexcard,
                 defaults={

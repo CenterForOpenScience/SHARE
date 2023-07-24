@@ -65,9 +65,8 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
             },
         }
 
-    def _build_sourcedoc(self, identifier: trove_db.ResourceIdentifier):
-        _indexcard_index = IndexStrategy.get_for_searching('trove_indexcard')
-        _identifier_usage = _indexcard_index.get_identifier_value_usage(identifier)
+    def _build_sourcedoc(self, indexcard_index: IndexStrategy.SpecificIndex, identifier: trove_db.ResourceIdentifier):
+        _identifier_usage = indexcard_index.get_identifier_value_usage(identifier)
         return {
             'iri': _identifier_usage['iri'],
             'is_value_for_property': list(_identifier_usage['count_for_property'].keys()),
@@ -89,11 +88,12 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
             .prefetch_related('indexcard_set')
         )
         _remaining_identifier_ids = set(messages_chunk.target_ids_chunk)
+        _indexcard_index = IndexStrategy.get_by_name('trove_indexcard').pls_get_default_for_searching()
         for _identifier in _identifier_qs:
             _remaining_identifier_ids.discard(_identifier.id)
             _index_action = self.build_index_action(
                 doc_id=_identifier.sufficiently_unique_iri,
-                doc_source=self._build_sourcedoc(_identifier),
+                doc_source=self._build_sourcedoc(_indexcard_index, _identifier),
             )
             yield _identifier.id, _index_action
         # delete any that don't have any of the expected card

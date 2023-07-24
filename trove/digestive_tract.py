@@ -100,7 +100,7 @@ def swallow__sharev2_legacy(
     return _task.id
 
 
-def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
+def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_db.Indexcard]:
     '''extract: gather rdf graph from a record; store as index card(s)
 
     will create (or update):
@@ -146,6 +146,7 @@ def extract(raw: share_db.RawDatum) -> list[trove_db.Indexcard]:
     return trove_db.Indexcard.objects.save_indexcards_from_tripledicts(
         from_raw_datum=raw,
         rdf_tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
+        undelete=undelete_indexcards,
     )
 
 
@@ -155,6 +156,8 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
     will create, update, or delete:
         DerivedIndexcard
     '''
+    if indexcard.deleted or not indexcard.latest_indexcard_rdf:
+        return
     for _deriver_class in get_deriver_classes(deriver_iris):
         _deriver = _deriver_class(upriver_rdf=indexcard.latest_indexcard_rdf)
         _deriver_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver.deriver_iri())
@@ -176,12 +179,22 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
             )
 
 
+def expel(from_user: share_db.ShareUser, record_identifier: str):
+    _suid_qs = share_db.SourceUniqueIdentifier.objects.filter(
+        source_config__source__user=from_user,
+        identifier=record_identifier,
+    )
+    for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid__in=_suid_qs):
+        _indexcard.pls_delete()
+        notify_indexcard_update(_indexcard, urgent=True)
+
+
 ### BEGIN celery tasks
 
 @celery.shared_task(acks_late=True, bind=True)
 def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     _raw = share_db.RawDatum.objects.select_related('suid').get(id=raw_id)
-    _indexcards = extract(_raw)
+    _indexcards = extract(_raw, undelete_indexcards=urgent)
     if _raw.is_latest():
         for _indexcard in _indexcards:
             derive(_indexcard)
