@@ -25,7 +25,7 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIdentifierIndexStrategy',
-        hexdigest='0bb2483ac0454473d53b8874104bbaf9780ab8577d308b8eb4cb184a9a327c72',
+        hexdigest='714fc7ae3c81ddf473c63a90b8d4d0be6828d479766a16a747b2ff658da78622',
     )
 
     @property
@@ -43,13 +43,14 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
             'dynamic': 'false',
             'properties': {
                 'iri': {'type': 'keyword'},
-                # TODO: 'namespace_iri': {'type': 'keyword'},
                 'is_value_for_property': {'type': 'keyword'},
                 'is_value_for_propertypath_from_focus': {'type': 'keyword'},
                 'is_value_for_propertypath_from_any_subject': {'type': 'keyword'},
-                'rank_by_property': {'type': 'rank_features'},
-                'rank_by_propertypath_from_focus': {'type': 'rank_features'},
-                'rank_by_propertypath_from_any_subject': {'type': 'rank_features'},
+                # TODO:
+                # 'namespace_iri': {'type': 'keyword'},
+                # 'rank_by_property': {'type': 'rank_features'},
+                # 'rank_by_propertypath_from_focus': {'type': 'rank_features'},
+                # 'rank_by_propertypath_from_any_subject': {'type': 'rank_features'},
                 'namelike_text': {
                     'type': 'text',
                     'fields': {
@@ -70,8 +71,8 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
         return {
             'iri': _identifier_usage['iri'],
             'is_value_for_property': list(_identifier_usage['count_for_property'].keys()),
-            'is_value_for_propertypath_from_focus': list(_identifier_usage['count_for_property'].keys()),
-            'is_value_for_propertypath_from_any_subject': list(_identifier_usage['count_for_property'].keys()),
+            'is_value_for_propertypath_from_focus': list(_identifier_usage['count_for_path_from_focus'].keys()),
+            'is_value_for_propertypath_from_any_subject': list(_identifier_usage['count_for_path_from_any_subject'].keys()),
             # TODO: (without dots in feature names)
             # 'rank_by_property': _identifier_usage['count_for_property'],
             # 'rank_by_propertypath_from_focus': _identifier_usage['count_for_path_from_focus'],

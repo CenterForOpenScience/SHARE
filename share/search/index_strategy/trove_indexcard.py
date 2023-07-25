@@ -282,7 +282,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                 'namelike_text_properties': {
                                     'filter': {'terms': {
                                         'nested_text.path_from_nearest_subject': [
-                                            json.dumps([_iri])
+                                            path_as_keyword([_iri])
                                             for _iri in (FOAF.name, RDFS.label, DCTERMS.title)
                                         ],
                                     }},
