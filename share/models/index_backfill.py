@@ -81,12 +81,18 @@ class IndexBackfill(models.Model):
             assert locked_self.index_strategy_name == index_strategy.name
             current_index = index_strategy.for_current_index()
             if locked_self.specific_indexname == current_index.indexname:
-                # what is "current" has not changed -- should already be INITIAL
-                assert locked_self.backfill_status == IndexBackfill.INITIAL
+                # what is "current" has not changed -- should be INITIAL or have a next phase
+                if locked_self.backfill_status == IndexBackfill.INITIAL:
+                    locked_self.backfill_phase_index = 0
+                else:
+                    assert locked_self.backfill_status == IndexBackfill.INDEXING
+                    assert len(index_strategy.backfill_phases) > locked_self.backfill_phase_index + 1
+                    locked_self.backfill_phase_index += 1
             else:
                 # what is "current" has changed! disregard backfill_status
                 locked_self.specific_indexname = current_index.indexname
                 locked_self.backfill_status = IndexBackfill.INITIAL
+                locked_self.backfill_phase_index = 0
             locked_self.__update_error(None)
             try:
                 import share.tasks

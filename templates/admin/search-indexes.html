@@ -50,7 +50,7 @@ section, table {
               {% csrf_token %}
               <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
               <input type="hidden" name="pls_do" value="start_backfill" />
-              <input type="submit" value="{% trans "start backfill" %}" />
+              <input type="submit" value="{% if indexes.current.backfill.next_phase_name %}{% trans "start next backfill phase" %} ({{indexes.current.backfill.next_phase_name}}){% else %}{% trans "start backfill" %}{% endif %}" />
             </form>
             {% elif indexes.current.backfill.can_mark_backfill_complete %}
             <form method="post">
@@ -70,11 +70,11 @@ section, table {
           </td>
           <td>
             {% if indexes.current.backfill.backfill_admin_url %}
-              <a href={{indexes.current.backfill.backfill_admin_url}}>
+              <p><a href={{indexes.current.backfill.backfill_admin_url}}>
                 {{ indexes.current.backfill.backfill_status }}
-                ({{ indexes.current.backfill.backfill_modified }})
-              </a>
+              </a></p>
               {% if not indexes.current.backfill.is_complete %}
+                <p>{% trans "phase" %} {{ indexes.current.backfill.phase_ratio }} ({{indexes.current.backfill.phase_name}})</p>
                 <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
               {% endif %}
             {% else %}

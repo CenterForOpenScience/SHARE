@@ -42,7 +42,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='9955178b6e2f86639b06fd6f0808f74eae147c7abe31e5cd40bc77ec09431156',
+        hexdigest='73187a1c47ca5259fec6a4e78d37055d2133d6d461e32b715b0531d8987ccf1a',
     )
 
     # abstract method from IndexStrategy
@@ -186,6 +186,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         }
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
+        if messages_chunk.message_type in (messages.MessageType.BACKFILL_IDENTIFIER_USAGE, messages.MessageType.IDENTIFIER_USED):
+            raise NotImplementedError  # TODO
         _indexcard_rdf_qs = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
@@ -222,7 +224,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
             # TODO: check whether there's a race condition -- wait for refresh?
             IndexMessenger().stream_message_chunks(
-                messages.MessageType.IDENTIFIER_INDEXED,
+                messages.MessageType.IDENTIFIER_USED,
                 _identifier_id_queryset.iterator(chunk_size=_chunk_size),
                 chunk_size=_chunk_size,
                 urgent=True,
