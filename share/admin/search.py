@@ -75,6 +75,7 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
     )
     return {
         'backfill_status': backfill.backfill_status,
+        'backfill_phase': backfill.backfill_phase_index,
         'backfill_modified': backfill.modified.isoformat(timespec='minutes'),
         'backfill_admin_url': admin_url(backfill),
         'backfill_queue_depth': nonurgent_queue_size,

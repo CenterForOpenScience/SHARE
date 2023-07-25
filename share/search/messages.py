@@ -18,16 +18,23 @@ class MessageType(enum.Enum):
     # for indexcard-based indexes:
     UPDATE_INDEXCARD = 'update-indexcard'
     BACKFILL_INDEXCARD = 'backfill-indexcard'
-    # for identifier-based indexes:
+    # for identifier-based indexes: (TODO: remove?)
     IDENTIFIER_INDEXED = 'identifier-indexed'
     BACKFILL_IDENTIFIER = 'backfill-identifier'
+    # for aggregating identifier usage across index cards:
+    IDENTIFIER_USED = 'identifier-used'
+    BACKFILL_IDENTIFIER_USAGE = 'backfill-identifier-usage'
+
+    @classmethod
+    def from_int(cls, message_type_int: int):
+        return cls[IntMessageType(message_type_int).name]
+
+    def __int__(self):  # allows casting to integer with `int(message_type)`
+        return int(IntMessageType[self.name])
 
     @property
     def is_backfill(self):
         return self in BACKFILL_MESSAGE_TYPES
-
-    def __int__(self):  # allows casting to integer with `int(message_type)`
-        return int(IntMessageType[self.name])
 
 
 class IntMessageType(enum.IntEnum):
@@ -39,6 +46,8 @@ class IntMessageType(enum.IntEnum):
     BACKFILL_INDEXCARD = 8
     IDENTIFIER_INDEXED = 9
     BACKFILL_IDENTIFIER = 10
+    IDENTIFIER_USED = 11
+    BACKFILL_IDENTIFIER_USAGE = 12
 
 
 if __debug__:
@@ -53,6 +62,7 @@ BACKFILL_MESSAGE_TYPES = {
     MessageType.BACKFILL_SUID,
     MessageType.BACKFILL_INDEXCARD,
     MessageType.BACKFILL_IDENTIFIER,
+    MessageType.BACKFILL_IDENTIFIER_USAGE,
 }
 
 
@@ -212,13 +222,9 @@ class V3Message(DaemonMessage):
         return self.kombu_message.payload['m']
 
     @property
-    def int_message_type(self) -> IntMessageType:
-        msg_type_int, _ = self._message_twople
-        return IntMessageType(msg_type_int)
-
-    @property
     def message_type(self) -> MessageType:
-        return MessageType[self.int_message_type.name]
+        _msg_type_int, _ = self._message_twople
+        return MessageType.from_int(_msg_type_int)
 
     @property
     def target_id(self) -> int:

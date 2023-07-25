@@ -200,6 +200,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def backfill_phases(self) -> list[messages.MessageType]:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def compute_strategy_checksum(self) -> ChecksumIri:
         '''get a dict (json-serializable and thereby checksummable) of all

@@ -35,6 +35,11 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
             messages.MessageType.BACKFILL_IDENTIFIER,
         }
 
+    # abstract method from IndexStrategy
+    @property
+    def backfill_phases(self):
+        return [messages.MessageType.BACKFILL_IDENTIFIER]
+
     def index_settings(self):
         return {}
 

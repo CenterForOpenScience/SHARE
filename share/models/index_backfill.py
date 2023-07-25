@@ -48,6 +48,7 @@ class IndexBackfill(models.Model):
     backfill_status = models.TextField(choices=BACKFILL_STATUS_CHOICES, default=INITIAL)
     index_strategy_name = models.TextField(unique=True)
     specific_indexname = models.TextField()
+    backfill_phase_index = models.IntegerField(default=0)
     error_type = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     error_context = models.TextField(blank=True)
@@ -61,6 +62,7 @@ class IndexBackfill(models.Model):
             f'{self.__class__.__name__}('
             f'backfill_status="{self.backfill_status}", '
             f'index_strategy_name="{self.index_strategy_name}", '
+            f'backfill_phase_index={self.backfill_phase_index}, '
             f'modified="{self.modified.isoformat(timespec="minutes")}", '
             ')'
         )
@@ -72,6 +74,7 @@ class IndexBackfill(models.Model):
     def mutex(self):
         with IndexBackfill.objects.get_with_mutex(pk=self.pk) as index_backfill:
             yield index_backfill
+        self.refresh_from_db()
 
     def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
@@ -94,34 +97,29 @@ class IndexBackfill(models.Model):
                 locked_self.backfill_status = IndexBackfill.WAITING
             finally:
                 locked_self.save()
-        self.refresh_from_db()
 
     def pls_note_scheduling_has_begun(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.WAITING
             locked_self.backfill_status = IndexBackfill.SCHEDULING
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_note_scheduling_has_finished(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.SCHEDULING
             locked_self.backfill_status = IndexBackfill.INDEXING
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_mark_complete(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.INDEXING
             locked_self.backfill_status = IndexBackfill.COMPLETE
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_mark_error(self, error: typing.Optional[Exception]):
         with self.mutex() as locked_self:
             locked_self.__update_error(error)
             locked_self.save()
-        self.refresh_from_db()
 
     def __update_error(self, error):
         if isinstance(error, Exception):

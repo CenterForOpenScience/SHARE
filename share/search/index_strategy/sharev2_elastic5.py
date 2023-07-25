@@ -124,6 +124,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             messages.MessageType.BACKFILL_SUID,
         }
 
+    # abstract method from IndexStrategy
+    @property
+    def backfill_phases(self):
+        return [messages.MessageType.BACKFILL_SUID]
+
     def _index_settings(self):
         return {
             'analysis': {

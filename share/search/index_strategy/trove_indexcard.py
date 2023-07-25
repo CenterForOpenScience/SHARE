@@ -45,35 +45,40 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         hexdigest='9955178b6e2f86639b06fd6f0808f74eae147c7abe31e5cd40bc77ec09431156',
     )
 
+    # abstract method from IndexStrategy
     @property
     def supported_message_types(self):
         return {
             messages.MessageType.UPDATE_INDEXCARD,
             messages.MessageType.BACKFILL_INDEXCARD,
+            messages.MessageType.IDENTIFIER_USED,
+            messages.MessageType.BACKFILL_IDENTIFIER_USAGE,
         }
+
+    # abstract method from IndexStrategy
+    @property
+    def backfill_phases(self):
+        return [
+            messages.MessageType.BACKFILL_INDEXCARD,
+            messages.MessageType.BACKFILL_IDENTIFIER_USAGE,
+        ]
 
     def index_settings(self):
         return {}
 
     def index_mappings(self):
-        _nested_properties = {
-            'path_from_focus': {'type': 'keyword'},
-            'property_iri': {'type': 'keyword'},
-            'nearest_subject_iri': {'type': 'keyword'},
-            'path_from_nearest_subject': {'type': 'keyword'},
-        }
         return {
             'dynamic': 'false',
             'properties': {
                 'focus_iri': {'type': 'keyword'},
-                # 'included_predicate_iri': {'type': 'keyword'},
-                # 'included_resource_iri': {'type': 'keyword'},
-                # 'included_vocab_iri': {'type': 'keyword'},
                 'nested_iri': {
                     'type': 'nested',
                     'dynamic': 'false',
                     'properties': {
-                        **_nested_properties,
+                        'path_from_focus': {'type': 'keyword'},
+                        'property_iri': {'type': 'keyword'},
+                        'nearest_subject_iri': {'type': 'keyword'},
+                        'path_from_nearest_subject': {'type': 'keyword'},
                         'iri_value': {'type': 'keyword'},
                     },
                 },
@@ -81,7 +86,10 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     'type': 'nested',
                     'dynamic': 'false',
                     'properties': {
-                        **_nested_properties,
+                        'path_from_focus': {'type': 'keyword'},
+                        'property_iri': {'type': 'keyword'},
+                        'nearest_subject_iri': {'type': 'keyword'},
+                        'path_from_nearest_subject': {'type': 'keyword'},
                         'date_value': {
                             'type': 'date',
                             'format': 'strict_date_optional_time',
@@ -92,12 +100,39 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     'type': 'nested',
                     'dynamic': 'false',
                     'properties': {
-                        **_nested_properties,
+                        'path_from_focus': {'type': 'keyword'},
+                        'property_iri': {'type': 'keyword'},
+                        'nearest_subject_iri': {'type': 'keyword'},
+                        'path_from_nearest_subject': {'type': 'keyword'},
                         'language_iri': {'type': 'keyword'},
                         'text_value': {
                             'type': 'text',
                             'index_options': 'offsets',  # for faster highlighting
                             'store': True,  # avoid loading _source to render highlights
+                            'fields': {
+                                'raw': {'type': 'keyword'},
+                            },
+                        },
+                    },
+                },
+                'focus_iri_usage_as_value': {
+                    'type': 'object',
+                    'properties': {
+                        'for_property': {'type': 'keyword'},
+                        'for_path_from_focus': {'type': 'keyword'},
+                        'for_path_from_any_subject': {'type': 'keyword'},
+                        # TODO for relevance:
+                        # 'rank_by_property': {'type': 'rank_features'},
+                        # 'rank_by_path_from_focus': {'type': 'rank_features'},
+                        # 'rank_by_path_from_any_subject': {'type': 'rank_features'},
+                        'namelike_text': {
+                            'type': 'text',
+                            'fields': {
+                                'raw': {'type': 'keyword'},
+                            },
+                        },
+                        'related_text': {
+                            'type': 'text',
                             'fields': {
                                 'raw': {'type': 'keyword'},
                             },
@@ -239,20 +274,20 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             # )
             raise NotImplementedError('TODO: just static PropertysearchResponse somewhere')
 
-        def get_identifier_value_usage(self, identifier: trove_db.ResourceIdentifier):
+        def get_usage_as_value(self, iris: list[str]):
             _filter_cards_with_identifier = {'nested': {
                 'path': 'nested_iri',
                 'query': {'terms': {
-                    'nested_iri.iri_value': identifier.iris_list(),
+                    'nested_iri.iri_value': iris,
                 }},
             }}
             _indexcard_agg = {
                 'in_nested_iri': {
                     'nested': {'path': 'nested_iri'},
                     'aggs': {
-                        'with_identifier': {
+                        'with_iri': {
                             'filter': {'terms': {
-                                'nested_iri.iri_value': identifier.iris_list(),
+                                'nested_iri.iri_value': iris,
                             }},
                             'aggs': {
                                 'for_property': {'terms': {
@@ -261,7 +296,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                 'for_path_from_focus': {'terms': {
                                     'field': 'nested_iri.path_from_focus',
                                 }},
-                                'for_path_from_subject': {'terms': {
+                                'for_path_from_any_subject': {'terms': {
                                     'field': 'nested_iri.path_from_nearest_subject',
                                 }},
                             },
@@ -271,9 +306,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 'in_nested_text': {
                     'nested': {'path': 'nested_text'},
                     'aggs': {
-                        'about_identifier': {
+                        'about_iri': {
                             'filter': {'terms': {
-                                'nested_text.nearest_subject_iri': identifier.iris_list(),
+                                'nested_text.nearest_subject_iri': iris,
                             }},
                             'aggs': {
                                 'related_text': {'terms': {
@@ -306,30 +341,14 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            _iri_results = _es8_response['aggregations']['in_nested_iri']['with_identifier']
-            _text_results = _es8_response['aggregations']['in_nested_text']['about_identifier']
+            _iri_results = _es8_response['aggregations']['in_nested_iri']['with_iri']
+            _text_results = _es8_response['aggregations']['in_nested_text']['about_iri']
             return {
-                'iri': identifier.iris_list(),
-                'count_for_property': {
-                    _bucket['key']: _bucket['doc_count']
-                    for _bucket in _iri_results['for_property']['buckets']
-                },
-                'count_for_path_from_focus': {
-                    _bucket['key']: _bucket['doc_count']
-                    for _bucket in _iri_results['for_path_from_focus']['buckets']
-                },
-                'count_for_path_from_any_subject': {
-                    _bucket['key']: _bucket['doc_count']
-                    for _bucket in _iri_results['for_path_from_subject']['buckets']
-                },
-                'count_for_namelike_text': {
-                    _bucket['key']: _bucket['doc_count']
-                    for _bucket in _text_results['namelike_text_properties']['namelike_text']['buckets']
-                },
-                'count_for_related_text': {
-                    _bucket['key']: _bucket['doc_count']
-                    for _bucket in _text_results['related_text']['buckets']
-                },
+                'for_property': _bucketlist(_iri_results['for_property']),
+                'for_path_from_focus': _bucketlist(_iri_results['for_path_from_focus']),
+                'for_path_from_any_subject': _bucketlist(_iri_results['for_path_from_any_subject']),
+                'namelike_text': _bucketlist(_text_results['namelike_text_properties']['namelike_text']),
+                'related_text': _bucketlist(_text_results['related_text']),
             }
 
 
@@ -537,6 +556,13 @@ def _gather_textmatch_evidence(es8_hit) -> Iterable[TextMatchEvidence]:
                     matching_highlight=primitive_rdf.text(_highlight, language_iri=_language_iri),
                     card_iri=_innerhit['_id'],
                 )
+
+
+def _bucketlist(agg_result: dict) -> list[str]:
+    return [
+        _bucket['key']
+        for _bucket in agg_result['buckets']
+    ]
 
 
 class _PredicatePathWalker:
