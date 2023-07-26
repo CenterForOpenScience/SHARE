@@ -522,7 +522,7 @@ def _cardsearch_response(cardsearch_params, es8_response) -> CardsearchResponse:
 
 
 def _gather_textmatch_evidence(es8_hit) -> Iterable[TextMatchEvidence]:
-    for _innerhit_group in es8_hit['inner_hits'].values():
+    for _innerhit_group in es8_hit.get('inner_hits', {}).values():
         for _innerhit in _innerhit_group['hits']['hits']:
             _property_path = tuple(
                 json.loads(_innerhit['fields']['nested_text.path_from_focus'][0]),
