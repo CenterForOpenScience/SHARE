@@ -73,6 +73,13 @@ class Elastic8IndexStrategy(IndexStrategy):
             '_id': str(doc_id),
         }
 
+    def build_update_action(self, doc_id, doc_source):
+        return {
+            '_op_type': 'update',
+            '_id': str(doc_id),
+            'doc': doc_source,
+        }
+
     ###
     # implementation for subclasses to ignore
 

@@ -116,13 +116,16 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
     _search_params = search_params_dataclass.from_querystring(
         request.META['QUERY_STRING'],
     )
-    try:
-        _specific_index = IndexStrategy.get_for_searching(
-            _search_params.index_strategy_name,
-            with_default_fallback=True,
-        )
-    except exceptions.IndexStrategyError as error:
-        raise Exception('TODO: 404') from error
+    _index_strategy_name = _search_params.index_strategy_name
+    if not _index_strategy_name:
+        if search_params_dataclass is CardsearchParams:
+            _index_strategy_name = 'trove_indexcard'
+        elif search_params_dataclass is ValuesearchParams:
+            _index_strategy_name = 'trove_identifier'
+        elif search_params_dataclass is PropertysearchParams:
+            _index_strategy_name = 'trove_indexcard'
+    _specific_index = IndexStrategy.get_for_searching(_index_strategy_name)
+    # TODO: 404 for unknown strategy
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,
         'specific_index': _specific_index,

@@ -5,7 +5,7 @@ import logging
 import typing
 
 from share.search import exceptions
-from trove.jsonapi.queryparams import (
+from trove.util.queryparams import (
     JsonapiQueryparamDict,
     JsonapiQueryparamName,
     split_queryparam_value,
@@ -171,9 +171,7 @@ class SearchFilter:
             else:
                 try:
                     _iri = osfmap_labeler.iri_for_label(_value)
-                except KeyError:
-                    if ':' not in _value:
-                        raise ValueError(_value)
+                except KeyError:  # not a known shorthand
                     _value_list.append(_value)  # assume iri already
                 else:
                     _value_list.append(_iri)
@@ -207,7 +205,7 @@ class CardsearchParams:
             cardsearch_text=_cardsearch_text,
             cardsearch_textsegment_set=Textsegment.split_str(_cardsearch_text),
             cardsearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
-            index_strategy_name=_get_single_value(queryparams, 'indexStrategy') or 'trove_indexcard',
+            index_strategy_name=_get_single_value(queryparams, 'indexStrategy'),
             include=None,  # TODO
             sort=None,  # TODO
         )

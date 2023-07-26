@@ -1,10 +1,11 @@
+from collections import defaultdict
 import contextlib
 import dataclasses
 import datetime
 import json
 import logging
 import uuid
-from typing import Iterable
+from typing import Iterable, Optional
 
 from django.conf import settings
 import elasticsearch8
@@ -31,6 +32,7 @@ from share.search.search_response import (
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
+from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, FOAF, RDFS, DCTERMS
 
@@ -42,7 +44,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='73187a1c47ca5259fec6a4e78d37055d2133d6d461e32b715b0531d8987ccf1a',
+        hexdigest='c3c0586e7bb1614b0cfb1616e6696e8df212c4de3030f02af37f11531fc9c9e4',
     )
 
     # abstract method from IndexStrategy
@@ -51,8 +53,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         return {
             messages.MessageType.UPDATE_INDEXCARD,
             messages.MessageType.BACKFILL_INDEXCARD,
-            messages.MessageType.IDENTIFIER_USED,
-            messages.MessageType.BACKFILL_IDENTIFIER_USAGE,
         }
 
     # abstract method from IndexStrategy
@@ -60,7 +60,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     def backfill_phases(self):
         return [
             messages.MessageType.BACKFILL_INDEXCARD,
-            messages.MessageType.BACKFILL_IDENTIFIER_USAGE,
         ]
 
     def index_settings(self):
@@ -71,15 +70,18 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             'dynamic': 'false',
             'properties': {
                 'focus_iri': {'type': 'keyword'},
+                'suffuniq_focus_iri': {'type': 'keyword'},
                 'nested_iri': {
-                    'type': 'nested',
+                    'type': 'nested',  # TODO: consider 'flattened' for iris
                     'dynamic': 'false',
                     'properties': {
                         'path_from_focus': {'type': 'keyword'},
                         'property_iri': {'type': 'keyword'},
                         'nearest_subject_iri': {'type': 'keyword'},
+                        'nearest_subject_suffuniq_iri': {'type': 'keyword'},
                         'path_from_nearest_subject': {'type': 'keyword'},
                         'iri_value': {'type': 'keyword'},
+                        'suffuniq_iri_value': {'type': 'keyword'},
                     },
                 },
                 'nested_date': {
@@ -89,6 +91,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'path_from_focus': {'type': 'keyword'},
                         'property_iri': {'type': 'keyword'},
                         'nearest_subject_iri': {'type': 'keyword'},
+                        'nearest_subject_suffuniq_iri': {'type': 'keyword'},
                         'path_from_nearest_subject': {'type': 'keyword'},
                         'date_value': {
                             'type': 'date',
@@ -103,6 +106,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'path_from_focus': {'type': 'keyword'},
                         'property_iri': {'type': 'keyword'},
                         'nearest_subject_iri': {'type': 'keyword'},
+                        'nearest_subject_suffuniq_iri': {'type': 'keyword'},
                         'path_from_nearest_subject': {'type': 'keyword'},
                         'language_iri': {'type': 'keyword'},
                         'text_value': {
@@ -115,56 +119,39 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         },
                     },
                 },
-                'focus_iri_usage_as_value': {
-                    'type': 'object',
-                    'properties': {
-                        'for_property': {'type': 'keyword'},
-                        'for_path_from_focus': {'type': 'keyword'},
-                        'for_path_from_any_subject': {'type': 'keyword'},
-                        # TODO for relevance:
-                        # 'rank_by_property': {'type': 'rank_features'},
-                        # 'rank_by_path_from_focus': {'type': 'rank_features'},
-                        # 'rank_by_path_from_any_subject': {'type': 'rank_features'},
-                        'namelike_text': {
-                            'type': 'text',
-                            'fields': {
-                                'raw': {'type': 'keyword'},
-                            },
-                        },
-                        'related_text': {
-                            'type': 'text',
-                            'fields': {
-                                'raw': {'type': 'keyword'},
-                            },
-                        },
-                    },
-                },
             },
         }
 
     def _build_sourcedoc(self, indexcard_rdf):
         _tripledict = indexcard_rdf.as_rdf_tripledict()
-        _nested_iris = {}
-        _nested_dates = {}
-        _nested_texts = {}
+        _nested_iris = defaultdict(set)
+        _nested_dates = defaultdict(set)
+        _nested_texts = defaultdict(set)
         for _walk_pathkey, _walk_obj in _PredicatePathWalker(_tripledict).walk_from_subject(indexcard_rdf.focus_iri):
             if isinstance(_walk_obj, str):
-                _nested_iris.setdefault(_walk_pathkey, set()).add(_walk_obj)
+                _nested_iris[_walk_pathkey].add(_walk_obj)
             elif isinstance(_walk_obj, datetime.date):
-                _nested_dates.setdefault(_walk_pathkey, set()).add(datetime.date.isoformat(_walk_obj))
+                _nested_dates[_walk_pathkey].add(datetime.date.isoformat(_walk_obj))
             elif is_date_property(_walk_pathkey.last_predicate_iri):
-                _nested_dates.setdefault(_walk_pathkey, set()).add(_walk_obj.unicode_text)
+                _nested_dates[_walk_pathkey].add(_walk_obj.unicode_text)
             elif isinstance(_walk_obj, primitive_rdf.Text):
-                _nested_texts.setdefault((_walk_pathkey, _walk_obj.language_iri), set()).add(_walk_obj.unicode_text)
+                _nested_texts[(_walk_pathkey, _walk_obj.language_iri)].add(_walk_obj.unicode_text)
+        _focus_iris = {indexcard_rdf.focus_iri}
+        _suffuniq_focus_iris = {get_sufficiently_unique_iri(indexcard_rdf.focus_iri)}
+        for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all():
+            _focus_iris.update(_identifier.raw_iri_list)
+            _suffuniq_focus_iris.add(_identifier.sufficiently_unique_iri)
         return {
-            'focus_iri': [
-                _identifier.as_iri()
-                for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all()
-            ],
+            'focus_iri': list(_focus_iris),
+            'suffuniq_focus_iri': list(_suffuniq_focus_iris),
             'nested_iri': [
                 {
                     **_pathkey.as_nested_keywords(),
                     'iri_value': list(_value_set),
+                    'suffuniq_iri_value': [
+                        get_sufficiently_unique_iri(_iri)
+                        for _iri in _value_set
+                    ],
                 }
                 for _pathkey, _value_set in _nested_iris.items()
             ],
@@ -186,8 +173,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         }
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        if messages_chunk.message_type in (messages.MessageType.BACKFILL_IDENTIFIER_USAGE, messages.MessageType.IDENTIFIER_USED):
-            raise NotImplementedError  # TODO
         _indexcard_rdf_qs = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
@@ -203,11 +188,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 doc_source=self._build_sourcedoc(_indexcard_rdf),
             )
             yield _indexcard_id, _index_action
-        # delete any that don't have any of the expected card
-        _leftovers = (
-            trove_db.Indexcard.objects
-            .filter(id__in=_remaining_indexcard_ids)
-        )
+        # delete any that don't have "latest" rdf
+        _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:
             yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
 
@@ -245,7 +227,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=_cardsearch_query(
+                    query=self._cardsearch_query(
                         cardsearch_params.cardsearch_filter_set,
                         cardsearch_params.cardsearch_textsegment_set,
                     ),
@@ -253,20 +235,20 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return _cardsearch_response(cardsearch_params, _es8_response)
+            return self._cardsearch_response(cardsearch_params, _es8_response)
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=_valuesearch_outer_cardquery(valuesearch_params),
+                    query=self._valuesearch_outer_cardquery(valuesearch_params),
                     size=0,  # ignore cardsearch hits; just want the aggs
-                    aggs=_valuesearch_aggs(valuesearch_params),
+                    aggs=self._valuesearch_aggs(valuesearch_params),
                 )
                 return dict(_es8_response)  # <<< DEBUG
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return _valuesearch_response(valuesearch_params, _es8_response)
+            return self._valuesearch_response(valuesearch_params, _es8_response)
 
         def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
             # _propertycard_filter = SearchFilter(
@@ -276,30 +258,37 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             # )
             raise NotImplementedError('TODO: just static PropertysearchResponse somewhere')
 
-        def get_usage_as_value(self, iris: list[str]):
+        def get_identifier_usage_as_value(self, identifier: trove_db.ResourceIdentifier) -> Optional[dict]:
             _filter_cards_with_identifier = {'nested': {
                 'path': 'nested_iri',
-                'query': {'terms': {
-                    'nested_iri.iri_value': iris,
+                'query': {'term': {
+                    'nested_iri.suffuniq_iri_value': identifier.sufficiently_unique_iri,
                 }},
             }}
-            _indexcard_agg = {
+            _identifier_usage_agg = {
                 'in_nested_iri': {
                     'nested': {'path': 'nested_iri'},
                     'aggs': {
                         'with_iri': {
-                            'filter': {'terms': {
-                                'nested_iri.iri_value': iris,
+                            'filter': {'term': {
+                                'nested_iri.suffuniq_iri_value': identifier.sufficiently_unique_iri,
                             }},
                             'aggs': {
+                                'exact_iri_value': {'terms': {
+                                    'field': 'nested_iri.iri_value',
+                                    'size': 100,
+                                }},
                                 'for_property': {'terms': {
                                     'field': 'nested_iri.property_iri',
+                                    'size': 100,
                                 }},
                                 'for_path_from_focus': {'terms': {
                                     'field': 'nested_iri.path_from_focus',
+                                    'size': 100,
                                 }},
                                 'for_path_from_any_subject': {'terms': {
                                     'field': 'nested_iri.path_from_nearest_subject',
+                                    'size': 100,
                                 }},
                             },
                         },
@@ -309,12 +298,13 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     'nested': {'path': 'nested_text'},
                     'aggs': {
                         'about_iri': {
-                            'filter': {'terms': {
-                                'nested_text.nearest_subject_iri': iris,
+                            'filter': {'term': {
+                                'nested_text.nearest_subject_suffuniq_iri': identifier.sufficiently_unique_iri,
                             }},
                             'aggs': {
                                 'related_text': {'terms': {
                                     'field': 'nested_text.text_value.raw',
+                                    'size': 100,
                                 }},
                                 'namelike_text_properties': {
                                     'filter': {'terms': {
@@ -326,6 +316,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                     'aggs': {
                                         'namelike_text': {'terms': {
                                             'field': 'nested_text.text_value.raw',
+                                            'size': 100,
                                         }},
                                     },
                                 },
@@ -339,13 +330,17 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     index=self.indexname,
                     query=_filter_cards_with_identifier,
                     size=0,  # ignore cardsearch hits; just want the aggs
-                    aggs=_indexcard_agg,
+                    aggs=_identifier_usage_agg,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+            if not _es8_response['hits']['total']['value']:
+                return None
             _iri_results = _es8_response['aggregations']['in_nested_iri']['with_iri']
             _text_results = _es8_response['aggregations']['in_nested_text']['about_iri']
             return {
+                # TODO: include bucket counts
+                'iri': _bucketlist(_iri_results['exact_iri_value']),
                 'for_property': _bucketlist(_iri_results['for_property']),
                 'for_path_from_focus': _bucketlist(_iri_results['for_path_from_focus']),
                 'for_path_from_any_subject': _bucketlist(_iri_results['for_path_from_any_subject']),
@@ -353,212 +348,206 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 'related_text': _bucketlist(_text_results['related_text']),
             }
 
+        ###
+        # query implementation
 
-###
-# module-local functions
+        def _cardsearch_query(self, filter_set, textsegment_set, *, with_filters=None) -> dict:
+            _bool_query = {
+                'filter': with_filters or [],
+                'must': [],
+                'must_not': [],
+                'should': [],
+            }
+            for _searchfilter in filter_set:
+                if _searchfilter.operator == SearchFilter.FilterOperator.NONE_OF:
+                    _bool_query['must_not'].append(self._iri_filter(_searchfilter))
+                elif _searchfilter.operator == SearchFilter.FilterOperator.ANY_OF:
+                    _bool_query['filter'].append(self._iri_filter(_searchfilter))
+                elif _searchfilter.operator.is_date_operator():
+                    _bool_query['filter'].append(self._date_filter(_searchfilter))
+                else:
+                    raise ValueError(f'unknown filter operator {_searchfilter.operator}')
+            _fuzzysegments = []
+            for _textsegment in textsegment_set:
+                if _textsegment.is_negated:
+                    _bool_query['must_not'].append(self._excluded_text_query(_textsegment))
+                elif _textsegment.is_fuzzy:
+                    _fuzzysegments.append(_textsegment)
+                else:
+                    _bool_query['must'].append(self._exact_text_query(_textsegment))
+            if _fuzzysegments:
+                _bool_query['must'].append(self._fuzzy_text_must_query(_fuzzysegments))
+                _bool_query['should'].extend(self._fuzzy_text_should_queries(_fuzzysegments))
+            return {'bool': _bool_query}
 
-def _cardsearch_query(filter_set, textsegment_set, *, with_filters=None) -> dict:
-    _bool_query = {
-        'filter': with_filters or [],
-        'must': [],
-        'must_not': [],
-        'should': [],
-    }
-    for _searchfilter in filter_set:
-        if _searchfilter.operator == SearchFilter.FilterOperator.NONE_OF:
-            _bool_query['must_not'].append(_iri_filter(_searchfilter))
-        elif _searchfilter.operator == SearchFilter.FilterOperator.ANY_OF:
-            _bool_query['filter'].append(_iri_filter(_searchfilter))
-        elif _searchfilter.operator.is_date_operator():
-            _bool_query['filter'].append(_date_filter(_searchfilter))
-        else:
-            raise ValueError(f'unknown filter operator {_searchfilter.operator}')
-    _fuzzysegments = []
-    for _textsegment in textsegment_set:
-        if _textsegment.is_negated:
-            _bool_query['must_not'].append(_excluded_text_query(_textsegment))
-        elif _textsegment.is_fuzzy:
-            _fuzzysegments.append(_textsegment)
-        else:
-            _bool_query['must'].append(_exact_text_query(_textsegment))
-    if _fuzzysegments:
-        _bool_query['must'].append(_fuzzy_text_must_query(_fuzzysegments))
-        _bool_query['should'].extend(_fuzzy_text_should_queries(_fuzzysegments))
-    return {'bool': _bool_query}
+        def _valuesearch_outer_cardquery(self, valuesearch_params: ValuesearchParams):
+            _propertypath = path_as_keyword(valuesearch_params.valuesearch_property_path)
+            _filter_cards_with_propertypath = {'nested': {
+                'path': 'nested_iri',
+                'query': {'term': {
+                    'nested_iri.path_from_focus': _propertypath,
+                }},
+            }}
+            return self._cardsearch_query(
+                valuesearch_params.cardsearch_filter_set,
+                valuesearch_params.cardsearch_textsegment_set,
+                with_filters=[_filter_cards_with_propertypath],
+            )
 
+        def _valuesearch_aggs(valuesearch_params: ValuesearchParams):
+            raise NotImplementedError
 
-def _valuesearch_outer_cardquery(valuesearch_params: ValuesearchParams):
-    _propertypath = path_as_keyword(valuesearch_params.valuesearch_property_path)
-    _filter_cards_with_propertypath = {'nested': {
-        'path': 'nested_iri',
-        'query': {'term': {
-            'nested_iri.path_from_focus': _propertypath,
-        }},
-    }}
-    return _cardsearch_query(
-        valuesearch_params.cardsearch_filter_set,
-        valuesearch_params.cardsearch_textsegment_set,
-        with_filters=[_filter_cards_with_propertypath],
-    )
+        def _valuesearch_response(self, valuesearch_params, es8_response):
+            raise NotImplementedError
 
+        def _iri_filter(self, search_filter) -> dict:
+            _propertypath_keyword = path_as_keyword(search_filter.property_path)
+            return {'nested': {
+                'path': 'nested_iri',
+                'query': {'bool': {
+                    'filter': [
+                        {'term': {'nested_iri.path_from_focus': _propertypath_keyword}},
+                        # {'terms': {'nested_iri.iri_value': list(search_filter.value_set)}},
+                        {'terms': {'nested_iri.suffuniq_iri_value': [
+                            get_sufficiently_unique_iri(_iri)
+                            for _iri in search_filter.value_set
+                        ]}},
+                    ],
+                }},
+            }}
 
-def _valuesearch_aggs(valuesearch_params: ValuesearchParams):
-    raise NotImplementedError
+        def _date_filter(self, search_filter) -> dict:
+            if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
+                _range_op = 'lt'
+                _value = min(search_filter.value_set)  # rely on string-comparable isoformat
+            elif search_filter.operator == SearchFilter.FilterOperator.AFTER:
+                _range_op = 'gte'
+                _value = max(search_filter.value_set)  # rely on string-comparable isoformat
+            else:
+                raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
+            _date_value = datetime.datetime.fromisoformat(_value).date()
+            _propertypath_keyword = path_as_keyword(search_filter.property_path)
+            return {'nested': {
+                'path': 'nested_date',
+                'query': {'bool': {
+                    'filter': [
+                        {'term': {'nested_date.path_from_focus': _propertypath_keyword}},
+                        {'range': {'nested_date.date_value': {
+                            _range_op: f'{_date_value}||/d',  # round to the day
+                        }}},
+                    ],
+                }},
+            }}
 
+        def _excluded_text_query(self, textsegment: Textsegment) -> dict:
+            return {'nested': {
+                'path': 'nested_text',
+                'query': {'match_phrase': {
+                    'nested_text.text_value': {
+                        'query': textsegment.text,
+                    },
+                }},
+            }}
 
-def _valuesearch_response(valuesearch_params, es8_response):
-    raise NotImplementedError
-
-
-def _iri_filter(search_filter) -> dict:
-    _propertypath_keyword = path_as_keyword(search_filter.property_path)
-    return {'nested': {
-        'path': 'nested_iri',
-        'query': {'bool': {
-            'filter': [
-                {'term': {'nested_iri.path_from_focus': _propertypath_keyword}},
-                {'terms': {'nested_iri.iri_value': list(search_filter.value_set)}},
-            ],
-        }},
-    }}
-
-
-def _date_filter(search_filter) -> dict:
-    if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
-        _range_op = 'lt'
-        _value = min(search_filter.value_set)  # lean on that isoformat
-    elif search_filter.operator == SearchFilter.FilterOperator.AFTER:
-        _range_op = 'gte'
-        _value = max(search_filter.value_set)  # lean on that isoformat
-    else:
-        raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
-    _date_value = datetime.datetime.fromisoformat(_value).date()
-    _propertypath_keyword = path_as_keyword(search_filter.property_path)
-    return {'nested': {
-        'path': 'nested_date',
-        'query': {'bool': {
-            'filter': [
-                {'term': {'nested_date.path_from_focus': _propertypath_keyword}},
-                {'range': {'nested_date.date_value': {
-                    _range_op: f'{_date_value}||/d',  # round to the day
-                }}},
-            ],
-        }},
-    }}
-
-
-def _excluded_text_query(textsegment: Textsegment) -> dict:
-    return {'nested': {
-        'path': 'nested_text',
-        'query': {'match_phrase': {
-            'nested_text.text_value': {
-                'query': textsegment.text,
-            },
-        }},
-    }}
-
-
-def _exact_text_query(textsegment: Textsegment) -> dict:
-    # TODO: textsegment.is_openended (prefix query)
-    _query = {'match_phrase': {
-        'nested_text.text_value': {
-            'query': textsegment.text,
-        },
-    }}
-    return {'nested': {
-        'path': 'nested_text',
-        'query': _query,
-        'inner_hits': _text_inner_hits(),
-    }}
-
-
-def _fuzzy_text_must_query(textsegments: list[Textsegment]) -> dict:
-    # TODO: textsegment.is_openended (prefix query)
-    _query = {'match': {
-        'nested_text.text_value': {
-            'query': ' '.join(
-                _textsegment.text
-                for _textsegment in textsegments
-            ),
-            'fuzziness': 'AUTO',
-        },
-    }}
-    return {'nested': {
-        'path': 'nested_text',
-        'query': _query,
-        'inner_hits': _text_inner_hits()
-    }}
-
-
-def _fuzzy_text_should_queries(textsegments: list[Textsegment]) -> Iterable[dict]:
-    for _textsegment in textsegments:
-        yield {'nested': {
-            'path': 'nested_text',
-            'query': {'match_phrase': {
+        def _exact_text_query(self, textsegment: Textsegment) -> dict:
+            # TODO: textsegment.is_openended (prefix query)
+            _query = {'match_phrase': {
                 'nested_text.text_value': {
-                    'query': _textsegment.text,
-                    'slop': len(_textsegment.words()),
+                    'query': textsegment.text,
                 },
             }}
-        }}
+            return {'nested': {
+                'path': 'nested_text',
+                'query': _query,
+                'inner_hits': self._text_inner_hits(),
+            }}
 
+        def _fuzzy_text_must_query(self, textsegments: list[Textsegment]) -> dict:
+            # TODO: textsegment.is_openended (prefix query)
+            _query = {'match': {
+                'nested_text.text_value': {
+                    'query': ' '.join(
+                        _textsegment.text
+                        for _textsegment in textsegments
+                    ),
+                    'fuzziness': 'AUTO',
+                },
+            }}
+            return {'nested': {
+                'path': 'nested_text',
+                'query': _query,
+                'inner_hits': self._text_inner_hits()
+            }}
 
-def _text_inner_hits(*, highlight_query=None) -> dict:
-    _highlight = {
-        'type': 'unified',
-        'fields': {'nested_text.text_value': {}},
-    }
-    if highlight_query is not None:
-        _highlight['highlight_query'] = highlight_query
-    return {
-        'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
-        'highlight': _highlight,
-        '_source': False,  # _source is expensive for nested docs
-        'docvalue_fields': [
-            'nested_text.path_from_focus',
-            'nested_text.language_iri',
-        ],
-    }
+        def _fuzzy_text_should_queries(self, textsegments: list[Textsegment]) -> Iterable[dict]:
+            for _textsegment in textsegments:
+                yield {'nested': {
+                    'path': 'nested_text',
+                    'query': {'match_phrase': {
+                        'nested_text.text_value': {
+                            'query': _textsegment.text,
+                            'slop': len(_textsegment.words()),
+                        },
+                    }}
+                }}
 
+        def _text_inner_hits(self, *, highlight_query=None) -> dict:
+            _highlight = {
+                'type': 'unified',
+                'fields': {'nested_text.text_value': {}},
+            }
+            if highlight_query is not None:
+                _highlight['highlight_query'] = highlight_query
+            return {
+                'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
+                'highlight': _highlight,
+                '_source': False,  # _source is expensive for nested docs
+                'docvalue_fields': [
+                    'nested_text.path_from_focus',
+                    'nested_text.language_iri',
+                ],
+            }
 
-def _cardsearch_response(cardsearch_params, es8_response) -> CardsearchResponse:
-    _es8_total = es8_response['hits']['total']
-    _total = (
-        _es8_total['value']
-        if _es8_total['relation'] == 'eq'
-        else TROVE['ten-thousands-and-more']
-    )
-    _results = []
-    for _es8_hit in es8_response['hits']['hits']:
-        _card_iri = _es8_hit['_id']
-        _results.append(SearchResult(
-            card_iri=_card_iri,
-            text_match_evidence=list(_gather_textmatch_evidence(_es8_hit)),
-        ))
-    return CardsearchResponse(
-        total_result_count=_total,
-        search_result_page=_results,
-        related_propertysearch_set=(),
-    )
-
-
-def _gather_textmatch_evidence(es8_hit) -> Iterable[TextMatchEvidence]:
-    for _innerhit_group in es8_hit.get('inner_hits', {}).values():
-        for _innerhit in _innerhit_group['hits']['hits']:
-            _property_path = tuple(
-                json.loads(_innerhit['fields']['nested_text.path_from_focus'][0]),
+        def _cardsearch_response(self, cardsearch_params, es8_response) -> CardsearchResponse:
+            _es8_total = es8_response['hits']['total']
+            _total = (
+                _es8_total['value']
+                if _es8_total['relation'] == 'eq'
+                else TROVE['ten-thousands-and-more']
             )
-            try:
-                _language_iri = _innerhit['fields']['nested_text.language_iri'][0]
-            except KeyError:
-                _language_iri = None
-            for _highlight in _innerhit['highlight']['nested_text.text_value']:
-                yield TextMatchEvidence(
-                    property_path=_property_path,
-                    matching_highlight=primitive_rdf.text(_highlight, language_iri=_language_iri),
-                    card_iri=_innerhit['_id'],
-                )
+            _results = []
+            for _es8_hit in es8_response['hits']['hits']:
+                _card_iri = _es8_hit['_id']
+                _results.append(SearchResult(
+                    card_iri=_card_iri,
+                    text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
+                ))
+            return CardsearchResponse(
+                total_result_count=_total,
+                search_result_page=_results,
+                related_propertysearch_set=(),
+            )
 
+        def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
+            for _innerhit_group in es8_hit.get('inner_hits', {}).values():
+                for _innerhit in _innerhit_group['hits']['hits']:
+                    _property_path = tuple(
+                        json.loads(_innerhit['fields']['nested_text.path_from_focus'][0]),
+                    )
+                    try:
+                        _language_iri = _innerhit['fields']['nested_text.language_iri'][0]
+                    except KeyError:
+                        _language_iri = None
+                    for _highlight in _innerhit['highlight']['nested_text.text_value']:
+                        yield TextMatchEvidence(
+                            property_path=_property_path,
+                            matching_highlight=primitive_rdf.text(_highlight, language_iri=_language_iri),
+                            card_iri=_innerhit['_id'],
+                        )
+
+
+###
+# module-local utils
 
 def _bucketlist(agg_result: dict) -> list[str]:
     return [
@@ -596,6 +585,7 @@ class _PredicatePathWalker:
                 'path_from_focus': path_as_keyword(self.path_from_start),
                 'property_iri': self.last_predicate_iri,
                 'nearest_subject_iri': self.nearest_subject_iri,
+                'nearest_subject_suffuniq_iri': get_sufficiently_unique_iri(self.nearest_subject_iri),
                 'path_from_nearest_subject': path_as_keyword(self.path_from_nearest_subject),
             }
 

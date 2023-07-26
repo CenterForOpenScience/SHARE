@@ -1,4 +1,3 @@
-import re
 import typing
 
 from django.core.exceptions import ValidationError
@@ -7,18 +6,14 @@ from django.db import models
 from django.db.models.functions import Substr, StrIndex
 from gather import primitive_rdf
 
-from trove.vocab.namespaces import OWL
-
-
-# quoth <https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2>:
-#   scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-IRI_SCHEME_REGEX = re.compile(
-    r'[a-z]'            # one letter from the english alphabet
-    r'[a-z0-9+-.]*'     # zero or more letters, decimal numerals, or the symbols `+`, `-`, or `.`
+from trove.util.iris import (
+    get_sufficiently_unique_iri,
+    get_sufficiently_unique_iri_and_scheme,
+    IRI_SCHEME_REGEX,
+    COLON,
+    COLON_SLASH_SLASH,
 )
-IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNORECASE)
-COLON = ':'
-COLON_SLASH_SLASH = '://'
+from trove.vocab.namespaces import OWL
 
 
 # for choosing among multiple schemes
@@ -26,17 +21,6 @@ IRI_SCHEME_PREFERENCE_ORDER = (
     'https',
     'http',
 )
-
-
-def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
-    _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
-    if not _scheme_match:
-        raise ValueError(f'does not look like an iri (got "{iri}")')
-    _scheme = _scheme_match.group().lower()
-    _remainder = iri[_scheme_match.end():]
-    if _remainder.startswith(COLON_SLASH_SLASH):
-        return (_remainder, _scheme)
-    return (iri, _scheme)
 
 
 def validate_iri_scheme(iri_scheme):
@@ -50,26 +34,19 @@ def validate_iri_scheme(iri_scheme):
 
 def validate_sufficiently_unique_iri(suffuniq_iri: str):
     '''raise a django ValidationError if not a valid "sufficiently unique iri"
-
-     based on a wild assertion:
-       if two IRIs differ only in their `scheme`
-       and have non-empty `authority` component,
-       they may safely be considered equivalent.
-     (while this is not strictly true, it should be true enough and helps avoid
-     hand-wringing about "http" vs "https" -- use either or both, it's fine)
     '''
     if not isinstance(suffuniq_iri, str):
         raise ValidationError('not a string')
-    (_maybescheme, _colonslashslash, _remainder) = suffuniq_iri.partition(COLON_SLASH_SLASH)
+    (_maybescheme, _colonslashslash, _rest) = suffuniq_iri.partition(COLON_SLASH_SLASH)
     if _colonslashslash:
         if _maybescheme:
             raise ValidationError('iri containing "://" should start with it')
     else:
-        (_scheme, _colon, _remainder) = suffuniq_iri.partition(COLON)
+        (_scheme, _colon, _rest) = suffuniq_iri.partition(COLON)
         if not _colon:
             raise ValidationError('an iri needs a colon')
         validate_iri_scheme(_scheme)
-    if not _remainder:
+    if not _rest:
         raise ValidationError('need more iri beyond a scheme')
 
 
@@ -81,8 +58,7 @@ class ResourceIdentifierManager(models.Manager):
         # may raise if invalid
         _suffuniq_iris = set()
         for _iri in iris:
-            (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(_iri)
-            _suffuniq_iris.add(_suffuniq_iri)
+            _suffuniq_iris.add(get_sufficiently_unique_iri(_iri))
         return self.filter(sufficiently_unique_iri__in=_suffuniq_iris)
 
     def get_for_iri(self, iri: str) -> 'ResourceIdentifier':
@@ -93,11 +69,16 @@ class ResourceIdentifierManager(models.Manager):
         (_suffuniq_iri, _scheme) = get_sufficiently_unique_iri_and_scheme(iri)
         (_identifier, _created) = self.get_or_create(
             sufficiently_unique_iri=_suffuniq_iri,
-            defaults={'scheme_list': [_scheme]},
+            defaults={
+                'scheme_list': [_scheme],
+                'raw_iri_list': [iri],
+            },
         )
         if _scheme not in _identifier.scheme_list:
             _identifier.scheme_list.append(_scheme)
-            _identifier.save()
+        if iri not in _identifier.raw_iri_list:
+            _identifier.raw_iri_list.append(iri)
+        _identifier.save()
         return _identifier
 
     def save_equivalent_identifier_set(
@@ -132,6 +113,9 @@ class ResourceIdentifier(models.Model):
     scheme_list = ArrayField(
         models.TextField(validators=[validate_iri_scheme]),
     )
+    # original IRIs that were reduced to `sufficiently_unique_iri`
+    # (not indexed or used for comparison; just for transparency)
+    raw_iri_list = ArrayField(models.TextField(), default=list)
 
     class Meta:
         constraints = [
@@ -171,14 +155,6 @@ class ResourceIdentifier(models.Model):
             else _suffuniq_iri
         )
 
-    def iris_list(self) -> list[str]:
-        if self.sufficiently_unique_iri.startswith(COLON_SLASH_SLASH):
-            return [
-                ''.join((_scheme, self.sufficiently_unique_iri))
-                for _scheme in self.scheme_list
-            ]
-        return [self.sufficiently_unique_iri]
-
     def choose_a_scheme(self) -> str:
         try:
             (_scheme,) = self.scheme_list
@@ -196,8 +172,7 @@ class ResourceIdentifier(models.Model):
         return _scheme
 
     def equivalent_to_iri(self, iri: str):
-        (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(iri)
-        return (self.sufficiently_unique_iri == _suffuniq_iri)
+        return (self.sufficiently_unique_iri == get_sufficiently_unique_iri(iri))
 
     def find_equivalent_iri(self, tripledict: primitive_rdf.RdfTripleDictionary) -> str:
         _identifier_iri = self.as_iri()

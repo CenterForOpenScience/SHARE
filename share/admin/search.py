@@ -27,7 +27,7 @@ def search_indexes_view(request):
         specific_indexname = request.POST['specific_indexname']
         pls_doer = PLS_DOERS[request.POST['pls_do']]
         pls_doer(specific_indexname)
-        return HttpResponseRedirect(request.path)
+        return HttpResponseRedirect('#'.join((request.path, specific_indexname)))
 
 
 def _search_url_prefix():
