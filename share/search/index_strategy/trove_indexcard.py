@@ -580,8 +580,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         )
 
         class _TextQueryBuilder:
-            def __init__(self, *text_fields, nested_path=None, inner_hits=None):
-                self._text_fields = text_fields
+            def __init__(self, text_field, nested_path=None, inner_hits=None):
+                self._text_field = text_field
                 self._nested_path = nested_path
                 self._inner_hits = inner_hits
 
