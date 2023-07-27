@@ -219,9 +219,9 @@ def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> fro
     _value_metadata = {
         result.value_iri: {
             RDF.type: set(result.value_type),
-            FOAF.name: set(result.name_text),
-            DCTERMS.title: set(result.title_text),
-            RDFS.label: set(result.label_text),
+            FOAF.name: set(map(primitive_rdf.text, result.name_text)),
+            DCTERMS.title: set(map(primitive_rdf.text, result.title_text)),
+            RDFS.label: set(map(primitive_rdf.text, result.label_text)),
         },
     }
     return primitive_rdf.freeze_blanknode({
