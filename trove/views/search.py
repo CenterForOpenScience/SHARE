@@ -4,7 +4,6 @@ from django import http
 from django.views import View
 from gather import gathering
 
-from share.search import exceptions
 from share.search.index_strategy import IndexStrategy
 from share.search.search_request import (
     CardsearchParams,
@@ -23,7 +22,7 @@ DEFAULT_CARDSEARCH_ASK = {
     TROVE.totalResultCount: None,
     TROVE.cardsearchText: None,
     TROVE.cardsearchFilter: None,
-    TROVE.searchResult: {
+    TROVE.searchResultPage: {
         TROVE.indexCard: {
             TROVE.resourceMetadata,
         },
@@ -36,7 +35,7 @@ DEFAULT_PROPERTYSEARCH_ASK = {
     TROVE.propertysearchFilter: None,
     TROVE.cardsearchText: None,
     TROVE.cardsearchFilter: None,
-    TROVE.searchResult: {
+    TROVE.searchResultPage: {
         TROVE.indexCard: {
             TROVE.resourceMetadata,
         },
@@ -44,12 +43,12 @@ DEFAULT_PROPERTYSEARCH_ASK = {
 }
 
 DEFAULT_VALUESEARCH_ASK = {
-    TROVE.totalResultCount: None,
+    TROVE.propertyPath: None,
     TROVE.valuesearchText: None,
     TROVE.valuesearchFilter: None,
     TROVE.cardsearchText: None,
     TROVE.cardsearchFilter: None,
-    TROVE.searchResult: {
+    TROVE.searchResultPage: {
         TROVE.indexCard: {
             TROVE.resourceMetadata,
         },
@@ -121,7 +120,8 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
         if search_params_dataclass is CardsearchParams:
             _index_strategy_name = 'trove_indexcard'
         elif search_params_dataclass is ValuesearchParams:
-            _index_strategy_name = 'trove_identifier'
+            # _index_strategy_name = 'trove_identifier'
+            _index_strategy_name = 'trove_indexcard'
         elif search_params_dataclass is PropertysearchParams:
             _index_strategy_name = 'trove_indexcard'
     _specific_index = IndexStrategy.get_for_searching(_index_strategy_name)

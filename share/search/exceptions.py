@@ -23,3 +23,7 @@ class SearchApiError(ShareException):
 
 class InvalidSearchParam(SearchApiError):
     pass
+
+
+class UnsupportedSearchParam(IndexStrategyError):
+    pass

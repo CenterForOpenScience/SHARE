@@ -45,10 +45,16 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('index-value-search', language_tag='en'),
         },
     },
-    TROVE.SearchResult: {
+    TROVE.CardsearchResult: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('search-result', language_tag='en'),
+        },
+    },
+    TROVE.ValuesearchResult: {
+        RDF.type: {RDFS.Class},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('value-search-result', language_tag='en'),
         },
     },
     TROVE.TextMatchEvidence: {
@@ -87,6 +93,12 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('valueSearchText', language_tag='en'),
+        },
+    },
+    TROVE.valuesearchPropertyPath: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('valueSearchPropertyPath', language_tag='en'),
         },
     },
     TROVE.cardsearchFilter: {
@@ -134,7 +146,13 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
     TROVE.propertyPath: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty},
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('propertyPath', language_tag='en'),
+            primitive_rdf.text('iriPropertyPath', language_tag='en'),
+        },
+    },
+    TROVE.osfmapPropertyPath: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('osfmapPropertyPath', language_tag='en'),
         },
     },
     TROVE.filterType: {
@@ -149,9 +167,33 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('filterValue', language_tag='en'),
         },
     },
+    TROVE.iriValue: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('iriValue', language_tag='en'),
+        },
+    },
+    TROVE.matchUsageCount: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('matchUsageCount', language_tag='en'),
+        },
+    },
+    TROVE.totalUsageCount: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('totalUsageCount', language_tag='en'),
+        },
+    },
+    TROVE.namelikeText: {
+        RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('namelikeText', language_tag='en'),
+        },
+    },
 
     # relationships:
-    TROVE.searchResult: {
+    TROVE.searchResultPage: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('searchResultPage', language_tag='en'),

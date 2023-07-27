@@ -9,6 +9,7 @@ from share.search.search_request import (
 )
 from trove import models as trove_db
 from trove.vocab.namespaces import RDF
+from trove.vocab.osfmap import osfmap_labeler
 from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
 
 
@@ -51,6 +52,15 @@ def gather_valuesearch_text(focus, *, specific_index, search_params):
     yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
 
 
+@trovesearch_by_indexstrategy.gatherer(
+    TROVE.propertyPath,
+    focustype_iris={TROVE.Valuesearch},
+)
+def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
+    yield (TROVE.propertyPath, _literal_json(search_params.valuesearch_property_path))
+    yield (TROVE.osfmapPropertyPath, _osfmap_path(search_params.valuesearch_property_path))
+
+
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchFilter)
 def gather_cardsearch_filter(focus, *, specific_index, search_params):
     for _filter in search_params.cardsearch_filter_set:
@@ -71,7 +81,7 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.totalResultCount,
-    TROVE.searchResult,
+    TROVE.searchResultPage,
     focustype_iris={TROVE.Cardsearch},
 )
 def gather_cardsearch(focus, *, specific_index, search_params):
@@ -79,49 +89,25 @@ def gather_cardsearch(focus, *, specific_index, search_params):
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
     # yield (TROVE.WOOP, primitive_rdf.text(json.dumps(_cardsearch_resp), language_iri=RDF.JSON))
     yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
+    _result_page = []
     for _result in _cardsearch_resp.search_result_page:
         yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
                 (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.propertyPath, _literal_json(_evidence.property_path)),
+                (TROVE.osfmapPropertyPath, _osfmap_path(_evidence.property_path)),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.indexCard, _evidence.card_iri),
             )))
             for _evidence in _result.text_match_evidence
         )
-        yield (TROVE.searchResult, frozenset((
-            (RDF.type, TROVE.SearchResult),
+        _result_page.append(frozenset((
+            (RDF.type, TROVE.CardsearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
-
-
-@trovesearch_by_indexstrategy.gatherer(
-    focustype_iris={TROVE.Propertysearch},
-)
-def gather_propertysearch(focus, *, specific_index, search_params):
-    assert isinstance(search_params, PropertysearchParams)
-    _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
-    yield (TROVE.WOOP, _literal_json(_propertysearch_resp))
-    return
-    yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
-    for _result in _propertysearch_resp.search_result_page:
-        yield (_result.card_iri, RDF.type, TROVE.Indexcard)
-        _text_evidence_twoples = (
-            (TROVE.matchEvidence, frozenset((
-                (RDF.type, TROVE.TextMatchEvidence),
-                (TROVE.propertyPath, _literal_json(_evidence.property_path)),
-                (TROVE.matchingHighlight, _evidence.matching_highlight),
-                (TROVE.card, _evidence.card_iri),
-            )))
-            for _evidence in _result.text_match_evidence
-        )
-        yield (TROVE.searchResult, frozenset((
-            (RDF.type, TROVE.SearchResult),
-            (TROVE.indexCard, _result.card_iri),
-            *_text_evidence_twoples,
-        )))
+    yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -130,22 +116,47 @@ def gather_propertysearch(focus, *, specific_index, search_params):
 def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
-    yield (TROVE.WOOP, primitive_rdf.text(json.dumps(_valuesearch_resp), language_iri=RDF.JSON))
-    return  # TODO
-    yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
+    # yield (TROVE.WOOP, _literal_json(_valuesearch_resp, indent=2))
+    # yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
+    _result_page = []
     for _result in _valuesearch_resp.search_result_page:
+        _namelike_twoples = (
+            (TROVE.namelikeText, primitive_rdf.text(_text))
+            for _text in _result.namelike_text
+        )
+        _result_page.append(frozenset((
+            (RDF.type, TROVE.ValuesearchResult),
+            (TROVE.iriValue, primitive_rdf.text(_result.iri_value)),
+            (TROVE.matchUsageCount, _result.match_count),
+            (TROVE.totalUsageCount, _result.total_count),
+            *_namelike_twoples,
+        )))
+    yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    focustype_iris={TROVE.Propertysearch},
+)
+def gather_propertysearch(focus, *, specific_index, search_params):
+    assert isinstance(search_params, PropertysearchParams)
+    _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
+    yield (TROVE.WOOP, _literal_json(_propertysearch_resp, indent=2))
+    return
+    yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
+    for _result in _propertysearch_resp.search_result_page:
         yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
                 (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.propertyPath, _literal_json(_evidence.property_path)),
+                (TROVE.osfmapPropertyPath, _osfmap_path(_evidence.property_path)),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.card, _evidence.card_iri),
             )))
             for _evidence in _result.text_match_evidence
         )
-        yield (TROVE.searchResult, frozenset((
-            (RDF.type, TROVE.SearchResult),
+        yield (TROVE.searchResultPage, frozenset((
+            (RDF.type, TROVE.PropertysearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
@@ -201,13 +212,21 @@ def _filter_as_blanknode(search_filter) -> frozenset:
     )
     return frozenset((
         (TROVE.propertyPath, _literal_json(search_filter.property_path)),
+        (TROVE.osfmapPropertyPath, _osfmap_path(search_filter.property_path)),
         (TROVE.filterType, TROVE[search_filter.operator.value]),
         *_filter_values,
     ))
 
 
-def _literal_json(jsonable_list):
+def _literal_json(jsonable_list, **dumps_kwargs):
     return primitive_rdf.text(
-        json.dumps(jsonable_list),
+        json.dumps(jsonable_list, **dumps_kwargs),
         language_iri=RDF.JSON,
     )
+
+
+def _osfmap_path(property_path):
+    return _literal_json([
+        osfmap_labeler.get_label_or_iri(_iri)
+        for _iri in property_path
+    ])

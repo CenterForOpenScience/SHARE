@@ -32,6 +32,7 @@ class Textsegment:
     is_fuzzy: bool = True
     is_negated: bool = False
     is_openended: bool = False
+    # TODO: at_propertypath: Optional[tuple]
 
     def __post_init__(self):
         if self.is_negated and self.is_fuzzy:
@@ -187,6 +188,7 @@ class SearchFilter:
 
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams:
+    # TODO: total_filter_set (to limit "total counts" for e.g. type-specific search pages)
     cardsearch_text: str
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]

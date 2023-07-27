@@ -23,7 +23,7 @@ class TextMatchEvidence:
 
 
 @dataclasses.dataclass
-class SearchResult:
+class CardsearchResult:
     text_match_evidence: Iterable[TextMatchEvidence]
     card_iri: str
 
@@ -31,17 +31,24 @@ class SearchResult:
 @dataclasses.dataclass
 class CardsearchResponse:
     total_result_count: BoundedCount
-    search_result_page: Iterable[SearchResult]
+    search_result_page: Iterable[CardsearchResult]
     related_propertysearch_set: Iterable[PropertysearchParams]
 
 
 @dataclasses.dataclass
 class PropertysearchResponse:
     total_result_count: BoundedCount
-    search_result_page: Iterable[SearchResult]
+    search_result_page: Iterable[CardsearchResult]
+
+
+@dataclasses.dataclass
+class ValuesearchResult:
+    iri_value: str
+    namelike_text: Iterable[str]
+    match_count: int = 0
+    total_count: int = 0
 
 
 @dataclasses.dataclass
 class ValuesearchResponse:
-    total_result_count: BoundedCount
-    search_result_page: Iterable[SearchResult]
+    search_result_page: Iterable[ValuesearchResult]

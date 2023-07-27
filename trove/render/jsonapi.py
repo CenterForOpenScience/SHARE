@@ -172,12 +172,13 @@ class RdfJsonapiRenderer:
                 _doc_key = 'relationships'
             elif _is_attribute:
                 _doc_key = 'attributes'
+        _object_list = list(self._make_object_gen(object_set))
         if _is_relationship:
-            self._pls_include(object_set)
-            _datalist = self._relationship_datalist(object_set)
+            self._pls_include(_object_list)
+            _datalist = self._relationship_datalist(_object_list)
             _fieldvalue = {'data': self._one_or_many(predicate_iri, _datalist)}
         else:
-            _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(object_set))
+            _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(_object_list))
         # update the given `into` resource object
         into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
 
@@ -189,17 +190,24 @@ class RdfJsonapiRenderer:
             return (datalist[0] if datalist else None)
         return datalist
 
-    def _attribute_datalist(self, object_set):
+    def _attribute_datalist(self, object_list):
         return [
             self._render_attribute_datum(_obj)
-            for _obj in object_set
+            for _obj in object_list
         ]
 
-    def _relationship_datalist(self, object_set):
+    def _relationship_datalist(self, object_list):
         return [
             self.render_identifier_object(_obj)
-            for _obj in object_set
+            for _obj in object_list
         ]
+
+    def _make_object_gen(self, object_set):
+        for _obj in object_set:
+            if isinstance(_obj, frozenset) and ((RDF.type, RDF.Seq) in _obj):
+                yield from primitive_rdf.sequence_objects_in_order(_obj)
+            else:
+                yield _obj
 
     @contextlib.contextmanager
     def _contained__to_include(self):
