@@ -259,7 +259,7 @@ if os.environ.get('USE_SENTRY'):
     )
 
 
-if DEBUG:
+if True:  # TODO: if DEBUG:
     # ALLOW LOCAL USERS TO SEARCH
     CORS_ORIGIN_ALLOW_ALL = True
     CORS_ALLOW_CREDENTIALS = True
