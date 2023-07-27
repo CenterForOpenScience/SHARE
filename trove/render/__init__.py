@@ -2,7 +2,7 @@ import json
 
 from gather import primitive_rdf
 
-from trove.vocab.trove import TROVE_API_VOCAB, trove_labeler, trove_indexcard_namespace
+from trove.vocab.trove import TROVE_API_VOCAB, trove_indexcard_namespace
 from .jsonapi import RdfJsonapiRenderer
 
 

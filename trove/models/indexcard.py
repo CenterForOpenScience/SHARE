@@ -124,17 +124,6 @@ class Indexcard(models.Model):
     def latest_indexcard_rdf(self) -> 'LatestIndexcardRdf':
         return LatestIndexcardRdf.objects.get(indexcard=self)
 
-    def get_backcompat_sharev2_suid(self) -> share_db.SourceUniqueIdentifier:
-        _suid = self.source_record_suid
-        # may raise SourceUniqueIdentifier.DoesNotExist
-        return share_db.SourceUniqueIdentifier.objects.get(
-            source_config__in=share_db.SourceConfig.objects.filter(
-                source_id=_suid.source_config.source_id,
-                transformer_key='v2_push',
-            ),
-            identifier=_suid.identifier,
-        )
-
     def get_iri(self):
         return trove_indexcard_iri(self.uuid)
 

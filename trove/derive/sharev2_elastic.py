@@ -60,10 +60,11 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     # abstract method from IndexcardDeriver
     def derive_card_as_text(self):
+        _suid = self.upriver_rdf.indexcard.source_record_suid
         try:  # maintain doc id in the sharev2 index
-            _suid = self.upriver_rdf.indexcard.get_backcompat_sharev2_suid()
+            _suid = _suid.get_backcompat_sharev2_suid()
         except share_db.SourceUniqueIdentifier.DoesNotExist:
-            _suid = self.upriver_rdf.indexcard.source_record_suid
+            pass  # ok, use the actual suid
         _source_name = _suid.source_config.source.long_title
         _derived_sharev2 = {
             ###

@@ -43,6 +43,24 @@ class SourceUniqueIdentifier(models.Model):
             .first()
         )
 
+    def get_backcompat_sharev2_suid(self):
+        '''get an equivalent "v2_push" suid for this suid
+
+        for filling the legacy suid-based sharev2 index with consistent doc ids
+
+        (may raise SourceUniqueIdentifier.DoesNotExist)
+        '''
+        from share.models import SourceConfig
+        return (
+            SourceUniqueIdentifier.objects
+            .filter(identifier=self.identifier)
+            .filter(source_config__in=SourceConfig.objects.filter(
+                source_id=self.source_config.source_id,
+                transformer_key='v2_push',
+            ))
+            .get()
+        )
+
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
 

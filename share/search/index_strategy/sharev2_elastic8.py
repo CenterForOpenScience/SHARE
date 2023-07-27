@@ -131,16 +131,20 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _suid_ids = set(messages_chunk.target_ids_chunk)
         for _suid_id, _serialized_doc in self._load_docs(_suid_ids):
-            _doc_id = self._get_doc_id(_suid_id)
-            _suid_ids.discard(_suid_id)
             _source_doc = json.loads(_serialized_doc)
+            _doc_id = _source_doc['id']
+            _suid_ids.discard(_suid_id)
             if _source_doc.pop('is_deleted', False):
                 yield _suid_id, self.build_delete_action(_doc_id)
             else:
                 yield _suid_id, self.build_index_action(_doc_id, _source_doc)
-        # delete any that don't have the expected card
-        for _leftover_suid_id in _suid_ids:
-            yield _leftover_suid_id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
+        # delete any leftovers
+        for _leftover_suid in SourceUniqueIdentifier.objects.filter(id__in=_suid_ids):
+            try:
+                _leftover_suid_id = _leftover_suid.get_backcompat_sharev2_suid().id
+            except SourceUniqueIdentifier.DoesNotExist:
+                _leftover_suid_id = _leftover_suid.id
+            yield _leftover_suid.id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
 
     def _get_doc_id(self, suid_id: int):
         return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
