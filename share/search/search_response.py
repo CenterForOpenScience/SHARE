@@ -43,8 +43,11 @@ class PropertysearchResponse:
 
 @dataclasses.dataclass
 class ValuesearchResult:
-    iri_value: str
-    namelike_text: Iterable[str]
+    value_iri: str
+    value_type: Iterable[str] = ()
+    name_text: Iterable[str] = ()
+    title_text: Iterable[str] = ()
+    label_text: Iterable[str] = ()
     match_count: int = 0
     total_count: int = 0
 

@@ -327,6 +327,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('statedConflictOfInterest', language_tag='en'),
         },
     },
+    RDFS.label: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('label', language_tag='en'),
+        },
+    },
 
     ###
     # types:
@@ -400,6 +406,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Organization', language_tag='en'),
+        },
+    },
+    RDF.Property: {
+        RDF.type: {RDFS.Class},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('Property', language_tag='en'),
         },
     },
 

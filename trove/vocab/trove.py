@@ -45,16 +45,10 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('index-value-search', language_tag='en'),
         },
     },
-    TROVE.CardsearchResult: {
+    TROVE.SearchResult: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('search-result', language_tag='en'),
-        },
-    },
-    TROVE.ValuesearchResult: {
-        RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('value-search-result', language_tag='en'),
         },
     },
     TROVE.TextMatchEvidence: {
@@ -173,16 +167,10 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('iriValue', language_tag='en'),
         },
     },
-    TROVE.matchUsageCount: {
+    TROVE.cardsearchResultCount: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('matchUsageCount', language_tag='en'),
-        },
-    },
-    TROVE.totalUsageCount: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('totalUsageCount', language_tag='en'),
+            primitive_rdf.text('cardSearchResultCount', language_tag='en'),
         },
     },
     TROVE.namelikeText: {

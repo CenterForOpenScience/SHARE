@@ -44,7 +44,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='5c59cb0eaad4d0008c5c02f43557753186d4114d6ff9b53ee05ab04cba73a919',
+        hexdigest='81012b8ebdc7dd4dee7ce82603a001ce134b289cb276eac59bc4d148bed41a8e',
     )
 
     # abstract method from IndexStrategy
@@ -86,10 +86,22 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'iri_value': {'type': 'keyword'},
                         'suffuniq_iri_value': {'type': 'keyword'},
                         'value_type_iri': {'type': 'keyword'},
-                        'value_namelike_text': {
+                        'value_name_text': {
                             'type': 'text',
                             'fields': {'raw': {'type': 'keyword'}},
+                            'copy_to': 'value_namelike_text',
                         },
+                        'value_title_text': {
+                            'type': 'text',
+                            'fields': {'raw': {'type': 'keyword'}},
+                            'copy_to': 'value_namelike_text',
+                        },
+                        'value_label_text': {
+                            'type': 'text',
+                            'fields': {'raw': {'type': 'keyword'}},
+                            'copy_to': 'value_namelike_text',
+                        },
+                        'value_namelike_text': {'type': 'text'},
                     },
                 },
                 'nested_date': {
@@ -171,7 +183,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             iri,
             *rdfdoc.q(iri, OWL.sameAs),
         ]
-        return {
+        _sourcedoc = {
             **pathkey.as_nested_keywords(),
             'iri_value': _iris,
             'suffuniq_iri_value': [
@@ -179,12 +191,24 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 for _iri in _iris
             ],
             'value_type_iri': list(rdfdoc.q(iri, RDF.type)),
-            'value_namelike_text': [
+            # TODO: don't discard language for name/title/label
+            'value_name_text': [
                 _text.unicode_text
-                for _text in rdfdoc.q(iri, [RDFS.label, DCTERMS.title, FOAF.name])
+                for _text in rdfdoc.q(iri, FOAF.name)
+                if isinstance(_text, primitive_rdf.Text)
+            ],
+            'value_title_text': [
+                _text.unicode_text
+                for _text in rdfdoc.q(iri, DCTERMS.title)
+                if isinstance(_text, primitive_rdf.Text)
+            ],
+            'value_label_text': [
+                _text.unicode_text
+                for _text in rdfdoc.q(iri, RDFS.label)
                 if isinstance(_text, primitive_rdf.Text)
             ],
         }
+        return _sourcedoc
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _indexcard_rdf_qs = (
@@ -423,8 +447,17 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                         'size': 100,
                                     },
                                     'aggs': {
-                                        'namelike_text': {'terms': {
-                                            'field': 'nested_iri.value_namelike_text.raw',
+                                        'type_iri': {'terms': {
+                                            'field': 'nested_iri.value_type_iri',
+                                        }},
+                                        'name_text': {'terms': {
+                                            'field': 'nested_iri.value_name_text.raw',
+                                        }},
+                                        'title_text': {'terms': {
+                                            'field': 'nested_iri.value_title_text.raw',
+                                        }},
+                                        'label_text': {'terms': {
+                                            'field': 'nested_iri.value_label_text.raw',
                                         }},
                                     },
                                 },
@@ -463,11 +496,11 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
 
         def _valuesearch_result(self, iri_bucket):
             return ValuesearchResult(
-                iri_value=iri_bucket['key'],
-                namelike_text=[
-                    _namelike_bucket['key']
-                    for _namelike_bucket in iri_bucket['namelike_text']['buckets']
-                ],
+                value_iri=iri_bucket['key'],
+                value_type=_bucketlist(iri_bucket['type_iri']),
+                name_text=_bucketlist(iri_bucket['name_text']),
+                title_text=_bucketlist(iri_bucket['title_text']),
+                label_text=_bucketlist(iri_bucket['label_text']),
             )
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
@@ -546,8 +579,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         )
 
         class _TextQueryBuilder:
-            def __init__(self, text_field, *, nested_path=None, inner_hits=None):
-                self._text_field = text_field
+            def __init__(self, *text_fields, nested_path=None, inner_hits=None):
+                self._text_fields = text_fields
                 self._nested_path = nested_path
                 self._inner_hits = inner_hits
 

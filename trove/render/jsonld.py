@@ -89,13 +89,14 @@ class RdfJsonldRenderer:
         )
         for _pred, _objectset in tripledict[rdfobject].items():
             _label = self.labeler.get_label_or_iri(_pred)
-            _nested_obj[_label] = self._list_or_single_value(
-                _pred,
-                [  # recursion:
-                    self.__nested_rdfobject_as_jsonld(tripledict, _obj)
-                    for _obj in _objectset
-                ],
-            )
+            if _objectset:
+                _nested_obj[_label] = self._list_or_single_value(
+                    _pred,
+                    [  # recursion:
+                        self.__nested_rdfobject_as_jsonld(tripledict, _obj)
+                        for _obj in _objectset
+                    ],
+                )
         return _nested_obj
 
     def _list_or_single_value(self, predicate_iri, objectset):

@@ -7,9 +7,11 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
 )
+from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
-from trove.vocab.namespaces import RDF
-from trove.vocab.osfmap import osfmap_labeler
+from trove.render.jsonld import RdfJsonldRenderer
+from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
+from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB
 from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
 
 
@@ -103,7 +105,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
             for _evidence in _result.text_match_evidence
         )
         _result_page.append(frozenset((
-            (RDF.type, TROVE.CardsearchResult),
+            (RDF.type, TROVE.SearchResult),
             (TROVE.indexCard, _result.card_iri),
             *_text_evidence_twoples,
         )))
@@ -120,17 +122,12 @@ def gather_valuesearch(focus, *, specific_index, search_params):
     # yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     _result_page = []
     for _result in _valuesearch_resp.search_result_page:
-        _namelike_twoples = (
-            (TROVE.namelikeText, primitive_rdf.text(_text))
-            for _text in _result.namelike_text
-        )
-        _result_page.append(frozenset((
-            (RDF.type, TROVE.ValuesearchResult),
-            (TROVE.iriValue, primitive_rdf.text(_result.iri_value)),
-            (TROVE.matchUsageCount, _result.match_count),
-            (TROVE.totalUsageCount, _result.total_count),
-            *_namelike_twoples,
-        )))
+        _result_page.append(primitive_rdf.freeze_blanknode({
+            RDF.type: {TROVE.SearchResult},
+            TROVE.cardsearchResultCount: {_result.match_count},
+            TROVE.totalResultCount: {_result.total_count},
+            TROVE.indexCard: {_valuesearch_result_as_indexcard_blanknode(_result)},
+        }))
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
 
 
@@ -218,9 +215,36 @@ def _filter_as_blanknode(search_filter) -> frozenset:
     ))
 
 
-def _literal_json(jsonable_list, **dumps_kwargs):
+def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
+    _value_metadata = {
+        result.value_iri: {
+            RDF.type: set(result.value_type),
+            FOAF.name: set(result.name_text),
+            DCTERMS.title: set(result.title_text),
+            RDFS.label: set(result.label_text),
+        },
+    }
+    return primitive_rdf.freeze_blanknode({
+        RDF.type: {TROVE.Indexcard},
+        TROVE.resourceIdentifier: {primitive_rdf.text(result.value_iri)},
+        TROVE.resourceMetadata: {
+            _osfmap_json(_value_metadata, result.value_iri),
+        },
+    })
+
+
+def _osfmap_json(tripledict, focus_iri):
+    return _literal_json(
+        RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).tripledict_as_nested_jsonld(
+            tripledict,
+            focus_iri,
+        )
+    )
+
+
+def _literal_json(jsonable_obj, **dumps_kwargs):
     return primitive_rdf.text(
-        json.dumps(jsonable_list, **dumps_kwargs),
+        json.dumps(jsonable_obj, **dumps_kwargs),
         language_iri=RDF.JSON,
     )
 
