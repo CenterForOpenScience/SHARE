@@ -54,12 +54,9 @@ def gather_valuesearch_text(focus, *, specific_index, search_params):
     yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
 
 
-@trovesearch_by_indexstrategy.gatherer(
-    TROVE.propertyPath,
-    focustype_iris={TROVE.Valuesearch},
-)
+@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchPropertyPath)
 def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
-    yield (TROVE.propertyPath, _literal_json(search_params.valuesearch_property_path))
+    yield (TROVE.valuesearchPropertyPath, _literal_json(search_params.valuesearch_property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(search_params.valuesearch_property_path))
 
 

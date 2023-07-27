@@ -138,13 +138,13 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     TROVE.propertyPath: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty},
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('iriPropertyPath', language_tag='en'),
+            primitive_rdf.text('propertyPath', language_tag='en'),
         },
     },
     TROVE.osfmapPropertyPath: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty},
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('osfmapPropertyPath', language_tag='en'),
         },
