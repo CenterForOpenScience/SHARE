@@ -44,3 +44,10 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
         _split_remainder.fragment,  # will drop '#' if no fragment
     ))
     return (_cleaned_remainder, _scheme)
+
+
+def is_worthwhile_iri(iri: str):
+    return (
+        isinstance(iri, str)
+        and not iri.startswith('_')  # skip artefacts of sharev2 shenanigans
+    )

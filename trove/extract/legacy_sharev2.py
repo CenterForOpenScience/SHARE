@@ -140,8 +140,8 @@ def _iris_for_mnode(mnode: MutableNode) -> typing.Iterable[str]:
     if _identifiers:
         for _identifier in _identifiers:
             yield _identifier['uri']
-    elif mnode.id.startswith('_:'):
-        yield f'blank{mnode.id[1:]}'
+    else:
+        yield mnode.id
 
 
 def _choose_iri(iris):

@@ -32,7 +32,7 @@ from share.search.search_response import (
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.util.iris import get_sufficiently_unique_iri
+from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL
 
@@ -160,6 +160,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 self._iri_nested_sourcedoc(_pathkey, _iri, _rdfdoc)
                 for _pathkey, _value_set in _nested_iris.items()
                 for _iri in _value_set
+                if is_worthwhile_iri(_iri)
             ],
             'nested_date': [
                 {
@@ -665,7 +666,7 @@ class _PredicatePathWalker:
         path_from_nearest_subject: tuple[str]
 
         def step(self, subject_or_blanknode, predicate_iri):
-            if isinstance(subject_or_blanknode, str):
+            if isinstance(subject_or_blanknode, str) and is_worthwhile_iri(subject_or_blanknode):
                 return self.__class__(
                     path_from_start=(*self.path_from_start, predicate_iri),
                     nearest_subject_iri=subject_or_blanknode,
