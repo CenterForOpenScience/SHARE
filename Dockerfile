@@ -1,4 +1,4 @@
-FROM python:3.10-slim as app
+FROM python:3.10-slim-bullseye as app
 
 RUN apt-get update \
     && apt-get install -y \
