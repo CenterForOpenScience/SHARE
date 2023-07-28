@@ -445,7 +445,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                 'iri_values': {
                                     'terms': {
                                         'field': 'nested_iri.iri_value',
-                                        'size': 100,
+                                        'size': 13,
+                                        # TODO: pagination
                                     },
                                     'aggs': {
                                         'type_iri': {'terms': {
