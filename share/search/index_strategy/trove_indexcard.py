@@ -407,7 +407,11 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     _bool_query['filter'].append(self._cardsearch_date_filter(_searchfilter))
                 else:
                     raise ValueError(f'unknown filter operator {_searchfilter.operator}')
-            _textq_builder = self._TextQueryBuilder('nested_text.text_value', nested_path='nested_text', inner_hits=self._cardsearch_inner_hits())
+            _textq_builder = self._TextQueryBuilder(
+                'nested_text.text_value',
+                nested_path='nested_text',
+                inner_hits_factory=self._cardsearch_inner_hits,
+            )
             for _boolkey, _textquery in _textq_builder.textsegment_queries(textsegment_set, relevance_matters=relevance_matters):
                 _bool_query[_boolkey].append(_textquery)
             return {'bool': _bool_query}
@@ -608,10 +612,10 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         )
 
         class _TextQueryBuilder:
-            def __init__(self, text_field, nested_path=None, inner_hits=None):
+            def __init__(self, text_field, nested_path=None, inner_hits_factory=None):
                 self._text_field = text_field
                 self._nested_path = nested_path
-                self._inner_hits = inner_hits
+                self._inner_hits_factory = inner_hits_factory
 
             def _maybe_nested_query(self, query, *, with_inner_hits=False):
                 if self._nested_path:
@@ -619,8 +623,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'path': self._nested_path,
                         'query': query,
                     }}
-                    if with_inner_hits and self._inner_hits:
-                        _nested_q['nested']['inner_hits'] = self._inner_hits
+                    if with_inner_hits and self._inner_hits_factory:
+                        _nested_q['nested']['inner_hits'] = self._inner_hits_factory()
                     return _nested_q
                 return query
 
