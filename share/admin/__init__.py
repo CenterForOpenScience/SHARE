@@ -1,6 +1,7 @@
 from prettyjson import PrettyJSONWidget
 
 from django import forms
+from django.apps import apps
 from django.urls import re_path as url
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
@@ -52,6 +53,8 @@ class ShareAdminSite(admin.AdminSite):
 
 
 admin_site = ShareAdminSite()
+
+admin_site.register(apps.get_app_config('django_celery_beat').get_models())
 
 
 class ShareUserAdmin(admin.ModelAdmin):
