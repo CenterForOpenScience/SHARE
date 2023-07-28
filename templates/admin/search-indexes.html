@@ -59,7 +59,8 @@ section, table {
               <input type="hidden" name="pls_do" value="mark_backfill_complete" />
               <input type="submit" value="{% trans "mark backfill complete" %}" />
             </form>
-            {% elif indexes.current.backfill.is_complete and not indexes.current.status.is_default_for_searching %}
+            {% endif %}
+            {% if indexes.current.status.creation_date and not indexes.current.status.is_default_for_searching %}
             <form method="post">
               {% csrf_token %}
               <input type="hidden" name="specific_indexname" value={{indexes.current.status.specific_indexname}} />
@@ -103,13 +104,6 @@ section, table {
             <td>{% if index_status.is_default_for_searching %}✓{% endif %}</td>
             <td><a href="{{search_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{{ index_status.doc_count }}</a></td>
             <td>
-              {% if index_status.is_kept_live %}
-              <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
-                <input type="hidden" name="pls_do" value="stop_keeping_live" />
-                <input type="submit" value="{% trans "stop keeping live" %}" />
-              </form>
               {% if not index_status.is_default_for_searching %}
               <form method="post">
                 {% csrf_token %}
@@ -118,6 +112,13 @@ section, table {
                 <input type="submit" value="{% trans "make default for searching" %}" />
               </form>
               {% endif %}
+              {% if index_status.is_kept_live %}
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="specific_indexname" value={{index_status.specific_indexname}} />
+                <input type="hidden" name="pls_do" value="stop_keeping_live" />
+                <input type="submit" value="{% trans "stop keeping live" %}" />
+              </form>
               {% else %}
               <form method="post">
                 {% csrf_token %}
