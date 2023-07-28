@@ -165,7 +165,7 @@ class HarvestJobConsumer(JobConsumer):
         return {
             'share_version': settings.VERSION,
             'source_config_version': job.source_config.version,
-            'harvester_version': job.source_config.harvester.version,
+            'harvester_version': getattr(job.source_config.get_harvester(), 'VERSION', 1),
         }
 
     def _consume_job(self, job, superfluous, limit=None, ingest=True):
