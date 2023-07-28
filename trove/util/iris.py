@@ -54,12 +54,15 @@ def is_worthwhile_iri(iri: str):
     )
 
 
-def iri_path_as_keyword(iris: list[str] | tuple[str]) -> str:
+def iri_path_as_keyword(iris: list[str] | tuple[str], *, suffuniq=False) -> str:
     assert isinstance(iris, (list, tuple)) and all(
         isinstance(_pathstep, str)
         for _pathstep in iris
     ), f'expected list or tuple of str, got {iris}'
-    return json.dumps([
-        get_sufficiently_unique_iri(_iri)
-        for _iri in iris
-    ])
+    _list = iris
+    if suffuniq:
+        _list = [
+            get_sufficiently_unique_iri(_iri)
+            for _iri in iris
+        ]
+    return json.dumps(_list)

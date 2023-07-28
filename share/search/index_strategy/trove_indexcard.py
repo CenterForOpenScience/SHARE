@@ -44,7 +44,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='8064751bfbf58eb0b4299e617833fb049f1c35df3a6dd4357405c5c9fd263317',
+        hexdigest='f00c66dbda4ee5d03a42ae8894a7de3d57f10e69a10d254fba440eed6ce11c33',
     )
 
     # abstract method from IndexStrategy
@@ -73,10 +73,12 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         }
         _common_nested_keywords = {
             'path_from_focus': _capped_keyword,
+            'suffuniq_path_from_focus': _capped_keyword,
             'property_iri': _capped_keyword,
             'nearest_subject_iri': _capped_keyword,
             'nearest_subject_suffuniq_iri': _capped_keyword,
             'path_from_nearest_subject': _capped_keyword,
+            'suffuniq_path_from_nearest_subject': _capped_keyword,
         }
         return {
             'dynamic': 'false',
@@ -270,8 +272,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         valuesearch_params.cardsearch_textsegment_set,
                         additional_filters=[{'nested': {
                             'path': 'nested_iri',
-                            'query': {'term': {'nested_iri.path_from_focus': iri_path_as_keyword(
+                            'query': {'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
                                 valuesearch_params.valuesearch_property_path,
+                                suffuniq=True,
                             )}},
                         }}],
                     ),
@@ -340,8 +343,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                 }},
                                 'namelike_text_properties': {
                                     'filter': {'terms': {
-                                        'nested_text.path_from_nearest_subject': [
-                                            iri_path_as_keyword([_iri])
+                                        'nested_text.suffuniq_path_from_nearest_subject': [
+                                            iri_path_as_keyword([_iri], suffuniq=True)
                                             for _iri in (FOAF.name, RDFS.label, DCTERMS.title)
                                         ],
                                     }},
@@ -429,8 +432,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
-                'filter': [{'term': {'nested_iri.path_from_focus': iri_path_as_keyword(
+                'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
                     valuesearch_params.valuesearch_property_path,
+                    suffuniq=True,
                 )}}],
                 'must': [],
                 'must_not': [],
@@ -510,12 +514,14 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
-            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path)
             return {'nested': {
                 'path': 'nested_iri',
                 'query': {'bool': {
                     'filter': [
-                        {'term': {'nested_iri.path_from_focus': _propertypath_keyword}},
+                        {'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
+                            search_filter.property_path,
+                            suffuniq=True,
+                        )}},
                         {'terms': {'nested_iri.suffuniq_iri_value': [
                             get_sufficiently_unique_iri(_iri)
                             for _iri in search_filter.value_set
@@ -534,12 +540,12 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
             _date_value = datetime.datetime.fromisoformat(_value).date()
-            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path)
+            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path, suffuniq=True)
             return {'nested': {
                 'path': 'nested_date',
                 'query': {'bool': {
                     'filter': [
-                        {'term': {'nested_date.path_from_focus': _propertypath_keyword}},
+                        {'term': {'nested_date.suffuniq_path_from_focus': _propertypath_keyword}},
                         {'range': {'nested_date.date_value': {
                             _range_op: f'{_date_value}||/d',  # round to the day
                         }}},
@@ -554,7 +560,10 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     'nested': {
                         'path': 'nested_date',
                         'filter': {'term': {
-                            'nested_date.path_from_focus': iri_path_as_keyword([_sortparam.property_iri]),
+                            'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
+                                [_sortparam.property_iri],
+                                suffuniq=True,
+                            ),
                         }},
                     },
                 }}
@@ -704,10 +713,12 @@ class _PredicatePathWalker:
         def as_nested_keywords(self):
             return {
                 'path_from_focus': iri_path_as_keyword(self.path_from_start),
+                'suffuniq_path_from_focus': iri_path_as_keyword(self.path_from_start, suffuniq=True),
                 'property_iri': self.last_predicate_iri,
                 'nearest_subject_iri': self.nearest_subject_iri,
                 'nearest_subject_suffuniq_iri': get_sufficiently_unique_iri(self.nearest_subject_iri),
                 'path_from_nearest_subject': iri_path_as_keyword(self.path_from_nearest_subject),
+                'suffuniq_path_from_nearest_subject': iri_path_as_keyword(self.path_from_nearest_subject, suffuniq=True),
             }
 
     WalkYield = tuple[PathKey, primitive_rdf.RdfObject]
