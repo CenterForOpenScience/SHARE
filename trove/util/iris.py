@@ -1,3 +1,4 @@
+import json
 import re
 from urllib.parse import urlsplit, urlunsplit
 
@@ -51,3 +52,14 @@ def is_worthwhile_iri(iri: str):
         isinstance(iri, str)
         and not iri.startswith('_')  # skip artefacts of sharev2 shenanigans
     )
+
+
+def iri_path_as_keyword(iris: list[str] | tuple[str]) -> str:
+    assert isinstance(iris, (list, tuple)) and all(
+        isinstance(_pathstep, str)
+        for _pathstep in iris
+    ), f'expected list or tuple of str, got {iris}'
+    return json.dumps([
+        get_sufficiently_unique_iri(_iri)
+        for _iri in iris
+    ])

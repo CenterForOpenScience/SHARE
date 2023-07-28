@@ -3,7 +3,6 @@ import logging
 import elasticsearch8
 
 from share.search.index_strategy._base import IndexStrategy
-from share.search.index_strategy._util import path_as_keyword
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import exceptions
 from share.search import messages
@@ -18,6 +17,7 @@ from share.search.search_response import (
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
+from trove.util.iris import iri_path_as_keyword
 
 
 logger = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ class TroveIdentifierIndexStrategy(Elastic8IndexStrategy):
         def _valuesearch_query(self, valuesearch_params: ValuesearchParams):
             _bool_query = {
                 'filter': [{'term': {
-                    'used_for_propertypath_from_focus': path_as_keyword(valuesearch_params.valuesearch_property_path),
+                    'used_for_propertypath_from_focus': iri_path_as_keyword(valuesearch_params.valuesearch_property_path),
                 }}],
                 'must': [],
                 'must_not': [],

@@ -10,11 +10,3 @@ def timestamp_to_readable_datetime(timestamp_in_milliseconds):
         .fromtimestamp(seconds, tz=datetime.timezone.utc)
         .isoformat(timespec='minutes')
     )
-
-
-def path_as_keyword(path: tuple[str]) -> str:
-    assert isinstance(path, (list, tuple)) and all(
-        isinstance(_pathstep, str)
-        for _pathstep in path
-    ), f'expected list or tuple of str, got {path}'
-    return json.dumps(path)

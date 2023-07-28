@@ -12,7 +12,6 @@ import elasticsearch8
 from gather import primitive_rdf
 
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
-from share.search.index_strategy._util import path_as_keyword
 from share.search import exceptions
 from share.search import messages
 from share.search.search_request import (
@@ -32,7 +31,7 @@ from share.search.search_response import (
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
+from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL
 
@@ -44,7 +43,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='81012b8ebdc7dd4dee7ce82603a001ce134b289cb276eac59bc4d148bed41a8e',
+        hexdigest='8064751bfbf58eb0b4299e617833fb049f1c35df3a6dd4357405c5c9fd263317',
     )
 
     # abstract method from IndexStrategy
@@ -66,39 +65,44 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         return {}
 
     def index_mappings(self):
+        _capped_keyword = {
+            'type': 'keyword',
+            'ignore_above': 8191,  # ignore keyword terms that exceed reach lucene's internal limit
+            # see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html
+        }
         _common_nested_keywords = {
-            'path_from_focus': {'type': 'keyword'},
-            'property_iri': {'type': 'keyword'},
-            'nearest_subject_iri': {'type': 'keyword'},
-            'nearest_subject_suffuniq_iri': {'type': 'keyword'},
-            'path_from_nearest_subject': {'type': 'keyword'},
+            'path_from_focus': _capped_keyword,
+            'property_iri': _capped_keyword,
+            'nearest_subject_iri': _capped_keyword,
+            'nearest_subject_suffuniq_iri': _capped_keyword,
+            'path_from_nearest_subject': _capped_keyword,
         }
         return {
             'dynamic': 'false',
             'properties': {
-                'focus_iri': {'type': 'keyword'},
-                'suffuniq_focus_iri': {'type': 'keyword'},
+                'focus_iri': _capped_keyword,
+                'suffuniq_focus_iri': _capped_keyword,
                 'nested_iri': {
                     'type': 'nested',  # TODO: consider 'flattened' field for simple iri-matching
                     'dynamic': 'false',
                     'properties': {
                         **_common_nested_keywords,
-                        'iri_value': {'type': 'keyword'},
-                        'suffuniq_iri_value': {'type': 'keyword'},
-                        'value_type_iri': {'type': 'keyword'},
+                        'iri_value': _capped_keyword,
+                        'suffuniq_iri_value': _capped_keyword,
+                        'value_type_iri': _capped_keyword,
                         'value_name_text': {
                             'type': 'text',
-                            'fields': {'raw': {'type': 'keyword'}},
+                            'fields': {'raw': _capped_keyword},
                             'copy_to': 'value_namelike_text',
                         },
                         'value_title_text': {
                             'type': 'text',
-                            'fields': {'raw': {'type': 'keyword'}},
+                            'fields': {'raw': _capped_keyword},
                             'copy_to': 'value_namelike_text',
                         },
                         'value_label_text': {
                             'type': 'text',
-                            'fields': {'raw': {'type': 'keyword'}},
+                            'fields': {'raw': _capped_keyword},
                             'copy_to': 'value_namelike_text',
                         },
                         'value_namelike_text': {'type': 'text'},
@@ -120,14 +124,12 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     'dynamic': 'false',
                     'properties': {
                         **_common_nested_keywords,
-                        'language_iri': {'type': 'keyword'},
+                        'language_iri': _capped_keyword,
                         'text_value': {
                             'type': 'text',
                             'index_options': 'offsets',  # for faster highlighting
                             'store': True,  # avoid loading _source to render highlights
-                            'fields': {
-                                'raw': {'type': 'keyword'},
-                            },
+                            'fields': {'raw': _capped_keyword},
                         },
                     },
                 },
@@ -266,7 +268,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         valuesearch_params.cardsearch_textsegment_set,
                         additional_filters=[{'nested': {
                             'path': 'nested_iri',
-                            'query': {'term': {'nested_iri.path_from_focus': path_as_keyword(
+                            'query': {'term': {'nested_iri.path_from_focus': iri_path_as_keyword(
                                 valuesearch_params.valuesearch_property_path,
                             )}},
                         }}],
@@ -337,7 +339,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                 'namelike_text_properties': {
                                     'filter': {'terms': {
                                         'nested_text.path_from_nearest_subject': [
-                                            path_as_keyword([_iri])
+                                            iri_path_as_keyword([_iri])
                                             for _iri in (FOAF.name, RDFS.label, DCTERMS.title)
                                         ],
                                     }},
@@ -425,7 +427,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
-                'filter': [{'term': {'nested_iri.path_from_focus': path_as_keyword(
+                'filter': [{'term': {'nested_iri.path_from_focus': iri_path_as_keyword(
                     valuesearch_params.valuesearch_property_path,
                 )}}],
                 'must': [],
@@ -506,7 +508,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
-            _propertypath_keyword = path_as_keyword(search_filter.property_path)
+            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path)
             return {'nested': {
                 'path': 'nested_iri',
                 'query': {'bool': {
@@ -530,7 +532,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
             _date_value = datetime.datetime.fromisoformat(_value).date()
-            _propertypath_keyword = path_as_keyword(search_filter.property_path)
+            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path)
             return {'nested': {
                 'path': 'nested_date',
                 'query': {'bool': {
@@ -685,11 +687,11 @@ class _PredicatePathWalker:
 
         def as_nested_keywords(self):
             return {
-                'path_from_focus': path_as_keyword(self.path_from_start),
+                'path_from_focus': iri_path_as_keyword(self.path_from_start),
                 'property_iri': self.last_predicate_iri,
                 'nearest_subject_iri': self.nearest_subject_iri,
                 'nearest_subject_suffuniq_iri': get_sufficiently_unique_iri(self.nearest_subject_iri),
-                'path_from_nearest_subject': path_as_keyword(self.path_from_nearest_subject),
+                'path_from_nearest_subject': iri_path_as_keyword(self.path_from_nearest_subject),
             }
 
     WalkYield = tuple[PathKey, primitive_rdf.RdfObject]
