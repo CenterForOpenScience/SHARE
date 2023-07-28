@@ -74,11 +74,15 @@ class ResourceIdentifierManager(models.Manager):
                 'raw_iri_list': [iri],
             },
         )
+        _needs_save = False
         if _scheme not in _identifier.scheme_list:
             _identifier.scheme_list.append(_scheme)
+            _needs_save = True
         if iri not in _identifier.raw_iri_list:
             _identifier.raw_iri_list.append(iri)
-        _identifier.save()
+            _needs_save = True
+        if _needs_save:
+            _identifier.save()
         return _identifier
 
     def save_equivalent_identifier_set(
