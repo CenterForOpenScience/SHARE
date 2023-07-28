@@ -75,8 +75,6 @@ def _gather_work(focus, *, mnode, source_config):
     yield (OSFMAP.registration_type, primitive_rdf.text(mnode['registration_type']))  # TODO: not in OSFMAP
     yield (OSFMAP.dateWithdrawn, primitive_rdf.text(mnode['withdrawn']))  # TODO: is boolean, not date
     yield (OSFMAP.withdrawalJustification, primitive_rdf.text(mnode['justification']))  # TODO: not in OSFMAP
-    for _subject in mnode['subjects']:
-        yield (DCTERMS.subject, primitive_rdf.text(_subject['name']))  # TODO: iri? lineage?
     for _tag in mnode['tags']:
         yield (OSFMAP.keyword, primitive_rdf.text(_tag['name']))
     for _agent_relation in mnode['agent_relations']:
@@ -105,12 +103,12 @@ def _gather_work_subjects(focus, *, mnode, source_config):
     for _thru_subject_mnode in mnode['subject_relations']:
         _subject_mnode = _thru_subject_mnode['subject']
         if not (_thru_subject_mnode['is_deleted'] or _subject_mnode['is_deleted']):
-            yield (DCTERMS.subject, _subject_mnode['name'])
-            yield (DCTERMS.subject, _serialize_subject(_subject_mnode, _source_name))
+            yield (DCTERMS.subject, primitive_rdf.text(_subject_mnode['name']))
+            yield (DCTERMS.subject, primitive_rdf.text(_serialize_subject(_subject_mnode, _source_name)))
             _synonym_mnode = _subject_mnode['central_synonym']
             if _synonym_mnode and not _synonym_mnode['is_deleted']:
-                yield (DCTERMS.subject, _synonym_mnode['name'])
-                yield (DCTERMS.subject, _serialize_subject(_synonym_mnode, _source_name))
+                yield (DCTERMS.subject, primitive_rdf.text(_synonym_mnode['name']))
+                yield (DCTERMS.subject, primitive_rdf.text(_serialize_subject(_synonym_mnode, _source_name)))
 
 
 @osfmap_from_normd.gatherer(focustype_iris={
