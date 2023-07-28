@@ -132,10 +132,11 @@ class HarvestForm(forms.Form):
 
 @linked_fk('source')
 class SourceConfigAdmin(admin.ModelAdmin):
-    list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
+    list_display = ('label', 'source_', 'version', 'enabled', 'button_actions')
     list_select_related = ('source',)
-    readonly_fields = ('source_config_actions',)
+    readonly_fields = ('button_actions',)
     search_fields = ['label', 'source__name', 'source__long_title']
+    actions = ['schedule_full_ingest']
 
     def source_(self, obj):
         return obj.source.long_title
@@ -143,6 +144,17 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def enabled(self, obj):
         return not obj.disabled
     enabled.boolean = True
+
+    @admin.action(description='schedule re-ingest of all raw data for each source config')
+    def schedule_full_ingest(self, request, queryset):
+        _id_qs = (
+            queryset
+            .exclude(disabled=True)
+            .exclude(source__is_deleted=True)
+            .values_list('id', flat=True)
+        )
+        for _id in _id_qs:
+            digestive_tract.task__schedule_extract_and_derive_for_source_config.delay(_id)
 
     def get_urls(self):
         return [
@@ -158,7 +170,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
             )
         ] + super().get_urls()
 
-    def source_config_actions(self, obj):
+    def button_actions(self, obj):
         return format_html(
             ' '.join((
                 ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_key else ''),
@@ -167,7 +179,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
             harvest_href=reverse('admin:source-config-harvest', args=[obj.pk]),
             ingest_href=reverse('admin:source-config-ingest', args=[obj.pk]),
         )
-    source_config_actions.short_description = 'Actions'
+    button_actions.short_description = 'Buttons'
 
     def harvest(self, request, config_id):
         config = self.get_object(request, config_id)
@@ -197,7 +209,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def start_ingest(self, request, config_id):
         config = self.get_object(request, config_id)
         if request.method == 'POST':
-            digestive_tract.task__schedule_extract_and_derive_for_source_config((config.pk,))
+            digestive_tract.task__schedule_extract_and_derive_for_source_config.delay(config.pk)
             url = reverse(
                 'admin:share_sourceconfig_changelist',
                 current_app=self.admin_site.name,
