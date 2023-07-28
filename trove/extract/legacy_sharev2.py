@@ -23,13 +23,18 @@ class LegacySharev2Extractor(BaseRdfExtractor):
             Regulator(source_config=self.source_config).regulate(_sharev2graph)
         self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True)
         _central_focus = _focus_for_mnode(self.sharev2graph_centralnode)
-        self.extracted_focus_iri = _choose_iri(_central_focus.iris)
         _gathering = osfmap_from_normd.new_gathering({
             'source_config': self.source_config,
             'mnode': None,  # provided by focus
         })
         _gathering.ask_all_about(_central_focus)
-        return _gathering.leaf_a_record()
+        _tripledict = _gathering.leaf_a_record()
+        self.extracted_focus_iri = next(
+            _iri
+            for _iri in _central_focus.iris
+            if _iri in _tripledict
+        )
+        return _tripledict
 
 
 ###
