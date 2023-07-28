@@ -20,6 +20,7 @@ from share.search.search_request import (
     ValuesearchParams,
     SearchFilter,
     Textsegment,
+    SortParam,
 )
 from share.search.search_response import (
     CardsearchResponse,
@@ -253,6 +254,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         cardsearch_params.cardsearch_filter_set,
                         cardsearch_params.cardsearch_textsegment_set,
                     ),
+                    sort=self._cardsearch_sort(cardsearch_params.sort),
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
@@ -544,6 +546,20 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     ],
                 }},
             }}
+
+        def _cardsearch_sort(self, sort: tuple[SortParam]):
+            return [
+                {'nested_date.date_value': {
+                    'order': ('desc' if _sortparam.descending else 'asc'),
+                    'nested': {
+                        'path': 'nested_date',
+                        'filter': {'term': {
+                            'nested_date.path_from_focus': iri_path_as_keyword([_sortparam.property_iri]),
+                        }},
+                    },
+                }}
+                for _sortparam in sort
+            ]
 
         def _cardsearch_response(self, cardsearch_params, es8_response) -> CardsearchResponse:
             _es8_total = es8_response['hits']['total']

@@ -11,7 +11,7 @@ from trove.util.queryparams import (
     split_queryparam_value,
     queryparams_from_querystring,
 )
-from trove.vocab.osfmap import osfmap_labeler
+from trove.vocab.osfmap import osfmap_labeler, is_date_property
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 # special characters in search text:
 NEGATE_WORD_OR_PHRASE = '-'
 DOUBLE_QUOTATION_MARK = '"'
+
+DESCENDING_SORT_PREFIX = '-'
 
 
 ###
@@ -187,13 +189,40 @@ class SearchFilter:
 
 
 @dataclasses.dataclass(frozen=True)
+class SortParam:
+    property_iri: str
+    descending: bool = False
+
+    @classmethod
+    def from_sort_param(cls, param_value: str | None) -> tuple['SortParam']:
+        if not param_value:
+            return ()
+        return tuple(cls._from_sort_param_str(param_value))
+
+    @classmethod
+    def _from_sort_param_str(cls, param_value: str) -> typing.Iterable['SortParam']:
+        for _sort in split_queryparam_value(param_value):
+            _sort_property = _sort.lstrip(DESCENDING_SORT_PREFIX)
+            try:
+                _property_iri = osfmap_labeler.iri_for_label(_sort_property)
+            except KeyError:
+                _property_iri = _sort_property
+            if not is_date_property(_property_iri):
+                raise ValueError(f'bad sort: {_sort_property}')  # TODO: nice response
+            yield cls(
+                property_iri=_property_iri,
+                descending=param_value.startswith(DESCENDING_SORT_PREFIX),
+            )
+
+
+@dataclasses.dataclass(frozen=True)
 class CardsearchParams:
     # TODO: total_filter_set (to limit "total counts" for e.g. type-specific search pages)
     cardsearch_text: str
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     include: frozenset[tuple[str]]
-    sort: str
+    sort: tuple[SortParam]
     index_strategy_name: str
 
     @classmethod
@@ -208,8 +237,8 @@ class CardsearchParams:
             cardsearch_textsegment_set=Textsegment.split_str(_cardsearch_text),
             cardsearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
             index_strategy_name=_get_single_value(queryparams, 'indexStrategy'),
+            sort=SortParam.from_sort_param(_get_single_value(queryparams, 'sort')),
             include=None,  # TODO
-            sort=None,  # TODO
         )
 
 
