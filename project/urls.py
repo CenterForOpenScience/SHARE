@@ -12,16 +12,13 @@ from api.views import APIVersionRedirectView, source_icon_view
 
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
-from trove.views import search as search_views
 
 
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/v3/index-card-search', view=search_views.CardsearchView.as_view(), name='api-index-card-search'),
-    path('api/v3/index-property-search', view=search_views.PropertysearchView.as_view(), name='api-index-property-search'),
-    path('api/v3/index-value-search', view=search_views.ValuesearchView.as_view(), name='api-index-value-search'),
-    path('trove/', include('trove.urls', namespace='trove')),
+    path('api/v3/', include('trove.urls', namespace='trove')),  # same as 'trove/' but more subtle
+    path('trove/', include('trove.urls', namespace='trovetrove')),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
     url(r'^api/v1/', include('api.urls_v1', namespace='api_v1')),
