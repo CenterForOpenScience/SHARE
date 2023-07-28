@@ -24,10 +24,15 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        specific_indexname = request.POST['specific_indexname']
-        pls_doer = PLS_DOERS[request.POST['pls_do']]
-        pls_doer(specific_indexname)
-        return HttpResponseRedirect('#'.join((request.path, specific_indexname)))
+        _specific_index = IndexStrategy.get_specific_index(request.POST['specific_indexname'])
+        _pls_doer = PLS_DOERS[request.POST['pls_do']]
+        _pls_doer(_specific_index)
+        _redirect_id = (
+            _specific_index.index_strategy.name
+            if _pls_doer is _pls_delete
+            else _specific_index.indexname
+        )
+        return HttpResponseRedirect('#'.join((request.path, _redirect_id)))
 
 
 def _search_url_prefix():
@@ -95,40 +100,33 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
     }
 
 
-def _pls_setup(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_setup(specific_index):
     assert specific_index.is_current
     specific_index.pls_setup()
 
 
-def _pls_start_keeping_live(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_start_keeping_live(specific_index):
     specific_index.pls_start_keeping_live()
 
 
-def _pls_stop_keeping_live(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_stop_keeping_live(specific_index):
     specific_index.pls_stop_keeping_live()
 
 
-def _pls_start_backfill(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_start_backfill(specific_index):
     assert specific_index.is_current
     specific_index.index_strategy.pls_start_backfill()
 
 
-def _pls_mark_backfill_complete(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_mark_backfill_complete(specific_index):
     specific_index.index_strategy.pls_mark_backfill_complete()
 
 
-def _pls_make_default_for_searching(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_make_default_for_searching(specific_index):
     specific_index.index_strategy.pls_make_default_for_searching(specific_index)
 
 
-def _pls_delete(specific_indexname):
-    specific_index = IndexStrategy.get_specific_index(specific_indexname)
+def _pls_delete(specific_index):
     assert not specific_index.is_current
     specific_index.pls_delete()
 
