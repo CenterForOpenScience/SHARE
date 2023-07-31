@@ -44,7 +44,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='f00c66dbda4ee5d03a42ae8894a7de3d57f10e69a10d254fba440eed6ce11c33',
+        hexdigest='8600bc7d54d2e1e22a420c86cd16114c739a14d37dff145c1e1028dbf02d21e3',
     )
 
     # abstract method from IndexStrategy
@@ -68,7 +68,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     def index_mappings(self):
         _capped_keyword = {
             'type': 'keyword',
-            'ignore_above': 8191,  # ignore keyword terms that exceed reach lucene's internal limit
+            'ignore_above': 8191,  # ignore keyword terms that might exceed lucene's internal limit
             # see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html
         }
         _common_nested_keywords = {
@@ -79,6 +79,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             'nearest_subject_suffuniq_iri': _capped_keyword,
             'path_from_nearest_subject': _capped_keyword,
             'suffuniq_path_from_nearest_subject': _capped_keyword,
+            'distance_from_focus': {'type': 'keyword'},  # numeric value as keyword (used for 'term' filter)
         }
         return {
             'dynamic': 'false',
@@ -410,6 +411,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _textq_builder = self._TextQueryBuilder(
                 'nested_text.text_value',
                 nested_path='nested_text',
+                nested_filter={'term': {'nested_text.distance_from_focus': 1}},
                 inner_hits_factory=self._cardsearch_inner_hits,
             )
             for _boolkey, _textquery in _textq_builder.textsegment_queries(textsegment_set, relevance_matters=relevance_matters):
@@ -611,17 +613,26 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                             card_iri=_innerhit['_id'],
                         )
 
-        class _TextQueryBuilder:
-            def __init__(self, text_field, nested_path=None, inner_hits_factory=None):
+        class _TextQueryBuilder:  # TODO: when adding field-specific text queries, move "nested" logic to subclass
+            def __init__(self, text_field, *, nested_path=None, nested_filter=None, inner_hits_factory=None):
                 self._text_field = text_field
                 self._nested_path = nested_path
+                self._nested_filter = nested_filter
                 self._inner_hits_factory = inner_hits_factory
 
             def _maybe_nested_query(self, query, *, with_inner_hits=False):
                 if self._nested_path:
+                    _inner_query = (
+                        {'bool': {
+                            'filter': self._nested_filter,
+                            'must': query,
+                        }}
+                        if self._nested_filter
+                        else query
+                    )
                     _nested_q = {'nested': {
                         'path': self._nested_path,
-                        'query': query,
+                        'query': _inner_query,
                     }}
                     if with_inner_hits and self._inner_hits_factory:
                         _nested_q['nested']['inner_hits'] = self._inner_hits_factory()
@@ -723,6 +734,7 @@ class _PredicatePathWalker:
                 'nearest_subject_suffuniq_iri': get_sufficiently_unique_iri(self.nearest_subject_iri),
                 'path_from_nearest_subject': iri_path_as_keyword(self.path_from_nearest_subject),
                 'suffuniq_path_from_nearest_subject': iri_path_as_keyword(self.path_from_nearest_subject, suffuniq=True),
+                'distance_from_focus': len(self.path_from_start),
             }
 
     WalkYield = tuple[PathKey, primitive_rdf.RdfObject]
