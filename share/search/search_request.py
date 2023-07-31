@@ -166,7 +166,7 @@ class SearchFilter:
             try:
                 _operator = SearchFilter.FilterOperator(_operator_value)
             except ValueError:
-                raise ValueError(f'unrecognized search-filter operator "{_operator}"')
+                raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
         _value_list = []
         for _value in split_queryparam_value(param_value):
             if _operator.is_date_operator():

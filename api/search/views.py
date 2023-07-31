@@ -45,5 +45,4 @@ class Sharev2ElasticSearchView(views.APIView):
             )
             return Response(data=response_json, headers={'Content-Type': 'application/json'})
         except (exceptions.IndexStrategyError, NotImplementedError) as error:
-            raise
-            return Response(status=418, data=str(error))  # TODO
+            return Response(status=400, data=str(error))  # TODO
