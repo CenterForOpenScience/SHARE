@@ -87,6 +87,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('affiliatedInstitution', language_tag='en'),
         },
     },
+    OSFMAP.hasFunding: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('hasFunding', language_tag='en'),
+        },
+    },
     OSFMAP.funder: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
@@ -279,18 +285,6 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('awardNumber', language_tag='en'),
         },
     },
-    OSFMAP.awardURI: {
-        RDF.type: {RDF.Property},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('awardURI', language_tag='en'),
-        },
-    },
-    OSFMAP.awardTitle: {
-        RDF.type: {RDF.Property},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('awardTitle', language_tag='en'),
-        },
-    },
     OSFMAP.fileName: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
@@ -319,6 +313,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('omittedMetadataProperty', language_tag='en'),
+        },
+    },
+    DCTERMS.conformsTo: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('conformsTo', language_tag='en'),
         },
     },
     OSFMAP.statedConflictOfInterest: {
@@ -378,10 +378,10 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('Agent', language_tag='en'),
         },
     },
-    OSFMAP.Funder: {
+    OSFMAP.FundingAward: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('Funder', language_tag='en'),
+            primitive_rdf.text('FundingAward', language_tag='en'),
         },
     },
     OSFMAP.FileVersion: {

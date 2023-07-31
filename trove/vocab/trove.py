@@ -250,7 +250,7 @@ trove_labeler = IriLabeler(TROVE_API_VOCAB, label_iri=JSONAPI_MEMBERNAME)
 
 
 def trove_indexcard_namespace():
-    return primitive_rdf.IriNamespace(f'{settings.SHARE_API_URL}trove/index-card/')
+    return primitive_rdf.IriNamespace(f'{settings.SHARE_WEB_URL}trove/index-card/')
 
 
 def trove_indexcard_iri(indexcard_uuid):
