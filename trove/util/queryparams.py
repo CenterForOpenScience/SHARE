@@ -15,12 +15,9 @@ QUERYPARAM_FAMILY_REGEX = re.compile(
     r'(?=\[|$)'         # followed by [ or end.
 )
 QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
-    r'\['                   # open square-bracket,
-    r'(?P<member_name>'     # 'member_name' group,
-    r'[a-zA-Z0-9]'          # starts alphanumeric,
-    r'[-_a-zA-Z0-9]*'       # allow - or _ within,
-    r')?'                   # empty brackets fine,
-    r'\]'                   # need an end bracket.
+    r'\['                   # start with open square-bracket,
+    r'(?P<name>[^[\]]*)'    # anything not square-bracket
+    r'\]'                   # end with close-bracket
 )
 # is common (but not required) for a query parameter
 # value to be split on commas, used as a list or set
@@ -44,7 +41,7 @@ class JsonapiQueryparamName:
             bracketed_match = QUERYPARAM_FAMILYMEMBER_REGEX.match(queryparam_name, next_position)
             if not bracketed_match:
                 raise ValueError(f'invalid queryparam name "{queryparam_name}"')
-            bracketed_names.append(bracketed_match.group('member_name') or '')
+            bracketed_names.append(bracketed_match.group('name') or '')
             next_position = bracketed_match.end()
         if next_position != len(queryparam_name):
             raise ValueError(f'invalid queryparam name "{queryparam_name}"')
