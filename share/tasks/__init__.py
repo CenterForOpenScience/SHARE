@@ -108,7 +108,7 @@ def source_stats(self):
     oai_sourceconfigs = db.SourceConfig.objects.filter(
         disabled=False,
         base_url__isnull=False,
-        harvester__key='oai'
+        harvester_key='oai'
     )
     for config in oai_sourceconfigs.values():
         get_source_stats.apply_async((config['id'],))
@@ -117,7 +117,7 @@ def source_stats(self):
         disabled=False,
         base_url__isnull=False
     ).exclude(
-        harvester__key='oai'
+        harvester_key='oai'
     )
     for config in non_oai_sourceconfigs.values():
         get_source_stats.apply_async((config['id'],))
@@ -126,7 +126,7 @@ def source_stats(self):
 @celery.shared_task(bind=True)
 def get_source_stats(self, config_id):
     source_config = db.SourceConfig.objects.get(pk=config_id)
-    if source_config.harvester.key == 'oai':
+    if source_config.harvester_key == 'oai':
         OAISourceStatus(config_id).get_source_stats()
     else:
         SourceStatus(config_id).get_source_stats()
