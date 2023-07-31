@@ -72,7 +72,9 @@ def _gather_work(focus, *, mnode, source_config):
     yield (DCTERMS.available, primitive_rdf.text(mnode['free_to_read_date']))
     yield (DCTERMS.rights, primitive_rdf.text(mnode['rights']))
     yield (DCTERMS.language, primitive_rdf.text(_language_tag))
-    yield (OSFMAP.registration_type, primitive_rdf.text(mnode['registration_type']))  # TODO: not in OSFMAP
+    yield (DCTERMS.conformsTo, frozenset((
+        (FOAF.name, primitive_rdf.text(mnode['registration_type'])),
+    )))
     yield (OSFMAP.dateWithdrawn, primitive_rdf.text(mnode['withdrawn']))  # TODO: is boolean, not date
     yield (OSFMAP.withdrawalJustification, primitive_rdf.text(mnode['justification']))  # TODO: not in OSFMAP
     for _tag in mnode['tags']:
@@ -182,7 +184,6 @@ def _date_or_none(maybe_date) -> typing.Optional[datetime.date]:
 def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
     _typenames = {
         mnode.schema_type.name,
-        mnode.schema_type.concrete_type,
         *mnode.schema_type.type_lineage,
     }
     for _typename in _typenames:
@@ -199,7 +200,7 @@ def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
             yield OSFMAP.RegistrationComponent
         else:
             yield OSFMAP.Registration
-    if 'AbstractAgent' in _typenames:
+    if 'Agent' in _typenames:
         yield OSFMAP.Agent
 
 
