@@ -34,10 +34,16 @@ from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL
+from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS
 
 
 logger = logging.getLogger(__name__)
+
+
+TITLE_PROPERTIES = (DCTERMS.title,)
+NAME_PROPERTIES = (FOAF.name,)
+LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
+NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 
 
 class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
@@ -205,17 +211,17 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             # TODO: don't discard language for name/title/label
             'value_name_text': [
                 _text.unicode_text
-                for _text in rdfdoc.q(iri, FOAF.name)
+                for _text in rdfdoc.q(iri, NAME_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Text)
             ],
             'value_title_text': [
                 _text.unicode_text
-                for _text in rdfdoc.q(iri, DCTERMS.title)
+                for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Text)
             ],
             'value_label_text': [
                 _text.unicode_text
-                for _text in rdfdoc.q(iri, RDFS.label)
+                for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Text)
             ],
         }
@@ -350,7 +356,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                     'filter': {'terms': {
                                         'nested_text.suffuniq_path_from_nearest_subject': [
                                             iri_path_as_keyword([_iri], suffuniq=True)
-                                            for _iri in (FOAF.name, RDFS.label, DCTERMS.title)
+                                            for _iri in NAMELIKE_PROPERTIES
                                         ],
                                     }},
                                     'aggs': {
