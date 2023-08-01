@@ -2,7 +2,7 @@ from gather import primitive_rdf, gathering
 
 from share.util.rdfutil import IriLabeler
 from trove.vocab.trove import JSONAPI_MEMBERNAME
-from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS
+from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS, SKOS, DCMITYPE
 
 
 # TODO: define as turtle, load in trove.vocab.__init__?
@@ -327,6 +327,36 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('statedConflictOfInterest', language_tag='en'),
         },
     },
+    OSFMAP.isPartOfCollection: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('isPartOfCollection', language_tag='en'),
+        },
+    },
+    SKOS.prefLabel: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('prefLabel', language_tag='en'),
+        },
+    },
+    SKOS.altLabel: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('altLabel', language_tag='en'),
+        },
+    },
+    SKOS.inScheme: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('inScheme', language_tag='en'),
+        },
+    },
+    SKOS.broader: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('broader', language_tag='en'),
+        },
+    },
     RDFS.label: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
@@ -412,6 +442,18 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Property', language_tag='en'),
+        },
+    },
+    DCMITYPE.Collection: {
+        RDF.type: {RDFS.Class},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('Collection', language_tag='en'),
+        },
+    },
+    SKOS.Concept: {
+        RDF.type: {RDFS.Class},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('Concept', language_tag='en'),
         },
     },
 
