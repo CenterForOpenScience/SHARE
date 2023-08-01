@@ -195,7 +195,7 @@ class SortParam:
 
     @classmethod
     def from_sort_param(cls, param_value: str | None) -> tuple['SortParam']:
-        if not param_value:
+        if not param_value or param_value == '-relevance':
             return ()
         return tuple(cls._from_sort_param_str(param_value))
 
