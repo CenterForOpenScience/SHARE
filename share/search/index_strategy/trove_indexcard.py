@@ -44,7 +44,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='8600bc7d54d2e1e22a420c86cd16114c739a14d37dff145c1e1028dbf02d21e3',
+        hexdigest='620553051ea16928b51c98ebc6a25de72d9c44dd4d3ac739517f6b5b224033cc',
     )
 
     # abstract method from IndexStrategy
@@ -86,6 +86,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             'properties': {
                 'focus_iri': _capped_keyword,
                 'suffuniq_focus_iri': _capped_keyword,
+                'source_record_identifier': _capped_keyword,
+                'source_config_label': _capped_keyword,
                 'nested_iri': {
                     'type': 'nested',  # TODO: consider 'flattened' field for simple iri-matching
                     'dynamic': 'false',
@@ -162,6 +164,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         return {
             'focus_iri': list(_focus_iris),
             'suffuniq_focus_iri': list(_suffuniq_focus_iris),
+            'source_record_identifier': indexcard_rdf.indexcard.source_record_suid.identifier,
+            'source_config_label': indexcard_rdf.indexcard.source_record_suid.source_config.label,
             'nested_iri': [
                 self._iri_nested_sourcedoc(_pathkey, _iri, _rdfdoc)
                 for _pathkey, _value_set in _nested_iris.items()
@@ -221,7 +225,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         _indexcard_rdf_qs = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
-            .select_related('indexcard')
+            .select_related('indexcard__source_record_suid__source_config')
             .prefetch_related('indexcard__focus_identifier_set')
         )
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
