@@ -236,13 +236,15 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         )
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
-            _indexcard_id = _indexcard_rdf.indexcard_id
-            _remaining_indexcard_ids.discard(_indexcard_id)
+            _suid = _indexcard_rdf.indexcard.source_record_suid
+            if messages_chunk.message_type.is_backfill and _suid.has_forecompat_replacement():
+                continue  # skip this one, let it get deleted
+            _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
             _index_action = self.build_index_action(
                 doc_id=_indexcard_rdf.indexcard.get_iri(),
                 doc_source=self._build_sourcedoc(_indexcard_rdf),
             )
-            yield _indexcard_id, _index_action
+            yield _indexcard_rdf.indexcard_id, _index_action
         # delete any that don't have "latest" rdf
         _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:

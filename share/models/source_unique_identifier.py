@@ -61,6 +61,20 @@ class SourceUniqueIdentifier(models.Model):
             .get()
         )
 
+    def has_forecompat_replacement(self) -> bool:
+        if self.source_config.transformer_key != 'v2_push':
+            return False
+        from share.models import SourceConfig
+        return (
+            SourceUniqueIdentifier.objects
+            .filter(identifier=self.identifier)
+            .filter(source_config__in=SourceConfig.objects.filter(
+                source_id=self.source_config.source_id,
+                transformer_key__isnull=True,
+            ))
+            .exists()
+        )
+
     def __repr__(self):
         return '<{}({}, {}, {!r})>'.format('Suid', self.id, self.source_config.label, self.identifier)
 
