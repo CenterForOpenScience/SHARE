@@ -49,7 +49,7 @@ class IndexMessenger:
                     ),
                 )
 
-    def get_queue_depth(self, queue_name: str):
+    def get_queue_stats(self, queue_name: str):
         try:
             rabbitmqueuerl = urllib.parse.urlunsplit((
                 'http',     # scheme
@@ -63,14 +63,24 @@ class IndexMessenger:
                     urllib.parse.quote_plus(settings.RABBITMQ_VHOST),
                     urllib.parse.quote_plus(queue_name),
                 )),
-                None,       # query
+                'msg_rates_age=30&msg_rates_incr=30',  # get avg rates over 30 seconds
                 None,       # fragment
             ))
             resp = requests.get(
                 rabbitmqueuerl,
                 auth=(settings.RABBITMQ_USERNAME, settings.RABBITMQ_PASSWORD),
             )
-            return resp.json().get('messages', 0)
+            _resp_json = resp.json()
+            try:
+                return {
+                    'queue_depth': _resp_json['messages'],
+                    'avg_ack_rate': int(_resp_json['message_stats']['ack_details']['avg_rate']),
+                }
+            except KeyError:
+                return {
+                    'queue_depth': '??',
+                    'avg_ack_rate': '??',
+                }
         except Exception:
             sentry_sdk.capture_exception()
             return '??'

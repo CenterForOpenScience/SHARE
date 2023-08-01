@@ -39,7 +39,7 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _split_remainder = urlsplit(_remainder)
     _cleaned_remainder = urlunsplit((
         '',  # scheme already split
-        _split_remainder.netloc,  # note: starts with '://'
+        _split_remainder.netloc,
         _split_remainder.path.rstrip('/'),  # remove trailing slashes
         _split_remainder.query,  # will drop '?' if no querystring
         _split_remainder.fragment,  # will drop '#' if no fragment

@@ -75,14 +75,14 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
         return {
             'can_start_backfill': specific_index.pls_check_exists(),
         }
-    nonurgent_queue_size = IndexMessenger().get_queue_depth(
+    _nonurgent_queue_stats = IndexMessenger().get_queue_stats(
         specific_index.index_strategy.nonurgent_messagequeue_name,
     )
     _phase_messagetypes = specific_index.index_strategy.backfill_phases
     _phase_ratio = f'{backfill.backfill_phase_index + 1}/{len(_phase_messagetypes)}'
     _indexing_and_settled = (
         backfill.backfill_status == IndexBackfill.INDEXING
-        and nonurgent_queue_size == 0
+        and _nonurgent_queue_stats['queue_depth'] == 0
     )
     _next_phase = None
     if _indexing_and_settled and (len(_phase_messagetypes) > backfill.backfill_phase_index + 1):
@@ -93,7 +93,8 @@ def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: I
         'phase_ratio': _phase_ratio,
         'next_phase_name': _next_phase.value if _next_phase else None,
         'backfill_admin_url': admin_url(backfill),
-        'backfill_queue_depth': nonurgent_queue_size,
+        'backfill_queue_depth': _nonurgent_queue_stats['queue_depth'],
+        'backfill_rate': _nonurgent_queue_stats['avg_ack_rate'],
         'can_start_backfill': _next_phase or backfill.backfill_status == IndexBackfill.INITIAL,
         'can_mark_backfill_complete': _indexing_and_settled and not _next_phase,
         'is_complete': (backfill.backfill_status == IndexBackfill.COMPLETE),

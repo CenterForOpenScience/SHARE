@@ -76,7 +76,7 @@ section, table {
               </a></p>
               {% if not indexes.current.backfill.is_complete %}
                 <p>{% trans "phase" %} {{ indexes.current.backfill.phase_ratio }} ({{indexes.current.backfill.phase_name}})</p>
-                <p>({{ indexes.current.backfill.backfill_queue_depth }} in nonurgent queue)</p>
+                <p>({{ indexes.current.backfill.backfill_rate }}/second; {{ indexes.current.backfill.backfill_queue_depth }} to go)</p>
               {% endif %}
             {% else %}
             --
