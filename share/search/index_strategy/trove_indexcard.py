@@ -50,7 +50,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='620553051ea16928b51c98ebc6a25de72d9c44dd4d3ac739517f6b5b224033cc',
+        hexdigest='1960db8d79d43829c12e9fe819fb88d8b85b7b31411bbd4ad65ddcd8aeba9efa',
     )
 
     # abstract method from IndexStrategy
@@ -96,7 +96,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 'source_config_label': _capped_keyword,
                 'nested_iri': {
                     'type': 'nested',  # TODO: consider 'flattened' field for simple iri-matching
-                    'dynamic': 'false',
                     'properties': {
                         **_common_nested_keywords,
                         'iri_value': _capped_keyword,
@@ -105,24 +104,23 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'value_name_text': {
                             'type': 'text',
                             'fields': {'raw': _capped_keyword},
-                            'copy_to': 'value_namelike_text',
+                            'copy_to': 'nested_iri.value_namelike_text',
                         },
                         'value_title_text': {
                             'type': 'text',
                             'fields': {'raw': _capped_keyword},
-                            'copy_to': 'value_namelike_text',
+                            'copy_to': 'nested_iri.value_namelike_text',
                         },
                         'value_label_text': {
                             'type': 'text',
                             'fields': {'raw': _capped_keyword},
-                            'copy_to': 'value_namelike_text',
+                            'copy_to': 'nested_iri.value_namelike_text',
                         },
                         'value_namelike_text': {'type': 'text'},
                     },
                 },
                 'nested_date': {
                     'type': 'nested',
-                    'dynamic': 'false',
                     'properties': {
                         **_common_nested_keywords,
                         'date_value': {
@@ -133,7 +131,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 },
                 'nested_text': {
                     'type': 'nested',
-                    'dynamic': 'false',
                     'properties': {
                         **_common_nested_keywords,
                         'language_iri': _capped_keyword,
