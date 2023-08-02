@@ -495,16 +495,17 @@ OSFMAP_NORMS = gathering.GatheringNorms(
 osfmap_labeler = IriLabeler(OSFMAP_VOCAB, label_iri=JSONAPI_MEMBERNAME)
 
 
-ALL_SUGGESTED_PROPERTY_IRIS = frozenset((
-    DCTERMS.conformsTo,
+ALL_SUGGESTED_PROPERTY_IRIS = [
     DCTERMS.created,
-    DCTERMS.hasVersion,
-    DCTERMS.publisher,
-    DCTERMS.rights,
-    DCTERMS.subject,
-    DCTERMS.type,
-    OSFMAP.affiliation,
     OSFMAP.funder,
+    DCTERMS.subject,
+    DCTERMS.rights,
+    DCTERMS.type,  # TODO: should this be RDF.type, or does it depend?
+    OSFMAP.affiliation,
+    DCTERMS.publisher,
+    OSFMAP.isPartOfCollection,
+    DCTERMS.conformsTo,
+    DCTERMS.hasVersion,
     OSFMAP.hasAnalyticCodeResource,
     OSFMAP.hasDataResource,
     OSFMAP.hasMaterialsResource,
@@ -512,58 +513,57 @@ ALL_SUGGESTED_PROPERTY_IRIS = frozenset((
     OSFMAP.hasPreregisteredAnalysisPlan,
     OSFMAP.hasPreregisteredStudyDesign,
     OSFMAP.hasSupplementalResource,
-    OSFMAP.isPartOfCollection,
     OSFMAP.supplements,
-))
+]
 
 
-PROJECT_SUGGESTED_PROPERTY_IRIS = frozenset((
+PROJECT_SUGGESTED_PROPERTY_IRIS = [
     DCTERMS.created,
-    DCTERMS.hasVersion,
+    OSFMAP.funder,
     DCTERMS.rights,
     DCTERMS.type,
     OSFMAP.affiliation,
-    OSFMAP.funder,
     OSFMAP.isPartOfCollection,
-    OSFMAP.supplements,
-))
-
-
-REGISTRATION_SUGGESTED_PROPERTY_IRIS = frozenset((
-    DCTERMS.conformsTo,
-    DCTERMS.created,
     DCTERMS.hasVersion,
+    OSFMAP.supplements,
+]
+
+
+REGISTRATION_SUGGESTED_PROPERTY_IRIS = [
+    DCTERMS.created,
+    OSFMAP.funder,
     DCTERMS.publisher,
-    DCTERMS.rights,
     DCTERMS.subject,
+    DCTERMS.rights,
     DCTERMS.type,
     OSFMAP.affiliation,
-    OSFMAP.funder,
+    DCTERMS.conformsTo,
+    DCTERMS.hasVersion,
     OSFMAP.hasAnalyticCodeResource,
     OSFMAP.hasDataResource,
     OSFMAP.hasMaterialsResource,
     OSFMAP.hasPapersResource,
     OSFMAP.hasSupplementalResource,
     OSFMAP.supplements,
-))
+]
 
 
-PREPRINT_SUGGESTED_PROPERTY_IRIS = frozenset((
+PREPRINT_SUGGESTED_PROPERTY_IRIS = [
     DCTERMS.created,
-    DCTERMS.hasVersion,
-    DCTERMS.publisher,
-    DCTERMS.rights,
     DCTERMS.subject,
+    DCTERMS.rights,
+    DCTERMS.publisher,
+    DCTERMS.hasVersion,
     OSFMAP.hasDataResource,
     OSFMAP.hasPreregisteredAnalysisPlan,
     OSFMAP.hasPreregisteredStudyDesign,
     OSFMAP.supplements,
-))
+]
 
 
-AGENT_SUGGESTED_PROPERTY_IRIS = frozenset((
+AGENT_SUGGESTED_PROPERTY_IRIS = [
     OSFMAP.affiliation,
-))
+]
 
 
 def suggested_property_iris(type_iris: set[str]) -> list[str]:
