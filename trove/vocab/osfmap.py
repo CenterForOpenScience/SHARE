@@ -16,7 +16,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     DCTERMS.creator: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('creator', language_tag='en'),
         },
@@ -40,7 +40,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     DCTERMS.contributor: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('contributor', language_tag='en'),
         },
@@ -76,13 +76,13 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     OSFMAP.affiliation: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('affiliation', language_tag='en'),
         },
     },
     OSFMAP.affiliatedInstitution: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('affiliatedInstitution', language_tag='en'),
         },
@@ -160,103 +160,103 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     OSFMAP.isContainedBy: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('isContainedBy', language_tag='en'),
         },
     },
     DCTERMS.hasPart: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasPart', language_tag='en'),
         },
     },
     DCTERMS.isPartOf: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('isPartOf', language_tag='en'),
         },
     },
     OSFMAP.hasRoot: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasRoot', language_tag='en'),
         },
     },
     DCTERMS.references: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('references', language_tag='en'),
         },
     },
     DCTERMS.hasVersion: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasVersion', language_tag='en'),
         },
     },
     DCTERMS.isVersionOf: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('isVersionOf', language_tag='en'),
         },
     },
     OSFMAP.supplements: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('supplements', language_tag='en'),
         },
     },
     OSFMAP.isSupplementedBy: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('isSupplementedBy', language_tag='en'),
         },
     },
     OSFMAP.archivedAt: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('archivedAt', language_tag='en'),
         },
     },
     OSFMAP.hasAnalyticCodeResource: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasAnalyticCodeResource', language_tag='en'),
         },
     },
     OSFMAP.hasDataResource: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasDataResource', language_tag='en'),
         },
     },
     OSFMAP.hasMaterialsResource: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasMaterialsResource', language_tag='en'),
         },
     },
     OSFMAP.hasPapersResource: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasPapersResource', language_tag='en'),
         },
     },
     OSFMAP.hasSupplementalResource: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasSupplementalResource', language_tag='en'),
         },
     },
     OSFMAP.hasPreregisteredAnalysisPlan: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasPreregisteredAnalysisPlan', language_tag='en'),
         },
     },
     OSFMAP.hasPreregisteredStudyDesign: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasPreregisteredStudyDesign', language_tag='en'),
         },
@@ -268,13 +268,13 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     FOAF.name: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('name', language_tag='en'),
         },
     },
     OSFMAP.funderIdentifierType: {
-        RDF.type: {RDF.Property, OSFMAP.RelationshipProperty},
+        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('funderIdentifierType', language_tag='en'),
         },
@@ -363,6 +363,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('label', language_tag='en'),
         },
     },
+    JSONAPI_MEMBERNAME: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('shortFormLabel', language_tag='en'),
+        },
+    },
 
     ###
     # types:
@@ -402,7 +408,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('File', language_tag='en'),
         },
     },
-    OSFMAP.Agent: {
+    DCTERMS.Agent: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Agent', language_tag='en'),
@@ -482,11 +488,96 @@ OSFMAP_NORMS = gathering.GatheringNorms(
         OSFMAP.RegistrationComponent,
         OSFMAP.Preprint,
         OSFMAP.File,
-        # TODO?: OSFMAP.Agent,
+        DCTERMS.Agent,
     },
 )
 
 osfmap_labeler = IriLabeler(OSFMAP_VOCAB, label_iri=JSONAPI_MEMBERNAME)
+
+
+ALL_SUGGESTED_PROPERTY_IRIS = frozenset((
+    DCTERMS.conformsTo,
+    DCTERMS.created,
+    DCTERMS.hasVersion,
+    DCTERMS.publisher,
+    DCTERMS.rights,
+    DCTERMS.subject,
+    DCTERMS.type,
+    OSFMAP.affiliation,
+    OSFMAP.funder,
+    OSFMAP.hasAnalyticCodeResource,
+    OSFMAP.hasDataResource,
+    OSFMAP.hasMaterialsResource,
+    OSFMAP.hasPapersResource,
+    OSFMAP.hasPreregisteredAnalysisPlan,
+    OSFMAP.hasPreregisteredStudyDesign,
+    OSFMAP.hasSupplementalResource,
+    OSFMAP.isPartOfCollection,
+    OSFMAP.supplements,
+))
+
+
+PROJECT_SUGGESTED_PROPERTY_IRIS = frozenset((
+    DCTERMS.created,
+    DCTERMS.hasVersion,
+    DCTERMS.rights,
+    DCTERMS.type,
+    OSFMAP.affiliation,
+    OSFMAP.funder,
+    OSFMAP.isPartOfCollection,
+    OSFMAP.supplements,
+))
+
+
+REGISTRATION_SUGGESTED_PROPERTY_IRIS = frozenset((
+    DCTERMS.conformsTo,
+    DCTERMS.created,
+    DCTERMS.hasVersion,
+    DCTERMS.publisher,
+    DCTERMS.rights,
+    DCTERMS.subject,
+    DCTERMS.type,
+    OSFMAP.affiliation,
+    OSFMAP.funder,
+    OSFMAP.hasAnalyticCodeResource,
+    OSFMAP.hasDataResource,
+    OSFMAP.hasMaterialsResource,
+    OSFMAP.hasPapersResource,
+    OSFMAP.hasSupplementalResource,
+    OSFMAP.supplements,
+))
+
+
+PREPRINT_SUGGESTED_PROPERTY_IRIS = frozenset((
+    DCTERMS.created,
+    DCTERMS.hasVersion,
+    DCTERMS.publisher,
+    DCTERMS.rights,
+    DCTERMS.subject,
+    OSFMAP.hasDataResource,
+    OSFMAP.hasPreregisteredAnalysisPlan,
+    OSFMAP.hasPreregisteredStudyDesign,
+    OSFMAP.supplements,
+))
+
+
+AGENT_SUGGESTED_PROPERTY_IRIS = frozenset((
+    OSFMAP.affiliation,
+))
+
+
+def suggested_property_iris(type_iris: set[str]) -> list[str]:
+    if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):
+        return []
+    if type_iris == {DCTERMS.Agent}:
+        return AGENT_SUGGESTED_PROPERTY_IRIS
+    if type_iris == {OSFMAP.Preprint}:
+        return PREPRINT_SUGGESTED_PROPERTY_IRIS
+    if type_iris <= {OSFMAP.Project, OSFMAP.ProjectComponent}:
+        return PROJECT_SUGGESTED_PROPERTY_IRIS
+    if type_iris <= {OSFMAP.Registration, OSFMAP.RegistrationComponent}:
+        return REGISTRATION_SUGGESTED_PROPERTY_IRIS
+    return ALL_SUGGESTED_PROPERTY_IRIS
 
 
 def is_date_property(property_iri):

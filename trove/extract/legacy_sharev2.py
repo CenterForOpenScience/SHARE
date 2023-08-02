@@ -6,7 +6,7 @@ from gather import primitive_rdf, gathering
 
 from share.util.graph import MutableNode
 from share.regulate import Regulator
-from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2
+from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2, RDF
 from trove.vocab.osfmap import OSFMAP_NORMS
 from ._base import BaseRdfExtractor
 
@@ -121,9 +121,9 @@ def _gather_agent(focus, *, mnode, source_config):
         if not _iri.startswith('_:'):  # HACK: non-blank blank node (stop that)
             yield (DCTERMS.identifier, primitive_rdf.text(_iri))
     if 'Person' in mnode.schema_type.type_lineage:
-        yield (DCTERMS.type, FOAF.Person)
+        yield (RDF.type, FOAF.Person)
     if 'Organization' in mnode.schema_type.type_lineage:
-        yield (DCTERMS.type, FOAF.Organization)
+        yield (RDF.type, FOAF.Organization)
     yield (FOAF.name, primitive_rdf.text(mnode['name']))
     for _agent_relation in mnode['outgoing_agent_relations']:
         yield (
@@ -201,7 +201,7 @@ def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
         else:
             yield OSFMAP.Registration
     if 'Agent' in _typenames:
-        yield OSFMAP.Agent
+        yield DCTERMS.Agent
 
 
 def _agentwork_relation_iri(agentwork_relation: MutableNode):

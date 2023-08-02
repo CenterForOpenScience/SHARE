@@ -6,12 +6,13 @@ from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
     ValuesearchParams,
+    SearchFilter,
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
-from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB
+from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, OSFMAP
+from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_property_iris
 from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
 
 
@@ -86,7 +87,6 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
 def gather_cardsearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, CardsearchParams)
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
-    # yield (TROVE.WOOP, primitive_rdf.text(json.dumps(_cardsearch_resp), language_iri=RDF.JSON))
     yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
     _result_page = []
     for _result in _cardsearch_resp.search_result_page:
@@ -107,6 +107,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
             *_text_evidence_twoples,
         )))
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
+    yield (TROVE.relatedPropertysearch, _static_related_propertysearch(search_params))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -115,7 +116,6 @@ def gather_cardsearch(focus, *, specific_index, search_params):
 def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
-    # yield (TROVE.WOOP, _literal_json(_valuesearch_resp, indent=2))
     # yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     _result_page = []
     for _result in _valuesearch_resp.search_result_page:
@@ -251,3 +251,39 @@ def _osfmap_path(property_path):
         osfmap_labeler.get_label_or_iri(_iri)
         for _iri in property_path
     ])
+
+
+def _static_related_propertysearch(search_params) -> frozenset:
+    # hard-coded for osf.io search pages, static list per type
+    # TODO: replace with some dynamism
+    _type_iris = set()
+    for _filter in search_params.cardsearch_filter_set:
+        if _filter.property_path == (RDF.type,):
+            if _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+                _type_iris.update(_filter.value_set)
+            if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
+                _type_iris.difference_update(_filter.value_set)
+    _property_iris = suggested_property_iris(_type_iris)
+    _propertysearch_twopledict = {
+        RDF.type: {TROVE.Propertysearch},
+        TROVE.searchResultPage: {
+            primitive_rdf.sequence(
+                _propertysearch_indexcard(_property_iri)
+                for _property_iri in _property_iris
+            ),
+        },
+    }
+    return primitive_rdf.freeze_blanknode(_propertysearch_twopledict)
+
+
+def _propertysearch_indexcard(osfmap_property_iri):
+    _property_metadata = {
+        osfmap_property_iri: OSFMAP_VOCAB[osfmap_property_iri]
+    }
+    return primitive_rdf.freeze_blanknode({
+        RDF.type: {TROVE.Indexcard},
+        TROVE.resourceIdentifier: {primitive_rdf.text(osfmap_property_iri)},
+        TROVE.resourceMetadata: {
+            _osfmap_json(_property_metadata, osfmap_property_iri),
+        },
+    })
