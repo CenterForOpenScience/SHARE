@@ -194,7 +194,7 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         },
     },
     TROVE.relatedPropertysearch: {
-        RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('relatedPropertySearch', language_tag='en'),
         },
