@@ -1,6 +1,6 @@
 from gather import primitive_rdf, gathering
 
-from share.util.rdfutil import IriLabeler
+from trove.util.iri_labeler import IriLabeler
 from trove.vocab.trove import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS, SKOS, DCMITYPE
 
@@ -492,7 +492,11 @@ OSFMAP_NORMS = gathering.GatheringNorms(
     },
 )
 
-osfmap_labeler = IriLabeler(OSFMAP_VOCAB, label_iri=JSONAPI_MEMBERNAME)
+osfmap_labeler = IriLabeler(
+    OSFMAP_VOCAB,
+    label_iri=JSONAPI_MEMBERNAME,
+    acceptable_prefixes=('osf:', 'osfmap:'),
+)
 
 
 ALL_SUGGESTED_PROPERTY_IRIS = [

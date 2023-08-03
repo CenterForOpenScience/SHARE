@@ -1,3 +1,5 @@
+from typing import Optional
+
 from gather import primitive_rdf
 
 from trove.vocab.namespaces import RDFS
@@ -8,9 +10,13 @@ class IriLabeler:
         self,
         vocabulary: primitive_rdf.RdfTripleDictionary,
         label_iri: str = RDFS.label,
+        acceptable_prefixes: tuple[str] = (),
+        output_prefix: Optional[str] = None,
     ):
         self.vocabulary = vocabulary
         self.label_iri = label_iri
+        self.acceptable_prefixes = acceptable_prefixes
+        self.output_prefix = output_prefix
 
     def all_iris_by_label(self) -> dict[str, str]:
         try:
@@ -44,10 +50,19 @@ class IriLabeler:
             return _labels_by_iri
 
     def iri_for_label(self, label: str) -> str:
-        return self.all_iris_by_label()[label]  # may raise KeyError
+        _labelkey = label
+        for _prefix in self.acceptable_prefixes:
+            if label.startswith(_prefix):
+                _labelkey = label[len(_prefix):]  # remove prefix
+        return self.all_iris_by_label()[_labelkey]  # may raise KeyError
 
     def label_for_iri(self, iri: str) -> str:
-        return self.all_labels_by_iri()[iri]  # may raise KeyError
+        _label = self.all_labels_by_iri()[iri]  # may raise KeyError
+        return (
+            ''.join((self.output_prefix, _label))
+            if self.output_prefix
+            else _label
+        )
 
     def get_label_or_iri(self, iri: str) -> str:
         try:

@@ -1,7 +1,7 @@
 from django.conf import settings
 from gather import primitive_rdf
 
-from share.util.rdfutil import IriLabeler
+from trove.util.iri_labeler import IriLabeler
 from trove.vocab.namespaces import TROVE, JSONAPI, RDF, RDFS, OWL
 
 
@@ -246,7 +246,11 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
     },
 }
 
-trove_labeler = IriLabeler(TROVE_API_VOCAB, label_iri=JSONAPI_MEMBERNAME)
+trove_labeler = IriLabeler(
+    TROVE_API_VOCAB,
+    label_iri=JSONAPI_MEMBERNAME,
+    acceptable_prefixes=('trove:',),
+)
 
 
 def trove_indexcard_namespace():

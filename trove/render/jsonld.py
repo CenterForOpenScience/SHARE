@@ -3,7 +3,7 @@ import json
 
 from gather import primitive_rdf
 
-from share.util.rdfutil import IriLabeler
+from trove.util.iri_labeler import IriLabeler
 from trove.vocab.namespaces import RDF, OWL
 
 

@@ -5,8 +5,8 @@ from django import http
 from django.views.generic.base import TemplateView
 from gather import primitive_rdf
 
-from share.util import rdfutil
 from trove import models as trove_db
+from trove.util.iri_labeler import IriLabeler
 from trove.vocab.osfmap import osfmap_labeler
 
 
@@ -33,7 +33,7 @@ class BrowseIriView(TemplateView):
 
 
 class _IndexcardContextBuilder:
-    def __init__(self, indexcard_rdf: trove_db.IndexcardRdf, labeler: rdfutil.IriLabeler):
+    def __init__(self, indexcard_rdf: trove_db.IndexcardRdf, labeler: IriLabeler):
         self._labeler = labeler
         self._tripledict = indexcard_rdf.as_rdf_tripledict()
         self._visiting = set()
