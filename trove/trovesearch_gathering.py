@@ -215,15 +215,18 @@ def gather_card(focus, **kwargs):
 # local helpers
 
 def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
-    _filter_values = (
-        (TROVE.filterValue, valueinfo_by_iri.get(_value) or _value)
-        for _value in search_filter.value_set
-    )
+    _filtervalue_twoples = []
+    for _value in search_filter.value_set:
+        _valueinfo = (
+            valueinfo_by_iri.get(_value)
+            or _literal_json({'@id': _value})
+        )
+        _filtervalue_twoples.append((TROVE.filterValue, _valueinfo))
     return frozenset((
         (TROVE.propertyPath, _literal_json(search_filter.property_path)),
         (TROVE.osfmapPropertyPath, _osfmap_path(search_filter.property_path)),
         (TROVE.filterType, TROVE[search_filter.operator.value]),
-        *_filter_values,
+        *_filtervalue_twoples,
     ))
 
 
