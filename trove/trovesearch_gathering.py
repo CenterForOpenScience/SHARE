@@ -11,7 +11,7 @@ from share.search.search_request import (
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, OSFMAP
+from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_property_iris
 from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
 
@@ -255,7 +255,7 @@ def _osfmap_path(property_path):
 
 def _static_related_propertysearch(search_params) -> frozenset:
     # hard-coded for osf.io search pages, static list per type
-    # TODO: replace with some dynamism
+    # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
     _type_iris = set()
     for _filter in search_params.cardsearch_filter_set:
         if _filter.property_path == (RDF.type,):
@@ -268,7 +268,7 @@ def _static_related_propertysearch(search_params) -> frozenset:
         RDF.type: {TROVE.Propertysearch},
         TROVE.searchResultPage: {
             primitive_rdf.sequence(
-                _propertysearch_indexcard(_property_iri)
+                _static_propertysearch_indexcard(_property_iri)
                 for _property_iri in _property_iris
             ),
         },
@@ -276,7 +276,7 @@ def _static_related_propertysearch(search_params) -> frozenset:
     return primitive_rdf.freeze_blanknode(_propertysearch_twopledict)
 
 
-def _propertysearch_indexcard(osfmap_property_iri):
+def _static_propertysearch_indexcard(osfmap_property_iri):
     _property_metadata = {
         osfmap_property_iri: OSFMAP_VOCAB[osfmap_property_iri]
     }
