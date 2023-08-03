@@ -491,10 +491,12 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     },
                 },
             }
-            _aggs['without_cardsearch'] = {
-                'global': {},
-                'aggs': copy.deepcopy(_aggs)
-            }
+            # TODO: aggregate without the given cardsearch but WITHIN a given filter
+            #       (e.g. support a search page filtered to a specific resourceType)
+            # _aggs['without_cardsearch'] = {
+            #     'global': {},
+            #     'aggs': copy.deepcopy(_aggs)
+            # }
             return _aggs
 
         def _valuesearch_response(self, valuesearch_params, es8_response):
@@ -507,16 +509,17 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 _result.match_count = _iri_bucket['doc_count']
                 _result_by_iri[_iri_bucket['key']] = _result
                 _result_list.append(_result)
-            _unmatched_aggs = es8_response['aggregations']['without_cardsearch']['in_nested_iri']
-            _nonmatch_buckets = _unmatched_aggs['value_at_propertypath']['iri_values']['buckets']
-            for _iri_bucket in _nonmatch_buckets:
-                _iri = _iri_bucket['key']
-                try:
-                    _result = _result_by_iri[_iri]
-                except KeyError:
-                    _result = self._valuesearch_result(_iri_bucket)
-                    _result_list.append(_result)
-                _result.total_count = _iri_bucket['doc_count']
+            # TODO: use 'without_cardsearch', above
+            # _unmatched_aggs = es8_response['aggregations']['without_cardsearch']['in_nested_iri']
+            # _nonmatch_buckets = _unmatched_aggs['value_at_propertypath']['iri_values']['buckets']
+            # for _iri_bucket in _nonmatch_buckets:
+            #     _iri = _iri_bucket['key']
+            #     try:
+            #         _result = _result_by_iri[_iri]
+            #     except KeyError:
+            #         _result = self._valuesearch_result(_iri_bucket)
+            #         _result_list.append(_result)
+            #     _result.total_count = _iri_bucket['doc_count']
             return ValuesearchResponse(search_result_page=_result_list)
 
         def _valuesearch_result(self, iri_bucket):
