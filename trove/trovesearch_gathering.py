@@ -120,7 +120,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
             *_text_evidence_twoples,
         )))
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
-    yield (TROVE.relatedPropertysearch, _static_related_propertysearch(search_params))
+    yield (TROVE.relatedProperty, _related_properties(search_params))
     yield from _search_page_links(focus, search_params, _cardsearch_resp)
 
 
@@ -267,7 +267,7 @@ def _osfmap_path(property_path):
     ])
 
 
-def _static_related_propertysearch(search_params) -> frozenset:
+def _related_properties(search_params):
     # hard-coded for osf.io search pages, static list per type
     # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
     _type_iris = set()
@@ -278,31 +278,22 @@ def _static_related_propertysearch(search_params) -> frozenset:
             if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
                 _type_iris.difference_update(_filter.value_set)
     _property_iris = suggested_property_iris(_type_iris)
-    _propertysearch_twopledict = {
-        RDF.type: {TROVE.Propertysearch},
-        TROVE.searchResultPage: {
-            primitive_rdf.sequence(
-                _static_propertysearch_result(_property_iri)
-                for _property_iri in _property_iris
-            ),
-        },
-    }
-    return primitive_rdf.freeze_blanknode(_propertysearch_twopledict)
+    return primitive_rdf.sequence(
+        _static_property_indexcard(_property_iri)
+        for _property_iri in _property_iris
+    )
 
 
-def _static_propertysearch_result(osfmap_property_iri):
+def _static_property_indexcard(osfmap_property_iri):
     _property_metadata = {
         osfmap_property_iri: OSFMAP_VOCAB[osfmap_property_iri]
     }
     return primitive_rdf.freeze_blanknode({
-        RDF.type: {TROVE.SearchResult},
-        TROVE.indexCard: {primitive_rdf.freeze_blanknode({
-            RDF.type: {TROVE.Indexcard},
-            TROVE.resourceIdentifier: {primitive_rdf.text(osfmap_property_iri)},
-            TROVE.resourceMetadata: {
-                _osfmap_json(_property_metadata, osfmap_property_iri),
-            },
-        })},
+        RDF.type: {TROVE.Indexcard},
+        TROVE.resourceIdentifier: {primitive_rdf.text(osfmap_property_iri)},
+        TROVE.resourceMetadata: {
+            _osfmap_json(_property_metadata, osfmap_property_iri),
+        },
     })
 
 
