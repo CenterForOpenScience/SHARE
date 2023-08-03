@@ -74,27 +74,22 @@ def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
     yield (TROVE.osfmapPropertyPath, _osfmap_path(search_params.valuesearch_property_path))
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchFilter)
-def gather_cardsearch_filter(focus, *, specific_index, search_params):
-    for _filter in search_params.cardsearch_filter_set:
-        yield (TROVE.cardsearchFilter, _filter_as_blanknode(_filter))
-
-
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchFilter)
 def gather_propertysearch_filter(focus, *, specific_index, search_params):
     for _filter in search_params.propertysearch_filter_set:
-        yield (TROVE.propertysearchFilter, _filter_as_blanknode(_filter))
+        yield (TROVE.propertysearchFilter, _filter_as_blanknode(_filter, {}))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
 def gather_valuesearch_filter(focus, *, specific_index, search_params):
     for _filter in search_params.valuesearch_filter_set:
-        yield (TROVE.valuesearchFilter, _filter_as_blanknode(_filter))
+        yield (TROVE.valuesearchFilter, _filter_as_blanknode(_filter, {}))
 
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.totalResultCount,
     TROVE.searchResultPage,
+    TROVE.cardsearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
 def gather_cardsearch(focus, *, specific_index, search_params):
@@ -122,6 +117,12 @@ def gather_cardsearch(focus, *, specific_index, search_params):
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
     yield (TROVE.relatedProperty, _related_properties(search_params))
     yield from _search_page_links(focus, search_params, _cardsearch_resp)
+    _valueinfo_by_iri = {}
+    for _filtervalue in _cardsearch_resp.filtervalue_info:
+        _value_info = _value_info_json(_filtervalue)
+        _valueinfo_by_iri[_filtervalue.value_iri] = _value_info
+    for _filter in search_params.cardsearch_filter_set:
+        yield (TROVE.cardsearchFilter, _filter_as_blanknode(_filter, _valueinfo_by_iri))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -213,9 +214,9 @@ def gather_card(focus, **kwargs):
 ###
 # local helpers
 
-def _filter_as_blanknode(search_filter) -> frozenset:
+def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
     _filter_values = (
-        (TROVE.filterValue, _value)
+        (TROVE.filterValue, valueinfo_by_iri.get(_value) or _value)
         for _value in search_filter.value_set
     )
     return frozenset((
@@ -226,21 +227,27 @@ def _filter_as_blanknode(search_filter) -> frozenset:
     ))
 
 
-def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
-    _value_metadata = {
-        result.value_iri: {
-            RDF.type: set(result.value_type),
-            FOAF.name: set(map(primitive_rdf.text, result.name_text)),
-            DCTERMS.title: set(map(primitive_rdf.text, result.title_text)),
-            RDFS.label: set(map(primitive_rdf.text, result.label_text)),
-        },
+def _value_info_json(result: ValuesearchResult) -> primitive_rdf.Text:
+    _value_twopledict = {
+        RDF.type: set(result.value_type),
+        FOAF.name: set(map(primitive_rdf.text, result.name_text)),
+        DCTERMS.title: set(map(primitive_rdf.text, result.title_text)),
+        RDFS.label: set(map(primitive_rdf.text, result.label_text)),
     }
+    try:
+        _label = osfmap_labeler.label_for_iri(result.value_iri)
+    except KeyError:
+        pass
+    else:
+        _value_twopledict[RDFS.label].add(primitive_rdf.text(_label))
+    return _osfmap_json({result.value_iri: _value_twopledict}, result.value_iri)
+
+
+def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
     return primitive_rdf.freeze_blanknode({
         RDF.type: {TROVE.Indexcard},
         TROVE.resourceIdentifier: {primitive_rdf.text(result.value_iri)},
-        TROVE.resourceMetadata: {
-            _osfmap_json(_value_metadata, result.value_iri),
-        },
+        TROVE.resourceMetadata: {_value_info_json(result)},
     })
 
 

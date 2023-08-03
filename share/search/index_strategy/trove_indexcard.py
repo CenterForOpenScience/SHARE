@@ -271,7 +271,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     query=self._cardsearch_query(
                         cardsearch_params.cardsearch_filter_set,
                         cardsearch_params.cardsearch_textsegment_set,
+                        relevance_matters=(not cardsearch_params.sort_list),
                     ),
+                    aggs=self._cardsearch_aggs(cardsearch_params),
                     sort=self._cardsearch_sort(cardsearch_params.sort_list),
                     from_=_cursor.start_index,
                     size=_cursor.page_size,
@@ -289,6 +291,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     query=self._cardsearch_query(
                         valuesearch_params.cardsearch_filter_set,
                         valuesearch_params.cardsearch_textsegment_set,
+                        relevance_matters=False,
                         additional_filters=[{'nested': {
                             'path': 'nested_iri',
                             'query': {'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
@@ -453,6 +456,44 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 ],
             }
 
+        def _cardsearch_aggs(self, cardsearch_params):
+            _filtervalue_iris = set()
+            for _filter in cardsearch_params.cardsearch_filter_set:
+                if _filter.operator.is_iri_operator():
+                    _filtervalue_iris.update(_filter.value_set)
+            return {
+                'global_agg': {
+                    'global': {},
+                    'aggs': {
+                        'filtervalue_info': {
+                            'nested': {'path': 'nested_iri'},
+                            'aggs': {
+                                'iri_values': {
+                                    'terms': {
+                                        'field': 'nested_iri.iri_value',
+                                        'include': list(_filtervalue_iris),
+                                    },
+                                    'aggs': {
+                                        'type_iri': {'terms': {
+                                            'field': 'nested_iri.value_type_iri',
+                                        }},
+                                        'name_text': {'terms': {
+                                            'field': 'nested_iri.value_name_text.raw',
+                                        }},
+                                        'title_text': {'terms': {
+                                            'field': 'nested_iri.value_title_text.raw',
+                                        }},
+                                        'label_text': {'terms': {
+                                            'field': 'nested_iri.value_label_text.raw',
+                                        }},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+
         def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
@@ -467,7 +508,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _textq_builder = self._TextQueryBuilder('nested_iri.value_namelike_text')
             for _boolkey, _textquery in _textq_builder.textsegment_queries(valuesearch_params.valuesearch_textsegment_set):
                 _nested_iri_bool[_boolkey].append(_textquery)
-            _aggs = {
+            return {
                 'in_nested_iri': {
                     'nested': {'path': 'nested_iri'},
                     'aggs': {
@@ -505,7 +546,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     },
                 },
             }
-            return _aggs
 
         def _valuesearch_response(
             self,
@@ -513,16 +553,13 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             es8_response: dict,
             cursor: '_SimpleCursor',
         ):
-            _result_list = []
-            _result_by_iri = {}
             _matched_aggs = es8_response['aggregations']['in_nested_iri']['value_at_propertypath']
             # WARNING: terribly inefficient pagination (part two)
             _page = _matched_aggs['iri_values']['buckets'][cursor.start_index:]
-            for _iri_bucket in _page:
-                _result = self._valuesearch_result(_iri_bucket)
-                _result.match_count = _iri_bucket['doc_count']
-                _result_by_iri[_iri_bucket['key']] = _result
-                _result_list.append(_result)
+            _result_list = [
+                self._valuesearch_result(_iri_bucket)
+                for _iri_bucket in _page
+            ]
             return ValuesearchResponse(
                 total_result_count=_matched_aggs['iri_value_cardinality']['value'],
                 search_result_page=_result_list,
@@ -542,6 +579,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 name_text=_bucketlist(iri_bucket['name_text']),
                 title_text=_bucketlist(iri_bucket['title_text']),
                 label_text=_bucketlist(iri_bucket['label_text']),
+                match_count=iri_bucket['doc_count'],
             )
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
@@ -621,13 +659,18 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     card_iri=_card_iri,
                     text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
                 ))
+            _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
+            _filtervalue_info = [
+                self._valuesearch_result(_iri_bucket)
+                for _iri_bucket in _filtervalue_agg['buckets']
+            ]
             return CardsearchResponse(
                 total_result_count=_total,
                 search_result_page=_results,
-                related_propertysearch_set=(),
                 next_page_cursor=_next_cursor,
                 prev_page_cursor=cursor.prev_cursor(),
                 first_page_cursor=cursor.first_cursor(),
+                filtervalue_info=_filtervalue_info,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:

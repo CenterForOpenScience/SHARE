@@ -141,6 +141,9 @@ class SearchFilter:
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER)
 
+        def is_iri_operator(self):
+            return self in (self.ANY_OF, self.NONE_OF)
+
     property_path: tuple[str]
     value_set: frozenset[str]
     operator: FilterOperator

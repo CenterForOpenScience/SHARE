@@ -32,10 +32,11 @@ class CardsearchResult:
 class CardsearchResponse:
     total_result_count: BoundedCount
     search_result_page: Iterable[CardsearchResult]
-    related_propertysearch_set: Iterable[PropertysearchParams]
     next_page_cursor: Optional[str]
     prev_page_cursor: Optional[str]
     first_page_cursor: Optional[str]
+    filtervalue_info: Iterable['ValuesearchResult']
+    # related_propertysearch_set: Iterable[PropertysearchParams]
 
 
 @dataclasses.dataclass

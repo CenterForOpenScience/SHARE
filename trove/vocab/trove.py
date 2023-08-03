@@ -160,7 +160,7 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
     TROVE.filterValue: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('filterValue', language_tag='en'),
+            primitive_rdf.text('filterValueSet', language_tag='en'),
         },
     },
     TROVE.iriValue: {
@@ -173,12 +173,6 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('cardSearchResultCount', language_tag='en'),
-        },
-    },
-    TROVE.namelikeText: {
-        RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('namelikeText', language_tag='en'),
         },
     },
 
