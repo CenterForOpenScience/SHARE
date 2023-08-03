@@ -1,6 +1,5 @@
 import dataclasses
 import re
-import urllib
 
 # TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
@@ -16,7 +15,7 @@ QUERYPARAM_FAMILY_REGEX = re.compile(
 )
 QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
     r'\['                   # start with open square-bracket,
-    r'(?P<name>[^[\]]*)'    # anything not square-bracket
+    r'(?P<name>[^[\]]*)'    # anything not square-bracket (note: less strict than jsonapi)
     r'\]'                   # end with close-bracket
 )
 # is common (but not required) for a query parameter
@@ -25,12 +24,16 @@ QUERYPARAM_VALUES_DELIM = ','
 
 
 @dataclasses.dataclass(frozen=True)
-class JsonapiQueryparamName:
+class QueryparamName:
     family: str
-    bracketed_names: tuple[str]
+    bracketed_names: tuple[str] = ()
+
+    def __post_init__(self):
+        if not isinstance(self.bracketed_names, tuple):
+            super().__setattr__('bracketed_names', tuple(self.bracketed_names))
 
     @classmethod
-    def from_str(cls, queryparam_name: str) -> 'JsonapiQueryparamName':
+    def from_str(cls, queryparam_name: str) -> 'QueryparamName':
         family_match = QUERYPARAM_FAMILY_REGEX.match(queryparam_name)
         if not family_match:
             raise ValueError(f'invalid queryparam name "{queryparam_name}"')
@@ -57,22 +60,17 @@ class JsonapiQueryparamName:
         ))
 
 
-JsonapiQueryparamDict = dict[
+QueryparamDict = dict[
     str,  # keyed by queryparam family
-    list[tuple[JsonapiQueryparamName, str]],
+    list[tuple[QueryparamName, str]],
 ]
 
 
-def queryparams_from_iri(iri: str) -> JsonapiQueryparamDict:
-    _parsed_iri = urllib.parse.urlparse(iri)
-    return queryparams_from_querystring(_parsed_iri.query)
-
-
-def queryparams_from_querystring(querystring: str) -> JsonapiQueryparamDict:
-    _queryparams: JsonapiQueryparamDict = {}
+def queryparams_from_querystring(querystring: str) -> QueryparamDict:
+    _queryparams: QueryparamDict = {}
     _querydict = QueryDict(querystring)
     for _unparsed_name, _param_value_list in _querydict.lists():
-        _parsed_name = JsonapiQueryparamName.from_str(_unparsed_name)
+        _parsed_name = QueryparamName.from_str(_unparsed_name)
         for _param_value in _param_value_list:
             (
                 _queryparams
@@ -84,3 +82,7 @@ def queryparams_from_querystring(querystring: str) -> JsonapiQueryparamDict:
 
 def split_queryparam_value(value: str):
     return value.split(QUERYPARAM_VALUES_DELIM)
+
+
+def queryparams_to_querystring(queryparams: QueryparamDict) -> str:
+    pass

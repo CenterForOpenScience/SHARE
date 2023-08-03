@@ -1,6 +1,5 @@
 import contextlib
 import datetime
-import enum
 import hashlib
 import json
 from typing import Iterable, Union
@@ -12,6 +11,7 @@ from trove.vocab.trove import (
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
     JSONAPI_ATTRIBUTE,
+    JSONAPI_LINK_OBJECT,
     OWL,
 )
 
@@ -19,12 +19,6 @@ from trove.vocab.trove import (
 # a jsonapi resource may pull rdf data using an iri or blank node
 # (using conventions from py for rdf as python primitives)
 _IriOrBlanknode = Union[str, frozenset]
-
-
-class _FieldType(enum.Enum):
-    ATTR = 'attributes'
-    REL = 'relationships'
-    META = 'meta'
 
 
 class RdfJsonapiRenderer:
@@ -172,13 +166,10 @@ class RdfJsonapiRenderer:
                 _doc_key = 'relationships'
             elif _is_attribute:
                 _doc_key = 'attributes'
-        _object_list = list(self._make_object_gen(object_set))
         if _is_relationship:
-            self._pls_include(_object_list)
-            _datalist = self._relationship_datalist(_object_list)
-            _fieldvalue = {'data': self._one_or_many(predicate_iri, _datalist)}
+            _fieldvalue = self._render_relationship_object(predicate_iri, object_set)
         else:
-            _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(_object_list))
+            _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(object_set))
         # update the given `into` resource object
         into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
 
@@ -190,17 +181,59 @@ class RdfJsonapiRenderer:
             return (datalist[0] if datalist else None)
         return datalist
 
-    def _attribute_datalist(self, object_list):
+    def _attribute_datalist(self, object_set):
         return [
             self._render_attribute_datum(_obj)
-            for _obj in object_list
+            for _obj in object_set
         ]
 
-    def _relationship_datalist(self, object_list):
-        return [
-            self.render_identifier_object(_obj)
-            for _obj in object_list
-        ]
+    def _render_relationship_object(self, predicate_iri, object_set):
+        _data = []
+        _links = {}
+        for _obj in object_set:
+            if isinstance(_obj, frozenset):
+                if (RDF.type, RDF.Seq) in _obj:
+                    for _seq_obj in primitive_rdf.sequence_objects_in_order(_obj):
+                        _data.append(self.render_identifier_object(_seq_obj))
+                        self._pls_include(_seq_obj)
+                elif (RDF.type, JSONAPI_LINK_OBJECT) in _obj:
+                    _key, _link_obj = self._render_link_object(_obj)
+                    _links[_key] = _link_obj
+                else:
+                    _data.append(self.render_identifier_object(_obj))
+                    self._pls_include(_obj)
+            else:
+                assert isinstance(_obj, str)
+                _data.append(self.render_identifier_object(_obj))
+                self._pls_include(_obj)
+        _relationship_obj = {
+            'data': self._one_or_many(predicate_iri, _data),
+        }
+        if _links:
+            _relationship_obj['links'] = _links
+        return _relationship_obj
+
+    def _render_link_object(self, link_obj: frozenset):
+        _membername = next(
+            _obj.unicode_text
+            for _pred, _obj in link_obj
+            if _pred == JSONAPI_MEMBERNAME
+        )
+        _rendered_link = {
+            'href': next(
+                _obj
+                for _pred, _obj in link_obj
+                if _pred == RDF.value
+            ),
+            # TODO:
+            # 'rel':
+            # 'describedby':
+            # 'title':
+            # 'type':
+            # 'hreflang':
+            # 'meta':
+        }
+        return _membername, _rendered_link
 
     def _make_object_gen(self, object_set):
         for _obj in object_set:
@@ -218,12 +251,17 @@ class RdfJsonapiRenderer:
         finally:
             self.__to_include = None
 
-    def _pls_include(self, items):
+    def _pls_include(self, item):
         if self.__to_include is not None:
-            self.__to_include.update(items)
+            self.__to_include.add(item)
 
     def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> dict:
         if isinstance(rdfobject, frozenset):
+            if (RDF.type, RDF.Seq) in rdfobject:
+                return [
+                    self._render_attribute_datum(_seq_obj)
+                    for _seq_obj in primitive_rdf.sequence_objects_in_order(rdfobject)
+                ]
             _json_blanknode = {}
             for _pred, _obj_set in primitive_rdf.twopleset_as_twopledict(rdfobject).items():
                 _key = self._membername_for_iri(_pred, iri_fallback=True)

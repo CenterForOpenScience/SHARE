@@ -33,6 +33,9 @@ class CardsearchResponse:
     total_result_count: BoundedCount
     search_result_page: Iterable[CardsearchResult]
     related_propertysearch_set: Iterable[PropertysearchParams]
+    next_page_cursor: Optional[str]
+    prev_page_cursor: Optional[str]
+    first_page_cursor: Optional[str]
 
 
 @dataclasses.dataclass
@@ -54,4 +57,8 @@ class ValuesearchResult:
 
 @dataclasses.dataclass
 class ValuesearchResponse:
+    total_result_count: int
     search_result_page: Iterable[ValuesearchResult]
+    next_page_cursor: Optional[str]
+    prev_page_cursor: Optional[str]
+    first_page_cursor: Optional[str]

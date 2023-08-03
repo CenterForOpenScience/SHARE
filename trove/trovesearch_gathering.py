@@ -1,4 +1,7 @@
+import dataclasses
 import json
+import logging
+import urllib.parse
 
 from gather import primitive_rdf, gathering
 
@@ -7,13 +10,23 @@ from share.search.search_request import (
     PropertysearchParams,
     ValuesearchParams,
     SearchFilter,
+    PageParam,
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_property_iris
-from trove.vocab.trove import TROVE, TROVE_API_VOCAB, trove_indexcard_namespace
+from trove.vocab.trove import (
+    TROVE,
+    TROVE_API_VOCAB,
+    trove_indexcard_namespace,
+    JSONAPI_LINK_OBJECT,
+    JSONAPI_MEMBERNAME,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 TROVE_GATHERING_NORMS = gathering.GatheringNorms(
@@ -108,6 +121,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
         )))
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
     yield (TROVE.relatedPropertysearch, _static_related_propertysearch(search_params))
+    yield from _search_page_links(focus, search_params, _cardsearch_resp)
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -116,16 +130,16 @@ def gather_cardsearch(focus, *, specific_index, search_params):
 def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
-    # yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     _result_page = []
     for _result in _valuesearch_resp.search_result_page:
         _result_page.append(primitive_rdf.freeze_blanknode({
             RDF.type: {TROVE.SearchResult},
             TROVE.cardsearchResultCount: {_result.match_count},
-            TROVE.totalResultCount: {_result.total_count},
             TROVE.indexCard: {_valuesearch_result_as_indexcard_blanknode(_result)},
         }))
+    yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
+    yield from _search_page_links(focus, search_params, _valuesearch_resp)
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -287,3 +301,37 @@ def _static_propertysearch_indexcard(osfmap_property_iri):
             _osfmap_json(_property_metadata, osfmap_property_iri),
         },
     })
+
+
+def _search_page_links(search_focus, search_params, search_response):
+    _search_iri_split = urllib.parse.urlsplit(next(iter(search_focus.iris)))
+
+    def _iri_with_page_param(page_param: PageParam):
+        return urllib.parse.urlunsplit((
+            _search_iri_split.scheme,
+            _search_iri_split.netloc,
+            _search_iri_split.path,
+            dataclasses.replace(search_params, page=page_param).to_querystring(),
+            _search_iri_split.fragment,
+        ))
+
+    if search_response.first_page_cursor:
+        yield (TROVE.searchResultPage, _jsonapi_link('first', _iri_with_page_param(
+            PageParam(cursor=search_response.first_page_cursor),
+        )))
+    if search_response.next_page_cursor:
+        yield (TROVE.searchResultPage, _jsonapi_link('next', _iri_with_page_param(
+            PageParam(cursor=search_response.next_page_cursor),
+        )))
+    if search_response.prev_page_cursor:
+        yield (TROVE.searchResultPage, _jsonapi_link('prev', _iri_with_page_param(
+            PageParam(cursor=search_response.prev_page_cursor),
+        )))
+
+
+def _jsonapi_link(membername, iri):
+    return frozenset((
+        (RDF.type, JSONAPI_LINK_OBJECT),
+        (JSONAPI_MEMBERNAME, primitive_rdf.text(membername)),
+        (RDF.value, iri),
+    ))

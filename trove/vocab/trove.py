@@ -9,6 +9,8 @@ from trove.vocab.namespaces import TROVE, JSONAPI, RDF, RDFS, OWL
 JSONAPI_MEMBERNAME = JSONAPI['document-member-names']
 JSONAPI_RELATIONSHIP = JSONAPI['document-resource-object-relationships']
 JSONAPI_ATTRIBUTE = JSONAPI['document-resource-object-attributes']
+JSONAPI_LINK = JSONAPI['document-links']
+JSONAPI_LINK_OBJECT = JSONAPI['document-links-link-object']
 
 
 # some assumed-safe assumptions for iris in trovespace:

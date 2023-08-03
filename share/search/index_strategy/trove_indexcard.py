@@ -1,6 +1,5 @@
 from collections import defaultdict
 import contextlib
-import copy
 import dataclasses
 import datetime
 import json
@@ -11,9 +10,10 @@ from typing import Iterable, Optional
 import elasticsearch8
 from gather import primitive_rdf
 
-from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import exceptions
 from share.search import messages
+from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
+from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
 from share.search.search_request import (
     CardsearchParams,
     PropertysearchParams,
@@ -21,6 +21,7 @@ from share.search.search_request import (
     SearchFilter,
     Textsegment,
     SortParam,
+    PageParam,
 )
 from share.search.search_response import (
     CardsearchResponse,
@@ -44,6 +45,10 @@ TITLE_PROPERTIES = (DCTERMS.title,)
 NAME_PROPERTIES = (FOAF.name,)
 LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
+
+
+VALUESEARCH_MAX = 234
+CARDSEARCH_MAX = 9997
 
 
 class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
@@ -259,6 +264,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             )
 
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+            _cursor = _SimpleCursor.from_page_param(cardsearch_params.page)
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
@@ -266,14 +272,17 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         cardsearch_params.cardsearch_filter_set,
                         cardsearch_params.cardsearch_textsegment_set,
                     ),
-                    sort=self._cardsearch_sort(cardsearch_params.sort),
+                    sort=self._cardsearch_sort(cardsearch_params.sort_list),
+                    from_=_cursor.start_index,
+                    size=_cursor.page_size,
                     source=False,  # no need to get _source; _id is enough
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._cardsearch_response(cardsearch_params, _es8_response)
+            return self._cardsearch_response(cardsearch_params, _es8_response, _cursor)
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+            _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
@@ -289,11 +298,11 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         }}],
                     ),
                     size=0,  # ignore cardsearch hits; just want the aggs
-                    aggs=self._valuesearch_aggs(valuesearch_params),
+                    aggs=self._valuesearch_aggs(valuesearch_params, _cursor),
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._valuesearch_response(valuesearch_params, _es8_response)
+            return self._valuesearch_response(valuesearch_params, _es8_response, _cursor)
 
         def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
             # _propertycard_filter = SearchFilter(
@@ -444,7 +453,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 ],
             }
 
-        def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams):
+        def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
                 'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
@@ -465,11 +474,16 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         'value_at_propertypath': {
                             'filter': {'bool': _nested_iri_bool},
                             'aggs': {
+                                'iri_value_cardinality': {
+                                    'cardinality': {
+                                        'field': 'nested_iri.iri_value',
+                                    },
+                                },
                                 'iri_values': {
                                     'terms': {
                                         'field': 'nested_iri.iri_value',
-                                        'size': 13,
-                                        # TODO: pagination
+                                        # WARNING: terribly inefficient pagination (part one)
+                                        'size': cursor.start_index + cursor.page_size,
                                     },
                                     'aggs': {
                                         'type_iri': {'terms': {
@@ -491,36 +505,35 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     },
                 },
             }
-            # TODO: aggregate without the given cardsearch but WITHIN a given filter
-            #       (e.g. support a search page filtered to a specific resourceType)
-            # _aggs['without_cardsearch'] = {
-            #     'global': {},
-            #     'aggs': copy.deepcopy(_aggs)
-            # }
             return _aggs
 
-        def _valuesearch_response(self, valuesearch_params, es8_response):
+        def _valuesearch_response(
+            self,
+            valuesearch_params: ValuesearchParams,
+            es8_response: dict,
+            cursor: '_SimpleCursor',
+        ):
             _result_list = []
             _result_by_iri = {}
-            _matched_aggs = es8_response['aggregations']['in_nested_iri']
-            _match_buckets = _matched_aggs['value_at_propertypath']['iri_values']['buckets']
-            for _iri_bucket in _match_buckets:
+            _matched_aggs = es8_response['aggregations']['in_nested_iri']['value_at_propertypath']
+            # WARNING: terribly inefficient pagination (part two)
+            _page = _matched_aggs['iri_values']['buckets'][cursor.start_index:]
+            for _iri_bucket in _page:
                 _result = self._valuesearch_result(_iri_bucket)
                 _result.match_count = _iri_bucket['doc_count']
                 _result_by_iri[_iri_bucket['key']] = _result
                 _result_list.append(_result)
-            # TODO: use 'without_cardsearch', above
-            # _unmatched_aggs = es8_response['aggregations']['without_cardsearch']['in_nested_iri']
-            # _nonmatch_buckets = _unmatched_aggs['value_at_propertypath']['iri_values']['buckets']
-            # for _iri_bucket in _nonmatch_buckets:
-            #     _iri = _iri_bucket['key']
-            #     try:
-            #         _result = _result_by_iri[_iri]
-            #     except KeyError:
-            #         _result = self._valuesearch_result(_iri_bucket)
-            #         _result_list.append(_result)
-            #     _result.total_count = _iri_bucket['doc_count']
-            return ValuesearchResponse(search_result_page=_result_list)
+            return ValuesearchResponse(
+                total_result_count=_matched_aggs['iri_value_cardinality']['value'],
+                search_result_page=_result_list,
+                next_page_cursor=(
+                    cursor.next_cursor(VALUESEARCH_MAX)
+                    if len(_page) >= cursor.page_size
+                    else None
+                ),
+                prev_page_cursor=cursor.prev_cursor(),
+                first_page_cursor=cursor.first_cursor(),
+            )
 
         def _valuesearch_result(self, iri_bucket):
             return ValuesearchResult(
@@ -571,7 +584,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 }},
             }}
 
-        def _cardsearch_sort(self, sort: tuple[SortParam]):
+        def _cardsearch_sort(self, sort_list: tuple[SortParam]):
             return [
                 {'nested_date.date_value': {
                     'order': ('desc' if _sortparam.descending else 'asc'),
@@ -585,16 +598,22 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         }},
                     },
                 }}
-                for _sortparam in sort
+                for _sortparam in sort_list
             ]
 
-        def _cardsearch_response(self, cardsearch_params, es8_response) -> CardsearchResponse:
+        def _cardsearch_response(
+            self,
+            cardsearch_params: CardsearchParams,
+            es8_response: dict,
+            cursor: '_SimpleCursor',
+        ) -> CardsearchResponse:
             _es8_total = es8_response['hits']['total']
-            _total = (
-                _es8_total['value']
-                if _es8_total['relation'] == 'eq'
-                else TROVE['ten-thousands-and-more']
-            )
+            if _es8_total['relation'] == 'eq':
+                _total = _es8_total['value']
+                _next_cursor = cursor.next_cursor(_total)
+            else:
+                _total = TROVE['ten-thousands-and-more']
+                _next_cursor = cursor.next_cursor(CARDSEARCH_MAX)
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -606,6 +625,9 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 total_result_count=_total,
                 search_result_page=_results,
                 related_propertysearch_set=(),
+                next_page_cursor=_next_cursor,
+                prev_page_cursor=cursor.prev_cursor(),
+                first_page_cursor=cursor.first_cursor(),
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
@@ -711,6 +733,37 @@ def _bucketlist(agg_result: dict) -> list[str]:
         _bucket['key']
         for _bucket in agg_result['buckets']
     ]
+
+
+@dataclasses.dataclass
+class _SimpleCursor:
+    start_index: int
+    page_size: int
+
+    @classmethod
+    def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
+        if page.cursor:
+            return decode_cursor_dataclass(page.cursor, cls)
+        return cls(start_index=0, page_size=page.size)
+
+    def next_cursor(self, maximum_index: int) -> str | None:
+        _next = dataclasses.replace(self, start_index=self.start_index + self.page_size)
+        return (
+            encode_cursor_dataclass(_next)
+            if _next.start_index < maximum_index
+            else None
+        )
+
+    def prev_cursor(self) -> str | None:
+        _prev = dataclasses.replace(self, start_index=self.start_index - self.page_size)
+        return (
+            encode_cursor_dataclass(_prev)
+            if _prev.start_index >= 0
+            else None
+        )
+
+    def first_cursor(self) -> str | None:
+        return encode_cursor_dataclass(dataclasses.replace(self, start_index=0))
 
 
 class _PredicatePathWalker:

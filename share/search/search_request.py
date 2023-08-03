@@ -4,12 +4,15 @@ import itertools
 import logging
 import typing
 
+from django.http import QueryDict
+
 from share.search import exceptions
 from trove.util.queryparams import (
-    JsonapiQueryparamDict,
-    JsonapiQueryparamName,
+    QueryparamDict,
+    QueryparamName,
     split_queryparam_value,
     queryparams_from_querystring,
+    QUERYPARAM_VALUES_DELIM,
 )
 from trove.vocab.osfmap import osfmap_labeler, is_date_property
 
@@ -23,6 +26,8 @@ NEGATE_WORD_OR_PHRASE = '-'
 DOUBLE_QUOTATION_MARK = '"'
 
 DESCENDING_SORT_PREFIX = '-'
+
+DEFAULT_PAGE_SIZE = 13
 
 
 ###
@@ -139,9 +144,11 @@ class SearchFilter:
     property_path: tuple[str]
     value_set: frozenset[str]
     operator: FilterOperator
+    original_param_name: str
+    original_param_value: str
 
     @classmethod
-    def for_queryparam_family(cls, queryparams: JsonapiQueryparamDict, queryparam_family: str):
+    def for_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
         return frozenset(
             cls.from_filter_param(param_name, param_value)
             for (param_name, param_value)
@@ -149,7 +156,7 @@ class SearchFilter:
         )
 
     @classmethod
-    def from_filter_param(cls, param_name: JsonapiQueryparamName, param_value: str):
+    def from_filter_param(cls, param_name: QueryparamName, param_value: str):
         try:  # "filter[<serialized_path>][<operator>]"
             (_serialized_path, _operator_value) = param_name.bracketed_names
         except ValueError:
@@ -185,19 +192,23 @@ class SearchFilter:
             ),
             value_set=frozenset(_value_list),
             operator=_operator,
+            original_param_name=str(param_name),
+            original_param_value=param_value,
         )
 
 
 @dataclasses.dataclass(frozen=True)
 class SortParam:
     property_iri: str
+    original_param_value: str
     descending: bool = False
 
     @classmethod
-    def from_sort_param(cls, param_value: str | None) -> tuple['SortParam']:
-        if not param_value or param_value == '-relevance':
+    def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam']:
+        _paramvalue = _get_single_value(queryparams, QueryparamName('sort'))
+        if not _paramvalue or _paramvalue == '-relevance':
             return ()
-        return tuple(cls._from_sort_param_str(param_value))
+        return tuple(cls._from_sort_param_str(_paramvalue))
 
     @classmethod
     def _from_sort_param_str(cls, param_value: str) -> typing.Iterable['SortParam']:
@@ -212,7 +223,25 @@ class SortParam:
             yield cls(
                 property_iri=_property_iri,
                 descending=param_value.startswith(DESCENDING_SORT_PREFIX),
+                original_param_value=param_value,
             )
+
+
+@dataclasses.dataclass(frozen=True)
+class PageParam:
+    cursor: str | None  # intentionally opaque; for IndexStrategy to generate/interpret
+    size: int | None = None  # size is None iff cursor is not None
+
+    @classmethod
+    def from_queryparams(cls, queryparams: QueryparamDict) -> 'PageParam':
+        _cursor = _get_single_value(queryparams, QueryparamName('page', ['cursor']))
+        if _cursor:
+            return cls(cursor=_cursor)
+        _size = int(  # TODO: 400 response on non-int value
+            _get_single_value(queryparams, QueryparamName('page', ['size']))
+            or DEFAULT_PAGE_SIZE
+        )
+        return cls(size=_size, cursor=None)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -221,25 +250,54 @@ class CardsearchParams:
     cardsearch_text: str
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
+    index_strategy_name: str | None
+    sort_list: tuple[SortParam]
+    page: PageParam
     include: frozenset[tuple[str]]
-    sort: tuple[SortParam]
-    index_strategy_name: str
 
     @classmethod
     def from_querystring(cls, querystring: str) -> 'CardsearchParams':  # TODO py3.11: typing.Self
         return cls.from_queryparams(queryparams_from_querystring(querystring))
 
     @staticmethod
-    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'CardsearchParams':
+    def from_queryparams(queryparams: QueryparamDict) -> 'CardsearchParams':
+        return CardsearchParams(**CardsearchParams.parse_cardsearch_queryparams(queryparams))
+
+    @staticmethod
+    def parse_cardsearch_queryparams(queryparams: QueryparamDict) -> dict:
         _cardsearch_text = _get_text_queryparam(queryparams, 'cardSearchText')
-        return CardsearchParams(
-            cardsearch_text=_cardsearch_text,
-            cardsearch_textsegment_set=Textsegment.split_str(_cardsearch_text),
-            cardsearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
-            index_strategy_name=_get_single_value(queryparams, 'indexStrategy'),
-            sort=SortParam.from_sort_param(_get_single_value(queryparams, 'sort')),
-            include=None,  # TODO
-        )
+        return {
+            'cardsearch_text': _cardsearch_text,
+            'cardsearch_textsegment_set': Textsegment.split_str(_cardsearch_text),
+            'cardsearch_filter_set': SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
+            'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
+            'sort_list': SortParam.from_queryparams(queryparams),
+            'page': PageParam.from_queryparams(queryparams),
+            'include': None,  # TODO
+        }
+
+    def to_querystring(self) -> str:
+        return self.to_querydict().urlencode()
+
+    def to_querydict(self) -> QueryDict:
+        _querydict = QueryDict(mutable=True)
+        if self.cardsearch_text:
+            _querydict['cardSearchText'] = self.cardsearch_text
+        if self.sort_list:
+            _querydict['sort'] = QUERYPARAM_VALUES_DELIM.join(
+                _sort.original_param_value
+                for _sort in self.sort_list
+            )
+        if self.page.cursor:
+            _querydict['page[cursor]'] = self.page.cursor
+        elif self.page.size != DEFAULT_PAGE_SIZE:
+            _querydict['page[size]'] = self.page.size
+        for _filter in self.cardsearch_filter_set:
+            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
+        if self.index_strategy_name:
+            _querydict['indexStrategy'] = self.index_strategy_name
+        # TODO: include 'include'
+        return _querydict
 
 
 @dataclasses.dataclass(frozen=True)
@@ -252,16 +310,22 @@ class PropertysearchParams(CardsearchParams):
 
     # override CardsearchParams
     @staticmethod
-    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'PropertysearchParams':
+    def from_queryparams(queryparams: QueryparamDict) -> 'PropertysearchParams':
         _propertysearch_text = _get_text_queryparam(queryparams, 'propertySearchText')
         return PropertysearchParams(
-            **dataclasses.asdict(
-                CardsearchParams.from_queryparams(queryparams),
-            ),
+            **CardsearchParams.parse_cardsearch_queryparams(queryparams),
             propertysearch_text=_propertysearch_text,
             propertysearch_textsegment_set=Textsegment.split_str(_propertysearch_text),
             propertysearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'propertySearchFilter'),
         )
+
+    def to_querydict(self):
+        _querydict = super().to_querydict()
+        if self.propertysearch_text:
+            _querydict['propertySearchText'] = self.propertysearch_text
+        for _filter in self.propertysearch_filter_set:
+            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
+        return _querydict
 
 
 @dataclasses.dataclass(frozen=True)
@@ -272,16 +336,17 @@ class ValuesearchParams(CardsearchParams):
     valuesearch_text: str
     valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
+    original_valuesearch_property_path: str
 
     # override CardsearchParams
     @staticmethod
-    def from_queryparams(queryparams: JsonapiQueryparamDict) -> 'ValuesearchParams':
+    def from_queryparams(queryparams: QueryparamDict) -> 'ValuesearchParams':
         _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
-        _raw_property_path = _get_single_value(queryparams, 'valueSearchPropertyPath')
+        _raw_property_path = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
         if not _raw_property_path:
             raise ValueError('TODO: 400 valueSearchPropertyPath required')
         return ValuesearchParams(
-            **dataclasses.asdict(CardsearchParams.from_queryparams(queryparams)),
+            **CardsearchParams.parse_cardsearch_queryparams(queryparams),
             valuesearch_property_path=tuple(
                 osfmap_labeler.iri_for_label(_pathstep)
                 for _pathstep in split_queryparam_value(_raw_property_path)
@@ -289,13 +354,23 @@ class ValuesearchParams(CardsearchParams):
             valuesearch_text=_valuesearch_text,
             valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
             valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),
+            original_valuesearch_property_path=_raw_property_path,
         )
+
+    def to_querydict(self):
+        _querydict = super().to_querydict()
+        _querydict['valueSearchPropertyPath'] = self.original_valuesearch_property_path
+        if self.valuesearch_text:
+            _querydict['valueSearchText'] = self.valuesearch_text
+        for _filter in self.valuesearch_filter_set:
+            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
+        return _querydict
 
 
 ###
 # local helpers
 
-def _get_text_queryparam(queryparams: JsonapiQueryparamDict, queryparam_family: str) -> str:
+def _get_text_queryparam(queryparams: QueryparamDict, queryparam_family: str) -> str:
     '''concat all values for the given queryparam family into one str
     '''
     return ' '.join(
@@ -305,13 +380,21 @@ def _get_text_queryparam(queryparams: JsonapiQueryparamDict, queryparam_family: 
     )
 
 
-def _get_single_value(queryparams: JsonapiQueryparamDict, queryparam_family: str):
-    _paramlist = queryparams.get(queryparam_family)
-    if not _paramlist:
+def _get_single_value(
+    queryparams: QueryparamDict,
+    queryparam_name: QueryparamName,
+):
+    _family_params = queryparams.get(queryparam_name.family, ())
+    _paramvalues = [
+        _paramvalue
+        for _paramname, _paramvalue in _family_params
+        if _paramname.bracketed_names == queryparam_name.bracketed_names
+    ]
+    if not _paramvalues:
         return None
     try:
-        ((_, _paramvalue),) = _paramlist
+        (_singlevalue,) = _paramvalues
     except ValueError:
-        raise ValueError(f'expected at most one {queryparam_family} value, got {_paramlist}')
+        raise ValueError(f'expected at most one {queryparam_name} value, got {len(_paramvalues)}')
     else:
-        return _paramvalue
+        return _singlevalue
