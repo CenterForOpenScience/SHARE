@@ -282,7 +282,7 @@ def _static_related_propertysearch(search_params) -> frozenset:
         RDF.type: {TROVE.Propertysearch},
         TROVE.searchResultPage: {
             primitive_rdf.sequence(
-                _static_propertysearch_indexcard(_property_iri)
+                _static_propertysearch_result(_property_iri)
                 for _property_iri in _property_iris
             ),
         },
@@ -290,16 +290,19 @@ def _static_related_propertysearch(search_params) -> frozenset:
     return primitive_rdf.freeze_blanknode(_propertysearch_twopledict)
 
 
-def _static_propertysearch_indexcard(osfmap_property_iri):
+def _static_propertysearch_result(osfmap_property_iri):
     _property_metadata = {
         osfmap_property_iri: OSFMAP_VOCAB[osfmap_property_iri]
     }
     return primitive_rdf.freeze_blanknode({
-        RDF.type: {TROVE.Indexcard},
-        TROVE.resourceIdentifier: {primitive_rdf.text(osfmap_property_iri)},
-        TROVE.resourceMetadata: {
-            _osfmap_json(_property_metadata, osfmap_property_iri),
-        },
+        RDF.type: {TROVE.SearchResult},
+        TROVE.indexCard: {primitive_rdf.freeze_blanknode({
+            RDF.type: {TROVE.Indexcard},
+            TROVE.resourceIdentifier: {primitive_rdf.text(osfmap_property_iri)},
+            TROVE.resourceMetadata: {
+                _osfmap_json(_property_metadata, osfmap_property_iri),
+            },
+        })},
     })
 
 
