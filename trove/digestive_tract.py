@@ -127,6 +127,10 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
             raise DigestiveError(f'could not extract focus_iri from (sharev2) {raw}')
         if not share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
             _sharev2_legacy_ingest(raw, _extractor.sharev2graph_centralnode)
+        if _extractor.sharev2graph_centralnode['is_deleted']:
+            for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid_id=raw.suid_id):
+                _indexcard.pls_delete()
+            return
     else:
         try:
             _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
@@ -157,10 +161,10 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
     will create, update, or delete:
         DerivedIndexcard
     '''
-    if indexcard.deleted or not indexcard.latest_indexcard_rdf:
+    if indexcard.deleted or not indexcard.latest_rdf:
         return
     for _deriver_class in get_deriver_classes(deriver_iris):
-        _deriver = _deriver_class(upriver_rdf=indexcard.latest_indexcard_rdf)
+        _deriver = _deriver_class(upriver_rdf=indexcard.latest_rdf)
         _deriver_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver.deriver_iri())
         if _deriver.should_skip():
             trove_db.DerivedIndexcard.objects.filter(
