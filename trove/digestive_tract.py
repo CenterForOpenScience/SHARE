@@ -23,7 +23,7 @@ from trove import models as trove_db
 from trove.exceptions import DigestiveError
 from trove.extract import get_rdf_extractor_class
 from trove.derive import get_deriver_classes
-from trove.vocab.namespaces import RDFS
+from trove.vocab.namespaces import RDFS, RDF, OWL
 
 
 logger = logging.getLogger(__name__)
@@ -133,16 +133,17 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
         except ValueError:
             raise DigestiveError(f'could not find {raw.suid.focus_identifier} in {raw}')
     _tripledicts_by_focus_iri[_focus_iri] = _extracted_tripledict
-    # special case: any subject iri prefixed by the focus iri gets
-    # treated as a separate vocab term and gets its own index card
-    # (TODO: consider a separate index card for each subject iri?)
-    for _iri, _twopledict in _extracted_tripledict.items():
-        if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
-            _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
-            primitive_rdf.TripledictWrapper(_term_tripledict).add_triple(
-                (_iri, RDFS.isDefinedBy, _focus_iri),
-            )
-            _tripledicts_by_focus_iri[_iri] = _term_tripledict
+    # special case: if the record defines an ontology, create a
+    # card for each subject iri that starts with the focus iri
+    # (TODO: consider a separate index card for *every* subject iri?)
+    if OWL.Ontology in _extracted_tripledict[_focus_iri].get(RDF.type, ()):
+        for _iri, _twopledict in _extracted_tripledict.items():
+            if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
+                _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
+                primitive_rdf.TripledictWrapper(_term_tripledict).add_triple(
+                    (_iri, RDFS.isDefinedBy, _focus_iri),
+                )
+                _tripledicts_by_focus_iri[_iri] = _term_tripledict
     return trove_db.Indexcard.objects.save_indexcards_from_tripledicts(
         from_raw_datum=raw,
         rdf_tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
