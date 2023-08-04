@@ -1,12 +1,10 @@
 import contextlib
-import json
 
 from django.test import override_settings, TransactionTestCase
 from django.conf import settings
 from django.db import connections
 
 from project.celery import app as celery_app
-from share.search import messages
 from share.search.daemon import IndexerDaemon
 from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import IndexStrategy
@@ -25,9 +23,6 @@ class RealElasticTestCase(TransactionTestCase):
         raise NotImplementedError
 
     def get_test_strategy_name(self):
-        raise NotImplementedError
-
-    def get_formatted_record(self):
         raise NotImplementedError
 
     def get_index_strategy(self):
@@ -101,44 +96,32 @@ class RealElasticTestCase(TransactionTestCase):
     # this class implements no `test_` methods, because (per python docs):
     #   "defining test methods on base classes that are not intended to be
     # instantiated directly does not play well with [unittest.TestLoader]"
-    def _assert_happypath_without_daemon(self):
+    def _assert_happypath_without_daemon(self, messages_chunk, expected_doc_count):
         self._assert_happypath_until_ingest()
-        # add a record
-        formatted_record = self.get_formatted_record()
-        messages_chunk = messages.MessagesChunk(
-            messages.MessageType.INDEX_SUID,
-            [formatted_record.suid_id],
-        )
-        responses = list(self.index_strategy.pls_handle_messages_chunk(messages_chunk))
-        assert len(responses) == 1
-        assert responses[0].is_done
-        assert responses[0].index_message.target_id == formatted_record.suid_id
+        _responses = list(self.index_strategy.pls_handle_messages_chunk(messages_chunk))
+        assert len(_responses) == len(messages_chunk.target_ids_chunk)
+        assert all(_response.is_done for _response in _responses)
+        _ids = {_response.index_message.target_id for _response in _responses}
+        assert _ids == set(messages_chunk.target_ids_chunk)
         self.current_index.pls_refresh()
-        search_response = self.current_index.pls_handle_search__sharev2_backcompat()
-        hits = search_response['hits']['hits']
-        assert len(hits) == 1
-        assert hits[0]['_source'] == json.loads(formatted_record.formatted_metadata)
-        index_status = self.current_index.pls_get_status()
-        assert index_status.doc_count == 1
+        _search_response = self.current_index.pls_handle_search__sharev2_backcompat()
+        _hits = _search_response['hits']['hits']
+        assert len(_hits) == expected_doc_count
+        _index_status = self.current_index.pls_get_status()
+        assert _index_status.doc_count == expected_doc_count
 
-    def _assert_happypath_with_daemon(self):
-        daemon_stop_event = self.enterContext(self._daemon_up())
+    def _assert_happypath_with_daemon(self, messages_chunk, expected_doc_count):
         self._assert_happypath_until_ingest()
-        # add a record
-        formatted_record = self.get_formatted_record()
-        self.index_messenger.send_message(
-            messages.MessageType.INDEX_SUID,
-            formatted_record.suid_id,
-        )
+        daemon_stop_event = self.enterContext(self._daemon_up())
+        self.index_messenger.send_messages_chunk(messages_chunk)
         for _ in range(23):
             daemon_stop_event.wait(timeout=0.2)
             self.current_index.pls_refresh()
             index_status = self.current_index.pls_get_status()
-            if index_status.doc_count:
+            if index_status.doc_count == expected_doc_count:
                 search_response = self.current_index.pls_handle_search__sharev2_backcompat()
                 hits = search_response['hits']['hits']
-                assert len(hits) == 1
-                assert hits[0]['_source'] == json.loads(formatted_record.formatted_metadata)
+                assert len(hits) == expected_doc_count
                 break
         else:
             assert False, 'checked and waited but the daemon did not do the thing'

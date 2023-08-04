@@ -389,6 +389,5 @@ class TestValidator:
             response = client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
         assert response.status_code == 202
-        assert response.json()['data']['id'] is not None
         assert response.json()['data']['type'] == 'NormalizedData'
         assert response.json()['data']['attributes'].keys() == {'task'}

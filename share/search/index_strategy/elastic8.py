@@ -183,18 +183,14 @@ class Elastic8IndexStrategy(IndexStrategy):
             return set()
 
     def _add_indexname_to_alias(self, alias_name, indexname):
-        self.es8_client.indices.update_aliases(body={
-            'actions': [
-                {'add': {'index': indexname, 'alias': alias_name}},
-            ],
-        })
+        self.es8_client.indices.update_aliases(actions=[
+            {'add': {'index': indexname, 'alias': alias_name}},
+        ])
 
     def _remove_indexname_from_alias(self, alias_name, indexname):
-        self.es8_client.indices.update_aliases(body={
-            'actions': [
-                {'remove': {'index': indexname, 'alias': alias_name}},
-            ],
-        })
+        self.es8_client.indices.update_aliases(actions=[
+            {'remove': {'index': indexname, 'alias': alias_name}},
+        ])
 
     def _set_indexnames_for_alias(self, alias_name, indexnames):
         already_aliased = self._get_indexnames_for_alias(alias_name)
@@ -205,18 +201,16 @@ class Elastic8IndexStrategy(IndexStrategy):
             to_remove = tuple(already_aliased - want_aliased)
             to_add = tuple(want_aliased - already_aliased)
             logger.warning(f'alias "{alias_name}": removing indexes {to_remove} and adding indexes {to_add}')
-            self.es8_client.indices.update_aliases(body={
-                'actions': [
-                    *(
-                        {'remove': {'index': indexname, 'alias': alias_name}}
-                        for indexname in to_remove
-                    ),
-                    *(
-                        {'add': {'index': indexname, 'alias': alias_name}}
-                        for indexname in to_add
-                    ),
-                ],
-            })
+            self.es8_client.indices.update_aliases(actions=[
+                *(
+                    {'remove': {'index': indexname, 'alias': alias_name}}
+                    for indexname in to_remove
+                ),
+                *(
+                    {'add': {'index': indexname, 'alias': alias_name}}
+                    for indexname in to_add
+                ),
+            ])
 
     class SpecificIndex(IndexStrategy.SpecificIndex):
 

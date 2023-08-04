@@ -211,7 +211,7 @@ class TestPostNormalizedData:
             kwargs['HTTP_AUTHORIZATION'] = 'Bearer {}'.format(trusted_user.oauth2_provider_accesstoken.first())
 
         with mock.patch('api.normalizeddata.views.digestive_tract') as mock_digestive_tract:
-            mock_digestive_tract.swallow().id = '123'
+            mock_digestive_tract.swallow__sharev2_legacy.return_value = '123'
             assert response == client.post('/api/v2/normalizeddata/', *args, **kwargs)
 
 

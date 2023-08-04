@@ -1,6 +1,7 @@
 import json
 
 from tests import factories
+from share.search import messages
 from share.util import IDObfuscator
 from ._with_real_services import RealElasticTestCase
 
@@ -20,7 +21,6 @@ class TestSharev2Elastic5(RealElasticTestCase):
         index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
         return index_strategy
 
-    # abstract method from RealElasticTestCase
     def get_formatted_record(self):
         suid = factories.SourceUniqueIdentifierFactory()
         return factories.FormattedMetadataRecordFactory(
@@ -33,10 +33,26 @@ class TestSharev2Elastic5(RealElasticTestCase):
         )
 
     def test_without_daemon(self):
-        self._assert_happypath_without_daemon()
+        _formatted_record = self.get_formatted_record()
+        _messages_chunk = messages.MessagesChunk(
+            messages.MessageType.INDEX_SUID,
+            [_formatted_record.suid_id],
+        )
+        self._assert_happypath_without_daemon(
+            _messages_chunk,
+            expected_doc_count=1,
+        )
 
     def test_with_daemon(self):
-        self._assert_happypath_with_daemon()
+        _formatted_record = self.get_formatted_record()
+        _messages_chunk = messages.MessagesChunk(
+            messages.MessageType.INDEX_SUID,
+            [_formatted_record.suid_id],
+        )
+        self._assert_happypath_with_daemon(
+            _messages_chunk,
+            expected_doc_count=1,
+        )
 
     # override RealElasticTestCase to match hacks done with assumptions
     # (single index that will not be updated again before being deleted)

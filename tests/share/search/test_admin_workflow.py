@@ -17,5 +17,5 @@ def test_admin_search_indexes_view(fake_elastic_strategies, mock_elastic_clients
         resp = client.get('/admin/search-indexes')
         for strategy_name in fake_elastic_strategies:
             index_strategy = IndexStrategy.get_by_name(strategy_name)
-            expected_header = f'<h3>current index: <i>{index_strategy.current_indexname}</i></h3>'
+            expected_header = f'<h3 id="{index_strategy.current_indexname}">current index: <i>{index_strategy.current_indexname}</i></h3>'
             assert expected_header.encode() in resp.content

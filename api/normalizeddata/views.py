@@ -101,16 +101,8 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             urgent=True,
         )
         return Response({
-            'data': {
-                'type': 'NormalizedData',
-                'attributes': {
-                    'task': _task_id,
-                },
-            },
-            'meta': {
-                'warning': (
-                    'this route is deprecated and may be removed'
-                    f' (consider {reverse("trove:ingest-rdf")} instead)'
-                ),
+            'type': 'NormalizedData',
+            'attributes': {
+                'task': _task_id,
             },
         }, status=status.HTTP_202_ACCEPTED)
