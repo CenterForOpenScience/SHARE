@@ -268,8 +268,8 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 @linked_fk('source_config')
 @linked_fk('focus_identifier')
-@linked_many('formattedmetadatarecord_set')
-@linked_many('raw_data')
+@linked_many('formattedmetadatarecord_set', defer=('formatted_metadata',))
+@linked_many('raw_data', defer=('datum',))
 @linked_many('indexcard_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)

@@ -1,8 +1,8 @@
+from typing import Optional
 import uuid
 
 from django.db import models
 from django.db import transaction
-from django.utils.functional import cached_property
 from django.utils import timezone
 from gather import primitive_rdf
 
@@ -121,9 +121,19 @@ class Indexcard(models.Model):
         related_name='+',
     )
 
-    @cached_property
-    def latest_indexcard_rdf(self) -> 'LatestIndexcardRdf':
-        return LatestIndexcardRdf.objects.get(indexcard=self)
+    @property
+    def latest_rdf(self) -> Optional['LatestIndexcardRdf']:
+        '''convenience for the "other side" of LatestIndexcardRdf.indexcard
+        '''
+        return self.trove_latestindexcardrdf_set.first()
+
+    @property
+    def archived_rdf_set(self):
+        '''convenience for the "other side" of ArchivedIndexcardRdf.indexcard
+
+        returns a RelatedManager
+        '''
+        return self.trove_archivedindexcardrdf_set
 
     def get_iri(self):
         return trove_indexcard_iri(self.uuid)
@@ -167,7 +177,7 @@ class IndexcardRdf(models.Model):
     indexcard = models.ForeignKey(
         Indexcard,
         on_delete=models.CASCADE,
-        related_name='+',
+        related_name='%(app_label)s_%(class)s_set',
     )
     turtle_checksum_iri = models.TextField(db_index=True)
     focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
