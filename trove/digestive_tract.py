@@ -17,7 +17,7 @@ from django.db import transaction
 from gather import primitive_rdf
 
 from share import models as share_db
-from share.search import IndexMessenger, MessageType
+from share.search import IndexMessenger
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.exceptions import DigestiveError
@@ -186,7 +186,6 @@ def expel(from_user: share_db.ShareUser, record_identifier: str):
     )
     for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid__in=_suid_qs):
         _indexcard.pls_delete()
-        notify_indexcard_update(_indexcard, urgent=True)
 
 
 ### BEGIN celery tasks
@@ -196,9 +195,10 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     _raw = share_db.RawDatum.objects.select_related('suid').get(id=raw_id)
     _indexcards = extract(_raw, undelete_indexcards=urgent)
     if _raw.is_latest():
+        _messenger = IndexMessenger(celery_app=task.app)
         for _indexcard in _indexcards:
             derive(_indexcard)
-            notify_indexcard_update(_indexcard, celery_app=task.app, urgent=urgent)
+            _messenger.notify_indexcard_update(_indexcard, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)
@@ -207,7 +207,7 @@ def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str):
     derive(_indexcard, deriver_iris=[deriver_iri])
     # TODO: avoid unnecessary work; let IndexStrategy subscribe to a specific
     # IndexcardDeriver (perhaps by deriver-specific MessageType?)
-    notify_indexcard_update(_indexcard, celery_app=task.app)
+    IndexMessenger(celery_app=task.app).notify_indexcard_update(_indexcard)
 
 
 @celery.shared_task(acks_late=True)
@@ -234,16 +234,6 @@ def task__schedule_all_for_deriver(deriver_iri: str):
     )
     for _indexcard_id in _indexcard_id_qs.iterator():
         task__derive.apply_async((_indexcard_id, deriver_iri))
-
-
-def notify_indexcard_update(indexcard, *, celery_app=None, urgent=False):
-    _index_messenger = IndexMessenger(celery_app=celery_app)
-    _index_messenger.send_message(MessageType.UPDATE_INDEXCARD, indexcard.id, urgent=urgent)
-
-
-def notify_suid_update(suid_id, *, celery_app=None, urgent=False):
-    _index_messenger = IndexMessenger(celery_app=celery_app)
-    _index_messenger.send_message(MessageType.INDEX_SUID, suid_id, urgent=urgent)
 
 
 # TODO: remove legacy ingest

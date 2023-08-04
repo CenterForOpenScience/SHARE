@@ -7,6 +7,7 @@ from django.utils import timezone
 from gather import primitive_rdf
 
 from share import models as share_db  # TODO: break this dependency
+from share.search.index_messenger import IndexMessenger
 from share.util.checksum_iri import ChecksumIri
 from trove.exceptions import DigestiveError
 from trove.models.resource_identifier import ResourceIdentifier
@@ -130,8 +131,9 @@ class Indexcard(models.Model):
     @transaction.atomic
     def pls_delete(self):
         # do not actually delete Indexcard, just mark deleted:
-        self.deleted = timezone.now()
-        self.save()
+        if self.deleted is None:
+            self.deleted = timezone.now()
+            self.save()
         (  # actually delete LatestIndexcardRdf:
             LatestIndexcardRdf.objects
             .filter(indexcard=self)
@@ -142,6 +144,7 @@ class Indexcard(models.Model):
             .filter(upriver_indexcard=self)
             .delete()
         )
+        IndexMessenger().notify_indexcard_update(self)
 
     def __repr__(self):
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'

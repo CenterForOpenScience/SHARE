@@ -33,6 +33,14 @@ class IndexMessenger:
         )
         self.index_strategys = index_strategys or tuple(IndexStrategy.all_strategies())
 
+    def notify_indexcard_update(self, indexcard, *, urgent=False):
+        self.send_message(MessageType.UPDATE_INDEXCARD, indexcard.id, urgent=urgent)
+        # for back-compat:
+        self.notify_suid_update(indexcard.source_record_suid_id, urgent=urgent)
+
+    def notify_suid_update(self, suid_id, *, urgent=False):
+        self.send_message(MessageType.INDEX_SUID, suid_id, urgent=urgent)
+
     def incoming_messagequeue_iter(self, channel) -> typing.Iterable[kombu.Queue]:
         for index_strategy in self.index_strategys:
             yield kombu.Queue(channel=channel, name=index_strategy.urgent_messagequeue_name)
