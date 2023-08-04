@@ -17,7 +17,7 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 logger = logging.getLogger(__name__)
 
 
-UNPRESSURED_TIMEOUT = 1         # seconds
+UNPRESSURED_TIMEOUT = 3         # seconds
 QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
@@ -226,6 +226,7 @@ class MessageHandlingLoop:
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
                 if message_response.is_done:
                     doc_count += 1
+                    logger.debug('%sHandled message %s', self.log_prefix, message_response.index_message)
                 elif message_response.status_code == 429:  # 429 Too Many Requests
                     self._leftover_daemon_messages_by_target_id = daemon_messages_by_target_id
                     raise TooFastSlowDown
@@ -242,8 +243,6 @@ class MessageHandlingLoop:
         time_elapsed = time.time() - start_time
         if doc_count or error_count:
             logger.info('%sIndexed %d documents in %.02fs (with %d errors)', self.log_prefix, doc_count, time_elapsed, error_count)
-        else:
-            logger.debug('%sRecieved no messages for %.02fs', self.log_prefix, time_elapsed)
 
     def _back_off(self):
         backoff_timeout = min(
