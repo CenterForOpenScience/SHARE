@@ -52,7 +52,7 @@ osfmap_from_normd = gathering.GatheringOrganizer(
 # gatherers:
 
 @osfmap_from_normd.gatherer(focustype_iris={
-    SHAREv2.AbstractCreativeWork,
+    SHAREv2.CreativeWork,
 })
 def _gather_work(focus, *, mnode, source_config):
     for _iri in focus.iris:
@@ -98,7 +98,7 @@ def _gather_work(focus, *, mnode, source_config):
 
 
 @osfmap_from_normd.gatherer(DCTERMS.subject, focustype_iris={
-    SHAREv2.AbstractCreativeWork,
+    SHAREv2.CreativeWork,
 })
 def _gather_work_subjects(focus, *, mnode, source_config):
     _source_name = source_config.source.long_title
@@ -114,7 +114,7 @@ def _gather_work_subjects(focus, *, mnode, source_config):
 
 
 @osfmap_from_normd.gatherer(focustype_iris={
-    SHAREv2.AbstractAgent,
+    SHAREv2.Agent,
 })
 def _gather_agent(focus, *, mnode, source_config):
     for _iri in focus.iris:
