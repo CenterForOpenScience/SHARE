@@ -3,7 +3,6 @@ from typing import Literal, Iterable, Union, Optional
 
 from gather import primitive_rdf
 
-from share.search.search_request import PropertysearchParams
 from trove.vocab.namespaces import TROVE
 
 
