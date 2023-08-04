@@ -72,9 +72,10 @@ def _gather_work(focus, *, mnode, source_config):
     yield (DCTERMS.available, primitive_rdf.text(mnode['free_to_read_date']))
     yield (DCTERMS.rights, primitive_rdf.text(mnode['rights']))
     yield (DCTERMS.language, primitive_rdf.text(_language_tag))
-    yield (DCTERMS.conformsTo, frozenset((
-        (FOAF.name, primitive_rdf.text(mnode['registration_type'])),
-    )))
+    if mnode['registration_type']:
+        yield (DCTERMS.conformsTo, frozenset((
+            (FOAF.name, primitive_rdf.text(mnode['registration_type'])),
+        )))
     yield (OSFMAP.dateWithdrawn, primitive_rdf.text(mnode['withdrawn']))  # TODO: is boolean, not date
     yield (OSFMAP.withdrawalJustification, primitive_rdf.text(mnode['justification']))  # TODO: not in OSFMAP
     for _tag in mnode['tags']:
