@@ -4,6 +4,7 @@ import dataclasses
 import datetime
 import json
 import logging
+import time
 import uuid
 from typing import Iterable, Optional
 
@@ -55,7 +56,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='1960db8d79d43829c12e9fe819fb88d8b85b7b31411bbd4ad65ddcd8aeba9efa',
+        hexdigest='0503907bbf6d5c35d2a0f9f705e36080d4616c85bf79b83629ab6346e7890048',
     )
 
     # abstract method from IndexStrategy
@@ -95,6 +96,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         return {
             'dynamic': 'false',
             'properties': {
+                'indexcard_uuid': _capped_keyword,
                 'focus_iri': _capped_keyword,
                 'suffuniq_focus_iri': _capped_keyword,
                 'source_record_identifier': _capped_keyword,
@@ -170,6 +172,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _focus_iris.update(_identifier.raw_iri_list)
             _suffuniq_focus_iris.add(_identifier.sufficiently_unique_iri)
         return {
+            'indexcard_uuid': str(indexcard_rdf.indexcard.uuid),
             'focus_iri': list(_focus_iris),
             'suffuniq_focus_iri': list(_suffuniq_focus_iris),
             'source_record_identifier': indexcard_rdf.indexcard.source_record_suid.identifier,
@@ -265,16 +268,26 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
             _cursor = _SimpleCursor.from_page_param(cardsearch_params.page)
+            if cardsearch_params.sort_list:
+                _relevance_matters = False
+                _sort = self._cardsearch_sort(cardsearch_params.sort_list)
+            else:
+                _relevance_matters = bool(cardsearch_params.cardsearch_textsegment_set)
+                _sort = None
+            _query = self._cardsearch_query(
+                cardsearch_params.cardsearch_filter_set,
+                cardsearch_params.cardsearch_textsegment_set,
+                relevance_matters=_relevance_matters,
+            )
+            if _sort is None and not _relevance_matters:
+                # how to sort by relevance to nothingness? randomness!
+                _query = self._random_sorted_query(_query, _cursor)
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=self._cardsearch_query(
-                        cardsearch_params.cardsearch_filter_set,
-                        cardsearch_params.cardsearch_textsegment_set,
-                        relevance_matters=(not cardsearch_params.sort_list),
-                    ),
+                    query=_query,
                     aggs=self._cardsearch_aggs(cardsearch_params),
-                    sort=self._cardsearch_sort(cardsearch_params.sort_list),
+                    sort=_sort,
                     from_=_cursor.start_index,
                     size=_cursor.page_size,
                     source=False,  # no need to get _source; _id is enough
@@ -639,6 +652,19 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 for _sortparam in sort_list
             ]
 
+        def _random_sorted_query(self, query: dict, cursor: '_SimpleCursor') -> dict:
+            _randomscore_query = {
+                'function_score': {
+                    'query': query,
+                    'boost_mode': 'replace',
+                    'random_score': {
+                        'seed': cursor.timestamp,
+                        'field': 'indexcard_uuid',
+                    },
+                },
+            }
+            return _randomscore_query
+
         def _cardsearch_response(
             self,
             cardsearch_params: CardsearchParams,
@@ -782,15 +808,20 @@ def _bucketlist(agg_result: dict) -> list[str]:
 class _SimpleCursor:
     start_index: int
     page_size: int
+    timestamp: int
 
     @classmethod
     def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
         if page.cursor:
             return decode_cursor_dataclass(page.cursor, cls)
-        return cls(start_index=0, page_size=page.size)
+        return cls(
+            start_index=0,
+            page_size=page.size,
+            timestamp=int(time.time()),
+        )
 
     def next_cursor(self, maximum_index: int) -> str | None:
-        _next = dataclasses.replace(self, start_index=self.start_index + self.page_size)
+        _next = dataclasses.replace(self, start_index=(self.start_index + self.page_size))
         return (
             encode_cursor_dataclass(_next)
             if _next.start_index < maximum_index
@@ -798,7 +829,7 @@ class _SimpleCursor:
         )
 
     def prev_cursor(self) -> str | None:
-        _prev = dataclasses.replace(self, start_index=self.start_index - self.page_size)
+        _prev = dataclasses.replace(self, start_index=(self.start_index - self.page_size))
         return (
             encode_cursor_dataclass(_prev)
             if _prev.start_index >= 0
