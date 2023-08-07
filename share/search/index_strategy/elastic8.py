@@ -235,9 +235,9 @@ class Elastic8IndexStrategy(IndexStrategy):
                 index_info['settings']['index']['creation_date']
             )
             doc_count = (
-                self.index_strategy.es8_client
-                .search(index=self.indexname, size=0, track_total_hits=True)
-                ['hits']['total']['value']
+                self.index_strategy.es8_client.indices
+                .stats(index=self.indexname, metric='docs')
+                ['indices'][self.indexname]['primaries']['docs']['count']
             )
             return IndexStatus(
                 index_strategy_name=self.index_strategy.name,
