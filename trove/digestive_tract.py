@@ -130,7 +130,7 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
         if _extractor.sharev2graph_centralnode['is_deleted']:
             for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid_id=raw.suid_id):
                 _indexcard.pls_delete()
-            return
+            return []
     else:
         try:
             _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
@@ -144,6 +144,7 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
         for _iri, _twopledict in _extracted_tripledict.items():
             if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
                 _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
+                # ensure a link to the ontology (in case there's not already)
                 primitive_rdf.TripledictWrapper(_term_tripledict).add_triple(
                     (_iri, RDFS.isDefinedBy, _focus_iri),
                 )
