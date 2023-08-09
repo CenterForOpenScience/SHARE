@@ -3,10 +3,14 @@ import pytest
 import threading
 from unittest import mock
 
+from project.celery import app as celery_app
 from share.search.daemon import (
-    IndexerDaemon,
+    IndexerDaemonControl,
     MINIMUM_BACKOFF_FACTOR,
     MAXIMUM_BACKOFF_FACTOR,
+    UNPRESSURED_TIMEOUT,
+    MAXIMUM_BACKOFF_TIMEOUT,
+    _backoff_wait,
 )
 from share.search import exceptions
 from share.search import messages
@@ -17,16 +21,12 @@ TIMEOUT = 10  # seconds
 
 @contextlib.contextmanager
 def _daemon_running(index_strategy, *, stop_event=None, daemonthread_context=None):
-    daemon = IndexerDaemon(
-        index_strategy=index_strategy,
-        stop_event=stop_event,
-        daemonthread_context=daemonthread_context,
-    )
+    _daemon_control = IndexerDaemonControl(celery_app, stop_event=stop_event)
     try:
-        daemon.start_loops_and_queues()
-        yield daemon
+        _daemon = _daemon_control.start_daemonthreads_for_strategy(index_strategy)
+        yield _daemon
     finally:
-        daemon.stop()
+        _daemon_control.stop_daemonthreads()
 
 
 def wait_for(event: threading.Event):
@@ -40,6 +40,8 @@ class FakeIndexStrategyForSetupOnly:
     supported_message_types = {
         messages.MessageType.INDEX_SUID,
     }
+    nonurgent_messagequeue_name = 'fake.nonurgent'
+    urgent_messagequeue_name = 'fake.urgent'
 
 
 class FakeIndexStrategyWithBlockingEvents:
@@ -47,6 +49,8 @@ class FakeIndexStrategyWithBlockingEvents:
     supported_message_types = {
         messages.MessageType.INDEX_SUID,
     }
+    nonurgent_messagequeue_name = 'fake.nonurgent'
+    urgent_messagequeue_name = 'fake.urgent'
 
     def __init__(self):
         # these events allow pausing execution for test assertions:
@@ -99,15 +103,10 @@ class TestIndexerDaemon:
             assert message_1.acked
             assert message_2.acked
 
-    def test_can_start_only_once(self):
-        with _daemon_running(FakeIndexStrategyForSetupOnly()) as daemon:
-            with pytest.raises(exceptions.DaemonSetupError):
-                daemon.start_loops_and_queues()
-
     def test_unsupported_message_type(self):
         with _daemon_running(FakeIndexStrategyForSetupOnly()) as daemon:
             unsupported_message = FakeCeleryMessage(
-                messages.MessageType.INDEX_AGENT,  # anything not in supported_message_types
+                messages.MessageType.BACKFILL_INDEXCARD,  # anything not in supported_message_types
                 1,
             )
             with pytest.raises(exceptions.DaemonMessageError):
@@ -121,6 +120,8 @@ class TestIndexerDaemon:
         class FakeIndexStrategyWithUnexpectedError:
             name = 'fakefake_with_error'
             supported_message_types = {messages.MessageType.INDEX_SUID}
+            nonurgent_messagequeue_name = 'fake.nonurgent'
+            urgent_messagequeue_name = 'fake.urgent'
 
             def pls_handle_messages_chunk(self, messages_chunk):
                 raise UnexpectedError
@@ -144,6 +145,8 @@ class TestIndexerDaemon:
             name = 'fakefake-with-backfill'
             current_indexname = 'not-what-you-expected'
             supported_message_types = {messages.MessageType.BACKFILL_SUID}
+            nonurgent_messagequeue_name = 'fake.nonurgent'
+            urgent_messagequeue_name = 'fake.urgent'
 
             def get_or_create_backfill(self):
                 class FakeIndexBackfill:
@@ -164,6 +167,8 @@ class TestIndexerDaemon:
         class FakeIndexStrategyWithMessageError:
             name = 'fakefake_with_msg_error'
             supported_message_types = {messages.MessageType.INDEX_SUID}
+            nonurgent_messagequeue_name = 'fake.nonurgent'
+            urgent_messagequeue_name = 'fake.urgent'
 
             def pls_handle_messages_chunk(self, messages_chunk):
                 for target_id in messages_chunk.target_ids_chunk:
@@ -189,10 +194,13 @@ class TestIndexerDaemon:
                     # but the message acked
                     assert message.acked
 
-    def test_backoff(self):
+    @mock.patch('share.search.daemon._backoff_wait', wraps=_backoff_wait)
+    def test_backoff(self, mock_backoff_wait):
         class FakeIndexStrategyWith429:
             name = 'fakefake_with_429'
             supported_message_types = {messages.MessageType.INDEX_SUID}
+            nonurgent_messagequeue_name = 'fake.nonurgent'
+            urgent_messagequeue_name = 'fake.urgent'
             _pls_429 = True  # set False to start responding with success
 
             def __init__(self):
@@ -215,14 +223,13 @@ class TestIndexerDaemon:
                         )
                 self.finished_chunk.set()
 
-        wrapped_stop_event = mock.Mock(wraps=threading.Event())
         index_strategy = FakeIndexStrategyWith429()
+        wrapped_stop_event = mock.Mock(wraps=threading.Event())
         with _daemon_running(index_strategy, stop_event=wrapped_stop_event) as daemon:
             message_list = [
                 FakeCeleryMessage(messages.MessageType.INDEX_SUID, i)
                 for i in range(1, 5)
             ]
-            wrapped_stop_event.reset_mock()
             for message in message_list:
                 daemon.on_message(message.payload, message)
             assert not index_strategy.finished_chunk.wait(timeout=10), (
@@ -230,19 +237,19 @@ class TestIndexerDaemon:
             )
             for message in message_list:
                 assert not message.acked
-            backoff_timeouts = [
-                wait_call.kwargs['timeout']
-                for wait_call in wrapped_stop_event.wait.call_args_list
+            _backoff_timeouts = [
+                _call.kwargs['backoff_timeout']
+                for _call in mock_backoff_wait.call_args_list
             ]
-            assert len(backoff_timeouts) >= 3, 'less than 3 backoffs in 10 seconds?'
-            backoff_factors = (
-                backoff_timeouts[i] / backoff_timeouts[i - 1]
-                for i in range(1, len(backoff_timeouts))
-            )
-            assert all(
-                MINIMUM_BACKOFF_FACTOR <= backoff_factor <= MAXIMUM_BACKOFF_FACTOR
-                for backoff_factor in backoff_factors
-            )
+            assert len(_backoff_timeouts) >= 3, 'less than 3 backoffs in 10 seconds?'
+            for i in range(0, len(_backoff_timeouts)):
+                _this_timeout = _backoff_timeouts[i]
+                assert UNPRESSURED_TIMEOUT <= _this_timeout <= MAXIMUM_BACKOFF_TIMEOUT
+                wrapped_stop_event.wait.assert_any_call(timeout=_this_timeout)
+                if i > 0 and _this_timeout < MAXIMUM_BACKOFF_TIMEOUT:
+                    _last_timeout = _backoff_timeouts[i - 1]
+                    _backoff_factor = _this_timeout / _last_timeout
+                    assert MINIMUM_BACKOFF_FACTOR <= _backoff_factor <= MAXIMUM_BACKOFF_FACTOR
             # but now the 429 errors stop
             index_strategy._pls_429 = False
             assert index_strategy.finished_chunk.wait(timeout=10), (

@@ -204,7 +204,7 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
         _messenger = IndexMessenger(celery_app=task.app)
         for _indexcard in _indexcards:
             derive(_indexcard)
-            _messenger.notify_indexcard_update(_indexcard, urgent=urgent)
+        _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)
@@ -213,7 +213,7 @@ def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str):
     derive(_indexcard, deriver_iris=[deriver_iri])
     # TODO: avoid unnecessary work; let IndexStrategy subscribe to a specific
     # IndexcardDeriver (perhaps by deriver-specific MessageType?)
-    IndexMessenger(celery_app=task.app).notify_indexcard_update(_indexcard)
+    IndexMessenger(celery_app=task.app).notify_indexcard_update([_indexcard])
 
 
 @celery.shared_task(acks_late=True)

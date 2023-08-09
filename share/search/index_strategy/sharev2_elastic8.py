@@ -140,11 +140,15 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 yield _suid_id, self.build_index_action(_doc_id, _source_doc)
         # delete any leftovers
         for _leftover_suid in SourceUniqueIdentifier.objects.filter(id__in=_suid_ids):
+            _suid_ids.discard(_leftover_suid.id)
             try:
                 _leftover_suid_id = _leftover_suid.get_backcompat_sharev2_suid().id
             except SourceUniqueIdentifier.DoesNotExist:
                 _leftover_suid_id = _leftover_suid.id
             yield _leftover_suid.id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
+        # these ones don't even exist!
+        for _leftover_suid_id in _suid_ids:
+            yield _leftover_suid_id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
 
     def _get_doc_id(self, suid_id: int):
         return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)

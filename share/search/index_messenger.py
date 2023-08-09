@@ -33,13 +33,31 @@ class IndexMessenger:
         )
         self.index_strategys = index_strategys or tuple(IndexStrategy.all_strategies())
 
-    def notify_indexcard_update(self, indexcard, *, urgent=False):
-        self.send_message(MessageType.UPDATE_INDEXCARD, indexcard.id, urgent=urgent)
+    def notify_indexcard_update(self, indexcards, *, urgent=False):
+        self.send_messages_chunk(
+            MessagesChunk(
+                MessageType.UPDATE_INDEXCARD,
+                [
+                    _indexcard.id
+                    for _indexcard in indexcards
+                ],
+            ),
+            urgent=urgent,
+        )
         # for back-compat:
-        self.notify_suid_update(indexcard.source_record_suid_id, urgent=urgent)
+        self.notify_suid_update(
+            [
+                _indexcard.source_record_suid_id
+                for _indexcard in indexcards
+            ],
+            urgent=urgent,
+        )
 
-    def notify_suid_update(self, suid_id, *, urgent=False):
-        self.send_message(MessageType.INDEX_SUID, suid_id, urgent=urgent)
+    def notify_suid_update(self, suid_ids, *, urgent=False):
+        self.send_messages_chunk(
+            MessagesChunk(MessageType.INDEX_SUID, suid_ids),
+            urgent=urgent,
+        )
 
     def incoming_messagequeue_iter(self, channel) -> typing.Iterable[kombu.Queue]:
         for index_strategy in self.index_strategys:
@@ -92,12 +110,6 @@ class IndexMessenger:
         except Exception:
             sentry_sdk.capture_exception()
             return '??'
-
-    def send_message(self, message_type: MessageType, target_id, *, urgent=False):
-        self.send_messages_chunk(
-            MessagesChunk(message_type, [target_id]),
-            urgent=urgent,
-        )
 
     def send_messages_chunk(self, messages_chunk: MessagesChunk, *, urgent=False):
         with self._open_message_queues(messages_chunk.message_type, urgent) as message_queues:

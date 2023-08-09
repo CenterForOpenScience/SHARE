@@ -154,7 +154,7 @@ class Indexcard(models.Model):
             .filter(upriver_indexcard=self)
             .delete()
         )
-        IndexMessenger().notify_indexcard_update(self)
+        IndexMessenger().notify_indexcard_update([self])
 
     def __repr__(self):
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'

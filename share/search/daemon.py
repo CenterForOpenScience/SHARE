@@ -1,8 +1,8 @@
-from concurrent.futures import ThreadPoolExecutor
 import contextlib
 import collections
+import dataclasses
 import logging
-import queue as local_queue
+import queue
 import random
 import threading
 import time
@@ -17,7 +17,7 @@ from share.search import exceptions, messages, IndexStrategy, IndexMessenger
 logger = logging.getLogger(__name__)
 
 
-UNPRESSURED_TIMEOUT = 3         # seconds
+UNPRESSURED_TIMEOUT = 1         # seconds
 QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
@@ -28,28 +28,67 @@ class TooFastSlowDown(Exception):
     pass
 
 
+class IndexerDaemonControl:
+    def __init__(self, celery_app, *, daemonthread_context=None, stop_event=None):
+        self.celery_app = celery_app
+        self.daemonthread_context = daemonthread_context
+        self._daemonthreads = []
+        # shared stop_event for all threads below
+        self.stop_event = stop_event or threading.Event()
+
+    def start_daemonthreads_for_strategy(self, index_strategy):
+        logger.info('starting daemon for %s', index_strategy)
+        _daemon = IndexerDaemon(
+            index_strategy=index_strategy,
+            stop_event=self.stop_event,
+            daemonthread_context=self.daemonthread_context,
+        )
+        # spin up daemonthreads, ready for messages
+        self._daemonthreads.extend(_daemon.start())
+        # assign a thread to pass messages to this daemon
+        threading.Thread(
+            target=CeleryMessageConsumer(self.celery_app, _daemon).run,
+        ).start()
+        return _daemon
+
+    def start_all_daemonthreads(self):
+        for _index_strategy in IndexStrategy.all_index_strategies():
+            self.start_daemonthreads_for_strategy(_index_strategy)
+
+    def stop_daemonthreads(self, *, wait=False):
+        self.stop_event.set()  # rely on the politeness of daemons
+        if wait:
+            for _thread in self._daemonthreads:
+                _thread.join()
+
+
 class CeleryMessageConsumer(ConsumerMixin):
     PREFETCH_COUNT = 7500
 
-    def __init__(self, celery_app, indexer_daemon, index_strategy):
+    # (from ConsumerMixin)
+    # should_stop: bool
+
+    def __init__(self, celery_app, indexer_daemon):
         self.connection = celery_app.pool.acquire(block=True)
         self.celery_app = celery_app
-        self.__indexer_daemon = indexer_daemon
-        self.__index_strategy = index_strategy
+        self.__stop_event = indexer_daemon.stop_event
+        self.__message_callback = indexer_daemon.on_message
+        self.__index_strategy = indexer_daemon.index_strategy
 
     # overrides ConsumerMixin.run
     def run(self):
         logger.info('%r: Starting', self)
+        # start a thread to respect the stop event
         threading.Thread(target=self.__wait_for_stop).start()
         logger.debug('%r: Delegating to Kombu.run', self)
         return super().run()
 
     def __wait_for_stop(self):
-        while not (self.should_stop or self.__indexer_daemon.stop_event.is_set()):
-            self.__indexer_daemon.stop_event.wait(timeout=UNPRESSURED_TIMEOUT)
+        while not (self.should_stop or self.__stop_event.is_set()):
+            self.__stop_event.wait(timeout=UNPRESSURED_TIMEOUT)
         logger.warning('%r: Stopping', self)
         self.should_stop = True
-        self.__indexer_daemon.stop_event.set()
+        self.__stop_event.set()
 
     # for ConsumerMixin -- specifies rabbit queues to consume, registers on_message callback
     def get_consumers(self, Consumer, channel):
@@ -59,7 +98,7 @@ class CeleryMessageConsumer(ConsumerMixin):
         return [
             Consumer(
                 queues=queues,
-                callbacks=[self.__indexer_daemon.on_message],
+                callbacks=[self.__message_callback],
                 accept=['json'],
                 prefetch_count=self.PREFETCH_COUNT,
             )
@@ -72,52 +111,46 @@ class CeleryMessageConsumer(ConsumerMixin):
 class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
 
-    @classmethod
-    def start_daemonthreads(cls, celery_app, *, daemonthread_context=None) -> threading.Event:
-        stop_event = threading.Event()
-        for index_strategy in IndexStrategy.all_strategies():
-            indexer_daemon = cls(
-                index_strategy=index_strategy,
-                stop_event=stop_event,
-                daemonthread_context=daemonthread_context,
-            )
-            indexer_daemon.start_loops_and_queues()
-            consumer = CeleryMessageConsumer(celery_app, indexer_daemon, index_strategy)
-            threading.Thread(target=consumer.run).start()
-        return stop_event
-
     def __init__(self, index_strategy, *, stop_event=None, daemonthread_context=None):
         self.stop_event = (
             stop_event
             if stop_event is not None
             else threading.Event()
         )
-        self.__index_strategy = index_strategy  # TODO: error if index not ready
+        self.index_strategy = index_strategy  # TODO: error if index not ready
         self.__daemonthread_context = daemonthread_context or contextlib.nullcontext
-        self.__thread_pool = None
         self.__local_message_queues = {}
+        self.__started = False
 
-    def stop(self):
-        logger.warning('%r: Stopping', self)
-        self.__thread_pool.shutdown(wait=False)
-        self.stop_event.set()
-
-    def __wait_on_stop_event(self):
-        self.stop_event.wait()
-        self.stop()
-
-    def start_loops_and_queues(self):
-        if self.__thread_pool:
+    def start(self) -> list[threading.Thread]:
+        if self.__started:
             raise exceptions.DaemonSetupError('IndexerDaemon already set up!')
-        supported_message_types = self.__index_strategy.supported_message_types
-        self.__thread_pool = ThreadPoolExecutor(max_workers=len(supported_message_types) + 1)
-        self.__thread_pool.submit(self.__wait_on_stop_event)
+        self.__started = True
+        _supported_message_types = self.index_strategy.supported_message_types
         # for each type of message to be handled, one queue for incoming messages and a
         # __message_handling_loop thread that handles messages from the queue
-        for message_type in supported_message_types:
-            local_message_queue = local_queue.Queue(maxsize=self.MAX_LOCAL_QUEUE_SIZE)
-            self.__local_message_queues[message_type] = local_message_queue
-            self.__thread_pool.submit(self.__message_handling_loop, message_type)
+        _loopthreads = [
+            self.start_typed_loop_and_queue(message_type)
+            for message_type in _supported_message_types
+        ]
+        return [
+            *_loopthreads,
+
+        ]
+
+    def start_typed_loop_and_queue(self, message_type) -> threading.Thread:
+        assert message_type not in self.__local_message_queues
+        _queue_from_rabbit_to_daemon = queue.Queue(maxsize=self.MAX_LOCAL_QUEUE_SIZE)
+        self.__local_message_queues[message_type] = _queue_from_rabbit_to_daemon
+        _handling_loop = MessageHandlingLoop(
+            index_strategy=self.index_strategy,
+            message_type=message_type,
+            stop_event=self.stop_event,
+            local_message_queue=_queue_from_rabbit_to_daemon,
+            log_prefix=f'{repr(self)} MessageHandlingLoop: ',
+            daemonthread_context=self.__daemonthread_context,
+        )
+        return _handling_loop.start_thread()
 
     def on_message(self, body, message):
         daemon_message = messages.DaemonMessage.from_received_message(message)
@@ -126,59 +159,54 @@ class IndexerDaemon:
             raise exceptions.DaemonMessageError(
                 f'Received message with unsupported type "{daemon_message.message_type}"'
                 f' (message: {message})'
-                f' (supported message types: {self.__index_strategy.supported_message_types})'
+                f' (supported message types: {self.index_strategy.supported_message_types})'
             )
         # Keep blocking on put() until there's space in the queue or it's time to stop
         while not self.stop_event.is_set():
             try:
                 local_message_queue.put(daemon_message, timeout=UNPRESSURED_TIMEOUT)
                 break
-            except local_queue.Full:
+            except queue.Full:
                 continue
 
-    def __message_handling_loop(self, message_type):
-        with self.__daemonthread_context():
+    def __repr__(self):
+        return '<{}({})>'.format(self.__class__.__name__, self.index_strategy.name)
+
+
+@dataclasses.dataclass
+class MessageHandlingLoop:
+    index_strategy: IndexStrategy
+    message_type: messages.MessageType
+    stop_event: threading.Event
+    local_message_queue: queue.Queue
+    log_prefix: str
+    daemonthread_context: contextlib.AbstractContextManager
+    _leftover_daemon_messages_by_target_id = None
+
+    def __post_init__(self):
+        self._reset_backoff_timeout()
+
+    def start_thread(self):
+        _thread = threading.Thread(target=self._the_loop_itself)
+        _thread.start()
+        return _thread
+
+    def _the_loop_itself(self):
+        with self.daemonthread_context():
             try:
-                log_prefix = f'{repr(self)} MessageHandlingLoop: '
-                loop = MessageHandlingLoop(
-                    index_strategy=self.__index_strategy,
-                    message_type=message_type,
-                    local_message_queue=self.__local_message_queues[message_type],
-                    stop_event=self.stop_event,
-                    log_prefix=log_prefix,
-                )
                 while not self.stop_event.is_set():
-                    loop.iterate_once()
+                    try:
+                        self._handle_some_messages()
+                    except TooFastSlowDown:
+                        self._back_off()
+                    else:
+                        self._reset_backoff_timeout()
             except Exception as e:
                 sentry_sdk.capture_exception()
-                logger.exception('%sEncountered an unexpected error (%s)', log_prefix, e)
+                logger.exception('%sEncountered an unexpected error (%s)', self.log_prefix, e)
                 raise
             finally:
-                self.stop()
-
-    def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
-
-
-class MessageHandlingLoop:
-    def __init__(self, index_strategy, message_type, local_message_queue, stop_event, log_prefix):
-        self.index_strategy = index_strategy
-        self.message_type = message_type
-        self.local_message_queue = local_message_queue
-        self.log_prefix = log_prefix
-        self.stop_event = stop_event
-        self.chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
-        self._leftover_daemon_messages_by_target_id = None
-        self._reset_backoff_timeout()
-        logger.info('%sStarted', self.log_prefix)
-
-    def iterate_once(self):
-        try:
-            self._iterate_once()
-        except TooFastSlowDown:
-            self._back_off()
-        else:
-            self._reset_backoff_timeout()
+                self.stop_event.set()
 
     def _raise_if_backfill_noncurrent(self):
         if self.message_type.is_backfill:
@@ -199,7 +227,8 @@ class MessageHandlingLoop:
             self._leftover_daemon_messages_by_target_id = None
             return daemon_messages_by_target_id
         daemon_messages_by_target_id = collections.defaultdict(list)
-        while len(daemon_messages_by_target_id) < self.chunk_size:
+        _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        while len(daemon_messages_by_target_id) < _chunk_size and not self.stop_event.is_set():
             try:
                 # If we have any messages queued up, push them through ASAP
                 daemon_message = self.local_message_queue.get(timeout=(
@@ -208,11 +237,11 @@ class MessageHandlingLoop:
                     else UNPRESSURED_TIMEOUT
                 ))
                 daemon_messages_by_target_id[daemon_message.target_id].append(daemon_message)
-            except local_queue.Empty:
+            except queue.Empty:
                 break
         return daemon_messages_by_target_id
 
-    def _iterate_once(self):
+    def _handle_some_messages(self):
         # each message corresponds to one action on this daemon's index
         start_time = time.time()
         doc_count, error_count = 0, 0
@@ -226,7 +255,6 @@ class MessageHandlingLoop:
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
                 if message_response.is_done:
                     doc_count += 1
-                    logger.debug('%sHandled message %s', self.log_prefix, message_response.index_message)
                 elif message_response.status_code == 429:  # 429 Too Many Requests
                     self._leftover_daemon_messages_by_target_id = daemon_messages_by_target_id
                     raise TooFastSlowDown
@@ -244,17 +272,19 @@ class MessageHandlingLoop:
         if doc_count or error_count:
             logger.info('%sIndexed %d documents in %.02fs (with %d errors)', self.log_prefix, doc_count, time_elapsed, error_count)
 
-    def _back_off(self):
-        backoff_timeout = min(
-            MAXIMUM_BACKOFF_TIMEOUT,
-            self._last_backoff_timeout * random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR),
-        )
-        self._last_backoff_timeout = backoff_timeout
-        logger.warning(f'{self.log_prefix}Backing off (pause for {backoff_timeout:.2} seconds)')
-        self.stop_event.wait(timeout=backoff_timeout)
-
     def _reset_backoff_timeout(self):
-        self._last_backoff_timeout = UNPRESSURED_TIMEOUT
+        self._backoff_timeout = UNPRESSURED_TIMEOUT
 
-    def __repr__(self):
-        return f'{self.__class__.__name__}("{self.index_strategy.name}", {repr(self.message_type)})'
+    def _back_off(self):
+        _backoff_factor = random.uniform(MINIMUM_BACKOFF_FACTOR, MAXIMUM_BACKOFF_FACTOR)
+        self._backoff_timeout = min(
+            MAXIMUM_BACKOFF_TIMEOUT,
+            (self._backoff_timeout * _backoff_factor),
+        )
+        logger.warning(f'{self.log_prefix}Backing off (pause for {self._backoff_timeout:.2} seconds)')
+        _backoff_wait(stop_event=self.stop_event, backoff_timeout=self._backoff_timeout)
+
+
+# helper function for easier testing of backoff logic
+def _backoff_wait(*, stop_event, backoff_timeout):
+    stop_event.wait(timeout=backoff_timeout)

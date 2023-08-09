@@ -167,6 +167,8 @@ class Elastic8IndexStrategy(IndexStrategy):
         return f'{self.indexname_prefix}live'
 
     def _elastic_actions_with_index(self, messages_chunk, indexnames, targetid_by_docid):
+        if not indexnames:
+            raise ValueError('cannot index to no indexes')
         for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
             targetid_by_docid[_elastic_action['_id']] = _message_target_id
             for _indexname in indexnames:

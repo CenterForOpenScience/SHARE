@@ -485,6 +485,11 @@ LOGGING = {
             'handlers': ['stream-to-stderr'],
             'propagate': False,
         },
+        'elastic_transport.transport': {
+            'level': 'ERROR',
+            'handlers': ['stream-to-stderr'],
+            'propagate': False,
+        },
     },
 }
 

@@ -7,30 +7,15 @@ from ._with_real_services import RealElasticTestCase
 
 
 class TestSharev2Elastic5(RealElasticTestCase):
-    # abstract method from RealElasticTestCase
-    def get_real_strategy_name(self):
-        return 'sharev2_elastic5'
-
-    # abstract method from RealElasticTestCase
-    def get_test_strategy_name(self):
-        return 'test_sharev2_elastic5'
+    # for RealElasticTestCase
+    strategy_name_for_real = 'sharev2_elastic5'
+    strategy_name_for_test = 'test_sharev2_elastic5'
 
     # override method from RealElasticTestCase
     def get_index_strategy(self):
         index_strategy = super().get_index_strategy()
         index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
         return index_strategy
-
-    def get_formatted_record(self):
-        suid = factories.SourceUniqueIdentifierFactory()
-        return factories.FormattedMetadataRecordFactory(
-            suid=suid,
-            record_format='sharev2_elastic',
-            formatted_metadata=json.dumps({
-                'id': IDObfuscator.encode(suid),
-                'title': 'hello',
-            })
-        )
 
     def test_without_daemon(self):
         _formatted_record = self.get_formatted_record()
@@ -44,7 +29,7 @@ class TestSharev2Elastic5(RealElasticTestCase):
         )
 
     def test_with_daemon(self):
-        _formatted_record = self.get_formatted_record()
+        _formatted_record = self._get_formatted_record()
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.INDEX_SUID,
             [_formatted_record.suid_id],
@@ -52,6 +37,17 @@ class TestSharev2Elastic5(RealElasticTestCase):
         self._assert_happypath_with_daemon(
             _messages_chunk,
             expected_doc_count=1,
+        )
+
+    def _get_formatted_record(self):
+        suid = factories.SourceUniqueIdentifierFactory()
+        return factories.FormattedMetadataRecordFactory(
+            suid=suid,
+            record_format='sharev2_elastic',
+            formatted_metadata=json.dumps({
+                'id': IDObfuscator.encode(suid),
+                'title': 'hello',
+            })
         )
 
     # override RealElasticTestCase to match hacks done with assumptions

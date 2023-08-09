@@ -70,9 +70,9 @@ class TestSharectlSearch:
         assert mock_current_index.pls_start_keeping_live.mock_calls == [mock.call()]
 
     def test_daemon(self, settings):
-        with mock.patch('share.bin.search.IndexerDaemon') as mock_daemon:
+        with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon:
             run_sharectl('search', 'daemon')
-            mock_daemon.start_daemonthreads.assert_called_once()
+            mock_daemon.start_all_daemonthreads.assert_called_once()
 
 
 # TODO unit tests, not just a smoke test

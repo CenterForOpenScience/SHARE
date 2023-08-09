@@ -169,23 +169,28 @@ def user_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
-    if created and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
+    if created:
+        _setup_user_token_and_groups(instance)
+
+
+def _setup_user_token_and_groups(share_user):
+    if share_user.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
         application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
         application = Application.objects.get(user=application_user)
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
-        is_robot = instance.robot != ''  # Required to work in migrations and the like
+        is_robot = share_user.robot != ''  # Required to work in migrations and the like
 
         # create oauth2 token for user
         AccessToken.objects.create(
-            user_id=instance.id,
+            user_id=share_user.id,
             application=application,
             expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
             scope=settings.HARVESTER_SCOPES if is_robot else settings.USER_SCOPES,
             token=client_secret
         )
         if not is_robot:
-            instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
+            share_user.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
 class NormalizedData(models.Model):

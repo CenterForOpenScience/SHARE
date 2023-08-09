@@ -3,7 +3,7 @@ from project.celery import app as celery_app
 from share.bin.util import command
 from share.search import IndexStrategy
 from share.search.exceptions import IndexStrategyError
-from share.search.daemon import IndexerDaemon
+from share.search.daemon import IndexerDaemonControl
 
 
 @command('Manage Elasticsearch')
@@ -69,11 +69,11 @@ def daemon(args, argv):
     """
     Usage: {0} search daemon
     """
-    stop_event = IndexerDaemon.start_daemonthreads(celery_app)
+    _daemon_control = IndexerDaemonControl(celery_app)
+    _daemon_control.start_all_daemonthreads()
     try:
-        stop_event.wait()
+        _daemon_control.stop_event.wait()
     except KeyboardInterrupt:
-        pass  # let the finally block stop all threads
+        pass  # no error here; let the finally block stop all threads
     finally:
-        if not stop_event.is_set():
-            stop_event.set()
+        _daemon_control.stop_daemonthreads(wait=True)
