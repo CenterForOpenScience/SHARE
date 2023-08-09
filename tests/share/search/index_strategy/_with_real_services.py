@@ -111,7 +111,7 @@ class RealElasticTestCase(TransactionTestCase):
         _daemon_control = self.enterContext(self._daemon_up())
         self.__index_messenger.send_messages_chunk(messages_chunk)
         for _ in range(23):
-            _daemon_control.stop_event.wait(timeout=10)  #0.2)
+            _daemon_control.stop_event.wait(timeout=0.2)
             self.__current_index.pls_refresh()
             _search_response = self.__current_index.pls_handle_search__sharev2_backcompat()
             _hits = _search_response['hits']['hits']
