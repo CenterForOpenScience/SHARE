@@ -175,8 +175,12 @@ def user_post_save(sender, instance, created, **kwargs):
 
 def _setup_user_token_and_groups(share_user):
     if share_user.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
-        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-        application = Application.objects.get(user=application_user)
+        try:
+            application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+            application = Application.objects.get(user=application_user)
+        except ShareUser.DoesNotExist:
+            logger.error(f'oauth application not set up -- skipping token for user {share_user}')
+            return
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
         is_robot = share_user.robot != ''  # Required to work in migrations and the like

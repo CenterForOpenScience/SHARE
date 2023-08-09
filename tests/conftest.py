@@ -69,11 +69,6 @@ def robot_user(settings):
 
 
 @pytest.fixture
-def system_user(settings):
-    return ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-
-
-@pytest.fixture
 def share_user():
     user = ShareUser(
         username='tester',

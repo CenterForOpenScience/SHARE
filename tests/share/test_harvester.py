@@ -3,20 +3,47 @@ import datetime
 import pytest
 
 import pendulum
+import stevedore
+import pkg_resources
 
 from share.harvest.base import BaseHarvester
-from share.harvest.serialization import DeprecatedDefaultSerializer
+from share.harvest.serialization import DeprecatedDefaultSerializer, StringLikeSerializer
+from share.util.extensions import Extensions
 
 from tests import factories
+
+
+@pytest.fixture(scope='class')
+def mock_harvester_key():
+    stevedore.ExtensionManager('share.harvesters')  # Force extensions to load
+    _harvester_key = 'mockmock'
+
+    class MockHarvester(BaseHarvester):
+        KEY = _harvester_key
+        VERSION = 1
+        SERIALIZER_CLASS = StringLikeSerializer
+        _do_fetch = factories.ListGenerator()
+
+    mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
+    mock_entry.name = _harvester_key
+    mock_entry.module_name = _harvester_key
+    mock_entry.resolve.return_value = MockHarvester
+    stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+    Extensions._load_namespace('share.harvesters')
+    return _harvester_key
 
 
 @pytest.mark.usefixtures('nested_django_db')
 class TestHarvesterInterface:
 
     @pytest.fixture(scope='class', params=[(True, True), (True, False), (False, True), (False, False)])
-    def source_config(self, request, class_scoped_django_db):
+    def source_config(self, request, class_scoped_django_db, mock_harvester_key):
         config_disabled, source_deleted = request.param
-        return factories.SourceConfigFactory(disabled=config_disabled, source__is_deleted=source_deleted)
+        return factories.SourceConfigFactory(
+            disabled=config_disabled,
+            source__is_deleted=source_deleted,
+            harvester_key=mock_harvester_key,
+        )
 
     @pytest.fixture(scope='class')
     def harvester(self, source_config, class_scoped_django_db):
@@ -47,10 +74,6 @@ class TestHarvesterInterface:
     def test__do_fetch_not_implemented(self, harvester):
         with pytest.raises(NotImplementedError):
             BaseHarvester._do_fetch(harvester, None, None)
-
-    def test_fetch_by_id_not_implemented(self, harvester):
-        with pytest.raises(NotImplementedError):
-            harvester.fetch_by_id('myid')
 
     def test_fetch_date(self, harvester, monkeypatch):
         monkeypatch.setattr(harvester, 'fetch_date_range', mock.Mock(), raising=False)
@@ -114,8 +137,8 @@ class TestHarvesterInterface:
 class TestHarvesterBackwardsCompat:
 
     @pytest.fixture(scope='class')
-    def source_config(self, class_scoped_django_db):
-        return factories.SourceConfigFactory()
+    def source_config(self, class_scoped_django_db, mock_harvester_key):
+        return factories.SourceConfigFactory(harvester_key=mock_harvester_key)
 
     @pytest.fixture(scope='class')
     def harvester(self, source_config, class_scoped_django_db):

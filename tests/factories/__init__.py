@@ -67,8 +67,8 @@ class SourceConfigFactory(DjangoModelFactory):
     base_url = factory.Faker('url')
     harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
-    harvester_key = factory.Faker('word')
-    transformer_key = factory.Faker('word')
+    harvester_key = None
+    transformer_key = None
 
     class Meta:
         model = models.SourceConfig
