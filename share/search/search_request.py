@@ -14,7 +14,8 @@ from trove.util.queryparams import (
     queryparams_from_querystring,
     QUERYPARAM_VALUES_DELIM,
 )
-from trove.vocab.osfmap import osfmap_labeler, is_date_property
+from trove.vocab.osfmap import osfmap_labeler, is_date_property, suggested_property_iris
+from trove.vocab.namespaces import RDF
 
 
 logger = logging.getLogger(__name__)
@@ -256,7 +257,8 @@ class CardsearchParams:
     index_strategy_name: str | None
     sort_list: tuple[SortParam]
     page: PageParam
-    include: frozenset[tuple[str]]
+    include: frozenset[tuple[str, ...]]
+    related_property_paths: tuple[tuple[str, ...]]
 
     @classmethod
     def from_querystring(cls, querystring: str) -> 'CardsearchParams':  # TODO py3.11: typing.Self
@@ -269,14 +271,16 @@ class CardsearchParams:
     @staticmethod
     def parse_cardsearch_queryparams(queryparams: QueryparamDict) -> dict:
         _cardsearch_text = _get_text_queryparam(queryparams, 'cardSearchText')
+        _filter_set = SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter')
         return {
             'cardsearch_text': _cardsearch_text,
             'cardsearch_textsegment_set': Textsegment.split_str(_cardsearch_text),
-            'cardsearch_filter_set': SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter'),
+            'cardsearch_filter_set': _filter_set,
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
             'sort_list': SortParam.from_queryparams(queryparams),
             'page': PageParam.from_queryparams(queryparams),
             'include': None,  # TODO
+            'related_property_paths': _get_related_property_paths(_filter_set),
         }
 
     def to_querystring(self) -> str:
@@ -401,3 +405,20 @@ def _get_single_value(
         raise ValueError(f'expected at most one {queryparam_name} value, got {len(_paramvalues)}')
     else:
         return _singlevalue
+
+
+def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
+    # hard-coded for osf.io search pages, static list per type
+    # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
+    _type_iris = set()
+    for _filter in filter_set:
+        if _filter.property_path == (RDF.type,):
+            if _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+                _type_iris.update(_filter.value_set)
+            if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
+                _type_iris.difference_update(_filter.value_set)
+    _property_iris = suggested_property_iris(_type_iris)
+    return tuple(  # tuple of tuples
+        (_property_iri,)  # path of length 1
+        for _property_iri in _property_iris
+    )

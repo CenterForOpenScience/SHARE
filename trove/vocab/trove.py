@@ -189,7 +189,7 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('evidenceCard', language_tag='en'),
         },
     },
-    TROVE.relatedProperty: {
+    TROVE.relatedPropertyList: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('relatedProperties', language_tag='en'),

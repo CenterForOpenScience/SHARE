@@ -31,6 +31,7 @@ from share.search.search_response import (
     TextMatchEvidence,
     CardsearchResult,
     ValuesearchResult,
+    PropertysearchResult,
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
@@ -475,6 +476,48 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 if _filter.operator.is_iri_operator():
                     _filtervalue_iris.update(_filter.value_set)
             return {
+                'related_iri_property': {
+                    'nested': {'path': 'nested_iri'},
+                    'aggs': {
+                        'usage': {
+                            'terms': {
+                                'field': 'nested_iri.path_from_focus',
+                                'include': [
+                                    iri_path_as_keyword(_path)
+                                    for _path in cardsearch_params.related_property_paths
+                                ],
+                            },
+                        },
+                    },
+                },
+                'related_date_property': {
+                    'nested': {'path': 'nested_date'},
+                    'aggs': {
+                        'usage': {
+                            'terms': {
+                                'field': 'nested_date.path_from_focus',
+                                'include': [
+                                    iri_path_as_keyword(_path)
+                                    for _path in cardsearch_params.related_property_paths
+                                ],
+                            },
+                        },
+                    },
+                },
+                'related_text_property': {
+                    'nested': {'path': 'nested_text'},
+                    'aggs': {
+                        'usage': {
+                            'terms': {
+                                'field': 'nested_text.path_from_focus',
+                                'include': [
+                                    iri_path_as_keyword(_path)
+                                    for _path in cardsearch_params.related_property_paths
+                                ],
+                            },
+                        },
+                    },
+                },
                 'global_agg': {
                     'global': {},
                     'aggs': {
@@ -690,6 +733,18 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 self._valuesearch_result(_iri_bucket)
                 for _iri_bucket in _filtervalue_agg['buckets']
             ]
+            _relatedproperty_list = [
+                PropertysearchResult(property_path=_path, usage_count=0)
+                for _path in cardsearch_params.related_property_paths
+            ]
+            _relatedproperty_by_path = {
+                _result.property_path: _result
+                for _result in _relatedproperty_list
+            }
+            for _agg_key in ('related_iri_property', 'related_text_property', 'related_date_property'):
+                for _bucket in es8_response['aggregations'][_agg_key]['usage']['buckets']:
+                    _path = tuple(json.loads(_bucket['key']))
+                    _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
             return CardsearchResponse(
                 total_result_count=_total,
                 search_result_page=_results,
@@ -697,6 +752,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 prev_page_cursor=cursor.prev_cursor(),
                 first_page_cursor=cursor.first_cursor(),
                 filtervalue_info=_filtervalue_info,
+                related_propertypath_results=_relatedproperty_list,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
