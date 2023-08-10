@@ -31,18 +31,18 @@ class RealElasticTestCase(TransactionTestCase):
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.enterContext(self._settings_for_test())
         IndexStrategy.clear_strategy_cache()
-        self.__index_strategy = self.get_index_strategy()
-        self.__index_messenger = IndexMessenger(
+        self.index_strategy = self.get_index_strategy()
+        self.index_messenger = IndexMessenger(
             celery_app=celery_app,
-            index_strategys=[self.__index_strategy],
+            index_strategys=[self.index_strategy],
         )
-        self.__current_index = self.__index_strategy.for_current_index()
-        self.__current_index.pls_delete()  # in case it already exists
+        self.current_index = self.index_strategy.for_current_index()
+        self.current_index.pls_delete()  # in case it already exists
         self._assert_happypath_until_ingest()
 
     def tearDown(self):
         super().tearDown()
-        self.__current_index.pls_delete()
+        self.current_index.pls_delete()
         IndexStrategy.clear_strategy_cache()
         # HACK: copied from TransactionTestCase._fixture_setup; restores db
         # to the state from before TransactionTestCase clobbered it (relies
@@ -96,24 +96,24 @@ class RealElasticTestCase(TransactionTestCase):
 
     # for test methods on subclasses to call:
     def _assert_happypath_without_daemon(self, messages_chunk, expected_doc_count):
-        _responses = list(self.__index_strategy.pls_handle_messages_chunk(messages_chunk))
+        _responses = list(self.index_strategy.pls_handle_messages_chunk(messages_chunk))
         assert len(_responses) == len(messages_chunk.target_ids_chunk)
         assert all(_response.is_done for _response in _responses)
         _ids = {_response.index_message.target_id for _response in _responses}
         assert _ids == set(messages_chunk.target_ids_chunk)
-        self.__current_index.pls_refresh()
-        _search_response = self.__current_index.pls_handle_search__sharev2_backcompat()
+        self.current_index.pls_refresh()
+        _search_response = self.current_index.pls_handle_search__sharev2_backcompat()
         _hits = _search_response['hits']['hits']
         assert len(_hits) == expected_doc_count
 
     # for test methods on subclasses to call:
     def _assert_happypath_with_daemon(self, messages_chunk, expected_doc_count):
         _daemon_control = self.enterContext(self._daemon_up())
-        self.__index_messenger.send_messages_chunk(messages_chunk)
+        self.index_messenger.send_messages_chunk(messages_chunk)
         for _ in range(23):
             _daemon_control.stop_event.wait(timeout=0.2)
-            self.__current_index.pls_refresh()
-            _search_response = self.__current_index.pls_handle_search__sharev2_backcompat()
+            self.current_index.pls_refresh()
+            _search_response = self.current_index.pls_handle_search__sharev2_backcompat()
             _hits = _search_response['hits']['hits']
             if len(_hits) == expected_doc_count:
                 break  # all good
@@ -122,30 +122,30 @@ class RealElasticTestCase(TransactionTestCase):
 
     def _assert_happypath_until_ingest(self):
         # initial
-        assert not self.__current_index.pls_check_exists()
-        index_status = self.__current_index.pls_get_status()
+        assert not self.current_index.pls_check_exists()
+        index_status = self.current_index.pls_get_status()
         assert not index_status.creation_date
         assert not index_status.is_kept_live
         assert not index_status.is_default_for_searching
         assert not index_status.doc_count
         # create index
-        self.__current_index.pls_create()
-        assert self.__current_index.pls_check_exists()
-        index_status = self.__current_index.pls_get_status()
+        self.current_index.pls_create()
+        assert self.current_index.pls_check_exists()
+        index_status = self.current_index.pls_get_status()
         assert index_status.creation_date
         assert not index_status.is_kept_live
         assert not index_status.is_default_for_searching
         assert not index_status.doc_count
         # keep index live (with ingested updates)
-        self.__current_index.pls_start_keeping_live()
-        index_status = self.__current_index.pls_get_status()
+        self.current_index.pls_start_keeping_live()
+        index_status = self.current_index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live
         assert not index_status.is_default_for_searching
         assert not index_status.doc_count
         # default index for searching
-        self.__index_strategy.pls_make_default_for_searching(self.__current_index)
-        index_status = self.__current_index.pls_get_status()
+        self.index_strategy.pls_make_default_for_searching(self.current_index)
+        index_status = self.current_index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live
         assert index_status.is_default_for_searching
