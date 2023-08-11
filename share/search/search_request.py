@@ -138,9 +138,10 @@ class SearchFilter:
         NONE_OF = 'none-of'
         BEFORE = 'before'
         AFTER = 'after'
+        AT_DATE = 'at-date'
 
         def is_date_operator(self):
-            return self in (self.BEFORE, self.AFTER)
+            return self in (self.BEFORE, self.AFTER, self.AT_DATE)
 
         def is_iri_operator(self):
             return self in (self.ANY_OF, self.NONE_OF)
@@ -161,6 +162,7 @@ class SearchFilter:
 
     @classmethod
     def from_filter_param(cls, param_name: QueryparamName, param_value: str):
+        _operator = None
         try:  # "filter[<serialized_path>][<operator>]"
             (_serialized_path, _operator_value) = param_name.bracketed_names
         except ValueError:
@@ -171,16 +173,27 @@ class SearchFilter:
                     f'expected one or two bracketed queryparam-name segments'
                     f' ({len(param_name.bracketed_names)} in "{param_name}")'
                 )
-            else:  # default operator
-                _operator = SearchFilter.FilterOperator.ANY_OF
         else:  # given operator
             try:
                 _operator = SearchFilter.FilterOperator(_operator_value)
             except ValueError:
                 raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
+        _propertypath = tuple(
+            osfmap_labeler.iri_for_label(_pathstep)
+            for _pathstep in split_queryparam_value(_serialized_path)
+        )
+        _is_date_property = is_date_property(_propertypath[-1])
+        if _operator is None:  # default operator
+            _operator = (
+                SearchFilter.FilterOperator.AT_DATE
+                if _is_date_property
+                else SearchFilter.FilterOperator.ANY_OF
+            )
+        if _operator.is_date_operator() and not _is_date_property:
+            raise ValueError(f'cannot use date operator {_operator.value} on non-date property')
         _value_list = []
         for _value in split_queryparam_value(param_value):
-            if _operator.is_date_operator():
+            if _is_date_property:
                 _value_list.append(_value)  # TODO: vali-date
             else:
                 try:
@@ -190,10 +203,7 @@ class SearchFilter:
                 else:
                     _value_list.append(_iri)
         return cls(
-            property_path=tuple(
-                osfmap_labeler.iri_for_label(_pathstep)
-                for _pathstep in split_queryparam_value(_serialized_path)
-            ),
+            property_path=_propertypath,
             value_set=frozenset(_value_list),
             operator=_operator,
             original_param_name=str(param_name),

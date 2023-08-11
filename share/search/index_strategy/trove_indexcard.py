@@ -4,6 +4,7 @@ import dataclasses
 import datetime
 import json
 import logging
+import re
 import time
 import uuid
 from typing import Iterable, Optional
@@ -711,26 +712,32 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             }}
 
         def _cardsearch_date_filter(self, search_filter) -> dict:
+            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path, suffuniq=True)
+            _filter_list = [
+                {'term': {'nested_date.suffuniq_path_from_focus': _propertypath_keyword}},
+            ]
             if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
-                _range_op = 'lt'
                 _value = min(search_filter.value_set)  # rely on string-comparable isoformat
+                _filter_list.append({'range': {'nested_date.date_value': {
+                    'lt': _daterange_value_and_format(_value)
+                }}})
             elif search_filter.operator == SearchFilter.FilterOperator.AFTER:
-                _range_op = 'gte'
                 _value = max(search_filter.value_set)  # rely on string-comparable isoformat
+                _filter_list.append({'range': {'nested_date.date_value': {
+                    'gt': _daterange_value_and_format(_value)
+                }}})
+            elif search_filter.operator == SearchFilter.FilterOperator.AT_DATE:
+                for _value in search_filter.value_set:
+                    _filtervalue = _daterange_value_and_format(_value)
+                    _filter_list.append({'range': {'nested_date.date_value': {
+                        'gte': _filtervalue,
+                        'lte': _filtervalue,
+                    }}})
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
-            _date_value = datetime.datetime.fromisoformat(_value).date()
-            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path, suffuniq=True)
             return {'nested': {
                 'path': 'nested_date',
-                'query': {'bool': {
-                    'filter': [
-                        {'term': {'nested_date.suffuniq_path_from_focus': _propertypath_keyword}},
-                        {'range': {'nested_date.date_value': {
-                            _range_op: f'{_date_value}||/d',  # round to the day
-                        }}},
-                    ],
-                }},
+                'query': {'bool': {'filter': _filter_list}},
             }}
 
         def _cardsearch_sort(self, sort_list: tuple[SortParam]):
@@ -913,6 +920,17 @@ def _bucketlist(agg_result: dict) -> list[str]:
         _bucket['key']
         for _bucket in agg_result['buckets']
     ]
+
+
+def _daterange_value_and_format(datevalue: str):
+    _cleanvalue = datevalue.strip()
+    if re.fullmatch(r'\d{4,}', _cleanvalue):
+        return f'{_cleanvalue}||/y'
+    if re.fullmatch(r'\d{4,}-\d{2}', _cleanvalue):
+        return f'{_cleanvalue}||/M'
+    if re.fullmatch(r'\d{4,}-\d{2}-\d{2}', _cleanvalue):
+        return f'{_cleanvalue}||/d'
+    raise ValueError(f'bad date value "{datevalue}"')
 
 
 @dataclasses.dataclass
