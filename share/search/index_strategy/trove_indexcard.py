@@ -299,6 +299,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
+            _on_date_property = is_date_property(valuesearch_params.valuesearch_property_path[-1])
+            _nested_field = ('nested_date' if _on_date_property else 'nested_iri')
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
@@ -307,15 +309,19 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                         valuesearch_params.cardsearch_textsegment_set,
                         relevance_matters=False,
                         additional_filters=[{'nested': {
-                            'path': 'nested_iri',
-                            'query': {'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
+                            'path': _nested_field,
+                            'query': {'term': {f'{_nested_field}.suffuniq_path_from_focus': iri_path_as_keyword(
                                 valuesearch_params.valuesearch_property_path,
                                 suffuniq=True,
                             )}},
                         }}],
                     ),
                     size=0,  # ignore cardsearch hits; just want the aggs
-                    aggs=self._valuesearch_aggs(valuesearch_params, _cursor),
+                    aggs=(
+                        self._valuesearch_date_aggs(valuesearch_params, _cursor)
+                        if _on_date_property
+                        else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
+                    ),
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
@@ -550,7 +556,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 },
             }
 
-        def _valuesearch_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
+        def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
                 'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
@@ -580,7 +586,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                     'terms': {
                                         'field': 'nested_iri.iri_value',
                                         # WARNING: terribly inefficient pagination (part one)
-                                        'size': cursor.start_index + cursor.page_size,
+                                        'size': cursor.start_index + cursor.page_size + 1,
                                     },
                                     'aggs': {
                                         'type_iri': {'terms': {
@@ -603,32 +609,73 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 },
             }
 
+        def _valuesearch_date_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
+            _aggs = {
+                'in_nested_date': {
+                    'nested': {'path': 'nested_date'},
+                    'aggs': {
+                        'value_at_propertypath': {
+                            'filter': {'term': {
+                                'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
+                                    valuesearch_params.valuesearch_property_path,
+                                    suffuniq=True,
+                                ),
+                            }},
+                            'aggs': {
+                                'count_by_year': {
+                                    'date_histogram': {
+                                        'field': 'nested_date.date_value',
+                                        'calendar_interval': 'year',
+                                        'format': 'yyyy',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            return _aggs
+
         def _valuesearch_response(
             self,
             valuesearch_params: ValuesearchParams,
             es8_response: dict,
             cursor: '_SimpleCursor',
         ):
-            _matched_aggs = es8_response['aggregations']['in_nested_iri']['value_at_propertypath']
-            # WARNING: terribly inefficient pagination (part two)
-            _page = _matched_aggs['iri_values']['buckets'][cursor.start_index:]
-            _result_list = [
-                self._valuesearch_result(_iri_bucket)
-                for _iri_bucket in _page
-            ]
-            return ValuesearchResponse(
-                total_result_count=_matched_aggs['iri_value_cardinality']['value'],
-                search_result_page=_result_list,
-                next_page_cursor=(
-                    cursor.next_cursor(VALUESEARCH_MAX)
-                    if len(_page) >= cursor.page_size
-                    else None
-                ),
-                prev_page_cursor=cursor.prev_cursor(),
-                first_page_cursor=cursor.first_cursor(),
-            )
+            _iri_aggs = es8_response['aggregations'].get('in_nested_iri')
+            if _iri_aggs:
+                _buckets = _iri_aggs['value_at_propertypath']['iri_values']['buckets']
+                # WARNING: terribly inefficient pagination (part two)
+                _page_end_index = cursor.start_index + cursor.page_size
+                _bucket_page = _buckets[cursor.start_index:_page_end_index]
+                _more_pages = (len(_buckets) > _page_end_index)  # agg includes one more, if there
+                return ValuesearchResponse(
+                    total_result_count=_iri_aggs['value_at_propertypath']['iri_value_cardinality']['value'],
+                    search_result_page=[
+                        self._valuesearch_iri_result(_iri_bucket)
+                        for _iri_bucket in _bucket_page[:cursor.page_size]
+                    ],
+                    next_page_cursor=(
+                        cursor.next_cursor(VALUESEARCH_MAX)
+                        if _more_pages
+                        else None
+                    ),
+                    prev_page_cursor=cursor.prev_cursor(),
+                    first_page_cursor=cursor.first_cursor(),
+                )
+            else:  # assume date
+                _year_buckets = (
+                    es8_response['aggregations']['in_nested_date']
+                    ['value_at_propertypath']['count_by_year']['buckets']
+                )
+                return ValuesearchResponse(
+                    search_result_page=[
+                        self._valuesearch_date_result(_year_bucket)
+                        for _year_bucket in _year_buckets
+                    ],
+                )
 
-        def _valuesearch_result(self, iri_bucket):
+        def _valuesearch_iri_result(self, iri_bucket):
             return ValuesearchResult(
                 value_iri=iri_bucket['key'],
                 value_type=_bucketlist(iri_bucket['type_iri']),
@@ -636,6 +683,14 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 title_text=_bucketlist(iri_bucket['title_text']),
                 label_text=_bucketlist(iri_bucket['label_text']),
                 match_count=iri_bucket['doc_count'],
+            )
+
+        def _valuesearch_date_result(self, date_bucket):
+            return ValuesearchResult(
+                value_iri=None,
+                value_value=date_bucket['key_as_string'],
+                label_text=(date_bucket['key_as_string'],),
+                match_count=date_bucket['doc_count'],
             )
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
@@ -730,7 +785,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 ))
             _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
             _filtervalue_info = [
-                self._valuesearch_result(_iri_bucket)
+                self._valuesearch_iri_result(_iri_bucket)
                 for _iri_bucket in _filtervalue_agg['buckets']
             ]
             _relatedproperty_list = [

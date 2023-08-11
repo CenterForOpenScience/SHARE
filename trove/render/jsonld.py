@@ -62,11 +62,12 @@ class RdfJsonldRenderer:
     def twopledict_as_jsonld(self, twopledict: primitive_rdf.RdfTwopleDictionary) -> dict:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
-            _key = self.labeler.get_label_or_iri(_pred)
-            _jsonld[_key] = self._list_or_single_value(_pred, [
-                self.rdfobject_as_jsonld(_obj)
-                for _obj in _objectset
-            ])
+            if _objectset:
+                _key = self.labeler.get_label_or_iri(_pred)
+                _jsonld[_key] = self._list_or_single_value(_pred, [
+                    self.rdfobject_as_jsonld(_obj)
+                    for _obj in _objectset
+                ])
         return _jsonld
 
     def __nested_rdfobject_as_jsonld(

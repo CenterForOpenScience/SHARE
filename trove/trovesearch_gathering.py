@@ -253,13 +253,17 @@ def _value_info_json(result: ValuesearchResult) -> primitive_rdf.Text:
         pass
     else:
         _value_twopledict[RDFS.label].add(primitive_rdf.text(_label))
-    return _osfmap_json({result.value_iri: _value_twopledict}, result.value_iri)
+    return (
+        _osfmap_json({result.value_iri: _value_twopledict}, result.value_iri)
+        if result.value_iri
+        else _osfmap_twople_json(_value_twopledict)
+    )
 
 
 def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
     return primitive_rdf.freeze_blanknode({
         RDF.type: {TROVE.Indexcard},
-        TROVE.resourceIdentifier: {primitive_rdf.text(result.value_iri)},
+        TROVE.resourceIdentifier: {primitive_rdf.text(result.value_iri or result.value_value)},
         TROVE.resourceMetadata: {_value_info_json(result)},
     })
 
@@ -270,6 +274,12 @@ def _osfmap_json(tripledict, focus_iri):
             tripledict,
             focus_iri,
         )
+    )
+
+
+def _osfmap_twople_json(twopledict):
+    return _literal_json(
+        RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).twopledict_as_jsonld(twopledict),
     )
 
 

@@ -53,7 +53,8 @@ class PropertysearchResponse:
 
 @dataclasses.dataclass
 class ValuesearchResult:
-    value_iri: str
+    value_iri: str | None
+    value_value: str | None = None
     value_type: Iterable[str] = ()
     name_text: Iterable[str] = ()
     title_text: Iterable[str] = ()
@@ -61,11 +62,16 @@ class ValuesearchResult:
     match_count: int = 0
     total_count: int = 0
 
+    def __post_init__(self):
+        assert self.value_iri or self.value_value, (
+            f'either value_iri or value_value required (on {self})'
+        )
+
 
 @dataclasses.dataclass
 class ValuesearchResponse:
-    total_result_count: int
     search_result_page: Iterable[ValuesearchResult]
-    next_page_cursor: Optional[str]
-    prev_page_cursor: Optional[str]
-    first_page_cursor: Optional[str]
+    total_result_count: Optional[int] = None
+    next_page_cursor: Optional[str] = None
+    prev_page_cursor: Optional[str] = None
+    first_page_cursor: Optional[str] = None
