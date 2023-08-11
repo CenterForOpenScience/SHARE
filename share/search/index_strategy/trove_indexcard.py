@@ -628,6 +628,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                         'field': 'nested_date.date_value',
                                         'calendar_interval': 'year',
                                         'format': 'yyyy',
+                                        'order': {'_key': 'desc'},
                                     },
                                 },
                             },
