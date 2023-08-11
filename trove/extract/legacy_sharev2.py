@@ -76,7 +76,8 @@ def _gather_work(focus, *, mnode, source_config):
         yield (DCTERMS.conformsTo, frozenset((
             (FOAF.name, primitive_rdf.text(mnode['registration_type'])),
         )))
-    yield (OSFMAP.dateWithdrawn, primitive_rdf.text(mnode['withdrawn']))  # TODO: is boolean, not date
+    if mnode['withdrawn']:
+        yield (OSFMAP.dateWithdrawn, _date_or_none(mnode['date_updated']))
     yield (OSFMAP.withdrawalJustification, primitive_rdf.text(mnode['justification']))  # TODO: not in OSFMAP
     for _tag in mnode['tags']:
         yield (OSFMAP.keyword, primitive_rdf.text(_tag['name']))
