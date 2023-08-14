@@ -629,6 +629,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                                         'calendar_interval': 'year',
                                         'format': 'yyyy',
                                         'order': {'_key': 'desc'},
+                                        'min_doc_count': 1,
                                     },
                                 },
                             },
