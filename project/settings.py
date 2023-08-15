@@ -349,10 +349,6 @@ if ELASTICSEARCH8_URL:
             'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard.TroveIndexcardIndexStrategy',
             'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
         },
-        # 'trove_identifier': {
-        #     'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_identifier.TroveIdentifierIndexStrategy',
-        #     'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
-        # },
     })
 DEFAULT_INDEX_STRATEGY_FOR_SEARCHING = (
     'sharev2_elastic5'

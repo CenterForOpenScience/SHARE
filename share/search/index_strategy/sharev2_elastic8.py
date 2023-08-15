@@ -39,8 +39,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from IndexStrategy
     @property
-    def backfill_phases(self):
-        return [messages.MessageType.BACKFILL_SUID]
+    def backfill_message_type(self):
+        return messages.MessageType.BACKFILL_SUID
 
     # abstract method from Elastic8IndexStrategy
     def index_settings(self):

@@ -25,8 +25,8 @@ class FakeElastic8IndexStrategy(Elastic8IndexStrategy):
         }
 
     @property
-    def backfill_phases(self):
-        return [messages.MessageType.BACKFILL_SUID]
+    def backfill_message_type(self):
+        return messages.MessageType.BACKFILL_SUID
 
     def index_settings(self):
         return {'my-settings': 'lol'}

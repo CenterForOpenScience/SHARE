@@ -12,12 +12,10 @@ from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
 from share.search.search_request import (
     CardsearchParams,
-    PropertysearchParams,
     ValuesearchParams,
 )
 from share.search.search_response import (
     CardsearchResponse,
-    PropertysearchResponse,
     ValuesearchResponse,
 )
 from share.util.checksum_iri import ChecksumIri
@@ -202,7 +200,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
     @property
     @abc.abstractmethod
-    def backfill_phases(self) -> list[messages.MessageType]:
+    def backfill_message_type(self) -> messages.MessageType:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -310,8 +308,9 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
             raise NotImplementedError
 
-        def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
-            raise NotImplementedError
-
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             raise NotImplementedError
+
+        # TODO someday:
+        # def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
+        #     raise NotImplementedError

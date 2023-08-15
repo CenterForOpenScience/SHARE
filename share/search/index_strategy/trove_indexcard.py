@@ -18,7 +18,6 @@ from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
 from share.search.search_request import (
     CardsearchParams,
-    PropertysearchParams,
     ValuesearchParams,
     SearchFilter,
     Textsegment,
@@ -27,12 +26,11 @@ from share.search.search_request import (
 )
 from share.search.search_response import (
     CardsearchResponse,
-    PropertysearchResponse,
     ValuesearchResponse,
     TextMatchEvidence,
     CardsearchResult,
     ValuesearchResult,
-    PropertysearchResult,
+    PropertypathUsage,
 )
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
@@ -71,10 +69,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from IndexStrategy
     @property
-    def backfill_phases(self):
-        return [
-            messages.MessageType.BACKFILL_INDEXCARD,
-        ]
+    def backfill_message_type(self):
+        return messages.MessageType.BACKFILL_INDEXCARD
 
     def index_settings(self):
         return {}
@@ -327,14 +323,6 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
             return self._valuesearch_response(valuesearch_params, _es8_response, _cursor)
-
-        def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
-            # _propertycard_filter = SearchFilter(
-            #     property_path=(RDF.type,),
-            #     value_set=frozenset([RDF.Property]),
-            #     operator=SearchFilter.FilterOperator.ANY_OF,
-            # )
-            raise NotImplementedError('TODO: just static PropertysearchResponse somewhere')
 
         def get_identifier_usage_as_value(self, identifier: trove_db.ResourceIdentifier) -> Optional[dict]:
             _filter_cards_with_identifier = {'nested': {
@@ -834,7 +822,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 for _iri_bucket in _filtervalue_agg['buckets']
             ]
             _relatedproperty_list = [
-                PropertysearchResult(property_path=_path, usage_count=0)
+                PropertypathUsage(property_path=_path, usage_count=0)
                 for _path in cardsearch_params.related_property_paths
             ]
             _relatedproperty_by_path = {

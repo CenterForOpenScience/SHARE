@@ -328,7 +328,7 @@ class IndexBackfillAdmin(admin.ModelAdmin):
     actions = ('reset_to_initial',)
 
     def reset_to_initial(self, request, queryset):
-        queryset.update(backfill_status=IndexBackfill.INITIAL, backfill_phase_index=0)
+        queryset.update(backfill_status=IndexBackfill.INITIAL)
 
 
 class FeatureFlagAdmin(admin.ModelAdmin):

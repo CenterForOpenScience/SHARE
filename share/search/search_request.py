@@ -324,34 +324,6 @@ class CardsearchParams:
 
 
 @dataclasses.dataclass(frozen=True)
-class PropertysearchParams(CardsearchParams):
-    # includes fields from CardsearchParams, because a
-    # propertysearch is run in context of a cardsearch
-    propertysearch_text: str
-    propertysearch_textsegment_set: frozenset[str]
-    propertysearch_filter_set: frozenset[SearchFilter]
-
-    # override CardsearchParams
-    @staticmethod
-    def from_queryparams(queryparams: QueryparamDict) -> 'PropertysearchParams':
-        _propertysearch_text = _get_text_queryparam(queryparams, 'propertySearchText')
-        return PropertysearchParams(
-            **CardsearchParams.parse_cardsearch_queryparams(queryparams),
-            propertysearch_text=_propertysearch_text,
-            propertysearch_textsegment_set=Textsegment.split_str(_propertysearch_text),
-            propertysearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'propertySearchFilter'),
-        )
-
-    def to_querydict(self):
-        _querydict = super().to_querydict()
-        if self.propertysearch_text:
-            _querydict['propertySearchText'] = self.propertysearch_text
-        for _filter in self.propertysearch_filter_set:
-            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
-        return _querydict
-
-
-@dataclasses.dataclass(frozen=True)
 class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch

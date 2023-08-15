@@ -48,7 +48,6 @@ class IndexBackfill(models.Model):
     backfill_status = models.TextField(choices=BACKFILL_STATUS_CHOICES, default=INITIAL)
     index_strategy_name = models.TextField(unique=True)
     specific_indexname = models.TextField()
-    backfill_phase_index = models.IntegerField(default=0)
     error_type = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     error_context = models.TextField(blank=True)
@@ -62,7 +61,6 @@ class IndexBackfill(models.Model):
             f'{self.__class__.__name__}('
             f'backfill_status="{self.backfill_status}", '
             f'index_strategy_name="{self.index_strategy_name}", '
-            f'backfill_phase_index={self.backfill_phase_index}, '
             f'modified="{self.modified.isoformat(timespec="minutes")}", '
             ')'
         )
@@ -81,18 +79,12 @@ class IndexBackfill(models.Model):
             assert locked_self.index_strategy_name == index_strategy.name
             current_index = index_strategy.for_current_index()
             if locked_self.specific_indexname == current_index.indexname:
-                # what is "current" has not changed -- should be INITIAL or have a next phase
-                if locked_self.backfill_status == IndexBackfill.INITIAL:
-                    locked_self.backfill_phase_index = 0
-                else:
-                    assert locked_self.backfill_status == IndexBackfill.INDEXING
-                    assert len(index_strategy.backfill_phases) > locked_self.backfill_phase_index + 1
-                    locked_self.backfill_phase_index += 1
+                # what is "current" has not changed -- should be INITIAL
+                assert locked_self.backfill_status == IndexBackfill.INITIAL
             else:
                 # what is "current" has changed! disregard backfill_status
                 locked_self.specific_indexname = current_index.indexname
                 locked_self.backfill_status = IndexBackfill.INITIAL
-                locked_self.backfill_phase_index = 0
             locked_self.__update_error(None)
             try:
                 import share.tasks

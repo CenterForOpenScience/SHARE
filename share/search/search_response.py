@@ -35,20 +35,13 @@ class CardsearchResponse:
     prev_page_cursor: Optional[str]
     first_page_cursor: Optional[str]
     filtervalue_info: Iterable['ValuesearchResult']
-    # related_propertysearch_set: Iterable[PropertysearchParams]
-    related_propertypath_results: Iterable['PropertysearchResult']
+    related_propertypath_results: Iterable['PropertypathUsage']
 
 
 @dataclasses.dataclass
-class PropertysearchResult:
+class PropertypathUsage:
     property_path: tuple[str]
     usage_count: int
-
-
-@dataclasses.dataclass
-class PropertysearchResponse:
-    total_result_count: BoundedCount
-    search_result_page: Iterable[PropertysearchResult]
 
 
 @dataclasses.dataclass

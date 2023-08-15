@@ -35,12 +35,6 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('index-card-search', language_tag='en'),
         },
     },
-    TROVE.Propertysearch: {
-        RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('index-property-search', language_tag='en'),
-        },
-    },
     TROVE.Valuesearch: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
@@ -79,12 +73,6 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('cardSearchText', language_tag='en'),
         },
     },
-    TROVE.propertysearchText: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('propertySearchText', language_tag='en'),
-        },
-    },
     TROVE.valuesearchText: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
@@ -101,12 +89,6 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('cardSearchFilter', language_tag='en'),
-        },
-    },
-    TROVE.propertysearchFilter: {
-        RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('propertySearchFilter', language_tag='en'),
         },
     },
     TROVE.valuesearchFilter: {

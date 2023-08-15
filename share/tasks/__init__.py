@@ -63,7 +63,7 @@ def schedule_index_backfill(self, index_backfill_pk):
     try:
         _index_strategy = IndexStrategy.get_by_name(_index_backfill.index_strategy_name)
         _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
-        _messagetype = _index_strategy.backfill_phases[_index_backfill.backfill_phase_index]
+        _messagetype = _index_strategy.backfill_message_type
         assert _messagetype in _index_strategy.supported_message_types
         if _messagetype == MessageType.BACKFILL_INDEXCARD:
             _targetid_queryset = (

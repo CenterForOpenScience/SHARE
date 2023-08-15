@@ -7,7 +7,6 @@ from gather import primitive_rdf, gathering
 
 from share.search.search_request import (
     CardsearchParams,
-    PropertysearchParams,
     ValuesearchParams,
     PageParam,
 )
@@ -36,7 +35,6 @@ TROVE_GATHERING_NORMS = gathering.GatheringNorms(
     focustype_iris={
         TROVE.Indexcard,
         TROVE.Cardsearch,
-        TROVE.Propertysearch,
         TROVE.Valuesearch,
     },
     vocabulary=TROVE_API_VOCAB,
@@ -57,11 +55,6 @@ def gather_cardsearch_text(focus, *, specific_index, search_params):
     yield (TROVE.cardsearchText, primitive_rdf.text(search_params.cardsearch_text))
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchText)
-def gather_propertysearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.propertysearchText, primitive_rdf.text(search_params.propertysearch_text))
-
-
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
 def gather_valuesearch_text(focus, *, specific_index, search_params):
     yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
@@ -71,12 +64,6 @@ def gather_valuesearch_text(focus, *, specific_index, search_params):
 def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
     yield (TROVE.valuesearchPropertyPath, _literal_json(search_params.valuesearch_property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(search_params.valuesearch_property_path))
-
-
-@trovesearch_by_indexstrategy.gatherer(TROVE.propertysearchFilter)
-def gather_propertysearch_filter(focus, *, specific_index, search_params):
-    for _filter in search_params.propertysearch_filter_set:
-        yield (TROVE.propertysearchFilter, _filter_as_blanknode(_filter, {}))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
@@ -151,34 +138,6 @@ def gather_valuesearch(focus, *, specific_index, search_params):
     yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
     yield from _search_page_links(focus, search_params, _valuesearch_resp)
-
-
-@trovesearch_by_indexstrategy.gatherer(
-    focustype_iris={TROVE.Propertysearch},
-)
-def gather_propertysearch(focus, *, specific_index, search_params):
-    assert isinstance(search_params, PropertysearchParams)
-    _propertysearch_resp = specific_index.pls_handle_propertysearch(search_params)
-    yield (TROVE.WOOP, _literal_json(_propertysearch_resp, indent=2))
-    return
-    yield (TROVE.totalResultCount, _propertysearch_resp.total_result_count)
-    for _result in _propertysearch_resp.search_result_page:
-        yield (_result.card_iri, RDF.type, TROVE.Indexcard)
-        _text_evidence_twoples = (
-            (TROVE.matchEvidence, frozenset((
-                (RDF.type, TROVE.TextMatchEvidence),
-                (TROVE.propertyPath, _literal_json(_evidence.property_path)),
-                (TROVE.osfmapPropertyPath, _osfmap_path(_evidence.property_path)),
-                (TROVE.matchingHighlight, _evidence.matching_highlight),
-                (TROVE.card, _evidence.card_iri),
-            )))
-            for _evidence in _result.text_match_evidence
-        )
-        yield (TROVE.searchResultPage, frozenset((
-            (RDF.type, TROVE.PropertysearchResult),
-            (TROVE.indexCard, _result.card_iri),
-            *_text_evidence_twoples,
-        )))
 
 
 @trovesearch_by_indexstrategy.gatherer(
