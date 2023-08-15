@@ -510,7 +510,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('Label', language_tag='en'),
         },
         JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('label', language_tag='en'),
+            primitive_rdf.text('displayLabel', language_tag='en'),
         },
     },
     JSONAPI_MEMBERNAME: {
