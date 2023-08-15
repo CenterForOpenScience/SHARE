@@ -15,6 +15,23 @@ section, table {
   <section>
     <h2 id="{{index_strategy_name}}"><i>{{ index_strategy_name }}</i> index strategy</h2>
     <section>
+      <h3>queues</h3>
+      <table>
+        <tr>
+          <th>{% trans "name" %}</th>
+          <th>{% trans "depth" %}</th>
+          <th>{% trans "rate (past 30s)" %}</th>
+        </tr>
+        {% for queue_info in indexes.queues %}
+          <tr>
+            <td>{{ queue_info.name }}</td>
+            <td>{{ queue_info.queue_depth }}</td>
+            <td>{{ queue_info.avg_ack_rate }}/s</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </section>
+    <section>
       <h3 id="{{indexes.current.status.specific_indexname}}">current index: <i>{{indexes.current.status.specific_indexname}}</i></h3>
       <table>
         <tr>
@@ -50,7 +67,7 @@ section, table {
               {% csrf_token %}
               <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="start_backfill" />
-              <input type="submit" value="{% if indexes.current.backfill.next_phase_name %}{% trans "start next backfill phase" %} ({{indexes.current.backfill.next_phase_name}}){% else %}{% trans "start backfill" %}{% endif %}" />
+              <input type="submit" value="{% trans "start backfill" %}" />
             </form>
             {% elif indexes.current.backfill.can_mark_backfill_complete %}
             <form method="post">
@@ -74,10 +91,6 @@ section, table {
               <p><a href="{{indexes.current.backfill.backfill_admin_url}}">
                 {{ indexes.current.backfill.backfill_status }}
               </a></p>
-              {% if not indexes.current.backfill.is_complete %}
-                <p>{% trans "phase" %} {{ indexes.current.backfill.phase_ratio }} ({{indexes.current.backfill.phase_name}})</p>
-                <p>({{ indexes.current.backfill.backfill_rate }}/second; {{ indexes.current.backfill.backfill_queue_depth }} to go)</p>
-              {% endif %}
             {% else %}
             --
             {% endif %}

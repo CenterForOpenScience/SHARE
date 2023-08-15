@@ -109,7 +109,10 @@ class IndexMessenger:
                 }
         except Exception:
             sentry_sdk.capture_exception()
-            return '??'
+            return {
+                'queue_depth': '??',
+                'avg_ack_rate': '??',
+            }
 
     def send_messages_chunk(self, messages_chunk: MessagesChunk, *, urgent=False):
         with self._open_message_queues(messages_chunk.message_type, urgent) as message_queues:
