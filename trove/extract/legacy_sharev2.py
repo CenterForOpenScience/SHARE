@@ -190,20 +190,6 @@ def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
     }
     for _typename in _typenames:
         yield SHAREv2[_typename]
-    if 'Preprint' in _typenames:
-        yield OSFMAP.Preprint
-    if 'Project' in _typenames:
-        if _has_parent(mnode):
-            yield OSFMAP.ProjectComponent
-        else:
-            yield OSFMAP.Project
-    if 'Registration' in _typenames:
-        if _has_parent(mnode):
-            yield OSFMAP.RegistrationComponent
-        else:
-            yield OSFMAP.Registration
-    if 'Agent' in _typenames:
-        yield DCTERMS.Agent
 
 
 def _agentwork_relation_iri(agentwork_relation: MutableNode):

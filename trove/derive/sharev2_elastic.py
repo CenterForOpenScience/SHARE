@@ -48,7 +48,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
         _allowed_focustype_iris = {
-            SHAREv2.AbstractCreativeWork,
+            SHAREv2.CreativeWork,
             OSFMAP.Project,
             OSFMAP.ProjectComponent,
             OSFMAP.Registration,
