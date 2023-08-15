@@ -136,6 +136,8 @@ class SearchFilter:
         # TODO: use iris from TROVE IriNamespace
         ANY_OF = 'any-of'
         NONE_OF = 'none-of'
+        IS_PRESENT = 'is-present'
+        IS_ABSENT = 'is-absent'
         BEFORE = 'before'
         AFTER = 'after'
         AT_DATE = 'at-date'
@@ -145,6 +147,9 @@ class SearchFilter:
 
         def is_iri_operator(self):
             return self in (self.ANY_OF, self.NONE_OF)
+
+        def is_valueless_operator(self):
+            return self in (self.IS_PRESENT, self.IS_ABSENT)
 
     property_path: tuple[str]
     value_set: frozenset[str]
@@ -179,7 +184,7 @@ class SearchFilter:
             except ValueError:
                 raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
         _propertypath = tuple(
-            osfmap_labeler.iri_for_label(_pathstep)
+            osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
             for _pathstep in split_queryparam_value(_serialized_path)
         )
         _is_date_property = is_date_property(_propertypath[-1])
@@ -192,16 +197,17 @@ class SearchFilter:
         if _operator.is_date_operator() and not _is_date_property:
             raise ValueError(f'cannot use date operator {_operator.value} on non-date property')
         _value_list = []
-        for _value in split_queryparam_value(param_value):
-            if _is_date_property:
-                _value_list.append(_value)  # TODO: vali-date
-            else:
-                try:
-                    _iri = osfmap_labeler.iri_for_label(_value)
-                except KeyError:  # not a known shorthand
-                    _value_list.append(_value)  # assume iri already
+        if not _operator.is_valueless_operator():
+            for _value in split_queryparam_value(param_value):
+                if _is_date_property:
+                    _value_list.append(_value)  # TODO: vali-date
                 else:
-                    _value_list.append(_iri)
+                    try:
+                        _iri = osfmap_labeler.iri_for_label(_value)
+                    except KeyError:  # not a known shorthand
+                        _value_list.append(_value)  # assume iri already
+                    else:
+                        _value_list.append(_iri)
         return cls(
             property_path=_propertypath,
             value_set=frozenset(_value_list),

@@ -49,11 +49,13 @@ class IriLabeler:
             self.__labels_by_iri = _labels_by_iri
             return _labels_by_iri
 
-    def iri_for_label(self, label: str) -> str:
+    def iri_for_label(self, label: str, *, default=None) -> str:
         _labelkey = label
         for _prefix in self.acceptable_prefixes:
             if label.startswith(_prefix):
                 _labelkey = label[len(_prefix):]  # remove prefix
+        if default:
+            return self.all_iris_by_label().get(_labelkey, default)
         return self.all_iris_by_label()[_labelkey]  # may raise KeyError
 
     def label_for_iri(self, iri: str) -> str:

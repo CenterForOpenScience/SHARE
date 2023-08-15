@@ -446,6 +446,10 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                     _bool_query['must_not'].append(self._cardsearch_iri_filter(_searchfilter))
                 elif _searchfilter.operator == SearchFilter.FilterOperator.ANY_OF:
                     _bool_query['filter'].append(self._cardsearch_iri_filter(_searchfilter))
+                elif _searchfilter.operator == SearchFilter.FilterOperator.IS_PRESENT:
+                    _bool_query['filter'].append(self._cardsearch_presence_filter(_searchfilter))
+                elif _searchfilter.operator == SearchFilter.FilterOperator.IS_ABSENT:
+                    _bool_query['must_not'].extend(self._cardsearch_presence_queries(_searchfilter))
                 elif _searchfilter.operator.is_date_operator():
                     _bool_query['filter'].append(self._cardsearch_date_filter(_searchfilter))
                 else:
@@ -695,6 +699,38 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
                 label_text=(date_bucket['key_as_string'],),
                 match_count=date_bucket['doc_count'],
             )
+
+        def _cardsearch_presence_filter(self, search_filter) -> dict:
+            return {'bool': {
+                'minimum_should_match': 1,
+                'should': self._cardsearch_presence_queries(search_filter),
+            }}
+
+        def _cardsearch_presence_queries(self, search_filter) -> list[dict]:
+            _path_keyword = iri_path_as_keyword(
+                search_filter.property_path,
+                suffuniq=True,
+            )
+            return [
+                {'nested': {
+                    'path': 'nested_iri',
+                    'query': {'term': {
+                        'nested_iri.suffuniq_path_from_focus': _path_keyword,
+                    }},
+                }},
+                {'nested': {
+                    'path': 'nested_date',
+                    'query': {'term': {
+                        'nested_date.suffuniq_path_from_focus': _path_keyword,
+                    }},
+                }},
+                {'nested': {
+                    'path': 'nested_text',
+                    'query': {'term': {
+                        'nested_text.suffuniq_path_from_focus': _path_keyword,
+                    }},
+                }},
+            ]
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
             return {'nested': {
