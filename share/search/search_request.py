@@ -14,7 +14,7 @@ from trove.util.queryparams import (
     queryparams_from_querystring,
     QUERYPARAM_VALUES_DELIM,
 )
-from trove.vocab.osfmap import osfmap_labeler, is_date_property, suggested_property_iris
+from trove.vocab.osfmap import osfmap_labeler, is_date_property, suggested_property_paths
 from trove.vocab.namespaces import RDF
 
 
@@ -405,8 +405,4 @@ def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
                 _type_iris.update(_filter.value_set)
             if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
                 _type_iris.difference_update(_filter.value_set)
-    _property_iris = suggested_property_iris(_type_iris)
-    return tuple(  # tuple of tuples
-        (_property_iri,)  # path of length 1
-        for _property_iri in _property_iris
-    )
+    return suggested_property_paths(_type_iris)

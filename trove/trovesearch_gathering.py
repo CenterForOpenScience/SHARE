@@ -13,6 +13,7 @@ from share.search.search_request import (
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
+from trove.util.queryparams import QUERYPARAM_VALUES_DELIM
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB
 from trove.vocab.trove import (
@@ -60,10 +61,9 @@ def gather_valuesearch_text(focus, *, specific_index, search_params):
     yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchPropertyPath)
+@trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
 def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
-    yield (TROVE.valuesearchPropertyPath, _literal_json(search_params.valuesearch_property_path))
-    yield (TROVE.osfmapPropertyPath, _osfmap_path(search_params.valuesearch_property_path))
+    yield from _propertypath_twoples(search_params.valuesearch_property_path)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
@@ -88,10 +88,9 @@ def gather_cardsearch(focus, *, specific_index, search_params):
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
                 (RDF.type, TROVE.TextMatchEvidence),
-                (TROVE.propertyPath, _literal_json(_evidence.property_path)),
-                (TROVE.osfmapPropertyPath, _osfmap_path(_evidence.property_path)),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.indexCard, _evidence.card_iri),
+                *_propertypath_twoples(_evidence.property_path),
             )))
             for _evidence in _result.text_match_evidence
         )
@@ -196,9 +195,8 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
                 _valueinfo = _literal_json({'@value': _value})
             _filtervalue_twoples.append((TROVE.filterValue, _valueinfo))
     return frozenset((
-        (TROVE.propertyPath, _literal_json(search_filter.property_path)),
-        (TROVE.osfmapPropertyPath, _osfmap_path(search_filter.property_path)),
         (TROVE.filterType, TROVE[search_filter.operator.value]),
+        *_propertypath_twoples(search_filter.property_path),
         *_filtervalue_twoples,
     ))
 
@@ -260,25 +258,41 @@ def _osfmap_path(property_path):
     ])
 
 
+def _propertypath_twoples(property_path: tuple[str, ...]):
+    yield (TROVE.propertyPath, _propertypath_sequence(property_path))
+    yield (TROVE.propertyPathKey, _propertypath_key(property_path))
+    yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
+
+
+def _propertypath_sequence(property_path: tuple[str, ...]):
+    _propertypath_metadata = []
+    for _property_iri in property_path:
+        try:
+            _property_twopledict = OSFMAP_VOCAB[_property_iri]
+        except KeyError:
+            _property_twopledict = {RDF.type: {RDF.Property}}  # giving benefit of the doubt
+        _propertypath_metadata.append(_osfmap_json(
+            {_property_iri: _property_twopledict},
+            focus_iri=_property_iri,
+        ))
+    return primitive_rdf.sequence(_propertypath_metadata)
+
+
 def _related_property_result(property_path: tuple[str, ...], count: int):
-    # assume propertypath of length 1, for now
-    assert len(property_path) == 1
-    _property_iri = property_path[0]
-    _property_metadata = {
-        _property_iri: OSFMAP_VOCAB[_property_iri]
-    }
-    _indexcard = primitive_rdf.freeze_blanknode({
-        RDF.type: {TROVE.Indexcard},
-        TROVE.resourceIdentifier: {primitive_rdf.text(_property_iri)},
-        TROVE.resourceMetadata: {
-            _osfmap_json(_property_metadata, _property_iri),
-        },
-    })
-    return primitive_rdf.freeze_blanknode({
-        RDF.type: {TROVE.SearchResult},
-        TROVE.cardsearchResultCount: {count},
-        TROVE.indexCard: {_indexcard},
-    })
+    return frozenset((
+        (RDF.type, TROVE.RelatedPropertypath),
+        (TROVE.cardsearchResultCount, count),
+        *_propertypath_twoples(property_path),
+    ))
+
+
+def _propertypath_key(property_path: tuple[str, ...]):
+    return primitive_rdf.text(
+        QUERYPARAM_VALUES_DELIM.join(
+            urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
+            for _property_iri in property_path
+        ),
+    )
 
 
 def _search_page_links(search_focus, search_params, search_response):

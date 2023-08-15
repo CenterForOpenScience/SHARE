@@ -29,7 +29,7 @@ DEFAULT_CARDSEARCH_ASK = {
 }
 
 DEFAULT_VALUESEARCH_ASK = {
-    TROVE.valuesearchPropertyPath: None,
+    TROVE.propertyPath: None,
     TROVE.valuesearchText: None,
     TROVE.valuesearchFilter: None,
     TROVE.cardsearchText: None,

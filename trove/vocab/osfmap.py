@@ -655,89 +655,99 @@ osfmap_labeler = IriLabeler(
 )
 
 
-ALL_SUGGESTED_PROPERTY_IRIS = [
-    DCTERMS.created,
-    OSFMAP.funder,
-    DCTERMS.subject,
-    DCTERMS.rights,
-    DCTERMS.type,  # TODO: should this be RDF.type, or does it depend?
-    OSFMAP.affiliation,
-    DCTERMS.publisher,
-    OSFMAP.isPartOfCollection,
-    DCTERMS.conformsTo,
-    DCTERMS.hasVersion,
-    OSFMAP.hasAnalyticCodeResource,
-    OSFMAP.hasDataResource,
-    OSFMAP.hasMaterialsResource,
-    OSFMAP.hasPapersResource,
-    OSFMAP.hasPreregisteredAnalysisPlan,
-    OSFMAP.hasPreregisteredStudyDesign,
-    OSFMAP.hasSupplementalResource,
-    OSFMAP.supplements,
-]
+ALL_SUGGESTED_PROPERTY_PATHS = (
+    (DCTERMS.created,),
+    (OSFMAP.funder,),
+    (DCTERMS.subject,),
+    (DCTERMS.rights,),
+    (DCTERMS.type,),
+    (OSFMAP.affiliation,),
+    (DCTERMS.publisher,),
+    (OSFMAP.isPartOfCollection,),
+    (DCTERMS.conformsTo,),
+    (DCTERMS.hasVersion,),
+    (OSFMAP.hasAnalyticCodeResource,),
+    (OSFMAP.hasDataResource,),
+    (OSFMAP.hasMaterialsResource,),
+    (OSFMAP.hasPapersResource,),
+    (OSFMAP.hasPreregisteredAnalysisPlan,),
+    (OSFMAP.hasPreregisteredStudyDesign,),
+    (OSFMAP.hasSupplementalResource,),
+    (OSFMAP.supplements,),
+)
 
 
-PROJECT_SUGGESTED_PROPERTY_IRIS = [
-    DCTERMS.created,
-    OSFMAP.funder,
-    DCTERMS.rights,
-    DCTERMS.type,
-    OSFMAP.affiliation,
-    OSFMAP.isPartOfCollection,
-    DCTERMS.hasVersion,
-    OSFMAP.supplements,
-]
+PROJECT_SUGGESTED_PROPERTY_PATHS = (
+    (DCTERMS.created,),
+    (OSFMAP.funder,),
+    (DCTERMS.rights,),
+    (DCTERMS.type,),
+    (OSFMAP.affiliation,),
+    (OSFMAP.isPartOfCollection,),
+    (DCTERMS.hasVersion,),
+    (OSFMAP.supplements,),
+)
 
 
-REGISTRATION_SUGGESTED_PROPERTY_IRIS = [
-    DCTERMS.created,
-    OSFMAP.funder,
-    DCTERMS.publisher,
-    DCTERMS.subject,
-    DCTERMS.rights,
-    DCTERMS.type,
-    OSFMAP.affiliation,
-    DCTERMS.conformsTo,
-    DCTERMS.hasVersion,
-    OSFMAP.hasAnalyticCodeResource,
-    OSFMAP.hasDataResource,
-    OSFMAP.hasMaterialsResource,
-    OSFMAP.hasPapersResource,
-    OSFMAP.hasSupplementalResource,
-    OSFMAP.supplements,
-]
+REGISTRATION_SUGGESTED_PROPERTY_PATHS = (
+    (DCTERMS.created,),
+    (OSFMAP.funder,),
+    (DCTERMS.publisher,),
+    (DCTERMS.subject,),
+    (DCTERMS.rights,),
+    (DCTERMS.type,),
+    (OSFMAP.affiliation,),
+    (DCTERMS.conformsTo,),
+    (DCTERMS.hasVersion,),
+    (OSFMAP.hasAnalyticCodeResource,),
+    (OSFMAP.hasDataResource,),
+    (OSFMAP.hasMaterialsResource,),
+    (OSFMAP.hasPapersResource,),
+    (OSFMAP.hasSupplementalResource,),
+    (OSFMAP.supplements,),
+)
 
 
-PREPRINT_SUGGESTED_PROPERTY_IRIS = [
-    DCTERMS.created,
-    DCTERMS.subject,
-    DCTERMS.rights,
-    DCTERMS.publisher,
-    DCTERMS.hasVersion,
-    OSFMAP.hasDataResource,
-    OSFMAP.hasPreregisteredAnalysisPlan,
-    OSFMAP.hasPreregisteredStudyDesign,
-    OSFMAP.supplements,
-]
+PREPRINT_SUGGESTED_PROPERTY_PATHS = (
+    (DCTERMS.created,),
+    (DCTERMS.subject,),
+    (DCTERMS.rights,),
+    (DCTERMS.publisher,),
+    (DCTERMS.hasVersion,),
+    (OSFMAP.hasDataResource,),
+    (OSFMAP.hasPreregisteredAnalysisPlan,),
+    (OSFMAP.hasPreregisteredStudyDesign,),
+    (OSFMAP.supplements,),
+)
 
 
-AGENT_SUGGESTED_PROPERTY_IRIS = [
-    OSFMAP.affiliation,
-]
+FILE_SUGGESTED_PROPERTY_PATHS = (
+    (DCTERMS.created,),
+    (DCTERMS.type,),
+    (OSFMAP.isContainedBy, OSFMAP.funder,),
+    (OSFMAP.isContainedBy, DCTERMS.rights,),
+)
 
 
-def suggested_property_iris(type_iris: set[str]) -> list[str]:
+AGENT_SUGGESTED_PROPERTY_PATHS = (
+    (OSFMAP.affiliation,),
+)
+
+
+def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):
-        return []
+        return ()
     if type_iris == {DCTERMS.Agent}:
-        return AGENT_SUGGESTED_PROPERTY_IRIS
+        return AGENT_SUGGESTED_PROPERTY_PATHS
     if type_iris == {OSFMAP.Preprint}:
-        return PREPRINT_SUGGESTED_PROPERTY_IRIS
+        return PREPRINT_SUGGESTED_PROPERTY_PATHS
+    if type_iris == {OSFMAP.File}:
+        return FILE_SUGGESTED_PROPERTY_PATHS
     if type_iris <= {OSFMAP.Project, OSFMAP.ProjectComponent}:
-        return PROJECT_SUGGESTED_PROPERTY_IRIS
+        return PROJECT_SUGGESTED_PROPERTY_PATHS
     if type_iris <= {OSFMAP.Registration, OSFMAP.RegistrationComponent}:
-        return REGISTRATION_SUGGESTED_PROPERTY_IRIS
-    return ALL_SUGGESTED_PROPERTY_IRIS
+        return REGISTRATION_SUGGESTED_PROPERTY_PATHS
+    return ALL_SUGGESTED_PROPERTY_PATHS
 
 
 def is_date_property(property_iri):

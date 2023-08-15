@@ -47,6 +47,12 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('search-result', language_tag='en'),
         },
     },
+    TROVE.RelatedPropertypath: {
+        RDF.type: {RDFS.Class},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('related-property-path', language_tag='en'),
+        },
+    },
     TROVE.TextMatchEvidence: {
         RDF.type: {RDFS.Class},
         JSONAPI_MEMBERNAME: {
@@ -77,12 +83,6 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('valueSearchText', language_tag='en'),
-        },
-    },
-    TROVE.valuesearchPropertyPath: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('valueSearchPropertyPath', language_tag='en'),
         },
     },
     TROVE.cardsearchFilter: {
@@ -125,6 +125,12 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('propertyPath', language_tag='en'),
+        },
+    },
+    TROVE.propertyPathKey: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('propertyPathKey', language_tag='en'),
         },
     },
     TROVE.osfmapPropertyPath: {
