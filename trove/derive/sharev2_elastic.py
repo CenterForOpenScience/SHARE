@@ -8,7 +8,15 @@ from share.schema import ShareV2Schema
 from share.schema.exceptions import SchemaKeyError
 from share.util import IDObfuscator
 from share import models as share_db
-from trove.vocab.namespaces import DCTERMS, FOAF, RDF, DCAT, SHAREv2, OSFMAP
+from trove.vocab.namespaces import (
+    DCAT,
+    DCTERMS,
+    FOAF,
+    OSFMAP,
+    RDF,
+    SHAREv2,
+    SKOS,
+)
 
 from ._base import IndexcardDeriver
 
@@ -66,6 +74,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         except share_db.SourceUniqueIdentifier.DoesNotExist:
             pass  # ok, use the actual suid
         _source_name = _suid.source_config.source.long_title
+        _subjects, _subject_synonyms = self._subjects_and_synonyms(_source_name)
         _derived_sharev2 = {
             ###
             # metadata about the record/indexcard in this system
@@ -93,8 +102,8 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             'withdrawn': bool(self._single_value(OSFMAP.dateWithdrawn)),
             'identifiers': self._string_list(DCTERMS.identifier),
             'tags': self._string_list(OSFMAP.keyword),
-            'subjects': self._string_list(DCTERMS.subject),
-            'subject_synonyms': self._string_list(DCTERMS.subject),
+            'subjects': _subjects,
+            'subject_synonyms': _subject_synonyms,
             # related names:
             'affiliations': self._related_names(OSFMAP.affiliatedInstitution),
             'contributors': self._related_names(DCTERMS.contributor, DCTERMS.creator),
@@ -154,10 +163,10 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                 continue
         return None
 
-    def _string_list(self, *predicate_iris, focus_iri=None):
+    def _string_list(self, *predicate_paths, focus_iri=None):
         _object_iter = self.data.q(
             focus_iri or self.focus_iri,
-            predicate_iris,
+            predicate_paths,
         )
         return [
             _obj_to_string_or_none(_obj)
@@ -269,6 +278,38 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             'title': self._single_string(DCTERMS.title, focus_iri=work_iri),
             'identifiers': self._string_list(DCTERMS.identifier, focus_iri=work_iri),
         }
+
+    def _subjects_and_synonyms(self, source_name):
+        _subjects = []
+        _subject_synonyms = []
+        # making extra osf-specific assumptions here
+        for _subject in self.data.q(self.focus_iri, DCTERMS.subject):
+            if isinstance(_subject, str):
+                _bepress_lineage = self._subject_lineage(_subject, SKOS.prefLabel)
+                _source_specific_lineage = self._subject_lineage(_subject, SKOS.altLabel)
+                if _source_specific_lineage:
+                    _subjects.append(_serialize_subject(source_name, _source_specific_lineage))
+                    if _bepress_lineage:
+                        _subject_synonyms.append(_serialize_subject('bepress', _bepress_lineage))
+                elif _bepress_lineage:
+                    _subjects.append(_serialize_subject('bepress', _bepress_lineage))
+        return _subjects, _subject_synonyms
+
+    def _subject_lineage(self, subject_iri, label_predicate_iri) -> tuple[str, ...]:
+        _labeltext = next(self.data.q(subject_iri, label_predicate_iri), None)
+        if not isinstance(_labeltext, primitive_rdf.Text):
+            return ()
+        _label = _labeltext.unicode_text
+        _parent = next(self.data.q(subject_iri, SKOS.broader), None)
+        return (
+            (*self._subject_lineage(_parent, label_predicate_iri), _label)
+            if _parent
+            else (_label,)
+        )
+
+
+def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> str:
+    return '|'.join((taxonomy_name, *subject_lineage))
 
 
 def _obj_to_string_or_none(obj):
