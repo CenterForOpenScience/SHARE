@@ -152,6 +152,8 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
 
     def _build_sourcedoc(self, indexcard_rdf):
         _rdfdoc = primitive_rdf.TripledictWrapper(indexcard_rdf.as_rdf_tripledict())
+        if not any(_rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES)):
+            return None  # skip cards without some value for name/title/label
         _nested_iris = defaultdict(set)
         _nested_dates = defaultdict(set)
         _nested_texts = defaultdict(set)
@@ -243,12 +245,14 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _suid = _indexcard_rdf.indexcard.source_record_suid
             if messages_chunk.message_type.is_backfill and _suid.has_forecompat_replacement():
                 continue  # skip this one, let it get deleted
-            _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
-            _index_action = self.build_index_action(
-                doc_id=_indexcard_rdf.indexcard.get_iri(),
-                doc_source=self._build_sourcedoc(_indexcard_rdf),
-            )
-            yield _indexcard_rdf.indexcard_id, _index_action
+            _sourcedoc = self._build_sourcedoc(_indexcard_rdf)
+            if _sourcedoc:
+                _index_action = self.build_index_action(
+                    doc_id=_indexcard_rdf.indexcard.get_iri(),
+                    doc_source=_sourcedoc,
+                )
+                _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
+                yield _indexcard_rdf.indexcard_id, _index_action
         # delete any that don't have "latest" rdf
         _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:
