@@ -198,13 +198,22 @@ def expel(from_user: share_db.ShareUser, record_identifier: str):
 
 @celery.shared_task(acks_late=True, bind=True)
 def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
-    _raw = share_db.RawDatum.objects.select_related('suid').get(id=raw_id)
-    _indexcards = extract(_raw, undelete_indexcards=urgent)
-    if _raw.is_latest():
-        _messenger = IndexMessenger(celery_app=task.app)
-        for _indexcard in _indexcards:
-            derive(_indexcard)
-        _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
+    _raw = (
+        share_db.RawDatum.objects
+        .select_related('suid__source_config__source')
+        .get(id=raw_id)
+    )
+    _source_config = _raw.suid.source_config
+    if _source_config.disabled or _source_config.source.is_deleted:
+        for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=_raw.suid):
+            _indexcard.pls_delete()
+    else:
+        _indexcards = extract(_raw, undelete_indexcards=urgent)
+        if _raw.is_latest():
+            _messenger = IndexMessenger(celery_app=task.app)
+            for _indexcard in _indexcards:
+                derive(_indexcard)
+            _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)

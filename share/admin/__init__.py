@@ -151,13 +151,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
 
     @admin.action(description='schedule re-ingest of all raw data for each source config')
     def schedule_full_ingest(self, request, queryset):
-        _id_qs = (
-            queryset
-            .exclude(disabled=True)
-            .exclude(source__is_deleted=True)
-            .values_list('id', flat=True)
-        )
-        for _id in _id_qs:
+        for _id in queryset.values_list('id', flat=True):
             digestive_tract.task__schedule_extract_and_derive_for_source_config.delay(_id)
 
     def get_urls(self):
