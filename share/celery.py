@@ -56,9 +56,7 @@ class CeleryDatabaseBackend(BaseDictBackend):
         fields = {
             'result': result,
             'traceback': traceback,
-            'meta': {
-                'children': self.current_task_children(request),
-            }
+            'meta': {}
         }
 
         if status is not None:
