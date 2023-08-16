@@ -3,6 +3,7 @@ from django.utils.html import format_html
 
 from share.admin import admin_site
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many
+from share.search.index_messenger import IndexMessenger
 from trove.models import ResourceIdentifier, Indexcard, LatestIndexcardRdf, ArchivedIndexcardRdf, DerivedIndexcard
 
 
@@ -40,6 +41,12 @@ class IndexcardAdmin(admin.ModelAdmin):
     show_full_result_count = False
     search_fields = ('uuid',)
     list_select_related = ('source_record_suid',)
+    list_filter = ('deleted', 'source_record_suid__source_config')
+    actions = ('_freshen_index',)
+
+    def _freshen_index(self, request, queryset):
+        IndexMessenger().notify_indexcard_update(queryset)
+    _freshen_index.short_description = 'freshen indexcard in search index'
 
 
 @admin.register(LatestIndexcardRdf, site=admin_site)

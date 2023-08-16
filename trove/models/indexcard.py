@@ -138,7 +138,6 @@ class Indexcard(models.Model):
     def get_iri(self):
         return trove_indexcard_iri(self.uuid)
 
-    @transaction.atomic
     def pls_delete(self):
         # do not actually delete Indexcard, just mark deleted:
         if self.deleted is None:

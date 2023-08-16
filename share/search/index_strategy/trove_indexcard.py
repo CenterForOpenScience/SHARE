@@ -234,6 +234,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         _indexcard_rdf_qs = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
+            .exclude(indexcard__deleted__isnull=False)
             .select_related('indexcard__source_record_suid__source_config')
             .prefetch_related('indexcard__focus_identifier_set')
         )
