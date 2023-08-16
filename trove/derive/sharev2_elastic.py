@@ -88,9 +88,9 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             'justification': self._single_string(OSFMAP.withdrawalJustification),
             'language': self._single_string(DCTERMS.language),
             'registration_type': self._single_string(OSFMAP.registration_type),
-            'retracted': bool(self._single_string(OSFMAP.dateWithdrawn)),
+            'retracted': bool(self._single_value(OSFMAP.dateWithdrawn)),
             'title': self._single_string(DCTERMS.title),
-            'withdrawn': self._single_string(OSFMAP.dateWithdrawn),
+            'withdrawn': bool(self._single_value(OSFMAP.dateWithdrawn)),
             'identifiers': self._string_list(DCTERMS.identifier),
             'tags': self._string_list(OSFMAP.keyword),
             'subjects': self._string_list(DCTERMS.subject),
@@ -132,13 +132,13 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         ]
 
     def _single_date(self, *predicate_iris, focus_iri=None):
-        _val = self._single_value(predicate_iris, focus_iri)
+        _val = self._single_value(*predicate_iris, focus_iri)
         if isinstance(_val, datetime.date):
             return _val.isoformat()
         return _val
 
     def _single_string(self, *predicate_iris, focus_iri=None):
-        return _obj_to_string_or_none(self._single_value(predicate_iris, focus_iri))
+        return _obj_to_string_or_none(self._single_value(*predicate_iris, focus_iri))
 
     def _single_value(self, *predicate_iris, focus_iri=None):
         # for sharev2 back-compat, some fields must have a single value
