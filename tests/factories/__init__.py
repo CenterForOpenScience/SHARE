@@ -9,7 +9,8 @@ import faker
 
 from project import celery_app
 
-from share import models
+from share import models as share_db
+from trove import models as trove_db
 
 
 fake = faker.Faker()
@@ -20,7 +21,7 @@ class ShareUserFactory(DjangoModelFactory):
     source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
 
     class Meta:
-        model = models.ShareUser
+        model = share_db.ShareUser
 
 
 class NormalizedDataFactory(DjangoModelFactory):
@@ -28,7 +29,7 @@ class NormalizedDataFactory(DjangoModelFactory):
     source = factory.SubFactory(ShareUserFactory)
 
     class Meta:
-        model = models.NormalizedData
+        model = share_db.NormalizedData
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -51,7 +52,7 @@ class SourceFactory(DjangoModelFactory):
     user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
-        model = models.Source
+        model = share_db.Source
 
 
 class ListGenerator(list):
@@ -71,7 +72,7 @@ class SourceConfigFactory(DjangoModelFactory):
     transformer_key = None
 
     class Meta:
-        model = models.SourceConfig
+        model = share_db.SourceConfig
 
 
 class SourceUniqueIdentifierFactory(DjangoModelFactory):
@@ -79,7 +80,7 @@ class SourceUniqueIdentifierFactory(DjangoModelFactory):
     source_config = factory.SubFactory(SourceConfigFactory)
 
     class Meta:
-        model = models.SourceUniqueIdentifier
+        model = share_db.SourceUniqueIdentifier
 
 
 class RawDatumFactory(DjangoModelFactory):
@@ -88,7 +89,7 @@ class RawDatumFactory(DjangoModelFactory):
     sha256 = factory.LazyAttribute(lambda r: hashlib.sha256(r.datum.encode()).hexdigest())
 
     class Meta:
-        model = models.RawDatum
+        model = share_db.RawDatum
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -112,20 +113,60 @@ class HarvestJobFactory(DjangoModelFactory):
     harvester_version = factory.SelfAttribute('source_config.harvester.version')
 
     class Meta:
-        model = models.HarvestJob
+        model = share_db.HarvestJob
 
 
 class CeleryTaskResultFactory(DjangoModelFactory):
     task_id = factory.Sequence(lambda x: uuid.uuid4())
     task_name = fuzzy.FuzzyChoice(list(celery_app.tasks.keys()))
-    status = fuzzy.FuzzyChoice(list(zip(*models.CeleryTaskResult._meta.get_field('status').choices))[0])
+    status = fuzzy.FuzzyChoice(list(zip(*share_db.CeleryTaskResult._meta.get_field('status').choices))[0])
 
     class Meta:
-        model = models.CeleryTaskResult
+        model = share_db.CeleryTaskResult
 
 
 class FormattedMetadataRecordFactory(DjangoModelFactory):
     suid = factory.SubFactory(SourceUniqueIdentifierFactory)
 
     class Meta:
-        model = models.FormattedMetadataRecord
+        model = share_db.FormattedMetadataRecord
+
+
+###
+# trove models
+
+class ResourceIdentifierFactory(DjangoModelFactory):
+    sufficiently_unique_iri = factory.Sequence(lambda x: f'://test.example/{x}')
+    scheme_list = ['foo']
+
+    class Meta:
+        model = trove_db.ResourceIdentifier
+
+
+class IndexcardFactory(DjangoModelFactory):
+    uuid = factory.Sequence(lambda x: uuid.uuid4())
+    source_record_suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+
+    class Meta:
+        model = trove_db.Indexcard
+
+
+class LatestIndexcardRdfFactory(DjangoModelFactory):
+    from_raw_datum = factory.SubFactory(RawDatumFactory)
+    indexcard = factory.SubFactory(IndexcardFactory)
+    focus_iri = factory.Sequence(lambda x: f'http://test.example/{x}')
+    rdf_as_turtle = factory.Sequence(lambda x: f'<http://test.example/{x}> a <http://text.example/Greeting>')
+    # turtle_checksum_iri =
+
+    class Meta:
+        model = trove_db.LatestIndexcardRdf
+
+
+class DerivedIndexcardFactory(DjangoModelFactory):
+    upriver_indexcard = factory.SubFactory(IndexcardFactory)
+    deriver_identifier = factory.SubFactory(ResourceIdentifierFactory)
+    derived_text = 'hello'
+    # derived_checksum_iri =
+
+    class Meta:
+        model = trove_db.DerivedIndexcard

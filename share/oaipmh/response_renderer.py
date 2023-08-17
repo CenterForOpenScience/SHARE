@@ -37,7 +37,7 @@ class OAIRenderer:
         SubEl(identifier, ns('oai-identifier', 'scheme'), 'oai')
         SubEl(identifier, ns('oai-identifier', 'repositoryIdentifier'), self.repository.REPOSITORY_IDENTIFIER)
         SubEl(identifier, ns('oai-identifier', 'delimiter'), self.repository.IDENTIFER_DELIMITER)
-        SubEl(identifier, ns('oai-identifier', 'sampleIdentifier'), self.repository.oai_identifier(1))
+        SubEl(identifier, ns('oai-identifier', 'sampleIdentifier'), self.repository.sample_identifier())
 
         return self._render(identify)
 
@@ -58,23 +58,23 @@ class OAIRenderer:
             SubEl(set, ns('oai', 'setName'), name)
         return self._render(list_sets)
 
-    def listIdentifiers(self, records, next_token):
+    def listIdentifiers(self, indexcards, next_token):
         list_identifiers = etree.Element(ns('oai', 'ListIdentifiers'))
-        for record in records:
-            list_identifiers.append(self._header(record))
+        for _indexcard in indexcards:
+            list_identifiers.append(self._header(_indexcard))
         SubEl(list_identifiers, ns('oai', 'resumptionToken'), next_token)
         return self._render(list_identifiers)
 
-    def listRecords(self, records, next_token):
+    def listRecords(self, indexcards, next_token):
         list_records = etree.Element(ns('oai', 'ListRecords'))
-        for record in records:
-            list_records.append(self._record(record))
+        for _indexcard in indexcards:
+            list_records.append(self._record(_indexcard))
         SubEl(list_records, ns('oai', 'resumptionToken'), next_token)
         return self._render(list_records)
 
-    def getRecord(self, record):
+    def getRecord(self, indexcard):
         get_record = etree.Element(ns('oai', 'GetRecord'))
-        get_record.append(self._record(record))
+        get_record.append(self._record(indexcard))
         return self._render(get_record)
 
     def errors(self, errors):
@@ -106,17 +106,17 @@ class OAIRenderer:
 
         return etree.tostring(root, encoding='utf-8', xml_declaration=True)
 
-    def _header(self, record):
+    def _header(self, indexcard):
         header = etree.Element(ns('oai', 'header'))
-        SubEl(header, ns('oai', 'identifier'), self.repository.oai_identifier(record))
-        SubEl(header, ns('oai', 'datestamp'), format_datetime(record.date_modified)),
-        SubEl(header, ns('oai', 'setSpec'), record.suid.source_config.source.name)
+        SubEl(header, ns('oai', 'identifier'), self.repository.oai_identifier(indexcard))
+        SubEl(header, ns('oai', 'datestamp'), format_datetime(indexcard.oai_datestamp)),
+        SubEl(header, ns('oai', 'setSpec'), indexcard.source_record_suid.source_config.source.name)
         return header
 
-    def _record(self, record):
-        record_element = etree.Element(ns('oai', 'record'))
-        record_element.append(self._header(record))
-        metadata = SubEl(record_element, ns('oai', 'metadata'))
-        metadata.append(etree.fromstring(record.formatted_metadata))
+    def _record(self, indexcard):
+        _record_element = etree.Element(ns('oai', 'record'))
+        _record_element.append(self._header(indexcard))
+        _metadata = SubEl(_record_element, ns('oai', 'metadata'))
+        _metadata.append(etree.fromstring(indexcard.oai_metadata))
         # TODO SHARE-730 Add <about><provenance><originDescription> elements
-        return record_element
+        return _record_element
