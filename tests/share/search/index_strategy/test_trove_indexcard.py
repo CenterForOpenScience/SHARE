@@ -1,6 +1,7 @@
 from tests import factories
 from share.search import messages
 from trove import models as trove_db
+from trove.vocab.namespaces import RDFS
 from ._with_real_services import RealElasticTestCase
 
 
@@ -22,8 +23,8 @@ class TestTroveIndexcard(RealElasticTestCase):
             from_raw_datum=self.__raw,
             indexcard=self.__indexcard,
             focus_iri='http://foo.example/hello',
-            rdf_as_turtle='<http://foo.example/hello> a <http://foo.example/Fake> .',
-            turtle_checksum_iri='foo',
+            rdf_as_turtle=f'<http://foo.example/hello> <{RDFS.label}> "hello".',
+            turtle_checksum_iri='foo',  # not enforced
         )
 
     def test_without_daemon(self):

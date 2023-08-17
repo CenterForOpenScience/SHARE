@@ -137,6 +137,7 @@ class AbstractBaseJob(models.Model):
         comprised = 'Comprised of succeeded tasks'
         pointless = 'Any effects will be overwritten by another queued job'
         obsolete = 'Uses an old version of a dependency'
+        disabled = 'Source(Config) disabled/deleted'
 
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)

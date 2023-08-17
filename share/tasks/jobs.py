@@ -141,11 +141,8 @@ class JobConsumer:
             return False
 
     def _maybe_skip_by_source_config(self, job, source_config) -> bool:
-        if source_config.disabled:
-            job.skip('source_config disabled')
-            return True
-        if source_config.source.is_deleted:
-            job.skip('source deleted')
+        if source_config.disabled or source_config.source.is_deleted:
+            job.skip(job.SkipReasons.disabled)
             return True
         return False
 

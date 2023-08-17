@@ -14,11 +14,12 @@ class TestSharev2Elastic5(RealElasticTestCase):
     # override method from RealElasticTestCase
     def get_index_strategy(self):
         index_strategy = super().get_index_strategy()
-        index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
+        if not index_strategy.STATIC_INDEXNAME.startswith('test_'):
+            index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
         return index_strategy
 
     def test_without_daemon(self):
-        _formatted_record = self.get_formatted_record()
+        _formatted_record = self._get_formatted_record()
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.INDEX_SUID,
             [_formatted_record.suid_id],

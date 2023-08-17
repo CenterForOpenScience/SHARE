@@ -97,6 +97,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
+        logger.debug('got messages_chunk %s', messages_chunk)
         self.assert_message_type(messages_chunk.message_type)
         bulk_stream = elasticsearch5.helpers.streaming_bulk(
             self.es5_client,
@@ -301,9 +302,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     '_op_type': 'index',
                     '_source': source_doc,
                 }
+            logger.debug('built action for suid_id=%s: %s', record.suid_id, action)
             yield action
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
+            logger.debug('deleting suid_id=%s', leftover_suid_id)
             action = {
                 **action_template,
                 '_id': get_doc_id(leftover_suid_id),

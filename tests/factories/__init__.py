@@ -110,7 +110,7 @@ class HarvestJobFactory(DjangoModelFactory):
     end_date = factory.LazyAttribute(lambda job: job.start_date + datetime.timedelta(days=1))
 
     source_config_version = factory.SelfAttribute('source_config.version')
-    harvester_version = factory.SelfAttribute('source_config.harvester.version')
+    harvester_version = 1
 
     class Meta:
         model = share_db.HarvestJob
@@ -144,7 +144,6 @@ class ResourceIdentifierFactory(DjangoModelFactory):
 
 
 class IndexcardFactory(DjangoModelFactory):
-    uuid = factory.Sequence(lambda x: uuid.uuid4())
     source_record_suid = factory.SubFactory(SourceUniqueIdentifierFactory)
 
     class Meta:

@@ -144,4 +144,5 @@ class IndexMessenger:
     def _put_messages_chunk(self, messages_chunk, message_queues):
         for message_dict in messages_chunk.as_dicts():
             for message_queue in message_queues:
+                logger.debug('putting %s into %s', message_dict, message_queue.queue)
                 message_queue.put(message_dict, retry=True, retry_policy=self.retry_policy)

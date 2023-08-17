@@ -7,9 +7,8 @@ from lxml import etree
 import pendulum
 import pytest
 
-from share.models import SourceUniqueIdentifier, FormattedMetadataRecord
+from share import models as share_db
 from share.oaipmh.util import format_datetime
-from share.util import IDObfuscator
 from trove import models as trove_db
 from trove.vocab.namespaces import OAI_DC
 
@@ -62,7 +61,8 @@ class TestOAIVerbs:
 
     def test_list_sets(self, request_method):
         parsed = oai_request({'verb': 'ListSets'}, request_method)
-        assert len(parsed.xpath('//ns0:ListSets/ns0:set', namespaces=NAMESPACES)) > 100
+        _num_sets = len(parsed.xpath('//ns0:ListSets/ns0:set', namespaces=NAMESPACES))
+        assert _num_sets == share_db.Source.objects.all().count()
 
     def test_list_formats(self, request_method):
         parsed = oai_request({'verb': 'ListMetadataFormats'}, request_method)
@@ -130,12 +130,8 @@ class TestOAIVerbs:
     def test_subtly_wrong_identifiers(self, request_method, oai_indexcard):
         # unknown uuid
         self._assert_bad_identifier(request_method, str(uuid.uuid4()))
-
         # not a uuid
-        self._assert_bad_identifier(request_method, IDObfuscator.encode_id(
-            self._get_nonexistent_id(SourceUniqueIdentifier),
-            SourceUniqueIdentifier,
-        ))
+        self._assert_bad_identifier(request_method, 'DEADB-EEE-EEF')
 
     def _get_nonexistent_id(self, model_class):
         last_id = model_class.objects.order_by('-id').values_list('id', flat=True).first()

@@ -58,21 +58,19 @@ class TestSharectlSearch:
             run_sharectl('search', 'setup', '--initial')
         for mock_index_strategy in mock_index_strategys:
             mock_specific_index = mock_index_strategy.for_current_index.return_value
-            assert mock_specific_index.pls_create.mock_calls == [mock.call()]
-            assert mock_specific_index.pls_start_keeping_live.mock_calls == [mock.call()]
+            assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
         with mock.patch('share.bin.search.IndexStrategy.get_by_name', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
         mock_current_index = mock_index_strategy.for_current_index.return_value
-        assert mock_current_index.pls_create.mock_calls == [mock.call()]
-        assert mock_current_index.pls_start_keeping_live.mock_calls == [mock.call()]
+        assert mock_current_index.pls_setup.mock_calls == [mock.call(skip_backfill=False)]
 
     def test_daemon(self, settings):
-        with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon:
+        with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon_control:
             run_sharectl('search', 'daemon')
-            mock_daemon.start_all_daemonthreads.assert_called_once()
+            mock_daemon_control.return_value.start_all_daemonthreads.assert_called_once()
 
 
 # TODO unit tests, not just a smoke test

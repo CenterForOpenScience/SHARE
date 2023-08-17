@@ -154,6 +154,7 @@ class IndexerDaemon:
 
     def on_message(self, body, message):
         daemon_message = messages.DaemonMessage.from_received_message(message)
+        logger.debug('%s got message %s', self, daemon_message)
         local_message_queue = self.__local_message_queues.get(daemon_message.message_type)
         if local_message_queue is None:
             raise exceptions.DaemonMessageError(
@@ -255,6 +256,7 @@ class MessageHandlingLoop:
             for message_response in self.index_strategy.pls_handle_messages_chunk(messages_chunk):
                 if message_response.is_done:
                     doc_count += 1
+                    logger.debug('%sHandled message: %s', self.log_prefix, message_response)
                 elif message_response.status_code == 429:  # 429 Too Many Requests
                     self._leftover_daemon_messages_by_target_id = daemon_messages_by_target_id
                     raise TooFastSlowDown
