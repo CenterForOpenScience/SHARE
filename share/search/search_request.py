@@ -181,10 +181,11 @@ class SearchFilter:
                     f' ({len(param_name.bracketed_names)} in "{param_name}")'
                 )
         else:  # given operator
-            try:
-                _operator = SearchFilter.FilterOperator(_operator_value)
-            except ValueError:
-                raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
+            if _operator_value:
+                try:
+                    _operator = SearchFilter.FilterOperator(_operator_value)
+                except ValueError:
+                    raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
         _propertypath = tuple(
             osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
             for _pathstep in split_queryparam_value(_serialized_path)
