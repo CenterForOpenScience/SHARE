@@ -665,7 +665,6 @@ ALL_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.publisher,),
     (OSFMAP.isPartOfCollection,),
     (DCTERMS.conformsTo,),
-    (DCTERMS.hasVersion,),
     (OSFMAP.hasAnalyticCodeResource,),
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasMaterialsResource,),
@@ -684,7 +683,6 @@ PROJECT_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.type,),
     (OSFMAP.affiliation,),
     (OSFMAP.isPartOfCollection,),
-    (DCTERMS.hasVersion,),
     (OSFMAP.supplements,),
 )
 
@@ -698,7 +696,6 @@ REGISTRATION_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.type,),
     (OSFMAP.affiliation,),
     (DCTERMS.conformsTo,),
-    (DCTERMS.hasVersion,),
     (OSFMAP.hasAnalyticCodeResource,),
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasMaterialsResource,),
@@ -713,7 +710,6 @@ PREPRINT_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.subject,),
     (DCTERMS.rights,),
     (DCTERMS.publisher,),
-    (DCTERMS.hasVersion,),
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasPreregisteredAnalysisPlan,),
     (OSFMAP.hasPreregisteredStudyDesign,),
