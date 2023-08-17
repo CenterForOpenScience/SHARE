@@ -16,7 +16,7 @@ class RdfJsonldRenderer:
         return self.labeler.all_iris_by_label()
 
     def tripledict_as_nested_jsonld(self, tripledict: primitive_rdf.RdfTripleDictionary, focus_iri: str):
-        self.__nestvisited_iris = set()
+        self.__nestvisiting_iris = set()
         return self.__nested_rdfobject_as_jsonld(tripledict, focus_iri)
 
     def rdfobject_as_jsonld(self, rdfobject: primitive_rdf.RdfObject) -> dict:
@@ -77,12 +77,12 @@ class RdfJsonldRenderer:
     ):
         _yes_nest = (
             isinstance(rdfobject, str)
-            and (rdfobject not in self.__nestvisited_iris)
+            and (rdfobject not in self.__nestvisiting_iris)
             and (rdfobject in tripledict)
         )
         if not _yes_nest:
             return self.rdfobject_as_jsonld(rdfobject)
-        self.__nestvisited_iris.add(rdfobject)
+        self.__nestvisiting_iris.add(rdfobject)
         _nested_obj = (
             {}
             if rdfobject.startswith('_:')  # HACK: non-blank blank nodes (stop that)
@@ -98,6 +98,7 @@ class RdfJsonldRenderer:
                         for _obj in _objectset
                     ],
                 )
+        self.__nestvisiting_iris.discard(rdfobject)
         return _nested_obj
 
     def _list_or_single_value(self, predicate_iri, objectset):
