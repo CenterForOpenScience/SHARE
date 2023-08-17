@@ -243,7 +243,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
             _suid = _indexcard_rdf.indexcard.source_record_suid
-            if messages_chunk.message_type.is_backfill and _suid.has_forecompat_replacement():
+            if _suid.has_forecompat_replacement():
                 continue  # skip this one, let it get deleted
             _sourcedoc = self._build_sourcedoc(_indexcard_rdf)
             if _sourcedoc:
