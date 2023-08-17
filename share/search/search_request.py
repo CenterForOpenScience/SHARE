@@ -91,6 +91,8 @@ class Textsegment:
 
     @classmethod
     def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
+        if text_chunk == '*':
+            return  # special case for COS employees used to the old search page
         _all_wordgroups = (
             (_each_word_negated, list(_words))
             for (_each_word_negated, _words) in itertools.groupby(

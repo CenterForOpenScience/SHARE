@@ -51,7 +51,7 @@ def swallow(
     if not isinstance(record, str):
         raise DigestiveError('datum must be a string')
     _source_config = share_db.SourceConfig.objects.get_or_create_push_config(from_user)
-    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.update_or_create(
+    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
         source_config=_source_config,
         identifier=record_identifier,
     )
@@ -86,7 +86,7 @@ def swallow__sharev2_legacy(
         share_db.SourceConfig.objects
         .get_or_create_push_config(from_user, transformer_key)
     )
-    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.update_or_create(
+    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
         source_config=_source_config,
         identifier=record_identifier,
     )
