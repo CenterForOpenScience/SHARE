@@ -9,6 +9,7 @@ derive: build other kinds of index cards from the extracted rdf
 __all__ = ('swallow', 'extract', 'derive')
 
 import copy
+import datetime
 import logging
 import typing
 
@@ -66,7 +67,7 @@ def swallow(
         suid=_suid,
         datum=record,
         mediatype=record_mediatype,
-        datestamp=datestamp,
+        datestamp=(datestamp or datetime.datetime.now(tz=datetime.timezone.utc)),
     )
     _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
     return _task.id
@@ -94,7 +95,7 @@ def swallow__sharev2_legacy(
         suid=_suid,
         datum=record,
         mediatype=None,  # indicate sharev2-legacy flow
-        datestamp=datestamp,
+        datestamp=(datestamp or datetime.datetime.now(tz=datetime.timezone.utc)),
     )
     _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
     return _task.id

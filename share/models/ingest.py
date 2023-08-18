@@ -351,15 +351,14 @@ class RawDatumManager(FuzzyCountManager):
 
         return rd
 
-    def store_datum_for_suid(self, *, suid, datum: str, mediatype, datestamp):
-        _filled_datestamp = datestamp or timezone.now()
+    def store_datum_for_suid(self, *, suid, datum: str, mediatype, datestamp: datetime.datetime):
         _raw, _raw_created = self.get_or_create(
             suid=suid,
             sha256=hashlib.sha256(datum.encode()).hexdigest(),
             defaults={
                 'datum': datum,
                 'mediatype': mediatype,
-                'datestamp': _filled_datestamp,
+                'datestamp': datestamp,
             },
         )
         if not _raw_created:
@@ -369,9 +368,7 @@ class RawDatumManager(FuzzyCountManager):
                 sentry_sdk.capture_message(_msg)
             _raw.mediatype = mediatype
             # keep the latest datestamp
-            if not _raw.datestamp:
-                _raw.datestamp = _filled_datestamp
-            elif datestamp and datestamp > _raw.datestamp:
+            if (not _raw.datestamp) or (datestamp > _raw.datestamp):
                 _raw.datestamp = datestamp
             _raw.save(update_fields=('mediatype', 'datestamp'))
         return _raw
