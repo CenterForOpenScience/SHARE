@@ -16,11 +16,15 @@ class LegacySharev2Extractor(BaseRdfExtractor):
     extracted_focus_iri: typing.Optional[str] = None
     sharev2graph_centralnode: typing.Optional[MutableNode] = None
 
-    def extract_rdf(self, input_document):
+    def extract_sharev2_graph(self, input_document):
         _transformer = self.source_config.get_transformer()
         _sharev2graph = _transformer.transform(input_document)
         if _sharev2graph:  # in-place update
             Regulator(source_config=self.source_config).regulate(_sharev2graph)
+        return _sharev2graph
+
+    def extract_rdf(self, input_document):
+        _sharev2graph = self.extract_sharev2_graph(input_document)
         self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True)
         _central_focus = _focus_for_mnode(self.sharev2graph_centralnode)
         _gathering = osfmap_from_normd.new_gathering({

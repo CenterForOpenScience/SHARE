@@ -56,7 +56,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardIndexStrategy',
-        hexdigest='0503907bbf6d5c35d2a0f9f705e36080d4616c85bf79b83629ab6346e7890048',
+        hexdigest='806159c98b9eedafc4d169cecd2315b6ce4cb40ad0322699c6b13f2ad9be2675',
     )
 
     # abstract method from IndexStrategy
@@ -94,6 +94,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
         return {
             'dynamic': 'false',
             'properties': {
+                'indexcard_pk': _capped_keyword,
                 'indexcard_uuid': _capped_keyword,
                 'focus_iri': _capped_keyword,
                 'suffuniq_focus_iri': _capped_keyword,
@@ -172,6 +173,7 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             _focus_iris.update(_identifier.raw_iri_list)
             _suffuniq_focus_iris.add(_identifier.sufficiently_unique_iri)
         return {
+            'indexcard_pk': indexcard_rdf.indexcard_id,
             'indexcard_uuid': str(indexcard_rdf.indexcard.uuid),
             'focus_iri': list(_focus_iris),
             'suffuniq_focus_iri': list(_suffuniq_focus_iris),

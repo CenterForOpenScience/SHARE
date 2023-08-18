@@ -154,22 +154,18 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
 
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
-        _card_qs = (
-            DerivedIndexcard.objects
-            .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
-            .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
-            .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
-        )
         if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
+            _card_qs = (
+                DerivedIndexcard.objects
+                .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
+                .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+                .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
+            )
             for _card in _card_qs:
                 yield (_card.suid_id, _card.derived_text)
-        else:  # draw from both DerivedIndexcard and FormattedMetadataRecord
-            _remaining_suids = set(suid_ids)
-            for _card in _card_qs:
-                yield (_card.suid_id, _card.derived_text)
-                _remaining_suids.discard(_card.suid_id)
+        else:  # legacy path: pull from FormattedMetadataRecord
             _record_qs = FormattedMetadataRecord.objects.filter(
-                suid_id__in=_remaining_suids,
+                suid_id__in=suid_ids,
                 record_format='sharev2_elastic',
             )
             for _record in _record_qs:

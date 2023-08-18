@@ -111,6 +111,7 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
     may delete:
         LatestIndexcardRdf (previously extracted from the record, but no longer present)
     '''
+    assert raw.mediatype is not None, 'raw datum has no mediatype -- did you mean to call extract_legacy?'
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     # TODO normalize (or just validate) tripledict:
     #   - synonymous iris should be grouped (only one as subject-key, others under owl:sameAs)
@@ -118,25 +119,11 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
     #   - no subject-key iris which collide by trove_db.ResourceIdentifier equivalence
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _extracted_tripledict: primitive_rdf.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
-    _tripledicts_by_focus_iri = {}
-    if raw.mediatype is None:  # back-compat
-        from trove.extract.legacy_sharev2 import LegacySharev2Extractor
-        assert isinstance(_extractor, LegacySharev2Extractor)
-        _focus_iri = _extractor.extracted_focus_iri
-        if not _focus_iri:
-            raise DigestiveError(f'could not extract focus_iri from (sharev2) {raw}')
-        if not share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
-            _sharev2_legacy_ingest(raw, _extractor.sharev2graph_centralnode)
-        if _extractor.sharev2graph_centralnode['is_deleted']:
-            for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid_id=raw.suid_id):
-                _indexcard.pls_delete()
-            return []
-    else:
-        try:
-            _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
-        except ValueError:
-            raise DigestiveError(f'could not find {raw.suid.focus_identifier} in {raw}')
-    _tripledicts_by_focus_iri[_focus_iri] = _extracted_tripledict
+    try:
+        _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
+    except ValueError:
+        raise DigestiveError(f'could not find {raw.suid.focus_identifier} in {raw}')
+    _tripledicts_by_focus_iri = {_focus_iri: _extracted_tripledict}
     # special case: if the record defines an ontology, create a
     # card for each subject iri that starts with the focus iri
     # (TODO: consider a separate index card for *every* subject iri?)
@@ -208,12 +195,15 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
         for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=_raw.suid):
             _indexcard.pls_delete()
     else:
-        _indexcards = extract(_raw, undelete_indexcards=urgent)
-        if _raw.is_latest():
-            _messenger = IndexMessenger(celery_app=task.app)
-            for _indexcard in _indexcards:
-                derive(_indexcard)
-            _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
+        if _raw.mediatype:
+            _indexcards = extract(_raw, undelete_indexcards=urgent)
+            if _raw.is_latest():
+                _messenger = IndexMessenger(celery_app=task.app)
+                for _indexcard in _indexcards:
+                    derive(_indexcard)
+                _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
+        else:  # no mediatype => legacy flow
+            _sharev2_legacy_ingest(_raw, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)
@@ -252,13 +242,18 @@ def task__schedule_all_for_deriver(deriver_iri: str):
 
 
 # TODO: remove legacy ingest
-def _sharev2_legacy_ingest(raw_datum, sharev2graph_centralnode):
+def _sharev2_legacy_ingest(raw, urgent: bool):
+    assert raw.mediatype is None, 'raw datum has a mediatype -- did you mean to call non-legacy extract?'
+    _extractor = get_rdf_extractor_class(None)(raw.suid.source_config)
+    _sharev2graph = _extractor.extract_sharev2_graph(raw.datum)
+    _centralnode = _sharev2graph.get_central_node(guess=True)
     _normd = share_db.NormalizedData.objects.create(
-        data=sharev2graph_centralnode.graph.to_jsonld(),
-        source=raw_datum.suid.source_config.source.user,
-        raw=raw_datum,
+        data=_centralnode.graph.to_jsonld(),
+        source=raw.suid.source_config.source.user,
+        raw=raw,
     )
     share_db.FormattedMetadataRecord.objects.save_formatted_records(
-        raw_datum.suid,
+        raw.suid,
         normalized_datum=_normd,
     )
+    IndexMessenger().notify_suid_update([raw.suid_id], urgent=urgent)
