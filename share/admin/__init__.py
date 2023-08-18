@@ -85,7 +85,8 @@ class RawDatumAdmin(admin.ModelAdmin):
     show_full_result_count = False
     list_select_related = ('suid__source_config', )
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
-    readonly_fields = ('datum', 'sha256')
+    readonly_fields = ('datum__pre', 'sha256')
+    exclude = ('datum',)
     raw_id_fields = ('jobs',)
     paginator = TimeLimitedPaginator
 
@@ -94,6 +95,10 @@ class RawDatumAdmin(admin.ModelAdmin):
 
     def source_config_label(self, obj):
         return obj.suid.source_config.label
+
+    def datum__pre(self, instance):
+        return format_html('<pre>{}</pre>', instance.datum)
+    datum__pre.short_description = 'datum'
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
