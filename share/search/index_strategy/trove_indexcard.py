@@ -36,14 +36,14 @@ from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS
+from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS, OSFMAP
 
 
 logger = logging.getLogger(__name__)
 
 
 TITLE_PROPERTIES = (DCTERMS.title,)
-NAME_PROPERTIES = (FOAF.name,)
+NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
 LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 
