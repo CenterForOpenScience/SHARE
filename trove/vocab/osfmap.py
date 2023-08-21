@@ -710,6 +710,7 @@ PREPRINT_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.subject,),
     (DCTERMS.rights,),
     (DCTERMS.publisher,),
+    (OSFMAP.affiliation,),
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasPreregisteredAnalysisPlan,),
     (OSFMAP.hasPreregisteredStudyDesign,),
