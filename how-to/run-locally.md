@@ -46,14 +46,14 @@ a shell running within SHARE's environment in docker:
 docker-compose run --rm --no-deps worker bash
 ```
 this will open a bash prompt within a temporary `worker` container -- from here we can
-use SHARE's python environment, including django's `manage.py` and SHARE's own `sharectl`
-utility (defined in `share/bin/`)
+run commands within SHARE's environment, including django's `manage.py` and SHARE's own
+`sharectl` utility (defined in `share/bin/`)
 
-from the docker shell, use django's `migrate` command to set up tables in postgres:
+from within that worker shell, use django's `migrate` command to set up tables in postgres:
 ```
 python manage.py migrate
 ```
-and use `sharectl` to set up indexes in elasticsearch:
+...and use `sharectl` to set up indexes in elasticsearch:
 ```
 sharectl search setup --initial
 ```
@@ -63,33 +63,6 @@ all other services can now be started from the host machine (upping `worker` ups
 ```
 docker-compose up -d worker
 ```
-
-## handy commands
-
-### start a shell in a container
-there are several ways to open a shell with SHARE's python environment (including
-django's `manage.py` and SHARE's own `sharectl` utility, defined in `share/bin/`)
-
-if `worker` is already up, can open a shell within that container:
-```
-docker-compose exec worker bash
-```
-
-if no services are up, can open a shell within a new, temporary `worker` container:
-```
-docker-compose run --rm --no-deps worker bash
-```
-(remove `--no-deps` if you'd like the other services started automatically)
-
-### start a django shell
-this should be run inside a container (see previous):
-
-```
-python manage.py shell_plus
-```
-
-## admin interface
-http://localhost:8003/admin (username: "admin", password: "password")
 
 ## using with local [osf.io](https://github.com/CenterForOpenScience/osf.io)
 0. [set up your local osf with docker](https://github.com/CenterForOpenScience/osf.io/blob/HEAD/README-docker-compose.md), if you haven't already
@@ -114,7 +87,34 @@ http://localhost:8003/admin (username: "admin", password: "password")
 4. make things "public" on your local osf to start populating indexes
 
 
-> TODO: once share.osf.io/oaipmh is reliable, make it easy to init a local deployment by harvesting data from there
+> TODO: make it easy to init a local deployment by harvesting data from share.osf.io
+
+## handy commands
+
+### start a shell in a container
+there are several ways to open a shell with SHARE's environment (which has
+django's `manage.py` and SHARE's own `sharectl` utility, defined in `share/bin/`)
+
+if `worker` is already up, can open a shell within that container:
+```
+docker-compose exec worker bash
+```
+
+if no services are up, can open a shell within a new, temporary `worker` container:
+```
+docker-compose run --rm --no-deps worker bash
+```
+(remove `--no-deps` if you'd like the other services started automatically)
+
+### start a django shell
+this should be run inside a container (see previous):
+
+```
+python manage.py shell_plus
+```
+
+## admin interface
+http://localhost:8003/admin (username: "admin", password: "password")
 
 ## troubleshooting
 - my containers keep mysteriously dying!

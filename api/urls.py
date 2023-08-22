@@ -10,7 +10,6 @@ urlpatterns = [
     url('^$', RootView.as_view()),
     url('^', include('api.banners.urls')),
     url('^', include('api.formattedmetadatarecords.urls')),
-    url('^', include('api.ingestjobs.urls')),
     url('^', include('api.normalizeddata.urls')),
     url('^', include('api.rawdata.urls')),
     url('^', include('api.sourceregistrations.urls')),

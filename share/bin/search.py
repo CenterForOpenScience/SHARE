@@ -3,7 +3,7 @@ from project.celery import app as celery_app
 from share.bin.util import command
 from share.search import IndexStrategy
 from share.search.exceptions import IndexStrategyError
-from share.search.daemon import IndexerDaemon
+from share.search.daemon import IndexerDaemonControl
 
 
 @command('Manage Elasticsearch')
@@ -39,28 +39,29 @@ def setup(args, argv):
     Usage: {0} search setup <index_or_strategy_name>
            {0} search setup --initial
     """
-    is_initial = args.get('--initial')
-    if is_initial:
-        specific_indexes = [
-            index_strategy.for_current_index()
-            for index_strategy in IndexStrategy.all_strategies()
+    _is_initial = args.get('--initial')
+    if _is_initial:
+        _specific_indexes = [
+            _index_strategy.for_current_index()
+            for _index_strategy in IndexStrategy.all_strategies()
         ]
     else:
-        index_or_strategy_name = args['<index_or_strategy_name>']
+        _index_or_strategy_name = args['<index_or_strategy_name>']
         try:
-            specific_indexes = [
-                IndexStrategy.get_by_name(index_or_strategy_name).for_current_index(),
+            _specific_indexes = [
+                IndexStrategy.get_by_name(_index_or_strategy_name).for_current_index(),
             ]
         except IndexStrategyError:
             try:
-                specific_indexes = [
-                    IndexStrategy.get_specific_index(index_or_strategy_name),
+                _specific_indexes = [
+                    IndexStrategy.get_specific_index(_index_or_strategy_name),
                 ]
             except IndexStrategyError:
-                raise IndexStrategyError(f'unrecognized index or strategy name "{index_or_strategy_name}"')
-    for specific_index in specific_indexes:
-        specific_index.pls_create()
-        specific_index.pls_start_keeping_live()
+                raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')
+    for _specific_index in _specific_indexes:
+        _specific_index.pls_setup(
+            skip_backfill=_is_initial,  # for initial setup, there's nothing back to fill
+        )
 
 
 @search.subcommand('Start the search indexing daemon')
@@ -68,11 +69,11 @@ def daemon(args, argv):
     """
     Usage: {0} search daemon
     """
-    stop_event = IndexerDaemon.start_daemonthreads(celery_app)
+    _daemon_control = IndexerDaemonControl(celery_app)
+    _daemon_control.start_all_daemonthreads()
     try:
-        stop_event.wait()
+        _daemon_control.stop_event.wait()
     except KeyboardInterrupt:
-        pass  # let the finally block stop all threads
+        pass  # no error here; let the finally block stop all threads
     finally:
-        if not stop_event.is_set():
-            stop_event.set()
+        _daemon_control.stop_daemonthreads(wait=True)

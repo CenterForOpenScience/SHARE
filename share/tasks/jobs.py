@@ -5,20 +5,11 @@ from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.utils import timezone
 
-from share import exceptions
 from share.harvest.exceptions import HarvesterConcurrencyError
-from share.models import (
-    HarvestJob,
-    IngestJob,
-    NormalizedData,
-    RawDatum,
-)
-from share.models.core import FormattedMetadataRecord
+from share.models import HarvestJob
 from share.models.ingest import RawDatumJob
-from share.regulate import Regulator
-from share.search import IndexMessenger
-from share.search.messages import MessageType
 from share.util import chunked
+from trove import digestive_tract
 
 
 logger = logging.getLogger(__name__)
@@ -43,7 +34,7 @@ class JobConsumer:
         """
         raise NotImplementedError
 
-    def consume(self, job_id=None, exhaust=True, superfluous=False, force=False, **kwargs):
+    def consume(self, job_id=None, exhaust=True, superfluous=False, **kwargs):
         """Consume the given job, or consume an available job if no job is specified.
 
         Parameters:
@@ -56,10 +47,9 @@ class JobConsumer:
             superfluous (bool, optional): Consuming a job should be idempotent, and subsequent runs may
                 skip doing work that has already been done. If superfluous=True, however, will do all
                 work whether or not it's already been done. Default False.
-            force (bool, optional):
-        Additional keyword arguments passed to _consume_job, along with superfluous and force
+        Additional keyword arguments passed to _consume_job, along with superfluous
         """
-        with self._locked_job(job_id, force=force) as job:
+        with self._locked_job(job_id) as job:
             if job is None:
                 if job_id is None:
                     logger.info('No %ss are currently available', self.Job.__name__)
@@ -71,9 +61,6 @@ class JobConsumer:
 
             assert self.task or not exhaust, 'Cannot pass exhaust=True unless running in an async context'
             if exhaust and job_id is None:
-                if force:
-                    logger.warning('propagating force=True until queue exhaustion')
-
                 logger.debug('Spawning another task to consume %s', self.Job.__name__)
                 res = self.task.apply_async(self.task.request.args, self.task.request.kwargs)
                 logger.info('Spawned %r', res)
@@ -81,7 +68,7 @@ class JobConsumer:
             if self._prepare_job(job, superfluous=superfluous):
                 logger.info('Consuming %r', job)
                 with job.handle():
-                    self._consume_job(job, **kwargs, superfluous=superfluous, force=force)
+                    self._consume_job(job, **kwargs, superfluous=superfluous)
 
     def _prepare_job(self, job, superfluous):
         if job.status == self.Job.STATUS.skipped:
@@ -92,11 +79,7 @@ class JobConsumer:
         if self.task and self.task.request.id:
             # Additional attributes for the celery backend
             # Allows for better analytics of currently running tasks
-            self.task.update_state(meta={
-                'job_id': job.id,
-                'source': job.source_config.source.long_title,
-                'source_config': job.source_config.label,
-            })
+            self.task.update_state(meta={'job_id': job.id})
 
             job.task_id = self.task.request.id
             job.save(update_fields=('task_id',))
@@ -121,14 +104,8 @@ class JobConsumer:
             claimed=True
         )
 
-    def _locked_job(self, job_id, force=False):
+    def _locked_job(self, job_id):
         qs = self.Job.objects.all()
-        if not force:
-            qs = (
-                qs
-                .exclude(source_config__disabled=True)
-                .exclude(source_config__source__is_deleted=True)
-            )
         if job_id is not None:
             logger.debug('Loading %s %d', self.Job.__name__, job_id)
             qs = qs.filter(id=job_id)
@@ -163,6 +140,12 @@ class JobConsumer:
             logger.warning('A newer version of %r already exists, skipping...', job)
             return False
 
+    def _maybe_skip_by_source_config(self, job, source_config) -> bool:
+        if source_config.disabled or source_config.source.is_deleted:
+            job.skip(job.SkipReasons.disabled)
+            return True
+        return False
+
 
 class HarvestJobConsumer(JobConsumer):
     Job = HarvestJob
@@ -177,18 +160,21 @@ class HarvestJobConsumer(JobConsumer):
 
     def _current_versions(self, job):
         return {
+            'share_version': settings.VERSION,
             'source_config_version': job.source_config.version,
-            'harvester_version': job.source_config.harvester.version,
+            'harvester_version': getattr(job.source_config.get_harvester_class(), 'VERSION', 1),
         }
 
-    def _consume_job(self, job, force, superfluous, limit=None, ingest=True):
+    def _consume_job(self, job, superfluous, limit=None, ingest=True):
+        if self._maybe_skip_by_source_config(job, job.source_config):
+            return
         try:
             if ingest:
-                datum_gen = (datum for datum in self._harvest(job, force, limit) if datum.created or superfluous)
+                datum_gen = (datum for datum in self._harvest(job, limit) if datum.created or superfluous)
                 for chunk in chunked(datum_gen, 500):
                     self._bulk_schedule_ingest(job, chunk)
             else:
-                for _ in self._harvest(job, force, limit):
+                for _ in self._harvest(job, limit):
                     pass
         except HarvesterConcurrencyError as e:
             if not self.task:
@@ -203,14 +189,14 @@ class HarvestJobConsumer(JobConsumer):
                 countdown=(random.random() + 1) * min(settings.CELERY_RETRY_BACKOFF_BASE ** self.task.request.retries, 60 * 15)
             )
 
-    def _harvest(self, job, force, limit):
+    def _harvest(self, job, limit):
         error = None
         datum_ids = []
         logger.info('Harvesting %r', job)
         harvester = job.source_config.get_harvester()
 
         try:
-            for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=limit, force=force):
+            for datum in harvester.harvest_date_range(job.start_date, job.end_date, limit=limit):
                 datum_ids.append(datum.id)
                 yield datum
         except Exception as e:
@@ -229,130 +215,5 @@ class HarvestJobConsumer(JobConsumer):
                     raise e
 
     def _bulk_schedule_ingest(self, job, datums):
-        # HACK to allow scheduling ingest tasks without cyclical imports
-        from share.tasks import ingest
-
-        job_kwargs = {
-            'source_config': job.source_config,
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
-        created_jobs = IngestJob.objects.bulk_get_or_create(
-            [IngestJob(raw_id=datum.id, suid_id=datum.suid_id, **job_kwargs) for datum in datums]
-        )
-        if not settings.INGEST_ONLY_CANONICAL_DEFAULT or job.source_config.source.canonical:
-            for job in created_jobs:
-                ingest.delay(job_id=job.id)
-
-
-class IngestJobConsumer(JobConsumer):
-    Job = IngestJob
-    lock_field = 'suid'
-
-    MAX_RETRIES = 5
-
-    def __init__(self, *args, only_canonical=False, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.only_canonical = only_canonical
-
-    def consume(self, job_id=None, **kwargs):
-        # TEMPORARY HACK: The query to find an unclaimed job (when job_id isn't given)
-        # is crazy-slow to the point that workers are barely getting anything else done
-        # and the urgent ingest queue is backing up.  All urgent tasks have a job_id,
-        # so we can skip those without a job_id and catch up in the task queue without
-        # negatively affecting OSF.
-        # REMINDER: when you remove this, also un-skip tests in
-        # tests/share/tasks/test_job_consumers
-        if job_id is None:
-            task = self.task
-            logger.warning('Skipping ingest task with job_id=None (task_id: %s)', task.request.id if task else None)
-            return
-        return super().consume(job_id=job_id, **kwargs)
-
-    def _current_versions(self, job):
-        return {
-            'source_config_version': job.source_config.version,
-            'transformer_version': job.source_config.transformer.version,
-            'regulator_version': Regulator.VERSION,
-        }
-
-    def _filter_ready(self, qs):
-        qs = super()._filter_ready(qs)
-        if self.only_canonical:
-            qs = qs.filter(
-                source_config__source__canonical=True,
-            )
-        return qs
-
-    def _consume_job(self, job, superfluous, force, apply_changes=True, index=True, urgent=False,
-                     pls_format_metadata=True, metadata_formats=None):
-        datum = None
-        graph = None
-
-        most_recent_raw = job.suid.most_recent_raw_datum()
-
-        # Check whether we've already done transform/regulate
-        if not superfluous:
-            datum = job.ingested_normalized_data.filter(raw=most_recent_raw).order_by('-created_at').first()
-
-        if superfluous or datum is None:
-            graph = self._transform(job, most_recent_raw)
-            if not graph:
-                return
-            graph = self._regulate(job, graph)
-            if not graph:
-                return
-            datum = NormalizedData.objects.create(
-                data=graph.to_jsonld(),
-                source=job.suid.source_config.source.user,
-                raw=most_recent_raw,
-            )
-            job.ingested_normalized_data.add(datum)
-
-        if pls_format_metadata:
-            records = FormattedMetadataRecord.objects.save_formatted_records(
-                job.suid,
-                record_formats=metadata_formats,
-                normalized_datum=datum,
-            )
-            # TODO consider whether to handle the possible but rare-to-nonexistent case where
-            # `records` is empty this time but there were records in the past -- would need to
-            # remove the previous from the index
-            if records and index:
-                self._queue_for_indexing(job.suid, urgent)
-
-    def _transform(self, job, raw):
-        transformer = job.suid.source_config.get_transformer()
-
-        try:
-            graph = transformer.transform(raw)
-        except exceptions.TransformError as e:
-            job.fail(e)
-            return None
-
-        if not graph:
-            if not raw.normalizeddata_set.exists():
-                logger.warning('Graph was empty for %s, setting no_output to True', raw)
-                RawDatum.objects.filter(id=raw.id).update(no_output=True)
-            else:
-                logger.warning('Graph was empty for %s, but a normalized data already exists for it', raw)
-            return None
-
-        return graph
-
-    def _regulate(self, job, graph):
-        try:
-            Regulator(job).regulate(graph)
-            return graph
-        except exceptions.RegulateError as e:
-            job.fail(e)
-            return None
-
-    def _queue_for_indexing(self, suid, urgent):
-        messenger = (
-            IndexMessenger(celery_app=self.task.app)
-            if self.task
-            else IndexMessenger()
-        )
-        messenger.send_message(MessageType.INDEX_SUID, suid.id, urgent=urgent)
+        for _raw_datum in datums:
+            digestive_tract.task__extract_and_derive.delay(raw_id=_raw_datum.id)

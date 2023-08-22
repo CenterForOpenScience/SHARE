@@ -6,6 +6,7 @@ from django.conf import settings
 from share.util.graph import MutableGraph
 from share.util.names import get_related_agent_name
 from share.util import IDObfuscator
+from trove.vocab.namespaces import SHAREv2
 
 from .base import MetadataFormatter
 
@@ -50,6 +51,8 @@ def strip_empty_values(thing):
 
 
 class ShareV2ElasticFormatter(MetadataFormatter):
+    FORMAT_IRI = SHAREv2.sharev2_elastic
+
     def format_as_deleted(self, suid):
         # a document with is_deleted:True will be deleted from the elastic index
         # TODO handle deletion better -- maybe put a `deleted` field on suids and actually delete the FormattedMetadataRecord

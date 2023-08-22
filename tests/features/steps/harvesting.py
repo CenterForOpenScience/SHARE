@@ -38,7 +38,7 @@ def make_harvest_job(context, label, status='succeeded', start=None, end=None):
         status=getattr(models.HarvestJob.STATUS, status),
         source_config=source_config,
         source_config_version=source_config.version,
-        harvester_version=models.Harvester.objects.get(sourceconfig__label=label).version,
+        harvester_version=source_config.get_harvester_class().VERSION,
     )
 
 

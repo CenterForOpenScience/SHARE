@@ -62,7 +62,7 @@ def linked_fk(field_name):
     return add_link
 
 
-def linked_many(field_name, order_by=None, select_related=None):
+def linked_many(field_name, order_by=None, select_related=None, defer=None):
     """Decorator that adds links for a *-to-many field
     """
     def add_links(cls):
@@ -72,6 +72,8 @@ def linked_many(field_name, order_by=None, select_related=None):
                 linked_qs = linked_qs.select_related(*select_related)
             if order_by:
                 linked_qs = linked_qs.order_by(*order_by)
+            if defer:
+                linked_qs = linked_qs.defer(*defer)
             return format_html(
                 '<ol>{}</ol>',
                 format_html(''.join(

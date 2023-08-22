@@ -1,13 +1,25 @@
 import json
+import logging
+import typing
 
+from django.db.models import F
 import elasticsearch8
 
-from share import models as db
+from share.models import (
+    FeatureFlag,
+    FormattedMetadataRecord,
+    SourceUniqueIdentifier,
+)
 from share.search import exceptions
-from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search import messages
+from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util import IDObfuscator
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
+from trove.models import DerivedIndexcard, ResourceIdentifier
+from trove.vocab.namespaces import SHAREv2
+
+
+logger = logging.getLogger(__name__)
 
 
 class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
@@ -24,6 +36,11 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             messages.MessageType.INDEX_SUID,
             messages.MessageType.BACKFILL_SUID,
         }
+
+    # abstract method from IndexStrategy
+    @property
+    def backfill_message_type(self):
+        return messages.MessageType.BACKFILL_SUID
 
     # abstract method from Elastic8IndexStrategy
     def index_settings(self):
@@ -112,56 +129,57 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        suid_ids = set(messages_chunk.target_ids_chunk)
-        record_qs = db.FormattedMetadataRecord.objects.filter(
-            suid_id__in=suid_ids,
-            record_format='sharev2_elastic',
-        )
-        for record in record_qs:
-            suid_ids.discard(record.suid_id)
-            source_doc = json.loads(record.formatted_metadata)
-            if source_doc.pop('is_deleted', False):
-                yield self._build_delete_action(record.suid_id)
+        _suid_ids = set(messages_chunk.target_ids_chunk)
+        for _suid_id, _serialized_doc in self._load_docs(_suid_ids):
+            _source_doc = json.loads(_serialized_doc)
+            _doc_id = _source_doc['id']
+            _suid_ids.discard(_suid_id)
+            if _source_doc.pop('is_deleted', False):
+                yield _suid_id, self.build_delete_action(_doc_id)
             else:
-                yield self._build_index_action(record.suid_id, source_doc)
-        # delete any that don't have the expected FormattedMetadataRecord
-        for leftover_suid_id in suid_ids:
-            yield self._build_delete_action(leftover_suid_id)
+                yield _suid_id, self.build_index_action(_doc_id, _source_doc)
+        # delete any leftovers
+        for _leftover_suid in SourceUniqueIdentifier.objects.filter(id__in=_suid_ids):
+            _suid_ids.discard(_leftover_suid.id)
+            try:
+                _leftover_suid_id = _leftover_suid.get_backcompat_sharev2_suid().id
+            except SourceUniqueIdentifier.DoesNotExist:
+                _leftover_suid_id = _leftover_suid.id
+            yield _leftover_suid.id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
+        # these ones don't even exist!
+        for _leftover_suid_id in _suid_ids:
+            yield _leftover_suid_id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
 
-    # override Elastic8IndexStrategy
-    def get_doc_id(self, message_target_id):
-        return IDObfuscator.encode_id(message_target_id, db.SourceUniqueIdentifier)
+    def _get_doc_id(self, suid_id: int):
+        return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
 
-    # override Elastic8IndexStrategy
-    def get_message_target_id(self, doc_id):
-        return IDObfuscator.decode_id(doc_id)
-
-    def _build_index_action(self, target_id, source_doc):
-        return {
-            '_op_type': 'index',
-            '_id': self.get_doc_id(target_id),
-            '_source': source_doc,
-        }
-
-    def _build_delete_action(self, target_id):
-        return {
-            '_op_type': 'delete',
-            '_id': self.get_doc_id(target_id),
-        }
+    def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
+            _card_qs = (
+                DerivedIndexcard.objects
+                .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
+                .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+                .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
+            )
+            for _card in _card_qs:
+                yield (_card.suid_id, _card.derived_text)
+        else:  # legacy path: pull from FormattedMetadataRecord
+            _record_qs = FormattedMetadataRecord.objects.filter(
+                suid_id__in=suid_ids,
+                record_format='sharev2_elastic',
+            )
+            for _record in _record_qs:
+                yield (_record.suid_id, _record.formatted_metadata)
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            es8_request_body = {
-                **(request_body or {}),
-                'track_total_hits': True,
-            }
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             try:
                 json_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    # NOTE: the `body` param is deprecated; remove this backcompat method by ES9
-                    body=es8_request_body,
-                    params=request_queryparams or {},
+                    body=(request_body or {}),
+                    params=(request_queryparams or {}),
+                    track_total_hits=True,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging

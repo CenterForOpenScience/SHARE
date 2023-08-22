@@ -169,23 +169,32 @@ def user_post_save(sender, instance, created, **kwargs):
     :param kwargs:
     :return:
     """
-    if created and instance.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
-        application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
-        application = Application.objects.get(user=application_user)
+    if created:
+        _setup_user_token_and_groups(instance)
+
+
+def _setup_user_token_and_groups(share_user):
+    if share_user.username not in (settings.APPLICATION_USERNAME, settings.ANONYMOUS_USER_NAME):
+        try:
+            application_user = ShareUser.objects.get(username=settings.APPLICATION_USERNAME)
+            application = Application.objects.get(user=application_user)
+        except ShareUser.DoesNotExist:
+            logger.error(f'oauth application not set up -- skipping token for user {share_user}')
+            return
         client_secret = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
 
-        is_robot = instance.robot != ''  # Required to work in migrations and the like
+        is_robot = share_user.robot != ''  # Required to work in migrations and the like
 
         # create oauth2 token for user
         AccessToken.objects.create(
-            user_id=instance.id,
+            user_id=share_user.id,
             application=application,
             expires=(timezone.now() + datetime.timedelta(weeks=20 * 52)),  # 20 yrs
             scope=settings.HARVESTER_SCOPES if is_robot else settings.USER_SCOPES,
             token=client_secret
         )
         if not is_robot:
-            instance.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
+            share_user.groups.add(Group.objects.get(name=OsfOauth2AdapterConfig.humans_group_name))
 
 
 class NormalizedData(models.Model):
@@ -206,19 +215,34 @@ class NormalizedData(models.Model):
 
 
 class FormattedMetadataRecordManager(models.Manager):
+    def get_or_create_formatted_record(self, suid_id, record_format):
+        try:
+            return self.get(suid=suid_id, record_format=record_format)
+        except self.model.DoesNotExist:
+            (_record,) = self.save_formatted_records(
+                suid_id=suid_id,
+                record_formats=[record_format],
+            )
+            return _record
+
     def delete_formatted_records(self, suid):
         records = []
         for record_format in Extensions.get_names('share.metadata_formats'):
             formatter = Extensions.get('share.metadata_formats', record_format)()
             formatted_record = formatter.format_as_deleted(suid)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
+            record = self._save_formatted_record(suid.id, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
 
-    def save_formatted_records(self, suid, record_formats=None, normalized_datum=None):
+    def save_formatted_records(self, suid=None, record_formats=None, normalized_datum=None, suid_id=None):
+        if suid is None:
+            _suid_id = suid_id
+        else:
+            assert suid_id is None, 'expected suid or suid_id, not both'
+            _suid_id = suid.id
         if normalized_datum is None:
-            normalized_datum = NormalizedData.objects.filter(raw__suid=suid).order_by('-created_at').first()
+            normalized_datum = NormalizedData.objects.filter(raw__suid_id=_suid_id).order_by('-created_at').first()
         if record_formats is None:
             record_formats = Extensions.get_names('share.metadata_formats')
 
@@ -226,22 +250,22 @@ class FormattedMetadataRecordManager(models.Manager):
         for record_format in record_formats:
             formatter = Extensions.get('share.metadata_formats', record_format)()
             formatted_record = formatter.format(normalized_datum)
-            record = self._save_formatted_record(suid, record_format, formatted_record)
+            record = self._save_formatted_record(_suid_id, record_format, formatted_record)
             if record is not None:
                 records.append(record)
         return records
 
-    def _save_formatted_record(self, suid, record_format, formatted_record):
+    def _save_formatted_record(self, suid_id, record_format, formatted_record):
         if formatted_record:
             record, _ = self.update_or_create(
-                suid=suid,
+                suid_id=suid_id,
                 record_format=record_format,
                 defaults={
                     'formatted_metadata': formatted_record,
                 },
             )
         else:
-            self.filter(suid=suid, record_format=record_format).delete()
+            self.filter(suid_id=suid_id, record_format=record_format).delete()
             record = None
         return record
 

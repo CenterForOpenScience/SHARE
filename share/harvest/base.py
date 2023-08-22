@@ -19,6 +19,7 @@ from share.models import RawDatum
 logger = logging.getLogger(__name__)
 
 
+# TODO: remove `FetchResult` (and the rest of the non-rdf legacy pipeline)
 class FetchResult:
     __slots__ = ('identifier', 'datum', 'datestamp', '_sha256')
 

@@ -8,7 +8,7 @@ django-cors-headers==3.7.0  # MIT
 django-extensions==3.1.3  # MIT
 django-filter==2.4.0  # BSD
 django-model-utils==4.1.1  # BSD
-django-oauth-toolkit==1.2.0  # BSD
+django-oauth-toolkit==1.7.1  # BSD
 django-prettyjson==0.4.1  # BSD 3 Clause
 django-revproxy==0.10.0  # MPL 2.0
 django==3.2.5  # BSD 3 Clause
@@ -30,6 +30,7 @@ psycogreen==1.0.2  # BSD
 psycopg2==2.9.5  # LGPL with exceptions or ZPL
 python-dateutil==2.8.1  # Apache 2.0
 PyJWE==1.0.0 # Apache 2.0
+pyshacl==0.22.0 # Apache 2.0
 pyyaml==6.0  # MIT
 requests==2.25.1  # Apache 2.0
 sentry-sdk[django]==1.22.2  # MIT
@@ -41,3 +42,4 @@ xmltodict==0.12.0  # MIT
 # Allows custom-rendered IDs, hiding null values, and including data in error responses
 git+https://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos0
 
+git+https://github.com/aaxelb/gather.git@0.2023.45

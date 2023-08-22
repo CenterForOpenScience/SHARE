@@ -68,9 +68,9 @@ services:
         find . -type d -exec chmod 750 \{\} \;;
         find . -type f -exec chmod 640 \{\} \;;
         echo "Waiting for Elasticsearch availability";
-        until curl -s --cacert config/certs/ca/ca.crt https://elastic8:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        until curl -s --cacert config/certs/ca/ca.crt https://elastic8:9200 | grep -q "missing authentication credentials"; do sleep 1; done;
         echo "Setting kibana_system password";
-        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:$${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elastic8:9200/_security/user/kibana_system/_password -d "{\"password\":\"$${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:$${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elastic8:9200/_security/user/kibana_system/_password -d "{\"password\":\"$${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 1; done;
         echo "All done!";
       '
     healthcheck:
@@ -90,7 +90,7 @@ services:
       - elastic8_data_vol:/usr/share/elasticsearch/data
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs/
     environment:
-      - ELASTIC_PASSWORD=secretsecret
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-secretsecret}
       - node.name=singlenode
       - cluster.initial_master_nodes=singlenode
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit

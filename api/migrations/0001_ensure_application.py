@@ -20,7 +20,7 @@ def ensure_application(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oauth2_provider', '0002_08_updates'),
+        ('oauth2_provider', '0001_initial'),
         ('share', '0061_ensure_auto_users'),
     ]
 

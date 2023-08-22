@@ -10,6 +10,7 @@ import kombu.simple
 import requests
 import sentry_sdk
 
+from share.models import FeatureFlag
 from share.search.messages import MessagesChunk, MessageType
 from share.search.index_strategy import IndexStrategy
 
@@ -33,6 +34,33 @@ class IndexMessenger:
         )
         self.index_strategys = index_strategys or tuple(IndexStrategy.all_strategies())
 
+    def notify_indexcard_update(self, indexcards, *, urgent=False):
+        self.send_messages_chunk(
+            MessagesChunk(
+                MessageType.UPDATE_INDEXCARD,
+                [
+                    _indexcard.id
+                    for _indexcard in indexcards
+                ],
+            ),
+            urgent=urgent,
+        )
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
+            # for back-compat:
+            self.notify_suid_update(
+                [
+                    _indexcard.source_record_suid_id
+                    for _indexcard in indexcards
+                ],
+                urgent=urgent,
+            )
+
+    def notify_suid_update(self, suid_ids, *, urgent=False):
+        self.send_messages_chunk(
+            MessagesChunk(MessageType.INDEX_SUID, suid_ids),
+            urgent=urgent,
+        )
+
     def incoming_messagequeue_iter(self, channel) -> typing.Iterable[kombu.Queue]:
         for index_strategy in self.index_strategys:
             yield kombu.Queue(channel=channel, name=index_strategy.urgent_messagequeue_name)
@@ -49,7 +77,7 @@ class IndexMessenger:
                     ),
                 )
 
-    def get_queue_depth(self, queue_name: str):
+    def get_queue_stats(self, queue_name: str):
         try:
             rabbitmqueuerl = urllib.parse.urlunsplit((
                 'http',     # scheme
@@ -63,23 +91,30 @@ class IndexMessenger:
                     urllib.parse.quote_plus(settings.RABBITMQ_VHOST),
                     urllib.parse.quote_plus(queue_name),
                 )),
-                None,       # query
+                'msg_rates_age=30&msg_rates_incr=30',  # get avg rates over 30 seconds
                 None,       # fragment
             ))
             resp = requests.get(
                 rabbitmqueuerl,
                 auth=(settings.RABBITMQ_USERNAME, settings.RABBITMQ_PASSWORD),
             )
-            return resp.json().get('messages', 0)
+            _resp_json = resp.json()
+            try:
+                return {
+                    'queue_depth': _resp_json['messages'],
+                    'avg_ack_rate': int(_resp_json['message_stats']['ack_details']['avg_rate']),
+                }
+            except KeyError:
+                return {
+                    'queue_depth': '??',
+                    'avg_ack_rate': '??',
+                }
         except Exception:
             sentry_sdk.capture_exception()
-            return '??'
-
-    def send_message(self, message_type: MessageType, target_id, *, urgent=False):
-        self.send_messages_chunk(
-            MessagesChunk(message_type, [target_id]),
-            urgent=urgent,
-        )
+            return {
+                'queue_depth': '??',
+                'avg_ack_rate': '??',
+            }
 
     def send_messages_chunk(self, messages_chunk: MessagesChunk, *, urgent=False):
         with self._open_message_queues(messages_chunk.message_type, urgent) as message_queues:
@@ -109,4 +144,5 @@ class IndexMessenger:
     def _put_messages_chunk(self, messages_chunk, message_queues):
         for message_dict in messages_chunk.as_dicts():
             for message_queue in message_queues:
+                logger.debug('putting %s into %s', message_dict, message_queue.queue)
                 message_queue.put(message_dict, retry=True, retry_policy=self.retry_policy)

@@ -10,8 +10,8 @@ from elasticsearch8.helpers import streaming_bulk
 from share.search.index_strategy._base import IndexStrategy
 from share.search.index_status import IndexStatus
 from share.search import messages
-from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
-from share.util.checksum_iris import ChecksumIri
+from share.search.index_strategy._util import timestamp_to_readable_datetime
+from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)
@@ -41,23 +41,47 @@ class Elastic8IndexStrategy(IndexStrategy):
             min_delay_between_sniffing=timeout,
         )
 
+    ###
+    # abstract methods for subclasses to implement
+
     @abc.abstractmethod
     def index_settings(self):
-        raise NotImplementedError  # for subclasses to implement
+        raise NotImplementedError
 
     @abc.abstractmethod
     def index_mappings(self):
-        raise NotImplementedError  # for subclasses to implement
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[dict]:
-        raise NotImplementedError  # for subclasses to implement
+    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[tuple[int, dict]]:
+        # yield (message_target_id, elastic_action) pairs
+        raise NotImplementedError
 
-    def get_doc_id(self, message_target_id):
-        return message_target_id  # here so subclasses can override if needed
+    ###
+    # helper methods for subclasses to use (or override)
 
-    def get_message_target_id(self, doc_id):
-        return doc_id  # here so subclasses can override if needed
+    def build_index_action(self, doc_id, doc_source):
+        return {
+            '_op_type': 'index',
+            '_id': str(doc_id),
+            '_source': doc_source,
+        }
+
+    def build_delete_action(self, doc_id):
+        return {
+            '_op_type': 'delete',
+            '_id': str(doc_id),
+        }
+
+    def build_update_action(self, doc_id, doc_source):
+        return {
+            '_op_type': 'update',
+            '_id': str(doc_id),
+            'doc': doc_source,
+        }
+
+    ###
+    # implementation for subclasses to ignore
 
     # abstract method from IndexStrategy
     def compute_strategy_checksum(self):
@@ -88,30 +112,30 @@ class Elastic8IndexStrategy(IndexStrategy):
             indexnames = [self.current_indexname]
         else:
             indexnames = self._get_indexnames_for_alias(self._alias_for_keeping_live)
+        _targetid_by_docid = {}
         done_counter = collections.Counter()
         bulk_stream = streaming_bulk(
             self.es8_client,
-            self._elastic_actions_with_index(messages_chunk, indexnames),
+            self._elastic_actions_with_index(messages_chunk, indexnames, _targetid_by_docid),
             raise_on_error=False,
             max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
-        for (ok, response) in bulk_stream:
-            (op_type, response_body) = next(iter(response.items()))
-            is_done = ok or (
-                op_type == 'delete'
-                and response_body.get('status') == 404
-            )
-            message_target_id = self.get_message_target_id(response_body['_id'])
-            done_counter[message_target_id] += 1
-            if done_counter[message_target_id] >= len(indexnames):
+        for (_ok, _response) in bulk_stream:
+            (_op_type, _response_body) = next(iter(_response.items()))
+            _status = _response_body.get('status')
+            _docid = _response_body['_id']
+            _is_done = _ok or (_op_type == 'delete' and _status == 404)
+            _message_target_id = _targetid_by_docid[_docid]
+            done_counter[_message_target_id] += 1
+            if done_counter[_message_target_id] >= len(indexnames):
                 yield messages.IndexMessageResponse(
-                    is_done=is_done,
-                    index_message=messages.IndexMessage(messages_chunk.message_type, message_target_id),
-                    status_code=response_body.get('status'),
+                    is_done=_is_done,
+                    index_message=messages.IndexMessage(messages_chunk.message_type, _message_target_id),
+                    status_code=_response_body.get('status'),
                     error_text=(
                         None
-                        if ok
-                        else str(response_body)
+                        if _ok
+                        else str(_response_body)
                     )
                 )
 
@@ -142,12 +166,15 @@ class Elastic8IndexStrategy(IndexStrategy):
     def _alias_for_keeping_live(self):
         return f'{self.indexname_prefix}live'
 
-    def _elastic_actions_with_index(self, messages_chunk, indexnames):
-        for elastic_action in self.build_elastic_actions(messages_chunk):
-            for indexname in indexnames:
+    def _elastic_actions_with_index(self, messages_chunk, indexnames, targetid_by_docid):
+        if not indexnames:
+            raise ValueError('cannot index to no indexes')
+        for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
+            targetid_by_docid[_elastic_action['_id']] = _message_target_id
+            for _indexname in indexnames:
                 yield {
-                    '_index': indexname,
-                    **elastic_action,
+                    **_elastic_action,
+                    '_index': _indexname,
                 }
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:
@@ -158,18 +185,14 @@ class Elastic8IndexStrategy(IndexStrategy):
             return set()
 
     def _add_indexname_to_alias(self, alias_name, indexname):
-        self.es8_client.indices.update_aliases(body={
-            'actions': [
-                {'add': {'index': indexname, 'alias': alias_name}},
-            ],
-        })
+        self.es8_client.indices.update_aliases(actions=[
+            {'add': {'index': indexname, 'alias': alias_name}},
+        ])
 
     def _remove_indexname_from_alias(self, alias_name, indexname):
-        self.es8_client.indices.update_aliases(body={
-            'actions': [
-                {'remove': {'index': indexname, 'alias': alias_name}},
-            ],
-        })
+        self.es8_client.indices.update_aliases(actions=[
+            {'remove': {'index': indexname, 'alias': alias_name}},
+        ])
 
     def _set_indexnames_for_alias(self, alias_name, indexnames):
         already_aliased = self._get_indexnames_for_alias(alias_name)
@@ -180,18 +203,16 @@ class Elastic8IndexStrategy(IndexStrategy):
             to_remove = tuple(already_aliased - want_aliased)
             to_add = tuple(want_aliased - already_aliased)
             logger.warning(f'alias "{alias_name}": removing indexes {to_remove} and adding indexes {to_add}')
-            self.es8_client.indices.update_aliases(body={
-                'actions': [
-                    *(
-                        {'remove': {'index': indexname, 'alias': alias_name}}
-                        for indexname in to_remove
-                    ),
-                    *(
-                        {'add': {'index': indexname, 'alias': alias_name}}
-                        for indexname in to_add
-                    ),
-                ],
-            })
+            self.es8_client.indices.update_aliases(actions=[
+                *(
+                    {'remove': {'index': indexname, 'alias': alias_name}}
+                    for indexname in to_remove
+                ),
+                *(
+                    {'add': {'index': indexname, 'alias': alias_name}}
+                    for indexname in to_add
+                ),
+            ])
 
     class SpecificIndex(IndexStrategy.SpecificIndex):
 
@@ -212,7 +233,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                 [self.indexname]
             )
             index_aliases = set(index_info['aliases'].keys())
-            creation_date = _timestamp_to_readable_datetime(
+            creation_date = timestamp_to_readable_datetime(
                 index_info['settings']['index']['creation_date']
             )
             doc_count = (
@@ -239,7 +260,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         def pls_check_exists(self):
             indexname = self.indexname
             logger.info(f'{self.__class__.__name__}: checking for index {indexname}')
-            return (
+            return bool(
                 self.index_strategy.es8_client.indices
                 .exists(index=indexname)
             )

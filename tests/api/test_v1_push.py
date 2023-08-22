@@ -8,9 +8,9 @@ class TestV1PushProxy:
 
     @pytest.fixture
     def mock_ingest(self):
-        with mock.patch('share.ingest.ingester.ingest') as mock_ingest:
-            mock_ingest.delay.return_value.id = '123'
-            yield mock_ingest
+        with mock.patch('api.views.workflow.digestive_tract') as mock_digestive_tract:
+            mock_digestive_tract.swallow__sharev2_legacy.return_value = '123'
+            yield mock_digestive_tract.swallow__sharev2_legacy
 
     valid_data = {
         "jsonData": {
@@ -65,7 +65,7 @@ class TestV1PushProxy:
             content_type='application/json',
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 400
-        assert not mock_ingest.delay.called
+        assert not mock_ingest.called
 
     def test_valid_data(self, client, trusted_user, mock_ingest):
         assert client.post(
@@ -75,7 +75,7 @@ class TestV1PushProxy:
             HTTP_AUTHORIZATION='Bearer ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 202
 
-        assert mock_ingest.delay.called
+        assert mock_ingest.called
 
     def test_unauthorized(self, client, mock_ingest):
         assert client.post(
@@ -83,11 +83,11 @@ class TestV1PushProxy:
             json.dumps(self.valid_data),
             content_type='application/json'
         ).status_code == 401
-        assert not mock_ingest.delay.called
+        assert not mock_ingest.called
 
     def test_get(self, client, mock_ingest):
         assert client.get('/api/v1/share/data/').status_code == 405
-        assert not mock_ingest.delay.called
+        assert not mock_ingest.called
 
     def test_token_auth(self, client, trusted_user, mock_ingest):
         assert client.post(
@@ -96,4 +96,4 @@ class TestV1PushProxy:
             content_type='application/json',
             HTTP_AUTHORIZATION='Token ' + trusted_user.oauth2_provider_accesstoken.first().token
         ).status_code == 400
-        assert not mock_ingest.delay.called
+        assert not mock_ingest.called

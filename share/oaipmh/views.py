@@ -1,7 +1,7 @@
 from django.views.generic.base import View
 from django.template.response import HttpResponse
 
-from share.oaipmh.fmr_repository import OaiPmhRepository
+from share.oaipmh.indexcard_repository import OaiPmhRepository
 
 
 class OAIPMHView(View):

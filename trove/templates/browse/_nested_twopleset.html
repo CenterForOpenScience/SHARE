@@ -1,0 +1,12 @@
+<ul class='Browse__nested_twopleset'>
+    {% for nested_twople in nested_twopleset %}
+        <li class='Browse__nested_twople VisibleNest'>
+            <a href='/trove/browse///{{nested_twople.predicate.iri|urlencode}}'>{{nested_twople.predicate.label}}</a>
+            <ul class='Browse__objectset'>
+                {% for rdf_object in nested_twople.objectset %}
+                    <li class='Browse__object VisibleNest'>{% include 'browse/_rdf_object.html' with rdf_object=rdf_object only %}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>

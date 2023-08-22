@@ -12,33 +12,42 @@ logger = logging.getLogger(__name__)
 
 
 class MessageType(enum.Enum):
-    # for specific sharev2 types:
-    INDEX_AGENT = 'Agent'
-    INDEX_CREATIVEWORK = 'CreativeWork'
-    INDEX_TAG = 'Tag'
-    INDEX_SUBJECT = 'Subject'
-    # for suid/pid-focused records:
+    # for suid-focused records:
     INDEX_SUID = 'suid'
     BACKFILL_SUID = 'backfill-suid'
+    # for indexcard-based indexes:
+    UPDATE_INDEXCARD = 'update-indexcard'
+    BACKFILL_INDEXCARD = 'backfill-indexcard'
+    # for identifier-based indexes: (TODO: remove?)
+    IDENTIFIER_INDEXED = 'identifier-indexed'
+    BACKFILL_IDENTIFIER = 'backfill-identifier'
+    # for aggregating identifier usage across index cards:
+    IDENTIFIER_USED = 'identifier-used'
+    BACKFILL_IDENTIFIER_USAGE = 'backfill-identifier-usage'
+
+    @classmethod
+    def from_int(cls, message_type_int: int):
+        return cls[IntMessageType(message_type_int).name]
+
+    def __int__(self):  # allows casting to integer with `int(message_type)`
+        return int(IntMessageType[self.name])
 
     @property
     def is_backfill(self):
         return self in BACKFILL_MESSAGE_TYPES
 
-    def __int__(self):  # allows casting to integer with `int(message_type)`
-        return int(IntMessageType[self.name])
-
 
 class IntMessageType(enum.IntEnum):
     '''for mapping MessageType to int and back again
     '''
-    # NO_TYPE = 0
-    INDEX_AGENT = 1
-    INDEX_CREATIVEWORK = 2
-    INDEX_TAG = 3
-    INDEX_SUBJECT = 4
     INDEX_SUID = 5
     BACKFILL_SUID = 6
+    UPDATE_INDEXCARD = 7
+    BACKFILL_INDEXCARD = 8
+    IDENTIFIER_INDEXED = 9
+    BACKFILL_IDENTIFIER = 10
+    IDENTIFIER_USED = 11
+    BACKFILL_IDENTIFIER_USAGE = 12
 
 
 if __debug__:
@@ -51,6 +60,9 @@ if __debug__:
 
 BACKFILL_MESSAGE_TYPES = {
     MessageType.BACKFILL_SUID,
+    MessageType.BACKFILL_INDEXCARD,
+    MessageType.BACKFILL_IDENTIFIER,
+    MessageType.BACKFILL_IDENTIFIER_USAGE,
 }
 
 
@@ -101,11 +113,15 @@ class DaemonMessage(abc.ABC):
     def compose_however(message_type: typing.Union[int, MessageType], target_id: int) -> dict:
         '''pass-thru to PreferedDaemonMessageSubclass.compose
         '''
+        assert isinstance(target_id, int)
         return V3Message.compose(message_type, target_id)
 
     @classmethod
     def from_received_message(cls, kombu_message):
-        version = kombu_message.payload.get('version', 0)
+        try:
+            version = kombu_message.payload['v']
+        except KeyError:
+            version = kombu_message.payload.get('version', 0)
         for message_class in cls.__subclasses__():
             if message_class.PROTOCOL_VERSION == version:
                 return message_class(kombu_message=kombu_message)
@@ -186,7 +202,7 @@ class V3Message(DaemonMessage):
     the message is a two-ple of integers (int_message_type, target_id)
     -- minimalist, for there may be many
     {
-        "version": 3,
+        "v": 3,
         "m": [2, 7],
     }
     """
@@ -194,8 +210,10 @@ class V3Message(DaemonMessage):
 
     @classmethod
     def compose(cls, message_type: MessageType, target_id: int) -> dict:
+        if not isinstance(target_id, int):
+            raise ValueError(target_id)
         return {
-            'version': 3,
+            'v': 3,
             'm': (int(message_type), target_id),
         }
 
@@ -204,15 +222,13 @@ class V3Message(DaemonMessage):
         return self.kombu_message.payload['m']
 
     @property
-    def int_message_type(self) -> IntMessageType:
-        msg_type_int, _ = self._message_twople
-        return IntMessageType(msg_type_int)
-
-    @property
     def message_type(self) -> MessageType:
-        return MessageType[self.int_message_type.name]
+        _msg_type_int, _ = self._message_twople
+        return MessageType.from_int(_msg_type_int)
 
     @property
     def target_id(self) -> int:
         _, target_id = self._message_twople
+        if not isinstance(target_id, int):
+            raise ValueError(self.kombu_message.payload)
         return target_id

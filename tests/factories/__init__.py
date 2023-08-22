@@ -1,10 +1,9 @@
-from unittest import mock
 import datetime
 import hashlib
-import json
-import pkg_resources
 import uuid
+from unittest import mock
 
+import pkg_resources
 import stevedore
 
 import factory
@@ -14,11 +13,11 @@ import faker
 
 from project import celery_app
 
-from share import models
 from share.harvest import BaseHarvester
 from share.harvest.serialization import StringLikeSerializer
-from share.transform import BaseTransformer
 from share.util.extensions import Extensions
+from share import models as share_db
+from trove import models as trove_db
 
 
 fake = faker.Faker()
@@ -29,7 +28,7 @@ class ShareUserFactory(DjangoModelFactory):
     source = factory.RelatedFactory('tests.factories.SourceFactory', 'user')
 
     class Meta:
-        model = models.ShareUser
+        model = share_db.ShareUser
 
 
 class NormalizedDataFactory(DjangoModelFactory):
@@ -37,7 +36,7 @@ class NormalizedDataFactory(DjangoModelFactory):
     source = factory.SubFactory(ShareUserFactory)
 
     class Meta:
-        model = models.NormalizedData
+        model = share_db.NormalizedData
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -60,7 +59,7 @@ class SourceFactory(DjangoModelFactory):
     user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
-        model = models.Source
+        model = share_db.Source
 
 
 class ListGenerator(list):
@@ -71,56 +70,7 @@ class ListGenerator(list):
         return (x for x in self)
 
 
-class HarvesterFactory(DjangoModelFactory):
-    key = factory.Faker('sentence')
-
-    class Meta:
-        model = models.Harvester
-
-    @factory.post_generation
-    def make_harvester(self, create, extracted, **kwargs):
-        stevedore.ExtensionManager('share.harvesters')  # Force extensions to load
-
-        class MockHarvester(BaseHarvester):
-            KEY = self.key
-            VERSION = 1
-            SERIALIZER_CLASS = StringLikeSerializer
-
-            _do_fetch = ListGenerator()
-
-        mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
-        mock_entry.name = self.key
-        mock_entry.module_name = self.key
-        mock_entry.resolve.return_value = MockHarvester
-
-        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
-        Extensions._load_namespace('share.harvesters')
-
-
-class TransformerFactory(DjangoModelFactory):
-    key = factory.Faker('sentence')
-
-    class Meta:
-        model = models.Transformer
-
-    @factory.post_generation
-    def make_transformer(self, create, extracted, **kwargs):
-        stevedore.ExtensionManager('share.transformers')  # Force extensions to load
-
-        class MockTransformer(BaseTransformer):
-            KEY = self.key
-            VERSION = 1
-
-            def do_transform(self, data, **kwargs):
-                return json.loads(data), None
-
-        mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
-        mock_entry.name = self.key
-        mock_entry.module_name = self.key
-        mock_entry.resolve.return_value = MockTransformer
-
-        stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.transformers'].append(mock_entry)
-        Extensions._load_namespace('share.transformers')
+UNSET = object()  # to distinguish unset value
 
 
 class SourceConfigFactory(DjangoModelFactory):
@@ -128,12 +78,32 @@ class SourceConfigFactory(DjangoModelFactory):
     base_url = factory.Faker('url')
     harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
-
-    harvester = factory.SubFactory(HarvesterFactory)
-    transformer = factory.SubFactory(TransformerFactory)
+    harvester_key = UNSET
+    transformer_key = None
 
     class Meta:
-        model = models.SourceConfig
+        model = share_db.SourceConfig
+
+    @factory.post_generation
+    def make_harvester(self, create, extracted, **kwargs):
+        if self.harvester_key is UNSET:
+            self.harvester_key = fake.word()
+            stevedore.ExtensionManager('share.harvesters')  # Force extensions to load
+
+            class MockHarvester(BaseHarvester):
+                KEY = self.harvester_key
+                VERSION = 1
+                SERIALIZER_CLASS = StringLikeSerializer
+
+                _do_fetch = ListGenerator()
+
+            mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
+            mock_entry.name = self.harvester_key
+            mock_entry.module_name = self.harvester_key
+            mock_entry.resolve.return_value = MockHarvester
+
+            stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
+            Extensions._load_namespace('share.harvesters')
 
 
 class SourceUniqueIdentifierFactory(DjangoModelFactory):
@@ -141,7 +111,7 @@ class SourceUniqueIdentifierFactory(DjangoModelFactory):
     source_config = factory.SubFactory(SourceConfigFactory)
 
     class Meta:
-        model = models.SourceUniqueIdentifier
+        model = share_db.SourceUniqueIdentifier
 
 
 class RawDatumFactory(DjangoModelFactory):
@@ -150,7 +120,7 @@ class RawDatumFactory(DjangoModelFactory):
     sha256 = factory.LazyAttribute(lambda r: hashlib.sha256(r.datum.encode()).hexdigest())
 
     class Meta:
-        model = models.RawDatum
+        model = share_db.RawDatum
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -171,47 +141,62 @@ class HarvestJobFactory(DjangoModelFactory):
     end_date = factory.LazyAttribute(lambda job: job.start_date + datetime.timedelta(days=1))
 
     source_config_version = factory.SelfAttribute('source_config.version')
-    harvester_version = factory.SelfAttribute('source_config.harvester.version')
+    harvester_version = 1
 
     class Meta:
-        model = models.HarvestJob
-
-
-class IngestJobFactory(DjangoModelFactory):
-    source_config = factory.SelfAttribute('suid.source_config')
-    suid = factory.SelfAttribute('raw.suid')
-    raw = factory.SubFactory(RawDatumFactory)
-    source_config_version = factory.SelfAttribute('source_config.version')
-    transformer_version = factory.SelfAttribute('source_config.transformer.version')
-    regulator_version = 1
-
-    class Meta:
-        model = models.IngestJob
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        ingest_job = super()._generate(create, attrs)
-
-        # HACK: allow overriding auto_now_add on date_created
-        date_created = attrs.pop('date_created', None)
-        if date_created is not None:
-            ingest_job.date_created = date_created
-            ingest_job.save()
-
-        return ingest_job
+        model = share_db.HarvestJob
 
 
 class CeleryTaskResultFactory(DjangoModelFactory):
     task_id = factory.Sequence(lambda x: uuid.uuid4())
     task_name = fuzzy.FuzzyChoice(list(celery_app.tasks.keys()))
-    status = fuzzy.FuzzyChoice(list(zip(*models.CeleryTaskResult._meta.get_field('status').choices))[0])
+    status = fuzzy.FuzzyChoice(list(zip(*share_db.CeleryTaskResult._meta.get_field('status').choices))[0])
 
     class Meta:
-        model = models.CeleryTaskResult
+        model = share_db.CeleryTaskResult
 
 
 class FormattedMetadataRecordFactory(DjangoModelFactory):
     suid = factory.SubFactory(SourceUniqueIdentifierFactory)
 
     class Meta:
-        model = models.FormattedMetadataRecord
+        model = share_db.FormattedMetadataRecord
+
+
+###
+# trove models
+
+class ResourceIdentifierFactory(DjangoModelFactory):
+    sufficiently_unique_iri = factory.Sequence(lambda x: f'://test.example/{x}')
+    scheme_list = ['foo']
+
+    class Meta:
+        model = trove_db.ResourceIdentifier
+
+
+class IndexcardFactory(DjangoModelFactory):
+    source_record_suid = factory.SubFactory(SourceUniqueIdentifierFactory)
+
+    class Meta:
+        model = trove_db.Indexcard
+
+
+class LatestIndexcardRdfFactory(DjangoModelFactory):
+    from_raw_datum = factory.SubFactory(RawDatumFactory)
+    indexcard = factory.SubFactory(IndexcardFactory)
+    focus_iri = factory.Sequence(lambda x: f'http://test.example/{x}')
+    rdf_as_turtle = factory.Sequence(lambda x: f'<http://test.example/{x}> a <http://text.example/Greeting>')
+    # turtle_checksum_iri =
+
+    class Meta:
+        model = trove_db.LatestIndexcardRdf
+
+
+class DerivedIndexcardFactory(DjangoModelFactory):
+    upriver_indexcard = factory.SubFactory(IndexcardFactory)
+    deriver_identifier = factory.SubFactory(ResourceIdentifierFactory)
+    derived_text = 'hello'
+    # derived_checksum_iri =
+
+    class Meta:
+        model = trove_db.DerivedIndexcard

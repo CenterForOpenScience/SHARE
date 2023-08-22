@@ -3,7 +3,6 @@ import logging
 from django.conf import settings
 
 from share import exceptions
-from share.models import RegulatorLog
 from share.util.extensions import Extensions
 
 
@@ -22,21 +21,12 @@ class Regulator:
     VERSION = 1
 
     def __init__(
-            self,
-            ingest_job=None,
+            self, *,
             source_config=None,
             regulator_config=None,
             validate=True,
     ):
-        if ingest_job and source_config:
-            raise ValueError('Regulator: Provide ingest_job or source_config, not both')
-
-        self.job = ingest_job
         self._logs = []
-
-        if ingest_job and not source_config:
-            source_config = ingest_job.suid.source_config
-
         self._custom_steps = Steps(
             self,
             source_config.regulator_steps if source_config else None,
@@ -49,14 +39,8 @@ class Regulator:
         )
 
     def regulate(self, graph):
-        try:
-            self._custom_steps.run(graph)
-            self._default_steps.run(graph)
-        finally:
-            if self.job and self._logs:
-                for log in self._logs:
-                    log.ingest_job = self.job
-                RegulatorLog.objects.bulk_create(self._logs)
+        self._custom_steps.run(graph)
+        self._default_steps.run(graph)
 
 
 class Steps:

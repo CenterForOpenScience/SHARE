@@ -12,9 +12,9 @@ from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import IndexStrategy
 from share.search.messages import MessageType
 from share.tasks.jobs import HarvestJobConsumer
-from share.tasks.jobs import IngestJobConsumer
 from share.util.source_stat import SourceStatus
 from share.util.source_stat import OAISourceStatus
+from trove import models as trove_db
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ def schedule_harvests(self, *source_config_ids, cutoff=None):
         jobs = []
 
         # TODO take harvest/sourceconfig version into account here
-        for source_config in qs.exclude(harvester__isnull=True).select_related('harvester').annotate(latest=models.Max('harvest_jobs__end_date')):
+        for source_config in qs.exclude(harvester_key__isnull=True).annotate(latest=models.Max('harvest_jobs__end_date')):
             jobs.extend(HarvestScheduler(source_config).all(cutoff=cutoff, save=False))
 
         db.HarvestJob.objects.bulk_get_or_create(jobs)
@@ -56,61 +56,51 @@ def harvest(self, **kwargs):
     HarvestJobConsumer(task=self).consume(**kwargs)
 
 
-@celery.shared_task(bind=True, max_retries=5)
-def ingest(self, only_canonical=None, **kwargs):
-    """Ingest the data of the given IngestJob or the next available IngestJob.
-
-    Keyword arguments from JobConsumer.consume
-    """
-    if only_canonical is None:
-        only_canonical = settings.INGEST_ONLY_CANONICAL_DEFAULT
-    IngestJobConsumer(task=self, only_canonical=only_canonical).consume(**kwargs)
-
-
-@celery.shared_task()
-def schedule_reingest(source_config_pk, pls_renormalize=False, pls_reformat=False):
-    source_config = db.SourceConfig.objects.get(pk=source_config_pk)
-    assert not source_config.disabled
-    assert not source_config.source.is_deleted
-    # TODO: something nice like IndexBackfill, instead of this
-    from django.core import management
-    management.call_command(
-        'format_metadata_records',
-        source_config=[source_config.label],
-        pls_ensure_ingest_jobs=True,
-        pls_renormalize=pls_renormalize,
-        pls_reformat=pls_reformat,
-    )
-
-
 @celery.shared_task(bind=True)
 def schedule_index_backfill(self, index_backfill_pk):
-    index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
-    index_backfill.pls_note_scheduling_has_begun()
+    _index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
+    _index_backfill.pls_note_scheduling_has_begun()
     try:
-        suid_id_queryset = (
-            db.SourceUniqueIdentifier
-            .objects
-            .exclude(source_config__disabled=True)
-            .exclude(source_config__source__is_deleted=True)
-            .values_list('id', flat=True)
-            .distinct()
-        )
-        chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
-        IndexMessenger(
-            celery_app=self.app,
-            index_strategys=[IndexStrategy.get_by_name(index_backfill.index_strategy_name)],
-        ).stream_message_chunks(
-            MessageType.BACKFILL_SUID,
-            suid_id_queryset.iterator(chunk_size=chunk_size),
-            chunk_size=chunk_size,
+        _index_strategy = IndexStrategy.get_by_name(_index_backfill.index_strategy_name)
+        _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
+        _messagetype = _index_strategy.backfill_message_type
+        assert _messagetype in _index_strategy.supported_message_types
+        if _messagetype == MessageType.BACKFILL_INDEXCARD:
+            _targetid_queryset = (
+                trove_db.Indexcard.objects
+                .exclude(source_record_suid__source_config__disabled=True)
+                .exclude(source_record_suid__source_config__source__is_deleted=True)
+                .values_list('id', flat=True)
+            )
+        elif _messagetype == MessageType.BACKFILL_SUID:
+            _targetid_queryset = (
+                db.SourceUniqueIdentifier.objects
+                .exclude(source_config__disabled=True)
+                .exclude(source_config__source__is_deleted=True)
+                .values_list('id', flat=True)
+            )
+        elif _messagetype == MessageType.BACKFILL_IDENTIFIER:
+            _targetid_queryset = (
+                trove_db.ResourceIdentifier.objects
+                .exclude(suid_set__source_config__disabled=True)
+                .exclude(suid_set__source_config__source__is_deleted=True)
+                .values_list('id', flat=True)
+                .distinct()
+            )
+        else:
+            raise ValueError(f'unknown backfill messagetype {_messagetype}')
+        _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
+        _messenger.stream_message_chunks(
+            _messagetype,
+            _targetid_queryset.iterator(chunk_size=_chunk_size),
+            chunk_size=_chunk_size,
             urgent=False,
         )
     except Exception as error:
-        index_backfill.pls_mark_error(error)
+        _index_backfill.pls_mark_error(error)
         raise error
     else:
-        index_backfill.pls_note_scheduling_has_finished()
+        _index_backfill.pls_note_scheduling_has_finished()
 
 
 @celery.shared_task(bind=True)
@@ -118,7 +108,7 @@ def source_stats(self):
     oai_sourceconfigs = db.SourceConfig.objects.filter(
         disabled=False,
         base_url__isnull=False,
-        harvester__key='oai'
+        harvester_key='oai'
     )
     for config in oai_sourceconfigs.values():
         get_source_stats.apply_async((config['id'],))
@@ -127,7 +117,7 @@ def source_stats(self):
         disabled=False,
         base_url__isnull=False
     ).exclude(
-        harvester__key='oai'
+        harvester_key='oai'
     )
     for config in non_oai_sourceconfigs.values():
         get_source_stats.apply_async((config['id'],))
@@ -136,7 +126,7 @@ def source_stats(self):
 @celery.shared_task(bind=True)
 def get_source_stats(self, config_id):
     source_config = db.SourceConfig.objects.get(pk=config_id)
-    if source_config.harvester.key == 'oai':
+    if source_config.harvester_key == 'oai':
         OAISourceStatus(config_id).get_source_stats()
     else:
         SourceStatus(config_id).get_source_stats()

@@ -9,9 +9,9 @@ from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
 from share.search import exceptions, messages
 from share.search.index_status import IndexStatus
 from share.search.index_strategy._base import IndexStrategy
-from share.search.index_strategy.elastic_util import _timestamp_to_readable_datetime
+from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util import IDObfuscator
-from share.util.checksum_iris import ChecksumIri
+from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)
@@ -97,6 +97,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
+        logger.debug('got messages_chunk %s', messages_chunk)
         self.assert_message_type(messages_chunk.message_type)
         bulk_stream = elasticsearch5.helpers.streaming_bulk(
             self.es5_client,
@@ -123,6 +124,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             messages.MessageType.INDEX_SUID,
             messages.MessageType.BACKFILL_SUID,
         }
+
+    # abstract method from IndexStrategy
+    @property
+    def backfill_message_type(self):
+        return messages.MessageType.BACKFILL_SUID
 
     def _index_settings(self):
         return {
@@ -296,9 +302,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     '_op_type': 'index',
                     '_source': source_doc,
                 }
+            logger.debug('built action for suid_id=%s: %s', record.suid_id, action)
             yield action
         # delete any that don't have the expected FormattedMetadataRecord
         for leftover_suid_id in suid_ids:
+            logger.debug('deleting suid_id=%s', leftover_suid_id)
             action = {
                 **action_template,
                 '_id': get_doc_id(leftover_suid_id),
@@ -307,13 +315,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             yield action
 
     class SpecificIndex(IndexStrategy.SpecificIndex):
-        # abstract method from IndexStrategy.SpecificIndex
-        def pls_make_default_for_searching(self):
-            logger.info(
-                'pls_make_default_for_searching doing nothing with '
-                'the expectation we will stop using elasticsearch5 soon'
-            )
-
         # abstract method from IndexStrategy.SpecificIndex
         def pls_create(self):
             # check index exists (if not, create)
@@ -365,7 +366,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_check_exists(self):
-            return (
+            return bool(
                 self.index_strategy.es5_client.indices
                 .exists(index=self.indexname)
             )
@@ -398,14 +399,14 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 specific_indexname=self.indexname,
                 is_kept_live=True,
                 is_default_for_searching=True,
-                creation_date=_timestamp_to_readable_datetime(
+                creation_date=timestamp_to_readable_datetime(
                     index_settings['settings']['index']['creation_date'],
                 ),
                 doc_count=index_stats['primaries']['docs']['count'],
             )
 
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             '''the definitive sharev2-search api: passthru to elasticsearch version 5
             '''
             try:

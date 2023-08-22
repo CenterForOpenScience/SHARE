@@ -20,7 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from share.util import chunked, BaseJSONAPIMeta
 
 
-__all__ = ('HarvestJob', 'IngestJob', 'RegulatorLog')
+__all__ = ('HarvestJob',)
 logger = logging.getLogger(__name__)
 
 
@@ -137,6 +137,7 @@ class AbstractBaseJob(models.Model):
         comprised = 'Comprised of succeeded tasks'
         pointless = 'Any effects will be overwritten by another queued job'
         obsolete = 'Uses an old version of a dependency'
+        disabled = 'Source(Config) disabled/deleted'
 
     task_id = models.UUIDField(null=True)
     status = models.IntegerField(db_index=True, choices=STATUS, default=STATUS.created)
@@ -391,45 +392,3 @@ class HarvestJob(AbstractBaseJob):
             end_date=self.end_date.isoformat(),
             start_date=self.start_date.isoformat(),
         )
-
-
-class IngestJob(AbstractBaseJob):
-    raw = models.ForeignKey('RawDatum', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-    suid = models.ForeignKey('SourceUniqueIdentifier', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-    source_config = models.ForeignKey('SourceConfig', editable=False, related_name='ingest_jobs', on_delete=models.CASCADE)
-
-    source_config_version = models.PositiveIntegerField()
-    transformer_version = models.PositiveIntegerField()
-    regulator_version = models.PositiveIntegerField()
-
-    ingested_normalized_data = models.ManyToManyField('NormalizedData', related_name='ingest_jobs')
-
-    retries = models.IntegerField(null=True)
-
-    class Meta:
-        unique_together = ('raw', 'source_config_version', 'transformer_version', 'regulator_version')
-
-    def reschedule(self, claim=False):
-        result = super().reschedule(claim)
-        if not claim:
-            # HACK so calling reschedule re-runs the task
-            from share.tasks import ingest
-            ingest.delay(job_id=self.id)
-        return result
-
-    def __repr__(self):
-        return '<{type}({id}, {status}, {source}, {suid})>'.format(
-            type=type(self).__name__,
-            id=self.id,
-            status=self.STATUS[self.status],
-            source=self.source_config.label,
-            suid=self.suid.identifier,
-        )
-
-
-class RegulatorLog(models.Model):
-    description = models.TextField()
-    node_id = models.TextField(null=True)
-    rejected = models.BooleanField()
-
-    ingest_job = models.ForeignKey(IngestJob, related_name='regulator_logs', editable=False, on_delete=models.CASCADE)

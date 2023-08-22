@@ -1,6 +1,6 @@
 import logging
+import json
 
-from django.db import transaction
 from django.urls import reverse
 from rest_framework import status
 from rest_framework import generics
@@ -8,17 +8,15 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 import sentry_sdk
 
-from share import models
-from share.tasks import ingest
-from share.util import IDObfuscator
+from share import models as share_db
 from share.util.graph import MutableGraph
 from share.util.osf import guess_osf_guid
-from share.ingest.ingester import Ingester
 from api.base.views import ShareViewSet
 from api.normalizeddata.serializers import BasicNormalizedDataSerializer
 from api.normalizeddata.serializers import FullNormalizedDataSerializer
 from api.pagination import CursorPagination
 from api.permissions import ReadOnlyOrTokenHasScopeOrIsAuthenticated
+from trove import digestive_tract
 
 
 logger = logging.getLogger(__name__)
@@ -66,9 +64,18 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
         return BasicNormalizedDataSerializer
 
     def get_queryset(self):
-        return models.NormalizedData.objects.all()
+        return share_db.NormalizedData.objects.all()
 
     def create(self, request, *args, **kwargs):
+        if share_db.FeatureFlag.objects.flag_is_up(share_db.FeatureFlag.IGNORE_SHAREV2_INGEST):
+            return Response({
+                'errors': [
+                    {'detail': (
+                        'this route was deprecated and has been removed'
+                        f' (use {reverse("trove:ingest-rdf")} instead)'
+                    )},
+                ],
+            }, status=status.HTTP_410_GONE)
         try:
             return self._do_create(request, *args, **kwargs)
         except Exception:
@@ -86,27 +93,16 @@ class NormalizedDataViewSet(ShareViewSet, generics.ListCreateAPIView, generics.R
             suid = guess_osf_guid(MutableGraph.from_jsonld(data))
             if not suid:
                 raise ValidationError("'suid' is a required attribute")
-
-        with transaction.atomic():
-            # Hack for back-compat: Ingest halfway synchronously, then apply changes asynchronously
-            ingester = Ingester(data, suid).as_user(request.user).ingest(
-                pls_format_metadata=False,
-            )
-            ingester.job.reschedule(claim=True)
-
-            nd_id = models.NormalizedData.objects.filter(
-                raw=ingester.raw,
-                ingest_jobs=ingester.job
-            ).order_by('-created_at').values_list('id', flat=True).first()
-
-        async_result = ingest.delay(job_id=ingester.job.id, urgent=True)
-
-        # TODO Use an actual serializer
+        _task_id = digestive_tract.swallow__sharev2_legacy(
+            from_user=request.user,
+            record=json.dumps(data, sort_keys=True),
+            record_identifier=suid,
+            transformer_key='v2_push',
+            urgent=True,
+        )
         return Response({
-            'id': IDObfuscator.encode_id(nd_id, models.NormalizedData),
             'type': 'NormalizedData',
             'attributes': {
-                'task': async_result.id,
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
-            }
+                'task': _task_id,
+            },
         }, status=status.HTTP_202_ACCEPTED)

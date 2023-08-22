@@ -1,6 +1,7 @@
 from prettyjson import PrettyJSONWidget
 
 from django import forms
+from django.apps import apps
 from django.urls import re_path as url
 from django.contrib import admin
 from django.contrib.admin.widgets import AdminDateWidget
@@ -15,23 +16,29 @@ from oauth2_provider.models import AccessToken
 from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
-from share.admin.jobs import IngestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
 from share.admin.search import search_indexes_view
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
-from share.ingest.scheduler import IngestScheduler
-from share.models.banner import SiteBanner
-from share.models.celery import CeleryTaskResult
-from share.models.core import FormattedMetadataRecord, NormalizedData, ShareUser
-from share.models.feature_flag import FeatureFlag
-from share.models.fields import DateTimeAwareJSONField
-from share.models.index_backfill import IndexBackfill
-from share.models.ingest import RawDatum, Source, SourceConfig, Harvester, Transformer, SourceUniqueIdentifier
-from share.models.jobs import HarvestJob
-from share.models.jobs import IngestJob
-from share.models.registration import ProviderRegistration
-from share.models.sources import SourceStat
+from share.models import (
+    CeleryTaskResult,
+    DateTimeAwareJSONField,
+    FeatureFlag,
+    FormattedMetadataRecord,
+    HarvestJob,
+    IndexBackfill,
+    NormalizedData,
+    ProviderRegistration,
+    RawDatum,
+    ShareUser,
+    SiteBanner,
+    Source,
+    SourceConfig,
+    SourceStat,
+    SourceUniqueIdentifier,
+)
+from trove import digestive_tract
+from trove.models import Indexcard
 
 
 class ShareAdminSite(admin.AdminSite):
@@ -48,6 +55,8 @@ class ShareAdminSite(admin.AdminSite):
 
 admin_site = ShareAdminSite()
 
+admin_site.register(apps.get_app_config('django_celery_beat').get_models())
+
 
 class ShareUserAdmin(admin.ModelAdmin):
     search_fields = ['username']
@@ -55,10 +64,6 @@ class ShareUserAdmin(admin.ModelAdmin):
 
 @linked_fk('raw')
 @linked_fk('source')
-@linked_many(
-    'ingest_jobs',
-    order_by=['-date_created'],
-)
 class NormalizedDataAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     list_filter = ['source', ]
@@ -80,7 +85,8 @@ class RawDatumAdmin(admin.ModelAdmin):
     show_full_result_count = False
     list_select_related = ('suid__source_config', )
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
-    readonly_fields = ('datum', 'sha256')
+    readonly_fields = ('datum__pre', 'sha256')
+    exclude = ('datum',)
     raw_id_fields = ('jobs',)
     paginator = TimeLimitedPaginator
 
@@ -89,6 +95,10 @@ class RawDatumAdmin(admin.ModelAdmin):
 
     def source_config_label(self, obj):
         return obj.suid.source_config.label
+
+    def datum__pre(self, instance):
+        return format_html('<pre>{}</pre>', instance.datum)
+    datum__pre.short_description = 'datum'
 
 
 class AccessTokenAdmin(admin.ModelAdmin):
@@ -131,10 +141,11 @@ class HarvestForm(forms.Form):
 
 @linked_fk('source')
 class SourceConfigAdmin(admin.ModelAdmin):
-    list_display = ('label', 'source_', 'version', 'enabled', 'source_config_actions')
+    list_display = ('label', 'source_', 'version', 'enabled', 'button_actions')
     list_select_related = ('source',)
-    readonly_fields = ('source_config_actions',)
+    readonly_fields = ('button_actions',)
     search_fields = ['label', 'source__name', 'source__long_title']
+    actions = ['schedule_full_ingest']
 
     def source_(self, obj):
         return obj.source.long_title
@@ -142,6 +153,11 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def enabled(self, obj):
         return not obj.disabled
     enabled.boolean = True
+
+    @admin.action(description='schedule re-ingest of all raw data for each source config')
+    def schedule_full_ingest(self, request, queryset):
+        for _id in queryset.values_list('id', flat=True):
+            digestive_tract.task__schedule_extract_and_derive_for_source_config.delay(_id)
 
     def get_urls(self):
         return [
@@ -157,20 +173,20 @@ class SourceConfigAdmin(admin.ModelAdmin):
             )
         ] + super().get_urls()
 
-    def source_config_actions(self, obj):
+    def button_actions(self, obj):
         return format_html(
             ' '.join((
-                ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_id else ''),
+                ('<a class="button" href="{harvest_href}">Harvest</a>' if obj.harvester_key else ''),
                 ('<a class="button" href="{ingest_href}">Ingest</a>' if not obj.disabled else ''),
             )),
             harvest_href=reverse('admin:source-config-harvest', args=[obj.pk]),
             ingest_href=reverse('admin:source-config-ingest', args=[obj.pk]),
         )
-    source_config_actions.short_description = 'Actions'
+    button_actions.short_description = 'Buttons'
 
     def harvest(self, request, config_id):
         config = self.get_object(request, config_id)
-        if config.harvester_id is None:
+        if config.harvester_key is None:
             raise ValueError('You need a harvester to harvest.')
         if request.method == 'POST':
             form = HarvestForm(request.POST)
@@ -196,10 +212,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
     def start_ingest(self, request, config_id):
         config = self.get_object(request, config_id)
         if request.method == 'POST':
-            tasks.schedule_reingest.apply_async((config.pk,), {
-                'pls_renormalize': request.POST.get('pls_renormalize', False),
-                'pls_reformat': request.POST.get('pls_reformat', False),
-            })
+            digestive_tract.task__schedule_extract_and_derive_for_source_config.delay(config.pk)
             url = reverse(
                 'admin:share_sourceconfig_changelist',
                 current_app=self.admin_site.name,
@@ -254,23 +267,33 @@ class SourceStatAdmin(admin.ModelAdmin):
 
 
 @linked_fk('source_config')
-@linked_fk('ingest_job')  # technically not fk but still works
-@linked_many('formattedmetadatarecord_set')
+@linked_fk('focus_identifier')
+@linked_many('formattedmetadatarecord_set', defer=('formatted_metadata',))
+@linked_many('raw_data', defer=('datum',))
+@linked_many('indexcard_set')
 class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     readonly_fields = ('identifier',)
     paginator = TimeLimitedPaginator
-    actions = ('reingest', 'delete_formatted_records_for_suid')
+    actions = ('reingest', 'delete_cards_for_suid')
     list_filter = (SourceConfigFilter,)
     list_select_related = ('source_config',)
     show_full_result_count = False
     search_fields = ('identifier',)
 
     def reingest(self, request, queryset):
-        IngestScheduler().bulk_reingest(queryset)
+        _raw_id_queryset = (
+            RawDatum.objects
+            .latest_by_suid_queryset(queryset)
+            .values_list('id', flat=True)
+        )
+        for _raw_id in _raw_id_queryset:
+            digestive_tract.task__extract_and_derive.delay(raw_id=_raw_id)
 
-    def delete_formatted_records_for_suid(self, request, queryset):
+    def delete_cards_for_suid(self, request, queryset):
         for suid in queryset:
             FormattedMetadataRecord.objects.delete_formatted_records(suid)
+            for _indexcard in Indexcard.objects.filter(source_record_suid__in=queryset):
+                _indexcard.pls_delete()
 
     def get_search_results(self, request, queryset, search_term):
         if not search_term:
@@ -317,9 +340,7 @@ admin_site.register(CeleryTaskResult, CeleryTaskResultAdmin)
 admin_site.register(FeatureFlag, FeatureFlagAdmin)
 admin_site.register(FormattedMetadataRecord, FormattedMetadataRecordAdmin)
 admin_site.register(HarvestJob, HarvestJobAdmin)
-admin_site.register(Harvester)
 admin_site.register(IndexBackfill, IndexBackfillAdmin)
-admin_site.register(IngestJob, IngestJobAdmin)
 admin_site.register(NormalizedData, NormalizedDataAdmin)
 admin_site.register(ProviderRegistration, ProviderRegistrationAdmin)
 admin_site.register(RawDatum, RawDatumAdmin)
@@ -329,4 +350,3 @@ admin_site.register(Source, SourceAdmin)
 admin_site.register(SourceConfig, SourceConfigAdmin)
 admin_site.register(SourceStat, SourceStatAdmin)
 admin_site.register(SourceUniqueIdentifier, SourceUniqueIdentifierAdmin)
-admin_site.register(Transformer)

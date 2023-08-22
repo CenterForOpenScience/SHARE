@@ -1,7 +1,6 @@
 import jsonschema
 
 from django.db import transaction
-from django.urls import reverse
 
 from rest_framework import views, status
 from rest_framework.exceptions import ParseError
@@ -9,8 +8,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from share.util import IDObfuscator
-from share.ingest.ingester import Ingester
+from trove import digestive_tract
 
 from api import v1_schemas
 from api.authentication import APIV1TokenBackPortAuthentication
@@ -113,9 +111,13 @@ class V1DataView(views.APIView):
             except KeyError:
                 return Response({'errors': 'Canonical URI not found in uris.', 'data': prelim_data}, status=status.HTTP_400_BAD_REQUEST)
 
-            ingester = Ingester(prelim_data, doc_id).as_user(request.user, 'v1_push').ingest_async(urgent=True)
-
+            _task_id = digestive_tract.swallow__sharev2_legacy(
+                from_user=request.user,
+                record=prelim_data,
+                record_identifier=doc_id,
+                transformer_key='v1_push',
+                urgent=True,
+            )
             return Response({
-                'task_id': ingester.async_task.id,
-                'ingest_job': request.build_absolute_uri(reverse('api:ingestjob-detail', args=[IDObfuscator.encode(ingester.job)])),
+                'task_id': _task_id,
             }, status=status.HTTP_202_ACCEPTED)

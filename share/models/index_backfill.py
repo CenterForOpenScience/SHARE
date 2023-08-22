@@ -72,13 +72,14 @@ class IndexBackfill(models.Model):
     def mutex(self):
         with IndexBackfill.objects.get_with_mutex(pk=self.pk) as index_backfill:
             yield index_backfill
+        self.refresh_from_db()
 
     def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
             assert locked_self.index_strategy_name == index_strategy.name
             current_index = index_strategy.for_current_index()
             if locked_self.specific_indexname == current_index.indexname:
-                # what is "current" has not changed -- should already be INITIAL
+                # what is "current" has not changed -- should be INITIAL
                 assert locked_self.backfill_status == IndexBackfill.INITIAL
             else:
                 # what is "current" has changed! disregard backfill_status
@@ -94,34 +95,29 @@ class IndexBackfill(models.Model):
                 locked_self.backfill_status = IndexBackfill.WAITING
             finally:
                 locked_self.save()
-        self.refresh_from_db()
 
     def pls_note_scheduling_has_begun(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.WAITING
             locked_self.backfill_status = IndexBackfill.SCHEDULING
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_note_scheduling_has_finished(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.SCHEDULING
             locked_self.backfill_status = IndexBackfill.INDEXING
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_mark_complete(self):
         with self.mutex() as locked_self:
             assert locked_self.backfill_status == IndexBackfill.INDEXING
             locked_self.backfill_status = IndexBackfill.COMPLETE
             locked_self.save()
-        self.refresh_from_db()
 
     def pls_mark_error(self, error: typing.Optional[Exception]):
         with self.mutex() as locked_self:
             locked_self.__update_error(error)
             locked_self.save()
-        self.refresh_from_db()
 
     def __update_error(self, error):
         if isinstance(error, Exception):

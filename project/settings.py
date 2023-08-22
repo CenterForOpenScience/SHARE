@@ -65,7 +65,7 @@ JSON_API_FORMAT_FIELD_NAMES = 'camelize'
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin.apps.SimpleAdminConfig',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'osf_oauth2_adapter',
 
     'share',
+    'trove',
     'api',
 ]
 
@@ -168,6 +169,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'api.middleware.DeprecationMiddleware',
@@ -257,15 +259,15 @@ if os.environ.get('USE_SENTRY'):
     )
 
 
-# TODO REMOVE BEFORE PRODUCTION
-# ALLOW LOCAL USERS TO SEARCH
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
-# TODO REMOVE BEFORE PRODUCTION
+if True:  # TODO: if DEBUG:
+    # ALLOW LOCAL USERS TO SEARCH
+    CORS_ORIGIN_ALLOW_ALL = True
+    CORS_ALLOW_CREDENTIALS = True
 
 ANONYMOUS_USER_NAME = 'AnonymousUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
+    'oauth2_provider.backends.OAuth2Backend',
     'allauth.account.auth_backends.AuthenticationBackend',
     # 'guardian.backends.ObjectPermissionBackend',
 )
@@ -329,18 +331,25 @@ if ELASTICSEARCH8_URL:
     ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
     ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
     ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
-    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic8'] = {
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
-        'CLUSTER_SETTINGS': {
-            'URL': ELASTICSEARCH8_URL,
-            'AUTH': (
-                (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
-                if ELASTICSEARCH8_SECRET is not None
-                else None
-            ),
-            'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
-        },
+    ELASTICSEARCH8_CLUSTER_SETTINGS = {
+        'URL': ELASTICSEARCH8_URL,
+        'AUTH': (
+            (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
+            if ELASTICSEARCH8_SECRET is not None
+            else None
+        ),
+        'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
     }
+    ELASTICSEARCH['INDEX_STRATEGIES'].update({
+        'sharev2_elastic8': {
+            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
+            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
+        },
+        'trove_indexcard': {
+            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard.TroveIndexcardIndexStrategy',
+            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
+        },
+    })
 DEFAULT_INDEX_STRATEGY_FOR_SEARCHING = (
     'sharev2_elastic5'
     if ELASTICSEARCH5_URL
@@ -375,16 +384,6 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'share.tasks.harvest',
         'schedule': 120,
     },
-    # Every 2 minutes
-    'Ingest Task': {
-        'task': 'share.tasks.ingest',
-        'schedule': 120,
-    },
-    # Executes daily at 10:30 P.M
-    'IngestJob Janitor': {
-        'task': 'share.janitor.tasks.ingestjob_janitor',
-        'schedule': crontab(hour=22, minute=30),
-    },
 }
 
 if not DEBUG:
@@ -392,10 +391,6 @@ if not DEBUG:
         **CELERY_BEAT_SCHEDULE,
         'Schedule Harvests': {
             'task': 'share.tasks.schedule_harvests',
-            'schedule': crontab(minute=0)  # hourly
-        },
-        'RawData Janitor': {
-            'task': 'share.janitor.tasks.rawdata_janitor',
             'schedule': crontab(minute=0)  # hourly
         },
         'Source Stats': {
@@ -422,15 +417,16 @@ CELERY_TASK_DEFAULT_EXCHANGE = 'share_default'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'share_default'
 
 URGENT_TASK_QUEUES = {
-    'share.tasks.ingest': 'ingest.urgent',
+    'trove.digestive_tract.task__extract_and_derive': 'digestive_tract.urgent',
 }
 
 
 def route_urgent_task(name, args, kwargs, options, task=None, **kw):
     """Allow routing urgent tasks to a special queue, according to URGENT_TASK_QUEUES
 
-    e.g. task.apply_async(args, kwargs, urgent=True)
+    e.g. task.apply_async(args, {**kwargs, urgent=True})
     """
+    # TODO: consider using routing_key instead?
     if name in URGENT_TASK_QUEUES and kwargs.get('urgent'):
         return {'queue': URGENT_TASK_QUEUES[name]}
 
@@ -439,15 +435,15 @@ CELERY_TASK_ROUTES = [
     route_urgent_task,
     {
         'share.tasks.harvest': {'queue': 'harvest'},
-        'share.tasks.ingest': {'queue': 'ingest'},
+        'trove.digestive_tract.*': {'queue': 'digestive_tract'},
     },
 ]
 CELERY_TASK_QUEUES = {
     'share_default': {},
     'elasticsearch': {},
     'harvest': {},
-    'ingest': {},
-    'ingest.urgent': {},
+    'digestive_tract': {},
+    'digestive_tract.urgent': {},
 }
 
 
@@ -485,13 +481,17 @@ LOGGING = {
             'handlers': ['stream-to-stderr'],
             'propagate': False,
         },
+        'elastic_transport.transport': {
+            'level': 'ERROR',
+            'handlers': ['stream-to-stderr'],
+            'propagate': False,
+        },
     },
 }
 
 # shell_plus convenience utilities
 SHELL_PLUS_POST_IMPORTS = (
     ('share.shell_util', '*'),
-    ('share.ingest.scheduler', 'IngestScheduler'),
 )
 
 
@@ -501,13 +501,8 @@ PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
 EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
-SHARE_API_URL = os.environ.get('SHARE_API_URL', 'http://localhost:8000').rstrip('/') + '/'
-SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', SHARE_API_URL + EMBER_SHARE_PREFIX).rstrip('/') + '/'
+SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', 'http://localhost:8003').rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
-
-# Default value for IngestJobConsumer's only_canonical param.
-# Allows turning off ingestion for all non-canonical sources.
-INGEST_ONLY_CANONICAL_DEFAULT = True
 
 # Skip some of the more intensive operations on works that surpass these limits
 SHARE_LIMITS = {

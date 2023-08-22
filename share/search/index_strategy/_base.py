@@ -5,12 +5,20 @@ import typing
 
 from django.conf import settings
 
+from share.search import messages
 from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
-from share.search import messages
-from share.util.checksum_iris import ChecksumIri
+from share.search.search_params import (
+    CardsearchParams,
+    ValuesearchParams,
+)
+from share.search.search_response import (
+    CardsearchResponse,
+    ValuesearchResponse,
+)
+from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)
@@ -190,6 +198,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:
         raise NotImplementedError
 
+    @property
+    @abc.abstractmethod
+    def backfill_message_type(self) -> messages.MessageType:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def compute_strategy_checksum(self) -> ChecksumIri:
         '''get a dict (json-serializable and thereby checksummable) of all
@@ -245,6 +258,21 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def is_current(self):
             return self.indexname == self.index_strategy.current_indexname
 
+        def pls_setup(self, *, skip_backfill=False):
+            assert self.is_current, 'cannot setup a non-current index'
+            _preexisting_index_count = sum(
+                _index.pls_check_exists()
+                for _index in self.index_strategy.each_specific_index()
+            )
+            self.pls_create()
+            self.pls_start_keeping_live()
+            if skip_backfill:
+                _backfill = self.index_strategy.get_or_create_backfill()
+                _backfill.backfill_status = _backfill.COMPLETE
+                _backfill.save()
+            if not _preexisting_index_count:  # first index for a strategy is automatic default
+                self.index_strategy.pls_make_default_for_searching(self)
+
         @abc.abstractmethod
         def pls_get_status(self) -> IndexStatus:
             raise NotImplementedError
@@ -273,10 +301,16 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_stop_keeping_live(self):
             raise NotImplementedError
 
-        # @abc.abstractmethod
-        # def pls_handle_query(self, **kwargs) -> TODO:  # (type consistent with search api model)
-        #     raise NotImplementedError
-
         # optional for subclasses
-        def pls_handle_query__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_query__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+            raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+            raise NotImplementedError
+
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+            raise NotImplementedError
+
+        # TODO someday:
+        # def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
+        #     raise NotImplementedError
