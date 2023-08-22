@@ -45,7 +45,7 @@ def make_source_config(context, label, name=None, interval=None, time=None):
 
 @behave.given('{label} is updated to version {version}')
 def update_harvester(context, label, version):
-    models.Harvester.objects.get(sourceconfig__label=label).get_class().VERSION = int(version)
+    models.SourceConfig.objects.get(label=label).get_harvester_class().VERSION = int(version)
 
 
 @behave.when('{label} is harvested')

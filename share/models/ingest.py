@@ -172,21 +172,25 @@ class SourceConfig(models.Model):
     def natural_key(self):
         return (self.label,)
 
+    def get_harvester_class(self):
+        return Extensions.get('share.harvesters', self.harvester_key)
+
+    def get_transformer_class(self):
+        return Extensions.get('share.transformers', self.transformer_key)
+
     def get_harvester(self, **kwargs):
         """Return a harvester instance configured for this SourceConfig.
 
         **kwargs: passed to the harvester's initializer
         """
-        _harvester_class = Extensions.get('share.harvesters', self.harvester_key)
-        return _harvester_class(self, **kwargs)
+        return self.get_harvester_class()(self, **kwargs)
 
     def get_transformer(self, **kwargs):
         """Return a transformer instance configured for this SourceConfig.
 
         **kwargs: passed to the transformer's initializer
         """
-        _transformer_class = Extensions.get('share.transformers', self.transformer_key)
-        return _transformer_class(self, **kwargs)
+        return self.get_transformer_class()(self, **kwargs)
 
     @contextlib.contextmanager
     def acquire_lock(self, required=True, using='default'):

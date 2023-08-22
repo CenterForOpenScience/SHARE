@@ -46,19 +46,18 @@ class TestHarvestTask:
 
     @pytest.fixture(scope='class')
     def source_config(self, class_scoped_django_db):
-        with mock.patch('share.harvesters.oai.OAIHarvester._do_fetch'):
-            yield factories.SourceConfigFactory(harvester_key='oai')
+        return factories.SourceConfigFactory()
 
     @pytest.fixture
     def do_fetch_list(self, source_config):
-        with mock.patch.object(source_config.get_harvester().__class__, '_do_fetch', factories.ListGenerator()) as _do_fetch_list:
+        with mock.patch.object(source_config.get_harvester_class(), '_do_fetch', factories.ListGenerator()) as _do_fetch_list:
             yield _do_fetch_list
 
     @pytest.mark.parametrize('source_config_kwargs, task_kwargs, lock_config, exception', [
         ({}, {}, True, HarvesterConcurrencyError),
     ])
     def test_failure_cases(self, source_config_kwargs, task_kwargs, lock_config, exception):
-        source_config = factories.SourceConfigFactory(harvester_key='oai', **source_config_kwargs)
+        source_config = factories.SourceConfigFactory(**source_config_kwargs)
         job = factories.HarvestJobFactory(source_config=source_config)
 
         if lock_config:
@@ -94,7 +93,7 @@ class TestHarvestTask:
             yield ('doc2', b'doc2data')
             yield ('doc3', b'doc3data')
             raise DatabaseError('In a test')
-        monkeypatch.setattr(source_config.get_harvester().__class__, '_do_fetch', _do_fetch)
+        monkeypatch.setattr(source_config.get_harvester_class(), '_do_fetch', _do_fetch)
 
         with pytest.raises(DatabaseError) as e:
             tasks.harvest(job_id=job.id)
@@ -115,7 +114,7 @@ class TestHarvestTask:
             yield ('doc2', b'doc2data')
             yield ('doc3', b'doc3data')
             raise ValueError('In a test')
-        monkeypatch.setattr(source_config.get_harvester().__class__, '_do_fetch', _do_fetch)
+        monkeypatch.setattr(source_config.get_harvester_class(), '_do_fetch', _do_fetch)
 
         with pytest.raises(ValueError) as e:
             tasks.harvest(job_id=job.id)
@@ -316,7 +315,7 @@ class TestHarvestTask:
         source_config.harvest_after = harvest_after
         source_config.save()
         monkeypatch.setattr('django.utils.timezone.now', lambda: now)
-        with mock.patch.object(source_config.get_harvester().__class__, '_do_fetch', return_value=[]) as _mock_do_fetch:
+        with mock.patch.object(source_config.get_harvester_class(), '_do_fetch', return_value=[]) as _mock_do_fetch:
 
             HarvestScheduler(source_config).date(end_date.add(days=-1))
 
@@ -364,7 +363,7 @@ class TestHarvestTask:
         assert len(HarvestScheduler(source_config).all(cutoff=pendulum.parse('2018-01-01').date())) == 365
 
     def test_obsolete(self, source_config):
-        _harvester_class = source_config.get_harvester().__class__
+        _harvester_class = source_config.get_harvester_class()
 
         hlv1 = factories.HarvestJobFactory(
             harvester_version=_harvester_class.VERSION,
@@ -404,7 +403,7 @@ class TestHarvestTask:
         (0, HarvestJob.STATUS.succeeded, 2, True),
     ])
     def test_autoupdate(self, source_config, completions, status, new_version, updated, do_fetch_list):
-        _harvester_class = source_config.get_harvester().__class__
+        _harvester_class = source_config.get_harvester_class()
         _harvester_class.VERSION = 1
 
         hl = factories.HarvestJobFactory(

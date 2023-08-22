@@ -105,7 +105,7 @@ class HarvestScheduler:
         job_kwargs = {
             'source_config': self.source_config,
             'source_config_version': self.source_config.version,
-            'harvester_version': getattr(self.source_config.get_harvester(), 'VERSION', 1),
+            'harvester_version': getattr(self.source_config.get_harvester_class(), 'VERSION', 1),
         }
         if self.claim_jobs:
             job_kwargs['claimed'] = True
