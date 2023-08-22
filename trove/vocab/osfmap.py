@@ -288,7 +288,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     OSFMAP.supplements: {
         RDF.type: {RDF.Property},
         RDFS.label: {
-            primitive_rdf.text('Supplements', language_tag='en'),
+            primitive_rdf.text('Associated preprint', language_tag='en'),
         },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('supplements', language_tag='en'),
@@ -297,7 +297,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     OSFMAP.isSupplementedBy: {
         RDF.type: {RDF.Property},
         RDFS.label: {
-            primitive_rdf.text('Is supplemented by', language_tag='en'),
+            primitive_rdf.text('Supplemental materials', language_tag='en'),
         },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('isSupplementedBy', language_tag='en'),
@@ -670,15 +670,6 @@ ALL_SUGGESTED_PROPERTY_PATHS = (
     (OSFMAP.affiliation,),
     (DCTERMS.publisher,),
     (OSFMAP.isPartOfCollection,),
-    (DCTERMS.conformsTo,),
-    (OSFMAP.hasAnalyticCodeResource,),
-    (OSFMAP.hasDataResource,),
-    (OSFMAP.hasMaterialsResource,),
-    (OSFMAP.hasPapersResource,),
-    (OSFMAP.hasPreregisteredAnalysisPlan,),
-    (OSFMAP.hasPreregisteredStudyDesign,),
-    (OSFMAP.hasSupplementalResource,),
-    (OSFMAP.supplements,),
 )
 
 
@@ -720,7 +711,7 @@ PREPRINT_SUGGESTED_PROPERTY_PATHS = (
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasPreregisteredAnalysisPlan,),
     (OSFMAP.hasPreregisteredStudyDesign,),
-    (OSFMAP.supplements,),
+    (OSFMAP.isSupplementedBy,),
 )
 
 
