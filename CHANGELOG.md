@@ -1,5 +1,12 @@
 # Change Log
 
+# [23.1.0] - 2023-08-22
+- introducing "trove"
+  - store metadata records as small rdf documents called "index cards"
+  - ingest rdf
+  - add iri-centric search
+- "shtrove": working to preserve back-compat (because trove may be trouble)
+
 # [23.0.6] - 2023-05-11
 - make `SourceConfig.disabled` prevent `harvest` tasks running
 
