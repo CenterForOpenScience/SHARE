@@ -34,7 +34,7 @@ class RdfIngestView(View):
                 record_identifier=_record_identifier,
                 record_mediatype=request.content_type,
                 focus_iri=_focus_iri,
-                urgent=True,  # TODO: `urgent` query param (support non-urgent bulk ingest)
+                urgent=(request.GET.get('nonurgent') is None),
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))
