@@ -5,7 +5,7 @@ from django.views import View
 from gather import gathering
 
 from share.search.index_strategy import IndexStrategy
-from share.search.search_request import (
+from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )

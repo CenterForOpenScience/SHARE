@@ -5,7 +5,7 @@ import urllib.parse
 
 from gather import primitive_rdf, gathering
 
-from share.search.search_request import (
+from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
     PageParam,

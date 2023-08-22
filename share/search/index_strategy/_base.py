@@ -10,7 +10,7 @@ from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
-from share.search.search_request import (
+from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )

@@ -117,12 +117,14 @@ class Textsegment:
     def _from_fuzzy_wordgroup(cls, each_word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
         if each_word_negated:
             for _word in words:
-                yield cls(
-                    text=_word[len(NEGATE_WORD_OR_PHRASE):],  # remove prefix
-                    is_fuzzy=False,
-                    is_negated=True,
-                    is_openended=False,
-                )
+                _word_without_prefix = _word[len(NEGATE_WORD_OR_PHRASE):]
+                if _word_without_prefix:
+                    yield cls(
+                        text=_word_without_prefix,
+                        is_fuzzy=False,
+                        is_negated=True,
+                        is_openended=False,
+                    )
         else:  # nothing negated; keep the phrase in one fuzzy segment
             yield cls(
                 text=' '.join(words),
@@ -156,8 +158,8 @@ class SearchFilter:
     property_path: tuple[str]
     value_set: frozenset[str]
     operator: FilterOperator
-    original_param_name: str
-    original_param_value: str
+    original_param_name: typing.Optional[str] = None
+    original_param_value: typing.Optional[str] = None
 
     @classmethod
     def for_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):

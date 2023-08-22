@@ -16,7 +16,7 @@ from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
-from share.search.search_request import (
+from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
     SearchFilter,

@@ -2,7 +2,7 @@ from gather import primitive_rdf, gathering
 
 from trove.util.iri_labeler import IriLabeler
 from trove.vocab.trove import JSONAPI_MEMBERNAME
-from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS, SKOS, DCMITYPE
+from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS, SKOS, DCMITYPE, DCAT
 
 
 # TODO: define as turtle, load in trove.vocab.__init__?
@@ -504,6 +504,12 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('broader', language_tag='en'),
         },
     },
+    DCAT.accessService: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('accessService', language_tag='en'),
+        },
+    },
     RDFS.label: {
         RDF.type: {RDF.Property},
         RDFS.label: {
@@ -757,5 +763,5 @@ def is_date_property(property_iri):
         DCTERMS.dateCopyrighted,
         DCTERMS.dateSubmitted,
         DCTERMS.dateAccepted,
-        OSFMAP.withdrawn,
+        OSFMAP.dateWithdrawn,
     }
