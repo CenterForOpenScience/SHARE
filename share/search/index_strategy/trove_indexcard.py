@@ -164,7 +164,12 @@ class TroveIndexcardIndexStrategy(Elastic8IndexStrategy):
             elif isinstance(_walk_obj, datetime.date):
                 _nested_dates[_walk_pathkey].add(datetime.date.isoformat(_walk_obj))
             elif is_date_property(_walk_pathkey.last_predicate_iri):
-                _nested_dates[_walk_pathkey].add(_walk_obj.unicode_text)
+                try:
+                    datetime.date.fromisoformat(_walk_obj.unicode_text)
+                except ValueError:
+                    pass
+                else:
+                    _nested_dates[_walk_pathkey].add(_walk_obj.unicode_text)
             elif isinstance(_walk_obj, primitive_rdf.Text):
                 _nested_texts[(_walk_pathkey, _walk_obj.language_iri)].add(_walk_obj.unicode_text)
         _focus_iris = {indexcard_rdf.focus_iri}
