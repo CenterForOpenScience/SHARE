@@ -410,20 +410,18 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             }
 
         def _cardsearch_aggs(self, cardsearch_params):
-            _filtervalue_iris = set()
-            for _filter in cardsearch_params.cardsearch_filter_set:
-                if _filter.operator.is_iri_operator():
-                    _filtervalue_iris.update(_filter.value_set)
-            return {
-                'related_propertypath_usage': {'terms': {
+            _aggs = {}
+            if cardsearch_params.related_property_paths:
+                _aggs['related_propertypath_usage'] = {'terms': {
                     'field': 'iri_paths_present',
                     'include': [
                         iri_path_as_keyword(_path)
                         for _path in cardsearch_params.related_property_paths
                     ],
                     'size': len(cardsearch_params.related_property_paths),
-                }},
-                'global_agg': {
+                }}
+            if cardsearch_params.unnamed_iri_values:
+                _aggs['global_agg'] = {
                     'global': {},
                     'aggs': {
                         'filtervalue_info': {
@@ -432,7 +430,8 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                                 'iri_values': {
                                     'terms': {
                                         'field': 'nested_iri.iri_value',
-                                        'include': list(_filtervalue_iris),
+                                        'include': list(cardsearch_params.unnamed_iri_values),
+                                        'size': len(cardsearch_params.unnamed_iri_values),
                                     },
                                     'aggs': {
                                         'type_iri': {'terms': {
@@ -452,8 +451,8 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                             },
                         },
                     },
-                },
-            }
+                }
+            return _aggs
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
@@ -689,22 +688,26 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     card_iri=_card_iri,
                     text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
                 ))
-            _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
-            _filtervalue_info = [
-                self._valuesearch_iri_result(_iri_bucket)
-                for _iri_bucket in _filtervalue_agg['buckets']
-            ]
-            _relatedproperty_list = [
-                PropertypathUsage(property_path=_path, usage_count=0)
-                for _path in cardsearch_params.related_property_paths
-            ]
-            _relatedproperty_by_path = {
-                _result.property_path: _result
-                for _result in _relatedproperty_list
-            }
-            for _bucket in es8_response['aggregations']['related_propertypath_usage']['buckets']:
-                _path = tuple(json.loads(_bucket['key']))
-                _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
+            _filtervalue_info = []
+            if cardsearch_params.unnamed_iri_values:
+                _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
+                _filtervalue_info.extend(
+                    self._valuesearch_iri_result(_iri_bucket)
+                    for _iri_bucket in _filtervalue_agg['buckets']
+                )
+            _relatedproperty_list = []
+            if cardsearch_params.related_property_paths:
+                _relatedproperty_list.extend(
+                    PropertypathUsage(property_path=_path, usage_count=0)
+                    for _path in cardsearch_params.related_property_paths
+                )
+                _relatedproperty_by_path = {
+                    _result.property_path: _result
+                    for _result in _relatedproperty_list
+                }
+                for _bucket in es8_response['aggregations']['related_propertypath_usage']['buckets']:
+                    _path = tuple(json.loads(_bucket['key']))
+                    _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
             return CardsearchResponse(
                 total_result_count=_total,
                 search_result_page=_results,

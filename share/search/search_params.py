@@ -14,7 +14,12 @@ from trove.util.queryparams import (
     queryparams_from_querystring,
     QUERYPARAM_VALUES_DELIM,
 )
-from trove.vocab.osfmap import osfmap_labeler, is_date_property, suggested_property_paths
+from trove.vocab.osfmap import (
+    osfmap_labeler,
+    is_date_property,
+    suggested_property_paths,
+    OSFMAP_VOCAB,
+)
 from trove.vocab.namespaces import RDF
 
 
@@ -271,7 +276,6 @@ class PageParam:
 
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams:
-    # TODO: total_filter_set (to limit "total counts" for e.g. type-specific search pages)
     cardsearch_text: str
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
@@ -280,6 +284,7 @@ class CardsearchParams:
     page: PageParam
     include: frozenset[tuple[str, ...]]
     related_property_paths: tuple[tuple[str, ...]]
+    unnamed_iri_values: frozenset[str]
 
     @classmethod
     def from_querystring(cls, querystring: str) -> 'CardsearchParams':  # TODO py3.11: typing.Self
@@ -302,6 +307,7 @@ class CardsearchParams:
             'page': PageParam.from_queryparams(queryparams),
             'include': None,  # TODO
             'related_property_paths': _get_related_property_paths(_filter_set),
+            'unnamed_iri_values': frozenset(_get_unnamed_iri_values(_filter_set)),
         }
 
     def to_querystring(self) -> str:
@@ -411,3 +417,11 @@ def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
             if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
                 _type_iris.difference_update(_filter.value_set)
     return suggested_property_paths(_type_iris)
+
+
+def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
+    for _filter in filter_set:
+        if _filter.operator.is_iri_operator():
+            for _iri in _filter.value_set:
+                if _iri not in OSFMAP_VOCAB:
+                    yield _iri

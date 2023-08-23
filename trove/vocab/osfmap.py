@@ -530,90 +530,135 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     # types:
     OSFMAP.Project: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Project', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Project', language_tag='en'),
         },
     },
     OSFMAP.ProjectComponent: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Project component', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('ProjectComponent', language_tag='en'),
         },
     },
     OSFMAP.Registration: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Registration', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Registration', language_tag='en'),
         },
     },
     OSFMAP.RegistrationComponent: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Registration component', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('RegistrationComponent', language_tag='en'),
         },
     },
     OSFMAP.Preprint: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Preprint', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Preprint', language_tag='en'),
         },
     },
     OSFMAP.File: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('File', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('File', language_tag='en'),
         },
     },
     DCTERMS.Agent: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Agent', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Agent', language_tag='en'),
         },
     },
     OSFMAP.FundingAward: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Funding award', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('FundingAward', language_tag='en'),
         },
     },
     OSFMAP.FileVersion: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('File version', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('FileVersion', language_tag='en'),
         },
     },
     OSFMAP.OmittedMetadata: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Omitted metadata', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('OmittedMetadata', language_tag='en'),
         },
     },
     FOAF.Person: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Person', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Person', language_tag='en'),
         },
     },
     FOAF.Organization: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Organization', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Organization', language_tag='en'),
         },
     },
     RDF.Property: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Property', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Property', language_tag='en'),
         },
     },
     DCMITYPE.Collection: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Collection', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Collection', language_tag='en'),
         },
     },
     SKOS.Concept: {
         RDF.type: {RDFS.Class},
+        RDFS.label: {
+            primitive_rdf.text('Subject', language_tag='en'),
+        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('Concept', language_tag='en'),
         },

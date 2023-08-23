@@ -115,7 +115,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
     yield (TROVE.relatedPropertyList, primitive_rdf.sequence(_relatedproperty_list))
     _valueinfo_by_iri = {}
     for _filtervalue in _cardsearch_resp.filtervalue_info:
-        _value_info = _value_info_json(_filtervalue)
+        _value_info = _valuesearch_result_as_json(_filtervalue)
         _valueinfo_by_iri[_filtervalue.value_iri] = _value_info
     for _filter in search_params.cardsearch_filter_set:
         yield (TROVE.cardsearchFilter, _filter_as_blanknode(_filter, _valueinfo_by_iri))
@@ -189,7 +189,7 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
             if search_filter.operator.is_iri_operator():
                 _valueinfo = (
                     valueinfo_by_iri.get(_value)
-                    or _literal_json({'@id': _value})
+                    or _osfmap_or_unknown_iri_as_json(_value)
                 )
             else:
                 _valueinfo = _literal_json({'@value': _value})
@@ -201,19 +201,22 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
     ))
 
 
-def _value_info_json(result: ValuesearchResult) -> primitive_rdf.Text:
+def _osfmap_or_unknown_iri_as_json(iri: str):
+    try:
+        _twopledict = OSFMAP_VOCAB[iri]
+    except KeyError:
+        return _literal_json({'@id': iri})
+    else:
+        return _osfmap_json({iri: _twopledict}, focus_iri=iri)
+
+
+def _valuesearch_result_as_json(result: ValuesearchResult) -> primitive_rdf.Text:
     _value_twopledict = {
         RDF.type: set(result.value_type),
         FOAF.name: set(map(primitive_rdf.text, result.name_text)),
         DCTERMS.title: set(map(primitive_rdf.text, result.title_text)),
         RDFS.label: set(map(primitive_rdf.text, result.label_text)),
     }
-    try:
-        _label = osfmap_labeler.label_for_iri(result.value_iri)
-    except KeyError:
-        pass
-    else:
-        _value_twopledict[RDFS.label].add(primitive_rdf.text(_label))
     return (
         _osfmap_json({result.value_iri: _value_twopledict}, result.value_iri)
         if result.value_iri
@@ -225,7 +228,7 @@ def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> fro
     return primitive_rdf.freeze_blanknode({
         RDF.type: {TROVE.Indexcard},
         TROVE.resourceIdentifier: {primitive_rdf.text(result.value_iri or result.value_value)},
-        TROVE.resourceMetadata: {_value_info_json(result)},
+        TROVE.resourceMetadata: {_valuesearch_result_as_json(result)},
     })
 
 
