@@ -421,6 +421,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         iri_path_as_keyword(_path)
                         for _path in cardsearch_params.related_property_paths
                     ],
+                    'size': len(cardsearch_params.related_property_paths),
                 }},
                 'global_agg': {
                     'global': {},
