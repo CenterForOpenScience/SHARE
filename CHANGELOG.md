@@ -1,5 +1,10 @@
 # Change Log
 
+# [23.1.1] - 2023-08-23
+- small improvements to `trove_indexcard` index strategy
+    - skip indexing metadata with `osfmap:contains` in the path (don't index file metadata with its container)
+    - better consolidate `nested_iri` to reduce number of nested docs
+
 # [23.1.0] - 2023-08-22
 - introducing "trove"
   - store metadata records as small rdf documents called "index cards"
