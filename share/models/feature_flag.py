@@ -29,6 +29,7 @@ class FeatureFlag(models.Model):
     # flag name constants:
     ELASTIC_EIGHT_DEFAULT = 'elastic_eight_default'
     IGNORE_SHAREV2_INGEST = 'ignore_sharev2_ingest'
+    TROVE_SEARCH_IN_FLATS = 'trove_search_in_flats'
 
     # name _should_ be one of the constants above, but that is not enforced by `choices`
     name = models.TextField(unique=True)

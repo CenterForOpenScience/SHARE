@@ -84,10 +84,7 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
     _search_params = search_params_dataclass.from_querystring(
         request.META['QUERY_STRING'],
     )
-    _index_strategy_name = _search_params.index_strategy_name
-    if not _index_strategy_name:
-        _index_strategy_name = 'trove_indexcard'  # TODO: default setting?
-    _specific_index = IndexStrategy.get_for_searching(_index_strategy_name)
+    _specific_index = IndexStrategy.get_for_trove_search(_search_params.index_strategy_name)
     # TODO: 404 for unknown strategy
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,

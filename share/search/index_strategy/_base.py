@@ -79,26 +79,40 @@ class IndexStrategy(abc.ABC):
         raise IndexStrategyError(f'unrecognized indexname "{specific_indexname}"')
 
     @classmethod
-    def get_for_searching(cls, requested_name=None, *, with_default_fallback: bool = False) -> 'IndexStrategy.SpecificIndex':
-        if requested_name is not None:
-            try:  # could be a strategy name
-                return cls.get_by_name(requested_name).pls_get_default_for_searching()
+    def get_for_sharev2_search(cls, requested_name=None) -> 'IndexStrategy.SpecificIndex':
+        if requested_name:
+            _name = requested_name
+        else:
+            _name = (
+                'sharev2_elastic8'
+                if FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
+                else settings.DEFAULT_INDEX_STRATEGY_FOR_LEGACY_SEARCH
+            )
+        try:  # could be a strategy name
+            return cls.get_by_name(_name).pls_get_default_for_searching()
+        except IndexStrategyError:
+            try:  # could be a specific indexname
+                return cls.get_specific_index(_name)
             except IndexStrategyError:
-                try:  # could be a specific indexname
-                    return cls.get_specific_index(requested_name)
-                except IndexStrategyError:
-                    raise IndexStrategyError(f'unknown name: "{requested_name}"')
-        if with_default_fallback:
-            return cls.get_for_searching(cls._default_strategyname_for_searching())
-        raise ValueError('either provide non-None requested_name or with_default_fallback=True')
+                raise IndexStrategyError(f'unknown name: "{_name}"')
 
     @classmethod
-    def _default_strategyname_for_searching(cls) -> str:
-        return (
-            'sharev2_elastic8'
-            if FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
-            else settings.DEFAULT_INDEX_STRATEGY_FOR_SEARCHING
-        )
+    def get_for_trove_search(cls, requested_name=None) -> 'IndexStrategy.SpecificIndex':
+        if requested_name:
+            _name = requested_name
+        else:
+            _name = (
+                'trove_indexcard_flats'
+                if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVE_SEARCH_IN_FLATS)
+                else 'trove_indexcard'
+            )
+        try:  # could be a strategy name
+            return cls.get_by_name(_name).pls_get_default_for_searching()
+        except IndexStrategyError:
+            try:  # could be a specific indexname
+                return cls.get_specific_index(_name)
+            except IndexStrategyError:
+                raise IndexStrategyError(f'unknown name: "{_name}"')
 
     @classmethod
     def _load_from_settings(cls, index_strategy_name, index_strategy_settings):

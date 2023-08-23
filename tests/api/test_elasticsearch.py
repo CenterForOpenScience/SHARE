@@ -55,7 +55,7 @@ class TestElasticSearchProxy:
         with mock.patch('api.search.views.IndexStrategy') as mock_IndexStrategy:
             mock_handle_search = (
                 mock_IndexStrategy
-                .get_for_searching
+                .get_for_sharev2_search
                 .return_value
                 .pls_handle_search__sharev2_backcompat
             )
