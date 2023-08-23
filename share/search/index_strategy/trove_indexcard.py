@@ -48,6 +48,11 @@ LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 
 
+SKIPPABLE_PROPERTIES = (
+    OSFMAP.contains,
+)
+
+
 VALUESEARCH_MAX = 234
 CARDSEARCH_MAX = 9997
 
@@ -1014,6 +1019,14 @@ class _PredicatePathWalker:
         nearest_subject_iri: str
         path_from_nearest_subject: tuple[str]
 
+        @classmethod
+        def initial(cls, subject_iri):
+            return cls(
+                path_from_start=(),
+                nearest_subject_iri=subject_iri,
+                path_from_nearest_subject=(),
+            )
+
         def step(self, subject_or_blanknode, predicate_iri):
             if isinstance(subject_or_blanknode, str) and is_worthwhile_iri(subject_or_blanknode):
                 return self.__class__(
@@ -1054,11 +1067,7 @@ class _PredicatePathWalker:
         '''
         if last_pathkey is None:
             assert isinstance(iri_or_blanknode, str)
-            last_pathkey = _PredicatePathWalker.PathKey(
-                path_from_start=(),
-                nearest_subject_iri=iri_or_blanknode,
-                path_from_nearest_subject=(),
-            )
+            last_pathkey = _PredicatePathWalker.PathKey.initial(iri_or_blanknode)
         with self._visit(iri_or_blanknode):
             _twopledict = (
                 primitive_rdf.twopleset_as_twopledict(iri_or_blanknode)
@@ -1066,13 +1075,14 @@ class _PredicatePathWalker:
                 else self.tripledict.get(iri_or_blanknode, {})
             )
             for _predicate_iri, _obj_set in _twopledict.items():
-                _pathkey = last_pathkey.step(iri_or_blanknode, _predicate_iri)
-                for _obj in _obj_set:
-                    if not isinstance(_obj, frozenset):  # omit the blanknode as a value
-                        yield (_pathkey, _obj)
-                    if isinstance(_obj, (str, frozenset)) and (_obj not in self._visiting):
-                        # step further for iri or blanknode
-                        yield from self.walk_from_subject(_obj, last_pathkey=_pathkey)
+                if _predicate_iri not in SKIPPABLE_PROPERTIES:
+                    _pathkey = last_pathkey.step(iri_or_blanknode, _predicate_iri)
+                    for _obj in _obj_set:
+                        if not isinstance(_obj, frozenset):  # omit the blanknode as a value
+                            yield (_pathkey, _obj)
+                        if isinstance(_obj, (str, frozenset)) and (_obj not in self._visiting):
+                            # step further for iri or blanknode
+                            yield from self.walk_from_subject(_obj, last_pathkey=_pathkey)
 
     @contextlib.contextmanager
     def _visit(self, focus_obj):
