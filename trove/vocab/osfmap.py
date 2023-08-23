@@ -74,9 +74,6 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     },
     RDF.type: {
         RDF.type: {RDF.Property},
-        RDFS.label: {
-            primitive_rdf.text('Resource type', language_tag='en'),
-        },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('resourceType', language_tag='en'),
         },
@@ -84,7 +81,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     DCTERMS.type: {
         RDF.type: {RDF.Property},
         RDFS.label: {
-            primitive_rdf.text('Resource type (general)', language_tag='en'),
+            primitive_rdf.text('Resource type', language_tag='en'),
         },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('resourceNature', language_tag='en'),
