@@ -41,10 +41,7 @@ class MetadataRecordsRSS(Feed):
     def get_object(self, request):
         self._order = request.GET.get('order')
         elastic_query = request.GET.get('elasticQuery')
-        self._index_strategy = IndexStrategy.get_for_searching(
-            request.GET.get('indexStrategy'),
-            with_default_fallback=True,
-        )
+        self._index_strategy = IndexStrategy.get_for_sharev2_search(request.GET.get('indexStrategy'))
 
         if self._order not in {'date_modified', 'date_updated', 'date_created', 'date_published'}:
             self._order = 'date_modified'

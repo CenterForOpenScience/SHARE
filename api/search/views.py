@@ -32,10 +32,7 @@ class Sharev2ElasticSearchView(views.APIView):
         if 'scroll' in queryparams:
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
         try:
-            specific_index = IndexStrategy.get_for_searching(
-                requested_index_strategy,
-                with_default_fallback=True,
-            )
+            specific_index = IndexStrategy.get_for_sharev2_search(requested_index_strategy)
         except exceptions.IndexStrategyError as error:
             raise http.Http404(str(error))
         try:

@@ -46,7 +46,9 @@ class TestBaseIndexStrategy:
             with pytest.raises(IndexStrategyError):
                 IndexStrategy.get_specific_index(bad_indexname)
 
+    @pytest.mark.django_db
     def test_get_by_request(self, mock_elastic_clients, fake_elastic_strategies):
+        IndexStrategy.clear_strategy_cache()
         for strategy_name in mock_elastic_clients.keys():
             index_strategy = IndexStrategy.get_by_name(strategy_name)
             good_requests = [
@@ -55,17 +57,13 @@ class TestBaseIndexStrategy:
                 ''.join((index_strategy.indexname_prefix, 'foo')),
             ]
             for good_request in good_requests:
-                specific_index = IndexStrategy.get_for_searching(good_request)
+                specific_index = IndexStrategy.get_for_sharev2_search(good_request)
                 assert isinstance(specific_index, index_strategy.SpecificIndex)
                 assert specific_index.index_strategy is index_strategy
-                if good_request == strategy_name:
-                    assert specific_index == index_strategy.pls_get_default_for_searching()
-                else:
-                    assert specific_index.indexname == good_request
             # bad calls:
             with pytest.raises(IndexStrategyError):
-                IndexStrategy.get_for_searching('bad-request')
-            with pytest.raises(ValueError):
-                IndexStrategy.get_for_searching()
-            with pytest.raises(ValueError):
-                IndexStrategy.get_for_searching(requested_name=None)
+                IndexStrategy.get_for_sharev2_search('bad-request')
+            with pytest.raises(IndexStrategyError):
+                IndexStrategy.get_for_sharev2_search()
+            with pytest.raises(IndexStrategyError):
+                IndexStrategy.get_for_sharev2_search(requested_name=None)
