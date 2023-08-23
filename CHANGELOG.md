@@ -1,5 +1,10 @@
 # Change Log
 
+# [23.1.2] - 2023-08-23
+- add `trove_indexcard_flats` index strategy
+    - copy of `trove_indexcard` with flatter queries (and more info on the root doc)
+- fix: allow more than 11 related properties on an `index-card-search` to have non-zero count
+
 # [23.1.1] - 2023-08-23
 - small improvements to `trove_indexcard` index strategy
     - skip indexing metadata with `osfmap:contains` in the path (don't index file metadata with its container)
