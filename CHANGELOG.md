@@ -1,5 +1,10 @@
 # Change Log
 
+# [23.1.4] - 2023-08-24
+- fix: `trove_indexcard_flats` would clobber some iri values while flattering
+- skip indexing cards that don't have `osfmap_json`
+- more gracefully handle erroneously circular `skos:Concept` hierarchies
+
 # [23.1.3] - 2023-08-23
 - lil optimization to skip unhelpful aggregations
 - disable tests using elasticsearch5 on github actions
