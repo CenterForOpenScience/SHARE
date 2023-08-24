@@ -295,17 +295,17 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                     _subjects.append(_serialize_subject('bepress', _bepress_lineage))
         return _subjects, _subject_synonyms
 
-    def _subject_lineage(self, subject_iri, label_predicate_iri) -> tuple[str, ...]:
+    def _subject_lineage(self, subject_iri, label_predicate_iri, visiting_set=None) -> tuple[str, ...]:
+        _visiting_set = visiting_set or set()
+        _visiting_set.add(subject_iri)
         _labeltext = next(self.data.q(subject_iri, label_predicate_iri), None)
         if not isinstance(_labeltext, primitive_rdf.Text):
             return ()
-        _label = _labeltext.unicode_text
         _parent = next(self.data.q(subject_iri, SKOS.broader), None)
-        return (
-            (*self._subject_lineage(_parent, label_predicate_iri), _label)
-            if _parent
-            else (_label,)
-        )
+        if _parent and (_parent not in _visiting_set):
+            _parent_lineage = self._subject_lineage(_parent, label_predicate_iri, _visiting_set)
+            return (*_parent_lineage, _labeltext.unicode_text)
+        return (_labeltext.unicode_text,)
 
 
 def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> str:
