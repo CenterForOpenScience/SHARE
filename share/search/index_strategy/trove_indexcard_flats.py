@@ -248,19 +248,25 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         }
         return _sourcedoc
 
+    def _flattened_iris_by_path(self, nested_iris: dict['_NestedIriKey', set[str]]):
+        _by_path = defaultdict(set)
+        for _iri_key, _iris in nested_iris.items():
+            _by_path[_iri_key.path].update(_iris)
+        return _by_path
+
     def _flattened_iris(self, nested_iris: dict['_NestedIriKey', set[str]]):
         return {
-            _iri_path_as_flattened_key(_iri_key.path): list(_iris)
-            for _iri_key, _iris in nested_iris.items()
+            _iri_path_as_flattened_key(_path): list(_iris)
+            for _path, _iris in self._flattened_iris_by_path(nested_iris).items()
         }
 
     def _flattened_iris_suffuniq(self, nested_iris: dict['_NestedIriKey', set[str]]):
         return {
-            _iri_path_as_flattened_key(_iri_key.path): [
+            _iri_path_as_flattened_key(_path): [
                 get_sufficiently_unique_iri(_iri)
                 for _iri in _iris
             ]
-            for _iri_key, _iris in nested_iris.items()
+            for _path, _iris in self._flattened_iris_by_path(nested_iris).items()
         }
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
