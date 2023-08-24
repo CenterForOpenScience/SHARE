@@ -10,6 +10,7 @@ import time
 import uuid
 from typing import Iterable
 
+from django.db.models import Exists, OuterRef
 import elasticsearch8
 from gather import primitive_rdf
 
@@ -166,8 +167,8 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
     def _build_sourcedoc(self, indexcard_rdf):
         _rdfdoc = primitive_rdf.TripledictWrapper(indexcard_rdf.as_rdf_tripledict())
-        if not any(_rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES)):
-            return None  # skip cards without some value for name/title/label
+        if _should_skip_card(indexcard_rdf, _rdfdoc):
+            return None  # will be deleted from the index
         _nested_iris = defaultdict(set)
         _nested_dates = defaultdict(set)
         _nested_texts = defaultdict(set)
@@ -266,6 +267,14 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         _indexcard_rdf_qs = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
+            .filter(Exists(
+                trove_db.DerivedIndexcard.objects
+                .filter(upriver_indexcard_id=OuterRef('indexcard_id'))
+                .filter(deriver_identifier__in=(
+                    trove_db.ResourceIdentifier.objects
+                    .queryset_for_iri(TROVE['derive/osfmap_json'])
+                ))
+            ))
             .exclude(indexcard__deleted__isnull=False)
             .select_related('indexcard__source_record_suid__source_config')
             .prefetch_related('indexcard__focus_identifier_set')
@@ -283,7 +292,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
                 _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
                 yield _indexcard_rdf.indexcard_id, _index_action
-        # delete any that don't have "latest" rdf
+        # delete any that don't have "latest" rdf and derived osfmap_json
         _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:
             yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
@@ -815,6 +824,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
 ###
 # module-local utils
+
+def _should_skip_card(indexcard_rdf, rdfdoc):
+    # skip cards without some value for name/title/label
+    return not any(rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES))
+
 
 def _bucketlist(agg_result: dict) -> list[str]:
     return [
