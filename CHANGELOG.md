@@ -1,5 +1,10 @@
 # Change Log
 
+# [23.1.3] - 2023-08-23
+- lil optimization to skip unhelpful aggregations
+- disable tests using elasticsearch5 on github actions
+  - (will soon reenable or remove elastic5 altogether)
+
 # [23.1.2] - 2023-08-23
 - add `trove_indexcard_flats` index strategy
     - copy of `trove_indexcard` with flatter queries (and more info on the root doc)
