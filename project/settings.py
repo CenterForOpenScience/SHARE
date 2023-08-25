@@ -345,10 +345,6 @@ if ELASTICSEARCH8_URL:
             'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
             'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
         },
-        'trove_indexcard': {
-            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard.TroveIndexcardIndexStrategy',
-            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
-        },
         'trove_indexcard_flats': {
             'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy',
             'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,

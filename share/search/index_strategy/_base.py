@@ -101,11 +101,7 @@ class IndexStrategy(abc.ABC):
         if requested_name:
             _name = requested_name
         else:
-            _name = (
-                'trove_indexcard_flats'
-                if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVE_SEARCH_IN_FLATS)
-                else 'trove_indexcard'
-            )
+            _name = 'trove_indexcard_flats'
         try:  # could be a strategy name
             return cls.get_by_name(_name).pls_get_default_for_searching()
         except IndexStrategyError:
