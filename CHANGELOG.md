@@ -1,5 +1,11 @@
 # Change Log
 
+# [23.1.5] - 2023-08-28
+- remove `trove_indexcard` (fully replaced by `trove_indexcard_flats`)
+- `trove_indexcard_flats` updates:
+  - log search queries when in DEBUG mode
+  - disable "unnamed filter values" aggregations (expensive and yet unused)
+
 # [23.1.4] - 2023-08-24
 - fix: `trove_indexcard_flats` would clobber some iri values while flattering
 - skip indexing cards that don't have `osfmap_json`
