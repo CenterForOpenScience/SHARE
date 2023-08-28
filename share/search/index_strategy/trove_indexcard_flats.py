@@ -10,6 +10,7 @@ import time
 import uuid
 from typing import Iterable
 
+from django.conf import settings
 from django.db.models import Exists, OuterRef
 import elasticsearch8
 from gather import primitive_rdf
@@ -330,15 +331,20 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             if _sort is None and not _relevance_matters:
                 # how to sort by relevance to nothingness? randomness!
                 _query = self._random_sorted_query(_query, _cursor)
+            _search_kwargs = dict(
+                query=_query,
+                aggs=self._cardsearch_aggs(cardsearch_params),
+                sort=_sort,
+                from_=_cursor.start_index,
+                size=_cursor.page_size,
+                source=False,  # no need to get _source; _id is enough
+            )
+            if settings.DEBUG:
+                logger.info(json.dumps(_search_kwargs, indent=2))
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=_query,
-                    aggs=self._cardsearch_aggs(cardsearch_params),
-                    sort=_sort,
-                    from_=_cursor.start_index,
-                    size=_cursor.page_size,
-                    source=False,  # no need to get _source; _id is enough
+                    **_search_kwargs,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
