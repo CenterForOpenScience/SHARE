@@ -307,7 +307,7 @@ class CardsearchParams:
             'page': PageParam.from_queryparams(queryparams),
             'include': None,  # TODO
             'related_property_paths': _get_related_property_paths(_filter_set),
-            'unnamed_iri_values': frozenset(_get_unnamed_iri_values(_filter_set)),
+            'unnamed_iri_values': frozenset(),  # TODO: frozenset(_get_unnamed_iri_values(_filter_set)),
         }
 
     def to_querystring(self) -> str:
