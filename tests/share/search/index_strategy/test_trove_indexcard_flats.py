@@ -1,7 +1,7 @@
 from tests import factories
 from share.search import messages
 from trove import models as trove_db
-from trove.vocab.namespaces import RDFS
+from trove.vocab.namespaces import RDFS, TROVE
 from ._with_real_services import RealElasticTestCase
 
 
@@ -18,6 +18,10 @@ class TestTroveIndexcardFlats(RealElasticTestCase):
         )
         self.__indexcard = trove_db.Indexcard.objects.create(
             source_record_suid=self.__suid,
+        )
+        trove_db.DerivedIndexcard.objects.create(
+            upriver_indexcard=self.__indexcard,
+            deriver_identifier=trove_db.ResourceIdentifier.objects.get_or_create_for_iri(TROVE['derive/osfmap_json']),
         )
         self.__indexcardf = trove_db.LatestIndexcardRdf.objects.create(
             from_raw_datum=self.__raw,
