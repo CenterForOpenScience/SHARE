@@ -947,6 +947,8 @@ class _PageCursor:
         )
 
     def first_cursor(self) -> str | None:
+        if self.is_first_page():
+            return None
         return encode_cursor_dataclass(dataclasses.replace(self, start_index=0))
 
     def is_first_page(self) -> bool:
