@@ -1,5 +1,9 @@
 # Change Log
 
+# [23.1.9] - 2023-08-29
+- more consistent pagination over randomly ordered results
+- correct test setup for `trove_indexcard_flats`
+
 # [23.1.8] - 2023-08-28
 - skip "first" link from first page
 
