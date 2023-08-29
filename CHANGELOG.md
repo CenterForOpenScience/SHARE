@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.1.6] - 2023-08-28
+- more efficient random sort (for sorting by relevance to nothingness)
+
 # [23.1.5] - 2023-08-28
 - remove `trove_indexcard` (fully replaced by `trove_indexcard_flats`)
 - `trove_indexcard_flats` updates:
