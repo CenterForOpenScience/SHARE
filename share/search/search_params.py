@@ -34,6 +34,7 @@ DOUBLE_QUOTATION_MARK = '"'
 DESCENDING_SORT_PREFIX = '-'
 
 DEFAULT_PAGE_SIZE = 13
+MAX_PAGE_SIZE = 101
 
 
 ###
@@ -271,7 +272,7 @@ class PageParam:
             _get_single_value(queryparams, QueryparamName('page', ['size']))
             or DEFAULT_PAGE_SIZE
         )
-        return cls(size=_size, cursor=None)
+        return cls(size=min(_size, MAX_PAGE_SIZE), cursor=None)
 
 
 @dataclasses.dataclass(frozen=True)
