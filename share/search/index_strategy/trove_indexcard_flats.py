@@ -421,7 +421,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     },
                 }
             _firstpage_uuid_query = {'terms': {'indexcard_uuid': cursor.first_page_uuids}}
-            if cursor.start_index == 0:
+            if cursor.is_first_page():
                 # returning to a first page previously visited
                 _bool_query['filter'].append(_firstpage_uuid_query)
                 return {'bool': _bool_query}
@@ -701,47 +701,47 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 for _sortparam in sort_list
             ]
 
-        def _random_sorted_query(self, query: dict, cursor: '_PageCursor') -> dict:
-            assert cursor.random_sort
-            if cursor.start_index != 0:
-                assert len(cursor.first_page_uuids)
-            if cursor.first_page_uuids:
-                # returning to a first page previously visited
-                return {'bool': {
-                    'filter': {'terms': {
-                        'indexcard_uuid': cursor.first_page_uuids,
-                    }},
-                    'query': query,
-                }}
-            # first page for the first time
-            return {
-                'function_score': {
-                    'query': query,
-                    'boost_mode': 'replace',
-                    'random_score': {},  # default random_score is fast and unpredictable
-                },
-            }
-
         def _cardsearch_response(
             self,
             cardsearch_params: CardsearchParams,
             es8_response: dict,
             cursor: '_PageCursor',
         ) -> CardsearchResponse:
-            if cursor.random_sort and cursor.start_index == 0 and not cursor.first_page_uuids:
-                cursor.first_page_uuids = tuple(
-                    _hit['_id'].rpartition('/')[-1]
-                    for _hit in es8_response['hits']['hits']
+            _pagination_disabled = (
+                cursor.random_sort
+                and not any(
+                    _filter.property_path != (RDF.type,)
+                    for _filter in cardsearch_params.cardsearch_filter_set
                 )
+            )
             _es8_total = es8_response['hits']['total']
-            if _es8_total['relation'] == 'eq':
-                _total = _es8_total['value']
-                if cursor.random_sort and cursor.start_index != 0:
-                    _total += len(cursor.first_page_uuids)
-                _next_cursor = cursor.next_cursor(_total)
+            if _pagination_disabled or _es8_total['relation'] != 'eq':
+                _total = TROVE['ten-thousands-and-more']  # if pagination disabled, this may be an exaggeration
             else:
-                _total = TROVE['ten-thousands-and-more']
-                _next_cursor = cursor.next_cursor(CARDSEARCH_MAX)
+                _total = _es8_total['value']
+                if cursor.random_sort and not cursor.is_first_page():
+                    _total += len(cursor.first_page_uuids)
+            if _pagination_disabled:
+                _cursor_kwargs = {
+                    'next_page_cursor': None,
+                    'prev_page_cursor': None,
+                    'first_page_cursor': None,
+                }
+            else:
+                if cursor.random_sort and cursor.is_first_page() and not cursor.first_page_uuids:
+                    cursor.first_page_uuids = tuple(
+                        _hit['_id'].rpartition('/')[-1]
+                        for _hit in es8_response['hits']['hits']
+                    )
+                _cursor_kwargs = {
+                    'next_page_cursor': cursor.next_cursor(
+                        _total
+                        if isinstance(_total, int)
+                        else CARDSEARCH_MAX
+                    ),
+                    'prev_page_cursor': cursor.prev_cursor(),
+                    'first_page_cursor': cursor.first_cursor(),
+                }
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -772,11 +772,9 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             return CardsearchResponse(
                 total_result_count=_total,
                 search_result_page=_results,
-                next_page_cursor=_next_cursor,
-                prev_page_cursor=cursor.prev_cursor(),
-                first_page_cursor=cursor.first_cursor(),
                 filtervalue_info=_filtervalue_info,
                 related_propertypath_results=_relatedproperty_list,
+                **_cursor_kwargs,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
