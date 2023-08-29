@@ -4,6 +4,7 @@ from typing import Literal, Iterable, Union, Optional
 from gather import primitive_rdf
 
 from trove.vocab.namespaces import TROVE
+from trove.vocab.trove import trove_indexcard_namespace
 
 
 BoundedCount = Union[
@@ -25,6 +26,13 @@ class TextMatchEvidence:
 class CardsearchResult:
     text_match_evidence: Iterable[TextMatchEvidence]
     card_iri: str
+
+    def card_uuid(self):
+        # card iri has the uuid at the end
+        return primitive_rdf.IriNamespace.without_namespace(
+            self.card_iri,
+            namespace=trove_indexcard_namespace(),
+        )
 
 
 @dataclasses.dataclass

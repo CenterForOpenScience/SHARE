@@ -707,20 +707,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 elif cursor.first_page_uuids and not cursor.is_first_page():
                     # account for the filtered-out first page
                     cursor.result_count = _es8_total['value'] + len(cursor.first_page_uuids)
-            _want_reproducible_randomness = (
-                cursor.random_sort
-                and cursor.is_first_page()
-                and not cursor.first_page_uuids
-                and any(
-                    _filter.property_path != (RDF.type,)
-                    for _filter in cardsearch_params.cardsearch_filter_set
-                )
-            )
-            if _want_reproducible_randomness:
-                cursor.first_page_uuids = tuple(
-                    _hit['_id'].rpartition('/')[-1]  # _id is an iri with uuid at the end
-                    for _hit in es8_response['hits']['hits']
-                )
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -728,6 +714,28 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     card_iri=_card_iri,
                     text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
                 ))
+            if cursor.is_first_page() and cursor.first_page_uuids:
+                # revisiting first page; reproduce original random order
+                _uuid_index = {
+                    _uuid: _i
+                    for (_i, _uuid) in enumerate(cursor.first_page_uuids)
+                }
+                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid()])
+            else:
+                _should_start_reproducible_randomness = (
+                    cursor.random_sort
+                    and cursor.is_first_page()
+                    and not cursor.first_page_uuids
+                    and any(
+                        _filter.property_path != (RDF.type,)  # look for a non-default filter
+                        for _filter in cardsearch_params.cardsearch_filter_set
+                    )
+                )
+                if _should_start_reproducible_randomness:
+                    cursor.first_page_uuids = tuple(
+                        _result.card_uuid()
+                        for _result in _results
+                    )
             _filtervalue_info = []
             if cardsearch_params.unnamed_iri_values:
                 _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
