@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.1.7] - 2023-08-28
+- disable pagination on large, randomly-sorted result sets
+
 # [23.1.6] - 2023-08-28
 - more efficient random sort (for sorting by relevance to nothingness)
 
