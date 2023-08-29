@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.1.8] - 2023-08-28
+- skip "first" link from first page
+
 # [23.1.7] - 2023-08-28
 - disable pagination on large, randomly-sorted result sets
 
