@@ -702,19 +702,25 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             if _es8_total['relation'] != 'eq':
                 cursor.result_count = -1  # "too many"
             else:  # exact (and small) count
-                if cursor.random_sort:
-                    if cursor.is_first_page():
-                        if not cursor.first_page_uuids:
-                            cursor.first_page_uuids = tuple(
-                                _hit['_id'].rpartition('/')[-1]  # _id is an iri with uuid at the end
-                                for _hit in es8_response['hits']['hits']
-                            )
-                        if cursor.result_count is None:
-                            cursor.result_count = _es8_total['value']
-                    else:  # account for the filtered-out first page
-                        cursor.result_count = _es8_total['value'] + len(cursor.first_page_uuids)
-                else:  # non-random sort; simple case
+                if cursor.result_count is None or not cursor.random_sort:
                     cursor.result_count = _es8_total['value']
+                elif cursor.first_page_uuids and not cursor.is_first_page():
+                    # account for the filtered-out first page
+                    cursor.result_count = _es8_total['value'] + len(cursor.first_page_uuids)
+            _want_reproducible_randomness = (
+                cursor.random_sort
+                and cursor.is_first_page()
+                and not cursor.first_page_uuids
+                and any(
+                    _filter.property_path != (RDF.type,)
+                    for _filter in cardsearch_params.cardsearch_filter_set
+                )
+            )
+            if _want_reproducible_randomness:
+                cursor.first_page_uuids = tuple(
+                    _hit['_id'].rpartition('/')[-1]  # _id is an iri with uuid at the end
+                    for _hit in es8_response['hits']['hits']
+                )
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -904,7 +910,7 @@ class _SimpleCursor:
     page_size: int
     result_count: int | None  # use -1 to indicate "many more"
 
-    MAX_RESULTS: ClassVar[int] = VALUESEARCH_MAX
+    MAX_INDEX: ClassVar[int] = VALUESEARCH_MAX
 
     @classmethod
     def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
@@ -947,9 +953,9 @@ class _SimpleCursor:
 
     def max_index(self) -> int:
         return (
-            self.MAX_RESULTS
+            self.MAX_INDEX
             if self.has_many_more()
-            else min(self.result_count, self.MAX_RESULTS)
+            else min(self.result_count, self.MAX_INDEX)
         )
 
     def is_valid_cursor(self) -> bool:
@@ -961,7 +967,7 @@ class _CardsearchCursor(_SimpleCursor):
     random_sort: bool  # how to sort by relevance to nothingness? randomness!
     first_page_uuids: tuple[str, ...] = ()
 
-    MAX_RESULTS: ClassVar[int] = CARDSEARCH_MAX
+    MAX_INDEX: ClassVar[int] = CARDSEARCH_MAX
 
     @classmethod
     def from_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
@@ -978,11 +984,9 @@ class _CardsearchCursor(_SimpleCursor):
         )
 
     def next_cursor(self) -> str | None:
-        if self.random_sort and self.has_many_more():
+        if self.random_sort and self.is_first_page() and not self.first_page_uuids:
             # "next page" is another independent random sample
-            return encode_cursor_dataclass(
-                dataclasses.replace(self, start_index=0, first_page_uuids=()),
-            )
+            return encode_cursor_dataclass(self)
         return super().next_cursor()
 
     def cardsearch_start_index(self) -> int:
