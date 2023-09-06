@@ -151,16 +151,16 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('filterValueSet', language_tag='en'),
         },
     },
-    TROVE.iriValue: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('iriValue', language_tag='en'),
-        },
-    },
     TROVE.cardsearchResultCount: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('cardSearchResultCount', language_tag='en'),
+        },
+    },
+    TROVE.suggestedFilterOperator: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('suggestedFilterOperator', language_tag='en'),
         },
     },
 
@@ -192,33 +192,50 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
 
     # values:
     TROVE['ten-thousands-and-more']: {
-        RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('ten-thousands-and-more', language_tag='en'),
         },
     },
     TROVE['any-of']: {
-        RDF.type: {RDF.Property},
+        RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('any-of', language_tag='en'),
         },
     },
     TROVE['none-of']: {
-        RDF.type: {RDF.Property},
+        RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('none-of', language_tag='en'),
         },
     },
+    TROVE['is-absent']: {
+        RDF.type: {TROVE.FilterOperator},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('is-absent', language_tag='en'),
+        },
+    },
+    TROVE['is-present']: {
+        RDF.type: {TROVE.FilterOperator},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('is-present', language_tag='en'),
+        },
+    },
     TROVE.before: {
-        RDF.type: {RDF.Property},
+        RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('before', language_tag='en'),
         },
     },
     TROVE.after: {
-        RDF.type: {RDF.Property},
+        RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('after', language_tag='en'),
+        },
+    },
+    TROVE['at-date']: {
+        RDF.type: {TROVE.FilterOperator},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('at-date', language_tag='en'),
         },
     },
 

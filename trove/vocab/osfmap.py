@@ -2,7 +2,18 @@ from gather import primitive_rdf, gathering
 
 from trove.util.iri_labeler import IriLabeler
 from trove.vocab.trove import JSONAPI_MEMBERNAME
-from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, OWL, RDF, RDFS, SKOS, DCMITYPE, DCAT
+from trove.vocab.namespaces import (
+    DCAT,
+    DCMITYPE,
+    DCTERMS,
+    FOAF,
+    OSFMAP,
+    OWL,
+    RDF,
+    RDFS,
+    SKOS,
+    TROVE,
+)
 
 
 # TODO: define as turtle, load in trove.vocab.__init__?
@@ -770,6 +781,31 @@ AGENT_SUGGESTED_PROPERTY_PATHS = (
 )
 
 
+SUGGESTED_PRESENCE_PROPERTIES = frozenset((
+    OSFMAP.hasAnalyticCodeResource,
+    OSFMAP.hasDataResource,
+    OSFMAP.hasMaterialsResource,
+    OSFMAP.hasPapersResource,
+    OSFMAP.hasPreregisteredAnalysisPlan,
+    OSFMAP.hasPreregisteredStudyDesign,
+    OSFMAP.hasSupplementalResource,
+    OSFMAP.isSupplementedBy,
+    OSFMAP.supplements,
+))
+
+
+DATE_PROPERTIES = frozenset((
+    DCTERMS.date,
+    DCTERMS.available,
+    DCTERMS.created,
+    DCTERMS.modified,
+    DCTERMS.dateCopyrighted,
+    DCTERMS.dateSubmitted,
+    DCTERMS.dateAccepted,
+    OSFMAP.dateWithdrawn,
+))
+
+
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):
         return ()
@@ -786,15 +822,15 @@ def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
     return ALL_SUGGESTED_PROPERTY_PATHS
 
 
+def suggested_filter_operator(property_iri: str):
+    # return iri value for the suggested trove-search filter operator
+    if is_date_property(property_iri):
+        return TROVE['at-date']
+    if property_iri in SUGGESTED_PRESENCE_PROPERTIES:
+        return TROVE['is-present']
+    return TROVE['any-of']
+
+
 def is_date_property(property_iri):
     # TODO: better inference (rdfs:range?)
-    return property_iri in {
-        DCTERMS.date,
-        DCTERMS.available,
-        DCTERMS.created,
-        DCTERMS.modified,
-        DCTERMS.dateCopyrighted,
-        DCTERMS.dateSubmitted,
-        DCTERMS.dateAccepted,
-        OSFMAP.dateWithdrawn,
-    }
+    return property_iri in DATE_PROPERTIES

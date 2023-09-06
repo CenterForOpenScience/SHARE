@@ -15,11 +15,12 @@ from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
 from trove.util.queryparams import QUERYPARAM_VALUES_DELIM
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
-from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB
+from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_filter_operator
 from trove.vocab.trove import (
     TROVE,
     TROVE_API_VOCAB,
     trove_indexcard_namespace,
+    trove_labeler,
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
@@ -80,7 +81,9 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
 )
 def gather_cardsearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, CardsearchParams)
+    # defer to the IndexStrategy implementation to do the search
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
+    # resulting index-cards
     yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
     _result_page = []
     for _result in _cardsearch_resp.search_result_page:
@@ -100,19 +103,19 @@ def gather_cardsearch(focus, *, specific_index, search_params):
             *_text_evidence_twoples,
         )))
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
+    # links to more pages of results
     yield from _search_page_links(focus, search_params, _cardsearch_resp)
-    _relatedproperty_list = []
-    for _propertypath in search_params.related_property_paths:
-        try:
-            _count = next(
-                _prop_result.usage_count
-                for _prop_result in _cardsearch_resp.related_propertypath_results
-                if _prop_result.property_path == _propertypath
-            )
-        except StopIteration:
-            _count = 0
-        _relatedproperty_list.append(_related_property_result(_propertypath, _count))
+    # info about related properties (for refining/filtering further)
+    _prop_usage_counts = {
+        _prop_result.property_path: _prop_result.usage_count
+        for _prop_result in _cardsearch_resp.related_propertypath_results
+    }
+    _relatedproperty_list = [
+        _related_property_result(_propertypath, _prop_usage_counts.get(_propertypath, 0))
+        for _propertypath in search_params.related_property_paths
+    ]
     yield (TROVE.relatedPropertyList, primitive_rdf.sequence(_relatedproperty_list))
+    # filter-values from search params, with any additional info
     _valueinfo_by_iri = {}
     for _filtervalue in _cardsearch_resp.filtervalue_info:
         _value_info = _valuesearch_result_as_json(_filtervalue)
@@ -285,6 +288,9 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
     return frozenset((
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
+        (TROVE.suggestedFilterOperator, trove_labeler.label_for_iri(
+            suggested_filter_operator(property_path[-1]),
+        )),
         *_propertypath_twoples(property_path),
     ))
 
