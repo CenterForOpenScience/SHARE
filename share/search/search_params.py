@@ -20,7 +20,8 @@ from trove.vocab.osfmap import (
     suggested_property_paths,
     OSFMAP_VOCAB,
 )
-from trove.vocab.namespaces import RDF
+from trove.vocab.trove import trove_labeler
+from trove.vocab.namespaces import RDF, TROVE
 
 
 logger = logging.getLogger(__name__)
@@ -143,14 +144,19 @@ class Textsegment:
 @dataclasses.dataclass(frozen=True)
 class SearchFilter:
     class FilterOperator(enum.Enum):
-        # TODO: use iris from TROVE IriNamespace
-        ANY_OF = 'any-of'
-        NONE_OF = 'none-of'
-        IS_PRESENT = 'is-present'
-        IS_ABSENT = 'is-absent'
-        BEFORE = 'before'
-        AFTER = 'after'
-        AT_DATE = 'at-date'
+        # iri values
+        ANY_OF = TROVE['any-of']
+        NONE_OF = TROVE['none-of']
+        IS_PRESENT = TROVE['is-present']
+        IS_ABSENT = TROVE['is-absent']
+        BEFORE = TROVE['before']
+        AFTER = TROVE['after']
+        AT_DATE = TROVE['at-date']
+
+        @classmethod
+        def from_shortname(cls, shortname):
+            _iri = trove_labeler.iri_for_label(shortname)
+            return cls(_iri)
 
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
@@ -191,7 +197,7 @@ class SearchFilter:
         else:  # given operator
             if _operator_value:
                 try:
-                    _operator = SearchFilter.FilterOperator(_operator_value)
+                    _operator = SearchFilter.FilterOperator.from_shortname(_operator_value)
                 except ValueError:
                     raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
         _propertypath = tuple(
