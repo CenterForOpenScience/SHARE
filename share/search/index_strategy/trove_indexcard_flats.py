@@ -343,7 +343,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
-            _on_date_property = is_date_property(valuesearch_params.valuesearch_property_path[-1])
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
@@ -357,7 +356,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     size=0,  # ignore cardsearch hits; just want the aggs
                     aggs=(
                         self._valuesearch_date_aggs(valuesearch_params)
-                        if _on_date_property
+                        if is_date_property(valuesearch_params.valuesearch_property_path[-1])
                         else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
                     ),
                 )
@@ -495,7 +494,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             return _aggs
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
-            # TODO: valuesearch_filter_set (just rdf:type => nested_iri.value_type_iri)
             _nested_iri_bool = {
                 'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
                     valuesearch_params.valuesearch_property_path,
@@ -505,6 +503,23 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 'must_not': [],
                 'should': [],
             }
+            _nested_terms_agg = {
+                'field': 'nested_iri.iri_value',
+                # WARNING: terribly inefficient pagination (part one)
+                'size': cursor.start_index + cursor.page_size + 1,
+            }
+            _iris = list(valuesearch_params.valuesearch_iris())
+            if _iris:
+                _nested_iri_bool['filter'].append({'terms': {
+                    'nested_iri.iri_value': _iris,
+                }})
+                _nested_terms_agg['size'] = len(_iris)
+                _nested_terms_agg['include'] = _iris
+            _type_iris = list(valuesearch_params.valuesearch_type_iris())
+            if _type_iris:
+                _nested_iri_bool['filter'].append({'terms': {
+                    'nested_iri.value_type_iri': _type_iris,
+                }})
             _textq_builder = self._TextQueryBuilder('nested_iri.value_namelike_text')
             for _boolkey, _textquery in _textq_builder.textsegment_queries(valuesearch_params.valuesearch_textsegment_set):
                 _nested_iri_bool[_boolkey].append(_textquery)
@@ -516,11 +531,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                             'filter': {'bool': _nested_iri_bool},
                             'aggs': {
                                 'iri_values': {
-                                    'terms': {
-                                        'field': 'nested_iri.iri_value',
-                                        # WARNING: terribly inefficient pagination (part one)
-                                        'size': cursor.start_index + cursor.page_size + 1,
-                                    },
+                                    'terms': _nested_terms_agg,
                                     'aggs': {
                                         'type_iri': {'terms': {
                                             'field': 'nested_iri.value_type_iri',
