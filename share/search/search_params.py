@@ -21,7 +21,7 @@ from trove.vocab.osfmap import (
     OSFMAP_VOCAB,
 )
 from trove.vocab.trove import trove_labeler
-from trove.vocab.namespaces import RDF, TROVE
+from trove.vocab.namespaces import RDF, TROVE, OWL
 
 
 logger = logging.getLogger(__name__)
@@ -361,7 +361,7 @@ class ValuesearchParams(CardsearchParams):
         return ValuesearchParams(
             **CardsearchParams.parse_cardsearch_queryparams(queryparams),
             valuesearch_property_path=tuple(
-                osfmap_labeler.iri_for_label(_pathstep)
+                osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
                 for _pathstep in split_queryparam_value(_raw_property_path)
             ),
             valuesearch_text=_valuesearch_text,
@@ -378,6 +378,16 @@ class ValuesearchParams(CardsearchParams):
         for _filter in self.valuesearch_filter_set:
             _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
         return _querydict
+
+    def valuesearch_iris(self):
+        for _filter in self.valuesearch_filter_set:
+            if _filter.property_path == (OWL.sameAs,) and _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+                yield from _filter.value_set
+
+    def valuesearch_type_iris(self):
+        for _filter in self.valuesearch_filter_set:
+            if _filter.property_path == (RDF.type,) and _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+                yield from _filter.value_set
 
 
 ###
