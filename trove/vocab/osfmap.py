@@ -107,6 +107,15 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('rights', language_tag='en'),
         },
     },
+    DCTERMS.rightsHolder: {
+        RDF.type: {RDF.Property},
+        RDFS.label: {
+            primitive_rdf.text('License holder', language_tag='en'),
+        },
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('rightsHolder', language_tag='en'),
+        },
+    },
     DCTERMS.description: {
         RDF.type: {RDF.Property},
         RDFS.label: {
@@ -350,7 +359,7 @@ OSFMAP_VOCAB: primitive_rdf.RdfTripleDictionary = {
     OSFMAP.hasPapersResource: {
         RDF.type: {RDF.Property},
         RDFS.label: {
-            primitive_rdf.text('Papers resource', language_tag='en'),
+            primitive_rdf.text('Papers', language_tag='en'),
         },
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('hasPapersResource', language_tag='en'),
