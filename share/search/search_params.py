@@ -6,6 +6,7 @@ import typing
 
 from django.http import QueryDict
 
+from share.models import FeatureFlag
 from share.search import exceptions
 from trove.util.queryparams import (
     QueryparamDict,
@@ -36,6 +37,7 @@ DESCENDING_SORT_PREFIX = '-'
 
 DEFAULT_PAGE_SIZE = 13
 MAX_PAGE_SIZE = 101
+PROPERTYPATH_DELIMITER = '.'
 
 
 ###
@@ -167,7 +169,7 @@ class SearchFilter:
         def is_valueless_operator(self):
             return self in (self.IS_PRESENT, self.IS_ABSENT)
 
-    property_path: tuple[str]
+    propertypath_set: frozenset[tuple[str, ...]]
     value_set: frozenset[str]
     operator: FilterOperator
     original_param_name: typing.Optional[str] = None
@@ -184,11 +186,11 @@ class SearchFilter:
     @classmethod
     def from_filter_param(cls, param_name: QueryparamName, param_value: str):
         _operator = None
-        try:  # "filter[<serialized_path>][<operator>]"
-            (_serialized_path, _operator_value) = param_name.bracketed_names
+        try:  # "filter[<serialized_path_set>][<operator>]"
+            (_serialized_path_set, _operator_value) = param_name.bracketed_names
         except ValueError:
-            try:  # "filter[<serialized_path>]" (with default operator)
-                (_serialized_path,) = param_name.bracketed_names
+            try:  # "filter[<serialized_path_set>]" (with default operator)
+                (_serialized_path_set,) = param_name.bracketed_names
             except ValueError:
                 raise exceptions.InvalidSearchParam(
                     f'expected one or two bracketed queryparam-name segments'
@@ -200,23 +202,23 @@ class SearchFilter:
                     _operator = SearchFilter.FilterOperator.from_shortname(_operator_value)
                 except ValueError:
                     raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
-        _propertypath = tuple(
-            osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
-            for _pathstep in split_queryparam_value(_serialized_path)
+        _propertypath_set = _parse_propertypath_set(_serialized_path_set)
+        _is_date_filter = all(
+            is_date_property(_path[-1])
+            for _path in _propertypath_set
         )
-        _is_date_property = is_date_property(_propertypath[-1])
         if _operator is None:  # default operator
             _operator = (
                 SearchFilter.FilterOperator.AT_DATE
-                if _is_date_property
+                if _is_date_filter
                 else SearchFilter.FilterOperator.ANY_OF
             )
-        if _operator.is_date_operator() and not _is_date_property:
+        if _operator.is_date_operator() and not _is_date_filter:
             raise ValueError(f'cannot use date operator {_operator.value} on non-date property')
         _value_list = []
         if not _operator.is_valueless_operator():
             for _value in split_queryparam_value(param_value):
-                if _is_date_property:
+                if _is_date_filter:
                     _value_list.append(_value)  # TODO: vali-date
                 else:
                     try:
@@ -226,11 +228,27 @@ class SearchFilter:
                     else:
                         _value_list.append(_iri)
         return cls(
-            property_path=_propertypath,
+            propertypath_set=_propertypath_set,
             value_set=frozenset(_value_list),
             operator=_operator,
             original_param_name=str(param_name),
             original_param_value=param_value,
+        )
+
+    def is_sameas_filter(self) -> bool:
+        '''detect the special filter for matching exact identifier iris
+        '''
+        return (
+            self.propertypath_set == {(OWL.sameAs,)}
+            and self.operator == SearchFilter.FilterOperator.ANY_OF
+        )
+
+    def is_type_filter(self) -> bool:
+        '''detect the special filter for matching resource type
+        '''
+        return (
+            self.propertypath_set == {(RDF.type,)}
+            and self.operator == SearchFilter.FilterOperator.ANY_OF
         )
 
 
@@ -345,7 +363,7 @@ class CardsearchParams:
 class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
-    valuesearch_property_path: tuple[str]
+    valuesearch_propertypath_set: frozenset[tuple[str, ...]]
     valuesearch_text: str
     valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
@@ -355,19 +373,16 @@ class ValuesearchParams(CardsearchParams):
     @staticmethod
     def from_queryparams(queryparams: QueryparamDict) -> 'ValuesearchParams':
         _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
-        _raw_property_path = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
-        if not _raw_property_path:
+        _raw_propertypath = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
+        if not _raw_propertypath:
             raise ValueError('TODO: 400 valueSearchPropertyPath required')
         return ValuesearchParams(
             **CardsearchParams.parse_cardsearch_queryparams(queryparams),
-            valuesearch_property_path=tuple(
-                osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
-                for _pathstep in split_queryparam_value(_raw_property_path)
-            ),
+            valuesearch_propertypath_set=_parse_propertypath_set(_raw_propertypath),
             valuesearch_text=_valuesearch_text,
             valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
             valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),
-            original_valuesearch_property_path=_raw_property_path,
+            original_valuesearch_property_path=_raw_propertypath,
         )
 
     def to_querydict(self):
@@ -381,12 +396,12 @@ class ValuesearchParams(CardsearchParams):
 
     def valuesearch_iris(self):
         for _filter in self.valuesearch_filter_set:
-            if _filter.property_path == (OWL.sameAs,) and _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+            if _filter.is_sameas_filter():
                 yield from _filter.value_set
 
     def valuesearch_type_iris(self):
         for _filter in self.valuesearch_filter_set:
-            if _filter.property_path == (RDF.type,) and _filter.operator == SearchFilter.FilterOperator.ANY_OF:
+            if _filter.is_type_filter():
                 yield from _filter.value_set
 
 
@@ -423,16 +438,31 @@ def _get_single_value(
         return _singlevalue
 
 
+def _parse_propertypath_set(serialized_path_set: str) -> frozenset[tuple[str, ...]]:
+    if FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH):
+        # comma-delimited set of dot-delimited paths
+        return frozenset(
+            tuple(
+                osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
+                for _pathstep in _path.split(PROPERTYPATH_DELIMITER)
+            )
+            for _path in split_queryparam_value(serialized_path_set)
+        )
+    # single comma-delimited path
+    _propertypath = tuple(
+        osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
+        for _pathstep in split_queryparam_value(serialized_path_set)
+    )
+    return frozenset([_propertypath])
+
+
 def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
     # hard-coded for osf.io search pages, static list per type
     # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
     _type_iris = set()
     for _filter in filter_set:
-        if _filter.property_path == (RDF.type,):
-            if _filter.operator == SearchFilter.FilterOperator.ANY_OF:
-                _type_iris.update(_filter.value_set)
-            if _filter.operator == SearchFilter.FilterOperator.NONE_OF:
-                _type_iris.difference_update(_filter.value_set)
+        if _filter.is_type_filter():
+            _type_iris.update(_filter.value_set)
     return suggested_property_paths(_type_iris)
 
 

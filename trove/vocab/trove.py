@@ -121,22 +121,34 @@ TROVE_API_VOCAB: primitive_rdf.RdfTripleDictionary = {
             primitive_rdf.text('matchingHighlight', language_tag='en'),
         },
     },
-    TROVE.propertyPath: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {
-            primitive_rdf.text('propertyPath', language_tag='en'),
-        },
-    },
     TROVE.propertyPathKey: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('propertyPathKey', language_tag='en'),
         },
     },
+    TROVE.propertyPath: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('propertyPath', language_tag='en'),
+        },
+    },
     TROVE.osfmapPropertyPath: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {
             primitive_rdf.text('osfmapPropertyPath', language_tag='en'),
+        },
+    },
+    TROVE.propertyPathSet: {
+        RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('propertyPathSet', language_tag='en'),
+        },
+    },
+    TROVE.osfmapPropertyPathSet: {
+        RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {
+            primitive_rdf.text('osfmapPropertyPathSet', language_tag='en'),
         },
     },
     TROVE.filterType: {

@@ -2,12 +2,14 @@ import dataclasses
 
 from django.test import SimpleTestCase
 
+from share.models import FeatureFlag
 from share.search.search_params import (
     Textsegment,
     SearchFilter,
 )
 from trove.util.queryparams import QueryparamName
 from trove.vocab.namespaces import OSFMAP, RDF, DCTERMS
+from tests._testutil import patch_feature_flag
 
 
 class TestTextsegment(SimpleTestCase):
@@ -78,48 +80,135 @@ class TestTextsegment(SimpleTestCase):
         )))
 
 
-class TestSearchFilter(SimpleTestCase):
+class TestSearchFilterCommapath(SimpleTestCase):
+    def setUp(self):
+        _patcher = patch_feature_flag(FeatureFlag.PERIODIC_PROPERTYPATH, up=False)
+        _patcher.start()
+        self.addCleanup(_patcher.stop)
+
     def test_from_param(self):
         _cases = {
             ('foo[resourceType]', 'Project'): SearchFilter(
-                property_path=(RDF.type,),
+                propertypath_set=frozenset([(RDF.type,)]),
                 value_set=frozenset([OSFMAP.Project]),
                 operator=SearchFilter.FilterOperator.ANY_OF,
             ),
             ('foo[urn:foo][none-of]', 'urn:bar,urn:baz'): SearchFilter(
-                property_path=('urn:foo',),
+                propertypath_set=frozenset([('urn:foo',)]),
                 value_set=frozenset(['urn:bar', 'urn:baz']),
                 operator=SearchFilter.FilterOperator.NONE_OF,
             ),
             ('foo[http://foo.example/prop1,http://foo.example/prop2]', 'resourceType'): SearchFilter(
-                property_path=('http://foo.example/prop1', 'http://foo.example/prop2',),
+                propertypath_set=frozenset([('http://foo.example/prop1', 'http://foo.example/prop2',)]),
                 value_set=frozenset([RDF.type]),
                 operator=SearchFilter.FilterOperator.ANY_OF,
             ),
             ('foo[dateCreated]', '2000'): SearchFilter(
-                property_path=(DCTERMS.created,),
+                propertypath_set=frozenset([(DCTERMS.created,)]),
                 value_set=frozenset(['2000']),
                 operator=SearchFilter.FilterOperator.AT_DATE,
             ),
             ('foo[isPartOf,dateModified][after]', '2000-01-01'): SearchFilter(
-                property_path=(DCTERMS.isPartOf, DCTERMS.modified,),
+                propertypath_set=frozenset([(DCTERMS.isPartOf, DCTERMS.modified,)]),
                 value_set=frozenset(['2000-01-01']),
                 operator=SearchFilter.FilterOperator.AFTER,
             ),
             ('foo[dateWithdrawn][before]', '2000-01-01'): SearchFilter(
-                property_path=(OSFMAP.dateWithdrawn,),
+                propertypath_set=frozenset([(OSFMAP.dateWithdrawn,)]),
                 value_set=frozenset(['2000-01-01']),
                 operator=SearchFilter.FilterOperator.BEFORE,
             ),
             ('foo[creator][is-present]', ''): SearchFilter(
-                property_path=(DCTERMS.creator,),
+                propertypath_set=frozenset([(DCTERMS.creator,)]),
                 value_set=frozenset(),
                 operator=SearchFilter.FilterOperator.IS_PRESENT,
             ),
             ('foo[creator,creator,creator][is-absent]', 'nothing'): SearchFilter(
-                property_path=(DCTERMS.creator, DCTERMS.creator, DCTERMS.creator,),
+                propertypath_set=frozenset([(DCTERMS.creator, DCTERMS.creator, DCTERMS.creator,)]),
                 value_set=frozenset(),
                 operator=SearchFilter.FilterOperator.IS_ABSENT,
+            ),
+        }
+        for (_paramname, _paramvalue), _searchfilter in _cases.items():
+            _actualfilter = SearchFilter.from_filter_param(
+                QueryparamName.from_str(_paramname),
+                _paramvalue,
+            )
+            _expectedfilter = dataclasses.replace(
+                _searchfilter,
+                original_param_name=_paramname,
+                original_param_value=_paramvalue,
+            )
+            self.assertEqual(_expectedfilter, _actualfilter)
+
+
+class TestSearchFilterPeriodpath(SimpleTestCase):
+    def setUp(self):
+        _patcher = patch_feature_flag(FeatureFlag.PERIODIC_PROPERTYPATH, up=True)
+        _patcher.start()
+        self.addCleanup(_patcher.stop)
+
+    def test_from_param(self):
+        _cases = {
+            ('foo[resourceType]', 'Project'): SearchFilter(
+                propertypath_set=frozenset([(RDF.type,)]),
+                value_set=frozenset([OSFMAP.Project]),
+                operator=SearchFilter.FilterOperator.ANY_OF,
+            ),
+            ('foo[urn:foo][none-of]', 'urn:bar,urn:baz'): SearchFilter(
+                propertypath_set=frozenset([('urn:foo',)]),
+                value_set=frozenset(['urn:bar', 'urn:baz']),
+                operator=SearchFilter.FilterOperator.NONE_OF,
+            ),
+            ('foo[dateCreated]', '2000'): SearchFilter(
+                propertypath_set=frozenset([(DCTERMS.created,)]),
+                value_set=frozenset(['2000']),
+                operator=SearchFilter.FilterOperator.AT_DATE,
+            ),
+            ('foo[dateCreated,dateModified][after]', '2000-01-01'): SearchFilter(
+                propertypath_set=frozenset([
+                    (DCTERMS.created,),
+                    (DCTERMS.modified,),
+                ]),
+                value_set=frozenset(['2000-01-01']),
+                operator=SearchFilter.FilterOperator.AFTER,
+            ),
+            ('foo[dateModified,isPartOf.dateModified][after]', '2000-01-01'): SearchFilter(
+                propertypath_set=frozenset([
+                    (DCTERMS.modified,),
+                    (DCTERMS.isPartOf, DCTERMS.modified,),
+                ]),
+                value_set=frozenset(['2000-01-01']),
+                operator=SearchFilter.FilterOperator.AFTER,
+            ),
+            ('foo[dateWithdrawn][before]', '2000-01-01'): SearchFilter(
+                propertypath_set=frozenset([(OSFMAP.dateWithdrawn,)]),
+                value_set=frozenset(['2000-01-01']),
+                operator=SearchFilter.FilterOperator.BEFORE,
+            ),
+            ('foo[creator][is-present]', ''): SearchFilter(
+                propertypath_set=frozenset([(DCTERMS.creator,)]),
+                value_set=frozenset(),
+                operator=SearchFilter.FilterOperator.IS_PRESENT,
+            ),
+            ('foo[creator.creator.creator][is-absent]', 'nothing'): SearchFilter(
+                propertypath_set=frozenset([(DCTERMS.creator, DCTERMS.creator, DCTERMS.creator,)]),
+                value_set=frozenset(),
+                operator=SearchFilter.FilterOperator.IS_ABSENT,
+            ),
+            ('foo[creator,creator,creator][is-absent]', 'nothing'): SearchFilter(
+                propertypath_set=frozenset([(DCTERMS.creator,)]),
+                value_set=frozenset(),
+                operator=SearchFilter.FilterOperator.IS_ABSENT,
+            ),
+            ('foo[affiliation,isPartOf.affiliation,isContainedBy.affiliation]', 'http://foo.example/'): SearchFilter(
+                propertypath_set=frozenset([
+                    (OSFMAP.isContainedBy, OSFMAP.affiliation,),
+                    (DCTERMS.isPartOf, OSFMAP.affiliation,),
+                    (OSFMAP.affiliation,),
+                ]),
+                value_set=frozenset(['http://foo.example/']),
+                operator=SearchFilter.FilterOperator.ANY_OF,
             ),
         }
         for (_paramname, _paramvalue), _searchfilter in _cases.items():
