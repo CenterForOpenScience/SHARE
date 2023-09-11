@@ -5,10 +5,12 @@ import urllib.parse
 
 from gather import primitive_rdf, gathering
 
+from share.models import FeatureFlag
 from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
     PageParam,
+    PROPERTYPATH_DELIMITER,
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
@@ -64,7 +66,7 @@ def gather_valuesearch_text(focus, *, specific_index, search_params):
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
 def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
-    yield from _propertypath_twoples(search_params.valuesearch_property_path)
+    yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
@@ -93,7 +95,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
                 (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
                 (TROVE.indexCard, _evidence.card_iri),
-                *_propertypath_twoples(_evidence.property_path),
+                *_single_propertypath_twoples(_evidence.property_path),
             )))
             for _evidence in _result.text_match_evidence
         )
@@ -186,7 +188,10 @@ def gather_card(focus, **kwargs):
 # local helpers
 
 def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
-    _filtervalue_twoples = []
+    _filter_twoples = [
+        (TROVE.filterType, search_filter.operator.value),
+        *_multi_propertypath_twoples(search_filter.propertypath_set),
+    ]
     if not search_filter.operator.is_valueless_operator():
         for _value in search_filter.value_set:
             if search_filter.operator.is_iri_operator():
@@ -196,12 +201,8 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
                 )
             else:
                 _valueinfo = _literal_json({'@value': _value})
-            _filtervalue_twoples.append((TROVE.filterValue, _valueinfo))
-    return frozenset((
-        (TROVE.filterType, TROVE[search_filter.operator.value]),
-        *_propertypath_twoples(search_filter.property_path),
-        *_filtervalue_twoples,
-    ))
+            _filter_twoples.append((TROVE.filterValue, _valueinfo))
+    return frozenset(_filter_twoples)
 
 
 def _osfmap_or_unknown_iri_as_json(iri: str):
@@ -264,10 +265,19 @@ def _osfmap_path(property_path):
     ])
 
 
-def _propertypath_twoples(property_path: tuple[str, ...]):
+def _single_propertypath_twoples(property_path: tuple[str, ...]):
+    yield (TROVE.propertyPathKey, primitive_rdf.text(_propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
-    yield (TROVE.propertyPathKey, _propertypath_key(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
+
+
+def _multi_propertypath_twoples(propertypath_set):
+    yield (TROVE.propertyPathKey, primitive_rdf.text(_propertypath_set_key(propertypath_set)))
+    for _path in propertypath_set:
+        yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
+    if len(propertypath_set) == 1 and not FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH):
+        (_path,) = propertypath_set
+        yield from _single_propertypath_twoples(_path)
 
 
 def _propertypath_sequence(property_path: tuple[str, ...]):
@@ -291,16 +301,26 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
         (TROVE.suggestedFilterOperator, trove_labeler.label_for_iri(
             suggested_filter_operator(property_path[-1]),
         )),
-        *_propertypath_twoples(property_path),
+        *_single_propertypath_twoples(property_path),
     ))
 
 
+def _propertypath_set_key(propertypath_set):
+    return QUERYPARAM_VALUES_DELIM.join(
+        _propertypath_key(_path)
+        for _path in propertypath_set
+    )
+
+
 def _propertypath_key(property_path: tuple[str, ...]):
-    return primitive_rdf.text(
-        QUERYPARAM_VALUES_DELIM.join(
-            urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
-            for _property_iri in property_path
-        ),
+    _delim = (
+        PROPERTYPATH_DELIMITER
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH)
+        else QUERYPARAM_VALUES_DELIM
+    )
+    return _delim.join(
+        urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
+        for _property_iri in property_path
     )
 
 

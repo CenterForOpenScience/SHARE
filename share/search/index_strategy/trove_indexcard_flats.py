@@ -343,20 +343,25 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
+            _is_date_search = all(
+                is_date_property(_path[-1])
+                for _path in valuesearch_params.valuesearch_propertypath_set
+            )
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
                     query=self._cardsearch_query(
                         valuesearch_params.cardsearch_filter_set,
                         valuesearch_params.cardsearch_textsegment_set,
-                        additional_filters=[{'term': {
-                            'iri_paths_present': iri_path_as_keyword(valuesearch_params.valuesearch_property_path),
-                        }}],
+                        additional_filters=[{'terms': {'iri_paths_present': [
+                            iri_path_as_keyword(_path)
+                            for _path in valuesearch_params.valuesearch_propertypath_set
+                        ]}}],
                     ),
                     size=0,  # ignore cardsearch hits; just want the aggs
                     aggs=(
                         self._valuesearch_date_aggs(valuesearch_params)
-                        if is_date_property(valuesearch_params.valuesearch_property_path[-1])
+                        if _is_date_search
                         else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
                     ),
                 )
@@ -495,10 +500,10 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             _nested_iri_bool = {
-                'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
-                    valuesearch_params.valuesearch_property_path,
-                    suffuniq=True,
-                )}}],
+                'filter': [{'terms': {'nested_iri.suffuniq_path_from_focus': [
+                    iri_path_as_keyword(_path, suffuniq=True)
+                    for _path in valuesearch_params.valuesearch_propertypath_set
+                ]}}],
                 'must': [],
                 'must_not': [],
                 'should': [],
@@ -559,11 +564,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     'nested': {'path': 'nested_date'},
                     'aggs': {
                         'value_at_propertypath': {
-                            'filter': {'term': {
-                                'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
-                                    valuesearch_params.valuesearch_property_path,
-                                    suffuniq=True,
-                                ),
+                            'filter': {'terms': {
+                                'nested_date.suffuniq_path_from_focus': [
+                                    iri_path_as_keyword(_path, suffuniq=True)
+                                    for _path in valuesearch_params.valuesearch_propertypath_set
+                                ],
                             }},
                             'aggs': {
                                 'count_by_year': {
@@ -640,25 +645,40 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _cardsearch_presence_query(self, search_filter) -> dict:
-            _path_keyword = iri_path_as_keyword(search_filter.property_path, suffuniq=True)
-            return {'term': {'iri_paths_present_suffuniq': _path_keyword}}
+            _filters = [
+                self._cardsearch_path_presence_query(_path)
+                for _path in search_filter.propertypath_set
+            ]
+            if len(_filters) == 1:
+                return _filters[0]
+            return {'bool': {'must': _filters}}
 
-        def _cardsearch_iri_filter(self, search_filter) -> dict:
-            _field = '.'.join((
-                'flat_iri_values_suffuniq',
-                _iri_path_as_flattened_key(search_filter.property_path),
-            ))
-            return {'terms': {
-                _field: [
-                    get_sufficiently_unique_iri(_iri)
-                    for _iri in search_filter.value_set
-                ],
+        def _cardsearch_path_presence_query(self, path: tuple[str, ...]):
+            return {'term': {
+                'iri_paths_present_suffuniq': iri_path_as_keyword(path, suffuniq=True),
             }}
 
+        def _cardsearch_iri_filter(self, search_filter) -> dict:
+            _filters = [
+                self._cardsearch_path_iri_query(_path, search_filter.value_set)
+                for _path in search_filter.propertypath_set
+            ]
+            if len(_filters) == 1:
+                return _filters[0]
+            return {'bool': {'should': _filters}}  # at least one match
+
+        def _cardsearch_path_iri_query(self, path, value_set):
+            return {'terms': {_iri_path_as_flattened_field(path): [
+                get_sufficiently_unique_iri(_iri)
+                for _iri in value_set
+            ]}}
+
         def _cardsearch_date_filter(self, search_filter) -> dict:
-            _propertypath_keyword = iri_path_as_keyword(search_filter.property_path, suffuniq=True)
             _filter_list = [
-                {'term': {'nested_date.suffuniq_path_from_focus': _propertypath_keyword}},
+                {'terms': {'nested_date.suffuniq_path_from_focus': [
+                    iri_path_as_keyword(_path, suffuniq=True)
+                    for _path in search_filter.propertypath_set
+                ]}},
             ]
             if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
                 _value = min(search_filter.value_set)  # rely on string-comparable isoformat
@@ -738,7 +758,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     and cursor.is_first_page()
                     and not cursor.first_page_uuids
                     and any(
-                        _filter.property_path != (RDF.type,)  # look for a non-default filter
+                        not _filter.is_type_filter()  # look for a non-default filter
                         for _filter in cardsearch_params.cardsearch_filter_set
                     )
                 )
@@ -921,6 +941,10 @@ def _iri_path_as_indexable_fields(path: tuple[str, ...]):
 
 def _iri_path_as_flattened_key(path: tuple[str, ...]) -> str:
     return base64.b16encode(json.dumps(path).encode()).decode()
+
+
+def _iri_path_as_flattened_field(path: tuple[str, ...]) -> str:
+    return f'flat_iri_values_suffuniq.{_iri_path_as_flattened_key(path)}'
 
 
 @dataclasses.dataclass
