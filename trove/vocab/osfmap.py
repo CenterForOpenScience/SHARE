@@ -1,5 +1,6 @@
 from gather import primitive_rdf, gathering
 
+from share.models.feature_flag import FeatureFlag
 from trove.util.iri_labeler import IriLabeler
 from trove.vocab.trove import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import (
@@ -817,18 +818,22 @@ DATE_PROPERTIES = frozenset((
 
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):
-        return ()
-    if type_iris == {DCTERMS.Agent}:
-        return AGENT_SUGGESTED_PROPERTY_PATHS
-    if type_iris == {OSFMAP.Preprint}:
-        return PREPRINT_SUGGESTED_PROPERTY_PATHS
-    if type_iris == {OSFMAP.File}:
-        return FILE_SUGGESTED_PROPERTY_PATHS
-    if type_iris <= {OSFMAP.Project, OSFMAP.ProjectComponent}:
-        return PROJECT_SUGGESTED_PROPERTY_PATHS
-    if type_iris <= {OSFMAP.Registration, OSFMAP.RegistrationComponent}:
-        return REGISTRATION_SUGGESTED_PROPERTY_PATHS
-    return ALL_SUGGESTED_PROPERTY_PATHS
+        _suggested = ()
+    elif type_iris == {DCTERMS.Agent}:
+        _suggested = AGENT_SUGGESTED_PROPERTY_PATHS
+    elif type_iris == {OSFMAP.Preprint}:
+        _suggested = PREPRINT_SUGGESTED_PROPERTY_PATHS
+    elif type_iris == {OSFMAP.File}:
+        _suggested = FILE_SUGGESTED_PROPERTY_PATHS
+    elif type_iris <= {OSFMAP.Project, OSFMAP.ProjectComponent}:
+        _suggested = PROJECT_SUGGESTED_PROPERTY_PATHS
+    elif type_iris <= {OSFMAP.Registration, OSFMAP.RegistrationComponent}:
+        _suggested = REGISTRATION_SUGGESTED_PROPERTY_PATHS
+    else:
+        _suggested = ALL_SUGGESTED_PROPERTY_PATHS
+    if FeatureFlag.objects.flag_is_up(FeatureFlag.SUGGEST_CREATOR_FACET):
+        return ((DCTERMS.creator,), *_suggested)
+    return _suggested
 
 
 def suggested_filter_operator(property_iri: str):
