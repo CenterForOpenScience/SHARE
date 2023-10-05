@@ -733,11 +733,10 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             if _es8_total['relation'] != 'eq':
                 cursor.result_count = -1  # "too many"
             else:  # exact (and small) count
-                if cursor.result_count is None or not cursor.random_sort:
-                    cursor.result_count = _es8_total['value']
-                elif cursor.first_page_uuids and not cursor.is_first_page():
+                cursor.result_count = _es8_total['value']
+                if cursor.random_sort and not cursor.is_first_page():
                     # account for the filtered-out first page
-                    cursor.result_count = _es8_total['value'] + len(cursor.first_page_uuids)
+                    cursor.result_count += len(cursor.first_page_uuids)
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -1025,12 +1024,6 @@ class _CardsearchCursor(_SimpleCursor):
                 and not params.cardsearch_textsegment_set
             ),
         )
-
-    def next_cursor(self) -> str | None:
-        if self.random_sort and self.is_first_page() and not self.first_page_uuids:
-            # "next page" is another independent random sample
-            return encode_cursor_dataclass(self)
-        return super().next_cursor()
 
     def cardsearch_start_index(self) -> int:
         if self.is_first_page() or not self.random_sort:
