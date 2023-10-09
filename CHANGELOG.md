@@ -1,5 +1,15 @@
 # Change Log
 
+# [23.2.0] - 2023-10-09
+- BREAKING: allow multiple propertypaths in query params
+  - use `.` to delimit steps in a path; e.g. `creator.affiliation`
+    is a path of two steps (previously would be `creator,affiliation`)
+  - use `,` to delimit multiple paths; e.g. `creator.name,contributor.name`
+    would be two paths (previously impossible)
+  - hidden behind feature flag: `periodic_propertypaths`
+- add missing OSFMAP shorthands
+- fix: in `index-card-search`, do not show "next" link when no results
+
 # [23.1.9] - 2023-08-29
 - more consistent pagination over randomly ordered results
 - correct test setup for `trove_indexcard_flats`
