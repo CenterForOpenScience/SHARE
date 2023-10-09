@@ -25,6 +25,7 @@ from share.search.search_params import (
     Textsegment,
     SortParam,
     PageParam,
+    GLOB_PATHSTEP,
 )
 from share.search.search_response import (
     CardsearchResponse,
@@ -347,23 +348,28 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 is_date_property(_path[-1])
                 for _path in valuesearch_params.valuesearch_propertypath_set
             )
+            _search_kwargs = dict(
+                query=self._cardsearch_query(
+                    valuesearch_params.cardsearch_filter_set,
+                    valuesearch_params.cardsearch_textsegment_set,
+                    additional_filters=[{'terms': {'iri_paths_present': [
+                        iri_path_as_keyword(_path)
+                        for _path in valuesearch_params.valuesearch_propertypath_set
+                    ]}}],
+                ),
+                size=0,  # ignore cardsearch hits; just want the aggs
+                aggs=(
+                    self._valuesearch_date_aggs(valuesearch_params)
+                    if _is_date_search
+                    else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
+                ),
+            )
+            if settings.DEBUG:
+                logger.info(json.dumps(_search_kwargs, indent=2))
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
-                    query=self._cardsearch_query(
-                        valuesearch_params.cardsearch_filter_set,
-                        valuesearch_params.cardsearch_textsegment_set,
-                        additional_filters=[{'terms': {'iri_paths_present': [
-                            iri_path_as_keyword(_path)
-                            for _path in valuesearch_params.valuesearch_propertypath_set
-                        ]}}],
-                    ),
-                    size=0,  # ignore cardsearch hits; just want the aggs
-                    aggs=(
-                        self._valuesearch_date_aggs(valuesearch_params)
-                        if _is_date_search
-                        else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
-                    ),
+                    **_search_kwargs,
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
@@ -397,15 +403,12 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     _bool_query['filter'].append(self._cardsearch_date_filter(_searchfilter))
                 else:
                     raise ValueError(f'unknown filter operator {_searchfilter.operator}')
-            _textq_builder = self._TextQueryBuilder(
-                'nested_text.text_value',
-                nested_path='nested_text',
-                nested_filter={'term': {'nested_text.distance_from_focus': 1}},
-                inner_hits_factory=self._cardsearch_inner_hits,
+            _textq_builder = self._NestedTextQueryBuilder(
                 relevance_matters=bool(cardsearch_cursor and not cardsearch_cursor.random_sort),
             )
-            for _boolkey, _textquery in _textq_builder.textsegment_queries(textsegment_set):
-                _bool_query[_boolkey].append(_textquery)
+            for _textsegment in textsegment_set:
+                for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
+                    _bool_query[_boolkey].extend(_textqueries)
             if not cardsearch_cursor or not cardsearch_cursor.random_sort:
                 # no need for randomness
                 return {'bool': _bool_query}
@@ -434,23 +437,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         'field': 'indexcard_uuid',
                     },
                 },
-            }
-
-        def _cardsearch_inner_hits(self, *, highlight_query=None) -> dict:
-            _highlight = {
-                'type': 'unified',
-                'fields': {'nested_text.text_value': {}},
-            }
-            if highlight_query is not None:
-                _highlight['highlight_query'] = highlight_query
-            return {
-                'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
-                'highlight': _highlight,
-                '_source': False,  # _source is expensive for nested docs
-                'docvalue_fields': [
-                    'nested_text.path_from_focus',
-                    'nested_text.language_iri',
-                ],
             }
 
         def _cardsearch_aggs(self, cardsearch_params):
@@ -525,9 +511,10 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 _nested_iri_bool['filter'].append({'terms': {
                     'nested_iri.value_type_iri': _type_iris,
                 }})
-            _textq_builder = self._TextQueryBuilder('nested_iri.value_namelike_text')
-            for _boolkey, _textquery in _textq_builder.textsegment_queries(valuesearch_params.valuesearch_textsegment_set):
-                _nested_iri_bool[_boolkey].append(_textquery)
+            _textq_builder = self._SimpleTextQueryBuilder('nested_iri.value_namelike_text')
+            for _textsegment in valuesearch_params.valuesearch_textsegment_set:
+                for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
+                    _nested_iri_bool[_boolkey].extend(_textqueries)
             return {
                 'in_nested_iri': {
                     'nested': {'path': 'nested_iri'},
@@ -651,9 +638,17 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             ]
             if len(_filters) == 1:
                 return _filters[0]
-            return {'bool': {'must': _filters}}
+            return {'bool': {
+                'minimum_should_match': 1,
+                'should': _filters,
+            }}
 
         def _cardsearch_path_presence_query(self, path: tuple[str, ...]):
+            if all(_pathstep == GLOB_PATHSTEP for _pathstep in path):
+                return {'nested': {
+                    'path': 'nested_iri',
+                    'query': {'term': {'nested_iri.distance_from_focus': len(path)}},
+                }}
             return {'term': {
                 'iri_paths_present_suffuniq': iri_path_as_keyword(path, suffuniq=True),
             }}
@@ -665,44 +660,58 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             ]
             if len(_filters) == 1:
                 return _filters[0]
-            return {'bool': {'should': _filters}}  # at least one match
+            return {'bool': {
+                'minimum_should_match': 1,
+                'should': _filters,
+            }}
 
         def _cardsearch_path_iri_query(self, path, value_set):
-            return {'terms': {_iri_path_as_flattened_field(path): [
+            _suffuniq_values = [
                 get_sufficiently_unique_iri(_iri)
                 for _iri in value_set
-            ]}}
-
-        def _cardsearch_date_filter(self, search_filter) -> dict:
-            _filter_list = [
-                {'terms': {'nested_date.suffuniq_path_from_focus': [
-                    iri_path_as_keyword(_path, suffuniq=True)
-                    for _path in search_filter.propertypath_set
-                ]}},
             ]
+            if all(_pathstep == GLOB_PATHSTEP for _pathstep in path):
+                return {'nested': {
+                    'path': 'nested_iri',
+                    'query': {'bool': {
+                        'must': [  # both
+                            {'term': {'nested_iri.distance_from_focus': len(path)}},
+                            {'terms': {'nested_iri.suffuniq_iri_value': _suffuniq_values}},
+                        ],
+                    }},
+                }}
+            # without a glob-path, can use the flattened keyword field
+            return {'terms': {_iri_path_as_flattened_field(path): _suffuniq_values}}
+
+        def _cardsearch_date_filter(self, search_filter):
+            return {'nested': {
+                'path': 'nested_date',
+                'query': {'bool': {'filter': list(self._iter_nested_date_filters(search_filter))}},
+            }}
+
+        def _iter_nested_date_filters(self, search_filter) -> dict:
+            # filter by requested paths
+            yield _pathset_as_nestedvalue_filter(search_filter.propertypath_set, 'nested_date')
+            # filter by requested value/operator
             if search_filter.operator == SearchFilter.FilterOperator.BEFORE:
                 _value = min(search_filter.value_set)  # rely on string-comparable isoformat
-                _filter_list.append({'range': {'nested_date.date_value': {
+                yield {'range': {'nested_date.date_value': {
                     'lt': _daterange_value_and_format(_value)
-                }}})
+                }}}
             elif search_filter.operator == SearchFilter.FilterOperator.AFTER:
                 _value = max(search_filter.value_set)  # rely on string-comparable isoformat
-                _filter_list.append({'range': {'nested_date.date_value': {
+                yield {'range': {'nested_date.date_value': {
                     'gt': _daterange_value_and_format(_value)
-                }}})
+                }}}
             elif search_filter.operator == SearchFilter.FilterOperator.AT_DATE:
                 for _value in search_filter.value_set:
                     _filtervalue = _daterange_value_and_format(_value)
-                    _filter_list.append({'range': {'nested_date.date_value': {
+                    yield {'range': {'nested_date.date_value': {
                         'gte': _filtervalue,
                         'lte': _filtervalue,
-                    }}})
+                    }}}
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
-            return {'nested': {
-                'path': 'nested_date',
-                'query': {'bool': {'filter': _filter_list}},
-            }}
 
         def _cardsearch_sort(self, sort_list: tuple[SortParam]):
             if not sort_list:
@@ -817,89 +826,90 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                             card_iri=_innerhit['_id'],
                         )
 
-        class _TextQueryBuilder:  # TODO: when adding field-specific text queries, move "nested" logic to subclass
+        class _SimpleTextQueryBuilder:
             def __init__(
                 self, text_field, *,
-                nested_path=None,
-                nested_filter=None,
-                inner_hits_factory=None,
                 relevance_matters=False,
             ):
                 self._text_field = text_field
-                self._nested_path = nested_path
-                self._nested_filter = nested_filter
-                self._inner_hits_factory = inner_hits_factory
                 self._relevance_matters = relevance_matters
 
-            def _maybe_nested_query(self, query, *, with_inner_hits=False):
-                if self._nested_path:
-                    _inner_query = (
-                        {'bool': {
-                            'filter': self._nested_filter,
-                            'must': query,
-                        }}
-                        if self._nested_filter
-                        else query
-                    )
-                    _nested_q = {'nested': {
-                        'path': self._nested_path,
-                        'query': _inner_query,
-                    }}
-                    if with_inner_hits and self._inner_hits_factory:
-                        _nested_q['nested']['inner_hits'] = self._inner_hits_factory()
-                    return _nested_q
-                return query
+            def textsegment_boolparts(self, textsegment: Textsegment) -> dict[str, list]:
+                if textsegment.is_negated:
+                    return {'must_not': [self.exact_text_query(textsegment.text)]}
+                if not textsegment.is_fuzzy:
+                    return {'must': [self.exact_text_query(textsegment.text)]}
+                if not self._relevance_matters:
+                    return {'must': [self.fuzzy_text_must_query(textsegment.text)]}
+                return {
+                    'must': [self.fuzzy_text_must_query(textsegment.text)],
+                    'should': [self.fuzzy_text_should_query(textsegment.text)],
+                }
 
-            def textsegment_queries(self, textsegment_set: Iterable[Textsegment]):
-                _fuzzysegments = []
-                for _textsegment in textsegment_set:
-                    if _textsegment.is_negated:
-                        yield 'must_not', self.excluded_text_query(_textsegment)
-                    elif _textsegment.is_fuzzy:
-                        _fuzzysegments.append(_textsegment)
-                    else:
-                        yield 'must', self.exact_text_query(_textsegment)
-                if _fuzzysegments:
-                    yield 'must', self.fuzzy_text_must_query(_fuzzysegments)
-                    if self._relevance_matters:
-                        for _should_query in self.fuzzy_text_should_queries(_fuzzysegments):
-                            yield 'should', _should_query
-
-            def excluded_text_query(self, textsegment: Textsegment) -> dict:
-                return self._maybe_nested_query({'match_phrase': {
-                    self._text_field: {
-                        'query': textsegment.text,
-                    },
-                }})
-
-            def exact_text_query(self, textsegment: Textsegment) -> dict:
+            def exact_text_query(self, text: str) -> dict:
                 # TODO: textsegment.is_openended (prefix query)
-                return self._maybe_nested_query({'match_phrase': {
-                    self._text_field: {
-                        'query': textsegment.text,
-                    },
-                }}, with_inner_hits=True)
+                return {'match_phrase': {
+                    self._text_field: {'query': text},
+                }}
 
-            def fuzzy_text_must_query(self, textsegments: list[Textsegment]) -> dict:
+            def fuzzy_text_must_query(self, text: str) -> dict:
                 # TODO: textsegment.is_openended (prefix query)
-                return self._maybe_nested_query({'match': {
+                return {'match': {
                     self._text_field: {
-                        'query': ' '.join(
-                            _textsegment.text
-                            for _textsegment in textsegments
-                        ),
+                        'query': text,
                         'fuzziness': 'AUTO',
                     },
-                }}, with_inner_hits=True)
+                }}
 
-            def fuzzy_text_should_queries(self, textsegments: list[Textsegment]) -> Iterable[dict]:
-                for _textsegment in textsegments:
-                    yield self._maybe_nested_query({'match_phrase': {
-                        self._text_field: {
-                            'query': _textsegment.text,
-                            'slop': len(_textsegment.words()),
-                        },
-                    }})
+            def fuzzy_text_should_query(self, text: str):
+                return {'match_phrase': {
+                    self._text_field: {
+                        'query': text,
+                        'slop': len(text.split()),
+                    },
+                }}
+
+        class _NestedTextQueryBuilder(_SimpleTextQueryBuilder):
+            def __init__(self, **kwargs):
+                super().__init__('nested_text.text_value', **kwargs)
+
+            def textsegment_boolparts(self, textsegment: Textsegment) -> dict[str, list]:
+                return {
+                    _boolkey: [
+                        self._make_nested_query(textsegment, _query)
+                        for _query in _queries
+                    ]
+                    for _boolkey, _queries in super().textsegment_boolparts(textsegment).items()
+                }
+
+            def _make_nested_query(self, textsegment, query):
+                _nested_q = {'nested': {
+                    'path': 'nested_text',
+                    'query': {'bool': {
+                        'filter': _pathset_as_nestedvalue_filter(textsegment.propertypath_set, 'nested_text'),
+                        'must': query,
+                    }},
+                }}
+                if self._relevance_matters:
+                    _nested_q['nested']['inner_hits'] = self._inner_hits()
+                return _nested_q
+
+            def _inner_hits(self, *, highlight_query=None) -> dict:
+                _highlight = {
+                    'type': 'unified',
+                    'fields': {'nested_text.text_value': {}},
+                }
+                if highlight_query is not None:
+                    _highlight['highlight_query'] = highlight_query
+                return {
+                    'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
+                    'highlight': _highlight,
+                    '_source': False,  # _source is expensive for nested docs
+                    'docvalue_fields': [
+                        'nested_text.path_from_focus',
+                        'nested_text.language_iri',
+                    ],
+                }
 
 
 ###
@@ -944,6 +954,28 @@ def _iri_path_as_flattened_key(path: tuple[str, ...]) -> str:
 
 def _iri_path_as_flattened_field(path: tuple[str, ...]) -> str:
     return f'flat_iri_values_suffuniq.{_iri_path_as_flattened_key(path)}'
+
+
+def _pathset_as_nestedvalue_filter(propertypath_set: frozenset[tuple[str, ...]], nested_path: str):
+    _suffuniq_iri_paths = []
+    _glob_path_lengths = []
+    for _path in propertypath_set:
+        if all(_pathstep == GLOB_PATHSTEP for _pathstep in _path):
+            logger.critical(f'{_path=}')
+            _glob_path_lengths.append(len(_path))
+        else:
+            _suffuniq_iri_paths.append(iri_path_as_keyword(_path, suffuniq=True))
+    if _suffuniq_iri_paths and _glob_path_lengths:
+        return {'bool': {
+            'minimum_should_match': 1,
+            'should': [
+                {'terms': {f'{nested_path}.distance_from_focus': _glob_path_lengths}},
+                {'terms': {f'{nested_path}.suffuniq_path_from_focus': _suffuniq_iri_paths}},
+            ],
+        }}
+    if _glob_path_lengths:
+        return {'terms': {f'{nested_path}.distance_from_focus': _glob_path_lengths}}
+    return {'terms': {f'{nested_path}.suffuniq_path_from_focus': _suffuniq_iri_paths}}
 
 
 @dataclasses.dataclass

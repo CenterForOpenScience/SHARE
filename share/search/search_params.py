@@ -1,19 +1,20 @@
+import collections
 import dataclasses
 import enum
 import itertools
 import logging
 import typing
+import urllib
 
 from django.http import QueryDict
 
-from share.models import FeatureFlag
 from share.search import exceptions
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
     split_queryparam_value,
+    join_queryparam_value,
     queryparams_from_querystring,
-    QUERYPARAM_VALUES_DELIM,
 )
 from trove.vocab.osfmap import (
     osfmap_labeler,
@@ -29,19 +30,29 @@ logger = logging.getLogger(__name__)
 
 
 ###
-# special characters in search text:
+# constants for use in query param parsing
+
+# special characters in "...SearchText" values
 NEGATE_WORD_OR_PHRASE = '-'
 DOUBLE_QUOTATION_MARK = '"'
 
+# optional prefix for "sort" values
 DESCENDING_SORT_PREFIX = '-'
 
+# for "page[size]" values
 DEFAULT_PAGE_SIZE = 13
 MAX_PAGE_SIZE = 101
+
+# between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
+
+# special path-step that matches all properties
+GLOB_PATHSTEP = '*'
 
 
 ###
 # dataclasses for parsed search-api query parameters
+
 
 @dataclasses.dataclass(frozen=True)
 class Textsegment:
@@ -49,7 +60,7 @@ class Textsegment:
     is_fuzzy: bool = True
     is_negated: bool = False
     is_openended: bool = False
-    # TODO: at_propertypath: Optional[tuple]
+    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
 
     def __post_init__(self):
         if self.is_negated and self.is_fuzzy:
@@ -59,11 +70,29 @@ class Textsegment:
         return self.text.split()
 
     @classmethod
-    def split_str(cls, text: str) -> frozenset['Textsegment']:
-        return frozenset(cls._split_str(text))
+    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+        return frozenset(cls.iter_from_queryparam_family(queryparams, queryparam_family))
 
     @classmethod
-    def _split_str(cls, text: str) -> typing.Iterable['Textsegment']:
+    def iter_from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+        for (_param_name, _param_value) in queryparams.get(queryparam_family, ()):
+            yield from cls.iter_from_searchtext_param(_param_name, _param_value)
+
+    @classmethod
+    def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
+        _propertypath_set = (
+            _parse_propertypath_set(param_name.bracketed_names[0])
+            if param_name.bracketed_names
+            else None
+        )
+        for _textsegment in cls.iter_from_text(param_value):
+            if _propertypath_set:
+                yield dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)
+            else:
+                yield _textsegment
+
+    @classmethod
+    def iter_from_text(cls, text: str) -> typing.Iterable['Textsegment']:
         '''parse search text into words and quoted phrases
         '''
         _in_quotes = False
@@ -142,6 +171,30 @@ class Textsegment:
                 is_openended=is_openended,
             )
 
+    @classmethod
+    def queryparams_from_textsegments(self, queryparam_family: str, textsegments):
+        _by_propertypath_set = collections.defaultdict(set)
+        for _textsegment in textsegments:
+            _by_propertypath_set[_textsegment.propertypath_set].add(_textsegment)
+        for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
+            _qp_name = QueryparamName(
+                queryparam_family,
+                propertypath_set_key(_propertypath_set),
+            )
+            _qp_value = ' '.join(
+                _textsegment.as_searchtext()
+                for _textsegment in _combinable_segments
+            )
+            yield str(_qp_name), _qp_value
+
+    def as_searchtext(self) -> str:
+        _text = self.text
+        if not self.is_fuzzy:
+            _text = f'"{_text}"'
+        if self.is_negated:
+            _text = f'-{_text}'
+        return _text
+
 
 @dataclasses.dataclass(frozen=True)
 class SearchFilter:
@@ -160,6 +213,9 @@ class SearchFilter:
             _iri = trove_labeler.iri_for_label(shortname)
             return cls(_iri)
 
+        def to_shortname(self) -> str:
+            return trove_labeler.label_for_iri(self.value)
+
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
 
@@ -169,14 +225,12 @@ class SearchFilter:
         def is_valueless_operator(self):
             return self in (self.IS_PRESENT, self.IS_ABSENT)
 
-    propertypath_set: frozenset[tuple[str, ...]]
-    value_set: frozenset[str]
     operator: FilterOperator
-    original_param_name: typing.Optional[str] = None
-    original_param_value: typing.Optional[str] = None
+    value_set: frozenset[str]
+    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
 
     @classmethod
-    def for_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
         return frozenset(
             cls.from_filter_param(param_name, param_value)
             for (param_name, param_value)
@@ -228,11 +282,9 @@ class SearchFilter:
                     else:
                         _value_list.append(_iri)
         return cls(
-            propertypath_set=_propertypath_set,
             value_set=frozenset(_value_list),
             operator=_operator,
-            original_param_name=str(param_name),
-            original_param_value=param_value,
+            propertypath_set=_propertypath_set,
         )
 
     def is_sameas_filter(self) -> bool:
@@ -251,12 +303,29 @@ class SearchFilter:
             and self.operator == SearchFilter.FilterOperator.ANY_OF
         )
 
+    def as_queryparam(self, queryparam_family: str):
+        _qp_name = QueryparamName(queryparam_family, (
+            propertypath_set_key(self.propertypath_set),
+            self.operator.to_shortname(),
+        ))
+        _qp_value = join_queryparam_value(
+            osfmap_labeler.get_label_or_iri(_value)
+            for _value in self.value_set
+        )
+        return str(_qp_name), _qp_value
+
 
 @dataclasses.dataclass(frozen=True)
 class SortParam:
     property_iri: str
-    original_param_value: str
     descending: bool = False
+
+    @classmethod
+    def sortlist_as_queryparam_value(cls, sort_params):
+        return join_queryparam_value(
+            _sort.as_queryparam_value()
+            for _sort in sort_params
+        )
 
     @classmethod
     def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam']:
@@ -278,8 +347,13 @@ class SortParam:
             yield cls(
                 property_iri=_property_iri,
                 descending=param_value.startswith(DESCENDING_SORT_PREFIX),
-                original_param_value=param_value,
             )
+
+    def as_queryparam_value(self):
+        _key = propertypath_key((self.property_iri,))
+        if self.descending:
+            return f'-{_key}'
+        return _key
 
 
 @dataclasses.dataclass(frozen=True)
@@ -301,7 +375,6 @@ class PageParam:
 
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams:
-    cardsearch_text: str
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
@@ -321,11 +394,9 @@ class CardsearchParams:
 
     @staticmethod
     def parse_cardsearch_queryparams(queryparams: QueryparamDict) -> dict:
-        _cardsearch_text = _get_text_queryparam(queryparams, 'cardSearchText')
-        _filter_set = SearchFilter.for_queryparam_family(queryparams, 'cardSearchFilter')
+        _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
         return {
-            'cardsearch_text': _cardsearch_text,
-            'cardsearch_textsegment_set': Textsegment.split_str(_cardsearch_text),
+            'cardsearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'cardSearchText'),
             'cardsearch_filter_set': _filter_set,
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
             'sort_list': SortParam.from_queryparams(queryparams),
@@ -340,19 +411,17 @@ class CardsearchParams:
 
     def to_querydict(self) -> QueryDict:
         _querydict = QueryDict(mutable=True)
-        if self.cardsearch_text:
-            _querydict['cardSearchText'] = self.cardsearch_text
+        for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('cardSearchText', self.cardsearch_textsegment_set):
+            _querydict[_qp_name] = _qp_value
         if self.sort_list:
-            _querydict['sort'] = QUERYPARAM_VALUES_DELIM.join(
-                _sort.original_param_value
-                for _sort in self.sort_list
-            )
+            _querydict['sort'] = SortParam.sortlist_as_queryparam_value(self.sort_list)
         if self.page.cursor:
             _querydict['page[cursor]'] = self.page.cursor
         elif self.page.size != DEFAULT_PAGE_SIZE:
             _querydict['page[size]'] = self.page.size
         for _filter in self.cardsearch_filter_set:
-            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
+            _qp_name, _qp_value = _filter.as_queryparam('cardSearchFilter')
+            _querydict.appendlist(_qp_name, _qp_value)
         if self.index_strategy_name:
             _querydict['indexStrategy'] = self.index_strategy_name
         # TODO: include 'include'
@@ -364,34 +433,30 @@ class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
     valuesearch_propertypath_set: frozenset[tuple[str, ...]]
-    valuesearch_text: str
     valuesearch_textsegment_set: frozenset[str]
     valuesearch_filter_set: frozenset[SearchFilter]
-    original_valuesearch_property_path: str
 
     # override CardsearchParams
     @staticmethod
     def from_queryparams(queryparams: QueryparamDict) -> 'ValuesearchParams':
-        _valuesearch_text = _get_text_queryparam(queryparams, 'valueSearchText')
         _raw_propertypath = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
         if not _raw_propertypath:
             raise ValueError('TODO: 400 valueSearchPropertyPath required')
         return ValuesearchParams(
             **CardsearchParams.parse_cardsearch_queryparams(queryparams),
-            valuesearch_propertypath_set=_parse_propertypath_set(_raw_propertypath),
-            valuesearch_text=_valuesearch_text,
-            valuesearch_textsegment_set=Textsegment.split_str(_valuesearch_text),
-            valuesearch_filter_set=SearchFilter.for_queryparam_family(queryparams, 'valueSearchFilter'),
-            original_valuesearch_property_path=_raw_propertypath,
+            valuesearch_propertypath_set=_parse_propertypath_set(_raw_propertypath, allow_globs=False),
+            valuesearch_textsegment_set=Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
+            valuesearch_filter_set=SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         )
 
     def to_querydict(self):
         _querydict = super().to_querydict()
-        _querydict['valueSearchPropertyPath'] = self.original_valuesearch_property_path
-        if self.valuesearch_text:
-            _querydict['valueSearchText'] = self.valuesearch_text
+        _querydict['valueSearchPropertyPath'] = propertypath_set_key(self.valuesearch_propertypath_set)
+        for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
+            _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:
-            _querydict.appendlist(_filter.original_param_name, _filter.original_param_value),
+            _qp_name, _qp_value = _filter.as_queryparam('valueSearchFilter')
+            _querydict.appendlist(_qp_name, _qp_value)
         return _querydict
 
     def valuesearch_iris(self):
@@ -407,6 +472,20 @@ class ValuesearchParams(CardsearchParams):
 
 ###
 # local helpers
+
+def propertypath_key(property_path: tuple[str, ...]):
+    return PROPERTYPATH_DELIMITER.join(
+        urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
+        for _property_iri in property_path
+    )
+
+
+def propertypath_set_key(propertypath_set: frozenset[tuple[str, ...]]):
+    return join_queryparam_value(
+        propertypath_key(_propertypath)
+        for _propertypath in propertypath_set
+    )
+
 
 def _get_text_queryparam(queryparams: QueryparamDict, queryparam_family: str) -> str:
     '''concat all values for the given queryparam family into one str
@@ -438,22 +517,25 @@ def _get_single_value(
         return _singlevalue
 
 
-def _parse_propertypath_set(serialized_path_set: str) -> frozenset[tuple[str, ...]]:
-    if FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH):
-        # comma-delimited set of dot-delimited paths
-        return frozenset(
-            tuple(
-                osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
-                for _pathstep in _path.split(PROPERTYPATH_DELIMITER)
-            )
-            for _path in split_queryparam_value(serialized_path_set)
-        )
-    # single comma-delimited path
-    _propertypath = tuple(
-        osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
-        for _pathstep in split_queryparam_value(serialized_path_set)
+def _parse_propertypath_set(serialized_path_set: str, *, allow_globs=True) -> frozenset[tuple[str, ...]]:
+    # comma-delimited set of dot-delimited paths
+    return frozenset(
+        _parse_propertypath(_path, allow_globs=allow_globs)
+        for _path in split_queryparam_value(serialized_path_set)
     )
-    return frozenset([_propertypath])
+
+
+def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> tuple[str, ...]:
+    _path = tuple(
+        osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
+        for _pathstep in serialized_path.split(PROPERTYPATH_DELIMITER)
+    )
+    if GLOB_PATHSTEP in _path:
+        if not allow_globs:
+            raise ValueError(f'no * allowed (got {serialized_path})')
+        if any(_pathstep != GLOB_PATHSTEP for _pathstep in _path):
+            raise ValueError(f'path must be all * or no * (got {serialized_path})')
+    return _path
 
 
 def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
