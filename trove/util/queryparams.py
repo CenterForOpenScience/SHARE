@@ -1,5 +1,6 @@
 import dataclasses
 import re
+from typing import Iterable
 
 # TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
@@ -84,5 +85,5 @@ def split_queryparam_value(value: str):
     return value.split(QUERYPARAM_VALUES_DELIM)
 
 
-def queryparams_to_querystring(queryparams: QueryparamDict) -> str:
-    pass
+def join_queryparam_value(values: Iterable[str]):
+    return QUERYPARAM_VALUES_DELIM.join(values)

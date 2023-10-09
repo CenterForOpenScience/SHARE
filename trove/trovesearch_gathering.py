@@ -5,17 +5,16 @@ import urllib.parse
 
 from gather import primitive_rdf, gathering
 
-from share.models import FeatureFlag
 from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
     PageParam,
-    PROPERTYPATH_DELIMITER,
+    propertypath_key,
+    propertypath_set_key,
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.util.queryparams import QUERYPARAM_VALUES_DELIM
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_filter_operator
 from trove.vocab.trove import (
@@ -54,14 +53,15 @@ trovesearch_by_indexstrategy = gathering.GatheringOrganizer(
 )
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
-def gather_cardsearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.cardsearchText, primitive_rdf.text(search_params.cardsearch_text))
-
-
-@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
-def gather_valuesearch_text(focus, *, specific_index, search_params):
-    yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
+# TODO: per-field text search in rdf
+# @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
+# def gather_cardsearch_text(focus, *, specific_index, search_params):
+#     yield (TROVE.cardsearchText, primitive_rdf.text(search_params.cardsearch_text))
+#
+#
+# @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
+# def gather_valuesearch_text(focus, *, specific_index, search_params):
+#     yield (TROVE.valuesearchText, primitive_rdf.text(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
@@ -266,18 +266,15 @@ def _osfmap_path(property_path):
 
 
 def _single_propertypath_twoples(property_path: tuple[str, ...]):
-    yield (TROVE.propertyPathKey, primitive_rdf.text(_propertypath_key(property_path)))
+    yield (TROVE.propertyPathKey, primitive_rdf.text(propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
 
 
 def _multi_propertypath_twoples(propertypath_set):
-    yield (TROVE.propertyPathKey, primitive_rdf.text(_propertypath_set_key(propertypath_set)))
+    yield (TROVE.propertyPathKey, primitive_rdf.text(propertypath_set_key(propertypath_set)))
     for _path in propertypath_set:
         yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
-    if len(propertypath_set) == 1 and not FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH):
-        (_path,) = propertypath_set
-        yield from _single_propertypath_twoples(_path)
 
 
 def _propertypath_sequence(property_path: tuple[str, ...]):
@@ -303,25 +300,6 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
         )),
         *_single_propertypath_twoples(property_path),
     ))
-
-
-def _propertypath_set_key(propertypath_set):
-    return QUERYPARAM_VALUES_DELIM.join(
-        _propertypath_key(_path)
-        for _path in propertypath_set
-    )
-
-
-def _propertypath_key(property_path: tuple[str, ...]):
-    _delim = (
-        PROPERTYPATH_DELIMITER
-        if FeatureFlag.objects.flag_is_up(FeatureFlag.PERIODIC_PROPERTYPATH)
-        else QUERYPARAM_VALUES_DELIM
-    )
-    return _delim.join(
-        urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
-        for _property_iri in property_path
-    )
 
 
 def _search_page_links(search_focus, search_params, search_response):
