@@ -26,7 +26,7 @@ class FeatureFlagManager(models.Manager):
 
 
 class FeatureFlag(models.Model):
-    # flag name constants:
+    # flag name constants
     ELASTIC_EIGHT_DEFAULT = 'elastic_eight_default'
     IGNORE_SHAREV2_INGEST = 'ignore_sharev2_ingest'
     SUGGEST_CREATOR_FACET = 'suggest_creator_facet'
@@ -41,3 +41,7 @@ class FeatureFlag(models.Model):
         return f'{self.__class__.__name__}(name="{self.name}", is_up={self.is_up})'
 
     __str__ = __repr__
+
+    @property
+    def is_defined(self):
+        return self.name.lower() == getattr(FeatureFlag, self.name.upper(), None)

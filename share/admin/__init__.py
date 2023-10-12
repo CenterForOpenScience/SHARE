@@ -333,6 +333,7 @@ class IndexBackfillAdmin(admin.ModelAdmin):
 class FeatureFlagAdmin(admin.ModelAdmin):
     readonly_fields = ('name',)
     search_fields = ('name',)
+    list_display = ('name', 'is_up', 'is_defined')
 
 
 admin_site.register(AccessToken, AccessTokenAdmin)
