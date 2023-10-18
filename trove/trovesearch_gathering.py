@@ -133,11 +133,47 @@ def gather_valuesearch(focus, *, specific_index, search_params):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
     _result_page = []
+    _value_iris = {
+        _result.value_iri
+        for _result in _valuesearch_resp.search_result_page
+        if _result.value_iri
+    }
+    if _value_iris:
+        _value_indexcards = (
+            trove_db.Indexcard.objects
+            .filter(
+                focus_identifier_set__in=(
+                    trove_db.ResourceIdentifier.objects
+                    .queryset_for_iris(_value_iris)
+                ),
+                derived_indexcard_set__deriver_identifier__in=(
+                    trove_db.ResourceIdentifier.objects
+                    .queryset_for_iri(TROVE['derive/osfmap_json'])
+                    # TODO: choose deriver by queryparam/gatherer-kwarg
+                ),
+            )
+            .prefetch_related('focus_identifier_set')
+        )
+    else:
+        _value_indexcards = []
     for _result in _valuesearch_resp.search_result_page:
+        _indexcard_obj = None
+        if _result.value_iri in _value_iris:
+            for _indexcard in _value_indexcards:
+                if any(
+                    _identifier.equivalent_to_iri(_result.value_iri)
+                    for _identifier in _indexcard.focus_identifier_set.all()
+                ):
+                    _indexcard_obj = _indexcard.get_iri()
+                    yield (_indexcard_obj, RDF.type, TROVE.Indexcard)  # so gather_card runs
+                    break  # found the indexcard
+        if _indexcard_obj is None:
+            # no actual indexcard; put what we know in a blanknode-indexcard
+            _indexcard_obj = _valuesearch_result_as_indexcard_blanknode(_result)
         _result_page.append(primitive_rdf.freeze_blanknode({
             RDF.type: {TROVE.SearchResult},
             TROVE.cardsearchResultCount: {_result.match_count},
-            TROVE.indexCard: {_valuesearch_result_as_indexcard_blanknode(_result)},
+            TROVE.indexCard: {_indexcard_obj},
         }))
     yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     yield (TROVE.searchResultPage, primitive_rdf.sequence(_result_page))
