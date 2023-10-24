@@ -1,5 +1,18 @@
 # Change Log
 
+# [23.3.0] - 2023-10-24
+- allow adding propertypaths to `cardSearchText` and `valueSearchText`
+  - e.g. `cardSearchText[creator.name]=...`
+- anywhere a set of propertypaths is encoded in query params, allow
+  simple glob-paths ("*", "*.*", "*.*.*") that match any propertypath
+  of the given length
+  - note: partial globs (e.g. "*.name" or "publisher.*") are not
+    supported (...yet?)
+- when an iri value returned by an index-value-search has a full
+  index-card, include that index-card instead of the stub built from
+  indexed values
+- friendlier FeatureFlag admin list
+
 # [23.2.0] - 2023-10-09
 - BREAKING: allow multiple propertypaths in query params
   - use `.` to delimit steps in a path; e.g. `creator.affiliation`
