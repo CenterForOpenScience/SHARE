@@ -1,6 +1,6 @@
 from django import http
 from django.views import View
-from gather import gathering
+from primitive_metadata import gather
 
 from trove.render import render_from_rdf, JSONAPI_MEDIATYPE
 from trove.trovesearch_gathering import trovesearch_by_indexstrategy
@@ -17,7 +17,7 @@ class IndexcardView(View):
         _indexcard_iri = trove_indexcard_iri(indexcard_uuid)
         _search_gathering.ask(
             {},  # TODO: build from `include`/`fields`
-            focus=gathering.focus(_indexcard_iri, TROVE.Indexcard),
+            focus=gather.focus(_indexcard_iri, TROVE.Indexcard),
         )
         _response_tripledict = _search_gathering.leaf_a_record()
         return http.HttpResponse(

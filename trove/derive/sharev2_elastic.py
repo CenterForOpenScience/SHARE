@@ -2,7 +2,7 @@ import datetime
 import json
 import re
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from share.schema import ShareV2Schema
 from share.schema.exceptions import SchemaKeyError
@@ -299,13 +299,13 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         _visiting_set = visiting_set or set()
         _visiting_set.add(subject_iri)
         _labeltext = next(self.data.q(subject_iri, label_predicate_iri), None)
-        if not isinstance(_labeltext, primitive_rdf.Text):
+        if not isinstance(_labeltext, primitive_rdf.Datum):
             return ()
         _parent = next(self.data.q(subject_iri, SKOS.broader), None)
         if _parent and (_parent not in _visiting_set):
             _parent_lineage = self._subject_lineage(_parent, label_predicate_iri, _visiting_set)
-            return (*_parent_lineage, _labeltext.unicode_text)
-        return (_labeltext.unicode_text,)
+            return (*_parent_lineage, _labeltext.unicode_value)
+        return (_labeltext.unicode_value,)
 
 
 def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> str:
@@ -315,6 +315,6 @@ def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> 
 def _obj_to_string_or_none(obj):
     if obj is None:
         return None
-    if isinstance(obj, primitive_rdf.Text):
-        return obj.unicode_text
+    if isinstance(obj, primitive_rdf.Datum):
+        return obj.unicode_value
     return str(obj)

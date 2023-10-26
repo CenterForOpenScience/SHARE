@@ -3,7 +3,7 @@ import random
 
 from django import http
 from django.views.generic.base import TemplateView
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove import models as trove_db
 from trove.util.iri_labeler import IriLabeler
@@ -70,10 +70,10 @@ class _IndexcardContextBuilder:
                 )
                 self._visiting.remove(rdfobject)
             return _iriref_context
-        if isinstance(rdfobject, primitive_rdf.Text):
+        if isinstance(rdfobject, primitive_rdf.Datum):
             return {
                 'literal': {
-                    'value': rdfobject.unicode_text,
+                    'value': rdfobject.unicode_value,
                     # TODO: language/datatype
                 },
             }

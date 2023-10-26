@@ -15,7 +15,7 @@ import typing
 
 import celery
 from django.db import transaction
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from share import models as share_db
 from share.search import IndexMessenger
@@ -133,7 +133,7 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
             if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
                 _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
                 # ensure a link to the ontology (in case there's not already)
-                primitive_rdf.TripledictWrapper(_term_tripledict).add_triple(
+                primitive_rdf.RdfGraph(_term_tripledict).add_triple(
                     (_iri, RDFS.isDefinedBy, _focus_iri),
                 )
                 _tripledicts_by_focus_iri[_iri] = _term_tripledict

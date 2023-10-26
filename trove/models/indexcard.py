@@ -4,7 +4,7 @@ import uuid
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from share import models as share_db  # TODO: break this dependency
 from share.search.index_messenger import IndexMessenger
