@@ -1,22 +1,20 @@
 .BrowseWrapper {
-    padding: 1rem;
-    background-color: #fedbae;
-    backdrop-filter: hue-rotate(var(--random-turn));
-}
-
-.Browse {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 0.618rem;
+    margin: 0;
+    padding: 1rem;
+    background-color: #fedbae;
+    backdrop-filter: hue-rotate(var(--random-turn));
 }
 
-.Browse dfn {
+.BrowseWrapper dfn {
     font-weight: bold;
 }
 
-.Browse__indexcard {
+.Browse__card {
     display: flex;
     flex-direction: column;
 
@@ -25,13 +23,13 @@
     border: solid 0.382rem rgba(0,0,0,0.191);
 }
 
-.Browse__indexcard > header {
+.Browse__card > header {
     display: flex;
     gap: 0.618rem;
     padding: 0.618rem;
 }
 
-.Browse__indexcard > footer {
+.Browse__card > footer {
     padding: 0.618rem;
 }
 
