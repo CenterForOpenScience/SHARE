@@ -12,7 +12,7 @@ from typing import Iterable, ClassVar, Optional
 from django.conf import settings
 from django.db.models import Exists, OuterRef
 import elasticsearch8
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from share.search import exceptions
 from share.search import messages
@@ -167,7 +167,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         }
 
     def _build_sourcedoc(self, indexcard_rdf):
-        _rdfdoc = primitive_rdf.TripledictWrapper(indexcard_rdf.as_rdf_tripledict())
+        _rdfdoc = primitive_rdf.RdfGraph(indexcard_rdf.as_rdf_tripledict())
         if _should_skip_card(indexcard_rdf, _rdfdoc):
             return None  # will be deleted from the index
         _nested_iris = defaultdict(set)
@@ -182,13 +182,13 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 _nested_dates[_walk_path].add(datetime.date.isoformat(_walk_obj))
             elif is_date_property(_walk_path[-1]):
                 try:
-                    datetime.date.fromisoformat(_walk_obj.unicode_text)
+                    datetime.date.fromisoformat(_walk_obj.unicode_value)
                 except ValueError:
-                    logger.debug('skipping malformatted date "%s" in %s', _walk_obj.unicode_text, indexcard_rdf)
+                    logger.debug('skipping malformatted date "%s" in %s', _walk_obj.unicode_value, indexcard_rdf)
                 else:
-                    _nested_dates[_walk_path].add(_walk_obj.unicode_text)
-            elif isinstance(_walk_obj, primitive_rdf.Text):
-                _nested_texts[(_walk_path, _walk_obj.language_iri)].add(_walk_obj.unicode_text)
+                    _nested_dates[_walk_path].add(_walk_obj.unicode_value)
+            elif isinstance(_walk_obj, primitive_rdf.Datum):
+                _nested_texts[(_walk_path, tuple(_walk_obj.language_iris))].add(_walk_obj.unicode_value)
         _focus_iris = {indexcard_rdf.focus_iri}
         _suffuniq_focus_iris = {get_sufficiently_unique_iri(indexcard_rdf.focus_iri)}
         for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all():
@@ -224,10 +224,10 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             'nested_text': [
                 {
                     **_iri_path_as_indexable_fields(_path),
-                    'language_iri': _language_iri,
+                    'language_iri': _language_iris,
                     'text_value': list(_value_set),
                 }
-                for (_path, _language_iri), _value_set in _nested_texts.items()
+                for (_path, _language_iris), _value_set in _nested_texts.items()
             ],
         }
 
@@ -816,13 +816,13 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         json.loads(_innerhit['fields']['nested_text.path_from_focus'][0]),
                     )
                     try:
-                        _language_iri = _innerhit['fields']['nested_text.language_iri'][0]
+                        _language_iris = _innerhit['fields']['nested_text.language_iri']
                     except KeyError:
-                        _language_iri = None
+                        _language_iris = ()
                     for _highlight in _innerhit['highlight']['nested_text.text_value']:
                         yield TextMatchEvidence(
                             property_path=_property_path,
-                            matching_highlight=primitive_rdf.text(_highlight, language_iri=_language_iri),
+                            matching_highlight=primitive_rdf.datum(_highlight, language_iris=_language_iris),
                             card_iri=_innerhit['_id'],
                         )
 
@@ -1114,19 +1114,19 @@ class _NestedIriKey:
             type_iris=frozenset(rdfdoc.q(iri, RDF.type)),
             # TODO: don't discard language for name/title/label
             name_text=frozenset(
-                _text.unicode_text
+                _text.unicode_value
                 for _text in rdfdoc.q(iri, NAME_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Text)
+                if isinstance(_text, primitive_rdf.Datum)
             ),
             title_text=frozenset(
-                _text.unicode_text
+                _text.unicode_value
                 for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Text)
+                if isinstance(_text, primitive_rdf.Datum)
             ),
             label_text=frozenset(
-                _text.unicode_text
+                _text.unicode_value
                 for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Text)
+                if isinstance(_text, primitive_rdf.Datum)
             ),
         )
 

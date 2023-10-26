@@ -4,7 +4,7 @@ import hashlib
 import json
 from typing import Iterable, Union
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove.vocab.trove import (
     RDF,
@@ -47,8 +47,8 @@ class RdfJsonapiRenderer:
         data: primitive_rdf.RdfTripleDictionary,
         id_namespace_set: set[primitive_rdf.IriNamespace] = None,
     ):
-        self._vocab = primitive_rdf.TripledictWrapper(jsonapi_vocab)
-        self._data = primitive_rdf.TripledictWrapper(data)
+        self._vocab = primitive_rdf.RdfGraph(jsonapi_vocab)
+        self._data = primitive_rdf.RdfGraph(data)
         self._identifier_object_cache = {}
         # TODO: move "id namespace" to vocab (property on each type)
         self._id_namespace_set = id_namespace_set or set()
@@ -130,8 +130,8 @@ class RdfJsonapiRenderer:
         except StopIteration:
             pass
         else:
-            if isinstance(_membername, primitive_rdf.Text):
-                return _membername.unicode_text
+            if isinstance(_membername, primitive_rdf.Datum):
+                return _membername.unicode_value
             raise ValueError(f'found non-text membername {_membername}')
         if iri_fallback:
             return iri
@@ -215,7 +215,7 @@ class RdfJsonapiRenderer:
 
     def _render_link_object(self, link_obj: frozenset):
         _membername = next(
-            _obj.unicode_text
+            _obj.unicode_value
             for _pred, _obj in link_obj
             if _pred == JSONAPI_MEMBERNAME
         )
@@ -267,10 +267,10 @@ class RdfJsonapiRenderer:
                 _key = self._membername_for_iri(_pred, iri_fallback=True)
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
             return _json_blanknode
-        if isinstance(rdfobject, primitive_rdf.Text):
-            if rdfobject.language_iri == RDF.JSON:
-                return json.loads(rdfobject.unicode_text)
-            return rdfobject.unicode_text  # TODO: decide how to represent language
+        if isinstance(rdfobject, primitive_rdf.Datum):
+            if RDF.JSON in rdfobject.language_iris:
+                return json.loads(rdfobject.unicode_value)
+            return rdfobject.unicode_value  # TODO: decide how to represent language
         elif isinstance(rdfobject, str):
             try:  # maybe it's a jsonapi resource
                 return self.render_identifier_object(rdfobject)

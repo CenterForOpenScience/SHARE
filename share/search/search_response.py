@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Literal, Iterable, Union, Optional
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
@@ -18,7 +18,7 @@ BoundedCount = Union[
 @dataclasses.dataclass
 class TextMatchEvidence:
     property_path: tuple[str, ...]
-    matching_highlight: primitive_rdf.Text
+    matching_highlight: primitive_rdf.Datum
     card_iri: Optional[str]  # may be left implicit
 
 

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove.vocab.namespaces import RDFS
 
@@ -80,9 +80,9 @@ class IriLabeler:
         )
         try:
             return next(
-                _label.unicode_text
+                _label.unicode_value
                 for _label in _labelset
-                if isinstance(_label, primitive_rdf.Text)
+                if isinstance(_label, primitive_rdf.Datum)
             )
         except StopIteration:
             raise ValueError(f'could not find label for iri "{iri}"')

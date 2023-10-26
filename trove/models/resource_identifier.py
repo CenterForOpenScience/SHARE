@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.functions import Substr, StrIndex
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove.util.iris import (
     get_sufficiently_unique_iri,

@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from trove.util.iri_labeler import IriLabeler
 from trove.vocab.namespaces import RDF, OWL
@@ -24,27 +24,27 @@ class RdfJsonldRenderer:
             return self.twopledict_as_jsonld(
                 primitive_rdf.twopleset_as_twopledict(rdfobject),
             )
-        elif isinstance(rdfobject, primitive_rdf.Text):
-            if not rdfobject.language_iri:
-                return {'@value': rdfobject.unicode_text}
-            if rdfobject.language_iri == RDF.JSON:
+        elif isinstance(rdfobject, primitive_rdf.Datum):
+            if not rdfobject.language_iris:
+                return {'@value': rdfobject.unicode_value}
+            if RDF.JSON in rdfobject.language_iris:
                 # NOTE: does not reset jsonld context
-                return json.loads(rdfobject.unicode_text)
-            try:
-                _language_tag = primitive_rdf.IriNamespace.without_namespace(
-                    rdfobject.language_iri,
-                    namespace=primitive_rdf.IANA_LANGUAGE,
-                )
-            except ValueError:  # non-standard language iri
+                return json.loads(rdfobject.unicode_value)
+            _language_tag = primitive_rdf.language_tag
+            if _language_tag:  # standard language tag
                 return {
-                    '@value': rdfobject.unicode_text,
-                    '@type': rdfobject.language_iri,
-                }
-            else:  # standard language tag
-                return {
-                    '@value': rdfobject.unicode_text,
+                    '@value': rdfobject.unicode_value,
                     '@language': _language_tag,
                 }
+            # datatype iri (or non-standard language iri)
+            return {
+                '@value': rdfobject.unicode_value,
+                '@type': (
+                    list(rdfobject.language_iris)
+                    if len(rdfobject.language_iris) > 1
+                    else next(iter(rdfobject.language_iris))
+                ),
+            }
         elif isinstance(rdfobject, str):
             return {'@id': self.labeler.get_label_or_iri(rdfobject)}
         elif isinstance(rdfobject, (float, int)):

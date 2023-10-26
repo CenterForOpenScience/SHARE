@@ -2,7 +2,7 @@ import logging
 
 from django import http
 from django.views import View
-from gather import gathering
+from primitive_metadata import gather
 
 from share.search.index_strategy import IndexStrategy
 from share.search.search_params import (
@@ -47,7 +47,7 @@ class CardsearchView(View):
         _search_iri, _search_gathering = _parse_request(request, CardsearchParams)
         _search_gathering.ask(
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
-            focus=gathering.focus(_search_iri, TROVE.Cardsearch),
+            focus=gather.focus(_search_iri, TROVE.Cardsearch),
         )
         return http.HttpResponse(
             content=render_from_rdf(
@@ -64,7 +64,7 @@ class ValuesearchView(View):
         _search_iri, _search_gathering = _parse_request(request, ValuesearchParams)
         _search_gathering.ask(
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
-            focus=gathering.focus(_search_iri, TROVE.Valuesearch),
+            focus=gather.focus(_search_iri, TROVE.Valuesearch),
         )
         return http.HttpResponse(
             content=render_from_rdf(
