@@ -211,9 +211,9 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     def _sharev2_type(self, type_iri):
         if type_iri in SHAREv2:
-            _typename = primitive_rdf.IriNamespace.without_namespace(type_iri, namespace=SHAREv2)
+            _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=SHAREv2)
         elif type_iri in OSFMAP:
-            _typename = primitive_rdf.IriNamespace.without_namespace(type_iri, namespace=OSFMAP)
+            _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=OSFMAP)
             if _typename == 'RegistrationComponent':
                 _typename = 'Registration'
             elif _typename == 'ProjectComponent':
@@ -248,9 +248,9 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     def _format_type_iri(self, iri):
         if iri in SHAREv2:
-            _typename = primitive_rdf.IriNamespace.without_namespace(iri, namespace=SHAREv2)
+            _typename = primitive_rdf.iri_minus_namespace(iri, namespace=SHAREv2)
         elif iri in OSFMAP:
-            _typename = primitive_rdf.IriNamespace.without_namespace(iri, namespace=OSFMAP)
+            _typename = primitive_rdf.iri_minus_namespace(iri, namespace=OSFMAP)
         else:
             return iri  # oh well
         return self._format_typename(_typename)

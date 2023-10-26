@@ -39,6 +39,8 @@ class RdfJsonapiRenderer:
 
     note: does not support relationship links (or many other jsonapi features)
     '''
+    MEDIATYPE = 'application/api+json'
+
     __to_include = None
 
     def __init__(
@@ -53,7 +55,13 @@ class RdfJsonapiRenderer:
         # TODO: move "id namespace" to vocab (property on each type)
         self._id_namespace_set = id_namespace_set or set()
 
-    def render_data_document(self, primary_iris: Union[str, Iterable[str]]) -> dict:
+    def render_document(self, primary_iris: Union[str, Iterable[str]]) -> str:
+        return json.dumps(
+            self.render_dict(primary_iris),
+            indent=2,  # TODO: pretty-print query param?
+        )
+
+    def render_dict(self, primary_iris: Union[str, Iterable[str]]) -> dict:
         _primary_data = None
         _included_data = []
         with self._contained__to_include() as _to_include:
@@ -145,7 +153,7 @@ class RdfJsonapiRenderer:
     def _resource_id_for_iri(self, iri: str):
         for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
-                return primitive_rdf.IriNamespace.without_namespace(iri, namespace=_iri_namespace)
+                return primitive_rdf.iri_minus_namespace(iri, namespace=_iri_namespace)
         # as fallback, hash the iri for a valid jsonapi member name
         return hashlib.sha256(iri.encode()).hexdigest()
 

@@ -11,7 +11,7 @@ from share.search.search_params import (
 )
 from trove.vocab.namespaces import TROVE
 from trove.trovesearch_gathering import trovesearch_by_indexstrategy
-from trove.render import render_from_rdf, JSONAPI_MEDIATYPE
+from trove.render import render_response
 
 
 logger = logging.getLogger(__name__)
@@ -49,13 +49,10 @@ class CardsearchView(View):
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
             focus=gather.focus(_search_iri, TROVE.Cardsearch),
         )
-        return http.HttpResponse(
-            content=render_from_rdf(
-                _search_gathering.leaf_a_record(),
-                _search_iri,
-                JSONAPI_MEDIATYPE,
-            ),
-            content_type=JSONAPI_MEDIATYPE,
+        return render_response(
+            request,
+            _search_gathering.leaf_a_record(),
+            _search_iri,
         )
 
 
@@ -66,13 +63,10 @@ class ValuesearchView(View):
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
             focus=gather.focus(_search_iri, TROVE.Valuesearch),
         )
-        return http.HttpResponse(
-            content=render_from_rdf(
-                _search_gathering.leaf_a_record(),
-                _search_iri,
-                JSONAPI_MEDIATYPE,
-            ),
-            content_type=JSONAPI_MEDIATYPE,
+        return render_response(
+            request,
+            _search_gathering.leaf_a_record(),
+            _search_iri,
         )
 
 

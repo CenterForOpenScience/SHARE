@@ -194,7 +194,7 @@ def gather_card(focus, **kwargs):
         )
     except StopIteration:
         raise ValueError(f'could not find indexcard iri in {focus.iris} (looking for {_indexcard_namespace})')
-    _indexcard_uuid = primitive_rdf.IriNamespace.without_namespace(
+    _indexcard_uuid = primitive_rdf.iri_minus_namespace(
         _indexcard_iri,
         namespace=_indexcard_namespace,
     )
