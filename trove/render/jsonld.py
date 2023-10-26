@@ -30,7 +30,7 @@ class RdfJsonldRenderer:
             if RDF.JSON in rdfobject.language_iris:
                 # NOTE: does not reset jsonld context
                 return json.loads(rdfobject.unicode_value)
-            _language_tag = primitive_rdf.language_tag
+            _language_tag = rdfobject.language_tag
             if _language_tag:  # standard language tag
                 return {
                     '@value': rdfobject.unicode_value,

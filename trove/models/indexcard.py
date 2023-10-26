@@ -17,7 +17,7 @@ from trove.vocab.trove import trove_indexcard_iri, trove_indexcard_namespace
 
 class IndexcardManager(models.Manager):
     def get_for_iri(self, iri: str):
-        _uuid = primitive_rdf.IriNamespace.without_namespace(iri, namespace=trove_indexcard_namespace())
+        _uuid = primitive_rdf.iri_minus_namespace(iri, namespace=trove_indexcard_namespace())
         return self.get(uuid=_uuid)
 
     @transaction.atomic

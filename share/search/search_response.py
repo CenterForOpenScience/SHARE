@@ -29,7 +29,7 @@ class CardsearchResult:
 
     def card_uuid(self):
         # card iri has the uuid at the end
-        return primitive_rdf.IriNamespace.without_namespace(
+        return primitive_rdf.iri_minus_namespace(
             self.card_iri,
             namespace=trove_indexcard_namespace(),
         )
