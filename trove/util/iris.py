@@ -1,6 +1,6 @@
 import json
 import re
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit, quote, unquote
 
 
 # quoth <https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2>:
@@ -12,6 +12,7 @@ IRI_SCHEME_REGEX = re.compile(
 IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNORECASE)
 COLON = ':'
 COLON_SLASH_SLASH = '://'
+QUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{re.escape(quote(COLON))}')
 
 # treat similar-enough IRIs as equivalent, based on a wild assertion:
 #   if two IRIs differ only in their `scheme`
@@ -66,3 +67,12 @@ def iri_path_as_keyword(iris: list[str] | tuple[str], *, suffuniq=False) -> str:
             for _iri in iris
         ]
     return json.dumps(_list)
+
+
+def unquote_iri(iri: str) -> str:
+    _unquoted_iri = iri
+    while QUOTED_IRI_REGEX.match(_unquoted_iri):
+        _unquoted_iri = unquote(_unquoted_iri)
+    if not IRI_SCHEME_REGEX.match(_unquoted_iri):
+        raise ValueError(f'does not look like a quoted iri: {iri}')
+    return _unquoted_iri

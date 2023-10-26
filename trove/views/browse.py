@@ -1,99 +1,36 @@
-import datetime
-import random
+from typing import Iterable
 
 from django import http
-from django.views.generic.base import TemplateView
+from django.views import View
 from primitive_metadata import primitive_rdf
 
 from trove import models as trove_db
-from trove.util.iri_labeler import IriLabeler
-from trove.vocab.osfmap import osfmap_labeler
+from trove.render import render_response
+from trove.util.iris import unquote_iri
 
 
-class BrowseIriView(TemplateView):
-    template_name = 'browse/browse_piri.html'
-
-    def get_context_data(self, **kwargs):
-        _context = super().get_context_data(**kwargs)
+class BrowseIriView(View):
+    def get(self, request, iri):
+        _iri = unquote_iri(iri)
         try:
-            # TODO: iri query param (stop with the `///`)
-            # TODO: support some prefixes for convenience
-            _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(kwargs['iri'])
+            _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(_iri)
         except trove_db.ResourceIdentifier.DoesNotExist:
             raise http.Http404
-        _context['rdf_indexcard_list'] = [
-            _IndexcardContextBuilder(_indexcard_rdf, labeler=osfmap_labeler).build(_identifier)
-            for _indexcard_rdf in self._get_indexcard_rdf_set(_identifier)
-        ]
-        _context['random_ratio'] = random.random()
-        return _context
+        _rdf_qs = (
+            trove_db.LatestIndexcardRdf.objects
+            .filter(indexcard__focus_identifier_set=_identifier)
+        )
+        # TODO: query param for split/combined
+        _tripledict = _merge_tripledicts(
+            _indexcard_rdf.as_rdf_tripledict()
+            for _indexcard_rdf in _rdf_qs
+        )
+        return render_response(request, _tripledict, _iri)
 
-    def _get_indexcard_rdf_set(self, identifier: trove_db.ResourceIdentifier):
-        return trove_db.LatestIndexcardRdf.objects.filter(indexcard__focus_identifier_set=identifier)
 
-
-class _IndexcardContextBuilder:
-    def __init__(self, indexcard_rdf: trove_db.IndexcardRdf, labeler: IriLabeler):
-        self._labeler = labeler
-        self._tripledict = indexcard_rdf.as_rdf_tripledict()
-        self._visiting = set()
-
-    def build(self, identifier: trove_db.ResourceIdentifier) -> dict:
-        _iri = identifier.find_equivalent_iri(self._tripledict)
-        self._visiting.add(_iri)
-        _indexcard_context = {
-            'focus': self._iri_context(_iri),
-            'nested_twopleset': self._nested_twopleset_context(self._tripledict[_iri]),
-        }
-        self._visiting.remove(_iri)
-        return _indexcard_context
-
-    def _nested_twopleset_context(self, twopledict: primitive_rdf.RdfTwopleDictionary) -> list:
-        _nested_twopleset = []
-        for _predicate_iri, _objectset in twopledict.items():
-            _nested_twopleset.append({
-                'predicate': self._iri_context(_predicate_iri),
-                'objectset': [
-                    self._nested_object_context(_obj)
-                    for _obj in _objectset
-                ],
-            })
-        return _nested_twopleset
-
-    def _nested_object_context(self, rdfobject: primitive_rdf.RdfObject) -> dict:
-        if isinstance(rdfobject, str):
-            _iriref_context = self._iri_context(rdfobject)
-            if (rdfobject not in self._visiting) and (rdfobject in self._tripledict):
-                self._visiting.add(rdfobject)
-                _iriref_context['nested_twopleset'] = self._nested_twopleset_context(
-                    self._tripledict[rdfobject],
-                )
-                self._visiting.remove(rdfobject)
-            return _iriref_context
-        if isinstance(rdfobject, primitive_rdf.Datum):
-            return {
-                'literal': {
-                    'value': rdfobject.unicode_value,
-                    # TODO: language/datatype
-                },
-            }
-        if isinstance(rdfobject, (int, float, datetime.date)):
-            return {
-                'literal': {
-                    'value': str(rdfobject),
-                    # TODO: language/datatype
-                },
-            }
-        if isinstance(rdfobject, frozenset):
-            return {
-                'nested_twopleset': self._nested_twopleset_context(
-                    primitive_rdf.twopleset_as_twopledict(rdfobject),
-                ),
-            }
-        raise ValueError(f'unrecognized rdf object: {rdfobject}')
-
-    def _iri_context(self, iri: str) -> dict:
-        return {
-            'iri': iri,
-            'label': self._labeler.get_label_or_iri(iri),
-        }
+def _merge_tripledicts(tripledicts: Iterable[dict]):
+    _merged = primitive_rdf.RdfGraph({})
+    for _tripledict in tripledicts:
+        for _triple in primitive_rdf.iter_tripleset(_tripledict):
+            _merged.add(_triple)
+    return _merged.tripledict
