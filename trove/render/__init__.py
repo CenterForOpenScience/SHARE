@@ -6,7 +6,7 @@ from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 
 
-# TODO: common renderer interface, cleaner `render_from_rdf` implementation
+# TODO: common renderer interface, cleaner `get_renderer` implementation
 # RENDERER_BY_MEDIATYPE = {
 #     'application/api+json': RdfJsonapiRenderer,
 #     'application/ld+json': RdfJsonldRenderer,
@@ -19,7 +19,7 @@ def get_renderer(request: http.HttpRequest, data: primitive_rdf.RdfTripleDiction
     if request.accepts(RdfHtmlBrowseRenderer.MEDIATYPE):
         return RdfHtmlBrowseRenderer(
             data=data,
-            # TODO: iri_shorthand=...
+            request=request,
         )
     if request.accepts(RdfJsonapiRenderer.MEDIATYPE):
         return RdfJsonapiRenderer(

@@ -858,6 +858,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     self._text_field: {
                         'query': text,
                         'fuzziness': 'AUTO',
+                        # TODO: 'operator': 'and' (by query param FilterOperator, `cardSearchText[*][every-word]=...`)
                     },
                 }}
 
@@ -961,7 +962,6 @@ def _pathset_as_nestedvalue_filter(propertypath_set: frozenset[tuple[str, ...]],
     _glob_path_lengths = []
     for _path in propertypath_set:
         if all(_pathstep == GLOB_PATHSTEP for _pathstep in _path):
-            logger.critical(f'{_path=}')
             _glob_path_lengths.append(len(_path))
         else:
             _suffuniq_iri_paths.append(iri_path_as_keyword(_path, suffuniq=True))

@@ -49,28 +49,28 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         primitive_rdf.datum('trove search', language_tag='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_kwargnames={'search_params', 'specific_index'},
+    gatherer_kwargnames={'search_params', 'specific_index', 'quoted_osfmap_json'},
 )
 
 
 # TODO: per-field text search in rdf
 # @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
-# def gather_cardsearch_text(focus, *, specific_index, search_params):
+# def gather_cardsearch_text(focus, *, specific_index, search_params, quoted_osfmap_json):
 #     yield (TROVE.cardsearchText, primitive_rdf.datum(search_params.cardsearch_text))
 #
 #
 # @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
-# def gather_valuesearch_text(focus, *, specific_index, search_params):
+# def gather_valuesearch_text(focus, *, specific_index, search_params, quoted_osfmap_json):
 #     yield (TROVE.valuesearchText, primitive_rdf.datum(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
-def gather_valuesearch_propertypath(focus, *, specific_index, search_params):
+def gather_valuesearch_propertypath(focus, *, specific_index, search_params, quoted_osfmap_json):
     yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
-def gather_valuesearch_filter(focus, *, specific_index, search_params):
+def gather_valuesearch_filter(focus, *, specific_index, search_params, quoted_osfmap_json):
     for _filter in search_params.valuesearch_filter_set:
         yield (TROVE.valuesearchFilter, _filter_as_blanknode(_filter, {}))
 
@@ -81,7 +81,7 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params):
     TROVE.cardsearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
-def gather_cardsearch(focus, *, specific_index, search_params):
+def gather_cardsearch(focus, *, specific_index, search_params, quoted_osfmap_json):
     assert isinstance(search_params, CardsearchParams)
     # defer to the IndexStrategy implementation to do the search
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
@@ -129,7 +129,7 @@ def gather_cardsearch(focus, *, specific_index, search_params):
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch(focus, *, specific_index, search_params):
+def gather_valuesearch(focus, *, specific_index, search_params, quoted_osfmap_json):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
     _result_page = []
@@ -183,7 +183,7 @@ def gather_valuesearch(focus, *, specific_index, search_params):
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Indexcard},
 )
-def gather_card(focus, **kwargs):
+def gather_card(focus, *, quoted_osfmap_json, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
     _indexcard_namespace = trove_indexcard_namespace()
     try:
@@ -198,26 +198,39 @@ def gather_card(focus, **kwargs):
         _indexcard_iri,
         namespace=_indexcard_namespace,
     )
-    _osfmap_indexcard = (
-        trove_db.DerivedIndexcard.objects
-        .filter(
-            upriver_indexcard__uuid=_indexcard_uuid,
-            deriver_identifier__in=(
-                trove_db.ResourceIdentifier.objects
-                .queryset_for_iri(TROVE['derive/osfmap_json'])
-                # TODO: choose deriver by queryparam/gatherer-kwarg
-            ),
+    if quoted_osfmap_json:  # include graph as serialized json
+        _osfmap_indexcard = (
+            trove_db.DerivedIndexcard.objects
+            .filter(
+                upriver_indexcard__uuid=_indexcard_uuid,
+                deriver_identifier__in=(
+                    trove_db.ResourceIdentifier.objects
+                    .queryset_for_iri(TROVE['derive/osfmap_json'])
+                    # TODO: choose deriver by queryparam/gatherer-kwarg
+                ),
+            )
+            .select_related('upriver_indexcard')
+            .prefetch_related('upriver_indexcard__focus_identifier_set')
+            .get()
         )
-        .select_related('upriver_indexcard')
-        .prefetch_related('upriver_indexcard__focus_identifier_set')
-        .get()
-    )
-    for _identifier in _osfmap_indexcard.upriver_indexcard.focus_identifier_set.all():
-        yield (TROVE.resourceIdentifier, _identifier.as_iri())
-    yield (
-        TROVE.resourceMetadata,
-        primitive_rdf.datum(_osfmap_indexcard.derived_text, language_iris={RDF.JSON})
-    )
+        for _identifier in _osfmap_indexcard.upriver_indexcard.focus_identifier_set.all():
+            yield (TROVE.resourceIdentifier, _identifier.as_iri())
+        yield (
+            TROVE.resourceMetadata,
+            primitive_rdf.datum(_osfmap_indexcard.derived_text, language_iris={RDF.JSON})
+        )
+    else:  # include graph as a bag of quoted triples
+        _indexcard_rdf = (
+            trove_db.LatestIndexcardRdf.objects
+            .filter(indexcard__uuid=_indexcard_uuid)
+            .select_related('indexcard')
+            .prefetch_related('indexcard__focus_identifier_set')
+            .get()
+        )
+        for _identifier in _indexcard_rdf.indexcard.focus_identifier_set.all():
+            yield (TROVE.resourceIdentifier, _identifier.as_iri())
+        for _triple in primitive_rdf.iter_tripleset(_indexcard_rdf.as_rdf_tripledict()):
+            yield (TROVE.resourceMetadata, primitive_rdf.QuotedTriple(*_triple))
 
 
 ###
