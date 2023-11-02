@@ -12,6 +12,7 @@ class IndexcardView(View):
             # TODO (gather): allow omitting kwargs that go unused
             'search_params': None,
             'specific_index': None,
+            'quoted_osfmap_json': not request.accepts('text/html'),  # TODO: consistent content negotiation
         })
         _indexcard_iri = trove_indexcard_iri(indexcard_uuid)
         _search_gathering.ask(
