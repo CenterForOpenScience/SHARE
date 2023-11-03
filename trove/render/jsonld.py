@@ -24,7 +24,7 @@ class RdfJsonldRenderer:
             return self.twopledict_as_jsonld(
                 primitive_rdf.twopleset_as_twopledict(rdfobject),
             )
-        elif isinstance(rdfobject, primitive_rdf.Datum):
+        elif isinstance(rdfobject, primitive_rdf.Literal):
             if not rdfobject.language_iris:
                 return {'@value': rdfobject.unicode_value}
             if RDF.JSON in rdfobject.language_iris:

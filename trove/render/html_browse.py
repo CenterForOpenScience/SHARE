@@ -108,7 +108,7 @@ class RdfHtmlBrowseRenderer:
                 self.__sequence(obj)
             else:
                 self.__twoples(primitive_rdf.twopledict_from_twopleset(obj))
-        elif isinstance(obj, primitive_rdf.Datum):
+        elif isinstance(obj, primitive_rdf.Literal):
             # TODO language tag
             self.__leaf('q', text=obj.unicode_value)
         elif isinstance(obj, (float, int, datetime.date)):

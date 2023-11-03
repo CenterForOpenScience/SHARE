@@ -6,12 +6,14 @@ from typing import Iterable, Union
 
 from primitive_metadata import primitive_rdf
 
-from trove.vocab.trove import (
-    RDF,
+from trove.vocab.jsonapi import (
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
     JSONAPI_ATTRIBUTE,
     JSONAPI_LINK_OBJECT,
+)
+from trove.vocab.trove import (
+    RDF,
     OWL,
 )
 
@@ -65,8 +67,7 @@ class RdfJsonapiRenderer:
         _primary_data = None
         _included_data = []
         with self._contained__to_include() as _to_include:
-            _single_datum = isinstance(primary_iris, str)
-            if _single_datum:
+            if isinstance(primary_iris, str):
                 _already_included = {primary_iris}
                 _primary_data = self.render_resource_object(primary_iris)
             else:
@@ -138,7 +139,7 @@ class RdfJsonapiRenderer:
         except StopIteration:
             pass
         else:
-            if isinstance(_membername, primitive_rdf.Datum):
+            if isinstance(_membername, primitive_rdf.Literal):
                 return _membername.unicode_value
             raise ValueError(f'found non-text membername {_membername}')
         if iri_fallback:
@@ -275,7 +276,7 @@ class RdfJsonapiRenderer:
                 _key = self._membername_for_iri(_pred, iri_fallback=True)
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
             return _json_blanknode
-        if isinstance(rdfobject, primitive_rdf.Datum):
+        if isinstance(rdfobject, primitive_rdf.Literal):
             if RDF.JSON in rdfobject.language_iris:
                 return json.loads(rdfobject.unicode_value)
             return rdfobject.unicode_value  # TODO: decide how to represent language

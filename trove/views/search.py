@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_CARDSEARCH_ASK = {
     TROVE.totalResultCount: None,
-    TROVE.cardsearchText: None,
-    TROVE.cardsearchFilter: None,
+    TROVE.cardSearchText: None,
+    TROVE.cardSearchFilter: None,
     TROVE.searchResultPage: {
         TROVE.indexCard: {
             TROVE.resourceMetadata,
@@ -30,10 +30,10 @@ DEFAULT_CARDSEARCH_ASK = {
 
 DEFAULT_VALUESEARCH_ASK = {
     TROVE.propertyPath: None,
-    TROVE.valuesearchText: None,
-    TROVE.valuesearchFilter: None,
-    TROVE.cardsearchText: None,
-    TROVE.cardsearchFilter: None,
+    TROVE.valueSearchText: None,
+    TROVE.valueSearchFilter: None,
+    TROVE.cardSearchText: None,
+    TROVE.cardSearchFilter: None,
     TROVE.searchResultPage: {
         TROVE.indexCard: {
             TROVE.resourceMetadata,

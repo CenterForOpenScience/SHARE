@@ -299,7 +299,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         _visiting_set = visiting_set or set()
         _visiting_set.add(subject_iri)
         _labeltext = next(self.data.q(subject_iri, label_predicate_iri), None)
-        if not isinstance(_labeltext, primitive_rdf.Datum):
+        if not isinstance(_labeltext, primitive_rdf.Literal):
             return ()
         _parent = next(self.data.q(subject_iri, SKOS.broader), None)
         if _parent and (_parent not in _visiting_set):
@@ -315,6 +315,6 @@ def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> 
 def _obj_to_string_or_none(obj):
     if obj is None:
         return None
-    if isinstance(obj, primitive_rdf.Datum):
+    if isinstance(obj, primitive_rdf.Literal):
         return obj.unicode_value
     return str(obj)

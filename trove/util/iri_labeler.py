@@ -82,7 +82,7 @@ class IriLabeler:
             return next(
                 _label.unicode_value
                 for _label in _labelset
-                if isinstance(_label, primitive_rdf.Datum)
+                if isinstance(_label, primitive_rdf.Literal)
             )
         except StopIteration:
             raise ValueError(f'could not find label for iri "{iri}"')

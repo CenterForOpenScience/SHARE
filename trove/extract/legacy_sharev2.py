@@ -46,7 +46,7 @@ class LegacySharev2Extractor(BaseRdfExtractor):
 
 osfmap_from_normd = gather.GatheringOrganizer(
     namestory=(
-        primitive_rdf.datum('sharev2-normd'),
+        primitive_rdf.literal('sharev2-normd'),
     ),
     norms=OSFMAP_NORMS,
     gatherer_kwargnames={'mnode', 'source_config'},
@@ -60,31 +60,31 @@ osfmap_from_normd = gather.GatheringOrganizer(
 })
 def _gather_work(focus, *, mnode, source_config):
     for _iri in focus.iris:
-        yield (DCTERMS.identifier, primitive_rdf.datum(_iri))
+        yield (DCTERMS.identifier, primitive_rdf.literal(_iri))
     _language_tag = mnode['language']
     _language_iri = (
         primitive_rdf.IANA_LANGUAGE[_language_tag]
         if _language_tag
         else None
     )
-    yield (DCTERMS.title, primitive_rdf.datum(mnode['title'], language_iris={_language_iri}))
-    yield (DCTERMS.description, primitive_rdf.datum(mnode['description'], language_iris={_language_iri}))
+    yield (DCTERMS.title, primitive_rdf.literal(mnode['title'], language_iris={_language_iri}))
+    yield (DCTERMS.description, primitive_rdf.literal(mnode['description'], language_iris={_language_iri}))
     yield (DCTERMS.created, _date_or_none(mnode['date_published']))
     yield (DCTERMS.modified, _date_or_none(mnode['date_updated']))
     yield (DCTERMS.date, _date_or_none(mnode['date_published'] or mnode['date_updated']))
-    yield (DCTERMS.rights, primitive_rdf.datum(mnode['free_to_read_type']))
-    yield (DCTERMS.available, primitive_rdf.datum(mnode['free_to_read_date']))
-    yield (DCTERMS.rights, primitive_rdf.datum(mnode['rights']))
-    yield (DCTERMS.language, primitive_rdf.datum(_language_tag))
+    yield (DCTERMS.rights, primitive_rdf.literal(mnode['free_to_read_type']))
+    yield (DCTERMS.available, primitive_rdf.literal(mnode['free_to_read_date']))
+    yield (DCTERMS.rights, primitive_rdf.literal(mnode['rights']))
+    yield (DCTERMS.language, primitive_rdf.literal(_language_tag))
     if mnode['registration_type']:
         yield (DCTERMS.conformsTo, frozenset((
-            (FOAF.name, primitive_rdf.datum(mnode['registration_type'])),
+            (FOAF.name, primitive_rdf.literal(mnode['registration_type'])),
         )))
     if mnode['withdrawn']:
         yield (OSFMAP.dateWithdrawn, _date_or_none(mnode['date_updated']))
-    yield (OSFMAP.withdrawalJustification, primitive_rdf.datum(mnode['justification']))  # TODO: not in OSFMAP
+    yield (OSFMAP.withdrawalJustification, primitive_rdf.literal(mnode['justification']))  # TODO: not in OSFMAP
     for _tag in mnode['tags']:
-        yield (OSFMAP.keyword, primitive_rdf.datum(_tag['name']))
+        yield (OSFMAP.keyword, primitive_rdf.literal(_tag['name']))
     for _agent_relation in mnode['agent_relations']:
         yield (
             _agentwork_relation_iri(_agent_relation),
@@ -111,12 +111,12 @@ def _gather_work_subjects(focus, *, mnode, source_config):
     for _thru_subject_mnode in mnode['subject_relations']:
         _subject_mnode = _thru_subject_mnode['subject']
         if not (_thru_subject_mnode['is_deleted'] or _subject_mnode['is_deleted']):
-            yield (DCTERMS.subject, primitive_rdf.datum(_subject_mnode['name']))
-            yield (DCTERMS.subject, primitive_rdf.datum(_serialize_subject(_subject_mnode, _source_name)))
+            yield (DCTERMS.subject, primitive_rdf.literal(_subject_mnode['name']))
+            yield (DCTERMS.subject, primitive_rdf.literal(_serialize_subject(_subject_mnode, _source_name)))
             _synonym_mnode = _subject_mnode['central_synonym']
             if _synonym_mnode and not _synonym_mnode['is_deleted']:
-                yield (DCTERMS.subject, primitive_rdf.datum(_synonym_mnode['name']))
-                yield (DCTERMS.subject, primitive_rdf.datum(_serialize_subject(_synonym_mnode, _source_name)))
+                yield (DCTERMS.subject, primitive_rdf.literal(_synonym_mnode['name']))
+                yield (DCTERMS.subject, primitive_rdf.literal(_serialize_subject(_synonym_mnode, _source_name)))
 
 
 @osfmap_from_normd.gatherer(focustype_iris={
@@ -125,12 +125,12 @@ def _gather_work_subjects(focus, *, mnode, source_config):
 def _gather_agent(focus, *, mnode, source_config):
     for _iri in focus.iris:
         if not _iri.startswith('_:'):  # HACK: non-blank blank node (stop that)
-            yield (DCTERMS.identifier, primitive_rdf.datum(_iri))
+            yield (DCTERMS.identifier, primitive_rdf.literal(_iri))
     if 'Person' in mnode.schema_type.type_lineage:
         yield (RDF.type, FOAF.Person)
     if 'Organization' in mnode.schema_type.type_lineage:
         yield (RDF.type, FOAF.Organization)
-    yield (FOAF.name, primitive_rdf.datum(mnode['name']))
+    yield (FOAF.name, primitive_rdf.literal(mnode['name']))
     for _agent_relation in mnode['outgoing_agent_relations']:
         yield (
             OSFMAP.affiliation,
