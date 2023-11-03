@@ -18,7 +18,7 @@ BoundedCount = Union[
 @dataclasses.dataclass
 class TextMatchEvidence:
     property_path: tuple[str, ...]
-    matching_highlight: primitive_rdf.Datum
+    matching_highlight: primitive_rdf.Literal
     card_iri: Optional[str]  # may be left implicit
 
 

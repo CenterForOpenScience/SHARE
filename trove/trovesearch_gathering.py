@@ -16,14 +16,16 @@ from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.jsonld import RdfJsonldRenderer
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
+from trove.vocab.jsonapi import (
+    JSONAPI_LINK_OBJECT,
+    JSONAPI_MEMBERNAME,
+)
 from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_filter_operator
 from trove.vocab.trove import (
     TROVE,
     TROVE_API_VOCAB,
     trove_indexcard_namespace,
     trove_labeler,
-    JSONAPI_LINK_OBJECT,
-    JSONAPI_MEMBERNAME,
 )
 
 
@@ -32,8 +34,8 @@ logger = logging.getLogger(__name__)
 
 TROVE_GATHERING_NORMS = gather.GatheringNorms(
     namestory=(
-        primitive_rdf.datum('cardsearch', language_tag='en'),
-        primitive_rdf.datum('search for "index cards" that describe resources', language_tag='en'),
+        primitive_rdf.literal('cardsearch', language_tag='en'),
+        primitive_rdf.literal('search for "index cards" that describe resources', language_tag='en'),
     ),
     focustype_iris={
         TROVE.Indexcard,
@@ -46,7 +48,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms(
 
 trovesearch_by_indexstrategy = gather.GatheringOrganizer(
     namestory=(
-        primitive_rdf.datum('trove search', language_tag='en'),
+        primitive_rdf.literal('trove search', language_tag='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
     gatherer_kwargnames={'search_params', 'specific_index', 'quoted_osfmap_json'},
@@ -54,14 +56,14 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 
 
 # TODO: per-field text search in rdf
-# @trovesearch_by_indexstrategy.gatherer(TROVE.cardsearchText)
+# @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchText)
 # def gather_cardsearch_text(focus, *, specific_index, search_params, quoted_osfmap_json):
-#     yield (TROVE.cardsearchText, primitive_rdf.datum(search_params.cardsearch_text))
+#     yield (TROVE.cardSearchText, primitive_rdf.literal(search_params.cardsearch_text))
 #
 #
-# @trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchText)
+# @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchText)
 # def gather_valuesearch_text(focus, *, specific_index, search_params, quoted_osfmap_json):
-#     yield (TROVE.valuesearchText, primitive_rdf.datum(search_params.valuesearch_text))
+#     yield (TROVE.valueSearchText, primitive_rdf.literal(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
@@ -69,16 +71,16 @@ def gather_valuesearch_propertypath(focus, *, specific_index, search_params, quo
     yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.valuesearchFilter)
+@trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)
 def gather_valuesearch_filter(focus, *, specific_index, search_params, quoted_osfmap_json):
     for _filter in search_params.valuesearch_filter_set:
-        yield (TROVE.valuesearchFilter, _filter_as_blanknode(_filter, {}))
+        yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter, {}))
 
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.totalResultCount,
     TROVE.searchResultPage,
-    TROVE.cardsearchFilter,
+    TROVE.cardSearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
 def gather_cardsearch(focus, *, specific_index, search_params, quoted_osfmap_json):
@@ -123,7 +125,7 @@ def gather_cardsearch(focus, *, specific_index, search_params, quoted_osfmap_jso
         _value_info = _valuesearch_result_as_json(_filtervalue)
         _valueinfo_by_iri[_filtervalue.value_iri] = _value_info
     for _filter in search_params.cardsearch_filter_set:
-        yield (TROVE.cardsearchFilter, _filter_as_blanknode(_filter, _valueinfo_by_iri))
+        yield (TROVE.cardSearchFilter, _filter_as_blanknode(_filter, _valueinfo_by_iri))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -217,7 +219,7 @@ def gather_card(focus, *, quoted_osfmap_json, **kwargs):
             yield (TROVE.resourceIdentifier, _identifier.as_iri())
         yield (
             TROVE.resourceMetadata,
-            primitive_rdf.datum(_osfmap_indexcard.derived_text, language_iris={RDF.JSON})
+            primitive_rdf.literal(_osfmap_indexcard.derived_text, language_iris={RDF.JSON})
         )
     else:  # include graph as a bag of quoted triples
         _indexcard_rdf = (
@@ -263,7 +265,7 @@ def _osfmap_or_unknown_iri_as_json(iri: str):
         return _osfmap_json({iri: _twopledict}, focus_iri=iri)
 
 
-def _valuesearch_result_as_json(result: ValuesearchResult) -> primitive_rdf.Datum:
+def _valuesearch_result_as_json(result: ValuesearchResult) -> primitive_rdf.Literal:
     _value_twopledict = {
         RDF.type: set(result.value_type),
         FOAF.name: set(map(primitive_rdf.text, result.name_text)),
@@ -280,7 +282,7 @@ def _valuesearch_result_as_json(result: ValuesearchResult) -> primitive_rdf.Datu
 def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
     return primitive_rdf.blanknode({
         RDF.type: {TROVE.Indexcard},
-        TROVE.resourceIdentifier: {primitive_rdf.datum(result.value_iri or result.value_value)},
+        TROVE.resourceIdentifier: {primitive_rdf.literal(result.value_iri or result.value_value)},
         TROVE.resourceMetadata: {_valuesearch_result_as_json(result)},
     })
 
@@ -301,7 +303,7 @@ def _osfmap_twople_json(twopledict):
 
 
 def _literal_json(jsonable_obj, **dumps_kwargs):
-    return primitive_rdf.datum(
+    return primitive_rdf.literal(
         json.dumps(jsonable_obj, **dumps_kwargs),
         language_iris={RDF.JSON},
     )
@@ -315,13 +317,13 @@ def _osfmap_path(property_path):
 
 
 def _single_propertypath_twoples(property_path: tuple[str, ...]):
-    yield (TROVE.propertyPathKey, primitive_rdf.datum(propertypath_key(property_path)))
+    yield (TROVE.propertyPathKey, primitive_rdf.literal(propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
 
 
 def _multi_propertypath_twoples(propertypath_set):
-    yield (TROVE.propertyPathKey, primitive_rdf.datum(propertypath_set_key(propertypath_set)))
+    yield (TROVE.propertyPathKey, primitive_rdf.literal(propertypath_set_key(propertypath_set)))
     for _path in propertypath_set:
         yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
 
@@ -380,6 +382,6 @@ def _search_page_links(search_focus, search_params, search_response):
 def _jsonapi_link(membername, iri):
     return frozenset((
         (RDF.type, JSONAPI_LINK_OBJECT),
-        (JSONAPI_MEMBERNAME, primitive_rdf.datum(membername)),
+        (JSONAPI_MEMBERNAME, primitive_rdf.literal(membername)),
         (RDF.value, iri),
     ))

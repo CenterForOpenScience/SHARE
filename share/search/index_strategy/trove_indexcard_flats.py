@@ -187,7 +187,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     logger.debug('skipping malformatted date "%s" in %s', _walk_obj.unicode_value, indexcard_rdf)
                 else:
                     _nested_dates[_walk_path].add(_walk_obj.unicode_value)
-            elif isinstance(_walk_obj, primitive_rdf.Datum):
+            elif isinstance(_walk_obj, primitive_rdf.Literal):
                 _nested_texts[(_walk_path, tuple(_walk_obj.language_iris))].add(_walk_obj.unicode_value)
         _focus_iris = {indexcard_rdf.focus_iri}
         _suffuniq_focus_iris = {get_sufficiently_unique_iri(indexcard_rdf.focus_iri)}
@@ -822,7 +822,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     for _highlight in _innerhit['highlight']['nested_text.text_value']:
                         yield TextMatchEvidence(
                             property_path=_property_path,
-                            matching_highlight=primitive_rdf.datum(_highlight, language_iris=_language_iris),
+                            matching_highlight=primitive_rdf.literal(_highlight, language_iris=_language_iris),
                             card_iri=_innerhit['_id'],
                         )
 
@@ -1116,17 +1116,17 @@ class _NestedIriKey:
             name_text=frozenset(
                 _text.unicode_value
                 for _text in rdfdoc.q(iri, NAME_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Datum)
+                if isinstance(_text, primitive_rdf.Literal)
             ),
             title_text=frozenset(
                 _text.unicode_value
                 for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Datum)
+                if isinstance(_text, primitive_rdf.Literal)
             ),
             label_text=frozenset(
                 _text.unicode_value
                 for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Datum)
+                if isinstance(_text, primitive_rdf.Literal)
             ),
         )
 
