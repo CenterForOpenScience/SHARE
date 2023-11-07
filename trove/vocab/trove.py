@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import reverse
 from primitive_metadata.primitive_rdf import (
     IriNamespace,
     RdfTripleDictionary,
@@ -7,13 +8,14 @@ from primitive_metadata.primitive_rdf import (
 )
 
 from trove.util.iri_labeler import IriLabeler
+from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.jsonapi import (
     JSONAPI_MEMBERNAME,
     JSONAPI_ATTRIBUTE,
     JSONAPI_RELATIONSHIP,
 )
 from trove.vocab.osfmap import osfmap_labeler, DATE_PROPERTIES
-from trove.vocab.namespaces import TROVE, RDF, RDFS, OWL, DCTERMS
+from trove.vocab.namespaces import TROVE, RDF, RDFS, OWL, DCTERMS, SKOS
 
 
 # some assumed-safe assumptions for iris in trovespace:
@@ -23,77 +25,83 @@ from trove.vocab.namespaces import TROVE, RDF, RDFS, OWL, DCTERMS
 #   index card (for the iri with `#` and after removed)
 # - TODO: each iri is an irL that resolves to rdf, html
 
+
+def _literal_markdown(text: str, *, language: str):
+    return literal(text, language=language, mediatype='text/markdown;charset=utf-8')
+
+
+def _browse_link(iri: str):
+    return reverse('trovetrove:browse-iri', kwargs={
+        'iri': get_sufficiently_unique_iri(iri),
+    })
+
+
 TROVE_API_VOCAB: RdfTripleDictionary = {
-    TROVE.API: {
-        RDFS.label: {literal('trove: a catalog of metadata cards', language_tag='en')},
-        RDFS.comment: {literal('for searching', language_tag='en')},
-        TROVE.hasPath: {
-            TROVE['path/index-card-search'],
-            TROVE['path/index-value-search'],
-            TROVE['path/index-card'],
+    TROVE.search_api: {
+        RDFS.label: {literal('trove search api', language='en')},
+        RDFS.comment: {literal('trove (noun): a store of valuable or delightful things.', language='en')},
+        TROVE.usesConcept: {
+            TROVE.propertyPath,
         },
-        DCTERMS.description: {literal('''
-for searching your trove of metadata on lil index-cards
-
-## terminology
-
-### index-card
-an **index-card** is a metadata record focused on a specific thing.
-
-that thing is called the "focus" and is identified by a "focus iri".
-
-the metadata about the thing is a small-ish [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model) in which every triple is reachable from the card's focus iri.
-
-note: there is not (yet) any size limit for an index-card's metadata,
-but it is intended to be small enough for an old computer to use naively, all at once
-(let's start the conversation at 4 KiB -- might be nice to fit in one page of memory)
-
-### property-path
-several query param names and values accept a **property-path** (or several), which is a dot-separated path of short-hand IRIs -- currently only supports OSFMAP shorthand (TODO: link), but may eventually support custom IRI shorthand defined in query parameters of the request.
-
-for example, `creator.name` is parsed as a two-step path that follows
-`creator` (aka `http://purl.org/dc/terms/creator`) and then `name` (aka `http://xmlns.com/foaf/0.1/name`)
-
-most places that allow one property-path also accept a comma-separated set of paths,
-like `title,description` (which is parsed as two paths: `title` and `description`)
-or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: `creator.name`,
-`affiliation.name`, and `funder.name`)
-
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        TROVE.hasPath: {
+            TROVE['path/card'],
+            # TODO maybe: TROVE['path/value'],
+            TROVE['path/card-search'],
+            TROVE['path/value-search'],
+            # TODO: TROVE['path/field-search'],
+        },
+        DCTERMS.description: {_literal_markdown('''
+''', language='en')},
     },
 
     # types:
     TROVE.Indexcard: {
-        RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('index-card', language_tag='en')},
+        RDF.type: {RDFS.Class, SKOS.Concept},
+        RDFS.label: {literal('index-card', language='en')},
+        JSONAPI_MEMBERNAME: {literal('index-card', language='en')},
+        DCTERMS.description: {_literal_markdown('''an **index-card** is
+a metadata record about a specific thing.
+
+that thing is called the "focus" of the index-card and is identified by a "focus iri"
+-- any thing may be identified by multiple iris, but choose one within an index-card
+(and perhaps include the others with `owl:sameAs`)
+
+the metadata about the thing is a quoted [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model) in which every triple is reachable from the card's focus iri
+following predicates as directed edges from subject to object.
+
+there is not (yet) any size limit for an index-card's metadata,
+but it is intended to be small enough for an old computer to use naively, all at once
+(let's start the conversation at 4 KiB -- might be nice to fit in one page of memory)
+''', language='en')},
+
     },
     TROVE.Cardsearch: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('index-card-search', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('index-card-search', language='en')},
     },
     TROVE.Valuesearch: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('index-value-search', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('index-value-search', language='en')},
     },
     TROVE.SearchResult: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('search-result', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('search-result', language='en')},
     },
     TROVE.RelatedPropertypath: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('related-property-path', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('related-property-path', language='en')},
     },
     TROVE.TextMatchEvidence: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('TextMatchEvidence', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('TextMatchEvidence', language='en')},
     },
     TROVE.IriMatchEvidence: {
         RDF.type: {RDFS.Class},
-        JSONAPI_MEMBERNAME: {literal('IriMatchEvidence', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('IriMatchEvidence', language='en')},
     },
 
     # paths:
-    TROVE['path/index-card-search']: {
+    TROVE['path/card-search']: {
         TROVE.iriPath: {literal('/trove/index-card-search')},
         TROVE.hasParameter: {
             TROVE.cardSearchText,
@@ -103,12 +111,13 @@ or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: 
             TROVE.sort,
             # TROVE.include,
         },
-        RDFS.label: {literal('index-card-search', language_tag='en')},
-        RDFS.comment: {literal('search for index-cards based on the metadata they contain', language_tag='en')},
-        DCTERMS.description: {literal('''TODO
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        RDFS.label: {literal('index-card-search', language='en')},
+        RDFS.comment: {literal('search for index-cards based on the metadata they contain', language='en')},
+        DCTERMS.description: {_literal_markdown('''**index-card-search** is
+a way to find resources based on this metadata trove
+''', language='en')},
     },
-    TROVE['path/index-value-search']: {
+    TROVE['path/value-search']: {
         TROVE.iriPath: {literal('/trove/index-value-search')},
         TROVE.hasParameter: {
             TROVE.valueSearchPropertyPath,
@@ -121,257 +130,288 @@ or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: 
             TROVE.sort,
             # TROVE.include,
         },
-        RDFS.label: {literal('index-value-search', language_tag='en')},
-        RDFS.comment: {literal('search for iri values based on how they are used', language_tag='en')},
-        DCTERMS.description: {literal('''index-value-search
-find IRIs you could use in a cardSearchFilter
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        RDFS.label: {literal('index-value-search', language='en')},
+        RDFS.comment: {literal('search for iri values based on how they are used', language='en')},
+        DCTERMS.description: {_literal_markdown('''**index-value-search** is
+a way to find iri values that could be used in a cardSearchFilter
+''', language='en')},
     },
-    TROVE['path/index-card']: {
+    TROVE['path/card']: {
+        RDFS.label: {literal('index-card', language='en')},
+        RDFS.comment: {literal('get a specific index-card by id', language='en')},
         TROVE.iriPath: {literal('/trove/index-card/{indexCardId}')},
-        TROVE.hasParameter: {
-            TROVE.indexCardId,
-        },
-        RDFS.label: {literal('get index-card', language_tag='en')},
-        RDFS.comment: {literal('get a specific index-card by id', language_tag='en')},
-        DCTERMS.description: {literal('''TODO
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        TROVE.hasParameter: {TROVE.indexCardId},
+        TROVE.exposesConcept: {TROVE.Indexcard},
     },
 
     # parameters:
     TROVE.cardSearchText: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
-        JSONAPI_MEMBERNAME: {literal('cardSearchText', language_tag='en')},
-        RDFS.label: {literal('cardSearchText', language_tag='en')},
-        RDFS.comment: {literal('free-text search query', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('cardSearchText', language='en')},
+        RDFS.label: {literal('cardSearchText', language='en')},
+        RDFS.comment: {literal('free-text search query', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
-        DCTERMS.description: {literal('''
-text query, e.g. `cardSearchText=foo`
+        DCTERMS.description: {_literal_markdown('''**cardSearchText** is
+a query parameter for free-text search, e.g. `cardSearchText=foo`
 
 special characters in search text:
 
 * `"` (double quotes): use on both sides of a word or phrase to require exact text match
-* `-` (hyphen): use before a word or quoted phrase (before the leading `"`)
-
-can specify path(s) to text properties (using osfmap iri shorthand)
-
-* `cardSearchText[title]=...`
-* `cardSearchText[creator.name]=...`
-
-the special path segment `*` matches any property
-
-* `cardSearchText[*]=...`: match text values one step away from the focus (default for `cardSearchText=` without `[]`)
-* `cardSearchText[*.*]=...`: match text values exactly two steps away
-* `cardSearchText[*,*.*]=...`: match text values one OR two steps away
-* `cardSearchText[*,creator.name]=...`: match text values one step away OR at the specific path `creator.name`
-
-TODO: support full iris (maybe via `iriShorthand[foo]=...`? or `@context[foo]=...` if `@` )
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+  -- without quotes, text search is fuzzier and more approximate
+* `-` (hyphen): use before a word or quoted phrase (before the leading `"`) to require
+  that the exact word or phrase be absent
+''', language='en')},
     },
     TROVE.cardSearchFilter: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
-        JSONAPI_MEMBERNAME: {literal('cardSearchFilter', language_tag='en')},
-        RDFS.label: {literal('cardSearchFilter', language_tag='en')},
-        RDFS.comment: {literal('filter to index-cards with specific IRIs at specific locations', language_tag='en')},
-        DCTERMS.description: {literal('''
-## cardSearchFilter
-each query parameter in the *cardSearchFilter* family may exclude index-cards from
-the result set based on IRI values at specific locations in the index-card rdf tree.
+        JSONAPI_MEMBERNAME: {literal('cardSearchFilter', language='en')},
+        RDFS.label: {literal('cardSearchFilter', language='en')},
+        RDFS.comment: {literal('filter to index-cards with specific IRIs at specific locations', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**cardSearchFilter** is
+a query parameter to require index-cards to have specific iris in specific places.
 
-### propertyPaths
-...TODO
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+each cardSearchFilter has one or two bracketed parameters:
+`cardSearchFilter[<propertypath_set>][<filter_operator>]=<value_iris>`
+
+* `propertypath_set`: comma-separated **property-path** set
+* `filter_operator`: comma-separated **property-path** set
+* `value_iris`: comma-separated iri set
+''', language='en')},
     },
     TROVE.valueSearchPropertyPath: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter, TROVE.RequiredParameter},
-        JSONAPI_MEMBERNAME: {literal('valueSearchPropertyPath', language_tag='en')},
-        RDFS.label: {literal('valueSearchPropertyPath', language_tag='en')},
-        RDFS.comment: {literal('the location to look for values in index-cards', language_tag='en')},
-        DCTERMS.description: {literal('''
+        JSONAPI_MEMBERNAME: {literal('valueSearchPropertyPath', language='en')},
+        RDFS.label: {literal('valueSearchPropertyPath', language='en')},
+        RDFS.comment: {literal('the location to look for values in index-cards', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''
 dot-separated path of short-hand IRIs
 
 `valueSearchPropertyPath=creator`
 `valueSearchPropertyPath=creator.affiliation`
 
 note: multiple property paths are not supported
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+''', language='en')},
     },
     TROVE.valueSearchText: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
-        RDFS.label: {literal('valueSearchText', language_tag='en')},
-        JSONAPI_MEMBERNAME: {literal('valueSearchText', language_tag='en')},
-        RDFS.comment: {literal('free-text search (within a title, name, or label associated with an IRI)', language_tag='en')},
-        DCTERMS.description: {literal('''
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        RDFS.label: {literal('valueSearchText', language='en')},
+        JSONAPI_MEMBERNAME: {literal('valueSearchText', language='en')},
+        RDFS.comment: {literal('free-text search (within a title, name, or label associated with an IRI)', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**valueSearchText** is
+a query parameter that matches text closely associated with each value
+(specifically `dcterms:title`, `foaf:name`, and `rdfs:label`)
+''', language='en')},
     },
     TROVE.indexCardId: {
         RDF.type: {RDF.Property, TROVE.PathParameter},
-        RDFS.label: {literal('indexCardId', language_tag='en')},
-        RDFS.comment: {literal('unique identifier for an index-card', language_tag='en')},
-        DCTERMS.description: {literal('''TODO
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+        RDFS.label: {literal('indexCardId', language='en')},
+        JSONAPI_MEMBERNAME: {literal('id', language='en')},
+        RDFS.comment: {literal('unique identifier for an index-card', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''
+each index-card is uniquely identified by a UUID
+''', language='en')},
     },
     TROVE.valueSearchFilter: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
-        JSONAPI_MEMBERNAME: {literal('valueSearchFilter', language_tag='en')},
-        RDFS.label: {literal('valueSearchFilter', language_tag='en')},
-        RDFS.comment: {literal('filter to values that match a specific IRI or have a specific type', language_tag='en')},
-        DCTERMS.description: {literal('''
-TODO
+        JSONAPI_MEMBERNAME: {literal('valueSearchFilter', language='en')},
+        RDFS.label: {literal('valueSearchFilter', language='en')},
+        RDFS.comment: {literal('filter to values that match a specific IRI or have a specific type', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''
+may be used only two ways:
 
-only two supported:
-`valueSearchFilter[sameAs]=`
-`valueSearchFilter[resourceType]=`
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+* `valueSearchFilter[sameAs]=<iri>` to request a value by IRI
+* `valueSearchFilter[resourceType]=<type_iri>` to request values used with `rdf:type <type_iri>`
+''', language='en')},
     },
     TROVE.pageCursor: {
         RDF.type: {TROVE.QueryParameter},
-        RDFS.label: {literal('page[cursor]', language_tag='en')},
-        RDFS.comment: {literal('get a specific page by a given cursor', language_tag='en')},
-        DCTERMS.description: {literal('''
-cursor links are returned by the api and may not be valid forever
+        RDFS.label: {literal('page[cursor]', language='en')},
+        JSONAPI_MEMBERNAME: {literal('page[cursor]', language='en')},
+        RDFS.comment: {literal('get an additional page from a prior search', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**page[cursor]** is
+a query parameter for getting a specific page from an earlier search
 
-may not be used with `page[size]`
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+links with `page[cursor]` are included in some api responses, but the
+structure of a cursor is deliberately opaque and may change over time,
+so cursor links may not be valid forever -- recommend starting a fresh
+search each time
+
+may not be used with `page[size]` or `sort`
+''', language='en')},
     },
     TROVE.pageSize: {
         RDF.type: {TROVE.QueryParameter},
-        RDFS.label: {literal('page[size]', language_tag='en')},
-        RDFS.comment: {literal('maximum number of search results returned at once', language_tag='en')},
-        DCTERMS.description: {literal('''
+        RDFS.label: {literal('page[size]', language='en')},
+        JSONAPI_MEMBERNAME: {literal('page[size]', language='en')},
+        RDFS.comment: {literal('maximum number of search results returned at once', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'number'})},
+        DCTERMS.description: {_literal_markdown('''**page[size]** is
+a query parameter to control the maximum number of results returned at once
 
 integer value, e.g. `page[size]=7` (default `13`)
 
 may not be used with `page[cursor]`
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+''', language='en')},
     },
 
     TROVE.sort: {
         RDF.type: {TROVE.QueryParameter},
-        RDFS.label: {literal('sort', language_tag='en')},
-        RDFS.comment: {literal('how to order search results', language_tag='en')},
-        DCTERMS.description: {literal(f'''## sort
-given a short-hand iri for a date property, will sort results by that date ascending (earliest first)
--- prefix with `-` to sort descending (latest first)
+        RDFS.label: {literal('sort', language='en')},
+        JSONAPI_MEMBERNAME: {literal('sort', language='en')},
+        RDFS.comment: {literal('how to order search results', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown(f'''**sort** is
+a query param to control ordering of search results
 
-supported date properties: {", ".join(osfmap_labeler.label_for_iri(_date_iri) for _date_iri in DATE_PROPERTIES)}
+accepts a short-hand iri for a date property:
+{", ".join(f"`{osfmap_labeler.label_for_iri(_date_iri)}`" for _date_iri in DATE_PROPERTIES)}
 
-by default (or if given `-relevance`), will sort by some notion of relevance to given text parameters
+prefix with `-` to sort descending (latest first), otherwise sorts ascending (earliest first)
 
-if no text parameters, sorts by random (gives a random sample of all cards matching the given filters)
+if missing (or if `sort=-relevance`), results are sorted by some notion of
+relevance to the request's search-text or (if no search-text) by random.
 
-note: may not be used with `page[cursor]`
-''', language_tag='en', mediatype='text/markdown; charset=utf-8')},
+may not be used with `page[cursor]`
+''', language='en')},
     },
 
     # attributes:
     TROVE.totalResultCount: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('totalResultCount', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('totalResultCount', language='en')},
     },
     TROVE.matchEvidence: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('matchEvidence', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('matchEvidence', language='en')},
     },
     TROVE.focusIdentifier: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
         # TODO: rename to focusIdentifier in jsonapi
-        JSONAPI_MEMBERNAME: {literal('resourceIdentifier', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('resourceIdentifier', language='en')},
     },
     TROVE.resourceMetadata: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('resourceMetadata', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('resourceMetadata', language='en')},
     },
     TROVE.matchingHighlight: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('matchingHighlight', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('matchingHighlight', language='en')},
     },
     TROVE.propertyPathKey: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('propertyPathKey', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('propertyPathKey', language='en')},
     },
     TROVE.propertyPath: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('propertyPath', language_tag='en')},
+        RDFS.label: {literal('property-path', language='en')},
+        JSONAPI_MEMBERNAME: {literal('propertyPath', language='en')},
+        DCTERMS.description: {_literal_markdown('''a **property-path** is
+a dot-separated path of short-hand IRIs -- currently only OSFMAP shorthand
+(TODO: link)
+
+for example, `creator.name` is parsed as a two-step path that follows
+`creator` (aka `dcterms:creator`, `<http://purl.org/dc/terms/creator>`) and then `name` (aka `foaf:name`, `<http://xmlns.com/foaf/0.1/name>`)
+
+most places that allow one property-path also accept a comma-separated set of paths,
+like `title,description` (which is parsed as two paths: `title` and `description`)
+or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: `creator.name`,
+`affiliation.name`, and `funder.name`)
+
+the special path segment `*` matches any property
+
+* `*`: match text values one step away from the focus (default for `cardSearchText=` without `[]`)
+* `*.*`: match text values exactly two steps away
+* `*,*.*`: match text values one OR two steps away
+* `*,creator.name`: match text values one step away OR at the specific path `creator.name`
+
+(currently, if a path contains `*`, then every step must be `*`
+-- mixed paths like `*.affiliation` are not supported)
+''', language='en')},
     },
     TROVE.osfmapPropertyPath: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('osfmapPropertyPath', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('osfmapPropertyPath', language='en')},
     },
     TROVE.propertyPathSet: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('propertyPathSet', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('propertyPathSet', language='en')},
     },
     TROVE.osfmapPropertyPathSet: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('osfmapPropertyPathSet', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('osfmapPropertyPathSet', language='en')},
     },
     TROVE.filterType: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty},
-        JSONAPI_MEMBERNAME: {literal('filterType', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('filterType', language='en')},
     },
     TROVE.filterValue: {
         RDF.type: {RDF.Property},
-        JSONAPI_MEMBERNAME: {literal('filterValueSet', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('filterValueSet', language='en')},
     },
     TROVE.cardsearchResultCount: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('cardSearchResultCount', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('cardSearchResultCount', language='en')},
     },
     TROVE.suggestedFilterOperator: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
-        JSONAPI_MEMBERNAME: {literal('suggestedFilterOperator', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('suggestedFilterOperator', language='en')},
     },
 
     # relationships:
     TROVE.searchResultPage: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('searchResultPage', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('searchResultPage', language='en')},
     },
     TROVE.evidenceCard: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('evidenceCard', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('evidenceCard', language='en')},
     },
     TROVE.relatedPropertyList: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('relatedProperties', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('relatedProperties', language='en')},
     },
     TROVE.indexCard: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('indexCard', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('indexCard', language='en')},
     },
 
     # values:
     TROVE['ten-thousands-and-more']: {
-        JSONAPI_MEMBERNAME: {literal('ten-thousands-and-more', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('ten-thousands-and-more', language='en')},
     },
     TROVE['any-of']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('any-of', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('any-of', language='en')},
     },
     TROVE['none-of']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('none-of', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('none-of', language='en')},
     },
     TROVE['is-absent']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('is-absent', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('is-absent', language='en')},
     },
     TROVE['is-present']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('is-present', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('is-present', language='en')},
     },
     TROVE.before: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('before', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('before', language='en')},
     },
     TROVE.after: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('after', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('after', language='en')},
     },
     TROVE['at-date']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('at-date', language_tag='en')},
+        JSONAPI_MEMBERNAME: {literal('at-date', language='en')},
     },
 
     # other:

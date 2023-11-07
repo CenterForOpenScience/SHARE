@@ -2,8 +2,11 @@ import itertools
 import json
 from typing import Iterable
 
+from django.conf import settings
 from primitive_metadata import primitive_rdf
 
+from share.version import __version__
+from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import TROVE, RDFS, RDF, DCTERMS
 from trove.vocab.trove import TROVE_API_VOCAB
 
@@ -27,16 +30,16 @@ def get_trove_openapi() -> dict:
     '''
     # TODO: language parameter, get translations
     _api_graph = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
-    _path_iris = set(_api_graph.q(TROVE.API, TROVE.hasPath))
-    _label = next(_api_graph.q(TROVE.API, RDFS.label))
-    _comment = next(_api_graph.q(TROVE.API, RDFS.comment))
-    _description = next(_api_graph.q(TROVE.API, DCTERMS.description))
+    _path_iris = set(_api_graph.q(TROVE.search_api, TROVE.hasPath))
+    _label = next(_api_graph.q(TROVE.search_api, RDFS.label))
+    _comment = next(_api_graph.q(TROVE.search_api, RDFS.comment))
     return {
         'openapi': '3.1.0',
+        # 'externalDocs': {'url': TROVE.search_api},
         'info': {
             'title': _label.unicode_value,
             'summary': _comment.unicode_value,
-            'description': _description.unicode_value,
+            'description': _markdown_description(TROVE.search_api, _api_graph),
             'termsOfService': 'https://github.com/CenterForOpenScience/cos.io/blob/HEAD/TERMS_OF_USE.md',
             'contact': {
                 # 'name':
@@ -44,10 +47,10 @@ def get_trove_openapi() -> dict:
                 'email': 'share-support@osf.io',
             },
             # 'license':
-            'version': '23.2.0',
+            'version': __version__,
         },
         'servers': [{
-            'url': 'https://share.osf.io',
+            'url': settings.SHARE_WEB_URL,
         }],
         'paths': dict(
             _openapi_path(_path_iri, _api_graph)
@@ -66,9 +69,12 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
     )))
     for _param_iri in _param_iris:
         # TODO: better error message on absence
+        try:
+            _jsonname = next(api_graph.q(_param_iri, JSONAPI_MEMBERNAME))
+        except StopIteration:
+            raise ValueError(f'no jsonapi membername for {_param_iri}')
         _label = next(api_graph.q(_param_iri, RDFS.label))
         _comment = next(api_graph.q(_param_iri, RDFS.comment))
-        _description = next(api_graph.q(_param_iri, DCTERMS.description))
         _jsonschema = next(api_graph.q(_param_iri, TROVE.jsonSchema), None)
         _required = ((_param_iri, RDF.type, TROVE.RequiredParameter) in api_graph)
         _location = next(
@@ -76,32 +82,61 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
             for _type_iri in api_graph.q(_param_iri, RDF.type)
             if _type_iri in _OPENAPI_PARAM_LOCATION_BY_RDF_TYPE
         )
-        yield _label.unicode_value, {
+        yield _jsonname.unicode_value, {
             'name': _label.unicode_value,
             'in': _location,
             'required': _required,
             'summary': _comment.unicode_value,
-            'description': _description.unicode_value,
+            'description': _markdown_description(_param_iri, api_graph),
             'schema': (json.loads(_jsonschema.unicode_value) if _jsonschema else None),
         }
 
 
 def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
     # TODO: better error message on absence
-    _iri_path = next(api_graph.q(path_iri, TROVE.iriPath))
-    _label = next(api_graph.q(path_iri, RDFS.label), None)
-    _description = next(api_graph.q(path_iri, DCTERMS.description), None)
-    _param_labels = list(api_graph.q(path_iri, {TROVE.hasParameter: {RDFS.label}}))
-    return _iri_path.unicode_value, {
+    try:
+        _path = next(_text(path_iri, TROVE.iriPath, api_graph))
+    except StopIteration:
+        raise ValueError(f'could not find trove:iriPath for {path_iri}')
+    _labels = list(_text(path_iri, RDFS.label, api_graph))
+    _param_labels = list(_text(path_iri, {TROVE.hasParameter: {JSONAPI_MEMBERNAME}}, api_graph))
+    return _path, {
         'get': {  # TODO (if generalizability): separate metadata by verb
             # 'tags':
-            'summary': _label.unicode_value,
-            'description': _description.unicode_value,
+            'summary': _labels,
+            'description': _markdown_description(path_iri, api_graph),
             # 'externalDocs':
             'operationId': path_iri,
             'parameters': [
-                {'$ref': f'#/components/parameters/{_param_label.unicode_value}'}
+                {'$ref': f'#/components/parameters/{_param_label}'}
                 for _param_label in _param_labels
             ],
         },
     }
+
+
+def _concept_markdown_blocks(concept_iri: str, api_graph: primitive_rdf.RdfGraph):
+    for _label in api_graph.q(concept_iri, RDFS.label):
+        yield f'## {_label.unicode_value}'
+    for _comment in api_graph.q(concept_iri, RDFS.comment):
+        yield f'<aside>{_comment.unicode_value}</aside>'
+    for _desc in api_graph.q(concept_iri, DCTERMS.description):
+        yield _desc.unicode_value
+
+
+def _text(subj, pred, api_graph):
+    for _obj in api_graph.q(subj, pred):
+        yield _obj.unicode_value
+
+
+def _markdown_description(subj_iri: str, api_graph: primitive_rdf.RdfGraph):
+    return '\n\n'.join((
+        *(
+            _description.unicode_value
+            for _description in api_graph.q(TROVE.search_api, DCTERMS.description)
+        ),
+        *(
+            '\n\n'.join(_concept_markdown_blocks(_concept_iri, api_graph))
+            for _concept_iri in api_graph.q(subj_iri, TROVE.usesConcept)
+        ),
+    ))

@@ -16,6 +16,7 @@ from django.http import HttpRequest
 from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
+from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.namespaces import TROVE, RDF, STATIC_SHORTHAND
 
 
@@ -234,15 +235,18 @@ class RdfHtmlBrowseRenderer:
     def __href_for_iri(self, iri: str):
         if self.request and (self.request.get_host() == urlsplit(iri).netloc):
             return iri
-        if iri in TROVE:
-            return reverse('trove-vocab', kwargs={
-                'vocab_term': primitive_rdf.iri_minus_namespace(iri, namespace=TROVE),
-            })
-        return reverse('trovetrove:browse-iri', kwargs={'iri': iri})
+        return reverse('trovetrove:browse-iri', kwargs={
+            'iri': get_sufficiently_unique_iri(iri),
+        })
 
     def __label_for_iri(self, iri: str):
         # TODO: get actual label in requested language
-        return self.iri_shorthand.compact_iri(iri)
+        _shorthand = self.iri_shorthand.compact_iri(iri)
+        return (
+            get_sufficiently_unique_iri(iri)
+            if _shorthand == iri
+            else _shorthand
+        )
 
 
 def _shuffled(items: Iterable):
