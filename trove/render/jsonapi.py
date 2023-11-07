@@ -41,7 +41,7 @@ class RdfJsonapiRenderer:
 
     note: does not support relationship links (or many other jsonapi features)
     '''
-    MEDIATYPE = 'application/api+json'
+    MEDIATYPE = 'application/vnd.api+json'
 
     __to_include = None
 
