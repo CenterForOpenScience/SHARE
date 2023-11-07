@@ -25,14 +25,16 @@ def get_trove_openapi() -> dict:
 
     following https://spec.openapis.org/oas/v3.1.0
     '''
+    # TODO: language parameter, get translations
     _api_graph = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
     _path_iris = set(_api_graph.q(TROVE.API, TROVE.hasPath))
+    _label = next(_api_graph.q(TROVE.API, RDFS.label))
     _comment = next(_api_graph.q(TROVE.API, RDFS.comment))
     _description = next(_api_graph.q(TROVE.API, DCTERMS.description))
     return {
         'openapi': '3.1.0',
         'info': {
-            'title': 'trove: a catalog of index-cards (of rdf metadata)',
+            'title': _label.unicode_value,
             'summary': _comment.unicode_value,
             'description': _description.unicode_value,
             'termsOfService': 'https://github.com/CenterForOpenScience/cos.io/blob/HEAD/TERMS_OF_USE.md',
@@ -52,7 +54,7 @@ def get_trove_openapi() -> dict:
             for _path_iri in _path_iris
         ),
         'components': {
-            'parameters': list(_openapi_parameters(_path_iris, _api_graph)),
+            'parameters': dict(_openapi_parameters(_path_iris, _api_graph)),
         },
     }
 
@@ -67,6 +69,7 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
         _label = next(api_graph.q(_param_iri, RDFS.label))
         _comment = next(api_graph.q(_param_iri, RDFS.comment))
         _description = next(api_graph.q(_param_iri, DCTERMS.description))
+        _jsonschema = next(api_graph.q(_param_iri, TROVE.jsonSchema), None)
         _required = ((_param_iri, RDF.type, TROVE.RequiredParameter) in api_graph)
         _location = next(
             _OPENAPI_PARAM_LOCATION_BY_RDF_TYPE[_type_iri]
@@ -79,19 +82,20 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
             'required': _required,
             'summary': _comment.unicode_value,
             'description': _description.unicode_value,
+            'schema': (json.loads(_jsonschema.unicode_value) if _jsonschema else None),
         }
 
 
 def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
     # TODO: better error message on absence
     _iri_path = next(api_graph.q(path_iri, TROVE.iriPath))
-    _comment = next(api_graph.q(path_iri, RDFS.comment), None)
+    _label = next(api_graph.q(path_iri, RDFS.label), None)
     _description = next(api_graph.q(path_iri, DCTERMS.description), None)
     _param_labels = list(api_graph.q(path_iri, {TROVE.hasParameter: {RDFS.label}}))
     return _iri_path.unicode_value, {
         'get': {  # TODO (if generalizability): separate metadata by verb
             # 'tags':
-            'summary': _comment.unicode_value,
+            'summary': _label.unicode_value,
             'description': _description.unicode_value,
             # 'externalDocs':
             'operationId': path_iri,
