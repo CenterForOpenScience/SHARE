@@ -1,9 +1,15 @@
 import contextlib
 import datetime
+import markdown2
 import random
 from typing import Optional, Iterable
 from urllib.parse import quote, urlsplit
-from xml.etree import ElementTree
+from xml.etree.ElementTree import (
+    Element,
+    SubElement,
+    tostring as etree_tostring,
+    fromstring as etree_fromstring,
+)
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import HttpRequest
@@ -24,59 +30,63 @@ class RdfHtmlBrowseRenderer:
         self.data = data
         self.request = request
         self.iri_shorthand = iri_shorthand or STATIC_SHORTHAND
-        self.rendered_etree = None
-        self.__html_builder = None
+        self.rendered_element = None
+        self.__current_element = None
         self.__visiting_iris = None
         self.__heading_depth = None
 
     def render_document(self, focus_iri: str) -> str:
         # TODO: <!DOCTYPE html>
         with self.__rendering():
-            with self.__nest('html'):  # TODO: lang (according to request -- also translate)
-                with self.__nest('head'):
-                    self.__leaf('link', attrs={
-                        'rel': 'stylesheet',
-                        'href': staticfiles_storage.url('css/browse.css'),
-                    })
-                _body_attrs = {
-                    'class': 'BrowseWrapper',
-                    'style': f'--random-turn: {random.random()}turn;',
-                }
-                with self.__nest('body', attrs=_body_attrs):
-                    self.__triples(focus_iri),
+            with self.__nest('head'):
+                self.__leaf('link', attrs={
+                    'rel': 'stylesheet',
+                    'href': staticfiles_storage.url('css/browse.css'),
+                })
+            _body_attrs = {
+                'class': 'BrowseWrapper',
+                'style': f'--random-turn: {random.random()}turn;',
+            }
+            with self.__nest('body', attrs=_body_attrs):
+                self.__render_subj(focus_iri),
+                # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
         return ''.join((
             '<!DOCTYPE html>',
-            ElementTree.tostring(self.rendered_etree, encoding='unicode', method='html'),
+            etree_tostring(self.rendered_element, encoding='unicode', method='html'),
         ))
 
     ###
     # private rdf-rendering helpers
 
-    def __triples(self, focus_iri: str):
-        with self.__visiting(focus_iri):
+    def __render_subj(self, subj_iri: str, twopledict=None):
+        _twopledict = (
+            self.data.get(subj_iri, {})
+            if twopledict is None
+            else twopledict
+        )
+        with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
-                with self.__nest('section', attrs={'class': 'Browse__card'}, visible=True):
+                with self.__nest('article', attrs={'class': 'Browse__card'}, visible=True):
                     with self.__nest('header'):
-                        _label = self.__label_for_iri(focus_iri)
+                        _label = self.__label_for_iri(subj_iri)
                         with self.__nest(_h_tag, attrs={'class': 'Browse__heading'}):
-                            with self.__nest_link(focus_iri):
-                                self.__leaf('dfn', text=_label, attrs={'id': quote(focus_iri)})
-                        _compact_focus = self.iri_shorthand.compact_iri(focus_iri)
+                            with self.__nest_link(subj_iri):
+                                self.__leaf('dfn', text=_label, attrs={'id': quote(subj_iri)})
+                        _compact_focus = self.iri_shorthand.compact_iri(subj_iri)
                         if _compact_focus != _label:
                             self.__leaf('code', text=_compact_focus)
-                        if _compact_focus != focus_iri:
-                            self.__leaf('code', text=focus_iri)
-                    self.__twoples(self.data.get(focus_iri, {}))
-        # TODO: <details> with disconnected triples (unreachable from given focus)
+                        if _compact_focus != subj_iri:
+                            self.__leaf('code', text=subj_iri)
+                    self.__twoples(_twopledict)
 
     def __twoples(self, twopledict: primitive_rdf.RdfTwopleDictionary):
-        with self.__nest('ul', {'class': 'Browse__nested_twopleset'}):
+        with self.__nest('ul', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in _shuffled(twopledict.items()):
-                with self.__nest('li', {'class': 'Browse__nested_twople'}, visible=True):
+                with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
                     self.__leaf_link(_pred)
                     # TODO: use a vocab, not static property iris
                     if _pred == TROVE.resourceMetadata:
-                        _focus_iris = twopledict[TROVE.resourceIdentifier]  # assumed
+                        _focus_iris = twopledict[TROVE.focusIdentifier]  # assumed
                         _focus_iri = None
                         _quoted_triples = set()
                         for _obj in _shuffled(_obj_set):
@@ -100,7 +110,7 @@ class RdfHtmlBrowseRenderer:
                 if obj in self.__visiting_iris:
                     self.__leaf_link(obj)  # TODO: consider
                 else:
-                    self.__triples(obj)
+                    self.__render_subj(obj)
             else:
                 self.__leaf_link(obj)
         elif isinstance(obj, frozenset):  # blanknode
@@ -109,11 +119,25 @@ class RdfHtmlBrowseRenderer:
             else:
                 self.__twoples(primitive_rdf.twopledict_from_twopleset(obj))
         elif isinstance(obj, primitive_rdf.Literal):
-            # TODO language tag
-            self.__leaf('q', text=obj.unicode_value)
+            self.__literal(obj)
         elif isinstance(obj, (float, int, datetime.date)):
-            # TODO datatype?
-            self.__leaf('q', text=str(obj))
+            self.__literal(primitive_rdf.literal(obj))
+
+    def __literal(self, literal: primitive_rdf.Literal):
+        # TODO language tag, datatypes
+        _markdown_iri = primitive_rdf.iri_from_mediatype('text/markdown')
+        _is_markdown = any(
+            _datatype.startswith(_markdown_iri)
+            for _datatype in literal.datatype_iris
+        )
+        # TODO: checksum_iri, literal_iri
+        with self.__nest('article'):
+            if _is_markdown:
+                # TODO: tests for safe_mode
+                _html = markdown2.markdown(literal.unicode_value, safe_mode='escape')
+                self.__current_element.append(etree_fromstring(f'<q>{_html}</q>'))
+            else:
+                self.__leaf('q', text=literal.unicode_value)
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(primitive_rdf.sequence_objects_in_order(sequence_twoples))
@@ -129,20 +153,21 @@ class RdfHtmlBrowseRenderer:
         for _triple in quoted_triples:
             _quoted_graph.add(_triple)
         with self.__quoted_data(_quoted_graph.tripledict):
-            self.__triples(focus_iri)
+            self.__render_subj(focus_iri)
 
     ###
     # private html-building helpers
 
     @contextlib.contextmanager
     def __rendering(self):
-        self.__html_builder = ElementTree.TreeBuilder()
+        # TODO: lang (according to request -- also translate)
+        self.__current_element = Element('html')
         self.__visiting_iris = set()
         try:
             yield
-            self.rendered_etree = self.__html_builder.close()
+            self.rendered_element = self.__current_element
         finally:
-            self.__html_builder = None
+            self.__current_element = None
             self.__visiting_iris = None
 
     @contextlib.contextmanager
@@ -187,22 +212,24 @@ class RdfHtmlBrowseRenderer:
                 if 'class' in _attrs
                 else 'VisibleNest'
             )
-        self.__html_builder.start(tag_name, _attrs)
-        yield
-        self.__html_builder.end(tag_name)
+        _parent_element = self.__current_element
+        self.__current_element = SubElement(_parent_element, tag_name, _attrs)
+        try:
+            yield self.__current_element
+        finally:
+            self.__current_element = _parent_element
 
     def __leaf(self, tag_name, *, text=None, attrs=None):
-        self.__html_builder.start(tag_name, attrs or {})
+        _leaf_element = SubElement(self.__current_element, tag_name, attrs or {})
         if text is not None:
-            self.__html_builder.data(text)
-        self.__html_builder.end(tag_name)
+            _leaf_element.text = text
 
     def __nest_link(self, iri: str):
         return self.__nest('a', attrs={'href': self.__href_for_iri(iri)})
 
     def __leaf_link(self, iri: str):
-        with self.__nest_link(iri):
-            self.__html_builder.data(self.iri_shorthand.compact_iri(iri))
+        with self.__nest_link(iri) as _link:
+            _link.text = self.iri_shorthand.compact_iri(iri)
 
     def __href_for_iri(self, iri: str):
         if self.request and (self.request.get_host() == urlsplit(iri).netloc):

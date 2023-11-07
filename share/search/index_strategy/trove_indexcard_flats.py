@@ -188,7 +188,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 else:
                     _nested_dates[_walk_path].add(_walk_obj.unicode_value)
             elif isinstance(_walk_obj, primitive_rdf.Literal):
-                _nested_texts[(_walk_path, tuple(_walk_obj.language_iris))].add(_walk_obj.unicode_value)
+                _nested_texts[(_walk_path, tuple(_walk_obj.datatype_iris))].add(_walk_obj.unicode_value)
         _focus_iris = {indexcard_rdf.focus_iri}
         _suffuniq_focus_iris = {get_sufficiently_unique_iri(indexcard_rdf.focus_iri)}
         for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all():
@@ -822,7 +822,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     for _highlight in _innerhit['highlight']['nested_text.text_value']:
                         yield TextMatchEvidence(
                             property_path=_property_path,
-                            matching_highlight=primitive_rdf.literal(_highlight, language_iris=_language_iris),
+                            matching_highlight=primitive_rdf.literal(_highlight, datatype_iris=_language_iris),
                             card_iri=_innerhit['_id'],
                         )
 

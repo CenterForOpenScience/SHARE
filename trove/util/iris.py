@@ -27,6 +27,11 @@ def get_sufficiently_unique_iri(iri: str) -> str:
     return _suffuniq_iri
 
 
+def get_iri_scheme(iri: str) -> str:
+    (_, _iri_scheme) = get_sufficiently_unique_iri_and_scheme(iri)
+    return _iri_scheme
+
+
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if not _scheme_match:

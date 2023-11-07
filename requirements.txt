@@ -21,6 +21,7 @@ gevent==22.10.2  # MIT
 jsonschema==3.2.0  # MIT
 lxml==4.9.1  # BSD
 kombu==5.1.0  # BSD 3 Clause
+markdown2==2.4.10  # MIT
 nameparser==1.0.6  # LGPL
 networkx==2.5.1  # BSD
 newrelic==8.4.0  # newrelic APM agent, Custom License
@@ -42,4 +43,4 @@ xmltodict==0.12.0  # MIT
 # Allows custom-rendered IDs, hiding null values, and including data in error responses
 git+https://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos0
 
-git+https://github.com/aaxelb/primitive_metadata.git@0.2023.51
+git+https://github.com/aaxelb/primitive_metadata.git@0.2023.55

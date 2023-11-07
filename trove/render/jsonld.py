@@ -25,9 +25,9 @@ class RdfJsonldRenderer:
                 primitive_rdf.twopleset_as_twopledict(rdfobject),
             )
         elif isinstance(rdfobject, primitive_rdf.Literal):
-            if not rdfobject.language_iris:
+            if not rdfobject.datatype_iris:
                 return {'@value': rdfobject.unicode_value}
-            if RDF.JSON in rdfobject.language_iris:
+            if RDF.JSON in rdfobject.datatype_iris:
                 # NOTE: does not reset jsonld context
                 return json.loads(rdfobject.unicode_value)
             _language_tag = rdfobject.language_tag
@@ -40,9 +40,9 @@ class RdfJsonldRenderer:
             return {
                 '@value': rdfobject.unicode_value,
                 '@type': (
-                    list(rdfobject.language_iris)
-                    if len(rdfobject.language_iris) > 1
-                    else next(iter(rdfobject.language_iris))
+                    list(rdfobject.datatype_iris)
+                    if len(rdfobject.datatype_iris) > 1
+                    else next(iter(rdfobject.datatype_iris))
                 ),
             }
         elif isinstance(rdfobject, str):

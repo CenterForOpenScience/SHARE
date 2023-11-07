@@ -67,8 +67,8 @@ def _gather_work(focus, *, mnode, source_config):
         if _language_tag
         else None
     )
-    yield (DCTERMS.title, primitive_rdf.literal(mnode['title'], language_iris={_language_iri}))
-    yield (DCTERMS.description, primitive_rdf.literal(mnode['description'], language_iris={_language_iri}))
+    yield (DCTERMS.title, primitive_rdf.literal(mnode['title'], datatype_iris={_language_iri}))
+    yield (DCTERMS.description, primitive_rdf.literal(mnode['description'], datatype_iris={_language_iri}))
     yield (DCTERMS.created, _date_or_none(mnode['date_published']))
     yield (DCTERMS.modified, _date_or_none(mnode['date_updated']))
     yield (DCTERMS.date, _date_or_none(mnode['date_published'] or mnode['date_updated']))

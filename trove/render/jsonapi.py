@@ -277,7 +277,7 @@ class RdfJsonapiRenderer:
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
             return _json_blanknode
         if isinstance(rdfobject, primitive_rdf.Literal):
-            if RDF.JSON in rdfobject.language_iris:
+            if RDF.JSON in rdfobject.datatype_iris:
                 return json.loads(rdfobject.unicode_value)
             return rdfobject.unicode_value  # TODO: decide how to represent language
         elif isinstance(rdfobject, str):

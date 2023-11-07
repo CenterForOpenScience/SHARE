@@ -7,6 +7,7 @@ import typing
 import urllib
 
 from django.http import QueryDict
+from primitive_metadata import primitive_rdf
 
 from share.search import exceptions
 from trove.util.queryparams import (
@@ -46,12 +47,60 @@ MAX_PAGE_SIZE = 101
 # between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
 
-# special path-step that matches all properties
+# special path-step that matches any property
 GLOB_PATHSTEP = '*'
 
 
 ###
 # dataclasses for parsed search-api query parameters
+
+
+@dataclasses.dataclass(frozen=True)
+class BaseTroveParams:
+    iri_shorthand: primitive_rdf.IriShorthand
+    include: frozenset[tuple[str, ...]]
+
+    @classmethod
+    def from_querystring(cls, querystring: str) -> 'BaseTroveParams':  # TODO py3.11: typing.Self
+        return cls.from_queryparams(queryparams_from_querystring(querystring))
+
+    @classmethod
+    def from_queryparams(cls, queryparams: QueryparamDict) -> 'BaseTroveParams':
+        return cls(**cls.parse_queryparams(queryparams))
+
+    @classmethod
+    def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
+        # subclasses should override and add their fields to super().parse_queryparams(queryparams)
+        return {
+            'iri_shorthand': cls._gather_shorthand(queryparams),
+            'include': cls._gather_include(queryparams.get('include', [])),
+        }
+
+    def to_querystring(self) -> str:
+        return self.to_querydict().urlencode()
+
+    def to_querydict(self) -> QueryDict:
+        # subclasses should override and add their fields to super().to_querydict()
+        _querydict = QueryDict(mutable=True)
+        # TODO: self.iri_shorthand, self.include
+        return _querydict
+
+    @classmethod
+    def _gather_shorthand(cls, queryparams: QueryparamDict):
+        _prefixmap = {}
+        for _qp_name, _iri in queryparams.get('iriShorthand', []):
+            try:
+                (_shortname,) = _qp_name.bracketed_names
+            except ValueError:
+                raise  # TODO: 400 response
+            else:
+                _prefixmap[_shortname] = _iri
+        return primitive_rdf.IriShorthand(_prefixmap)
+
+    @classmethod
+    def _gather_include(cls, queryparams: QueryparamDict):
+        # TODO: for _qp_name, _iri in queryparams.get('include', []):
+        return frozenset()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -374,23 +423,14 @@ class PageParam:
 
 
 @dataclasses.dataclass(frozen=True)
-class CardsearchParams:
+class CardsearchParams(BaseTroveParams):
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
     sort_list: tuple[SortParam]
     page: PageParam
-    include: frozenset[tuple[str, ...]]
     related_property_paths: tuple[tuple[str, ...]]
     unnamed_iri_values: frozenset[str]
-
-    @classmethod
-    def from_querystring(cls, querystring: str) -> 'CardsearchParams':  # TODO py3.11: typing.Self
-        return cls.from_queryparams(queryparams_from_querystring(querystring))
-
-    @staticmethod
-    def from_queryparams(queryparams: QueryparamDict) -> 'CardsearchParams':
-        return CardsearchParams(**CardsearchParams.parse_cardsearch_queryparams(queryparams))
 
     @staticmethod
     def parse_cardsearch_queryparams(queryparams: QueryparamDict) -> dict:
@@ -406,11 +446,8 @@ class CardsearchParams:
             'unnamed_iri_values': frozenset(),  # TODO: frozenset(_get_unnamed_iri_values(_filter_set)),
         }
 
-    def to_querystring(self) -> str:
-        return self.to_querydict().urlencode()
-
     def to_querydict(self) -> QueryDict:
-        _querydict = QueryDict(mutable=True)
+        _querydict = super().to_querydict()
         for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('cardSearchText', self.cardsearch_textsegment_set):
             _querydict[_qp_name] = _qp_value
         if self.sort_list:
@@ -424,7 +461,6 @@ class CardsearchParams:
             _querydict.appendlist(_qp_name, _qp_value)
         if self.index_strategy_name:
             _querydict['indexStrategy'] = self.index_strategy_name
-        # TODO: include 'include'
         return _querydict
 
 
