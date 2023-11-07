@@ -12,7 +12,11 @@ IRI_SCHEME_REGEX = re.compile(
 IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNORECASE)
 COLON = ':'
 COLON_SLASH_SLASH = '://'
-QUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{re.escape(quote(COLON))}')
+QUOTED_IRI_REGEX = re.compile(
+    f'{IRI_SCHEME_REGEX.pattern}{re.escape(quote(COLON))}'
+    f'|{re.escape(quote(COLON_SLASH_SLASH))}'
+)
+UNQUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{COLON}|{COLON_SLASH_SLASH}')
 
 # treat similar-enough IRIs as equivalent, based on a wild assertion:
 #   if two IRIs differ only in their `scheme`
@@ -34,13 +38,17 @@ def get_iri_scheme(iri: str) -> str:
 
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
-    if not _scheme_match:
-        raise ValueError(f'does not look like an iri (got "{iri}")')
-    _scheme = _scheme_match.group().lower()
-    _remainder = iri[_scheme_match.end():]
-    if not _remainder.startswith(COLON_SLASH_SLASH):
-        # for an iri without '://', assume nothing!
-        return (iri, _scheme)
+    if _scheme_match:
+        _scheme = _scheme_match.group().lower()
+        _remainder = iri[_scheme_match.end():]
+        if not _remainder.startswith(COLON_SLASH_SLASH):
+            # for an iri without '://', assume nothing!
+            return (iri, _scheme)
+    else:  # may omit scheme only if `://`
+        if not iri.startswith(COLON_SLASH_SLASH):
+            raise ValueError(f'does not look like an iri (got "{iri}")')
+        _scheme = ''
+        _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
     _split_remainder = urlsplit(_remainder)
     _cleaned_remainder = urlunsplit((
@@ -78,6 +86,6 @@ def unquote_iri(iri: str) -> str:
     _unquoted_iri = iri
     while QUOTED_IRI_REGEX.match(_unquoted_iri):
         _unquoted_iri = unquote(_unquoted_iri)
-    if not IRI_SCHEME_REGEX.match(_unquoted_iri):
+    if not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
         raise ValueError(f'does not look like a quoted iri: {iri}')
     return _unquoted_iri

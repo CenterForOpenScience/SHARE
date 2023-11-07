@@ -28,9 +28,9 @@ class RdfJsonldRenderer:
             if not rdfobject.datatype_iris:
                 return {'@value': rdfobject.unicode_value}
             if RDF.JSON in rdfobject.datatype_iris:
-                # NOTE: does not reset jsonld context
+                # NOTE: does not reset jsonld context (is that a problem?)
                 return json.loads(rdfobject.unicode_value)
-            _language_tag = rdfobject.language_tag
+            _language_tag = rdfobject.language
             if _language_tag:  # standard language tag
                 return {
                     '@value': rdfobject.unicode_value,

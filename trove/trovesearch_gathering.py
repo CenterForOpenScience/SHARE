@@ -43,8 +43,8 @@ logger = logging.getLogger(__name__)
 
 TROVE_GATHERING_NORMS = gather.GatheringNorms(
     namestory=(
-        literal('cardsearch', language_tag='en'),
-        literal('search for "index cards" that describe resources', language_tag='en'),
+        literal('cardsearch', language='en'),
+        literal('search for "index cards" that describe resources', language='en'),
     ),
     focustype_iris={
         TROVE.Indexcard,
@@ -57,7 +57,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms(
 
 trovesearch_by_indexstrategy = gather.GatheringOrganizer(
     namestory=(
-        literal('trove search', language_tag='en'),
+        literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
     gatherer_kwargnames={'search_params', 'specific_index', 'use_osfmap_json'},

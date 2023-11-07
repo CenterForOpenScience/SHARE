@@ -432,10 +432,11 @@ class CardsearchParams(BaseTroveParams):
     related_property_paths: tuple[tuple[str, ...]]
     unnamed_iri_values: frozenset[str]
 
-    @staticmethod
-    def parse_cardsearch_queryparams(queryparams: QueryparamDict) -> dict:
+    @classmethod
+    def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
         _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
         return {
+            **super().parse_queryparams(queryparams),
             'cardsearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'cardSearchText'),
             'cardsearch_filter_set': _filter_set,
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
@@ -473,17 +474,17 @@ class ValuesearchParams(CardsearchParams):
     valuesearch_filter_set: frozenset[SearchFilter]
 
     # override CardsearchParams
-    @staticmethod
-    def from_queryparams(queryparams: QueryparamDict) -> 'ValuesearchParams':
+    @classmethod
+    def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
         _raw_propertypath = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
         if not _raw_propertypath:
             raise ValueError('TODO: 400 valueSearchPropertyPath required')
-        return ValuesearchParams(
-            **CardsearchParams.parse_cardsearch_queryparams(queryparams),
-            valuesearch_propertypath_set=_parse_propertypath_set(_raw_propertypath, allow_globs=False),
-            valuesearch_textsegment_set=Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
-            valuesearch_filter_set=SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
-        )
+        return {
+            **super().parse_queryparams(queryparams),
+            'valuesearch_propertypath_set': _parse_propertypath_set(_raw_propertypath, allow_globs=False),
+            'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
+            'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
+        }
 
     def to_querydict(self):
         _querydict = super().to_querydict()
