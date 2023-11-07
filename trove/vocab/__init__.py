@@ -1,7 +1,7 @@
 import dataclasses
 import pathlib
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 from . import namespaces
 

@@ -1,6 +1,6 @@
 import abc
 
-from gather import primitive_rdf
+from primitive_metadata import primitive_rdf
 
 
 class BaseRdfExtractor(abc.ABC):
