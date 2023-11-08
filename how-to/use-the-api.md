@@ -1,6 +1,6 @@
 # How to use the API
 
-(see [openapi docs](/trove/openapi.ui) for detail)
+(see [openapi docs](/trove/docs/openapi.html) for detail)
 
 ## Sample and search for index-cards
 

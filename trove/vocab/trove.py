@@ -5,11 +5,13 @@ from primitive_metadata.primitive_rdf import (
     RdfTripleDictionary,
     literal,
     literal_json,
+    blanknode,
 )
 
 from trove.util.iri_labeler import IriLabeler
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.jsonapi import (
+    JSONAPI_MEDIATYPE,
     JSONAPI_MEMBERNAME,
     JSONAPI_ATTRIBUTE,
     JSONAPI_RELATIONSHIP,
@@ -50,7 +52,26 @@ TROVE_API_VOCAB: RdfTripleDictionary = {
             TROVE['path/value-search'],
             # TODO: TROVE['path/field-search'],
         },
-        DCTERMS.description: {_literal_markdown('''
+        DCTERMS.description: {_literal_markdown(f'''the **trove search api** helps
+navigate a trove of records.
+
+(TODO: helpful intro)
+
+## mediatype
+each api response is modeled as an rdf graph, which could be rendered many ways.
+
+use the `acceptMediatype=` query parameter or the `Content-Type` http header
+to request one of the supported mediatypes:
+
+* [jsonapi](https://jsonapi.org/): `{JSONAPI_MEDIATYPE}` (specific to the features
+  of [osf search](https://osf.io/search/), is not an rdf representation)
+* rdf as browsable html: `text/html;charset=utf-8`
+
+## stability
+responses with mediatype `application/vnd.api+json` are specific to support
+[osf search](https://osf.io/search/), but any other responses directly represent
+the underlying rdf, which may churn and shift over time (TODO: ontological stability)
+
 ''', language='en')},
     },
 
@@ -116,6 +137,75 @@ but it is intended to be small enough for an old computer to use naively, all at
         DCTERMS.description: {_literal_markdown('''**index-card-search** is
 a way to find resources based on this metadata trove
 ''', language='en')},
+        TROVE.example: {
+            blanknode({
+                RDFS.label: {literal('card-search-with-text', language='en')},
+                RDFS.comment: {literal('card-search with text', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search index-cards that match a fuzzy text search for the word "word" in the title (aka `dcterms:title`, <http://purl.org/dc/terms/title>)
+
+uses query parameter:
+```
+cardSearchText[title]=word
+```
+''', language='en')},
+                RDF.value: {'/trove/index-card-search?cardSearchText[title]=word&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('card-search-with-filter', language='en')},
+                RDFS.comment: {literal('card-search with filter', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search index-cards that have at least one creator affiliated with [COS](https://cos.io)
+
+uses query parameter:
+```
+cardSearchFilter[creator.affiliation]=https://cos.io
+```
+''', language='en')},
+                RDF.value: {'/trove/index-card-search?cardSearchFilter[creator.affiliation]=https://cos.io&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('card-search-with-date-filter', language='en')},
+                RDFS.comment: {literal('card-search with date filter', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+searches index-cards with `dateCreated` (aka `dcterms:created`, <http://purl.org/dc/terms/created>)
+values after 2022
+
+uses query parameter:
+```
+cardSearchFilter[dateCreated][after]=2022
+```
+''', language='en')},
+                RDF.value: {'/trove/index-card-search?cardSearchFilter[dateCreated][after]=2022&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('card-search-with-star-path', language='en')},
+                RDFS.comment: {literal('card-search with star path', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+searches index-cards with a specific iri value at any property
+
+uses query parameter:
+```
+cardSearchFilter[*]=https://osf.io
+```
+''', language='en')},
+                RDF.value: {'/trove/index-card-search?cardSearchFilter[*]=https://osf.io&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('card-search-with-multiple-filter', language='en')},
+                RDFS.comment: {literal('card-search with multiple filters', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+searches for index-cards that have a `funder` and do not have an `affiliation`
+
+uses query parameters:
+```
+cardSearchFilter[funder][is-present]
+cardSearchFilter[affiliation][is-absent]
+```
+''', language='en')},
+                RDF.value: {'/trove/index-card-search?cardSearchFilter[funder][is-present]&cardSearchFilter[affiliation][is-absent]&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+        },
     },
     TROVE['path/value-search']: {
         TROVE.iriPath: {literal('/trove/index-value-search')},
@@ -135,6 +225,80 @@ a way to find resources based on this metadata trove
         DCTERMS.description: {_literal_markdown('''**index-value-search** is
 a way to find iri values that could be used in a cardSearchFilter
 ''', language='en')},
+        TROVE.example: {
+            blanknode({
+                RDFS.label: {literal('value-search without card-search', language='en')},
+                RDFS.comment: {literal('value-search without card-search', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search for iri values for the property `creator` (aka `dcterms:creator`,
+`<http://purl.org/dc/terms/creator>`)
+
+uses query parameter:
+```
+valueSearchPropertyPath=creator
+```
+''', language='en')},
+                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('value-search with card-search', language='en')},
+                RDFS.comment: {literal('value-search with card-search', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search for iri values for the property `creator` within the context of a card-search
+
+uses query parameter:
+```
+valueSearchPropertyPath=creator
+cardSearchText=sciency
+cardSearchFilter[subject][is-present]
+```
+''', language='en')},
+                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('value-search specific iri', language='en')},
+                RDFS.comment: {literal('value-search specific iri', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search for a specific iri value in the property `creator`
+
+uses query parameter:
+```
+valueSearchPropertyPath=creator
+valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104
+```
+''', language='en')},
+                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('value-search by value type', language='en')},
+                RDFS.comment: {literal('value-search by value type', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search for iri values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
+
+uses query parameter:
+```
+valueSearchPropertyPath=creator
+valueSearchFilter[resourceType]=Person
+```
+''', language='en')},
+                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+            blanknode({
+                RDFS.label: {literal('value-search with text', language='en')},
+                RDFS.comment: {literal('value-search with text', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+search for iri values used as `license` that have "cc" in their label
+(`rdfs:label`, `dcterms:title`, or `foaf:name`)
+
+uses query parameter:
+```
+valueSearchPropertyPath=license
+valueSearchText=cc
+```
+''', language='en')},
+                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=license&valueSearchText=cc&acceptMediatype=application/vnd.api%2Bjson'},
+            }),
+        },
     },
     TROVE['path/card']: {
         RDFS.label: {literal('index-card', language='en')},
@@ -142,6 +306,159 @@ a way to find iri values that could be used in a cardSearchFilter
         TROVE.iriPath: {literal('/trove/index-card/{indexCardId}')},
         TROVE.hasParameter: {TROVE.indexCardId},
         TROVE.usesConcept: {TROVE.Indexcard},
+        TROVE.example: {
+            blanknode({
+                RDFS.label: {literal('get index-card', language='en')},
+                RDFS.comment: {literal('get index-card', language='en')},
+                DCTERMS.description: {_literal_markdown('''
+get a specific index-card by id
+''', language='en')},
+                RDF.value: {literal_json({
+                    "data": {
+                        "id": "2cf01bc0-811e-4804-bcc7-b39364907464",
+                        "type": "index-card",
+                        "attributes": {
+                            "resourceIdentifier": [
+                                "http://foo.example/bv7mp"
+                            ],
+                            "resourceMetadata": {
+                                "@id": "http://foo.example/bv7mp",
+                                "resourceType": [
+                                    {"@id": "Preprint"}
+                                ],
+                                "dateCreated": [
+                                    {"@value": "2023-04-21"}
+                                ],
+                                "creator": [
+                                    {
+                                        "@id": "http://foo.example/vraye",
+                                        "resourceType": [
+                                            {"@id": "Person"},
+                                            {"@id": "Agent"}
+                                        ],
+                                        "identifier": [
+                                            {"@value": "http://foo.example/vraye"}
+                                        ],
+                                        "name": [
+                                            {"@value": "Some Person"}
+                                        ]
+                                    }
+                                ],
+                                "dateCopyrighted": [
+                                    {"@value": "2023"}
+                                ],
+                                "description": [
+                                    {"@value": "words words words"}
+                                ],
+                                "identifier": [
+                                    {"@value": "http://foo.example/bv7mp"}
+                                ],
+                                "dateModified": [
+                                    {"@value": "2023-04-25"}
+                                ],
+                                "publisher": [
+                                    {
+                                        "@id": "http://foo.example/publisher",
+                                        "resourceType": [
+                                            {"@id": "Agent"},
+                                            {"@id": "Organization"}
+                                        ],
+                                        "identifier": [
+                                            {"@value": "http://foo.example/publisher"}
+                                        ],
+                                        "name": [
+                                            {"@value": "Foo Publisher"}
+                                        ]
+                                    }
+                                ],
+                                "rights": [
+                                    {
+                                        "name": [
+                                            {"@value": "No license"}
+                                        ]
+                                    }
+                                ],
+                                "rightsHolder": [
+                                    {"@value": "nthnth"}
+                                ],
+                                "subject": [
+                                    {
+                                        "@id": "http://foo.example//",
+                                        "resourceType": [
+                                            {"@id": "Concept"}
+                                        ],
+                                        "inScheme": [
+                                            {
+                                                "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+                                                "resourceType": [
+                                                    {"@id": "http://www.w3.org/2004/02/skos/core#ConceptScheme"}
+                                                ],
+                                                "title": [
+                                                    {"@value": "bepress Digital Commons Three-Tiered Taxonomy"}
+                                                ]
+                                            }
+                                        ],
+                                        "prefLabel": [
+                                            {"@value": "Medicine and Health Sciences"}
+                                        ]
+                                    },
+                                    {
+                                        "@id": "http://foo.example/v2/subjects/630cab2ccf30b1000187b723/",
+                                        "resourceType": [
+                                            {"@id": "Concept"}
+                                        ],
+                                        "inScheme": [
+                                            {
+                                                "@id": "https://bepress.com/reference_guide_dc/disciplines/",
+                                                "resourceType": [
+                                                    {"@id": "http://www.w3.org/2004/02/skos/core#ConceptScheme"}
+                                                ],
+                                                "title": [
+                                                    {"@value": "bepress Digital Commons Three-Tiered Taxonomy"}
+                                                ]
+                                            }
+                                        ],
+                                        "prefLabel": [
+                                            {"@value": "Law"}
+                                        ]
+                                    }
+                                ],
+                                "title": [
+                                    {"@value": "aoaoao"}
+                                ],
+                                "resourceNature": [
+                                    {
+                                        "@id": "https://schema.datacite.org/meta/kernel-4.4/#Preprint",
+                                        "displayLabel": [
+                                            {
+                                                "@value": "Preprint",
+                                                "@language": "en"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "accessService": [
+                                    {"@id": "http://foo.example"}
+                                ],
+                                "hasPreregisteredAnalysisPlan": [
+                                    {"@id": "http://foo.example/blah"}
+                                ],
+                                "hasPreregisteredStudyDesign": [
+                                    {"@id": "http://foo.example/blah"}
+                                ],
+                                "keyword": [
+                                    {"@value": "wibbleplop"},
+                                    {"@value": "go"}
+                                ],
+                                "links": {
+                                    "self": "http://localhost:8003/trove/index-card/2cf01bc0-811e-4804-bcc7-b39364907464"
+                                }
+                            }
+                        }
+                    }
+                })},
+            }),
+        },
     },
 
     # parameters:
@@ -160,6 +477,9 @@ special characters in search text:
   -- without quotes, text search is fuzzier and more approximate
 * `-` (hyphen): use before a word or quoted phrase (before the leading `"`) to require
   that the exact word or phrase be absent
+
+accepts comma-separated property-paths in an optional bracketed parameter (default
+`*]`, matches any one property), e.g. `cardSearchText[title,description]=foo`
 ''', language='en')},
     },
     TROVE.cardSearchFilter: {
@@ -176,8 +496,24 @@ each cardSearchFilter has one or two bracketed parameters:
 `cardSearchFilter[<propertypath_set>][<filter_operator>]=<value_iris>`
 
 * `propertypath_set`: comma-separated **property-path** set
-* `filter_operator`: (TODO: list operators)
+* `filter_operator`: any one of the operators defined below
 * `value_iris`: comma-separated iri set
+
+### filter operators
+
+operators on iri values:
+
+* `any-of` (default): at least one of the value iris
+* `none-of`: none of the value iris
+* `is-present`: the property-path must exist, but its value does not matter
+* `is-absent`: the property-path must not exist
+
+operators on date values (may give date in `YYYY-MM-DD`, `YYYY-MM`, or `YYYY` format)
+
+* `before`: before the given date (excluding the date itself)
+* `after`: after the given date (excluding the date itself)
+* `at-date`: within the given date
+
 ''', language='en')},
     },
     TROVE.valueSearchPropertyPath: {
@@ -205,6 +541,8 @@ note: multiple property paths are not supported
         DCTERMS.description: {_literal_markdown('''**valueSearchText** is
 a query parameter that matches text closely associated with each value
 (specifically `dcterms:title`, `foaf:name`, and `rdfs:label`)
+
+note: does not accept any bracketed parameters
 ''', language='en')},
     },
     TROVE.indexCardId: {
@@ -316,8 +654,9 @@ may not be used with `page[cursor]`
         RDFS.label: {literal('property-path', language='en')},
         JSONAPI_MEMBERNAME: {literal('propertyPath', language='en')},
         DCTERMS.description: {_literal_markdown('''a **property-path** is
-a dot-separated path of short-hand IRIs -- currently only OSFMAP shorthand
-(TODO: link)
+a dot-separated path of short-hand IRIs, used in several api parameters
+
+currently the only shorthand is OSFMAP (TODO: link)
 
 for example, `creator.name` is parsed as a two-step path that follows
 `creator` (aka `dcterms:creator`, `<http://purl.org/dc/terms/creator>`) and then `name` (aka `foaf:name`, `<http://xmlns.com/foaf/0.1/name>`)
@@ -329,7 +668,7 @@ or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: 
 
 the special path segment `*` matches any property
 
-* `*`: match text values one step away from the focus (default for `cardSearchText=` without `[]`)
+* `*`: match text values one step away from the focus
 * `*.*`: match text values exactly two steps away
 * `*,*.*`: match text values one OR two steps away
 * `*,creator.name`: match text values one step away OR at the specific path `creator.name`

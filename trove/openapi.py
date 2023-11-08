@@ -6,7 +6,7 @@ from django.conf import settings
 from primitive_metadata import primitive_rdf
 
 from share.version import __version__
-from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
+from trove.vocab.jsonapi import JSONAPI_MEMBERNAME, JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE, RDFS, RDF, DCTERMS
 from trove.vocab.trove import TROVE_API_VOCAB
 
@@ -58,6 +58,7 @@ def get_trove_openapi() -> dict:
         ),
         'components': {
             'parameters': dict(_openapi_parameters(_path_iris, _api_graph)),
+            'examples': dict(_openapi_examples(_path_iris, _api_graph)),
         },
     }
 
@@ -92,18 +93,56 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
         }
 
 
+def _openapi_examples(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGraph):
+    # assumes examples are blank nodes (frozenset of twoples)
+    _examples = set(itertools.chain(*(
+        api_graph.q(_path_iri, TROVE.example)
+        for _path_iri in path_iris
+    )))
+    for _example_blanknode in _examples:
+        _example = primitive_rdf.twopledict_from_twopleset(_example_blanknode)
+        _label = ''.join(
+            _literal.unicode_value
+            for _literal in _example.get(RDFS.label, ())
+        )
+        _comment = ' '.join(
+            _literal.unicode_value
+            for _literal in _example.get(RDFS.comment, ())
+        )
+        _description = '\n\n'.join(
+            _literal.unicode_value
+            for _literal in _example.get(DCTERMS.description, ())
+        )
+        _value = next(iter(_example[RDF.value]))
+        if isinstance(_value, str):
+            _valuekey = 'externalValue'
+        else:
+            _valuekey = 'value'
+            _value = (
+                json.loads(_value.unicode_value)
+                if RDF.JSON in _value.datatype_iris
+                else _value.unicode_value
+            )
+        yield _label, {
+            'summary': _comment,
+            'description': _description,
+            _valuekey: _value,
+        }
+
+
 def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
     # TODO: better error message on absence
     try:
         _path = next(_text(path_iri, TROVE.iriPath, api_graph))
     except StopIteration:
         raise ValueError(f'could not find trove:iriPath for {path_iri}')
-    _labels = list(_text(path_iri, RDFS.label, api_graph))
+    _label = ' '.join(_text(path_iri, RDFS.label, api_graph))
     _param_labels = list(_text(path_iri, {TROVE.hasParameter: {JSONAPI_MEMBERNAME}}, api_graph))
+    _example_labels = list(_text(path_iri, {TROVE.example: {RDFS.label}}, api_graph))
     return _path, {
         'get': {  # TODO (if generalizability): separate metadata by verb
             # 'tags':
-            'summary': _labels,
+            'summary': _label,
             'description': _markdown_description(path_iri, api_graph),
             # 'externalDocs':
             'operationId': path_iri,
@@ -111,6 +150,19 @@ def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
                 {'$ref': f'#/components/parameters/{_param_label}'}
                 for _param_label in _param_labels
             ],
+            'responses': {
+                '200': {
+                    'description': 'ok',
+                    'content': {
+                        JSONAPI_MEDIATYPE: {
+                            'examples': [
+                                {'$ref': f'#/components/examples/{_example_label}'}
+                                for _example_label in _example_labels
+                            ],
+                        },
+                    },
+                },
+            },
         },
     }
 
