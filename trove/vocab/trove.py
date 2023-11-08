@@ -166,7 +166,7 @@ uses query parameter:
 cardSearchText[title]=word
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-card-search?cardSearchText[title]=word&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-card-search?cardSearchText[title]=word&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('card-search-with-filter', language='en')},
@@ -179,7 +179,7 @@ uses query parameter:
 cardSearchFilter[creator.affiliation]=https://cos.io
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-card-search?cardSearchFilter[creator.affiliation]=https://cos.io&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-card-search?cardSearchFilter[creator.affiliation]=https://cos.io&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('card-search-with-date-filter', language='en')},
@@ -193,7 +193,7 @@ uses query parameter:
 cardSearchFilter[dateCreated][after]=2022
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-card-search?cardSearchFilter[dateCreated][after]=2022&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-card-search?cardSearchFilter[dateCreated][after]=2022&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('card-search-with-star-path', language='en')},
@@ -206,7 +206,7 @@ uses query parameter:
 cardSearchFilter[*]=https://osf.io
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-card-search?cardSearchFilter[*]=https://osf.io&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-card-search?cardSearchFilter[*]=https://osf.io&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('card-search-with-multiple-filter', language='en')},
@@ -220,7 +220,7 @@ cardSearchFilter[funder][is-present]
 cardSearchFilter[affiliation][is-absent]
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-card-search?cardSearchFilter[funder][is-present]&cardSearchFilter[affiliation][is-absent]&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-card-search?cardSearchFilter[funder][is-present]&cardSearchFilter[affiliation][is-absent]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
         },
     },
@@ -255,7 +255,7 @@ uses query parameter:
 valueSearchPropertyPath=creator
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('value-search with card-search', language='en')},
@@ -270,7 +270,7 @@ cardSearchText=sciency
 cardSearchFilter[subject][is-present]
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('value-search specific iri', language='en')},
@@ -284,7 +284,7 @@ valueSearchPropertyPath=creator
 valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('value-search by value type', language='en')},
@@ -298,7 +298,7 @@ valueSearchPropertyPath=creator
 valueSearchFilter[resourceType]=Person
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
                 RDFS.label: {literal('value-search with text', language='en')},
@@ -313,7 +313,7 @@ valueSearchPropertyPath=license
 valueSearchText=cc
 ```
 ''', language='en')},
-                RDF.value: {'/trove/index-value-search?valueSearchPropertyPath=license&valueSearchText=cc&acceptMediatype=application/vnd.api%2Bjson'},
+                RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=license&valueSearchText=cc&acceptMediatype=application/vnd.api%2Bjson')},
             }),
         },
     },
