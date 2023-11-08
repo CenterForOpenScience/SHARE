@@ -16,8 +16,19 @@ from trove.vocab.jsonapi import (
     JSONAPI_ATTRIBUTE,
     JSONAPI_RELATIONSHIP,
 )
-from trove.vocab.osfmap import osfmap_labeler, DATE_PROPERTIES
-from trove.vocab.namespaces import TROVE, RDF, RDFS, OWL, DCTERMS, SKOS
+from trove.vocab.osfmap import (
+    DATE_PROPERTIES,
+    OSFMAP_LINK,
+    osfmap_labeler,
+)
+from trove.vocab.namespaces import (
+    DCTERMS,
+    OWL,
+    RDF,
+    RDFS,
+    SKOS,
+    TROVE,
+)
 
 
 # some assumed-safe assumptions for iris in trovespace:
@@ -53,9 +64,7 @@ TROVE_API_VOCAB: RdfTripleDictionary = {
             # TODO: TROVE['path/field-search'],
         },
         DCTERMS.description: {_literal_markdown(f'''the **trove search api** helps
-navigate a trove of records.
-
-(TODO: helpful intro)
+navigate a trove of metadata records.
 
 ## mediatype
 each api response is modeled as an rdf graph, which could be rendered many ways.
@@ -66,12 +75,6 @@ to request one of the supported mediatypes:
 * [jsonapi](https://jsonapi.org/): `{JSONAPI_MEDIATYPE}` (specific to the features
   of [osf search](https://osf.io/search/), is not an rdf representation)
 * rdf as browsable html: `text/html;charset=utf-8`
-
-## stability
-responses with mediatype `application/vnd.api+json` are specific to support
-[osf search](https://osf.io/search/), but any other responses directly represent
-the underlying rdf, which may churn and shift over time (TODO: ontological stability)
-
 ''', language='en')},
     },
 
@@ -80,7 +83,7 @@ the underlying rdf, which may churn and shift over time (TODO: ontological stabi
         RDF.type: {RDFS.Class, SKOS.Concept},
         RDFS.label: {literal('index-card', language='en')},
         JSONAPI_MEMBERNAME: {literal('index-card', language='en')},
-        DCTERMS.description: {_literal_markdown('''an **index-card** is
+        DCTERMS.description: {_literal_markdown(f'''an **index-card** is
 a metadata record about a specific thing.
 
 that thing is called the "focus" of the index-card and is identified by a "focus iri"
@@ -93,6 +96,20 @@ following predicates as directed edges from subject to object.
 there is not (yet) any size limit for an index-card's metadata,
 but it is intended to be small enough for an old computer to use naively, all at once
 (let's start the conversation at 4 KiB -- might be nice to fit in one page of memory)
+
+### jsonapi representation
+the index-card's `resourceMetadata` property contains a quoted graph, independent
+of the rest of the response.
+
+when represented as `{JSONAPI_MEMBERNAME}` (jsonapi), the `resourceMetadata` attribute
+contains a json object that has:
+
+* `@id` with the focus iri
+* `@type` with the focus resource's `rdf:type`
+* property keys from [OSFMAP]({OSFMAP_LINK}) shorthand (each corresponding to an iri)
+* property values as lists of objects:
+  * literal text as `{{"@value": "..."}}`
+  * iri references as `{{"@id": "..."}}`
 ''', language='en')},
 
     },
@@ -653,10 +670,10 @@ may not be used with `page[cursor]`
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         RDFS.label: {literal('property-path', language='en')},
         JSONAPI_MEMBERNAME: {literal('propertyPath', language='en')},
-        DCTERMS.description: {_literal_markdown('''a **property-path** is
+        DCTERMS.description: {_literal_markdown(f'''a **property-path** is
 a dot-separated path of short-hand IRIs, used in several api parameters
 
-currently the only shorthand is OSFMAP (TODO: link)
+currently the only supported shorthand is defined by [OSFMAP]({OSFMAP_LINK})
 
 for example, `creator.name` is parsed as a two-step path that follows
 `creator` (aka `dcterms:creator`, `<http://purl.org/dc/terms/creator>`) and then `name` (aka `foaf:name`, `<http://xmlns.com/foaf/0.1/name>`)

@@ -20,6 +20,7 @@ from trove.vocab.namespaces import (
     TROVE,
 )
 
+OSFMAP_LINK = 'https://osf.io/8yczr'
 
 # TODO: define as turtle, load in trove.vocab.__init__?
 OSFMAP_VOCAB: RdfTripleDictionary = {
