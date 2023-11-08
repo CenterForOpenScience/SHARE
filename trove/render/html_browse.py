@@ -2,8 +2,8 @@ import contextlib
 import datetime
 import markdown2
 import random
-from typing import Optional, Iterable
-from urllib.parse import quote, urlsplit
+from typing import Iterable
+from urllib.parse import quote, urlsplit, urlunsplit
 from xml.etree.ElementTree import (
     Element,
     SubElement,
@@ -12,32 +12,27 @@ from xml.etree.ElementTree import (
 )
 
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.http import HttpRequest
 from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
-from trove.vocab.namespaces import TROVE, RDF, STATIC_SHORTHAND
+from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
+from trove.vocab.namespaces import TROVE, RDF
+from ._base import BaseRenderer
 
 
-class RdfHtmlBrowseRenderer:
+class RdfHtmlBrowseRenderer(BaseRenderer):
     MEDIATYPE = 'text/html; charset=utf-8'
 
-    def __init__(
-        self, data: primitive_rdf.RdfTripleDictionary, *,
-        iri_shorthand: Optional[primitive_rdf.IriShorthand] = None,
-        request: Optional[HttpRequest] = None,
-    ):
-        self.data = data
-        self.request = request
-        self.iri_shorthand = iri_shorthand or STATIC_SHORTHAND
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.rendered_element = None
         self.__current_element = None
         self.__visiting_iris = None
         self.__heading_depth = None
 
-    def render_document(self, focus_iri: str) -> str:
-        # TODO: <!DOCTYPE html>
+    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
+        self.data = data
         with self.__rendering():
             with self.__nest('head'):
                 self.__leaf('link', attrs={
@@ -50,14 +45,31 @@ class RdfHtmlBrowseRenderer:
             }
             with self.__nest('body', attrs=_body_attrs):
                 self.__render_subj(focus_iri),
+                self.__render_alt_links()
                 # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
         return ''.join((
-            '<!DOCTYPE html>',
+            '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
             etree_tostring(self.rendered_element, encoding='unicode', method='html'),
         ))
 
     ###
     # private rdf-rendering helpers
+
+    def __render_alt_links(self):
+        with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
+            self.__leaf('header', text='alternate mediatypes')
+            # TODO: more mediatypes
+            for _mediatype in [JSONAPI_MEDIATYPE]:
+                _qparams = self.request.GET.copy()
+                _qparams['acceptMediatype'] = _mediatype
+                _href = urlunsplit((
+                    self.request.scheme,
+                    self.request.get_host(),
+                    self.request.path,
+                    _qparams.urlencode(),
+                    '',
+                ))
+                self.__leaf('a', text=_mediatype, attrs={'href': _href, 'class': 'VisibleNest Browse__object'})
 
     def __render_subj(self, subj_iri: str, twopledict=None):
         _twopledict = (
@@ -86,16 +98,18 @@ class RdfHtmlBrowseRenderer:
                 with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
                     self.__leaf_link(_pred)
                     # TODO: use a vocab, not static property iris
-                    if _pred == TROVE.resourceMetadata:
+                    if _pred == TROVE.resourceMetadata and all(
+                        isinstance(_obj, primitive_rdf.QuotedTriple)
+                        for _obj in _obj_set
+                    ):
                         _focus_iris = twopledict[TROVE.focusIdentifier]  # assumed
                         _focus_iri = None
                         _quoted_triples = set()
                         for _obj in _shuffled(_obj_set):
-                            if isinstance(_obj, primitive_rdf.QuotedTriple):
-                                _quoted_triples.add(_obj)
-                                (_subj, _, _) = _obj
-                                if _subj in _focus_iris:
-                                    _focus_iri = _subj
+                            _quoted_triples.add(_obj)
+                            (_subj, _, _) = _obj
+                            if _subj in _focus_iris:
+                                _focus_iri = _subj
                         assert _focus_iri is not None
                         self.__quoted_graph(_focus_iri, _quoted_triples)
                     else:

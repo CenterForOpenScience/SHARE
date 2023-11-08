@@ -7,6 +7,7 @@ from typing import Iterable, Union
 from primitive_metadata import primitive_rdf
 
 from trove.vocab.jsonapi import (
+    JSONAPI_MEDIATYPE,
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
     JSONAPI_ATTRIBUTE,
@@ -15,7 +16,10 @@ from trove.vocab.jsonapi import (
 from trove.vocab.trove import (
     RDF,
     OWL,
+    TROVE_API_VOCAB,
+    trove_indexcard_namespace,
 )
+from ._base import BaseRenderer
 
 
 # a jsonapi resource may pull rdf data using an iri or blank node
@@ -23,7 +27,7 @@ from trove.vocab.trove import (
 _IriOrBlanknode = Union[str, frozenset]
 
 
-class RdfJsonapiRenderer:
+class RdfJsonapiRenderer(BaseRenderer):
     '''render rdf data into jsonapi resources, guided by a given rdf vocabulary
 
     the given vocab describes how rdf predicates and classes in the data should
@@ -41,25 +45,21 @@ class RdfJsonapiRenderer:
 
     note: does not support relationship links (or many other jsonapi features)
     '''
-    MEDIATYPE = 'application/vnd.api+json'
+    MEDIATYPE = JSONAPI_MEDIATYPE
 
     __to_include = None
 
-    def __init__(
-        self,
-        jsonapi_vocab: primitive_rdf.RdfTripleDictionary,
-        data: primitive_rdf.RdfTripleDictionary,
-        id_namespace_set: set[primitive_rdf.IriNamespace] = None,
-    ):
-        self._vocab = primitive_rdf.RdfGraph(jsonapi_vocab)
-        self._data = primitive_rdf.RdfGraph(data)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._vocab = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
         self._identifier_object_cache = {}
         # TODO: move "id namespace" to vocab (property on each type)
-        self._id_namespace_set = id_namespace_set or set()
+        self._id_namespace_set = [trove_indexcard_namespace()]
 
-    def render_document(self, primary_iris: Union[str, Iterable[str]]) -> str:
+    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
+        self._data = primitive_rdf.RdfGraph(data)
         return json.dumps(
-            self.render_dict(primary_iris),
+            self.render_dict(focus_iri),
             indent=2,  # TODO: pretty-print query param?
         )
 
@@ -91,7 +91,7 @@ class RdfJsonapiRenderer:
         _twopledict = (
             (self._data.tripledict.get(iri_or_blanknode) or {})
             if isinstance(iri_or_blanknode, str)
-            else primitive_rdf.twopleset_as_twopledict(iri_or_blanknode)
+            else primitive_rdf.twopledict_from_twopleset(iri_or_blanknode)
         )
         for _pred, _obj_set in _twopledict.items():
             if _pred != RDF.type:
@@ -144,6 +144,9 @@ class RdfJsonapiRenderer:
             raise ValueError(f'found non-text membername {_membername}')
         if iri_fallback:
             return iri
+        _compact = self.iri_shorthand.compact_iri(iri)
+        if _compact != iri:
+            return _compact
         raise ValueError(f'could not find membername for <{iri}>')
 
     def _resource_id_for_blanknode(self, blanknode: frozenset):
@@ -268,7 +271,7 @@ class RdfJsonapiRenderer:
                     for _seq_obj in primitive_rdf.sequence_objects_in_order(rdfobject)
                 ]
             _json_blanknode = {}
-            for _pred, _obj_set in primitive_rdf.twopleset_as_twopledict(rdfobject).items():
+            for _pred, _obj_set in primitive_rdf.twopledict_from_twopleset(rdfobject).items():
                 _key = self._membername_for_iri(_pred, iri_fallback=True)
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
             return _json_blanknode

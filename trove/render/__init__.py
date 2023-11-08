@@ -1,44 +1,35 @@
 from django import http
-from primitive_metadata import primitive_rdf
 
-from trove.vocab.trove import TROVE_API_VOCAB, trove_indexcard_namespace
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 
 
-# TODO: common renderer interface, cleaner `get_renderer` implementation
-# RENDERER_BY_MEDIATYPE = {
-#     'application/api+json': RdfJsonapiRenderer,
-#     'application/ld+json': RdfJsonldRenderer,
-#     'text/turtle': RdfTurtleRenderer,
-#     'text/html': RdfHtmlRenderer,
-# }
-
-
-def get_renderer(request: http.HttpRequest, data: primitive_rdf.RdfTripleDictionary):
-    if request.accepts(RdfHtmlBrowseRenderer.MEDIATYPE):
-        return RdfHtmlBrowseRenderer(
-            data=data,
-            request=request,
-        )
-    if request.accepts(RdfJsonapiRenderer.MEDIATYPE):
-        return RdfJsonapiRenderer(
-            data=data,
-            jsonapi_vocab=TROVE_API_VOCAB,
-            id_namespace_set=[trove_indexcard_namespace()],
-        )
-    raise ValueError(f'could not find renderer for {request}')
-
-
-def render_response(
-    request: http.HttpRequest,
-    response_data: primitive_rdf.RdfTripleDictionary,
-    response_focus_iri: str,
-    **response_kwargs,
-):
-    _renderer = get_renderer(request, response_data)
-    return http.HttpResponse(
-        content=_renderer.render_document(response_focus_iri),
-        content_type=_renderer.MEDIATYPE,
-        **response_kwargs,
+RENDERER_BY_MEDIATYPE = {
+    _renderer_cls.MEDIATYPE: _renderer_cls
+    for _renderer_cls in (
+        RdfHtmlBrowseRenderer,
+        RdfJsonapiRenderer,
+        # TODO:
+        # RdfJsonldRenderer,
+        # RdfTurtleRenderer,
     )
+}
+
+
+def get_renderer(request: http.HttpRequest):
+    # TODO: recognize .extension?
+    _chosen_renderer_cls = None
+    _requested_mediatype = request.GET.get('acceptMediatype')
+    if _requested_mediatype:
+        try:
+            _chosen_renderer_cls = RENDERER_BY_MEDIATYPE[_requested_mediatype]
+        except KeyError:
+            raise ValueError(f'could not find renderer for acceptMediatype={_requested_mediatype}')
+    else:
+        for _mediatype, _renderer_cls in RENDERER_BY_MEDIATYPE.items():
+            if request.accepts(_mediatype):
+                _chosen_renderer_cls = _renderer_cls
+                break
+    if _chosen_renderer_cls is None:
+        raise ValueError(f'could not find renderer for {request}')
+    return _chosen_renderer_cls(request=request)
