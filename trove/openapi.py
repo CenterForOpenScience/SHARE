@@ -133,7 +133,7 @@ def _markdown_description(subj_iri: str, api_graph: primitive_rdf.RdfGraph):
     return '\n\n'.join((
         *(
             _description.unicode_value
-            for _description in api_graph.q(TROVE.search_api, DCTERMS.description)
+            for _description in api_graph.q(subj_iri, DCTERMS.description)
         ),
         *(
             '\n\n'.join(_concept_markdown_blocks(_concept_iri, api_graph))

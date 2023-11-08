@@ -141,7 +141,7 @@ a way to find iri values that could be used in a cardSearchFilter
         RDFS.comment: {literal('get a specific index-card by id', language='en')},
         TROVE.iriPath: {literal('/trove/index-card/{indexCardId}')},
         TROVE.hasParameter: {TROVE.indexCardId},
-        TROVE.exposesConcept: {TROVE.Indexcard},
+        TROVE.usesConcept: {TROVE.Indexcard},
     },
 
     # parameters:
