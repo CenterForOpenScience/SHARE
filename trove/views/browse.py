@@ -6,16 +6,17 @@ from django.views import View
 from primitive_metadata import primitive_rdf
 
 from trove import models as trove_db
-from trove.render import render_response
-from trove.util.iris import unquote_iri
+from trove.render import get_renderer
+from trove.util.iris import unquote_iri, get_sufficiently_unique_iri
 from trove.vocab.namespaces import TROVE
 
 
 class BrowseIriView(View):
     def get(self, request, iri):
         _iri = unquote_iri(iri)
-        if _iri in TROVE:
-            return redirect('trove-vocab', vocab_term=primitive_rdf.iri_minus_namespace(iri, TROVE))
+        _trove_term = _recognize_trove_term(_iri)
+        if _trove_term:
+            return redirect('trove-vocab', vocab_term=_trove_term)
         try:
             _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(_iri)
         except trove_db.ResourceIdentifier.DoesNotExist:
@@ -29,7 +30,7 @@ class BrowseIriView(View):
             _indexcard_rdf.as_rdf_tripledict()
             for _indexcard_rdf in _rdf_qs
         )
-        return render_response(request, _tripledict, _iri)
+        return get_renderer(request).render_response(_tripledict, _iri)
 
 
 def _merge_tripledicts(tripledicts: Iterable[dict]):
@@ -38,3 +39,11 @@ def _merge_tripledicts(tripledicts: Iterable[dict]):
         for _triple in primitive_rdf.iter_tripleset(_tripledict):
             _merged.add(_triple)
     return _merged.tripledict
+
+
+def _recognize_trove_term(iri: str):
+    _suffuniq_iri = get_sufficiently_unique_iri(iri)
+    _suffuniq_trove = get_sufficiently_unique_iri(str(TROVE))
+    if _suffuniq_iri.startswith(_suffuniq_trove):
+        return primitive_rdf.iri_minus_namespace(_suffuniq_iri, _suffuniq_trove).strip('/')
+    return None

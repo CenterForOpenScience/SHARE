@@ -1075,7 +1075,7 @@ class _PredicatePathWalker:
         '''
         with self._visit(iri_or_blanknode):
             _twopledict = (
-                primitive_rdf.twopleset_as_twopledict(iri_or_blanknode)
+                primitive_rdf.twopledict_from_twopleset(iri_or_blanknode)
                 if isinstance(iri_or_blanknode, frozenset)
                 else self.tripledict.get(iri_or_blanknode, {})
             )

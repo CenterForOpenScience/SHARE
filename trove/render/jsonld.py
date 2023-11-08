@@ -7,10 +7,15 @@ from trove.util.iri_labeler import IriLabeler
 from trove.vocab.namespaces import RDF, OWL
 
 
-class RdfJsonldRenderer:
+class RdfJsonldRenderer:  # TODO: inherit BaseRenderer, add to get_renderer
     def __init__(self, vocabulary: primitive_rdf.RdfTripleDictionary, labeler: IriLabeler):
         self.vocabulary = vocabulary
         self.labeler = labeler
+
+    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
+        _rendered = self.tripledict_as_nested_jsonld(data, focus_iri)
+        _rendered['@context'] = self.simple_jsonld_context()
+        return json.dumps(_rendered, indent=2, sort_keys=True)
 
     def simple_jsonld_context(self):
         return self.labeler.all_iris_by_label()
@@ -22,7 +27,7 @@ class RdfJsonldRenderer:
     def rdfobject_as_jsonld(self, rdfobject: primitive_rdf.RdfObject) -> dict:
         if isinstance(rdfobject, frozenset):
             return self.twopledict_as_jsonld(
-                primitive_rdf.twopleset_as_twopledict(rdfobject),
+                primitive_rdf.twopledict_from_twopleset(rdfobject),
             )
         elif isinstance(rdfobject, primitive_rdf.Literal):
             if not rdfobject.datatype_iris:

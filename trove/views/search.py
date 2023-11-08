@@ -9,9 +9,10 @@ from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
+from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE
 from trove.trovesearch_gathering import trovesearch_by_indexstrategy
-from trove.render import render_response
+from trove.render import get_renderer
 
 
 logger = logging.getLogger(__name__)
@@ -44,36 +45,29 @@ DEFAULT_VALUESEARCH_ASK = {
 
 class CardsearchView(View):
     def get(self, request):
-        _search_iri, _search_gathering = _parse_request(request, CardsearchParams)
+        _search_iri, _search_gathering, _renderer = _parse_request(request, CardsearchParams)
         _search_gathering.ask(
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
             focus=gather.focus(_search_iri, TROVE.Cardsearch),
         )
-        return render_response(
-            request,
-            _search_gathering.leaf_a_record(),
-            _search_iri,
-        )
+        return _renderer.render_response(_search_gathering.leaf_a_record(), _search_iri)
 
 
 class ValuesearchView(View):
     def get(self, request):
-        _search_iri, _search_gathering = _parse_request(request, ValuesearchParams)
+        _search_iri, _search_gathering, _renderer = _parse_request(request, ValuesearchParams)
         _search_gathering.ask(
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
             focus=gather.focus(_search_iri, TROVE.Valuesearch),
         )
-        return render_response(
-            request,
-            _search_gathering.leaf_a_record(),
-            _search_iri,
-        )
+        return _renderer.render_response(_search_gathering.leaf_a_record(), _search_iri)
 
 
 ###
 # local helpers
 
 def _parse_request(request: http.HttpRequest, search_params_dataclass):
+    _renderer = get_renderer(request)
     _search_iri = request.build_absolute_uri()
     _search_params = search_params_dataclass.from_querystring(
         request.META['QUERY_STRING'],
@@ -83,6 +77,6 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,
         'specific_index': _specific_index,
-        'use_osfmap_json': not request.accepts('text/html'),  # TODO: consistent content negotiation
+        'use_osfmap_json': (_renderer.MEDIATYPE == JSONAPI_MEDIATYPE),
     })
-    return (_search_iri, _search_gathering)
+    return (_search_iri, _search_gathering, _renderer)

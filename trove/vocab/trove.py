@@ -169,13 +169,14 @@ special characters in search text:
         RDFS.comment: {literal('filter to index-cards with specific IRIs at specific locations', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown('''**cardSearchFilter** is
-a query parameter to require index-cards to have specific iris in specific places.
+a query parameter to narrow an index-card-search (or to narrow the card-search
+context of an index-value-search) based on values at specific paths.
 
 each cardSearchFilter has one or two bracketed parameters:
 `cardSearchFilter[<propertypath_set>][<filter_operator>]=<value_iris>`
 
 * `propertypath_set`: comma-separated **property-path** set
-* `filter_operator`: comma-separated **property-path** set
+* `filter_operator`: (TODO: list operators)
 * `value_iris`: comma-separated iri set
 ''', language='en')},
     },
@@ -185,11 +186,12 @@ each cardSearchFilter has one or two bracketed parameters:
         RDFS.label: {literal('valueSearchPropertyPath', language='en')},
         RDFS.comment: {literal('the location to look for values in index-cards', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
-        DCTERMS.description: {_literal_markdown('''
-dot-separated path of short-hand IRIs
+        DCTERMS.description: {_literal_markdown('''**valueSearchPropertyPath** is
+a required query parameter for index-value-search that indicates (with a
+dot-separated path of short-hand IRIs) where in an index-card the resulting values must be used
 
-`valueSearchPropertyPath=creator`
-`valueSearchPropertyPath=creator.affiliation`
+* `valueSearchPropertyPath=creator`
+* `valueSearchPropertyPath=creator.affiliation`
 
 note: multiple property paths are not supported
 ''', language='en')},
@@ -221,10 +223,12 @@ each index-card is uniquely identified by a UUID
         RDFS.label: {literal('valueSearchFilter', language='en')},
         RDFS.comment: {literal('filter to values that match a specific IRI or have a specific type', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
-        DCTERMS.description: {_literal_markdown('''
-may be used only two ways:
+        DCTERMS.description: {_literal_markdown('''**valueSearchFilter** is
+a query parameter for narrowing an index-value-search
 
-* `valueSearchFilter[sameAs]=<iri>` to request a value by IRI
+it may be used only two ways:
+
+* `valueSearchFilter[sameAs]=<iri>` to request a specific value by IRI
 * `valueSearchFilter[resourceType]=<type_iri>` to request values used with `rdf:type <type_iri>`
 ''', language='en')},
     },
