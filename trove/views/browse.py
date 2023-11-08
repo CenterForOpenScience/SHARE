@@ -15,7 +15,7 @@ class BrowseIriView(View):
     def get(self, request, iri):
         _iri = unquote_iri(iri)
         _trove_term = _recognize_trove_term(_iri)
-        if _trove_term:
+        if _trove_term is not None:
             return redirect('trove-vocab', vocab_term=_trove_term)
         try:
             _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(_iri)

@@ -113,16 +113,13 @@ def _openapi_examples(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGrap
             _literal.unicode_value
             for _literal in _example.get(DCTERMS.description, ())
         )
-        _value = next(iter(_example[RDF.value]))
-        if isinstance(_value, str):
-            _valuekey = 'externalValue'
+        _value = next(iter(_example[RDF.value]))  # assume literal
+        if RDF.JSON in _value.datatype_iris:
+            _valuekey = 'value'  # literal json given
+            _value = json.loads(_value.unicode_value)
         else:
-            _valuekey = 'value'
-            _value = (
-                json.loads(_value.unicode_value)
-                if RDF.JSON in _value.datatype_iris
-                else _value.unicode_value
-            )
+            _valuekey = 'externalValue'  # link
+            _value = _value.unicode_value
         yield _label, {
             'summary': _comment,
             'description': _description,
