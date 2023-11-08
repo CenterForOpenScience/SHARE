@@ -532,6 +532,12 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             literal('accessService', language='en'),
         },
     },
+    OSFMAP.hostingInstitution: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            literal('hostingInstitution', language='en'),
+        },
+    },
     RDFS.label: {
         RDF.type: {RDF.Property},
         RDFS.label: {
