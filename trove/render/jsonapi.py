@@ -159,12 +159,8 @@ class RdfJsonapiRenderer:
         return hashlib.sha256(iri.encode()).hexdigest()
 
     def _render_field(self, predicate_iri, object_set, *, into: dict):
-        _is_relationship = self._vocab.has_triple(
-            (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP),
-        )
-        _is_attribute = self._vocab.has_triple(
-            (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE),
-        )
+        _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self._vocab
+        _is_attribute = (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE) in self._vocab
         _doc_key = 'meta'  # unless configured for jsonapi, default to unstructured 'meta'
         try:
             _field_key = self._membername_for_iri(predicate_iri)
@@ -183,7 +179,7 @@ class RdfJsonapiRenderer:
         into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
 
     def _one_or_many(self, predicate_iri: str, datalist: list):
-        _only_one = self._vocab.has_triple((predicate_iri, RDF.type, OWL.FunctionalProperty))
+        _only_one = (predicate_iri, RDF.type, OWL.FunctionalProperty) in self._vocab
         if _only_one:
             if len(datalist) > 1:
                 raise ValueError(f'multiple objects for to-one relation <{predicate_iri}>: {datalist}')
