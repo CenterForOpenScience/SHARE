@@ -204,7 +204,7 @@ class IndexcardRdf(models.Model):
     ) -> 'IndexcardRdf':
         if focus_iri not in rdf_tripledict:
             raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
-        _rdf_as_turtle = primitive_rdf.tripledict_as_turtle(rdf_tripledict)
+        _rdf_as_turtle = primitive_rdf.turtle_from_tripledict(rdf_tripledict)
         _turtle_checksum_iri = str(
             ChecksumIri.digest('sha-256', salt='', raw_data=_rdf_as_turtle),
         )
