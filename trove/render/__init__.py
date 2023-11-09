@@ -2,6 +2,8 @@ from django import http
 
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
+from .turtle import RdfTurtleRenderer
+from .jsonld import RdfJsonldRenderer
 
 
 RENDERER_BY_MEDIATYPE = {
@@ -9,9 +11,8 @@ RENDERER_BY_MEDIATYPE = {
     for _renderer_cls in (
         RdfHtmlBrowseRenderer,
         RdfJsonapiRenderer,
-        # TODO:
-        # RdfJsonldRenderer,
-        # RdfTurtleRenderer,
+        RdfTurtleRenderer,
+        RdfJsonldRenderer,
     )
 }
 

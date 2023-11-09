@@ -18,6 +18,12 @@ class IriLabeler:
         self.acceptable_prefixes = acceptable_prefixes
         self.output_prefix = output_prefix
 
+    def build_shorthand(self) -> primitive_rdf.IriShorthand:
+        return primitive_rdf.IriShorthand({
+            _label: _iri
+            for _label, _iri in self.all_iris_by_label()
+        })
+
     def all_iris_by_label(self) -> dict[str, str]:
         try:
             return self.__iris_by_label

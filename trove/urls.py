@@ -21,6 +21,7 @@ urlpatterns = [
     path('index-card-search', view=CardsearchView.as_view(), name='index-card-search'),
     path('index-value-search', view=ValuesearchView.as_view(), name='index-value-search'),
     path('browse///<path:iri>', view=BrowseIriView.as_view(), name='browse-iri'),
+    path('browse', view=BrowseIriView.as_view(), name='browse-iri'),
     path('ingest', view=RdfIngestView.as_view(), name='ingest-rdf'),
     path('docs/openapi.json', view=OpenapiJsonView.as_view(), name='docs.openapi-json'),
     path('docs/openapi.html', view=OpenapiHtmlView.as_view(), name='docs.openapi-html'),

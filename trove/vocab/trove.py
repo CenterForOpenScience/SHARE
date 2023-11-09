@@ -1,3 +1,5 @@
+import urllib.parse
+
 from django.conf import settings
 from django.urls import reverse
 from primitive_metadata.primitive_rdf import (
@@ -43,10 +45,11 @@ def _literal_markdown(text: str, *, language: str):
     return literal(text, language=language, mediatype='text/markdown;charset=utf-8')
 
 
-def _browse_link(iri: str):
-    return reverse('trovetrove:browse-iri', kwargs={
-        'iri': get_sufficiently_unique_iri(iri),
-    })
+def trove_browse_link(iri: str):
+    return urllib.parse.urljoin(
+        reverse('trovetrove:browse-iri'),
+        f'?iri={urllib.parse.quote(get_sufficiently_unique_iri(iri))}',
+    )
 
 
 TROVE_API_VOCAB: RdfTripleDictionary = {
@@ -64,17 +67,23 @@ TROVE_API_VOCAB: RdfTripleDictionary = {
             # TODO: TROVE['path/field-search'],
         },
         DCTERMS.description: {_literal_markdown(f'''the **trove search api** helps
-navigate a trove of metadata records.
+navigate a trove of metadata.
 
-## mediatype
-each api response is modeled as an rdf graph, which could be rendered many ways.
+currently, that trove of metadata is mostly focused on [osf.io](https://osf.io)
+and the trove api is focused on supporting [osf search](https://osf.io/search),
+but is open for anyone to use.
+
+## mediatypes
+each api response is modeled as an [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model),
+which could be rendered many ways.
 
 use the `acceptMediatype=` query parameter or the `Content-Type` http header
 to request one of the supported mediatypes:
 
 * [jsonapi](https://jsonapi.org/): `{JSONAPI_MEDIATYPE}` (specific to the features
-  of [osf search](https://osf.io/search/), is not an rdf representation)
+  of [osf search](https://osf.io/search/))
 * rdf as browsable html: `text/html;charset=utf-8`
+* rdf as [turtle](https://www.w3.org/TR/turtle/): `text/turtle`
 ''', language='en')},
     },
 
@@ -159,7 +168,7 @@ a way to find resources based on this metadata trove
                 RDFS.label: {literal('card-search-with-text', language='en')},
                 RDFS.comment: {literal('card-search with text', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search index-cards that match a fuzzy text search for the word "word" in the title (aka `dcterms:title`, <http://purl.org/dc/terms/title>)
+search index-cards that match a fuzzy text search for the word "word" in the title (aka `dcterms:title`, `<http://purl.org/dc/terms/title>`)
 
 uses query parameter:
 ```
@@ -185,7 +194,7 @@ cardSearchFilter[creator.affiliation]=https://cos.io
                 RDFS.label: {literal('card-search-with-date-filter', language='en')},
                 RDFS.comment: {literal('card-search with date filter', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-searches index-cards with `dateCreated` (aka `dcterms:created`, <http://purl.org/dc/terms/created>)
+searches index-cards with `dateCreated` (aka `dcterms:created`, `<http://purl.org/dc/terms/created>`)
 values after 2022
 
 uses query parameter:
