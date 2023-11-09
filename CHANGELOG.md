@@ -1,5 +1,11 @@
 # Change Log
 
+# [23.4.0] - 2023-11-09
+- add docs:
+  - /trove/docs/openapi.json
+  - /trove/docs/openapi.html
+  - /vocab/2023/trove/...
+
 # [23.3.0] - 2023-10-24
 - allow adding propertypaths to `cardSearchText` and `valueSearchText`
   - e.g. `cardSearchText[creator.name]=...`
