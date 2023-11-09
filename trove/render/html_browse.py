@@ -12,6 +12,7 @@ from xml.etree.ElementTree import (
 )
 
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
@@ -19,6 +20,9 @@ from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE, RDF
 from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
+
+STABLE_MEDIATYPES = (JSONAPI_MEDIATYPE,)
+UNSTABLE_MEDIATYPES = ('text/turtle', 'application/ld+json')
 
 
 class RdfHtmlBrowseRenderer(BaseRenderer):
@@ -45,7 +49,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             }
             with self.__nest('body', attrs=_body_attrs):
                 self.__render_subj(focus_iri),
-                self.__render_alt_links()
+                self.__render_mediatype_links()
                 # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
         return ''.join((
             '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
@@ -55,21 +59,33 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     ###
     # private rdf-rendering helpers
 
-    def __render_alt_links(self):
+    def __render_mediatype_links(self):
         with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
             self.__leaf('header', text='alternate mediatypes')
-            # TODO: more mediatypes
-            for _mediatype in _shuffled((JSONAPI_MEDIATYPE, 'text/turtle', 'application/ld+json')):
-                _qparams = self.request.GET.copy()
-                _qparams['acceptMediatype'] = _mediatype
-                _href = urlunsplit((
-                    self.request.scheme,
-                    self.request.get_host(),
-                    self.request.path,
-                    _qparams.urlencode(),
-                    '',
-                ))
-                self.__leaf('a', text=_mediatype, attrs={'href': _href, 'class': 'VisibleNest Browse__object'})
+            with self.__nest('ul', attrs={'class': 'Browse__twopleset'}):
+                for _mediatype in _shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
+                    with self.__nest('li', attrs={'class': 'VisibleNest Browse__twople'}):
+                        self.__mediatype_link(_mediatype)
+
+    def __mediatype_link(self, mediatype: str):
+        _qparams = self.request.GET.copy()
+        _qparams['acceptMediatype'] = mediatype
+        _href = urlunsplit((
+            self.request.scheme,
+            self.request.get_host(),
+            self.request.path,
+            _qparams.urlencode(),
+            '',
+        ))
+        self.__leaf('a', text=mediatype, attrs={'href': _href})
+        if mediatype in UNSTABLE_MEDIATYPES:
+            self.__leaf('aside', text='(unstable)')
+        if mediatype in STABLE_MEDIATYPES:
+            with self.__nest('aside') as _aside:
+                _aside.text = '(stable for '
+                with self.__nest('a', attrs={'href': reverse('trovetrove:docs')}) as _link:
+                    _link.text = 'documented use'
+                    _link.tail = ')'
 
     def __render_subj(self, subj_iri: str, twopledict=None):
         _twopledict = (

@@ -12,7 +12,6 @@ from primitive_metadata.primitive_rdf import (
 
 from trove.util.iri_labeler import IriLabeler
 from trove.vocab.jsonapi import (
-    JSONAPI_MEDIATYPE,
     JSONAPI_MEMBERNAME,
     JSONAPI_ATTRIBUTE,
     JSONAPI_RELATIONSHIP,
@@ -65,24 +64,12 @@ TROVE_API_VOCAB: RdfTripleDictionary = {
             TROVE['path/value-search'],
             # TODO: TROVE['path/field-search'],
         },
-        DCTERMS.description: {_literal_markdown(f'''the **trove search api** helps
+        DCTERMS.description: {_literal_markdown('''the **trove search api** helps
 navigate a trove of metadata.
 
 currently, that trove of metadata is mostly focused on [osf.io](https://osf.io)
-and the trove api is focused on supporting [osf search](https://osf.io/search),
-but is open for anyone to use.
-
-## mediatypes
-each api response is modeled as an [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model),
-which could be rendered many ways.
-
-use the `acceptMediatype=` query parameter or the `Content-Type` http header
-to request one of the supported mediatypes:
-
-* [jsonapi](https://jsonapi.org/): `{JSONAPI_MEDIATYPE}` (specific to the features
-  of [osf search](https://osf.io/search/))
-* rdf as browsable html: `text/html;charset=utf-8`
-* rdf as [turtle](https://www.w3.org/TR/turtle/): `text/turtle`
+and the trove api is focused on supporting [osf:search](https://osf.io/search),
+but both are open for anyone to use.
 ''', language='en')},
     },
 
@@ -98,7 +85,8 @@ that thing is called the "focus" of the index-card and is identified by a "focus
 -- any thing may be identified by multiple iris, but choose one within an index-card
 (and perhaps include the others with `owl:sameAs`)
 
-the metadata about the thing is a quoted [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model) in which every triple is reachable from the card's focus iri
+the metadata about the thing is a quoted [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model)
+in which every triple is reachable from the card's focus iri
 following predicates as directed edges from subject to object.
 
 there is not (yet) any size limit for an index-card's metadata,
@@ -150,6 +138,7 @@ contains a json object that has:
     TROVE['path/card-search']: {
         TROVE.iriPath: {literal('/trove/index-card-search')},
         TROVE.hasParameter: {
+            TROVE.acceptMediatype,
             TROVE.cardSearchText,
             TROVE.cardSearchFilter,
             TROVE.pageSize,
@@ -235,6 +224,7 @@ cardSearchFilter[affiliation][is-absent]
     TROVE['path/value-search']: {
         TROVE.iriPath: {literal('/trove/index-value-search')},
         TROVE.hasParameter: {
+            TROVE.acceptMediatype,
             TROVE.valueSearchPropertyPath,
             TROVE.cardSearchText,
             TROVE.cardSearchFilter,
@@ -329,7 +319,10 @@ valueSearchText=cc
         RDFS.label: {literal('index-card', language='en')},
         RDFS.comment: {literal('get a specific index-card by id', language='en')},
         TROVE.iriPath: {literal('/trove/index-card/{indexCardId}')},
-        TROVE.hasParameter: {TROVE.indexCardId},
+        TROVE.hasParameter: {
+            TROVE.acceptMediatype,
+            TROVE.indexCardId,
+        },
         TROVE.usesConcept: {TROVE.Indexcard},
         TROVE.example: {
             blanknode({
@@ -487,6 +480,32 @@ get a specific index-card by id
     },
 
     # parameters:
+    TROVE.acceptMediatype: {
+        RDF.type: {RDF.Property, TROVE.QueryParameter},
+        JSONAPI_MEMBERNAME: {literal('acceptMediatype', language='en')},
+        RDFS.label: {literal('acceptMediatype', language='en')},
+        RDFS.comment: {literal('request a specific mediatype', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**acceptMediatype** is
+a query parameter to request a specific [mediatype](https://www.iana.org/assignments/media-types/).
+
+each api response is modeled as an [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model),
+which could be rendered into many different mediatypes.
+
+stable mediatypes:
+
+* `application/vnd.api+json`: [jsonapi](https://jsonapi.org/)
+  to support [osf:search](https://osf.io/search)
+
+unstable mediatypes (may change or sometimes respond 500):
+
+* `text/html;charset=utf-8`: rdf as browsable html
+* `text/turtle`: rdf as [turtle](https://www.w3.org/TR/turtle/)
+* `application/ld+json`: rdf as [json-ld](https://www.w3.org/TR/json-ld11/)
+
+`acceptMediatype` will override the `Accept` header, if present.
+''', language='en')},
+    },
     TROVE.cardSearchText: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
         JSONAPI_MEMBERNAME: {literal('cardSearchText', language='en')},
