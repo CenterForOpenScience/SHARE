@@ -11,7 +11,6 @@ from primitive_metadata.primitive_rdf import (
 )
 
 from trove.util.iri_labeler import IriLabeler
-from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.jsonapi import (
     JSONAPI_MEDIATYPE,
     JSONAPI_MEMBERNAME,
@@ -48,7 +47,7 @@ def _literal_markdown(text: str, *, language: str):
 def trove_browse_link(iri: str):
     return urllib.parse.urljoin(
         reverse('trovetrove:browse-iri'),
-        f'?iri={urllib.parse.quote(get_sufficiently_unique_iri(iri))}',
+        f'?iri={urllib.parse.quote(iri)}',
     )
 
 

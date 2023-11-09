@@ -12,7 +12,6 @@ from xml.etree.ElementTree import (
 )
 
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
