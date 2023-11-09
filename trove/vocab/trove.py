@@ -97,7 +97,7 @@ but it is intended to be small enough for an old computer to use naively, all at
 the index-card's `resourceMetadata` property contains a quoted graph, independent
 of the rest of the response.
 
-when represented as `{JSONAPI_MEMBERNAME}` (jsonapi), the `resourceMetadata` attribute
+when represented as `application/vnd.api+json` (jsonapi), the `resourceMetadata` attribute
 contains a json object that has:
 
 * `@id` with the focus iri
