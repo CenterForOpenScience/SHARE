@@ -23,7 +23,7 @@ from share.search.search_params import (
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
-from trove.render.jsonld import RdfJsonldRenderer
+from trove.render.osfmap_jsonld import RdfOsfmapJsonldRenderer
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -298,7 +298,7 @@ def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> fro
 
 def _osfmap_json(tripledict, focus_iri):
     return literal_json(
-        RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).tripledict_as_nested_jsonld(
+        RdfOsfmapJsonldRenderer().tripledict_as_nested_jsonld(
             tripledict,
             focus_iri,
         )
@@ -307,7 +307,7 @@ def _osfmap_json(tripledict, focus_iri):
 
 def _osfmap_twople_json(twopledict):
     return literal_json(
-        RdfJsonldRenderer(OSFMAP_VOCAB, osfmap_labeler).twopledict_as_jsonld(twopledict),
+        RdfOsfmapJsonldRenderer().twopledict_as_jsonld(twopledict),
     )
 
 

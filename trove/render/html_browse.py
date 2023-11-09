@@ -18,6 +18,7 @@ from primitive_metadata import primitive_rdf
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE, RDF
+from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
 
@@ -59,7 +60,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
             self.__leaf('header', text='alternate mediatypes')
             # TODO: more mediatypes
-            for _mediatype in [JSONAPI_MEDIATYPE]:
+            for _mediatype in _shuffled((JSONAPI_MEDIATYPE, 'text/turtle', 'application/ld+json')):
                 _qparams = self.request.GET.copy()
                 _qparams['acceptMediatype'] = _mediatype
                 _href = urlunsplit((
@@ -249,9 +250,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __href_for_iri(self, iri: str):
         if self.request and (self.request.get_host() == urlsplit(iri).netloc):
             return iri
-        return reverse('trovetrove:browse-iri', kwargs={
-            'iri': get_sufficiently_unique_iri(iri),
-        })
+        return trove_browse_link(iri)
 
     def __label_for_iri(self, iri: str):
         # TODO: get actual label in requested language
