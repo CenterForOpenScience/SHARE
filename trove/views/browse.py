@@ -33,18 +33,19 @@ class BrowseIriView(View):
         try:
             _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(iri)
         except trove_db.ResourceIdentifier.DoesNotExist:
-            raise http.Http404
-        _rdf_qs = (
-            trove_db.LatestIndexcardRdf.objects
-            .filter(indexcard__focus_identifier_set=_identifier)
-        )
-        # TODO: handle different focus_iri on multiple cards
-        _focus_iri = _rdf_qs.first().focus_iri
-        # TODO: query param for split/merged
-        return _focus_iri, _merge_tripledicts(
-            _indexcard_rdf.as_rdf_tripledict()
-            for _indexcard_rdf in _rdf_qs
-        )
+            return iri, {}
+        else:
+            _rdf_qs = (
+                trove_db.LatestIndexcardRdf.objects
+                .filter(indexcard__focus_identifier_set=_identifier)
+            )
+            # TODO: handle different focus_iri on multiple cards
+            _focus_iri = _rdf_qs.first().focus_iri
+            # TODO: query param for split/merged
+            return _focus_iri, _merge_tripledicts(
+                _indexcard_rdf.as_rdf_tripledict()
+                for _indexcard_rdf in _rdf_qs
+            )
 
 
 def _merge_tripledicts(tripledicts: Iterable[dict]):
