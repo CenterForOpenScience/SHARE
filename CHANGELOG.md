@@ -1,5 +1,8 @@
 # Change Log
 
+# [23.4.1] - 2023-11-10
+- fix: allow date literals for legacy sharev2_elastic deriver
+
 # [23.4.0] - 2023-11-09
 - add docs:
   - /trove/docs/openapi.json
