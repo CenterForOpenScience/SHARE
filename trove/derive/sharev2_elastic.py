@@ -142,6 +142,8 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     def _single_date(self, *predicate_iris, focus_iri=None):
         _val = self._single_value(*predicate_iris, focus_iri)
+        if isinstance(_val, primitive_rdf.Literal):
+            return _val.unicode_value
         if isinstance(_val, datetime.date):
             return _val.isoformat()
         return _val
