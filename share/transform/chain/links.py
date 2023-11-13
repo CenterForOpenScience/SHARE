@@ -272,7 +272,7 @@ class Context(AnchorLink):
         return AnchorLink() + step
 
     def __radd__(self, other):
-        raise NotImplementedError
+        return NotImplemented
 
     def __setattr__(self, name, value):
         if not hasattr(Context.__CONTEXT, '_ctxdict'):
