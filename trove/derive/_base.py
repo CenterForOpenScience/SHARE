@@ -15,6 +15,10 @@ class IndexcardDeriver(abc.ABC):
         self.focus_iri = upriver_rdf.focus_iri
         self.data = primitive_rdf.RdfGraph(upriver_rdf.as_rdf_tripledict())
 
+    def q(self, pathset):
+        # convenience for querying self.data on self.focus_iri
+        return self.data.q(self.focus_iri, pathset)
+
     ###
     # for subclasses to implement:
 

@@ -1,12 +1,16 @@
 from dateutil import parser
 
 from lxml import etree
+from primitive_metadata import primitive_rdf
+
 from trove.vocab.namespaces import OAI, OAI_DC
 
 
 def format_datetime(dt):
     """OAI-PMH has specific time format requirements -- comply.
     """
+    if isinstance(dt, primitive_rdf.Literal):
+        dt = dt.unicode_value
     if isinstance(dt, str):
         dt = parser.isoparse(dt)
     return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -18,6 +22,7 @@ XML_NAMESPACES = {
     'oai_dc': str(OAI_DC),
     'oai-identifier': 'http://www.openarchives.org/OAI/2.0/oai-identifier',
     'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+    'xml': 'http://www.w3.org/XML/1998/namespace',
 }
 
 
@@ -47,6 +52,11 @@ def nsmap(*namespace_prefixes, default=None):
 # wrapper for lxml.etree.SubElement, adds `text` kwarg for convenience
 def SubEl(parent, tag_name, text=None, **kwargs):
     element = etree.SubElement(parent, tag_name, **kwargs)
-    if text:
+    if isinstance(text, primitive_rdf.Literal):
+        _language_tag = text.language
+        if _language_tag:
+            element.set(ns('xml', 'lang'), text.language)
+        element.text = text.unicode_value
+    elif text:
         element.text = text
     return element
