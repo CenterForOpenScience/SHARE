@@ -695,7 +695,15 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             literal('Concept', language='en'),
         },
     },
-
+    OSFMAP.hasCedarTemplate: {
+        RDF.type: {RDF.Property},
+        RDFS.label: {
+            literal('Includes community schema', language='en'),
+        },
+        JSONAPI_MEMBERNAME: {
+            literal('hasCedarTemplate', language='en'),
+        },
+    },
     ###
     # values:
     OSFMAP['no-conflict-of-interest']: {
@@ -755,6 +763,7 @@ PROJECT_SUGGESTED_PROPERTY_PATHS = (
     (OSFMAP.affiliation,),
     (OSFMAP.isPartOfCollection,),
     (OSFMAP.supplements,),
+    (OSFMAP.hasCedarTemplate,),
 )
 
 
@@ -773,6 +782,7 @@ REGISTRATION_SUGGESTED_PROPERTY_PATHS = (
     (OSFMAP.hasPapersResource,),
     (OSFMAP.hasSupplementalResource,),
     (OSFMAP.supplements,),
+    (OSFMAP.hasCedarTemplate,),
 )
 
 
@@ -794,6 +804,7 @@ FILE_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.type,),
     (OSFMAP.isContainedBy, OSFMAP.funder,),
     (OSFMAP.isContainedBy, DCTERMS.rights,),
+    (OSFMAP.hasCedarTemplate,),
 )
 
 
