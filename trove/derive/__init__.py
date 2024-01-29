@@ -1,14 +1,15 @@
 from . import (
     sharev2_elastic,
     osfmap_json,
+    oaidc_xml,
 )
 
 
 DERIVER_SET = (
     sharev2_elastic.ShareV2ElasticDeriver,
-    # TODO:
     osfmap_json.OsfmapJsonDeriver,
-    # oaidc_xml,
+    oaidc_xml.OaiDcXmlDeriver,
+    # TODO:
     # datacite_xml, (from osf.metadata)
     # datacite_json, (from osf.metadata)
     # property_label?
