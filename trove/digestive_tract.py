@@ -208,12 +208,13 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
 
 
 @celery.shared_task(acks_late=True, bind=True)
-def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str):
+def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str, notify_index=True):
     _indexcard = trove_db.Indexcard.objects.get(id=indexcard_id)
     derive(_indexcard, deriver_iris=[deriver_iri])
     # TODO: avoid unnecessary work; let IndexStrategy subscribe to a specific
     # IndexcardDeriver (perhaps by deriver-specific MessageType?)
-    IndexMessenger(celery_app=task.app).notify_indexcard_update([_indexcard])
+    if notify_index:
+        IndexMessenger(celery_app=task.app).notify_indexcard_update([_indexcard])
 
 
 @celery.shared_task(acks_late=True)
@@ -231,7 +232,7 @@ def task__schedule_extract_and_derive_for_source_config(source_config_id: int):
 
 
 @celery.shared_task(acks_late=True)
-def task__schedule_all_for_deriver(deriver_iri: str):
+def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
     if not get_deriver_classes([deriver_iri]):
         raise DigestiveError(f'unknown deriver_iri: {deriver_iri}')
     _indexcard_id_qs = (
@@ -239,7 +240,7 @@ def task__schedule_all_for_deriver(deriver_iri: str):
         .values_list('id', flat=True)
     )
     for _indexcard_id in _indexcard_id_qs.iterator():
-        task__derive.apply_async((_indexcard_id, deriver_iri))
+        task__derive.apply_async((_indexcard_id, deriver_iri, notify_index))
 
 
 # TODO: remove legacy ingest

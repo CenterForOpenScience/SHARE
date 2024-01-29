@@ -24,7 +24,6 @@ class OaiPmhRepository:
     # this dictionary's keys are `metadataPrefix` values
     FORMATS = {
         'oai_dc': {
-            'formatter_key': 'oai_dc',
             'deriver_iri': str(OAI_DC),
             'schema': 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
             'namespace': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
@@ -64,7 +63,7 @@ class OaiPmhRepository:
         ):
             self.errors.append(oai_errors.BadFormat(maybe_prefix))
 
-    def resolve_oai_identifier(self, identifier) -> trove_db.Indexcard:
+    def resolve_oai_identifier(self, identifier) -> trove_db.Indexcard | None:
         splid = identifier.split(self.IDENTIFER_DELIMITER)
         if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
             self.errors.append(oai_errors.BadRecordID(identifier))
