@@ -1,5 +1,8 @@
 # Change Log
 
+# [24.0.0] - 2024-02-13
+- add `osfmap:hasCedarTemplate` to trove.vocab
+
 # [23.4.1] - 2023-11-10
 - fix: allow date literals for legacy sharev2_elastic deriver
 
