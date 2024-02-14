@@ -17,7 +17,7 @@ from tests import factories
 
 NAMESPACES = {
     'dc': 'http://purl.org/dc/elements/1.1/',
-    'ns0': 'http://www.openarchives.org/OAI/2.0/',
+    'oai': 'http://www.openarchives.org/OAI/2.0/',
     'oai_dc': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
 }
 
@@ -32,7 +32,7 @@ def oai_request(data, request_method, expect_errors=False):
         raise NotImplementedError
     assert response.status_code == 200
     parsed = etree.fromstring(response.content, parser=etree.XMLParser(recover=True))
-    actual_errors = parsed.xpath('//ns0:error', namespaces=NAMESPACES)
+    actual_errors = parsed.xpath('//oai:error', namespaces=NAMESPACES)
     if expect_errors:
         assert actual_errors
         return actual_errors
@@ -57,41 +57,41 @@ class TestOAIVerbs:
 
     def test_identify(self, request_method):
         parsed = oai_request({'verb': 'Identify'}, request_method)
-        assert parsed.xpath('//ns0:Identify/ns0:repositoryName', namespaces=NAMESPACES)[0].text == 'Share/trove'
+        assert parsed.xpath('//oai:Identify/oai:repositoryName', namespaces=NAMESPACES)[0].text == 'Share/trove'
 
     def test_list_sets(self, request_method):
         parsed = oai_request({'verb': 'ListSets'}, request_method)
-        _num_sets = len(parsed.xpath('//ns0:ListSets/ns0:set', namespaces=NAMESPACES))
+        _num_sets = len(parsed.xpath('//oai:ListSets/oai:set', namespaces=NAMESPACES))
         assert _num_sets == share_db.Source.objects.all().count()
 
     def test_list_formats(self, request_method):
         parsed = oai_request({'verb': 'ListMetadataFormats'}, request_method)
-        prefixes = parsed.xpath('//ns0:ListMetadataFormats/ns0:metadataFormat/ns0:metadataPrefix', namespaces=NAMESPACES)
+        prefixes = parsed.xpath('//oai:ListMetadataFormats/oai:metadataFormat/oai:metadataPrefix', namespaces=NAMESPACES)
         assert len(prefixes) == 1
         assert prefixes[0].text == 'oai_dc'
 
     def test_list_identifiers(self, request_method, oai_indexcard):
         parsed = oai_request({'verb': 'ListIdentifiers', 'metadataPrefix': 'oai_dc'}, request_method)
-        identifiers = parsed.xpath('//ns0:ListIdentifiers/ns0:header/ns0:identifier', namespaces=NAMESPACES)
+        identifiers = parsed.xpath('//oai:ListIdentifiers/oai:header/oai:identifier', namespaces=NAMESPACES)
         assert len(identifiers) == 1
         assert identifiers[0].text == 'oai:share.osf.io:{}'.format(oai_indexcard.upriver_indexcard.uuid)
 
     def test_list_records(self, request_method, oai_indexcard, django_assert_num_queries):
         with django_assert_num_queries(1):
             parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, request_method)
-        records = parsed.xpath('//ns0:ListRecords/ns0:record', namespaces=NAMESPACES)
+        records = parsed.xpath('//oai:ListRecords/oai:record', namespaces=NAMESPACES)
         assert len(records) == 1
-        assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
+        assert len(records[0].xpath('oai:metadata/oai:foo', namespaces=NAMESPACES)) == 1
         record_id = 'oai:share.osf.io:{}'.format(oai_indexcard.upriver_indexcard.uuid)
-        assert record_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
+        assert record_id == records[0].xpath('oai:header/oai:identifier', namespaces=NAMESPACES)[0].text
 
     def test_get_record(self, request_method, oai_indexcard):
         ant_id = 'oai:share.osf.io:{}'.format(oai_indexcard.upriver_indexcard.uuid)
         parsed = oai_request({'verb': 'GetRecord', 'metadataPrefix': 'oai_dc', 'identifier': ant_id}, request_method)
-        records = parsed.xpath('//ns0:GetRecord/ns0:record', namespaces=NAMESPACES)
+        records = parsed.xpath('//oai:GetRecord/oai:record', namespaces=NAMESPACES)
         assert len(records) == 1
-        assert len(records[0].xpath('ns0:metadata/ns0:foo', namespaces=NAMESPACES)) == 1
-        assert ant_id == records[0].xpath('ns0:header/ns0:identifier', namespaces=NAMESPACES)[0].text
+        assert len(records[0].xpath('oai:metadata/oai:foo', namespaces=NAMESPACES)) == 1
+        assert ant_id == records[0].xpath('oai:header/oai:identifier', namespaces=NAMESPACES)[0].text
 
     @pytest.mark.parametrize('verb, params, errors', [
         ('GetRecord', {}, ['badArgument']),
@@ -235,10 +235,10 @@ class TestOAILists:
                 parsed = oai_request({'verb': verb, 'resumptionToken': token}, request_method)
             else:
                 parsed = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, request_method)
-            page = parsed.xpath('//ns0:header/ns0:identifier', namespaces=NAMESPACES)
+            page = parsed.xpath('//oai:header/oai:identifier', namespaces=NAMESPACES)
             pages += 1
             count += len(page)
-            token = parsed.xpath('//ns0:resumptionToken', namespaces=NAMESPACES)
+            token = parsed.xpath('//oai:resumptionToken', namespaces=NAMESPACES)
             assert len(token) == 1
             token = token[0].text
             if token:
