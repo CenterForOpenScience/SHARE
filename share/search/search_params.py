@@ -49,6 +49,8 @@ PROPERTYPATH_DELIMITER = '.'
 
 # special path-step that matches any property
 GLOB_PATHSTEP = '*'
+ONE_GLOB_PROPERTYPATH = (GLOB_PATHSTEP,)
+DEFAULT_PROPERTYPATH_SET = frozenset([ONE_GLOB_PROPERTYPATH])
 
 
 ###
@@ -109,7 +111,7 @@ class Textsegment:
     is_fuzzy: bool = True
     is_negated: bool = False
     is_openended: bool = False
-    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
+    propertypath_set: frozenset[tuple[str, ...]] = DEFAULT_PROPERTYPATH_SET
 
     def __post_init__(self):
         if self.is_negated and self.is_fuzzy:
@@ -276,7 +278,7 @@ class SearchFilter:
 
     operator: FilterOperator
     value_set: frozenset[str]
-    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
+    propertypath_set: frozenset[tuple[str, ...]] = DEFAULT_PROPERTYPATH_SET
 
     @classmethod
     def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
