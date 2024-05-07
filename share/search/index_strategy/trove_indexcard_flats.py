@@ -7,7 +7,7 @@ import json
 import logging
 import re
 import uuid
-from typing import Iterable, ClassVar, Optional
+from typing import Iterable, ClassVar, Optional, Iterator
 
 from django.conf import settings
 from django.db.models import Exists, OuterRef
@@ -689,7 +689,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 'query': {'bool': {'filter': list(self._iter_nested_date_filters(search_filter))}},
             }}
 
-        def _iter_nested_date_filters(self, search_filter) -> dict:
+        def _iter_nested_date_filters(self, search_filter) -> Iterator[dict]:
             # filter by requested paths
             yield _pathset_as_nestedvalue_filter(search_filter.propertypath_set, 'nested_date')
             # filter by requested value/operator
@@ -1065,6 +1065,7 @@ class _CardsearchCursor(_SimpleCursor):
 
 class _PredicatePathWalker:
     WalkYield = tuple[tuple[str, ...], primitive_rdf.RdfObject]
+    _visiting: set[str | frozenset]
 
     def __init__(self, tripledict: primitive_rdf.RdfTripleDictionary):
         self.tripledict = tripledict

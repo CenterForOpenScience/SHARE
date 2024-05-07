@@ -68,7 +68,7 @@ def is_worthwhile_iri(iri: str):
     )
 
 
-def iri_path_as_keyword(iris: list[str] | tuple[str], *, suffuniq=False) -> str:
+def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) -> str:
     assert isinstance(iris, (list, tuple)) and all(
         isinstance(_pathstep, str)
         for _pathstep in iris

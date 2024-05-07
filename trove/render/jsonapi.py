@@ -60,8 +60,8 @@ class RdfJsonapiRenderer(BaseRenderer):
         # TODO: move "id namespace" to vocab (property on each type)
         self._id_namespace_set = [trove_indexcard_namespace()]
 
-    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
-        self._data = primitive_rdf.RdfGraph(data)
+    def render_document(self, data: primitive_rdf.RdfGraph, focus_iri: str) -> str:
+        self._data = data
         return json.dumps(
             self.render_dict(focus_iri),
             indent=2,  # TODO: pretty-print query param?

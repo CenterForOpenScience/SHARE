@@ -9,9 +9,8 @@ from share.search.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
-from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE
-from trove.trovesearch_gathering import trovesearch_by_indexstrategy
+from trove.trovesearch_gathering import trovesearch_by_indexstrategy, TrovesearchFlags
 from trove.render import get_renderer
 
 
@@ -48,7 +47,7 @@ class CardsearchView(View):
         _search_iri, _search_gathering, _renderer = _parse_request(request, CardsearchParams)
         _search_gathering.ask(
             DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
-            focus=gather.focus(_search_iri, TROVE.Cardsearch),
+            focus=gather.Focus.new(_search_iri, TROVE.Cardsearch),
         )
         return _renderer.render_response(_search_gathering.leaf_a_record(), _search_iri)
 
@@ -58,7 +57,7 @@ class ValuesearchView(View):
         _search_iri, _search_gathering, _renderer = _parse_request(request, ValuesearchParams)
         _search_gathering.ask(
             DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
-            focus=gather.focus(_search_iri, TROVE.Valuesearch),
+            focus=gather.Focus.new(_search_iri, TROVE.Valuesearch),
         )
         return _renderer.render_response(_search_gathering.leaf_a_record(), _search_iri)
 
@@ -77,6 +76,6 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,
         'specific_index': _specific_index,
-        'use_osfmap_json': (_renderer.MEDIATYPE in {'application/json', JSONAPI_MEDIATYPE})
+        'trovesearch_flags': TrovesearchFlags.for_mediatype(_renderer.MEDIATYPE),
     })
     return (_search_iri, _search_gathering, _renderer)

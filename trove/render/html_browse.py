@@ -35,7 +35,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         self.__visiting_iris = None
         self.__heading_depth = None
 
-    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
+    def render_document(self, data: primitive_rdf.RdfGraph, focus_iri: str) -> str:
         self.data = data
         with self.__rendering():
             with self.__nest('head'):
@@ -88,7 +88,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     _link.tail = ')'
 
     def __render_subj(self, subj_iri: str, start_collapsed=False):
-        _twopledict = self.data.get(subj_iri, {})
+        _twopledict = self.data.tripledict.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
                 with self.__nest(
@@ -140,7 +140,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __obj(self, obj: primitive_rdf.RdfObject):
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
-            if obj in self.data:
+            if obj in self.data.tripledict:
                 if obj in self.__visiting_iris:
                     self.__leaf_link(obj)  # TODO: consider
                 else:
@@ -231,7 +231,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __quoted_data(self, quoted_data: dict):
         _outer_data = self.data
         _outer_visiting_iris = self.__visiting_iris
-        self.data = quoted_data
+        self.data = primitive_rdf.RdfGraph(quoted_data)
         self.__visiting_iris = set()
         try:
             yield
