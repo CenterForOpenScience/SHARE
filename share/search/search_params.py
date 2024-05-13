@@ -23,8 +23,8 @@ from trove.vocab.osfmap import (
     suggested_property_paths,
     OSFMAP_VOCAB,
 )
-from trove.vocab.trove import trove_labeler
-from trove.vocab.namespaces import RDF, TROVE, OWL
+from trove.vocab.trove import trove_shorthand
+from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND
 
 
 logger = logging.getLogger(__name__)
@@ -75,7 +75,7 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': cls._gather_include(queryparams.get('include', [])),
+            'include': cls._gather_include(queryparams),
         }
 
     def to_querystring(self) -> str:
@@ -97,7 +97,7 @@ class BaseTroveParams:
                 raise  # TODO: 400 response
             else:
                 _prefixmap[_shortname] = _iri
-        return primitive_rdf.IriShorthand(_prefixmap)
+        return NAMESPACES_SHORTHAND.with_update(_prefixmap)
 
     @classmethod
     def _gather_include(cls, queryparams: QueryparamDict):
@@ -261,11 +261,11 @@ class SearchFilter:
 
         @classmethod
         def from_shortname(cls, shortname):
-            _iri = trove_labeler.iri_for_label(shortname)
+            _iri = trove_shorthand().expand_iri(shortname)
             return cls(_iri)
 
         def to_shortname(self) -> str:
-            return trove_labeler.label_for_iri(self.value)
+            return trove_shorthand().compact_iri(self.value)
 
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
@@ -379,7 +379,7 @@ class SortParam:
         )
 
     @classmethod
-    def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam']:
+    def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam', ...]:
         _paramvalue = _get_single_value(queryparams, QueryparamName('sort'))
         if not _paramvalue or _paramvalue == '-relevance':
             return ()
@@ -414,11 +414,11 @@ class PageParam:
 
     @classmethod
     def from_queryparams(cls, queryparams: QueryparamDict) -> 'PageParam':
-        _cursor = _get_single_value(queryparams, QueryparamName('page', ['cursor']))
+        _cursor = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
         if _cursor:
             return cls(cursor=_cursor)
         _size = int(  # TODO: 400 response on non-int value
-            _get_single_value(queryparams, QueryparamName('page', ['size']))
+            _get_single_value(queryparams, QueryparamName('page', ('size',)))
             or DEFAULT_PAGE_SIZE
         )
         return cls(size=min(_size, MAX_PAGE_SIZE), cursor=None)
@@ -577,7 +577,7 @@ def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> tuple[str,
     return _path
 
 
-def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
+def _get_related_property_paths(filter_set) -> tuple[tuple[str, ...], ...]:
     # hard-coded for osf.io search pages, static list per type
     # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
     _type_iris = set()

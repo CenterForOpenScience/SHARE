@@ -160,7 +160,7 @@ def _choose_iri(iris):
 
 
 def _focus_for_mnode(mnode: MutableNode):
-    return gather.focus(
+    return gather.Focus.new(
         frozenset(_iris_for_mnode(mnode)),
         frozenset(_focustype_iris(mnode)),
         {'mnode': mnode},

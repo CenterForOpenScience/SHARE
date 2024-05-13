@@ -1,16 +1,19 @@
 from typing import Optional
 
-from primitive_metadata import primitive_rdf
+from primitive_metadata import primitive_rdf as rdf
 
 from trove.vocab.namespaces import RDFS
 
 
 class IriLabeler:
+    __iris_by_label: dict[str, str]
+    __labels_by_iri: dict[str, str]
+
     def __init__(
         self,
-        vocabulary: primitive_rdf.RdfTripleDictionary,
+        vocabulary: rdf.RdfTripleDictionary,
         label_iri: str = RDFS.label,
-        acceptable_prefixes: tuple[str] = (),
+        acceptable_prefixes: tuple[str, ...] = (),
         output_prefix: Optional[str] = None,
     ):
         self.vocabulary = vocabulary
@@ -18,10 +21,10 @@ class IriLabeler:
         self.acceptable_prefixes = acceptable_prefixes
         self.output_prefix = output_prefix
 
-    def build_shorthand(self) -> primitive_rdf.IriShorthand:
-        return primitive_rdf.IriShorthand({
+    def build_shorthand(self) -> rdf.IriShorthand:
+        return rdf.IriShorthand({
             _label: _iri
-            for _label, _iri in self.all_iris_by_label()
+            for _label, _iri in self.all_iris_by_label().items()
         })
 
     def all_iris_by_label(self) -> dict[str, str]:
@@ -88,7 +91,7 @@ class IriLabeler:
             return next(
                 _label.unicode_value
                 for _label in _labelset
-                if isinstance(_label, primitive_rdf.Literal)
+                if isinstance(_label, rdf.Literal)
             )
         except StopIteration:
             raise ValueError(f'could not find label for iri "{iri}"')

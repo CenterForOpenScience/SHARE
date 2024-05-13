@@ -1,15 +1,19 @@
+import functools
+
 from primitive_metadata.primitive_rdf import (
     literal,
     RdfTripleDictionary,
+    IriShorthand,
 )
 from primitive_metadata import gather
 
 from share.models.feature_flag import FeatureFlag
 from trove.util.iri_labeler import IriLabeler
+from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import (
     DCAT,
-    DCMITYPE,
+    DCTYPE,
     DCTERMS,
     FOAF,
     OSFMAP,
@@ -18,6 +22,7 @@ from trove.vocab.namespaces import (
     RDFS,
     SKOS,
     TROVE,
+    NAMESPACES_SHORTHAND,
 )
 
 OSFMAP_LINK = 'https://osf.io/8yczr'
@@ -677,7 +682,7 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
             literal('Property', language='en'),
         },
     },
-    DCMITYPE.Collection: {
+    DCTYPE.Collection: {
         RDF.type: {RDFS.Class},
         RDFS.label: {
             literal('Collection', language='en'),
@@ -718,13 +723,13 @@ OSFMAP_VOCAB: RdfTripleDictionary = {
 }
 
 
-OSFMAP_NORMS = gather.GatheringNorms(
+OSFMAP_NORMS = gather.GatheringNorms.new(
     namestory=(
         literal('OSFMAP', language='en'),
         literal('OSF Metadata Application Profile', language='en'),
         literal('Open Science Framework Metadata Application Profile', language='en'),
     ),
-    vocabulary=OSFMAP_VOCAB,
+    thesaurus=OSFMAP_VOCAB,
     focustype_iris={
         OSFMAP.Project,
         OSFMAP.ProjectComponent,
@@ -735,6 +740,18 @@ OSFMAP_NORMS = gather.GatheringNorms(
         DCTERMS.Agent,
     },
 )
+
+
+@functools.cache
+def osfmap_shorthand() -> IriShorthand:
+    '''build iri shorthand that includes unprefixed osfmap terms
+    '''
+    return build_shorthand_from_thesaurus(
+        thesaurus=OSFMAP_VOCAB,
+        label_predicate=JSONAPI_MEMBERNAME,
+        base_shorthand=NAMESPACES_SHORTHAND,
+    )
+
 
 osfmap_labeler = IriLabeler(
     OSFMAP_VOCAB,
@@ -838,7 +855,8 @@ DATE_PROPERTIES = frozenset((
 ))
 
 
-def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
+def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]:
+    _suggested: tuple[tuple[str, ...], ...]
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):
         _suggested = ()
     elif type_iris == {DCTERMS.Agent}:
@@ -853,7 +871,7 @@ def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...]]:
         _suggested = REGISTRATION_SUGGESTED_PROPERTY_PATHS
     else:
         _suggested = ALL_SUGGESTED_PROPERTY_PATHS
-    if FeatureFlag.objects.flag_is_up(FeatureFlag.SUGGEST_CREATOR_FACET):
+    if _suggested and FeatureFlag.objects.flag_is_up(FeatureFlag.SUGGEST_CREATOR_FACET):
         return ((DCTERMS.creator,), *_suggested)
     return _suggested
 

@@ -27,7 +27,7 @@ QUERYPARAM_VALUES_DELIM = ','
 @dataclasses.dataclass(frozen=True)
 class QueryparamName:
     family: str
-    bracketed_names: tuple[str] = ()
+    bracketed_names: tuple[str, ...] = ()
 
     def __post_init__(self):
         if not isinstance(self.bracketed_names, tuple):

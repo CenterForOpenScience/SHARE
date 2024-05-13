@@ -1,9 +1,11 @@
+import functools
 import urllib.parse
 
 from django.conf import settings
 from django.urls import reverse
 from primitive_metadata.primitive_rdf import (
     IriNamespace,
+    IriShorthand,
     RdfTripleDictionary,
     literal,
     literal_json,
@@ -11,6 +13,7 @@ from primitive_metadata.primitive_rdf import (
 )
 
 from trove.util.iri_labeler import IriLabeler
+from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import (
     JSONAPI_MEMBERNAME,
     JSONAPI_ATTRIBUTE,
@@ -28,6 +31,7 @@ from trove.vocab.namespaces import (
     RDFS,
     SKOS,
     TROVE,
+    NAMESPACES_SHORTHAND,
 )
 
 
@@ -755,9 +759,9 @@ the special path segment `*` matches any property
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {literal('searchResultPage', language='en')},
     },
-    TROVE.evidenceCard: {
+    TROVE.evidenceCardIdentifier: {
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('evidenceCard', language='en')},
+        JSONAPI_MEMBERNAME: {literal('evidenceCardIdentifier', language='en')},
     },
     TROVE.relatedPropertyList: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
@@ -814,6 +818,18 @@ trove_labeler = IriLabeler(
 )
 
 
+@functools.cache
+def trove_shorthand() -> IriShorthand:
+    '''build iri shorthand that includes unprefixed osfmap terms
+    '''
+    return build_shorthand_from_thesaurus(
+        thesaurus=TROVE_API_VOCAB,
+        label_predicate=JSONAPI_MEMBERNAME,
+        base_shorthand=NAMESPACES_SHORTHAND,
+    )
+
+
+@functools.cache
 def trove_indexcard_namespace():
     return IriNamespace(f'{settings.SHARE_WEB_URL}trove/index-card/')
 

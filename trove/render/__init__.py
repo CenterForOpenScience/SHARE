@@ -1,5 +1,7 @@
 from django import http
 
+from trove.vocab.trove import TROVE_API_VOCAB
+from trove.vocab.namespaces import NAMESPACES_SHORTHAND
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 from .turtle import RdfTurtleRenderer
@@ -33,4 +35,8 @@ def get_renderer(request: http.HttpRequest):
                 break
     if _chosen_renderer_cls is None:
         raise ValueError(f'could not find renderer for {request}')
-    return _chosen_renderer_cls(request=request)
+    return _chosen_renderer_cls(
+        iri_shorthand=NAMESPACES_SHORTHAND,
+        thesaurus=TROVE_API_VOCAB,
+        request=request,
+    )

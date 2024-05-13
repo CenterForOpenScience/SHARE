@@ -1,4 +1,5 @@
 import dataclasses
+import enum
 import logging
 import urllib.parse
 
@@ -23,25 +24,29 @@ from share.search.search_params import (
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
-from trove.render.osfmap_jsonld import RdfOsfmapJsonldRenderer
-from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
+from trove.derive.osfmap_json import get_osfmap_renderer
+from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
+    JSONAPI_MEDIATYPE,
 )
-from trove.vocab.osfmap import osfmap_labeler, OSFMAP_VOCAB, suggested_filter_operator
+from trove.vocab.osfmap import (
+    osfmap_labeler,
+    OSFMAP_VOCAB,
+    suggested_filter_operator,
+)
 from trove.vocab.trove import (
-    TROVE,
     TROVE_API_VOCAB,
     trove_indexcard_namespace,
-    trove_labeler,
+    trove_shorthand,
 )
 
 
 logger = logging.getLogger(__name__)
 
 
-TROVE_GATHERING_NORMS = gather.GatheringNorms(
+TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
     namestory=(
         literal('cardsearch', language='en'),
         literal('search for "index cards" that describe resources', language='en'),
@@ -51,7 +56,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms(
         TROVE.Cardsearch,
         TROVE.Valuesearch,
     },
-    vocabulary=TROVE_API_VOCAB,
+    thesaurus=TROVE_API_VOCAB,
 )
 
 
@@ -60,28 +65,41 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_kwargnames={'search_params', 'specific_index', 'use_osfmap_json'},
+    gatherer_kwargnames={'search_params', 'specific_index', 'trovesearch_flags'},
 )
+
+
+class TrovesearchFlags(enum.Flag):
+    OSFMAP_JSON = enum.auto()
+    ONLY_RESULTS = enum.auto()
+
+    @classmethod
+    def for_mediatype(cls, mediatype: str) -> 'TrovesearchFlags':
+        if mediatype in (JSONAPI_MEDIATYPE, 'application/ld+json'):
+            return cls.OSFMAP_JSON
+        if mediatype == 'application/json':
+            return cls.OSFMAP_JSON | cls.ONLY_RESULTS
+        return cls(0)  # none flags
 
 
 # TODO: per-field text search in rdf
 # @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchText)
-# def gather_cardsearch_text(focus, *, specific_index, search_params, use_osfmap_json):
+# def gather_cardsearch_text(focus, *, specific_index, search_params, trovesearch_flags):
 #     yield (TROVE.cardSearchText, literal(search_params.cardsearch_text))
 #
 #
 # @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchText)
-# def gather_valuesearch_text(focus, *, specific_index, search_params, use_osfmap_json):
+# def gather_valuesearch_text(focus, *, specific_index, search_params, trovesearch_flags):
 #     yield (TROVE.valueSearchText, literal(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
-def gather_valuesearch_propertypath(focus, *, specific_index, search_params, use_osfmap_json):
+def gather_valuesearch_propertypath(focus, *, specific_index, search_params, trovesearch_flags):
     yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)
-def gather_valuesearch_filter(focus, *, specific_index, search_params, use_osfmap_json):
+def gather_valuesearch_filter(focus, *, specific_index, search_params, trovesearch_flags):
     for _filter in search_params.valuesearch_filter_set:
         yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter, {}))
 
@@ -92,7 +110,7 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params, use_osfma
     TROVE.cardSearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
-def gather_cardsearch(focus, *, specific_index, search_params, use_osfmap_json):
+def gather_cardsearch(focus, *, specific_index, search_params, trovesearch_flags):
     assert isinstance(search_params, CardsearchParams)
     # defer to the IndexStrategy implementation to do the search
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
@@ -105,7 +123,7 @@ def gather_cardsearch(focus, *, specific_index, search_params, use_osfmap_json):
             (TROVE.matchEvidence, frozenset((
                 (RDF.type, TROVE.TextMatchEvidence),
                 (TROVE.matchingHighlight, _evidence.matching_highlight),
-                (TROVE.indexCard, _evidence.card_iri),
+                (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
                 *_single_propertypath_twoples(_evidence.property_path),
             )))
             for _evidence in _result.text_match_evidence
@@ -127,7 +145,8 @@ def gather_cardsearch(focus, *, specific_index, search_params, use_osfmap_json):
         _related_property_result(_propertypath, _prop_usage_counts.get(_propertypath, 0))
         for _propertypath in search_params.related_property_paths
     ]
-    yield (TROVE.relatedPropertyList, sequence(_relatedproperty_list))
+    if _relatedproperty_list:
+        yield (TROVE.relatedPropertyList, sequence(_relatedproperty_list))
     # filter-values from search params, with any additional info
     _valueinfo_by_iri = {}
     for _filtervalue in _cardsearch_resp.filtervalue_info:
@@ -140,7 +159,7 @@ def gather_cardsearch(focus, *, specific_index, search_params, use_osfmap_json):
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch(focus, *, specific_index, search_params, use_osfmap_json):
+def gather_valuesearch(focus, *, specific_index, search_params, trovesearch_flags):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
     _result_page = []
@@ -194,7 +213,7 @@ def gather_valuesearch(focus, *, specific_index, search_params, use_osfmap_json)
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Indexcard},
 )
-def gather_card(focus, *, use_osfmap_json, **kwargs):
+def gather_card(focus, *, trovesearch_flags, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
     _indexcard_namespace = trove_indexcard_namespace()
     try:
@@ -209,7 +228,7 @@ def gather_card(focus, *, use_osfmap_json, **kwargs):
         _indexcard_iri,
         namespace=_indexcard_namespace,
     )
-    if use_osfmap_json:  # include graph as serialized json
+    if TrovesearchFlags.OSFMAP_JSON in trovesearch_flags:  # include graph as serialized json
         _osfmap_indexcard = (
             trove_db.DerivedIndexcard.objects
             .filter(
@@ -298,7 +317,7 @@ def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> fro
 
 def _osfmap_json(tripledict, focus_iri):
     return literal_json(
-        RdfOsfmapJsonldRenderer().tripledict_as_nested_jsonld(
+        get_osfmap_renderer().render_jsonld(
             tripledict,
             focus_iri,
         )
@@ -307,7 +326,7 @@ def _osfmap_json(tripledict, focus_iri):
 
 def _osfmap_twople_json(twopledict):
     return literal_json(
-        RdfOsfmapJsonldRenderer().twopledict_as_jsonld(twopledict),
+        get_osfmap_renderer().blanknode_as_jsonld(twopledict),
     )
 
 
@@ -348,9 +367,9 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
     return frozenset((
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
-        (TROVE.suggestedFilterOperator, trove_labeler.label_for_iri(
+        (TROVE.suggestedFilterOperator, literal(trove_shorthand().compact_iri(
             suggested_filter_operator(property_path[-1]),
-        )),
+        ))),
         *_single_propertypath_twoples(property_path),
     ))
 
