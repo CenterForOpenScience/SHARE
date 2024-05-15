@@ -24,7 +24,7 @@ from share.search.search_params import (
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
-from trove.derive.osfmap_json import get_osfmap_renderer
+from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -32,7 +32,7 @@ from trove.vocab.jsonapi import (
     JSONAPI_MEDIATYPE,
 )
 from trove.vocab.osfmap import (
-    osfmap_labeler,
+    osfmap_shorthand,
     OSFMAP_VOCAB,
     suggested_filter_operator,
 )
@@ -317,22 +317,19 @@ def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> fro
 
 def _osfmap_json(tripledict, focus_iri):
     return literal_json(
-        get_osfmap_renderer().render_jsonld(
-            tripledict,
-            focus_iri,
-        )
+        _RdfOsfmapJsonldRenderer().tripledict_as_nested_jsonld(tripledict, focus_iri)
     )
 
 
 def _osfmap_twople_json(twopledict):
     return literal_json(
-        get_osfmap_renderer().blanknode_as_jsonld(twopledict),
+        _RdfOsfmapJsonldRenderer().twopledict_as_jsonld(twopledict)
     )
 
 
 def _osfmap_path(property_path):
     return literal_json([
-        osfmap_labeler.get_label_or_iri(_iri)
+        osfmap_shorthand().compact_iri(_iri)
         for _iri in property_path
     ])
 
