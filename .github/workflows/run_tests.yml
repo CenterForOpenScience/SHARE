@@ -83,3 +83,5 @@ jobs:
 
       - name: coveralls
         uses: coverallsapp/github-action@v2
+        with:
+          coverage-reporter-version: v0.6.9  # avoid broken v0.6.10 -- see https://github.com/coverallsapp/github-action/issues/205
