@@ -1,12 +1,13 @@
 from lxml import etree
 from primitive_metadata import primitive_rdf as rdf
 
-from share.oaipmh.util import format_datetime, ns, nsmap, SubEl, OAI_DC
+from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
 
 from trove.vocab.namespaces import (
     DCMITYPE,
     DCTERMS,
     FOAF,
+    OAI_DC,
     OSFMAP,
     RDF,
     RDFS,
@@ -82,10 +83,10 @@ class OaiDcXmlDeriver(IndexcardDeriver):
             if isinstance(_subject, rdf.Literal):
                 SubEl(dc_element, ns('dc', 'subject'), _subject)
 
-        for _description in self.q(DCTERMS.description):
+        for _description in sorted(self.q(DCTERMS.description)):
             SubEl(dc_element, ns('dc', 'description'), _description)
 
-        for _publisher_name in self.q({DCTERMS.publisher: FOAF.name}):
+        for _publisher_name in sorted(self.q({DCTERMS.publisher: FOAF.name})):
             SubEl(dc_element, ns('dc', 'publisher'), _publisher_name)
 
         for _contributor_name in self.q({DCTERMS.contributor: FOAF.name}):
@@ -103,25 +104,25 @@ class OaiDcXmlDeriver(IndexcardDeriver):
         else:
             SubEl(dc_element, ns('dc', 'date'), format_datetime(_date))
 
-        for _type_iri in self.q(RDF.type):
+        for _type_iri in sorted(self.q(RDF.type)):
             for _type_namespace in (OSFMAP, DCMITYPE, SHAREv2):
                 if _type_iri in _type_namespace:
                     SubEl(
                         dc_element,
                         ns('dc', 'type'),
-                        rdf.iri_minus_namespace(_type_iri, OSFMAP),
+                        rdf.iri_minus_namespace(_type_iri, _type_namespace),
                     )
 
-        for _identifier in self.q(DCTERMS.identifier):
+        for _identifier in sorted(self.q(DCTERMS.identifier)):
             SubEl(dc_element, ns('dc', 'identifier'), _identifier)
 
-        for _language in self.q(DCTERMS.language):
+        for _language in sorted(self.q(DCTERMS.language)):
             SubEl(dc_element, ns('dc', 'language'), _language)
 
-        for _related_iri in self.q(DC_RELATION_PREDICATES):
+        for _related_iri in sorted(self.q(DC_RELATION_PREDICATES)):
             SubEl(dc_element, ns('dc', 'relation'), _related_iri)
 
-        for _rights in self.q(DCTERMS.rights):
+        for _rights in sorted(self.q(DCTERMS.rights)):
             _value = (
                 _rights
                 if isinstance(_rights, (str, rdf.Literal))

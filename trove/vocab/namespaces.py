@@ -7,6 +7,25 @@ from primitive_metadata.primitive_rdf import (
 )
 
 
+__all__ = (
+    'STATIC_SHORTHAND',
+    'RDF',
+    'RDFS',
+    'OWL',
+    'DC',
+    'DCTERMS',
+    'DCMITYPE',
+    'FOAF',
+    'DCAT',
+    'PROV',
+    'SKOS',
+    'TROVE',
+    'SHAREv2',
+    'OSFMAP',
+    'JSONAPI',
+)
+
+
 # established standards
 # RDF: http://www.w3.org/1999/02/22-rdf-syntax-ns#
 # RDFS: http://www.w3.org/2000/01/rdf-schema#
