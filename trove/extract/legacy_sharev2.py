@@ -25,8 +25,12 @@ class LegacySharev2Extractor(BaseRdfExtractor):
 
     def extract_rdf(self, input_document):
         _sharev2graph = self.extract_sharev2_graph(input_document)
-        self.sharev2graph_centralnode = _sharev2graph.get_central_node(guess=True)
-        _central_focus = _focus_for_mnode(self.sharev2graph_centralnode)
+        return self.extract_rdf_from_sharev2graph(_sharev2graph)
+
+    def extract_rdf_from_sharev2graph(self, sharev2graph):
+        _centralnode = sharev2graph.get_central_node(guess=True)
+        self.sharev2graph_centralnode = _centralnode
+        _central_focus = _focus_for_mnode(_centralnode)
         _gathering = osfmap_from_normd.new_gathering({
             'source_config': self.source_config,
             'mnode': None,  # provided by focus

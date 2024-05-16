@@ -22,7 +22,7 @@ from ._base import IndexcardDeriver
 
 
 # values that, for the purpose of indexing in elasticsearch, are equivalent to absence
-EMPTY_VALUES = (None, '')
+EMPTY_VALUES = (None, '', [])
 
 
 def strip_empty_values(thing):
@@ -141,7 +141,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         ]
 
     def _single_date(self, *predicate_iris, focus_iri=None):
-        _val = self._single_value(*predicate_iris, focus_iri)
+        _val = self._single_value(*predicate_iris, focus_iri=focus_iri)
         if isinstance(_val, primitive_rdf.Literal):
             return _val.unicode_value
         if isinstance(_val, datetime.date):
@@ -149,7 +149,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         return _val
 
     def _single_string(self, *predicate_iris, focus_iri=None):
-        return _obj_to_string_or_none(self._single_value(*predicate_iris, focus_iri))
+        return _obj_to_string_or_none(self._single_value(*predicate_iris, focus_iri=focus_iri))
 
     def _single_value(self, *predicate_iris, focus_iri=None):
         # for sharev2 back-compat, some fields must have a single value
@@ -170,10 +170,10 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             focus_iri or self.focus_iri,
             predicate_paths,
         )
-        return [
+        return sorted(
             _obj_to_string_or_none(_obj)
             for _obj in _object_iter
-        ]
+        )
 
     def _osf_related_resource_types(self) -> dict[str, bool]:
         _osf_artifact_types = {
@@ -243,10 +243,11 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         return self._format_typename(_sorted_types[0].name)
 
     def _type_list(self, focus_iri):
-        return [
+        return sorted(
             self._format_type_iri(_type_iri)
             for _type_iri in self.data.q(focus_iri, RDF.type)
-        ]
+            if _type_iri in SHAREv2 or _type_iri in OSFMAP
+        )
 
     def _format_type_iri(self, iri):
         if iri in SHAREv2:
