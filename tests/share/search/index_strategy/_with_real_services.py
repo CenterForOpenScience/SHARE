@@ -19,8 +19,8 @@ class RealElasticTestCase(TransactionTestCase):
     serialized_rollback = True  # for TransactionTestCase; restore db after
 
     # required for subclasses
-    strategy_name_for_real = None
-    strategy_name_for_test = None
+    strategy_name_for_real: str
+    strategy_name_for_test: str
 
     @classmethod
     def setUpClass(cls):
@@ -38,7 +38,7 @@ class RealElasticTestCase(TransactionTestCase):
         )
         self.current_index = self.index_strategy.for_current_index()
         self.current_index.pls_delete()  # in case it already exists
-        self._assert_happypath_until_ingest()
+        self._assert_setup_happypath()
 
     def tearDown(self):
         super().tearDown()
@@ -120,7 +120,7 @@ class RealElasticTestCase(TransactionTestCase):
         else:
             assert False, 'checked and waited but the daemon did not do the thing'
 
-    def _assert_happypath_until_ingest(self):
+    def _assert_setup_happypath(self):
         # initial
         assert not self.current_index.pls_check_exists()
         index_status = self.current_index.pls_get_status()

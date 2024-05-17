@@ -18,7 +18,7 @@ from trove.util.queryparams import (
     queryparams_from_querystring,
 )
 from trove.vocab.osfmap import (
-    osfmap_labeler,
+    osfmap_shorthand,
     is_date_property,
     suggested_property_paths,
     OSFMAP_VOCAB,
@@ -59,7 +59,7 @@ DEFAULT_PROPERTYPATH_SET = frozenset([ONE_GLOB_PROPERTYPATH])
 
 @dataclasses.dataclass(frozen=True)
 class BaseTroveParams:
-    iri_shorthand: primitive_rdf.IriShorthand
+    iri_shorthand: primitive_rdf.IriShorthand = dataclasses.field(repr=False)
     include: frozenset[tuple[str, ...]]
 
     @classmethod
@@ -326,12 +326,7 @@ class SearchFilter:
                 if _is_date_filter:
                     _value_list.append(_value)  # TODO: vali-date
                 else:
-                    try:
-                        _iri = osfmap_labeler.iri_for_label(_value)
-                    except KeyError:  # not a known shorthand
-                        _value_list.append(_value)  # assume iri already
-                    else:
-                        _value_list.append(_iri)
+                    _value_list.append(osfmap_shorthand().expand_iri(_value))
         return cls(
             value_set=frozenset(_value_list),
             operator=_operator,
@@ -360,7 +355,7 @@ class SearchFilter:
             self.operator.to_shortname(),
         ))
         _qp_value = join_queryparam_value(
-            osfmap_labeler.get_label_or_iri(_value)
+            osfmap_shorthand().compact_iri(_value)
             for _value in self.value_set
         )
         return str(_qp_name), _qp_value
@@ -389,10 +384,7 @@ class SortParam:
     def _from_sort_param_str(cls, param_value: str) -> typing.Iterable['SortParam']:
         for _sort in split_queryparam_value(param_value):
             _sort_property = _sort.lstrip(DESCENDING_SORT_PREFIX)
-            try:
-                _property_iri = osfmap_labeler.iri_for_label(_sort_property)
-            except KeyError:
-                _property_iri = _sort_property
+            _property_iri = osfmap_shorthand().expand_iri(_sort_property)
             if not is_date_property(_property_iri):
                 raise ValueError(f'bad sort: {_sort_property}')  # TODO: nice response
             yield cls(
@@ -472,7 +464,7 @@ class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
     valuesearch_propertypath_set: frozenset[tuple[str, ...]]
-    valuesearch_textsegment_set: frozenset[str]
+    valuesearch_textsegment_set: frozenset[Textsegment]
     valuesearch_filter_set: frozenset[SearchFilter]
 
     # override CardsearchParams
@@ -514,7 +506,7 @@ class ValuesearchParams(CardsearchParams):
 
 def propertypath_key(property_path: tuple[str, ...]):
     return PROPERTYPATH_DELIMITER.join(
-        urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
+        urllib.parse.quote(osfmap_shorthand().compact_iri(_property_iri))
         for _property_iri in property_path
     )
 
@@ -566,7 +558,7 @@ def _parse_propertypath_set(serialized_path_set: str, *, allow_globs=True) -> fr
 
 def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> tuple[str, ...]:
     _path = tuple(
-        osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
+        osfmap_shorthand().expand_iri(_pathstep)
         for _pathstep in serialized_path.split(PROPERTYPATH_DELIMITER)
     )
     if GLOB_PATHSTEP in _path:

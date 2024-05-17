@@ -8,7 +8,6 @@ from primitive_metadata.primitive_rdf import (
 from primitive_metadata import gather
 
 from share.models.feature_flag import FeatureFlag
-from trove.util.iri_labeler import IriLabeler
 from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import (
@@ -751,13 +750,6 @@ def osfmap_shorthand() -> IriShorthand:
         label_predicate=JSONAPI_MEMBERNAME,
         base_shorthand=NAMESPACES_SHORTHAND,
     )
-
-
-osfmap_labeler = IriLabeler(
-    OSFMAP_VOCAB,
-    label_iri=JSONAPI_MEMBERNAME,
-    acceptable_prefixes=('osf:', 'osfmap:'),
-)
 
 
 ALL_SUGGESTED_PROPERTY_PATHS = (

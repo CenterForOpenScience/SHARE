@@ -12,7 +12,6 @@ from primitive_metadata.primitive_rdf import (
     blanknode,
 )
 
-from trove.util.iri_labeler import IriLabeler
 from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import (
     JSONAPI_MEMBERNAME,
@@ -22,7 +21,7 @@ from trove.vocab.jsonapi import (
 from trove.vocab.osfmap import (
     DATE_PROPERTIES,
     OSFMAP_LINK,
-    osfmap_labeler,
+    osfmap_shorthand,
 )
 from trove.vocab.namespaces import (
     DCTERMS,
@@ -660,7 +659,7 @@ may not be used with `page[cursor]`
 a query param to control ordering of search results
 
 accepts a short-hand iri for a date property:
-{", ".join(f"`{osfmap_labeler.label_for_iri(_date_iri)}`" for _date_iri in DATE_PROPERTIES)}
+{", ".join(f"`{osfmap_shorthand().compact_iri(_date_iri)}`" for _date_iri in DATE_PROPERTIES)}
 
 prefix with `-` to sort descending (latest first), otherwise sorts ascending (earliest first)
 
@@ -810,12 +809,6 @@ the special path segment `*` matches any property
         JSONAPI_MEMBERNAME: {literal('@type')},
     },
 }
-
-trove_labeler = IriLabeler(
-    TROVE_API_VOCAB,
-    label_iri=JSONAPI_MEMBERNAME,
-    acceptable_prefixes=('trove:',),
-)
 
 
 @functools.cache

@@ -6,7 +6,7 @@ from primitive_metadata import primitive_rdf as rdf
 from trove.vocab.namespaces import TROVE, RDF, OWL
 from trove.vocab.osfmap import (
     OSFMAP_VOCAB,
-    osfmap_labeler,
+    osfmap_shorthand,
 )
 from ._base import IndexcardDeriver
 
@@ -65,7 +65,7 @@ class _RdfOsfmapJsonldRenderer:
                 ),
             }
         elif isinstance(rdfobject, str):
-            return {'@id': osfmap_labeler.get_label_or_iri(rdfobject)}
+            return {'@id': osfmap_shorthand().compact_iri(rdfobject)}
         elif isinstance(rdfobject, (float, int)):
             return {'@value': rdfobject}
         elif isinstance(rdfobject, datetime.date):
@@ -82,7 +82,7 @@ class _RdfOsfmapJsonldRenderer:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
             if _objectset:
-                _key = osfmap_labeler.get_label_or_iri(_pred)
+                _key = osfmap_shorthand().compact_iri(_pred)
                 _jsonld[_key] = self._list_or_single_value(_pred, [
                     self.rdfobject_as_jsonld(_obj)
                     for _obj in _objectset
@@ -108,7 +108,7 @@ class _RdfOsfmapJsonldRenderer:
             else {'@id': rdfobject}
         )
         for _pred, _objectset in tripledict[rdfobject].items():
-            _label = osfmap_labeler.get_label_or_iri(_pred)
+            _label = osfmap_shorthand().compact_iri(_pred)
             if _objectset:
                 _nested_obj[_label] = self._list_or_single_value(
                     _pred,
