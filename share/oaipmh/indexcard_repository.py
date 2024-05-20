@@ -14,7 +14,7 @@ from trove.vocab.namespaces import OAI_DC
 
 
 class OaiPmhRepository:
-    NAME = 'Share/trove'
+    NAME = 'SHARE/trove'
     REPOSITORY_IDENTIFIER = 'share.osf.io'
     IDENTIFER_DELIMITER = ':'
     GRANULARITY = 'YYYY-MM-DD'
