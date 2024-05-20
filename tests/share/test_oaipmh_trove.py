@@ -57,7 +57,7 @@ class TestOAIVerbs:
 
     def test_identify(self, request_method):
         parsed = oai_request({'verb': 'Identify'}, request_method)
-        assert parsed.xpath('//oai:Identify/oai:repositoryName', namespaces=NAMESPACES)[0].text == 'Share/trove'
+        assert parsed.xpath('//oai:Identify/oai:repositoryName', namespaces=NAMESPACES)[0].text == 'SHARE/trove'
 
     def test_list_sets(self, request_method):
         parsed = oai_request({'verb': 'ListSets'}, request_method)
