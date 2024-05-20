@@ -1,5 +1,9 @@
 # Change Log
 
+# [24.1.0] - 2024-05-20
+- update django to 3.2.25
+- fix oai-pmh feed
+
 # [24.0.0] - 2024-02-13
 - add `osfmap:hasCedarTemplate` to trove.vocab
 
