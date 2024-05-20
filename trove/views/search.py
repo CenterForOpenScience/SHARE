@@ -77,6 +77,6 @@ def _parse_request(request: http.HttpRequest, search_params_dataclass):
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,
         'specific_index': _specific_index,
-        'use_osfmap_json': (_renderer.MEDIATYPE == JSONAPI_MEDIATYPE),
+        'use_osfmap_json': (_renderer.MEDIATYPE in {'application/json', JSONAPI_MEDIATYPE})
     })
     return (_search_iri, _search_gathering, _renderer)

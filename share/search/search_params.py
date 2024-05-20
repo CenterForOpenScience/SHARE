@@ -59,6 +59,7 @@ GLOB_PATHSTEP = '*'
 class BaseTroveParams:
     iri_shorthand: primitive_rdf.IriShorthand
     include: frozenset[tuple[str, ...]]
+    accept_mediatype: str | None
 
     @classmethod
     def from_querystring(cls, querystring: str) -> 'BaseTroveParams':  # TODO py3.11: typing.Self
@@ -74,6 +75,7 @@ class BaseTroveParams:
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
             'include': cls._gather_include(queryparams.get('include', [])),
+            'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
     def to_querystring(self) -> str:
@@ -82,6 +84,8 @@ class BaseTroveParams:
     def to_querydict(self) -> QueryDict:
         # subclasses should override and add their fields to super().to_querydict()
         _querydict = QueryDict(mutable=True)
+        if self.accept_mediatype:
+            _querydict['acceptMediatype'] = self.accept_mediatype
         # TODO: self.iri_shorthand, self.include
         return _querydict
 

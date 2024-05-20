@@ -14,7 +14,7 @@ class IndexcardView(View):
             # TODO (gather): allow omitting kwargs that go unused
             'search_params': None,
             'specific_index': None,
-            'use_osfmap_json': (_renderer.MEDIATYPE == JSONAPI_MEDIATYPE)
+            'use_osfmap_json': (_renderer.MEDIATYPE in {'application/json', JSONAPI_MEDIATYPE})
         })
         _indexcard_iri = trove_indexcard_iri(indexcard_uuid)
         _search_gathering.ask(
