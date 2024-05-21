@@ -22,7 +22,7 @@ from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
 STABLE_MEDIATYPES = (JSONAPI_MEDIATYPE,)
-UNSTABLE_MEDIATYPES = ('text/turtle', 'application/ld+json')
+UNSTABLE_MEDIATYPES = ('text/turtle', 'application/ld+json', 'application/json')
 
 
 class RdfHtmlBrowseRenderer(BaseRenderer):
