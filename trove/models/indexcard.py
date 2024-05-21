@@ -121,6 +121,11 @@ class Indexcard(models.Model):
         related_name='+',
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=('deleted',)),
+        ]
+
     @property
     def latest_rdf(self) -> Optional['LatestIndexcardRdf']:
         '''convenience for the "other side" of LatestIndexcardRdf.indexcard
@@ -241,6 +246,9 @@ class LatestIndexcardRdf(IndexcardRdf):
                 fields=('indexcard',),
                 name='%(app_label)s_%(class)s_uniq_indexcard',
             ),
+        ]
+        indexes = [
+            models.Index(fields=('modified',)),
         ]
 
 
