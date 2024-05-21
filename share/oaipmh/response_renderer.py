@@ -110,7 +110,7 @@ class OAIRenderer:
         header = etree.Element(ns('oai', 'header'))
         SubEl(header, ns('oai', 'identifier'), self.repository.oai_identifier(indexcard))
         SubEl(header, ns('oai', 'datestamp'), format_datetime(indexcard.oai_datestamp)),
-        SubEl(header, ns('oai', 'setSpec'), indexcard.source_record_suid.source_config.source.name)
+        SubEl(header, ns('oai', 'setSpec'), indexcard.oai_setspec)
         return header
 
     def _record(self, indexcard):

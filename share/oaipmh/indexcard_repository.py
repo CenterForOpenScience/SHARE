@@ -2,7 +2,7 @@ import uuid
 
 import dateutil
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, F
 
 from share.oaipmh import errors as oai_errors
 from share.oaipmh.verbs import OAIVerb
@@ -63,13 +63,24 @@ class OaiPmhRepository:
         ):
             self.errors.append(oai_errors.BadFormat(maybe_prefix))
 
-    def resolve_oai_identifier(self, identifier) -> trove_db.Indexcard | None:
+    def resolve_oai_identifier(
+        self, identifier, *,
+        with_header_annotations=False,
+        metadata_prefix=None,
+    ) -> trove_db.Indexcard | None:
         splid = identifier.split(self.IDENTIFER_DELIMITER)
         if len(splid) != 3 or splid[:2] != ['oai', self.REPOSITORY_IDENTIFIER]:
             self.errors.append(oai_errors.BadRecordID(identifier))
             return None
+        _indexcard_qs = (
+            self._get_indexcard_queryset_with_annotations()
+            if with_header_annotations
+            else self._get_base_indexcard_queryset()
+        )
+        if metadata_prefix is not None:
+            _indexcard_qs = self._add_oai_metadata_annotation(_indexcard_qs, metadata_prefix)
         try:
-            return trove_db.Indexcard.objects.get(uuid=splid[-1])
+            return _indexcard_qs.get(uuid=splid[-1])
         except (trove_db.Indexcard.DoesNotExist, DjangoValidationError):
             self.errors.append(oai_errors.BadRecordID(identifier))
             return None
@@ -144,28 +155,17 @@ class OaiPmhRepository:
         return renderer.listRecords(_indexcards, _next_token)
 
     def _do_getrecord(self, kwargs, renderer):
-        _indexcard = self.resolve_oai_identifier(kwargs['identifier'])
+        _indexcard = self.resolve_oai_identifier(
+            kwargs['identifier'],
+            with_header_annotations=True,
+            metadata_prefix=kwargs['metadataPrefix'],
+        )
         if self.errors:
             return
-        _oai_metadata = (
-            _indexcard.derived_indexcard_set
-            .filter(deriver_identifier__in=self._deriver_identifier_queryset(kwargs))
-            .values_list('derived_text', flat=True)
-            .first()
-        )
-        _oai_datestamp = (
-            trove_db.LatestIndexcardRdf.objects
-            .filter(indexcard=_indexcard)
-            .values_list('modified', flat=True)
-            .first()
-        )
-        if _oai_metadata is None or _oai_datestamp is None:
+        if _indexcard.oai_metadata is None or _indexcard.oai_datestamp is None:
             self.errors.append(oai_errors.BadFormatForRecord(kwargs['metadataPrefix']))
         if self.errors:
             return
-        # manual annotation (matching _load_page)
-        _indexcard.oai_metadata = _oai_metadata
-        _indexcard.oai_datestamp = _oai_datestamp
         return renderer.getRecord(_indexcard)
 
     def _load_page(self, kwargs, just_identifiers):
@@ -175,28 +175,13 @@ class OaiPmhRepository:
             except (ValueError, KeyError):
                 self.errors.append(oai_errors.BadResumptionToken(kwargs['resumptionToken']))
         else:
-            _indexcard_queryset = self._get_indexcard_queryset(kwargs)
+            _indexcard_queryset = self._get_indexcard_page_queryset(kwargs)
         if self.errors:
             return [], None
-        _indexcard_queryset = _indexcard_queryset.annotate(
-            oai_datestamp=Subquery(
-                trove_db.LatestIndexcardRdf.objects
-                .filter(indexcard_id=OuterRef('id'))
-                .values_list('modified', flat=True)
-                [:1]
-            ),
-        )
         if not just_identifiers:
-            _indexcard_queryset = _indexcard_queryset.annotate(
-                oai_metadata=Subquery(
-                    trove_db.DerivedIndexcard.objects
-                    .filter(
-                        upriver_indexcard_id=OuterRef('id'),
-                        deriver_identifier__in=self._deriver_identifier_queryset(kwargs),
-                    )
-                    .values_list('derived_text', flat=True)
-                    [:1]
-                ),
+            _indexcard_queryset = self._add_oai_metadata_annotation(
+                _indexcard_queryset,
+                kwargs['metadataPrefix'],
             )
         _indexcards = list(_indexcard_queryset)
         if not len(_indexcards):
@@ -209,52 +194,79 @@ class OaiPmhRepository:
             _next_token = self._get_resumption_token(kwargs, last_id=_indexcards[-1].id)
         return _indexcards, _next_token
 
-    def _get_indexcard_queryset(self, kwargs, catch=True, last_id=None):
+    def _get_indexcard_page_queryset(self, kwargs, catch=True, last_id=None):
         _indexcard_queryset = (
-            trove_db.Indexcard.objects
-            .filter(deleted__isnull=True)
-            .filter(derived_indexcard_set__deriver_identifier__in=self._deriver_identifier_queryset(kwargs))
+            self._get_indexcard_queryset_with_annotations()
+            .filter(
+                derived_indexcard_set__deriver_identifier_id__in=self._deriver_identifier_ids(
+                    kwargs['metadataPrefix'],
+                ),
+            )
         )
         if 'from' in kwargs:
             try:
                 _from = dateutil.parser.parse(kwargs['from'])
-                _indexcard_queryset = _indexcard_queryset.filter(
-                    trove_latestindexcardrdf_set__modified__gte=_from,
-                )
             except ValueError:
                 if not catch:
                     raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
+            else:
+                _indexcard_queryset = _indexcard_queryset.filter(
+                    trove_latestindexcardrdf_set__modified__gte=_from,
+                )
         if 'until' in kwargs:
             try:
                 _until = dateutil.parser.parse(kwargs['until'])
-                _indexcard_queryset = _indexcard_queryset.filter(
-                    trove_latestindexcardrdf_set__modified__lte=_until,
-                )
             except ValueError:
                 if not catch:
                     raise
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
+            else:
+                _indexcard_queryset = _indexcard_queryset.filter(
+                    trove_latestindexcardrdf_set__modified__lte=_until,
+                )
         if 'set' in kwargs:
-            _source_ids = (
-                share_db.Source.objects
-                .filter(name=kwargs['set'])
+            _sourceconfig_ids = tuple(
+                share_db.SourceConfig.objects
+                .filter(source__name=kwargs['set'])
                 .values_list('id', flat=True)
             )
             _indexcard_queryset = _indexcard_queryset.filter(
-                source_record_suid__source_config__source_id__in=_source_ids,
+                source_record_suid__source_config_id__in=_sourceconfig_ids,
             )
         if last_id is not None:
             _indexcard_queryset = _indexcard_queryset.filter(id__gt=last_id)
-        _indexcard_queryset = (
-            _indexcard_queryset
-            .select_related('source_record_suid__source_config__source')
-            .order_by('id')
-        )
-        if self.errors:
-            return None
         # include one extra so we can tell whether this is the last page
-        return _indexcard_queryset[:self.PAGE_SIZE + 1]
+        return _indexcard_queryset.order_by('id')[:self.PAGE_SIZE + 1]
+
+    def _get_base_indexcard_queryset(self):
+        return trove_db.Indexcard.objects.filter(deleted__isnull=True)
+
+    def _get_indexcard_queryset_with_annotations(self):
+        return self._get_base_indexcard_queryset().annotate(
+            oai_datestamp=Subquery(
+                trove_db.LatestIndexcardRdf.objects
+                .filter(indexcard_id=OuterRef('id'))
+                .values_list('modified', flat=True)
+                [:1]
+            ),
+            oai_setspec=F('source_record_suid__source_config_id__source__name'),
+        )
+
+    def _add_oai_metadata_annotation(self, indexcard_queryset, metadata_prefix: str):
+        return indexcard_queryset.annotate(
+            oai_metadata=Subquery(
+                trove_db.DerivedIndexcard.objects
+                .filter(
+                    upriver_indexcard_id=OuterRef('id'),
+                    deriver_identifier_id__in=self._deriver_identifier_ids(
+                        metadata_prefix,
+                    ),
+                )
+                .values_list('derived_text', flat=True)
+                [:1]
+            ),
+        )
 
     def _resume(self, token):
         _from, _until, _set_spec, _prefix, _last_id = token.split('|')
@@ -266,7 +278,7 @@ class OaiPmhRepository:
         if _set_spec:
             _kwargs['set'] = _set_spec
         _kwargs['metadataPrefix'] = _prefix
-        _indexcard_queryset = self._get_indexcard_queryset(
+        _indexcard_queryset = self._get_indexcard_page_queryset(
             _kwargs,
             catch=False,
             last_id=int(_last_id),
@@ -293,8 +305,9 @@ class OaiPmhRepository:
         # TODO something more opaque, maybe
         return '{}|{}|{}|{}|{}'.format(format_datetime(from_) if from_ else '', format_datetime(until) if until else '', set_spec, prefix, last_id)
 
-    def _deriver_identifier_queryset(self, kwargs):
-        return (
+    def _deriver_identifier_ids(self, metadata_prefix: str):
+        return tuple(
             trove_db.ResourceIdentifier.objects
-            .queryset_for_iri(self.FORMATS[kwargs['metadataPrefix']]['deriver_iri'])
+            .queryset_for_iri(self.FORMATS[metadata_prefix]['deriver_iri'])
+            .values_list('id', flat=True)
         )

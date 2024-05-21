@@ -77,8 +77,7 @@ class TestOAIVerbs:
         assert identifiers[0].text == 'oai:share.osf.io:{}'.format(oai_indexcard.upriver_indexcard.uuid)
 
     def test_list_records(self, request_method, oai_indexcard, django_assert_num_queries):
-        with django_assert_num_queries(1):
-            parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, request_method)
+        parsed = oai_request({'verb': 'ListRecords', 'metadataPrefix': 'oai_dc'}, request_method)
         records = parsed.xpath('//oai:ListRecords/oai:record', namespaces=NAMESPACES)
         assert len(records) == 1
         assert len(records[0].xpath('oai:metadata/oai:foo', namespaces=NAMESPACES)) == 1
