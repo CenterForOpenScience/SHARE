@@ -73,7 +73,10 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
             raise NotImplementedError
         assert isinstance(_card_contents, rdf.Literal)
         assert RDF.JSON in _card_contents.datatype_iris
-        return json.loads(_card_contents.unicode_value)
+        _json_contents = json.loads(_card_contents.unicode_value)
+        if isinstance(card, str):
+            self._add_twople(_json_contents, 'foaf:primaryTopicOf', card)
+        return _json_contents
 
     def _render_meta(self, graph: rdf.RdfGraph, focus_iri: str):
         _meta = {}
@@ -98,3 +101,11 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
                 (_link_url,) = _twopledict[RDF.value]
                 _links[_membername.unicode_value] = _link_url
         return _links
+
+    def _add_twople(self, json_dict, predicate_iri: str, object_iri: str):
+        _obj_ref = {'@id': object_iri}
+        _obj_list = json_dict.setdefault(predicate_iri, [])
+        if isinstance(_obj_list, list):
+            _obj_list.append(_obj_ref)
+        else:
+            json_dict[predicate_iri] = [_obj_list, _obj_ref]

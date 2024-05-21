@@ -24,7 +24,7 @@ from share.search.search_params import (
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
 from trove.render.osfmap_jsonld import RdfOsfmapJsonldRenderer
-from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS
+from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
@@ -196,6 +196,7 @@ def gather_valuesearch(focus, *, specific_index, search_params, use_osfmap_json)
 )
 def gather_card(focus, *, use_osfmap_json, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
+    yield (RDF.type, DCAT.CatalogRecord)
     _indexcard_namespace = trove_indexcard_namespace()
     try:
         _indexcard_iri = next(
@@ -224,8 +225,12 @@ def gather_card(focus, *, use_osfmap_json, **kwargs):
             .prefetch_related('upriver_indexcard__focus_identifier_set')
             .get()
         )
+        yield (DCTERMS.issued, _osfmap_indexcard.upriver_indexcard.created.date())
+        yield (DCTERMS.modified, _osfmap_indexcard.modified.date())
         for _identifier in _osfmap_indexcard.upriver_indexcard.focus_identifier_set.all():
-            yield (TROVE.focusIdentifier, literal(_identifier.as_iri()))
+            _iri = _identifier.as_iri()
+            yield (FOAF.primaryTopic, _iri)
+            yield (TROVE.focusIdentifier, literal(_iri))
         yield (
             TROVE.resourceMetadata,
             literal(_osfmap_indexcard.derived_text, datatype_iris={RDF.JSON})
@@ -238,8 +243,12 @@ def gather_card(focus, *, use_osfmap_json, **kwargs):
             .prefetch_related('indexcard__focus_identifier_set')
             .get()
         )
+        yield (DCTERMS.issued, _indexcard_rdf.indexcard.created.date())
+        yield (DCTERMS.modified, _indexcard_rdf.modified.date())
         for _identifier in _indexcard_rdf.indexcard.focus_identifier_set.all():
-            yield (TROVE.focusIdentifier, _identifier.as_iri())
+            _iri = _identifier.as_iri()
+            yield (FOAF.primaryTopic, _iri)
+            yield (TROVE.focusIdentifier, literal(_iri))
         for _triple in iter_tripleset(_indexcard_rdf.as_rdf_tripledict()):
             yield (TROVE.resourceMetadata, QuotedTriple(*_triple))
 
