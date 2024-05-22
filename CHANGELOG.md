@@ -1,5 +1,9 @@
 # Change Log
 
+# [24.3.0] - 2024-05-22
+- speed up oai-pmh queries
+- improve trove simple-json and html experience
+
 # [24.2.0] - 2024-05-21
 - add "simple json" renderer for search api responses
 
