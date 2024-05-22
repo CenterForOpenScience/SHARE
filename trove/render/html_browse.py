@@ -2,7 +2,6 @@ import contextlib
 import datetime
 import markdown2
 import random
-from typing import Iterable
 from urllib.parse import quote, urlsplit, urlunsplit
 from xml.etree.ElementTree import (
     Element,
@@ -16,8 +15,9 @@ from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
+from trove.util.randomness import shuffled
 from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
-from trove.vocab.namespaces import TROVE, RDF
+from trove.vocab.namespaces import TROVE, RDF, FOAF
 from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
@@ -63,7 +63,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
             self.__leaf('header', text='alternate mediatypes')
             with self.__nest('ul', attrs={'class': 'Browse__twopleset'}):
-                for _mediatype in _shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
+                for _mediatype in shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
                     with self.__nest('li', attrs={'class': 'VisibleNest Browse__twople'}):
                         self.__mediatype_link(_mediatype)
 
@@ -87,7 +87,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     _link.text = 'documented use'
                     _link.tail = ')'
 
-    def __render_subj(self, subj_iri: str, twopledict=None):
+    def __render_subj(self, subj_iri: str, twopledict=None, start_collapsed=False):
         _twopledict = (
             self.data.get(subj_iri, {})
             if twopledict is None
@@ -95,8 +95,15 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         )
         with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
-                with self.__nest('article', attrs={'class': 'Browse__card'}, visible=True):
-                    with self.__nest('header'):
+                with self.__nest(
+                    'details',
+                    attrs={
+                        'class': 'Browse__card',
+                        **({} if start_collapsed else {'open': ''}),
+                    },
+                    visible=True,
+                ):
+                    with self.__nest('summary'):
                         _label = self.__label_for_iri(subj_iri)
                         with self.__nest(_h_tag, attrs={'class': 'Browse__heading'}):
                             with self.__nest_link(subj_iri):
@@ -110,7 +117,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
 
     def __twoples(self, twopledict: primitive_rdf.RdfTwopleDictionary):
         with self.__nest('ul', {'class': 'Browse__twopleset'}):
-            for _pred, _obj_set in _shuffled(twopledict.items()):
+            for _pred, _obj_set in shuffled(twopledict.items()):
                 with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
                     self.__leaf_link(_pred)
                     # TODO: use a vocab, not static property iris
@@ -118,10 +125,10 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                         isinstance(_obj, primitive_rdf.QuotedTriple)
                         for _obj in _obj_set
                     ):
-                        _focus_iris = twopledict[TROVE.focusIdentifier]  # assumed
+                        _focus_iris = twopledict[FOAF.primaryTopic]  # assumed
                         _focus_iri = None
                         _quoted_triples = set()
-                        for _obj in _shuffled(_obj_set):
+                        for _obj in shuffled(_obj_set):
                             _quoted_triples.add(_obj)
                             (_subj, _, _) = _obj
                             if _subj in _focus_iris:
@@ -130,7 +137,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                         self.__quoted_graph(_focus_iri, _quoted_triples)
                     else:
                         with self.__nest('ul', {'class': 'Browse__objectset'}):
-                            for _obj in _shuffled(_obj_set):
+                            for _obj in shuffled(_obj_set):
                                 with self.__nest('li', {'class': 'Browse__object'}, visible=True):
                                     self.__obj(_obj)
 
@@ -184,7 +191,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         for _triple in quoted_triples:
             _quoted_graph.add(_triple)
         with self.__quoted_data(_quoted_graph.tripledict):
-            self.__render_subj(focus_iri)
+            self.__render_subj(focus_iri, start_collapsed=True)
 
     ###
     # private html-building helpers
@@ -275,9 +282,3 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             if _shorthand == iri
             else _shorthand
         )
-
-
-def _shuffled(items: Iterable):
-    _item_list = list(items)
-    random.shuffle(_item_list)
-    return _item_list

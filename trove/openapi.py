@@ -6,6 +6,7 @@ from django.conf import settings
 from primitive_metadata import primitive_rdf
 
 from share.version import __version__
+from trove.util.randomness import shuffled
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME, JSONAPI_MEDIATYPE
 from trove.vocab.namespaces import TROVE, RDFS, RDF, DCTERMS
 from trove.vocab.trove import TROVE_API_VOCAB
@@ -30,7 +31,7 @@ def get_trove_openapi() -> dict:
     '''
     # TODO: language parameter, get translations
     _api_graph = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
-    _path_iris = set(_api_graph.q(TROVE.search_api, TROVE.hasPath))
+    _path_iris = shuffled(set(_api_graph.q(TROVE.search_api, TROVE.hasPath)))
     _label = next(_api_graph.q(TROVE.search_api, RDFS.label))
     _comment = next(_api_graph.q(TROVE.search_api, RDFS.comment))
     return {
@@ -68,7 +69,7 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
         api_graph.q(_path_iri, TROVE.hasParameter)
         for _path_iri in path_iris
     )))
-    for _param_iri in _param_iris:
+    for _param_iri in shuffled(_param_iris):
         # TODO: better error message on absence
         try:
             _jsonname = next(api_graph.q(_param_iri, JSONAPI_MEMBERNAME))
@@ -134,8 +135,8 @@ def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
     except StopIteration:
         raise ValueError(f'could not find trove:iriPath for {path_iri}')
     _label = ' '.join(_text(path_iri, RDFS.label, api_graph))
-    _param_labels = list(_text(path_iri, {TROVE.hasParameter: {JSONAPI_MEMBERNAME}}, api_graph))
-    _example_labels = list(_text(path_iri, {TROVE.example: {RDFS.label}}, api_graph))
+    _param_labels = shuffled(_text(path_iri, {TROVE.hasParameter: {JSONAPI_MEMBERNAME}}, api_graph))
+    _example_labels = shuffled(_text(path_iri, {TROVE.example: {RDFS.label}}, api_graph))
     return _path, {
         'get': {  # TODO (if generalizability): separate metadata by verb
             # 'tags':

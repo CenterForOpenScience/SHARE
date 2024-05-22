@@ -60,6 +60,7 @@
 .Browse__twople {
     display: flex;
     flex-direction: row;
+    align-items: flex-start;
     gap: 0.382rem;
     margin: 0;
     border: solid 1px rgba(0,0,0,0.382);
