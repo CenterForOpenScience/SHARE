@@ -29,6 +29,15 @@
     border: solid 0.382rem rgba(0,0,0,0.191);
 }
 
+details.Browse__card > summary::before {
+    content: '‽';
+    display: inline-block;
+}
+
+details.Browse__card[open] > summary::before {
+    transform: rotate(var(--random-turn));
+}
+
 .BrowseWrapper > .Browse__card {
     margin: 1em;
 }

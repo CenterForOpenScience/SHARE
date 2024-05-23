@@ -24,7 +24,7 @@ from share.search.search_params import (
 )
 from share.search.search_response import ValuesearchResult
 from trove import models as trove_db
-from trove.render.osfmap_jsonld import RdfOsfmapJsonldRenderer
+from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
