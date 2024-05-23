@@ -7,12 +7,12 @@ from typing import Iterable, Union
 from primitive_metadata import primitive_rdf
 
 from trove.vocab.jsonapi import (
-    JSONAPI_MEDIATYPE,
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
     JSONAPI_ATTRIBUTE,
     JSONAPI_LINK_OBJECT,
 )
+from trove.vocab import mediatypes
 from trove.vocab.namespaces import (
     OSFMAP,
     OWL,
@@ -49,7 +49,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     note: does not support relationship links (or many other jsonapi features)
     '''
-    MEDIATYPE = JSONAPI_MEDIATYPE
+    MEDIATYPE = mediatypes.JSONAPI
 
     __to_include = None
 

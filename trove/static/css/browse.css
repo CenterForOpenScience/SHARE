@@ -32,10 +32,12 @@
 details.Browse__card > summary::before {
     content: '‽';
     display: inline-block;
+    transition-property: rotate;
+    transition-duration: 1s;
 }
 
 details.Browse__card[open] > summary::before {
-    transform: rotate(var(--random-turn));
+    rotate: var(--random-turn);
 }
 
 .BrowseWrapper > .Browse__card {
@@ -103,10 +105,7 @@ details.Browse__card[open] > summary::before {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 0.191rem;
-}
-
-.Browse__datatype {
+    gap: 0.382rem;
 }
 
 /*

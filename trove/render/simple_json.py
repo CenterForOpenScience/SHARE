@@ -6,6 +6,7 @@ from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
+from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
 
@@ -13,7 +14,7 @@ from ._base import BaseRenderer
 class TrovesearchSimpleJsonRenderer(BaseRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch_gathering.py
     '''
-    MEDIATYPE = 'application/json'
+    MEDIATYPE = mediatypes.JSON
 
     def render_document(self, data: rdf.RdfTripleDictionary, focus_iri: str) -> str:
         _focustypes = data[focus_iri][RDF.type]

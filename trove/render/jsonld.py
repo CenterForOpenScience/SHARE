@@ -5,6 +5,7 @@ import json
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.vocab.namespaces import RDF, OWL
+from trove.vocab import mediatypes
 from ._base import BaseRenderer
 
 
@@ -15,7 +16,7 @@ _PREDICATES_OF_FLEXIBLE_CARDINALITY = {
 
 
 class RdfJsonldRenderer(BaseRenderer):
-    MEDIATYPE = 'application/ld+json'
+    MEDIATYPE = mediatypes.JSONLD
 
     __visiting_iris: set | None = None
 

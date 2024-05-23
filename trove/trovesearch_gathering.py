@@ -29,8 +29,8 @@ from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
-    JSONAPI_MEDIATYPE,
 )
+from trove.vocab import mediatypes
 from trove.vocab.osfmap import (
     osfmap_shorthand,
     OSFMAP_VOCAB,
@@ -75,9 +75,9 @@ class TrovesearchFlags(enum.Flag):
 
     @classmethod
     def for_mediatype(cls, mediatype: str) -> 'TrovesearchFlags':
-        if mediatype == JSONAPI_MEDIATYPE:
+        if mediatype == mediatypes.JSONAPI:
             return cls.OSFMAP_JSON
-        if mediatype == 'application/json':
+        if mediatype == mediatypes.JSON:
             return cls.OSFMAP_JSON | cls.ONLY_RESULTS
         return cls(0)  # none flags
 

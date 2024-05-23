@@ -16,13 +16,13 @@ from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.util.randomness import shuffled
-from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
+from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF, FOAF
 from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
-STABLE_MEDIATYPES = (JSONAPI_MEDIATYPE,)
-UNSTABLE_MEDIATYPES = ('text/turtle', 'application/ld+json', 'application/json')
+STABLE_MEDIATYPES = (mediatypes.JSONAPI,)
+UNSTABLE_MEDIATYPES = (mediatypes.TURTLE, mediatypes.JSONLD, mediatypes.JSON,)
 
 
 class RdfHtmlBrowseRenderer(BaseRenderer):
@@ -173,7 +173,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             else:
                 self.__leaf('q', text=literal.unicode_value)
             for _datatype_iri in literal.datatype_iris:
-                self.__leaf_link(_datatype_iri, attrs={'class': 'Browse__datatype'})
+                self.__leaf_link(_datatype_iri)
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(primitive_rdf.sequence_objects_in_order(sequence_twoples))

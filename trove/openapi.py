@@ -7,7 +7,8 @@ from primitive_metadata import primitive_rdf
 
 from share.version import __version__
 from trove.util.randomness import shuffled
-from trove.vocab.jsonapi import JSONAPI_MEMBERNAME, JSONAPI_MEDIATYPE
+from trove.vocab import mediatypes
+from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import TROVE, RDFS, RDF, DCTERMS
 from trove.vocab.trove import TROVE_API_VOCAB
 
@@ -152,7 +153,7 @@ def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
                 '200': {
                     'description': 'ok',
                     'content': {
-                        JSONAPI_MEDIATYPE: {
+                        mediatypes.JSONAPI: {
                             'examples': [
                                 {'$ref': f'#/components/examples/{_example_label}'}
                                 for _example_label in _example_labels
