@@ -1,5 +1,8 @@
 # Change Log
 
+# [24.3.1] - 2024-05-23
+- fix: jsonapi renderer now chooses `type` consistently
+
 # [24.3.0] - 2024-05-22
 - speed up oai-pmh queries
 - improve trove simple-json and html experience
