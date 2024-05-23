@@ -15,6 +15,7 @@ STATIC_THESAURUSES = (
 )
 
 STATIC_TURTLES = (
+    'dublin_core_abstract_model.turtle',
     'dublin_core_elements.turtle',
     'dublin_core_terms.turtle',
     'dublin_core_type.turtle',
