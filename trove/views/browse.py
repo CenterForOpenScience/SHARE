@@ -55,7 +55,7 @@ def _get_latest_cardf(iri: str):
                     if _subj == _indexcard_rdf.focus_iri
                     else (_subj, _pred, _obj)
                 )
-        return _focus_iri, _combined_rdf
+        return (_focus_iri or iri), _combined_rdf
 
 
 def _recognize_trove_term(suffuniq_iri: str):
