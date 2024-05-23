@@ -90,6 +90,16 @@
     gap: 0.382rem;
 }
 
+.Browse__literal {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.191rem;
+}
+
+.Browse__datatype {
+}
+
 /*
 .Browse :focus-within {
     backdrop-filter: hue-rotate(var(--hue-rotate-step));

@@ -251,6 +251,10 @@ def gather_card(focus, *, use_osfmap_json, **kwargs):
             yield (TROVE.focusIdentifier, literal(_iri))
         for _triple in iter_tripleset(_indexcard_rdf.as_rdf_tripledict()):
             yield (TROVE.resourceMetadata, QuotedTriple(*_triple))
+        yield (
+            TROVE.resourceMetadata,
+            QuotedTriple(_indexcard_rdf.focus_iri, FOAF.primaryTopicOf, _indexcard_iri)
+        )
 
 
 ###

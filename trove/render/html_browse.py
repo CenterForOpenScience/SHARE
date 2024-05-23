@@ -87,12 +87,8 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     _link.text = 'documented use'
                     _link.tail = ')'
 
-    def __render_subj(self, subj_iri: str, twopledict=None, start_collapsed=False):
-        _twopledict = (
-            self.data.get(subj_iri, {})
-            if twopledict is None
-            else twopledict
-        )
+    def __render_subj(self, subj_iri: str, start_collapsed=False):
+        _twopledict = self.data.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
                 with self.__nest(
@@ -169,13 +165,15 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             for _datatype in literal.datatype_iris
         )
         # TODO: checksum_iri, literal_iri
-        with self.__nest('article'):
+        with self.__nest('article', attrs={'class': 'Browse__literal'}):
             if _is_markdown:
                 # TODO: tests for safe_mode
                 _html = markdown2.markdown(literal.unicode_value, safe_mode='escape')
                 self.__current_element.append(etree_fromstring(f'<q>{_html}</q>'))
             else:
                 self.__leaf('q', text=literal.unicode_value)
+            for _datatype_iri in literal.datatype_iris:
+                self.__leaf_link(_datatype_iri, attrs={'class': 'Browse__datatype'})
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(primitive_rdf.sequence_objects_in_order(sequence_twoples))
@@ -262,11 +260,14 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         if text is not None:
             _leaf_element.text = text
 
-    def __nest_link(self, iri: str):
-        return self.__nest('a', attrs={'href': self.__href_for_iri(iri)})
+    def __nest_link(self, iri: str, *, attrs=None):
+        return self.__nest('a', attrs={
+            **(attrs or {}),
+            'href': self.__href_for_iri(iri),
+        })
 
-    def __leaf_link(self, iri: str):
-        with self.__nest_link(iri) as _link:
+    def __leaf_link(self, iri: str, *, attrs=None):
+        with self.__nest_link(iri, attrs=attrs) as _link:
             _link.text = self.iri_shorthand.compact_iri(iri)
 
     def __href_for_iri(self, iri: str):
