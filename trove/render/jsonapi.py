@@ -13,9 +13,13 @@ from trove.vocab.jsonapi import (
     JSONAPI_ATTRIBUTE,
     JSONAPI_LINK_OBJECT,
 )
-from trove.vocab.trove import (
-    RDF,
+from trove.vocab.namespaces import (
+    OSFMAP,
     OWL,
+    RDF,
+    TROVE,
+)
+from trove.vocab.trove import (
     TROVE_API_VOCAB,
     trove_indexcard_namespace,
 )
@@ -108,7 +112,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 _type_iris = list(self._data.q(iri_or_blanknode, RDF.type))
                 _id_obj = {
                     'id': self._resource_id_for_iri(iri_or_blanknode),
-                    'type': self._membername_for_iris(_type_iris),
+                    'type': self._single_typename(_type_iris),
                 }
             elif isinstance(iri_or_blanknode, frozenset):
                 _type_iris = [
@@ -118,20 +122,24 @@ class RdfJsonapiRenderer(BaseRenderer):
                 ]
                 _id_obj = {
                     'id': self._resource_id_for_blanknode(iri_or_blanknode),
-                    'type': self._membername_for_iris(_type_iris),
+                    'type': self._single_typename(_type_iris),
                 }
             else:
                 raise ValueError(f'expected str or frozenset (got {iri_or_blanknode})')
             self._identifier_object_cache[iri_or_blanknode] = _id_obj
             return _id_obj
 
-    def _membername_for_iris(self, iris: list[str]):
-        for _iri in iris:
-            try:
-                return self._membername_for_iri(_iri)
-            except ValueError:
-                pass
-        raise ValueError(f'could not find valid membername for any of {iris}')
+    def _single_typename(self, type_iris: list[str]):
+        if not type_iris:
+            raise ValueError('need at least one type iri')
+        if len(type_iris) == 1:
+            return self._membername_for_iri(type_iris[0])
+        # choose one predictably, preferring osfmap and trove
+        for _namespace in (OSFMAP, TROVE):
+            _type_iris = sorted(_iri for _iri in type_iris if _iri in _namespace)
+            if _type_iris:
+                return self._membername_for_iri(_type_iris[0])
+        return self._membername_for_iri(sorted(type_iris)[0])
 
     def _membername_for_iri(self, iri: str, *, iri_fallback=False):
         try:
