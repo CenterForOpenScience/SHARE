@@ -14,7 +14,7 @@ class BrowseIriView(View):
         _iri_param = kwargs.get('iri') or request.GET.get('iri')
         if not _iri_param:
             raise ValueError('TODO: random browse?')
-        _iri = unquote_iri(_iri_param)
+        _iri = ns.NAMESPACES_SHORTHAND.expand_iri(unquote_iri(_iri_param))
         _suffuniq_iri = get_sufficiently_unique_iri(_iri)
         _trove_term = _recognize_trove_term(_suffuniq_iri)
         if _trove_term is not None:
