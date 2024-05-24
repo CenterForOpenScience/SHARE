@@ -234,7 +234,7 @@ class Textsegment:
         for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
-                propertypath_set_key(_propertypath_set),
+                (propertypath_set_key(_propertypath_set),),
             )
             _qp_value = ' '.join(
                 _textsegment.as_searchtext()
@@ -508,14 +508,21 @@ class ValuesearchParams(CardsearchParams):
 ###
 # local helpers
 
-def propertypath_key(property_path: tuple[str, ...]):
+def propertypathstep_key(pathstep: str) -> str:
+    if pathstep == GLOB_PATHSTEP:
+        return pathstep
+    # assume iri
+    return urllib.parse.quote(osfmap_shorthand().compact_iri(pathstep))
+
+
+def propertypath_key(property_path: tuple[str, ...]) -> str:
     return PROPERTYPATH_DELIMITER.join(
-        urllib.parse.quote(osfmap_shorthand().compact_iri(_property_iri))
-        for _property_iri in property_path
+        propertypathstep_key(_pathstep)
+        for _pathstep in property_path
     )
 
 
-def propertypath_set_key(propertypath_set: frozenset[tuple[str, ...]]):
+def propertypath_set_key(propertypath_set: frozenset[tuple[str, ...]]) -> str:
     return join_queryparam_value(
         propertypath_key(_propertypath)
         for _propertypath in propertypath_set
