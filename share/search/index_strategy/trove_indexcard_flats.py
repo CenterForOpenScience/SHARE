@@ -18,7 +18,9 @@ from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
-from share.search.search_params import (
+from share.util.checksum_iri import ChecksumIri
+from trove import models as trove_db
+from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
     SearchFilter,
@@ -27,7 +29,7 @@ from share.search.search_params import (
     PageParam,
     GLOB_PATHSTEP,
 )
-from share.search.search_response import (
+from trove.trovesearch.search_response import (
     CardsearchResponse,
     ValuesearchResponse,
     TextMatchEvidence,
@@ -35,8 +37,6 @@ from share.search.search_response import (
     ValuesearchResult,
     PropertypathUsage,
 )
-from share.util.checksum_iri import ChecksumIri
-from trove import models as trove_db
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS, OSFMAP

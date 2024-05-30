@@ -2,21 +2,74 @@ class TroveError(Exception):
     pass
 
 
+###
+# digesting metadata
+
 class DigestiveError(TroveError):
     pass
 
 
-class ParsingError(TroveError):
+class CannotDigestMediatype(DigestiveError):
     pass
 
 
-class InvalidIri(ParsingError):
+###
+# parsing a request
+
+class RequestParsingError(TroveError):
     pass
 
 
-class InvalidQuotedIri(ParsingError):
+class InvalidQuotedIri(RequestParsingError):
     pass
 
 
-class InvalidQueryParamName(ParsingError):
+class InvalidQueryParamName(RequestParsingError):
     pass
+
+
+class InvalidDate(RequestParsingError):
+    pass
+
+
+###
+# primitive rdf
+
+class PrimitiveRdfWhoopsy(TroveError):
+    pass
+
+
+class IriInvalid(PrimitiveRdfWhoopsy):
+    pass
+
+
+class IriMismatch(PrimitiveRdfWhoopsy):
+    pass
+
+
+class UnsupportedRdfType(PrimitiveRdfWhoopsy):
+    pass
+
+
+class MissingRdfType(PrimitiveRdfWhoopsy):
+    pass
+
+
+class UnsupportedRdfObject(PrimitiveRdfWhoopsy):
+    pass
+
+
+class ExpectedIriOrBlanknode(UnsupportedRdfObject):
+    pass
+
+
+class ExpectedLiteralObject(UnsupportedRdfObject):
+    pass
+
+
+class OwlObjection(PrimitiveRdfWhoopsy):
+    pass
+
+
+###
+# rendering a response

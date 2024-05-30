@@ -3,9 +3,10 @@ import json
 
 from primitive_metadata import primitive_rdf as rdf
 
+from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import TROVE, RDF, OWL
 from trove.vocab.osfmap import (
-    OSFMAP_VOCAB,
+    OSFMAP_THESAURUS,
     osfmap_shorthand,
 )
 from ._base import IndexcardDeriver
@@ -81,7 +82,7 @@ class _RdfOsfmapJsonldRenderer:
                 self.rdfobject_as_jsonld(_obj)
                 for _obj in rdfobject
             ]}
-        raise ValueError(f'unrecognized RdfObject (got {rdfobject})')
+        raise trove_exceptions.UnsupportedRdfObject(rdfobject)
 
     def twopledict_as_jsonld(self, twopledict: rdf.RdfTwopleDictionary) -> dict:
         _jsonld = {}
@@ -127,13 +128,13 @@ class _RdfOsfmapJsonldRenderer:
 
     def _list_or_single_value(self, predicate_iri, objectset):
         _only_one_object = OWL.FunctionalProperty in (
-            OSFMAP_VOCAB
+            OSFMAP_THESAURUS
             .get(predicate_iri, {})
             .get(RDF.type, ())
         )
         if _only_one_object:
             if len(objectset) > 1:
-                raise ValueError((
+                raise trove_exceptions.OwlObjection((
                     f'expected at most one object for <{predicate_iri}>'
                     f' (got {objectset})'
                 ))

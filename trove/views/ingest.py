@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RdfIngestView(View):
     def get(self, request):
         # TODO: something? maybe show this user's most recently pushed rdf for this pid
-        raise NotImplementedError
+        raise http.Http404
 
     def post(self, request):
         # TODO: better error responses (jsonapi? shacl:ValidationReport?)

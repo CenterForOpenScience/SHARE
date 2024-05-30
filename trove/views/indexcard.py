@@ -2,7 +2,7 @@ from django.views import View
 from primitive_metadata import gather
 
 from trove.render import get_renderer
-from trove.trovesearch_gathering import trovesearch_by_indexstrategy, TrovesearchFlags
+from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy, TrovesearchFlags
 from trove.vocab.trove import TROVE, trove_indexcard_iri
 
 

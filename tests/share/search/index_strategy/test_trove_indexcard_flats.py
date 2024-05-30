@@ -6,8 +6,8 @@ from primitive_metadata import primitive_rdf as rdf
 
 from tests import factories
 from share.search import messages
-from share.search.search_params import CardsearchParams
 from trove import models as trove_db
+from trove.trovesearch.search_params import CardsearchParams
 from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF
 from ._with_real_services import RealElasticTestCase
 

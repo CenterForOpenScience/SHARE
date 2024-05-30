@@ -4,6 +4,7 @@ import json
 
 from primitive_metadata import primitive_rdf as rdf
 
+from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import RDF, OWL
 from trove.vocab import mediatypes
 from ._base import BaseRenderer
@@ -87,7 +88,7 @@ class RdfJsonldRenderer(BaseRenderer):
             return self.literal_as_jsonld(rdfobject)
         elif isinstance(rdfobject, (float, int, datetime.date)):
             return self.literal_as_jsonld(rdf.literal(rdfobject))
-        raise ValueError(f'unrecognized RdfObject (got {rdfobject})')
+        raise trove_exceptions.UnsupportedRdfObject(rdfobject)
 
     def blanknode_as_jsonld(
         self,
@@ -135,7 +136,7 @@ class RdfJsonldRenderer(BaseRenderer):
         )
         if _only_one_object:
             if len(objectlist) > 1:
-                raise ValueError((
+                raise trove_exceptions.OwlObjection((
                     f'expected at most one object for <{predicate_iri}>'
                     f' (got {objectlist})'
                 ))

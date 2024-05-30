@@ -6,6 +6,7 @@ from typing import Iterable, Union
 
 from primitive_metadata import primitive_rdf
 
+from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import (
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
@@ -20,7 +21,7 @@ from trove.vocab.namespaces import (
     TROVE,
 )
 from trove.vocab.trove import (
-    TROVE_API_VOCAB,
+    TROVE_API_THESAURUS,
     trove_indexcard_namespace,
 )
 from ._base import BaseRenderer
@@ -51,11 +52,11 @@ class RdfJsonapiRenderer(BaseRenderer):
     '''
     MEDIATYPE = mediatypes.JSONAPI
 
-    __to_include = None
+    __to_include: set[primitive_rdf.RdfObject] | None = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._vocab = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
+        self._vocab = primitive_rdf.RdfGraph(TROVE_API_THESAURUS)
         self._identifier_object_cache = {}
         # TODO: move "id namespace" to vocab (property on each type)
         self._id_namespace_set = [trove_indexcard_namespace()]
@@ -68,7 +69,7 @@ class RdfJsonapiRenderer(BaseRenderer):
         )
 
     def render_dict(self, primary_iris: Union[str, Iterable[str]]) -> dict:
-        _primary_data = None
+        _primary_data: dict | list | None = None
         _included_data = []
         with self._contained__to_include() as _to_include:
             if isinstance(primary_iris, str):
@@ -125,13 +126,13 @@ class RdfJsonapiRenderer(BaseRenderer):
                     'type': self._single_typename(_type_iris),
                 }
             else:
-                raise ValueError(f'expected str or frozenset (got {iri_or_blanknode})')
+                raise trove_exceptions.ExpectedIriOrBlanknode(f'expected str or frozenset (got {iri_or_blanknode})')
             self._identifier_object_cache[iri_or_blanknode] = _id_obj
             return _id_obj
 
     def _single_typename(self, type_iris: list[str]):
         if not type_iris:
-            raise ValueError('need at least one type iri')
+            raise trove_exceptions.MissingRdfType
         if len(type_iris) == 1:
             return self._membername_for_iri(type_iris[0])
         # choose one predictably, preferring osfmap and trove
@@ -141,7 +142,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 return self._membername_for_iri(_type_iris[0])
         return self._membername_for_iri(sorted(type_iris)[0])
 
-    def _membername_for_iri(self, iri: str, *, iri_fallback=False):
+    def _membername_for_iri(self, iri: str):
         try:
             _membername = next(self._vocab.q(iri, JSONAPI_MEMBERNAME))
         except StopIteration:
@@ -149,13 +150,8 @@ class RdfJsonapiRenderer(BaseRenderer):
         else:
             if isinstance(_membername, primitive_rdf.Literal):
                 return _membername.unicode_value
-            raise ValueError(f'found non-text membername {_membername}')
-        if iri_fallback:
-            return iri
-        _compact = self.iri_shorthand.compact_iri(iri)
-        if _compact != iri:
-            return _compact
-        raise ValueError(f'could not find membername for <{iri}>')
+            raise trove_exceptions.ExpectedLiteralObject((iri, JSONAPI_MEMBERNAME, _membername))
+        return self.iri_shorthand.compact_iri(iri)
 
     def _resource_id_for_blanknode(self, blanknode: frozenset):
         # content-addressed blanknode id (maybe-TODO: care about hash stability,
@@ -172,12 +168,9 @@ class RdfJsonapiRenderer(BaseRenderer):
     def _render_field(self, predicate_iri, object_set, *, into: dict):
         _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self._vocab
         _is_attribute = (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE) in self._vocab
+        _field_key = self._membername_for_iri(predicate_iri)
         _doc_key = 'meta'  # unless configured for jsonapi, default to unstructured 'meta'
-        try:
-            _field_key = self._membername_for_iri(predicate_iri)
-        except ValueError:
-            _field_key = predicate_iri  # use the full iri as key
-        else:  # got a valid membername; may go in attributes or relationships
+        if ':' not in _field_key:
             if _is_relationship:
                 _doc_key = 'relationships'
             elif _is_attribute:
@@ -193,7 +186,7 @@ class RdfJsonapiRenderer(BaseRenderer):
         _only_one = (predicate_iri, RDF.type, OWL.FunctionalProperty) in self._vocab
         if _only_one:
             if len(datalist) > 1:
-                raise ValueError(f'multiple objects for to-one relation <{predicate_iri}>: {datalist}')
+                raise trove_exceptions.OwlObjection(f'multiple objects for to-one relation <{predicate_iri}>: {datalist}')
             return (datalist[0] if datalist else None)
         return datalist
 
@@ -271,7 +264,7 @@ class RdfJsonapiRenderer(BaseRenderer):
         if self.__to_include is not None:
             self.__to_include.add(item)
 
-    def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> dict:
+    def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> dict | list | str | float | int:
         if isinstance(rdfobject, frozenset):
             if (RDF.type, RDF.Seq) in rdfobject:
                 return [
@@ -280,7 +273,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 ]
             _json_blanknode = {}
             for _pred, _obj_set in primitive_rdf.twopledict_from_twopleset(rdfobject).items():
-                _key = self._membername_for_iri(_pred, iri_fallback=True)
+                _key = self._membername_for_iri(_pred)
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))
             return _json_blanknode
         if isinstance(rdfobject, primitive_rdf.Literal):
@@ -297,4 +290,4 @@ class RdfJsonapiRenderer(BaseRenderer):
         elif isinstance(rdfobject, datetime.date):
             # just "YYYY-MM-DD"
             return datetime.date.isoformat(rdfobject)
-        raise ValueError(f'unrecognized RdfObject (got {rdfobject})')
+        raise trove_exceptions.UnsupportedRdfObject(rdfobject)

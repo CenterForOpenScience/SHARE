@@ -53,7 +53,7 @@ def trove_browse_link(iri: str):
     )
 
 
-TROVE_API_VOCAB: RdfTripleDictionary = {
+TROVE_API_THESAURUS: RdfTripleDictionary = {
     TROVE.search_api: {
         RDFS.label: {literal('trove search api', language='en')},
         RDFS.comment: {literal('trove (noun): a store of valuable or delightful things.', language='en')},
@@ -813,10 +813,10 @@ the special path segment `*` matches any property
 
 @functools.cache
 def trove_shorthand() -> IriShorthand:
-    '''build iri shorthand that includes unprefixed terms (as defined in TROVE_API_VOCAB)
+    '''build iri shorthand that includes unprefixed terms (as defined in TROVE_API_THESAURUS)
     '''
     return build_shorthand_from_thesaurus(
-        thesaurus=TROVE_API_VOCAB,
+        thesaurus=TROVE_API_THESAURUS,
         label_predicate=JSONAPI_MEMBERNAME,
         base_shorthand=NAMESPACES_SHORTHAND,
     )

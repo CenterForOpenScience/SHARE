@@ -1,20 +1,27 @@
 import functools
 import pathlib
+import types
 
 from primitive_metadata import primitive_rdf as rdf
 import rdflib
 
 from trove.util.iris import get_sufficiently_unique_iri
-from trove.vocab.osfmap import OSFMAP_VOCAB
-from trove.vocab.trove import TROVE_API_VOCAB
+from trove.vocab.osfmap import OSFMAP_THESAURUS
+from trove.vocab.trove import TROVE_API_THESAURUS
 
 
-STATIC_THESAURUSES = (
-    OSFMAP_VOCAB,
-    TROVE_API_VOCAB,
+__all__ = (
+    'combined_thesaurus',
+    'combined_thesaurus__suffuniq',
 )
 
-STATIC_TURTLES = (
+
+_STATIC_THESAURUSES = (
+    OSFMAP_THESAURUS,
+    TROVE_API_THESAURUS,
+)
+
+_STATIC_TURTLES = (
     'dublin_core_abstract_model.turtle',
     'dublin_core_elements.turtle',
     'dublin_core_terms.turtle',
@@ -26,29 +33,30 @@ STATIC_TURTLES = (
     'prov.turtle',
 )
 
-STATIC_XMLS = (
+_STATIC_XMLS = (
     'skos.rdf.xml',
     'foaf.rdf.xml',
 )
 
 
 @functools.cache
-def combined_thesaurus_with_suffuniq_subjects():
-    return {
-        get_sufficiently_unique_iri(_subj): _twoples
-        for _subj, _twoples in _combined_thesaurus().items()
-    }
-
-
-def _combined_thesaurus():
+def combined_thesaurus():
     _combined_rdf = rdf.RdfGraph()
-    for _thesaurus in STATIC_THESAURUSES:
+    for _thesaurus in _STATIC_THESAURUSES:
         _combined_rdf.add_tripledict(_thesaurus)
-    for _turtle_filename in STATIC_TURTLES:
+    for _turtle_filename in _STATIC_TURTLES:
         _combined_rdf.add_tripledict(_load_static_turtle(_turtle_filename))
-    for _xml_filename in STATIC_XMLS:
+    for _xml_filename in _STATIC_XMLS:
         _combined_rdf.add_tripledict(_load_static_xml(_xml_filename))
-    return _combined_rdf.tripledict
+    return types.MappingProxyType(_combined_rdf.tripledict)
+
+
+@functools.cache
+def combined_thesaurus__suffuniq():
+    return types.MappingProxyType({
+        get_sufficiently_unique_iri(_subj): _twoples
+        for _subj, _twoples in combined_thesaurus().items()
+    })
 
 
 def _load_static_turtle(turtle_filename: str) -> rdf.RdfTripleDictionary:

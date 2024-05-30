@@ -5,12 +5,12 @@ from django.views import View
 from primitive_metadata import gather
 
 from share.search.index_strategy import IndexStrategy
-from share.search.search_params import (
+from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
+from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy, TrovesearchFlags
 from trove.vocab.namespaces import TROVE
-from trove.trovesearch_gathering import trovesearch_by_indexstrategy, TrovesearchFlags
 from trove.render import get_renderer
 
 

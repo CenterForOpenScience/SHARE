@@ -10,15 +10,15 @@ from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
-from share.search.search_params import (
+from share.util.checksum_iri import ChecksumIri
+from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
-from share.search.search_response import (
+from trove.trovesearch.search_response import (
     CardsearchResponse,
     ValuesearchResponse,
 )
-from share.util.checksum_iri import ChecksumIri
 
 
 logger = logging.getLogger(__name__)

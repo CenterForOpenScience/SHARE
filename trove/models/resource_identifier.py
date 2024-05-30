@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.functions import Substr, StrIndex
 from primitive_metadata import primitive_rdf
 
+from trove import exceptions as trove_exceptions
 from trove.util.iris import (
     get_sufficiently_unique_iri,
     get_sufficiently_unique_iri_and_scheme,
@@ -194,4 +195,4 @@ class ResourceIdentifier(models.Model):
             )
             if _is_equivalent:
                 return _iri
-        raise ValueError(f'could not find "{_identifier_iri}" or equivalent in {set(tripledict.keys())}')
+        raise trove_exceptions.IriMismatch(f'could not find "{_identifier_iri}" or equivalent in {set(tripledict.keys())}')

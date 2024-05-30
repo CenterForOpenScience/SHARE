@@ -10,7 +10,7 @@ from trove.util.randomness import shuffled
 from trove.vocab import mediatypes
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import TROVE, RDFS, RDF, DCTERMS
-from trove.vocab.trove import TROVE_API_VOCAB
+from trove.vocab.trove import TROVE_API_THESAURUS
 
 
 _OPENAPI_PARAM_LOCATION_BY_RDF_TYPE = {
@@ -31,7 +31,7 @@ def get_trove_openapi() -> dict:
     following https://spec.openapis.org/oas/v3.1.0
     '''
     # TODO: language parameter, get translations
-    _api_graph = primitive_rdf.RdfGraph(TROVE_API_VOCAB)
+    _api_graph = primitive_rdf.RdfGraph(TROVE_API_THESAURUS)
     _path_iris = shuffled(set(_api_graph.q(TROVE.search_api, TROVE.hasPath)))
     _label = next(_api_graph.q(TROVE.search_api, RDFS.label))
     _comment = next(_api_graph.q(TROVE.search_api, RDFS.comment))

@@ -9,7 +9,7 @@ import urllib
 from django.http import QueryDict
 from primitive_metadata import primitive_rdf
 
-from share.search import exceptions
+from trove import exceptions as trove_exceptions
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -21,7 +21,7 @@ from trove.vocab.osfmap import (
     osfmap_shorthand,
     is_date_property,
     suggested_property_paths,
-    OSFMAP_VOCAB,
+    OSFMAP_THESAURUS,
 )
 from trove.vocab.trove import trove_shorthand
 from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND
@@ -76,7 +76,7 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': cls._gather_include(queryparams.get('include', [])),
+            'include': cls._gather_include(queryparams),
             'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
@@ -301,7 +301,7 @@ class SearchFilter:
             try:  # "filter[<serialized_path_set>]" (with default operator)
                 (_serialized_path_set,) = param_name.bracketed_names
             except ValueError:
-                raise exceptions.InvalidSearchParam(
+                raise trove_exceptions.InvalidQueryParamName(
                     f'expected one or two bracketed queryparam-name segments'
                     f' ({len(param_name.bracketed_names)} in "{param_name}")'
                 )
@@ -594,5 +594,5 @@ def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
     for _filter in filter_set:
         if _filter.operator.is_iri_operator():
             for _iri in _filter.value_set:
-                if _iri not in OSFMAP_VOCAB:
+                if _iri not in OSFMAP_THESAURUS:
                     yield _iri

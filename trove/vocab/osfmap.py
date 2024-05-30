@@ -27,7 +27,7 @@ from trove.vocab.namespaces import (
 OSFMAP_LINK = 'https://osf.io/8yczr'
 
 # TODO: define as turtle, load in trove.vocab.__init__?
-OSFMAP_VOCAB: RdfTripleDictionary = {
+OSFMAP_THESAURUS: RdfTripleDictionary = {
     ###
     # properties:
     DCTERMS.identifier: {
@@ -728,7 +728,7 @@ OSFMAP_NORMS = gather.GatheringNorms.new(
         literal('OSF Metadata Application Profile', language='en'),
         literal('Open Science Framework Metadata Application Profile', language='en'),
     ),
-    thesaurus=OSFMAP_VOCAB,
+    thesaurus=OSFMAP_THESAURUS,
     focustype_iris={
         OSFMAP.Project,
         OSFMAP.ProjectComponent,
@@ -746,7 +746,7 @@ def osfmap_shorthand() -> IriShorthand:
     '''build iri shorthand that includes unprefixed osfmap terms
     '''
     return build_shorthand_from_thesaurus(
-        thesaurus=OSFMAP_VOCAB,
+        thesaurus=OSFMAP_THESAURUS,
         label_predicate=JSONAPI_MEMBERNAME,
         base_shorthand=NAMESPACES_SHORTHAND,
     )

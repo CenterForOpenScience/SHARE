@@ -2,6 +2,7 @@ import json
 
 from primitive_metadata import primitive_rdf as rdf
 
+from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
@@ -12,7 +13,7 @@ from ._base import BaseRenderer
 
 
 class TrovesearchSimpleJsonRenderer(BaseRenderer):
-    '''for "simple json" search api -- very entangled with trove/trovesearch_gathering.py
+    '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
 
@@ -25,8 +26,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
         elif TROVE.Indexcard in _focustypes:
             _jsonable = self._render_card(data, focus_iri)
         else:
-            raise NotImplementedError(f'simplejson not implemented for any of {_focustypes}')
-        # TODO: links, total in 'meta'
+            raise trove_exceptions.UnsupportedRdfType(_focustypes)
         return json.dumps({
             'data': _jsonable,
             'links': self._render_links(data, focus_iri),
@@ -59,7 +59,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
         )
         return self._render_card(graph, _card)
 
-    def _render_card(self, graph: rdf.RdfGraph, card: str | rdf.RdfBlanknode):
+    def _render_card(self, graph: rdf.RdfGraph, card: rdf.RdfObject):
         # just the card contents
         if isinstance(card, str):
             _card_contents = next(graph.q(card, TROVE.resourceMetadata))
@@ -70,7 +70,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
                 if _pred == TROVE.resourceMetadata
             )
         else:
-            raise NotImplementedError
+            raise trove_exceptions.ExpectedIriOrBlanknode(card)
         assert isinstance(_card_contents, rdf.Literal)
         assert RDF.JSON in _card_contents.datatype_iris
         _json_contents = json.loads(_card_contents.unicode_value)
@@ -79,7 +79,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
         return _json_contents
 
     def _render_meta(self, graph: rdf.RdfGraph, focus_iri: str):
-        _meta = {}
+        _meta: dict[str, int | str] = {}
         try:
             _total = next(graph.q(focus_iri, TROVE.totalResultCount))
             if isinstance(_total, int):

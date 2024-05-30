@@ -7,23 +7,23 @@ from primitive_metadata.primitive_rdf import (
     Literal,
     blanknode,
     iri_minus_namespace,
-    iter_tripleset,
     literal,
     sequence,
 )
 from primitive_metadata import gather
 from primitive_metadata.primitive_rdf import literal_json
 
-from share.search.search_params import (
+from trove import models as trove_db
+from trove import exceptions as trove_exceptions
+from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
+from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
     PageParam,
     propertypath_key,
     propertypath_set_key,
 )
-from share.search.search_response import ValuesearchResult
-from trove import models as trove_db
-from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
+from trove.trovesearch.search_response import ValuesearchResult
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -32,11 +32,11 @@ from trove.vocab.jsonapi import (
 from trove.vocab import mediatypes
 from trove.vocab.osfmap import (
     osfmap_shorthand,
-    OSFMAP_VOCAB,
+    OSFMAP_THESAURUS,
     suggested_filter_operator,
 )
 from trove.vocab.trove import (
-    TROVE_API_VOCAB,
+    TROVE_API_THESAURUS,
     trove_indexcard_namespace,
     trove_shorthand,
 )
@@ -55,7 +55,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
         TROVE.Cardsearch,
         TROVE.Valuesearch,
     },
-    thesaurus=TROVE_API_VOCAB,
+    thesaurus=TROVE_API_THESAURUS,
 )
 
 
@@ -223,7 +223,7 @@ def gather_card(focus, *, trovesearch_flags, deriver_iri=None, **kwargs):
             if _iri in _indexcard_namespace
         )
     except StopIteration:
-        raise ValueError(f'could not find indexcard iri in {focus.iris} (looking for {_indexcard_namespace})')
+        raise trove_exceptions.IriMismatch(f'could not find indexcard iri in {focus.iris} (looking for {_indexcard_namespace})')
     _indexcard_uuid = iri_minus_namespace(
         _indexcard_iri,
         namespace=_indexcard_namespace,
@@ -296,7 +296,7 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
 
 def _osfmap_or_unknown_iri_as_json(iri: str):
     try:
-        _twopledict = OSFMAP_VOCAB[iri]
+        _twopledict = OSFMAP_THESAURUS[iri]
     except KeyError:
         return literal_json({'@id': iri})
     else:
@@ -360,7 +360,7 @@ def _propertypath_sequence(property_path: tuple[str, ...]):
     _propertypath_metadata = []
     for _property_iri in property_path:
         try:
-            _property_twopledict = OSFMAP_VOCAB[_property_iri]
+            _property_twopledict = OSFMAP_THESAURUS[_property_iri]
         except KeyError:
             _property_twopledict = {RDF.type: {RDF.Property}}  # giving benefit of the doubt
         _propertypath_metadata.append(_osfmap_json(
