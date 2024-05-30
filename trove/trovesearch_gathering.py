@@ -5,7 +5,6 @@ import urllib.parse
 
 from primitive_metadata.primitive_rdf import (
     Literal,
-    QuotedTriple,
     blanknode,
     iri_minus_namespace,
     iter_tripleset,
@@ -229,32 +228,7 @@ def gather_card(focus, *, trovesearch_flags, deriver_iri=None, **kwargs):
         _indexcard_iri,
         namespace=_indexcard_namespace,
     )
-    if TrovesearchFlags.OSFMAP_JSON in trovesearch_flags:  # include graph as serialized json
-        _osfmap_indexcard = (
-            trove_db.DerivedIndexcard.objects
-            .filter(
-                upriver_indexcard__uuid=_indexcard_uuid,
-                deriver_identifier__in=(
-                    trove_db.ResourceIdentifier.objects
-                    .queryset_for_iri(TROVE['derive/osfmap_json'])
-                    # TODO: choose deriver by queryparam/gatherer-kwarg
-                ),
-            )
-            .select_related('upriver_indexcard')
-            .prefetch_related('upriver_indexcard__focus_identifier_set')
-            .get()
-        )
-        yield (DCTERMS.issued, _osfmap_indexcard.upriver_indexcard.created.date())
-        yield (DCTERMS.modified, _osfmap_indexcard.modified.date())
-        for _identifier in _osfmap_indexcard.upriver_indexcard.focus_identifier_set.all():
-            _iri = _identifier.as_iri()
-            yield (FOAF.primaryTopic, _iri)
-            yield (TROVE.focusIdentifier, literal(_iri))
-        yield (
-            TROVE.resourceMetadata,
-            literal(_osfmap_indexcard.derived_text, datatype_iris={RDF.JSON})
-        )
-    else:  # include graph as a bag of quoted triples
+    if deriver_iri is None:  # include data as a quoted graph
         _indexcard_rdf = (
             trove_db.LatestIndexcardRdf.objects
             .filter(indexcard__uuid=_indexcard_uuid)
@@ -268,11 +242,34 @@ def gather_card(focus, *, trovesearch_flags, deriver_iri=None, **kwargs):
             _iri = _identifier.as_iri()
             yield (FOAF.primaryTopic, _iri)
             yield (TROVE.focusIdentifier, literal(_iri))
-        for _triple in iter_tripleset(_indexcard_rdf.as_rdf_tripledict()):
-            yield (TROVE.resourceMetadata, QuotedTriple(*_triple))
+        _quoted_graph = _indexcard_rdf.as_quoted_graph()
+        _quoted_graph.add(
+            (_quoted_graph.focus_iri, FOAF.primaryTopicOf, _indexcard_iri),
+        )
+        yield (TROVE.resourceMetadata, _quoted_graph)
+    else:  # include pre-formatted data from a DerivedIndexcard
+        _derived_indexcard = (
+            trove_db.DerivedIndexcard.objects
+            .filter(
+                upriver_indexcard__uuid=_indexcard_uuid,
+                deriver_identifier__in=(
+                    trove_db.ResourceIdentifier.objects
+                    .queryset_for_iri(deriver_iri)
+                ),
+            )
+            .select_related('upriver_indexcard')
+            .prefetch_related('upriver_indexcard__focus_identifier_set')
+            .get()
+        )
+        yield (DCTERMS.issued, _derived_indexcard.upriver_indexcard.created.date())
+        yield (DCTERMS.modified, _derived_indexcard.modified.date())
+        for _identifier in _derived_indexcard.upriver_indexcard.focus_identifier_set.all():
+            _iri = _identifier.as_iri()
+            yield (FOAF.primaryTopic, _iri)
+            yield (TROVE.focusIdentifier, literal(_iri))
         yield (
             TROVE.resourceMetadata,
-            QuotedTriple(_indexcard_rdf.focus_iri, FOAF.primaryTopicOf, _indexcard_iri)
+            _derived_indexcard.as_rdf_literal(),
         )
 
 

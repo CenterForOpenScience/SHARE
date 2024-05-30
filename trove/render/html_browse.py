@@ -116,26 +116,10 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             for _pred, _obj_set in shuffled(twopledict.items()):
                 with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
                     self.__leaf_link(_pred)
-                    # TODO: use a vocab, not static property iris
-                    if _pred == TROVE.resourceMetadata and all(
-                        isinstance(_obj, primitive_rdf.QuotedTriple)
-                        for _obj in _obj_set
-                    ):
-                        _focus_iris = twopledict[FOAF.primaryTopic]  # assumed
-                        _focus_iri = None
-                        _quoted_triples = set()
+                    with self.__nest('ul', {'class': 'Browse__objectset'}):
                         for _obj in shuffled(_obj_set):
-                            _quoted_triples.add(_obj)
-                            (_subj, _, _) = _obj
-                            if _subj in _focus_iris:
-                                _focus_iri = _subj
-                        assert _focus_iri is not None
-                        self.__quoted_graph(_focus_iri, _quoted_triples)
-                    else:
-                        with self.__nest('ul', {'class': 'Browse__objectset'}):
-                            for _obj in shuffled(_obj_set):
-                                with self.__nest('li', {'class': 'Browse__object'}, visible=True):
-                                    self.__obj(_obj)
+                            with self.__nest('li', {'class': 'Browse__object'}, visible=True):
+                                self.__obj(_obj)
 
     def __obj(self, obj: primitive_rdf.RdfObject):
         if isinstance(obj, str):  # iri
@@ -156,6 +140,8 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.__literal(obj)
         elif isinstance(obj, (float, int, datetime.date)):
             self.__literal(primitive_rdf.literal(obj))
+        elif isinstance(obj, primitive_rdf.QuotedGraph):
+            self.__quoted_graph(obj)
 
     def __literal(self, literal: primitive_rdf.Literal):
         # TODO language tag, datatypes
@@ -184,12 +170,9 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     with self.__nest('li', visible=True):
                         self.__obj(_seq_obj)
 
-    def __quoted_graph(self, focus_iri, quoted_triples):
-        _quoted_graph = primitive_rdf.RdfGraph({})
-        for _triple in quoted_triples:
-            _quoted_graph.add(_triple)
-        with self.__quoted_data(_quoted_graph.tripledict):
-            self.__render_subj(focus_iri, start_collapsed=True)
+    def __quoted_graph(self, quoted_graph: primitive_rdf.QuotedGraph):
+        with self.__quoted_data(quoted_graph.tripledict):
+            self.__render_subj(quoted_graph.focus_iri, start_collapsed=True)
 
     ###
     # private html-building helpers

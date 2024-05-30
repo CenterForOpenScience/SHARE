@@ -38,6 +38,11 @@ def get_iri_scheme(iri: str) -> str:
     return _iri_scheme
 
 
+def iris_sufficiently_equal(*iris) -> bool:
+    _suffuniq_iris = set(map(get_sufficiently_unique_iri, iris))
+    return len(_suffuniq_iris) == 1
+
+
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if _scheme_match:

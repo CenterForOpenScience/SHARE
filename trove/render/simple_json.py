@@ -16,22 +16,21 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
     '''
     MEDIATYPE = mediatypes.JSON
 
-    def render_document(self, data: rdf.RdfTripleDictionary, focus_iri: str) -> str:
-        _focustypes = data[focus_iri][RDF.type]
-        _graph = rdf.RdfGraph(data)
+    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
+        _focustypes = set(data.q(focus_iri, RDF.type))
         if TROVE.Cardsearch in _focustypes:
-            _jsonable = self._render_cardsearch(_graph, focus_iri)
+            _jsonable = self._render_cardsearch(data, focus_iri)
         elif TROVE.Valuesearch in _focustypes:
-            _jsonable = self._render_valuesearch(_graph, focus_iri)
+            _jsonable = self._render_valuesearch(data, focus_iri)
         elif TROVE.Indexcard in _focustypes:
-            _jsonable = self._render_card(_graph, focus_iri)
+            _jsonable = self._render_card(data, focus_iri)
         else:
             raise NotImplementedError(f'simplejson not implemented for any of {_focustypes}')
         # TODO: links, total in 'meta'
         return json.dumps({
             'data': _jsonable,
-            'links': self._render_links(_graph, focus_iri),
-            'meta': self._render_meta(_graph, focus_iri),
+            'links': self._render_links(data, focus_iri),
+            'meta': self._render_meta(data, focus_iri),
         }, indent=2)
 
     def _render_cardsearch(self, graph: rdf.RdfGraph, cardsearch_iri: str):
