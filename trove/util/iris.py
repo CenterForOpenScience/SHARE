@@ -2,6 +2,8 @@ import json
 import re
 from urllib.parse import urlsplit, urlunsplit, quote, unquote
 
+from trove import exceptions
+
 
 # quoth <https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2>:
 #   scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
@@ -46,7 +48,7 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
             return (iri, _scheme)
     else:  # may omit scheme only if `://`
         if not iri.startswith(COLON_SLASH_SLASH):
-            raise ValueError(f'does not look like an iri (got "{iri}")')
+            raise exceptions.InvalidIri(f'does not look like an iri (got "{iri}")')
         _scheme = ''
         _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
@@ -87,5 +89,5 @@ def unquote_iri(iri: str) -> str:
     while QUOTED_IRI_REGEX.match(_unquoted_iri):
         _unquoted_iri = unquote(_unquoted_iri)
     if not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
-        raise ValueError(f'does not look like a quoted iri: {iri}')
+        raise exceptions.InvalidQuotedIri(f'does not look like a quoted iri: {iri}')
     return _unquoted_iri
