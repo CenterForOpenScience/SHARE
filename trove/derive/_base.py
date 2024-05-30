@@ -27,6 +27,11 @@ class IndexcardDeriver(abc.ABC):
     def deriver_iri() -> str:
         raise NotImplementedError
 
+    @staticmethod
+    @abc.abstractmethod
+    def derived_datatype_iris() -> tuple[str]:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def should_skip(self) -> bool:
         raise NotImplementedError

@@ -18,6 +18,11 @@ class OsfmapJsonDeriver(IndexcardDeriver):
         return TROVE['derive/osfmap_json']
 
     # abstract method from IndexcardDeriver
+    @staticmethod
+    def derived_datatype_iris() -> tuple[str]:
+        return (RDF.JSON,)
+
+    # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
         return False
 

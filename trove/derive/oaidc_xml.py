@@ -45,6 +45,11 @@ class OaiDcXmlDeriver(IndexcardDeriver):
         return str(OAI_DC)
 
     # abstract method from IndexcardDeriver
+    @staticmethod
+    def derived_datatype_iris() -> tuple[str]:
+        return (RDF.XMLLiteral,)
+
+    # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
         _allowed_focustype_iris = {
             SHAREv2.CreativeWork,

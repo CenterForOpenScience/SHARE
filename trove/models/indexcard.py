@@ -291,3 +291,15 @@ class DerivedIndexcard(models.Model):
 
     def __str__(self):
         return repr(self)
+
+    @property
+    def deriver_cls(self):
+        from trove.derive import get_deriver_classes
+        (_deriver_cls,) = get_deriver_classes(self.deriver_identifier.raw_iri_list)
+        return _deriver_cls
+
+    def as_rdf_literal(self) -> rdf.Literal:
+        return rdf.literal(
+            self.derived_text,
+            self.deriver_cls.derived_datatype_iris(),
+        )

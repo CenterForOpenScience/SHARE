@@ -13,6 +13,7 @@ class IndexcardView(View):
             # TODO (gather): allow omitting kwargs that go unused
             'search_params': None,
             'specific_index': None,
+            'deriver_iri': ...,
             'trovesearch_flags': TrovesearchFlags.for_mediatype(_renderer.MEDIATYPE),
         })
         _indexcard_iri = trove_indexcard_iri(indexcard_uuid)

@@ -213,7 +213,7 @@ def gather_valuesearch(focus, *, specific_index, search_params, trovesearch_flag
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Indexcard},
 )
-def gather_card(focus, *, trovesearch_flags, **kwargs):
+def gather_card(focus, *, trovesearch_flags, deriver_iri=None, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
     yield (RDF.type, DCAT.CatalogRecord)
     _indexcard_namespace = trove_indexcard_namespace()
