@@ -1,5 +1,12 @@
 # Change Log
 
+# [24.4.0] - 2024-05-31
+- specific exception classes within `trove`
+- better search api error responses
+- better search-api html experience
+- more static vocabs
+- fix various errors
+
 # [24.3.1] - 2024-05-23
 - fix: jsonapi renderer now chooses `type` consistently
 
