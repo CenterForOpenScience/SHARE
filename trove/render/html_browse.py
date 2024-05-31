@@ -17,7 +17,7 @@ from primitive_metadata import primitive_rdf
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.util.randomness import shuffled
 from trove.vocab import mediatypes
-from trove.vocab.namespaces import TROVE, RDF, FOAF
+from trove.vocab.namespaces import RDF
 from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 

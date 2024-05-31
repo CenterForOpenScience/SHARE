@@ -307,5 +307,5 @@ class DerivedIndexcard(models.Model):
     def as_rdf_literal(self) -> rdf.Literal:
         return rdf.literal(
             self.derived_text,
-            self.deriver_cls.derived_datatype_iris(),
+            datatype_iris=self.deriver_cls.derived_datatype_iris(),
         )

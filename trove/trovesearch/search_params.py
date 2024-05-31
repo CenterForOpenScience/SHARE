@@ -98,7 +98,7 @@ class BaseTroveParams:
             try:
                 (_shortname,) = _qp_name.bracketed_names
             except ValueError:
-                raise  # TODO: 400 response
+                raise trove_exceptions.InvalidQueryParamName(_qp_name)
             else:
                 _prefixmap[_shortname] = _iri
         return NAMESPACES_SHORTHAND.with_update(_prefixmap)
@@ -119,7 +119,7 @@ class Textsegment:
 
     def __post_init__(self):
         if self.is_negated and self.is_fuzzy:
-            raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
+            raise trove_exceptions.InvalidSearchText(self.text, "search cannot be both negated and fuzzy")
 
     def words(self):
         return self.text.split()
@@ -310,7 +310,10 @@ class SearchFilter:
                 try:
                     _operator = SearchFilter.FilterOperator.from_shortname(_operator_value)
                 except ValueError:
-                    raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
+                    raise trove_exceptions.InvalidQueryParamName(
+                        str(param_name),
+                        f'unknown filter operator "{_operator_value}"',
+                    )
         _propertypath_set = _parse_propertypath_set(_serialized_path_set)
         _is_date_filter = all(
             is_date_property(_path[-1])
@@ -323,7 +326,10 @@ class SearchFilter:
                 else SearchFilter.FilterOperator.ANY_OF
             )
         if _operator.is_date_operator() and not _is_date_filter:
-            raise ValueError(f'cannot use date operator {_operator.value} on non-date property')
+            raise trove_exceptions.InvalidQueryParamName(
+                str(param_name),
+                f'cannot use date operator "{_operator.to_shortname()}" on non-date property'
+            )
         _value_list = []
         if not _operator.is_valueless_operator():
             for _value in split_queryparam_value(param_value):
@@ -390,7 +396,7 @@ class SortParam:
             _sort_property = _sort.lstrip(DESCENDING_SORT_PREFIX)
             _property_iri = osfmap_shorthand().expand_iri(_sort_property)
             if not is_date_property(_property_iri):
-                raise ValueError(f'bad sort: {_sort_property}')  # TODO: nice response
+                raise trove_exceptions.InvalidQueryParamValue('sort', _sort_property, "may not sort on non-date properties")
             yield cls(
                 property_iri=_property_iri,
                 descending=param_value.startswith(DESCENDING_SORT_PREFIX),
@@ -476,7 +482,7 @@ class ValuesearchParams(CardsearchParams):
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
         _raw_propertypath = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
         if not _raw_propertypath:
-            raise ValueError('TODO: 400 valueSearchPropertyPath required')
+            raise trove_exceptions.MissingRequiredQueryParam('valueSearchPropertyPath')
         return {
             **super().parse_queryparams(queryparams),
             'valuesearch_propertypath_set': _parse_propertypath_set(_raw_propertypath, allow_globs=False),
@@ -554,7 +560,7 @@ def _get_single_value(
     try:
         (_singlevalue,) = _paramvalues
     except ValueError:
-        raise ValueError(f'expected at most one {queryparam_name} value, got {len(_paramvalues)}')
+        raise trove_exceptions.InvalidRepeatedQueryParam(str(queryparam_name))
     else:
         return _singlevalue
 
@@ -574,9 +580,12 @@ def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> tuple[str,
     )
     if GLOB_PATHSTEP in _path:
         if not allow_globs:
-            raise ValueError(f'no * allowed (got {serialized_path})')
+            raise trove_exceptions.InvalidPropertyPath(serialized_path, 'no * allowed')
         if any(_pathstep != GLOB_PATHSTEP for _pathstep in _path):
-            raise ValueError(f'path must be all * or no * (got {serialized_path})')
+            raise trove_exceptions.InvalidPropertyPath(
+                serialized_path,
+                f'path must be all * or no * (got {serialized_path})',
+            )
     return _path
 
 

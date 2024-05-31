@@ -5,7 +5,7 @@ import json
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import exceptions as trove_exceptions
-from trove.vocab.namespaces import RDF, OWL
+from trove.vocab.namespaces import RDF, OWL, TROVE
 from trove.vocab import mediatypes
 from ._base import BaseRenderer
 
@@ -18,6 +18,7 @@ _PREDICATES_OF_FLEXIBLE_CARDINALITY = {
 
 class RdfJsonldRenderer(BaseRenderer):
     MEDIATYPE = mediatypes.JSONLD
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
     __visiting_iris: set | None = None
 
@@ -35,7 +36,7 @@ class RdfJsonldRenderer(BaseRenderer):
         with_context: bool = False,
     ) -> dict:
         with self.iri_shorthand.track_used_shorts() as _used_shorts:
-            _rendered = self.rdfobject_as_jsonld(focus_iri, rdfgraph)
+            _rendered = self.rdfobject_as_jsonld(focus_iri, rdfgraph.tripledict)
         if with_context:
             _rendered['@context'] = {
                 _shorthand_name: self.iri_shorthand.expand_iri(_shorthand_name)

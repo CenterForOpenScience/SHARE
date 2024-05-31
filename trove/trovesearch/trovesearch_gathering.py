@@ -1,5 +1,4 @@
 import dataclasses
-import enum
 import logging
 import urllib.parse
 
@@ -29,7 +28,6 @@ from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
-from trove.vocab import mediatypes
 from trove.vocab.osfmap import (
     osfmap_shorthand,
     OSFMAP_THESAURUS,
@@ -64,41 +62,28 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_kwargnames={'search_params', 'specific_index', 'trovesearch_flags'},
+    gatherer_kwargnames={'search_params', 'specific_index', 'deriver_iri'},
 )
-
-
-class TrovesearchFlags(enum.Flag):
-    OSFMAP_JSON = enum.auto()
-    ONLY_RESULTS = enum.auto()
-
-    @classmethod
-    def for_mediatype(cls, mediatype: str) -> 'TrovesearchFlags':
-        if mediatype == mediatypes.JSONAPI:
-            return cls.OSFMAP_JSON
-        if mediatype == mediatypes.JSON:
-            return cls.OSFMAP_JSON | cls.ONLY_RESULTS
-        return cls(0)  # none flags
 
 
 # TODO: per-field text search in rdf
 # @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchText)
-# def gather_cardsearch_text(focus, *, specific_index, search_params, trovesearch_flags):
+# def gather_cardsearch_text(focus, *, specific_index, search_params, deriver_iri):
 #     yield (TROVE.cardSearchText, literal(search_params.cardsearch_text))
 #
 #
 # @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchText)
-# def gather_valuesearch_text(focus, *, specific_index, search_params, trovesearch_flags):
+# def gather_valuesearch_text(focus, *, specific_index, search_params, deriver_iri):
 #     yield (TROVE.valueSearchText, literal(search_params.valuesearch_text))
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
-def gather_valuesearch_propertypath(focus, *, specific_index, search_params, trovesearch_flags):
+def gather_valuesearch_propertypath(focus, *, search_params, **kwargs):
     yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)
-def gather_valuesearch_filter(focus, *, specific_index, search_params, trovesearch_flags):
+def gather_valuesearch_filter(focus, *, search_params, **kwargs):
     for _filter in search_params.valuesearch_filter_set:
         yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter, {}))
 
@@ -109,7 +94,7 @@ def gather_valuesearch_filter(focus, *, specific_index, search_params, trovesear
     TROVE.cardSearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
-def gather_cardsearch(focus, *, specific_index, search_params, trovesearch_flags):
+def gather_cardsearch(focus, *, specific_index, search_params, **kwargs):
     assert isinstance(search_params, CardsearchParams)
     # defer to the IndexStrategy implementation to do the search
     _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
@@ -158,7 +143,7 @@ def gather_cardsearch(focus, *, specific_index, search_params, trovesearch_flags
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch(focus, *, specific_index, search_params, trovesearch_flags):
+def gather_valuesearch(focus, *, specific_index, search_params, **kwargs):
     assert isinstance(search_params, ValuesearchParams)
     _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
     _result_page = []
@@ -212,7 +197,7 @@ def gather_valuesearch(focus, *, specific_index, search_params, trovesearch_flag
 @trovesearch_by_indexstrategy.gatherer(
     focustype_iris={TROVE.Indexcard},
 )
-def gather_card(focus, *, trovesearch_flags, deriver_iri=None, **kwargs):
+def gather_card(focus, *, deriver_iri, **kwargs):
     # TODO: batch gatherer -- load all cards in one query
     yield (RDF.type, DCAT.CatalogRecord)
     _indexcard_namespace = trove_indexcard_namespace()

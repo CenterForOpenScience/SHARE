@@ -16,6 +16,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
     def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
         _focustypes = set(data.q(focus_iri, RDF.type))

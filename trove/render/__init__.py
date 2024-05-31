@@ -3,6 +3,7 @@ from django import http
 from trove import exceptions as trove_exceptions
 from trove.vocab.trove import TROVE_API_THESAURUS
 from trove.vocab.namespaces import NAMESPACES_SHORTHAND
+from ._base import BaseRenderer
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 from .turtle import RdfTurtleRenderer
@@ -10,15 +11,19 @@ from .jsonld import RdfJsonldRenderer
 from .simple_json import TrovesearchSimpleJsonRenderer
 
 
+__all__ = ('get_renderer',)
+
+RENDERERS: tuple[type[BaseRenderer], ...] = (
+    RdfHtmlBrowseRenderer,
+    RdfJsonapiRenderer,
+    RdfTurtleRenderer,
+    RdfJsonldRenderer,
+    TrovesearchSimpleJsonRenderer,
+)
+
 RENDERER_BY_MEDIATYPE = {
     _renderer_cls.MEDIATYPE: _renderer_cls
-    for _renderer_cls in (
-        RdfHtmlBrowseRenderer,
-        RdfJsonapiRenderer,
-        RdfTurtleRenderer,
-        RdfJsonldRenderer,
-        TrovesearchSimpleJsonRenderer,
-    )
+    for _renderer_cls in RENDERERS
 }
 DEFAULT_RENDERER = RdfJsonapiRenderer  # the most stable one
 

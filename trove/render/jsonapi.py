@@ -51,6 +51,7 @@ class RdfJsonapiRenderer(BaseRenderer):
     note: does not support relationship links (or many other jsonapi features)
     '''
     MEDIATYPE = mediatypes.JSONAPI
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
     __to_include: set[primitive_rdf.RdfObject] | None = None
 

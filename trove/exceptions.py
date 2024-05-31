@@ -1,5 +1,15 @@
+import http
+import inspect
+
+
 class TroveError(Exception):
-    pass
+    # set more helpful codes in subclasses
+    http_status: int = http.HTTPStatus.INTERNAL_SERVER_ERROR
+    error_location: str = ''
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.error_location = _get_nearest_code_location()
 
 
 ###
@@ -13,11 +23,15 @@ class CannotDigestMediatype(DigestiveError):
     pass
 
 
+class CannotDigestDateValue(DigestiveError):
+    pass
+
+
 ###
 # parsing a request
 
 class RequestParsingError(TroveError):
-    pass
+    http_status = http.HTTPStatus.BAD_REQUEST
 
 
 class InvalidQuotedIri(RequestParsingError):
@@ -28,8 +42,39 @@ class InvalidQueryParamName(RequestParsingError):
     pass
 
 
-class InvalidDate(RequestParsingError):
+class InvalidFilterOperator(InvalidQueryParamName):
     pass
+
+
+class InvalidQueryParamValue(RequestParsingError):
+    pass
+
+
+class InvalidSearchText(InvalidQueryParamValue):
+    pass
+
+
+class MissingRequiredQueryParam(RequestParsingError):
+    pass
+
+
+class InvalidRepeatedQueryParam(RequestParsingError):
+    pass
+
+
+class InvalidPropertyPath(RequestParsingError):
+    pass
+
+
+###
+# rendering a response
+
+class ResponseRenderingError(TroveError):
+    pass
+
+
+class CannotRenderMediatype(ResponseRenderingError):
+    http_status = http.HTTPStatus.NOT_ACCEPTABLE
 
 
 ###
@@ -72,4 +117,14 @@ class OwlObjection(PrimitiveRdfWhoopsy):
 
 
 ###
-# rendering a response
+# local helpers
+
+def _get_nearest_code_location() -> str:
+    try:
+        _raise_frame = next(
+            _frameinfo for _frameinfo in inspect.stack()
+            if _frameinfo.filename != __file__  # nearest frame not in this file
+        )
+        return f'{_raise_frame.filename}::{_raise_frame.lineno}'
+    except Exception:
+        return 'unknown'  # eh, whatever

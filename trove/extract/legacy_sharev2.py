@@ -189,7 +189,7 @@ def _date_or_none(maybe_date) -> typing.Optional[datetime.date]:
         return maybe_date
     if maybe_date is None:
         return None
-    raise trove_exceptions.InvalidDate(maybe_date)
+    raise trove_exceptions.CannotDigestDateValue(maybe_date)
 
 
 def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:
