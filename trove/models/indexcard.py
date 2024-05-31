@@ -4,7 +4,7 @@ import uuid
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
-from primitive_metadata import primitive_rdf
+from primitive_metadata import primitive_rdf as rdf
 
 from share import models as share_db  # TODO: break this dependency
 from share.search.index_messenger import IndexMessenger
@@ -17,20 +17,20 @@ from trove.vocab.trove import trove_indexcard_iri, trove_indexcard_namespace
 
 class IndexcardManager(models.Manager):
     def get_for_iri(self, iri: str):
-        _uuid = primitive_rdf.iri_minus_namespace(iri, namespace=trove_indexcard_namespace())
+        _uuid = rdf.iri_minus_namespace(iri, namespace=trove_indexcard_namespace())
         return self.get(uuid=_uuid)
 
     @transaction.atomic
     def save_indexcards_from_tripledicts(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledicts_by_focus_iri: dict[str, primitive_rdf.RdfTripleDictionary],
+        rdf_tripledicts_by_focus_iri: dict[str, rdf.RdfTripleDictionary],
         undelete: bool = False,
     ) -> list['Indexcard']:
         from_raw_datum.no_output = (not rdf_tripledicts_by_focus_iri)
         from_raw_datum.save(update_fields=['no_output'])
         _indexcards = []
-        _seen_focus_identifier_ids = set()
+        _seen_focus_identifier_ids: set[str] = set()
         for _focus_iri, _tripledict in rdf_tripledicts_by_focus_iri.items():
             _indexcard = self.save_indexcard_from_tripledict(
                 from_raw_datum=from_raw_datum,
@@ -59,7 +59,7 @@ class IndexcardManager(models.Manager):
     def save_indexcard_from_tripledict(
         self, *,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledict: primitive_rdf.RdfTripleDictionary,
+        rdf_tripledict: rdf.RdfTripleDictionary,
         focus_iri: str,
         undelete: bool = False,
     ):
@@ -187,8 +187,14 @@ class IndexcardRdf(models.Model):
     focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
     rdf_as_turtle = models.TextField()  # TODO: store elsewhere by checksum
 
-    def as_rdf_tripledict(self) -> primitive_rdf.RdfTripleDictionary:
-        return primitive_rdf.tripledict_from_turtle(self.rdf_as_turtle)
+    def as_rdf_tripledict(self) -> rdf.RdfTripleDictionary:
+        return rdf.tripledict_from_turtle(self.rdf_as_turtle)
+
+    def as_quoted_graph(self) -> rdf.QuotedGraph:
+        return rdf.QuotedGraph(
+            self.as_rdf_tripledict(),
+            focus_iri=self.focus_iri,
+        )
 
     class Meta:
         abstract = True
@@ -204,12 +210,12 @@ class IndexcardRdf(models.Model):
     def save_indexcard_rdf(
         indexcard: Indexcard,
         from_raw_datum: share_db.RawDatum,
-        rdf_tripledict: primitive_rdf.RdfTripleDictionary,
+        rdf_tripledict: rdf.RdfTripleDictionary,
         focus_iri: str,
     ) -> 'IndexcardRdf':
         if focus_iri not in rdf_tripledict:
             raise DigestiveError(f'expected {focus_iri} in {set(rdf_tripledict.keys())}')
-        _rdf_as_turtle = primitive_rdf.turtle_from_tripledict(rdf_tripledict)
+        _rdf_as_turtle = rdf.turtle_from_tripledict(rdf_tripledict)
         _turtle_checksum_iri = str(
             ChecksumIri.digest('sha-256', salt='', raw_data=_rdf_as_turtle),
         )
@@ -291,3 +297,15 @@ class DerivedIndexcard(models.Model):
 
     def __str__(self):
         return repr(self)
+
+    @property
+    def deriver_cls(self):
+        from trove.derive import get_deriver_classes
+        (_deriver_cls,) = get_deriver_classes(self.deriver_identifier.raw_iri_list)
+        return _deriver_cls
+
+    def as_rdf_literal(self) -> rdf.Literal:
+        return rdf.literal(
+            self.derived_text,
+            datatype_iris=self.deriver_cls.derived_datatype_iris(),
+        )

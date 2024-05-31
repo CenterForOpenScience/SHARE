@@ -2,6 +2,8 @@ import json
 import re
 from urllib.parse import urlsplit, urlunsplit, quote, unquote
 
+from trove import exceptions as trove_exceptions
+
 
 # quoth <https://www.rfc-editor.org/rfc/rfc3987.html#section-2.2>:
 #   scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
@@ -36,6 +38,11 @@ def get_iri_scheme(iri: str) -> str:
     return _iri_scheme
 
 
+def iris_sufficiently_equal(*iris) -> bool:
+    _suffuniq_iris = set(map(get_sufficiently_unique_iri, iris))
+    return len(_suffuniq_iris) == 1
+
+
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if _scheme_match:
@@ -46,7 +53,7 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
             return (iri, _scheme)
     else:  # may omit scheme only if `://`
         if not iri.startswith(COLON_SLASH_SLASH):
-            raise ValueError(f'does not look like an iri (got "{iri}")')
+            raise trove_exceptions.InvalidIri(f'does not look like an iri (got "{iri}")')
         _scheme = ''
         _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
@@ -68,7 +75,7 @@ def is_worthwhile_iri(iri: str):
     )
 
 
-def iri_path_as_keyword(iris: list[str] | tuple[str], *, suffuniq=False) -> str:
+def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) -> str:
     assert isinstance(iris, (list, tuple)) and all(
         isinstance(_pathstep, str)
         for _pathstep in iris
@@ -87,5 +94,5 @@ def unquote_iri(iri: str) -> str:
     while QUOTED_IRI_REGEX.match(_unquoted_iri):
         _unquoted_iri = unquote(_unquoted_iri)
     if not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
-        raise ValueError(f'does not look like a quoted iri: {iri}')
+        raise trove_exceptions.InvalidQuotedIri(f'does not look like a quoted iri: {iri}')
     return _unquoted_iri

@@ -54,6 +54,11 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         return SHAREv2.sharev2_elastic
 
     # abstract method from IndexcardDeriver
+    @staticmethod
+    def derived_datatype_iris() -> tuple[str]:
+        return (RDF.JSON,)
+
+    # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
         _allowed_focustype_iris = {
             SHAREv2.CreativeWork,

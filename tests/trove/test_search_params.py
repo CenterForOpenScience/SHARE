@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from share.search.search_params import (
+from trove.trovesearch.search_params import (
     Textsegment,
     SearchFilter,
 )

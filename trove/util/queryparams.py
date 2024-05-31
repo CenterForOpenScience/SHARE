@@ -5,6 +5,8 @@ from typing import Iterable
 # TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
 
+from trove import exceptions as trove_exceptions
+
 
 ###
 # jsonapi query parameter parsing:
@@ -27,7 +29,7 @@ QUERYPARAM_VALUES_DELIM = ','
 @dataclasses.dataclass(frozen=True)
 class QueryparamName:
     family: str
-    bracketed_names: tuple[str] = ()
+    bracketed_names: tuple[str, ...] = ()
 
     def __post_init__(self):
         if not isinstance(self.bracketed_names, tuple):
@@ -37,18 +39,18 @@ class QueryparamName:
     def from_str(cls, queryparam_name: str) -> 'QueryparamName':
         family_match = QUERYPARAM_FAMILY_REGEX.match(queryparam_name)
         if not family_match:
-            raise ValueError(f'invalid queryparam name "{queryparam_name}"')
+            raise trove_exceptions.InvalidQueryParamName(queryparam_name)
         family = family_match.group()
         next_position = family_match.end()
         bracketed_names = []
         while next_position < len(queryparam_name):
             bracketed_match = QUERYPARAM_FAMILYMEMBER_REGEX.match(queryparam_name, next_position)
             if not bracketed_match:
-                raise ValueError(f'invalid queryparam name "{queryparam_name}"')
+                raise trove_exceptions.InvalidQueryParamName(queryparam_name)
             bracketed_names.append(bracketed_match.group('name') or '')
             next_position = bracketed_match.end()
         if next_position != len(queryparam_name):
-            raise ValueError(f'invalid queryparam name "{queryparam_name}"')
+            raise trove_exceptions.InvalidQueryParamName(queryparam_name)
         return cls(family, tuple(bracketed_names))
 
     def __str__(self):

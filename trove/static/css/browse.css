@@ -29,6 +29,17 @@
     border: solid 0.382rem rgba(0,0,0,0.191);
 }
 
+details.Browse__card > summary::before {
+    content: '‽';
+    display: inline-block;
+    transition-property: rotate;
+    transition-duration: 1s;
+}
+
+details.Browse__card[open] > summary::before {
+    rotate: var(--random-turn);
+}
+
 .BrowseWrapper > .Browse__card {
     margin: 1em;
 }
@@ -87,6 +98,13 @@
     margin: 0;
     /*border: 1px dotted #000;*/
     border: dotted 1px;
+    gap: 0.382rem;
+}
+
+.Browse__literal {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 0.382rem;
 }
 

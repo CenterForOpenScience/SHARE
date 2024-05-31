@@ -16,13 +16,13 @@ from primitive_metadata import primitive_rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.util.randomness import shuffled
-from trove.vocab.jsonapi import JSONAPI_MEDIATYPE
-from trove.vocab.namespaces import TROVE, RDF, FOAF
+from trove.vocab import mediatypes
+from trove.vocab.namespaces import RDF
 from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
-STABLE_MEDIATYPES = (JSONAPI_MEDIATYPE,)
-UNSTABLE_MEDIATYPES = ('text/turtle', 'application/ld+json', 'application/json')
+STABLE_MEDIATYPES = (mediatypes.JSONAPI,)
+UNSTABLE_MEDIATYPES = (mediatypes.TURTLE, mediatypes.JSONLD, mediatypes.JSON,)
 
 
 class RdfHtmlBrowseRenderer(BaseRenderer):
@@ -35,7 +35,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         self.__visiting_iris = None
         self.__heading_depth = None
 
-    def render_document(self, data: primitive_rdf.RdfTripleDictionary, focus_iri: str) -> str:
+    def render_document(self, data: primitive_rdf.RdfGraph, focus_iri: str) -> str:
         self.data = data
         with self.__rendering():
             with self.__nest('head'):
@@ -87,12 +87,8 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     _link.text = 'documented use'
                     _link.tail = ')'
 
-    def __render_subj(self, subj_iri: str, twopledict=None, start_collapsed=False):
-        _twopledict = (
-            self.data.get(subj_iri, {})
-            if twopledict is None
-            else twopledict
-        )
+    def __render_subj(self, subj_iri: str, start_collapsed=False):
+        _twopledict = self.data.tripledict.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
                 with self.__nest(
@@ -120,31 +116,15 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             for _pred, _obj_set in shuffled(twopledict.items()):
                 with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
                     self.__leaf_link(_pred)
-                    # TODO: use a vocab, not static property iris
-                    if _pred == TROVE.resourceMetadata and all(
-                        isinstance(_obj, primitive_rdf.QuotedTriple)
-                        for _obj in _obj_set
-                    ):
-                        _focus_iris = twopledict[FOAF.primaryTopic]  # assumed
-                        _focus_iri = None
-                        _quoted_triples = set()
+                    with self.__nest('ul', {'class': 'Browse__objectset'}):
                         for _obj in shuffled(_obj_set):
-                            _quoted_triples.add(_obj)
-                            (_subj, _, _) = _obj
-                            if _subj in _focus_iris:
-                                _focus_iri = _subj
-                        assert _focus_iri is not None
-                        self.__quoted_graph(_focus_iri, _quoted_triples)
-                    else:
-                        with self.__nest('ul', {'class': 'Browse__objectset'}):
-                            for _obj in shuffled(_obj_set):
-                                with self.__nest('li', {'class': 'Browse__object'}, visible=True):
-                                    self.__obj(_obj)
+                            with self.__nest('li', {'class': 'Browse__object'}, visible=True):
+                                self.__obj(_obj)
 
     def __obj(self, obj: primitive_rdf.RdfObject):
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
-            if obj in self.data:
+            if obj in self.data.tripledict:
                 if obj in self.__visiting_iris:
                     self.__leaf_link(obj)  # TODO: consider
                 else:
@@ -160,6 +140,8 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.__literal(obj)
         elif isinstance(obj, (float, int, datetime.date)):
             self.__literal(primitive_rdf.literal(obj))
+        elif isinstance(obj, primitive_rdf.QuotedGraph):
+            self.__quoted_graph(obj)
 
     def __literal(self, literal: primitive_rdf.Literal):
         # TODO language tag, datatypes
@@ -169,13 +151,15 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             for _datatype in literal.datatype_iris
         )
         # TODO: checksum_iri, literal_iri
-        with self.__nest('article'):
+        with self.__nest('article', attrs={'class': 'Browse__literal'}):
             if _is_markdown:
                 # TODO: tests for safe_mode
                 _html = markdown2.markdown(literal.unicode_value, safe_mode='escape')
                 self.__current_element.append(etree_fromstring(f'<q>{_html}</q>'))
             else:
                 self.__leaf('q', text=literal.unicode_value)
+            for _datatype_iri in literal.datatype_iris:
+                self.__leaf_link(_datatype_iri)
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(primitive_rdf.sequence_objects_in_order(sequence_twoples))
@@ -186,12 +170,9 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     with self.__nest('li', visible=True):
                         self.__obj(_seq_obj)
 
-    def __quoted_graph(self, focus_iri, quoted_triples):
-        _quoted_graph = primitive_rdf.RdfGraph({})
-        for _triple in quoted_triples:
-            _quoted_graph.add(_triple)
-        with self.__quoted_data(_quoted_graph.tripledict):
-            self.__render_subj(focus_iri, start_collapsed=True)
+    def __quoted_graph(self, quoted_graph: primitive_rdf.QuotedGraph):
+        with self.__quoted_data(quoted_graph.tripledict):
+            self.__render_subj(quoted_graph.focus_iri, start_collapsed=True)
 
     ###
     # private html-building helpers
@@ -233,7 +214,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __quoted_data(self, quoted_data: dict):
         _outer_data = self.data
         _outer_visiting_iris = self.__visiting_iris
-        self.data = quoted_data
+        self.data = primitive_rdf.RdfGraph(quoted_data)
         self.__visiting_iris = set()
         try:
             yield
@@ -262,11 +243,14 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         if text is not None:
             _leaf_element.text = text
 
-    def __nest_link(self, iri: str):
-        return self.__nest('a', attrs={'href': self.__href_for_iri(iri)})
+    def __nest_link(self, iri: str, *, attrs=None):
+        return self.__nest('a', attrs={
+            **(attrs or {}),
+            'href': self.__href_for_iri(iri),
+        })
 
-    def __leaf_link(self, iri: str):
-        with self.__nest_link(iri) as _link:
+    def __leaf_link(self, iri: str, *, attrs=None):
+        with self.__nest_link(iri, attrs=attrs) as _link:
             _link.text = self.iri_shorthand.compact_iri(iri)
 
     def __href_for_iri(self, iri: str):

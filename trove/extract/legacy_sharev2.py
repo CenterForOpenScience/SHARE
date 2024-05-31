@@ -6,6 +6,7 @@ from primitive_metadata import primitive_rdf, gather
 
 from share.util.graph import MutableNode
 from share.regulate import Regulator
+from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import OSFMAP, DCTERMS, FOAF, DCAT, SHAREv2, RDF
 from trove.vocab.osfmap import OSFMAP_NORMS
 from ._base import BaseRdfExtractor
@@ -164,7 +165,7 @@ def _choose_iri(iris):
 
 
 def _focus_for_mnode(mnode: MutableNode):
-    return gather.focus(
+    return gather.Focus.new(
         frozenset(_iris_for_mnode(mnode)),
         frozenset(_focustype_iris(mnode)),
         {'mnode': mnode},
@@ -188,7 +189,7 @@ def _date_or_none(maybe_date) -> typing.Optional[datetime.date]:
         return maybe_date
     if maybe_date is None:
         return None
-    raise ValueError(f'expected datetime.date, str, or None (got {maybe_date})')
+    raise trove_exceptions.CannotDigestDateValue(maybe_date)
 
 
 def _focustype_iris(mnode: MutableNode) -> typing.Iterable[str]:

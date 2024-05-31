@@ -1,0 +1,5 @@
+JSON = 'application/json'
+JSONAPI = 'application/vnd.api+json'
+JSONLD = 'application/ld+json'
+TURTLE = 'text/turtle'
+HTML = 'text/html'

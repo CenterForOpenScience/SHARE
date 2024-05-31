@@ -9,7 +9,7 @@ import urllib
 from django.http import QueryDict
 from primitive_metadata import primitive_rdf
 
-from share.search import exceptions
+from trove import exceptions as trove_exceptions
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -18,13 +18,13 @@ from trove.util.queryparams import (
     queryparams_from_querystring,
 )
 from trove.vocab.osfmap import (
-    osfmap_labeler,
+    osfmap_shorthand,
     is_date_property,
     suggested_property_paths,
-    OSFMAP_VOCAB,
+    OSFMAP_THESAURUS,
 )
-from trove.vocab.trove import trove_labeler
-from trove.vocab.namespaces import RDF, TROVE, OWL
+from trove.vocab.trove import trove_shorthand
+from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +49,8 @@ PROPERTYPATH_DELIMITER = '.'
 
 # special path-step that matches any property
 GLOB_PATHSTEP = '*'
+ONE_GLOB_PROPERTYPATH = (GLOB_PATHSTEP,)
+DEFAULT_PROPERTYPATH_SET = frozenset([ONE_GLOB_PROPERTYPATH])
 
 
 ###
@@ -57,7 +59,7 @@ GLOB_PATHSTEP = '*'
 
 @dataclasses.dataclass(frozen=True)
 class BaseTroveParams:
-    iri_shorthand: primitive_rdf.IriShorthand
+    iri_shorthand: primitive_rdf.IriShorthand = dataclasses.field(repr=False)
     include: frozenset[tuple[str, ...]]
     accept_mediatype: str | None
 
@@ -74,7 +76,7 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': cls._gather_include(queryparams.get('include', [])),
+            'include': cls._gather_include(queryparams),
             'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
@@ -96,10 +98,10 @@ class BaseTroveParams:
             try:
                 (_shortname,) = _qp_name.bracketed_names
             except ValueError:
-                raise  # TODO: 400 response
+                raise trove_exceptions.InvalidQueryParamName(_qp_name)
             else:
                 _prefixmap[_shortname] = _iri
-        return primitive_rdf.IriShorthand(_prefixmap)
+        return NAMESPACES_SHORTHAND.with_update(_prefixmap)
 
     @classmethod
     def _gather_include(cls, queryparams: QueryparamDict):
@@ -113,11 +115,11 @@ class Textsegment:
     is_fuzzy: bool = True
     is_negated: bool = False
     is_openended: bool = False
-    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
+    propertypath_set: frozenset[tuple[str, ...]] = DEFAULT_PROPERTYPATH_SET
 
     def __post_init__(self):
         if self.is_negated and self.is_fuzzy:
-            raise ValueError(f'{self}: cannot have both is_negated and is_fuzzy')
+            raise trove_exceptions.InvalidSearchText(self.text, "search cannot be both negated and fuzzy")
 
     def words(self):
         return self.text.split()
@@ -232,7 +234,7 @@ class Textsegment:
         for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
-                propertypath_set_key(_propertypath_set),
+                (propertypath_set_key(_propertypath_set),),
             )
             _qp_value = ' '.join(
                 _textsegment.as_searchtext()
@@ -263,11 +265,11 @@ class SearchFilter:
 
         @classmethod
         def from_shortname(cls, shortname):
-            _iri = trove_labeler.iri_for_label(shortname)
+            _iri = trove_shorthand().expand_iri(shortname)
             return cls(_iri)
 
         def to_shortname(self) -> str:
-            return trove_labeler.label_for_iri(self.value)
+            return trove_shorthand().compact_iri(self.value)
 
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
@@ -280,7 +282,7 @@ class SearchFilter:
 
     operator: FilterOperator
     value_set: frozenset[str]
-    propertypath_set: frozenset[tuple[str, ...]] = frozenset((GLOB_PATHSTEP,))
+    propertypath_set: frozenset[tuple[str, ...]] = DEFAULT_PROPERTYPATH_SET
 
     @classmethod
     def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
@@ -299,7 +301,7 @@ class SearchFilter:
             try:  # "filter[<serialized_path_set>]" (with default operator)
                 (_serialized_path_set,) = param_name.bracketed_names
             except ValueError:
-                raise exceptions.InvalidSearchParam(
+                raise trove_exceptions.InvalidQueryParamName(
                     f'expected one or two bracketed queryparam-name segments'
                     f' ({len(param_name.bracketed_names)} in "{param_name}")'
                 )
@@ -308,7 +310,10 @@ class SearchFilter:
                 try:
                     _operator = SearchFilter.FilterOperator.from_shortname(_operator_value)
                 except ValueError:
-                    raise ValueError(f'unrecognized search-filter operator "{_operator_value}"')
+                    raise trove_exceptions.InvalidQueryParamName(
+                        str(param_name),
+                        f'unknown filter operator "{_operator_value}"',
+                    )
         _propertypath_set = _parse_propertypath_set(_serialized_path_set)
         _is_date_filter = all(
             is_date_property(_path[-1])
@@ -321,19 +326,17 @@ class SearchFilter:
                 else SearchFilter.FilterOperator.ANY_OF
             )
         if _operator.is_date_operator() and not _is_date_filter:
-            raise ValueError(f'cannot use date operator {_operator.value} on non-date property')
+            raise trove_exceptions.InvalidQueryParamName(
+                str(param_name),
+                f'cannot use date operator "{_operator.to_shortname()}" on non-date property'
+            )
         _value_list = []
         if not _operator.is_valueless_operator():
             for _value in split_queryparam_value(param_value):
                 if _is_date_filter:
                     _value_list.append(_value)  # TODO: vali-date
                 else:
-                    try:
-                        _iri = osfmap_labeler.iri_for_label(_value)
-                    except KeyError:  # not a known shorthand
-                        _value_list.append(_value)  # assume iri already
-                    else:
-                        _value_list.append(_iri)
+                    _value_list.append(osfmap_shorthand().expand_iri(_value))
         return cls(
             value_set=frozenset(_value_list),
             operator=_operator,
@@ -362,7 +365,7 @@ class SearchFilter:
             self.operator.to_shortname(),
         ))
         _qp_value = join_queryparam_value(
-            osfmap_labeler.get_label_or_iri(_value)
+            osfmap_shorthand().compact_iri(_value)
             for _value in self.value_set
         )
         return str(_qp_name), _qp_value
@@ -381,7 +384,7 @@ class SortParam:
         )
 
     @classmethod
-    def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam']:
+    def from_queryparams(cls, queryparams: QueryparamDict) -> tuple['SortParam', ...]:
         _paramvalue = _get_single_value(queryparams, QueryparamName('sort'))
         if not _paramvalue or _paramvalue == '-relevance':
             return ()
@@ -391,12 +394,9 @@ class SortParam:
     def _from_sort_param_str(cls, param_value: str) -> typing.Iterable['SortParam']:
         for _sort in split_queryparam_value(param_value):
             _sort_property = _sort.lstrip(DESCENDING_SORT_PREFIX)
-            try:
-                _property_iri = osfmap_labeler.iri_for_label(_sort_property)
-            except KeyError:
-                _property_iri = _sort_property
+            _property_iri = osfmap_shorthand().expand_iri(_sort_property)
             if not is_date_property(_property_iri):
-                raise ValueError(f'bad sort: {_sort_property}')  # TODO: nice response
+                raise trove_exceptions.InvalidQueryParamValue('sort', _sort_property, "may not sort on non-date properties")
             yield cls(
                 property_iri=_property_iri,
                 descending=param_value.startswith(DESCENDING_SORT_PREFIX),
@@ -416,11 +416,11 @@ class PageParam:
 
     @classmethod
     def from_queryparams(cls, queryparams: QueryparamDict) -> 'PageParam':
-        _cursor = _get_single_value(queryparams, QueryparamName('page', ['cursor']))
+        _cursor = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
         if _cursor:
             return cls(cursor=_cursor)
         _size = int(  # TODO: 400 response on non-int value
-            _get_single_value(queryparams, QueryparamName('page', ['size']))
+            _get_single_value(queryparams, QueryparamName('page', ('size',)))
             or DEFAULT_PAGE_SIZE
         )
         return cls(size=min(_size, MAX_PAGE_SIZE), cursor=None)
@@ -474,7 +474,7 @@ class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
     valuesearch_propertypath_set: frozenset[tuple[str, ...]]
-    valuesearch_textsegment_set: frozenset[str]
+    valuesearch_textsegment_set: frozenset[Textsegment]
     valuesearch_filter_set: frozenset[SearchFilter]
 
     # override CardsearchParams
@@ -482,7 +482,7 @@ class ValuesearchParams(CardsearchParams):
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
         _raw_propertypath = _get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
         if not _raw_propertypath:
-            raise ValueError('TODO: 400 valueSearchPropertyPath required')
+            raise trove_exceptions.MissingRequiredQueryParam('valueSearchPropertyPath')
         return {
             **super().parse_queryparams(queryparams),
             'valuesearch_propertypath_set': _parse_propertypath_set(_raw_propertypath, allow_globs=False),
@@ -514,14 +514,21 @@ class ValuesearchParams(CardsearchParams):
 ###
 # local helpers
 
-def propertypath_key(property_path: tuple[str, ...]):
+def propertypathstep_key(pathstep: str) -> str:
+    if pathstep == GLOB_PATHSTEP:
+        return pathstep
+    # assume iri
+    return urllib.parse.quote(osfmap_shorthand().compact_iri(pathstep))
+
+
+def propertypath_key(property_path: tuple[str, ...]) -> str:
     return PROPERTYPATH_DELIMITER.join(
-        urllib.parse.quote(osfmap_labeler.get_label_or_iri(_property_iri))
-        for _property_iri in property_path
+        propertypathstep_key(_pathstep)
+        for _pathstep in property_path
     )
 
 
-def propertypath_set_key(propertypath_set: frozenset[tuple[str, ...]]):
+def propertypath_set_key(propertypath_set: frozenset[tuple[str, ...]]) -> str:
     return join_queryparam_value(
         propertypath_key(_propertypath)
         for _propertypath in propertypath_set
@@ -553,7 +560,7 @@ def _get_single_value(
     try:
         (_singlevalue,) = _paramvalues
     except ValueError:
-        raise ValueError(f'expected at most one {queryparam_name} value, got {len(_paramvalues)}')
+        raise trove_exceptions.InvalidRepeatedQueryParam(str(queryparam_name))
     else:
         return _singlevalue
 
@@ -568,18 +575,21 @@ def _parse_propertypath_set(serialized_path_set: str, *, allow_globs=True) -> fr
 
 def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> tuple[str, ...]:
     _path = tuple(
-        osfmap_labeler.iri_for_label(_pathstep, default=_pathstep)
+        osfmap_shorthand().expand_iri(_pathstep)
         for _pathstep in serialized_path.split(PROPERTYPATH_DELIMITER)
     )
     if GLOB_PATHSTEP in _path:
         if not allow_globs:
-            raise ValueError(f'no * allowed (got {serialized_path})')
+            raise trove_exceptions.InvalidPropertyPath(serialized_path, 'no * allowed')
         if any(_pathstep != GLOB_PATHSTEP for _pathstep in _path):
-            raise ValueError(f'path must be all * or no * (got {serialized_path})')
+            raise trove_exceptions.InvalidPropertyPath(
+                serialized_path,
+                f'path must be all * or no * (got {serialized_path})',
+            )
     return _path
 
 
-def _get_related_property_paths(filter_set) -> tuple[tuple[str]]:
+def _get_related_property_paths(filter_set) -> tuple[tuple[str, ...], ...]:
     # hard-coded for osf.io search pages, static list per type
     # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
     _type_iris = set()
@@ -593,5 +603,5 @@ def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
     for _filter in filter_set:
         if _filter.operator.is_iri_operator():
             for _iri in _filter.value_set:
-                if _iri not in OSFMAP_VOCAB:
+                if _iri not in OSFMAP_THESAURUS:
                     yield _iri

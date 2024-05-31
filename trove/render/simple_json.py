@@ -2,35 +2,36 @@ import json
 
 from primitive_metadata import primitive_rdf as rdf
 
+from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
+from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
 
 
 class TrovesearchSimpleJsonRenderer(BaseRenderer):
-    '''for "simple json" search api -- very entangled with trove/trovesearch_gathering.py
+    '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
-    MEDIATYPE = 'application/json'
+    MEDIATYPE = mediatypes.JSON
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def render_document(self, data: rdf.RdfTripleDictionary, focus_iri: str) -> str:
-        _focustypes = data[focus_iri][RDF.type]
-        _graph = rdf.RdfGraph(data)
+    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
+        _focustypes = set(data.q(focus_iri, RDF.type))
         if TROVE.Cardsearch in _focustypes:
-            _jsonable = self._render_cardsearch(_graph, focus_iri)
+            _jsonable = self._render_cardsearch(data, focus_iri)
         elif TROVE.Valuesearch in _focustypes:
-            _jsonable = self._render_valuesearch(_graph, focus_iri)
+            _jsonable = self._render_valuesearch(data, focus_iri)
         elif TROVE.Indexcard in _focustypes:
-            _jsonable = self._render_card(_graph, focus_iri)
+            _jsonable = self._render_card(data, focus_iri)
         else:
-            raise NotImplementedError(f'simplejson not implemented for any of {_focustypes}')
-        # TODO: links, total in 'meta'
+            raise trove_exceptions.UnsupportedRdfType(_focustypes)
         return json.dumps({
             'data': _jsonable,
-            'links': self._render_links(_graph, focus_iri),
-            'meta': self._render_meta(_graph, focus_iri),
+            'links': self._render_links(data, focus_iri),
+            'meta': self._render_meta(data, focus_iri),
         }, indent=2)
 
     def _render_cardsearch(self, graph: rdf.RdfGraph, cardsearch_iri: str):
@@ -59,7 +60,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
         )
         return self._render_card(graph, _card)
 
-    def _render_card(self, graph: rdf.RdfGraph, card: str | rdf.RdfBlanknode):
+    def _render_card(self, graph: rdf.RdfGraph, card: rdf.RdfObject):
         # just the card contents
         if isinstance(card, str):
             _card_contents = next(graph.q(card, TROVE.resourceMetadata))
@@ -70,7 +71,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
                 if _pred == TROVE.resourceMetadata
             )
         else:
-            raise NotImplementedError
+            raise trove_exceptions.ExpectedIriOrBlanknode(card)
         assert isinstance(_card_contents, rdf.Literal)
         assert RDF.JSON in _card_contents.datatype_iris
         _json_contents = json.loads(_card_contents.unicode_value)
@@ -79,7 +80,7 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
         return _json_contents
 
     def _render_meta(self, graph: rdf.RdfGraph, focus_iri: str):
-        _meta = {}
+        _meta: dict[str, int | str] = {}
         try:
             _total = next(graph.q(focus_iri, TROVE.totalResultCount))
             if isinstance(_total, int):

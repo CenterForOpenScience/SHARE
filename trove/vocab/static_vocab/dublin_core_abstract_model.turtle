@@ -1,0 +1,43 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcam: <http://purl.org/dc/dcam/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://purl.org/dc/dcam/>
+    dcterms:modified "2012-06-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    dcterms:publisher <http://purl.org/dc/aboutdcmi#DCMI> ;
+    dcterms:title "Metadata terms for vocabulary description"@en .
+
+dcam:VocabularyEncodingScheme
+    dcterms:issued "2008-01-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdfs:Class ;
+    rdfs:comment "An enumerated set of resources."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/dcam/> ;
+    rdfs:label "Vocabulary Encoding Scheme"@en ;
+    rdfs:seeAlso <https://www.dublincore.org/specifications/dublin-core/2007/06/04/abstract-model/> .
+
+dcam:domainIncludes
+    dcterms:issued "2020-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdf:Property ;
+    rdfs:comment "A suggested class for subjects of this property."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/dcam/> ;
+    rdfs:label "Domain Includes"@en .
+
+dcam:memberOf
+    dcterms:issued "2008-01-14"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdf:Property ;
+    rdfs:comment "A relationship between a resource and a vocabulary encoding scheme which indicates that the resource is a member of a set."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/dcam/> ;
+    rdfs:label "Member Of"@en ;
+    rdfs:range dcam:VocabularyEncodingScheme ;
+    rdfs:seeAlso <https://www.dublincore.org/specifications/dublin-core/2007/06/04/abstract-model/> .
+
+dcam:rangeIncludes
+    dcterms:issued "2020-01-20"^^<http://www.w3.org/2001/XMLSchema#date> ;
+    a rdf:Property ;
+    rdfs:comment "A suggested class for values of this property."@en ;
+    rdfs:isDefinedBy <http://purl.org/dc/dcam/> ;
+    rdfs:label "Range Includes"@en .
+

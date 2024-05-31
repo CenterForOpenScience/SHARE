@@ -4,7 +4,7 @@ from primitive_metadata import primitive_rdf as rdf
 from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
 
 from trove.vocab.namespaces import (
-    DCMITYPE,
+    DCTYPE,
     DCTERMS,
     FOAF,
     OAI_DC,
@@ -43,6 +43,11 @@ class OaiDcXmlDeriver(IndexcardDeriver):
     @staticmethod
     def deriver_iri() -> str:
         return str(OAI_DC)
+
+    # abstract method from IndexcardDeriver
+    @staticmethod
+    def derived_datatype_iris() -> tuple[str]:
+        return (RDF.XMLLiteral,)
 
     # abstract method from IndexcardDeriver
     def should_skip(self) -> bool:
@@ -105,7 +110,7 @@ class OaiDcXmlDeriver(IndexcardDeriver):
             SubEl(dc_element, ns('dc', 'date'), format_datetime(_date))
 
         for _type_iri in sorted(self.q(RDF.type)):
-            for _type_namespace in (OSFMAP, DCMITYPE, SHAREv2):
+            for _type_namespace in (OSFMAP, DCTYPE, SHAREv2):
                 if _type_iri in _type_namespace:
                     SubEl(
                         dc_element,
