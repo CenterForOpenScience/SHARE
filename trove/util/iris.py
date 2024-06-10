@@ -53,7 +53,7 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
             return (iri, _scheme)
     else:  # may omit scheme only if `://`
         if not iri.startswith(COLON_SLASH_SLASH):
-            raise trove_exceptions.InvalidIri(f'does not look like an iri (got "{iri}")')
+            raise trove_exceptions.IriInvalid(f'does not look like an iri (got "{iri}")')
         _scheme = ''
         _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
