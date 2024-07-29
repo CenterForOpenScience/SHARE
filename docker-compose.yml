@@ -20,6 +20,10 @@ volumes:
   share_requirements_vol:
     external: false
 
+networks:
+  share_network:
+    driver: bridge
+
 services:
 
 
@@ -78,6 +82,8 @@ services:
       interval: 1s
       timeout: 5s
       retries: 120
+    networks:
+      - share_network
 
   elastic8:
     depends_on:
@@ -92,7 +98,7 @@ services:
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-secretsecret}
       - node.name=singlenode
-      - cluster.initial_master_nodes=singlenode
+      - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
@@ -105,6 +111,9 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   rabbitmq:
     image: rabbitmq:management
@@ -114,6 +123,9 @@ services:
     volumes:
       - rabbitmq_vol:/var/lib/rabbitmq
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   postgres:
     image: postgres:10
@@ -134,6 +146,9 @@ services:
     volumes:
       - "${POSTGRES_DATA_VOL:-postgres_data_vol}:/var/lib/postgresql/data/"
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   ##################
   # SHARE software #
@@ -156,6 +171,9 @@ services:
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/python3.10
+    networks:
+      - share_network
+    platform: linux/amd64
 
   frontend:
     image: quay.io/centerforopenscience/share-web:develop-local
@@ -165,6 +183,9 @@ services:
     volumes:
       - share_dist_vol:/code/dist
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   worker:
     image: quay.io/centerforopenscience/share:develop
@@ -185,6 +206,9 @@ services:
       ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   web:
     image: quay.io/centerforopenscience/share:develop
@@ -206,6 +230,9 @@ services:
       ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     stdin_open: true
+    networks:
+      - share_network
+    platform: linux/amd64
 
   indexer:
     image: quay.io/centerforopenscience/share:develop
@@ -225,4 +252,6 @@ services:
       ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
     restart: unless-stopped
     stdin_open: true
-
+    networks:
+      - share_network
+    platform: linux/amd64
