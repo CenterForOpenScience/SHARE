@@ -173,6 +173,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'api.middleware.DeprecationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 INTERNAL_IPS = ['127.0.0.1']
