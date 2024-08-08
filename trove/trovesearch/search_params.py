@@ -514,6 +514,10 @@ class ValuesearchParams(CardsearchParams):
 ###
 # local helpers
 
+def is_globpath(path: tuple[str, ...]) -> bool:
+    return all(_pathstep == GLOB_PATHSTEP for _pathstep in path)
+
+
 def propertypathstep_key(pathstep: str) -> str:
     if pathstep == GLOB_PATHSTEP:
         return pathstep
