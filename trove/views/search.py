@@ -4,7 +4,7 @@ from django import http
 from django.views import View
 from primitive_metadata import gather
 
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 from trove import exceptions as trove_exceptions
 from trove.trovesearch.search_params import (
     CardsearchParams,
@@ -79,7 +79,7 @@ def _parse_request(request: http.HttpRequest, renderer, search_params_dataclass)
     _search_params = search_params_dataclass.from_querystring(
         request.META['QUERY_STRING'],
     )
-    _specific_index = IndexStrategy.get_for_trove_search(_search_params.index_strategy_name)
+    _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
     # TODO: 404 for unknown strategy
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,

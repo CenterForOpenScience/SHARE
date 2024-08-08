@@ -7,7 +7,6 @@ from django.utils import timezone
 from primitive_metadata import primitive_rdf as rdf
 
 from share import models as share_db  # TODO: break this dependency
-from share.search.index_messenger import IndexMessenger
 from share.util.checksum_iri import ChecksumIri
 from trove.exceptions import DigestiveError
 from trove.models.resource_identifier import ResourceIdentifier
@@ -46,6 +45,7 @@ class IndexcardManager(models.Manager):
                     .filter(id__in=_seen_focus_identifier_ids.intersection(_focus_identifier_ids))
                 )
                 raise DigestiveError(f'duplicate focus iris: {list(_duplicates)}')
+            _seen_focus_identifier_ids.update(_focus_identifier_ids)
             _indexcards.append(_indexcard)
         # cards seen previously on this suid (but not this time) treated as deleted
         for _indexcard_to_delete in (
@@ -220,6 +220,8 @@ class Indexcard(models.Model):
             .filter(upriver_indexcard=self)
             .delete()
         )
+        # TODO: rearrange to avoid local import
+        from share.search.index_messenger import IndexMessenger
         IndexMessenger().notify_indexcard_update([self])
 
     def __repr__(self):

@@ -40,7 +40,7 @@ section, table {
           <th>{% trans "is default for searching" %}</th>
           <th>{% trans "doc count" %}</th>
           <th>{% trans "actions" %}</th>
-          <th>{% trans "backfill" %}</th>
+          <th>{% trans "links" %}</th>
         </tr>
         <tr>
           <td>{{ indexes.current.status.creation_date|default:"--" }}</td>
@@ -89,10 +89,11 @@ section, table {
           <td>
             {% if indexes.current.backfill.backfill_admin_url %}
               <p><a href="{{indexes.current.backfill.backfill_admin_url}}">
-                {{ indexes.current.backfill.backfill_status }}
+                  {% trans "backfill" %}:{{ indexes.current.backfill.backfill_status }}
               </a></p>
-            {% else %}
-            --
+            {% endif %}
+            {% if indexes.current.status.creation_date %}
+              <p><a href="{{mappings_url_prefix}}{{indexes.current.status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
             {% endif %}
           </td>
         </tr>
@@ -148,7 +149,11 @@ section, table {
               </form>
               {% endif %}
             </td>
-            <td><i>{{ index_status.specific_indexname }}</i></td>
+            <td><i>{{ index_status.specific_indexname }}</i>
+            {% if index_status.creation_date %}
+              <p><a href="{{mappings_url_prefix}}{{index_status.specific_indexname}}" target="_blank">({% trans "mappings" %})</a></p>
+            {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </table>

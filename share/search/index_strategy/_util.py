@@ -2,6 +2,7 @@ import base64
 import dataclasses
 import datetime
 import json
+import typing
 
 
 def timestamp_to_readable_datetime(timestamp_in_milliseconds):
@@ -16,10 +17,13 @@ def timestamp_to_readable_datetime(timestamp_in_milliseconds):
 
 def encode_cursor_dataclass(dataclass_instance) -> str:
     _as_json = json.dumps(dataclasses.astuple(dataclass_instance))
-    _cursor_bytes = base64.b64encode(_as_json.encode())
+    _cursor_bytes = base64.urlsafe_b64encode(_as_json.encode())
     return _cursor_bytes.decode()
 
 
-def decode_cursor_dataclass(cursor: str, dataclass_class) -> dict:
-    _as_list = json.loads(base64.b64decode(cursor))
+_SomeDataclass = typing.TypeVar('_SomeDataclass')
+
+
+def decode_cursor_dataclass(cursor: str, dataclass_class: type[_SomeDataclass]) -> _SomeDataclass:
+    _as_list = json.loads(base64.urlsafe_b64decode(cursor))
     return dataclass_class(*_as_list)

@@ -11,7 +11,12 @@ from django.conf import settings
 from kombu.mixins import ConsumerMixin
 import sentry_sdk
 
-from share.search import exceptions, messages, IndexStrategy, IndexMessenger
+from share.search import (
+    exceptions,
+    messages,
+    index_strategy,
+    IndexMessenger,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +57,7 @@ class IndexerDaemonControl:
         return _daemon
 
     def start_all_daemonthreads(self):
-        for _index_strategy in IndexStrategy.all_strategies():
+        for _index_strategy in index_strategy.all_index_strategies().values():
             self.start_daemonthreads_for_strategy(_index_strategy)
 
     def stop_daemonthreads(self, *, wait=False):
@@ -176,7 +181,7 @@ class IndexerDaemon:
 
 @dataclasses.dataclass
 class MessageHandlingLoop:
-    index_strategy: IndexStrategy
+    index_strategy: index_strategy.IndexStrategy
     message_type: messages.MessageType
     stop_event: threading.Event
     local_message_queue: queue.Queue
@@ -243,7 +248,6 @@ class MessageHandlingLoop:
         return daemon_messages_by_target_id
 
     def _handle_some_messages(self):
-        # each message corresponds to one action on this daemon's index
         start_time = time.time()
         doc_count, error_count = 0, 0
         daemon_messages_by_target_id = self._get_daemon_messages()
@@ -265,7 +269,7 @@ class MessageHandlingLoop:
                     logger.error('%sEncountered error: %s', self.log_prefix, message_response.error_text)
                     sentry_sdk.capture_message('error handling message', extras={'message_response': message_response})
                 target_id = message_response.index_message.target_id
-                for daemon_message in daemon_messages_by_target_id.pop(target_id):
+                for daemon_message in daemon_messages_by_target_id.pop(target_id, ()):
                     daemon_message.ack()  # finally set it free
             if daemon_messages_by_target_id:  # should be empty by now
                 logger.error('%sUnhandled messages?? %s', self.log_prefix, len(daemon_messages_by_target_id))

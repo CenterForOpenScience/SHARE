@@ -12,7 +12,7 @@ import sentry_sdk
 
 from share.models import FeatureFlag
 from share.search.messages import MessagesChunk, MessageType
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class IndexMessenger:
             if celery_app is None
             else celery_app
         )
-        self.index_strategys = index_strategys or tuple(IndexStrategy.all_strategies())
+        self.index_strategys = index_strategys or tuple(index_strategy.all_index_strategies().values())
 
     def notify_indexcard_update(self, indexcards, *, urgent=False):
         self.send_messages_chunk(
@@ -62,18 +62,18 @@ class IndexMessenger:
         )
 
     def incoming_messagequeue_iter(self, channel) -> typing.Iterable[kombu.Queue]:
-        for index_strategy in self.index_strategys:
-            yield kombu.Queue(channel=channel, name=index_strategy.urgent_messagequeue_name)
-            yield kombu.Queue(channel=channel, name=index_strategy.nonurgent_messagequeue_name)
+        for _index_strategy in self.index_strategys:
+            yield kombu.Queue(channel=channel, name=_index_strategy.urgent_messagequeue_name)
+            yield kombu.Queue(channel=channel, name=_index_strategy.nonurgent_messagequeue_name)
 
     def outgoing_messagequeue_iter(self, connection, message_type: MessageType, urgent: bool) -> typing.Iterable[kombu.simple.SimpleQueue]:
-        for index_strategy in self.index_strategys:
-            if message_type in index_strategy.supported_message_types:
+        for _index_strategy in self.index_strategys:
+            if message_type in _index_strategy.supported_message_types:
                 yield connection.SimpleQueue(
                     name=(
-                        index_strategy.urgent_messagequeue_name
+                        _index_strategy.urgent_messagequeue_name
                         if urgent
-                        else index_strategy.nonurgent_messagequeue_name
+                        else _index_strategy.nonurgent_messagequeue_name
                     ),
                 )
 
