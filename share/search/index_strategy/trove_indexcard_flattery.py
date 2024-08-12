@@ -29,6 +29,7 @@ from trove.trovesearch.search_params import (
     Textsegment,
     PageParam,
     is_globpath,
+    make_globpath,
 )
 from trove.trovesearch.search_response import (
     CardsearchResponse,
@@ -68,7 +69,7 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardFlatteryIndexStrategy',
-        hexdigest='e571a834ca53f0aa6e068cbb078d98cce7dfa409cfe491539de81be6a84f8bfe',
+        hexdigest='0b7602379f0aa009e483e91c964c00f6c618438b5d778a43c0de663a883ce834',
     )
 
     # abstract method from IndexStrategy
@@ -144,6 +145,11 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
             try:
                 _es8_response = self.index_strategy.es8_client.search(
                     index=self.indexname,
+                    source=False,  # no need to get _source, card identifiers are enough
+                    fields=['indexcard_iri'],
+                    highlight={
+                        'fields': {'dynamics.text_by_propertypath.*': {}},
+                    },
                     **_search_kwargs,
                 )
             except elasticsearch8.TransportError as error:
@@ -228,7 +234,6 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
             es8_response: dict,
             cursor: '_CardsearchCursor',
         ) -> CardsearchResponse:
-            logger.critical(cursor)
             _es8_total = es8_response['hits']['total']
             if _es8_total['relation'] != 'eq':
                 cursor.result_count = -1  # "too many"
@@ -254,9 +259,9 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
             else:
                 _should_start_reproducible_randomness = (
                     cursor.random_sort
-                    and not cursor.has_many_more()
                     and cursor.is_first_page()
                     and not cursor.first_page_pks
+                    and not cursor.has_many_more()
                     and any(
                         not _filter.is_type_filter()  # look for a non-default filter
                         for _filter in cardsearch_params.cardsearch_filter_set
@@ -291,6 +296,7 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterator[TextMatchEvidence]:
+            logger.critical(json.dumps(es8_hit, indent=2))
             for _innerhit_group in es8_hit.get('inner_hits', {}).values():
                 for _innerhit in _innerhit_group['hits']['hits']:
                     _property_path = tuple(
@@ -332,10 +338,7 @@ def _build_index_mappings():
         'dynamic': 'false',
         'dynamic_templates': [
             {'dynamic_text': {
-                'path_match': [
-                    'dynamics.text_by_propertypath.*',
-                    'dynamics.text_by_pathdepth.*',
-                ],
+                'path_match': 'dynamics.text_by_propertypath.*',
                 'mapping': _text,
             }},
             {'dynamic_date': {
@@ -371,7 +374,6 @@ def _build_index_mappings():
                 'type': 'object',
                 'properties': {
                     'text_by_propertypath': {'type': 'object', 'dynamic': True},
-                    'text_by_pathdepth': {'type': 'object', 'dynamic': True},
                     'date_by_propertypath': {'type': 'object', 'dynamic': True},
                 },
             },
@@ -495,10 +497,15 @@ class _SourcedocBuilder:
             'suffuniq': _suffuniq_flattened,
         }
 
-    def _texts_by_propertypath(self, nested_texts):
+    def _texts_by_propertypath(self, text_values):
+        _texts_by_path: dict[tuple[str, ...], set[str]] = defaultdict(set)
+        for (_path, _language_iris), _value_set in text_values.items():
+            _texts_by_path[_path].update(_value_set)
+            # also index by globpath, for easy querying
+            _texts_by_path[make_globpath(len(_path))].update(_value_set)
         return {
             _propertypath_as_field_name(_path): list(_value_set)
-            for (_path, _language_iris), _value_set in nested_texts.items()
+            for _path, _value_set in _texts_by_path.items()
         }
 
     def _dates_by_propertypath(self, nested_dates):
@@ -528,8 +535,6 @@ class _CardsearchQueryBuilder:
             'sort': list(self._cardsearch_sorts()) or None,
             'from_': self.cardsearch_cursor.cardsearch_start_index(),
             'size': self.cardsearch_cursor.page_size,
-            'source': False,  # no need to get _source, card identifiers are enough
-            'docvalue_fields': ['indexcard_iri'],
         }
 
     @functools.cached_property
@@ -622,11 +627,7 @@ class _CardsearchQueryBuilder:
         ])
 
     def _cardsearch_path_presence_query(self, path: tuple[str, ...]):
-        return (
-            {'exists': {'field': f'iri_by_propertypath_length.exact.{len(path)}'}}
-            if is_globpath(path)
-            else {'term': {'propertypaths_present': _propertypath_as_keyword(path)}}
-        )
+        return {'term': {'propertypaths_present': _propertypath_as_keyword(path)}}
 
     def _cardsearch_iri_filter(self, search_filter) -> dict:
         return _any_query([
@@ -635,11 +636,7 @@ class _CardsearchQueryBuilder:
         ])
 
     def _cardsearch_path_iri_query(self, path, value_set):
-        _field = (
-            f'iri_by_propertypath_length.suffuniq.{len(path)}'
-            if is_globpath(path)
-            else f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
-        )
+        _field = f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
         return {'terms': {_field: _suffuniq_iris(value_set)}}
 
     def _cardsearch_date_filter(self, search_filter):
@@ -683,11 +680,7 @@ class _CardsearchQueryBuilder:
                 #     yield 'should', self._fuzzy_text_should_query(_textsegment)
 
     def _text_field_name(self, propertypath: tuple[str, ...]):
-        return (
-            f'dynamics.text_by_propertypath_length.{len(propertypath)}'
-            if is_globpath(propertypath)
-            else f'dyamics.text_by_propertypath.{_propertypath_as_field_name(propertypath)}'
-        )
+        return f'dynamics.text_by_propertypath.{_propertypath_as_field_name(propertypath)}'
 
     def _exact_text_query(self, textsegment: Textsegment) -> dict:
         # TODO: textsegment.is_openended (prefix query)
