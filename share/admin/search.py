@@ -1,6 +1,6 @@
 import logging
 
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
@@ -20,6 +20,7 @@ def search_indexes_view(request):
             'admin/search-indexes.html',
             context={
                 'search_url_prefix': _search_url_prefix(),
+                'mappings_url_prefix': _mappings_url_prefix(),
                 'index_status_by_strategy': _index_status_by_strategy(),
             },
         )
@@ -35,9 +36,20 @@ def search_indexes_view(request):
         return HttpResponseRedirect('#'.join((request.path, _redirect_id)))
 
 
+def search_index_mappings_view(request, index_name):
+    _specific_index = IndexStrategy.get_specific_index(index_name)
+    _mappings = _specific_index.pls_get_mappings()
+    return JsonResponse(_mappings)
+
+
 def _search_url_prefix():
     api_url = reverse('api:search')
     return f'{api_url}?indexStrategy='  # append strategyname or indexname
+
+
+def _mappings_url_prefix():
+    # return reverse('admin:search-index-mappings', kwargs={'index_name': ''})
+    return '/admin/search-index-mappings/'
 
 
 def _index_status_by_strategy():

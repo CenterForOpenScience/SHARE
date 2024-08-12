@@ -325,6 +325,9 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             raise NotImplementedError
 
+        def pls_get_mappings(self) -> dict:
+            raise NotImplementedError
+
         # TODO someday:
         # def pls_handle_propertysearch(self, propertysearch_params: PropertysearchParams) -> PropertysearchResponse:
         #     raise NotImplementedError

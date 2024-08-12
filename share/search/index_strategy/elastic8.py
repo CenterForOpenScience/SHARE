@@ -1,6 +1,5 @@
 import abc
 import collections
-import functools
 import logging
 import typing
 
@@ -326,3 +325,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
             logger.warning('%r: no longer kept live', self)
+
+        def pls_get_mappings(self):
+            return self.index_strategy.es8_client.indices.get_mapping(index=self.indexname).body
