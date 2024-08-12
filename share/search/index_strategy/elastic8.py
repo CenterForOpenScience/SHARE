@@ -1,5 +1,6 @@
 import abc
 import collections
+import functools
 import logging
 import typing
 

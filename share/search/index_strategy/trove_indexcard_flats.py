@@ -450,38 +450,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     ],
                     'size': len(cardsearch_params.related_property_paths),
                 }}
-            if cardsearch_params.unnamed_iri_values:
-                _aggs['global_agg'] = {
-                    'global': {},
-                    'aggs': {
-                        'filtervalue_info': {
-                            'nested': {'path': 'nested_iri'},
-                            'aggs': {
-                                'iri_values': {
-                                    'terms': {
-                                        'field': 'nested_iri.iri_value',
-                                        'include': list(cardsearch_params.unnamed_iri_values),
-                                        'size': len(cardsearch_params.unnamed_iri_values),
-                                    },
-                                    'aggs': {
-                                        'type_iri': {'terms': {
-                                            'field': 'nested_iri.value_type_iri',
-                                        }},
-                                        'name_text': {'terms': {
-                                            'field': 'nested_iri.value_name_text.raw',
-                                        }},
-                                        'title_text': {'terms': {
-                                            'field': 'nested_iri.value_title_text.raw',
-                                        }},
-                                        'label_text': {'terms': {
-                                            'field': 'nested_iri.value_label_text.raw',
-                                        }},
-                                    },
-                                },
-                            },
-                        },
-                    },
-                }
             return _aggs
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
@@ -775,13 +743,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         _result.card_uuid()
                         for _result in _results
                     )
-            _filtervalue_info = []
-            if cardsearch_params.unnamed_iri_values:
-                _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
-                _filtervalue_info.extend(
-                    self._valuesearch_iri_result(_iri_bucket)
-                    for _iri_bucket in _filtervalue_agg['buckets']
-                )
             _relatedproperty_list = []
             if cardsearch_params.related_property_paths:
                 _relatedproperty_list.extend(
@@ -802,7 +763,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     else cursor.result_count
                 ),
                 search_result_page=_results,
-                filtervalue_info=_filtervalue_info,
                 related_propertypath_results=_relatedproperty_list,
                 next_page_cursor=cursor.next_cursor(),
                 prev_page_cursor=cursor.prev_cursor(),

@@ -16,10 +16,10 @@ def timestamp_to_readable_datetime(timestamp_in_milliseconds):
 
 def encode_cursor_dataclass(dataclass_instance) -> str:
     _as_json = json.dumps(dataclasses.astuple(dataclass_instance))
-    _cursor_bytes = base64.b64encode(_as_json.encode())
+    _cursor_bytes = base64.urlsafe_b64encode(_as_json.encode())
     return _cursor_bytes.decode()
 
 
 def decode_cursor_dataclass(cursor: str, dataclass_class) -> dict:
-    _as_list = json.loads(base64.b64decode(cursor))
+    _as_list = json.loads(base64.urlsafe_b64decode(cursor))
     return dataclass_class(*_as_list)

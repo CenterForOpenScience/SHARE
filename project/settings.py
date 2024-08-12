@@ -350,6 +350,10 @@ if ELASTICSEARCH8_URL:
             'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy',
             'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
         },
+        'trove_indexcard_flattery': {
+            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard_flattery.TroveIndexcardFlatteryIndexStrategy',
+            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
+        },
     })
 DEFAULT_INDEX_STRATEGY_FOR_LEGACY_SEARCH = (
     'sharev2_elastic5'

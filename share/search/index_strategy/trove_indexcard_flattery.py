@@ -5,11 +5,11 @@ from collections import abc
 import contextlib
 import dataclasses
 import datetime
+import functools
 import json
 import logging
 import re
-import uuid
-from typing import Iterable, ClassVar, Optional, Iterator
+from typing import Iterable, ClassVar, Iterator
 
 from django.conf import settings
 from django.db.models import Exists, OuterRef
@@ -27,7 +27,6 @@ from trove.trovesearch.search_params import (
     ValuesearchParams,
     SearchFilter,
     Textsegment,
-    SortParam,
     PageParam,
     is_globpath,
 )
@@ -65,11 +64,11 @@ KEYWORD_LENGTH_MAX = 8191  # skip keyword terms that might exceed lucene's inter
 # (see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html)
 
 
-class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
+class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardFlatteryIndexStrategy',
-        hexdigest='',
+        hexdigest='e571a834ca53f0aa6e068cbb078d98cce7dfa409cfe491539de81be6a84f8bfe',
     )
 
     # abstract method from IndexStrategy
@@ -89,185 +88,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         return {}
 
     def index_mappings(self):
-        _keyword = {'type': 'keyword', 'ignore_above': KEYWORD_LENGTH_MAX}
-        _flattened = {'type': 'flattened', 'ignore_above': KEYWORD_LENGTH_MAX}
-        _exact_and_suffuniq_keywords = {
-            'type': 'object',
-            'properties': {  # for indexing iri values two ways:
-                'exact': _keyword,  # the exact iri value (e.g. "https://foo.example/bar/")
-                'suffuniq': _keyword,  # "sufficiently unique" (e.g. "://foo.example/bar")
-            },
-        }
-        _text = {
-            'type': 'text',
-            'fields': {'raw': _keyword},
-            # TODO: compare highlight performance tradeoffs -- how much do these help?
-            'index_options': 'offsets',  # for faster highlighting
-            'store': True,  # avoid loading _source to render highlights
-        }
-        return {
-            'dynamic': 'false',
-            'dynamic_templates': [
-                {'dynamic_text': {
-                    'path_match': [
-                        'dynamics.text_by_propertypath.*',
-                        'dynamics.text_by_pathdepth.*',
-                    ],
-                    'mapping': _text,
-                }},
-                {'dynamic_date': {
-                    'path_match': 'dynamics.date_by_propertypath.*',
-                    'mapping': {
-                        'type': 'date',
-                        'format': 'strict_date_optional_time',
-                    },
-                }},
-            ],
-            'properties': {
-                # simple keyword properties
-                'indexcard_uuid': _keyword,
-                'indexcard_pk': _keyword,
-                'suid': {
-                    'type': 'object',
-                    'properties': {
-                        'source_config_label': _keyword,
-                        'source_record_identifier': _keyword,
-                    },
-                },
-                'focus_iri': _exact_and_suffuniq_keywords,
-                'propertypaths_present': _keyword,
-
-                # flattened properties (dynamic sub-properties with keyword values)
-                'iri_by_propertypath': {
-                    'properties': {
-                        'exact': _flattened,
-                        'suffuniq': _flattened,
-                    },
-                },
-
-                # dynamic properties (see dynamic_templates, above)
-                'dynamics': {
-                    'type': 'object',
-                    'properties': {
-                        'text_by_propertypath': {'dynamic': True},
-                        'text_by_pathdepth': {'dynamic': True},
-                        'date_by_propertypath': {'dynamic': True},
-                    },
-                },
-
-                # nested properties
-                # (warning: SLOW, meant only for value-search with `valueSearchText` or
-                # `valueSearchFilter[resourceType]` (...and even that seems a bit much))
-                'iri_usage': {
-                    'type': 'nested',
-                    'properties': {
-                        'iri': _exact_and_suffuniq_keywords,
-                        # TODO: consider 'iri_synonyms': _exact_and_suffuniq_keywords,
-                        'propertypath': _keyword,
-                        'type_iri': _exact_and_suffuniq_keywords,
-                        'depth': {'type': 'keyword'},  # numeric value as keyword (used for 'term' filter)
-                        'name_text': {
-                            **_text,
-                            'copy_to': 'iri_usage.namelike_text',
-                        },
-                        'title_text': {
-                            **_text,
-                            'copy_to': 'iri_usage.namelike_text',
-                        },
-                        'label_text': {
-                            **_text,
-                            'copy_to': 'iri_usage.namelike_text',
-                        },
-                        'namelike_text': _text,
-                    },
-                },
-            },
-        }
-
-    def _build_sourcedoc(self, indexcard_rdf):
-        _rdfdoc = primitive_rdf.RdfGraph(indexcard_rdf.as_rdf_tripledict())
-        if _should_skip_card(indexcard_rdf, _rdfdoc):
-            return None  # will be deleted from the index
-        _focus_iris = {indexcard_rdf.focus_iri}
-        for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all():
-            _focus_iris.update(_identifier.raw_iri_list)
-        _iri_values, _date_values, _text_values, _pathset = _PredicatePathWalker.gather_values(
-            _rdfdoc, indexcard_rdf.focus_iri
-        )
-        return {
-            'indexcard_uuid': str(indexcard_rdf.indexcard.uuid),
-            'indexcard_pk': str(indexcard_rdf.indexcard.pk),
-            'suid': {
-                'source_record_identifier': indexcard_rdf.indexcard.source_record_suid.identifier,
-                'source_config_label': indexcard_rdf.indexcard.source_record_suid.source_config.label,
-            },
-            'focus_iri': _exact_and_suffuniq_iris(_focus_iris),
-            'propertypaths_present': [_propertypath_as_keyword(_path) for _path in _pathset],
-            'iri_by_propertypath': self._iris_by_propertypath(_iri_values),
-            'dynamics': {
-                'text_by_propertypath': self._texts_by_propertypath(_text_values),
-                'text_by_propertypath_length': self._texts_by_propertypath_length(_text_values),
-                'date_by_propertypath': self._dates_by_propertypath(_date_values),
-            },
-            'iri_usage': self._nested_iri_usages(_iri_values, _rdfdoc),
-        }
-
-    def _nested_iri_usages(self, nested_iris, rdfdoc):
-        return list(filter(bool, (
-            self._iri_usage_sourcedoc(_nested_iri_key, _iris, rdfdoc)
-            for _nested_iri_key, _iris in nested_iris.items()
-        )))
-
-    def _iri_usage_sourcedoc(self, iri_key: _NestedIriKey, iris, rdfdoc):
-        _iris_with_synonyms = set(filter(is_worthwhile_iri, iris))
-        for _iri in iris:
-            _iris_with_synonyms.update(
-                filter(is_worthwhile_iri, rdfdoc.q(_iri, OWL.sameAs)),
-            )
-        if not _iris_with_synonyms:
-            return None
-        return {
-            'iri': _exact_and_suffuniq_iris(_iris_with_synonyms),
-            'propertypath': _propertypath_as_keyword(iri_key.path),
-            'propertypath_length': str(len(iri_key.path)),
-            'type_iri': _exact_and_suffuniq_iris(iri_key.type_iris),
-            'label_text': list(iri_key.label_text),
-            'name_text': list(iri_key.name_text),
-            'title_text': list(iri_key.title_text),
-        }
-
-    def _iris_by_propertypath(self, nested_iris: dict[_NestedIriKey, set[str]]):
-        _iris_by_path = defaultdict(set)
-        for _iri_key, _iris in nested_iris.items():
-            _iris_by_path[_iri_key.path].update(_iris)
-        _exact_flattened = {}
-        _suffuniq_flattened = {}
-        for _path, _iris in _iris_by_path.items():
-            _key = _propertypath_as_field_name(_path)
-            _exact_flattened[_key] = list(_iris)
-            _suffuniq_flattened[_key] = _suffuniq_iris(_iris)
-        return {
-            'exact': _exact_flattened,
-            'suffuniq': _suffuniq_flattened,
-        }
-
-    def _texts_by_propertypath(self, nested_texts):
-        return {
-            _propertypath_as_field_name(_path): list(_value_set)
-            for (_path, _language_iris), _value_set in nested_texts.items()
-        }
-
-    def _texts_by_propertypath_length(self, nested_texts):
-        return {
-            str(len(_path)): list(_value_set)
-            for (_path, _language_iris), _value_set in nested_texts.items()
-        }
-
-    def _dates_by_propertypath(self, nested_dates):
-        return {
-            _propertypath_as_field_name(_path): list(_value_set)
-            for _path, _value_set in nested_dates.items()
-        }
+        return _build_index_mappings()
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _indexcard_rdf_qs = (
@@ -290,18 +111,18 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             _suid = _indexcard_rdf.indexcard.source_record_suid
             if _suid.has_forecompat_replacement():
                 continue  # skip this one, let it get deleted
-            _sourcedoc = self._build_sourcedoc(_indexcard_rdf)
-            if _sourcedoc:
+            _docbuilder = _SourcedocBuilder(_indexcard_rdf)
+            if not _docbuilder.should_skip():
                 _index_action = self.build_index_action(
-                    doc_id=_indexcard_rdf.indexcard.get_iri(),
-                    doc_source=_sourcedoc,
+                    doc_id=str(_indexcard_rdf.indexcard.pk),
+                    doc_source=_docbuilder.build(),
                 )
                 _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
                 yield _indexcard_rdf.indexcard_id, _index_action
         # delete any that don't have "latest" rdf and derived osfmap_json
         _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:
-            yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
+            yield _indexcard.id, self.build_delete_action(str(_indexcard.pk))
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
@@ -315,20 +136,9 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             )
 
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
-            _cursor = _CardsearchCursor.from_params(cardsearch_params)
-            _query = self._cardsearch_query(
-                cardsearch_params.cardsearch_filter_set,
-                cardsearch_params.cardsearch_textsegment_set,
-                cardsearch_cursor=_cursor,
-            )
-            _search_kwargs = dict(
-                query=_query,
-                aggs=self._cardsearch_aggs(cardsearch_params),
-                sort=list(self._cardsearch_sorts(cardsearch_params.sort_list)) or None,
-                from_=_cursor.cardsearch_start_index(),
-                size=_cursor.page_size,
-                source=False,  # no need to get _source; _id is enough
-            )
+            _querybuilder = _CardsearchQueryBuilder(cardsearch_params)
+            _search_kwargs = _querybuilder.build()
+            _cursor = _querybuilder.cardsearch_cursor
             if settings.DEBUG:
                 logger.info(json.dumps(_search_kwargs, indent=2))
             try:
@@ -341,27 +151,9 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             return self._cardsearch_response(cardsearch_params, _es8_response, _cursor)
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
-            _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
-            _is_date_search = all(
-                is_date_property(_path[-1])
-                for _path in valuesearch_params.valuesearch_propertypath_set
-            )
-            _search_kwargs = dict(
-                query=self._cardsearch_query(
-                    valuesearch_params.cardsearch_filter_set,
-                    valuesearch_params.cardsearch_textsegment_set,
-                    additional_filters=[{'terms': {'propertypaths_present': [
-                        _propertypath_as_keyword(_path)
-                        for _path in valuesearch_params.valuesearch_propertypath_set
-                    ]}}],
-                ),
-                size=0,  # ignore cardsearch hits; just want the aggs
-                aggs=(
-                    self._valuesearch_date_aggs(valuesearch_params)
-                    if _is_date_search
-                    else self._valuesearch_iri_aggs(valuesearch_params, _cursor)
-                ),
-            )
+            _querybuilder = _ValuesearchQueryBuilder(valuesearch_params)
+            _search_kwargs = _querybuilder.build()
+            _cursor = _querybuilder.valuesearch_cursor
             if settings.DEBUG:
                 logger.info(json.dumps(_search_kwargs, indent=2))
             try:
@@ -372,206 +164,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
             return self._valuesearch_response(valuesearch_params, _es8_response, _cursor)
-
-        ###
-        # query implementation
-
-        def _cardsearch_query(
-            self,
-            filter_set, textsegment_set, *,
-            additional_filters=None,
-            cardsearch_cursor: Optional['_CardsearchCursor'] = None,
-        ) -> dict:
-            _bool_query = {
-                'filter': additional_filters or [],
-                'must': [],
-                'must_not': [],
-                'should': [],
-            }
-            for _searchfilter in filter_set:
-                if _searchfilter.operator == SearchFilter.FilterOperator.NONE_OF:
-                    _bool_query['must_not'].append(self._cardsearch_iri_filter(_searchfilter))
-                elif _searchfilter.operator == SearchFilter.FilterOperator.ANY_OF:
-                    _bool_query['filter'].append(self._cardsearch_iri_filter(_searchfilter))
-                elif _searchfilter.operator == SearchFilter.FilterOperator.IS_PRESENT:
-                    _bool_query['filter'].append(self._cardsearch_presence_query(_searchfilter))
-                elif _searchfilter.operator == SearchFilter.FilterOperator.IS_ABSENT:
-                    _bool_query['must_not'].append(self._cardsearch_presence_query(_searchfilter))
-                elif _searchfilter.operator.is_date_operator():
-                    _bool_query['filter'].append(self._cardsearch_date_filter(_searchfilter))
-                else:
-                    raise ValueError(f'unknown filter operator {_searchfilter.operator}')
-            _textq_builder = self._SimpleTextQueryBuilder(
-                'dynamics.text_by_...TODO
-                relevance_matters=bool(cardsearch_cursor and not cardsearch_cursor.random_sort),
-            )
-            for _textsegment in textsegment_set:
-                for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
-                    _bool_query[_boolkey].extend(_textqueries)
-            if not cardsearch_cursor or not cardsearch_cursor.random_sort:
-                # no need for randomness
-                return {'bool': _bool_query}
-            if not cardsearch_cursor.first_page_uuids:
-                # independent random sample
-                return {
-                    'function_score': {
-                        'query': {'bool': _bool_query},
-                        'boost_mode': 'replace',
-                        'random_score': {},  # default random_score is fast and unpredictable
-                    },
-                }
-            _firstpage_uuid_query = {'terms': {'indexcard_uuid': cardsearch_cursor.first_page_uuids}}
-            if cardsearch_cursor.is_first_page():
-                # returning to a first page previously visited
-                _bool_query['filter'].append(_firstpage_uuid_query)
-                return {'bool': _bool_query}
-            # get a subsequent page using reproducible randomness
-            _bool_query['must_not'].append(_firstpage_uuid_query)
-            return {
-                'function_score': {
-                    'query': {'bool': _bool_query},
-                    'boost_mode': 'replace',
-                    'random_score': {
-                        'seed': ''.join(cardsearch_cursor.first_page_uuids),
-                        'field': 'indexcard_uuid',
-                    },
-                },
-            }
-
-        def _cardsearch_aggs(self, cardsearch_params):
-            _aggs = {}
-            if cardsearch_params.related_property_paths:
-                _aggs['related_propertypath_usage'] = {'terms': {
-                    'field': 'propertypaths_present',
-                    'include': [
-                        _propertypath_as_keyword(_path)
-                        for _path in cardsearch_params.related_property_paths
-                    ],
-                    'size': len(cardsearch_params.related_property_paths),
-                }}
-            if cardsearch_params.unnamed_iri_values:
-                _aggs['global_agg'] = {
-                    'global': {},
-                    'aggs': {
-                        'filtervalue_info': {
-                            'nested': {'path': 'nested_iri'},
-                            'aggs': {
-                                'agg_iri_values': {
-                                    'terms': {
-                                        'field': 'nested_iri.iri_value',
-                                        'include': list(cardsearch_params.unnamed_iri_values),
-                                        'size': len(cardsearch_params.unnamed_iri_values),
-                                    },
-                                    'aggs': {
-                                        'type_iri': {'terms': {
-                                            'field': 'nested_iri.type_iri',
-                                        }},
-                                        'name_text': {'terms': {
-                                            'field': 'nested_iri.name_text.raw',
-                                        }},
-                                        'title_text': {'terms': {
-                                            'field': 'nested_iri.title_text.raw',
-                                        }},
-                                        'label_text': {'terms': {
-                                            'field': 'nested_iri.label_text.raw',
-                                        }},
-                                    },
-                                },
-                            },
-                        },
-                    },
-                }
-            return _aggs
-
-        def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
-            _nested_iri_bool = {
-                'filter': [{'terms': {'nested_iri.suffuniq_path_from_focus': [
-                    _propertypath_as_keyword(_path)
-                    for _path in valuesearch_params.valuesearch_propertypath_set
-                ]}}],
-                'must': [],
-                'must_not': [],
-                'should': [],
-            }
-            _nested_terms_agg = {
-                'field': 'nested_iri.iri_value',
-                # WARNING: terribly inefficient pagination (part one)
-                'size': cursor.start_index + cursor.page_size + 1,
-            }
-            _iris = list(valuesearch_params.valuesearch_iris())
-            if _iris:
-                _nested_iri_bool['filter'].append({'terms': {
-                    'nested_iri.iri_value': _iris,
-                }})
-                _nested_terms_agg['size'] = len(_iris)
-                _nested_terms_agg['include'] = _iris
-            _type_iris = list(valuesearch_params.valuesearch_type_iris())
-            if _type_iris:
-                _nested_iri_bool['filter'].append({'terms': {
-                    'nested_iri.type_iri': _type_iris,
-                }})
-            _textq_builder = self._SimpleTextQueryBuilder('nested_iri.value_namelike_text')
-            for _textsegment in valuesearch_params.valuesearch_textsegment_set:
-                for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
-                    _nested_iri_bool[_boolkey].extend(_textqueries)
-            return {
-                'in_nested_iri': {
-                    'nested': {'path': 'nested_iri'},
-                    'aggs': {
-                        'value_at_propertypath': {
-                            'filter': {'bool': _nested_iri_bool},
-                            'aggs': {
-                                'agg_iri_values': {
-                                    'terms': _nested_terms_agg,
-                                    'aggs': {
-                                        'type_iri': {'terms': {
-                                            'field': 'nested_iri.type_iri',
-                                        }},
-                                        'name_text': {'terms': {
-                                            'field': 'nested_iri.name_text.raw',
-                                        }},
-                                        'title_text': {'terms': {
-                                            'field': 'nested_iri.title_text.raw',
-                                        }},
-                                        'label_text': {'terms': {
-                                            'field': 'nested_iri.label_text.raw',
-                                        }},
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            }
-
-        def _valuesearch_date_aggs(self, valuesearch_params: ValuesearchParams):
-            _aggs = {
-                'in_nested_date': {
-                    'nested': {'path': 'nested_date'},
-                    'aggs': {
-                        'value_at_propertypath': {
-                            'filter': {'terms': {
-                                'nested_date.suffuniq_path_from_focus': [
-                                    _propertypath_as_keyword(_path)
-                                    for _path in valuesearch_params.valuesearch_propertypath_set
-                                ],
-                            }},
-                            'aggs': {
-                                'count_by_year': {
-                                    'date_histogram': {
-                                        'field': 'nested_date.date_value',
-                                        'calendar_interval': 'year',
-                                        'format': 'yyyy',
-                                        'order': {'_key': 'desc'},
-                                        'min_doc_count': 1,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            }
-            return _aggs
 
         def _valuesearch_response(
             self,
@@ -630,68 +222,13 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 match_count=date_bucket['doc_count'],
             )
 
-        def _cardsearch_presence_query(self, search_filter) -> dict:
-            return _any_query([
-                self._cardsearch_path_presence_query(_path)
-                for _path in search_filter.propertypath_set
-            ])
-
-        def _cardsearch_path_presence_query(self, path: tuple[str, ...]):
-            return (
-                {'exists': {'field': f'iri_by_propertypath_length.exact.{len(path)}'}}
-                if is_globpath(path)
-                else {'term': {'propertypaths_present': _propertypath_as_keyword(path)}}
-            )
-
-        def _cardsearch_iri_filter(self, search_filter) -> dict:
-            return _any_query([
-                self._cardsearch_path_iri_query(_path, search_filter.value_set)
-                for _path in search_filter.propertypath_set
-            ])
-
-        def _cardsearch_path_iri_query(self, path, value_set):
-            _field = (
-                f'iri_by_propertypath_length.suffuniq.{len(path)}'
-                if is_globpath(path)
-                else f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
-            )
-            return {'terms': {_field: _suffuniq_iris(value_set)}}
-
-        def _cardsearch_date_filter(self, search_filter):
-            return _any_query([
-                self._date_filter_for_path(_path, search_filter.operator, search_filter.value_set)
-                for _path in search_filter.propertypath_set
-            ])
-
-        def _date_filter_for_path(self, path, filter_operator, value_set):
-            _field = f'dynamics.date_by_propertypath.{_propertypath_as_field_name(path)}'
-            if filter_operator == SearchFilter.FilterOperator.BEFORE:
-                _value = min(value_set)  # rely on string-comparable isoformat
-                return {'range': {_field: {'lt': _daterange_value(_value)}}}
-            elif filter_operator == SearchFilter.FilterOperator.AFTER:
-                _value = max(value_set)  # rely on string-comparable isoformat
-                return {'range': {_field: {'gt': _daterange_value(_value)}}}
-            elif filter_operator == SearchFilter.FilterOperator.AT_DATE:
-                return _any_query([
-                    {'range': {_field: {'gte': _filtervalue, 'lte': _filtervalue}}}
-                    for _filtervalue in map(_daterange_value, value_set)
-                ])
-            else:
-                raise ValueError(f'invalid date filter operator (got {filter_operator})')
-
-        def _cardsearch_sorts(self, sort_list: tuple[SortParam]):
-            for _sortparam in sort_list:
-                _pathfield = _propertypath_as_field_name([_sortparam.property_iri])
-                _fieldpath = f'dynamics.date_by_propertypath.{_pathfield}'
-                _order = 'desc' if _sortparam.descending else 'asc'
-                yield {_fieldpath: _order}
-
         def _cardsearch_response(
             self,
             cardsearch_params: CardsearchParams,
             es8_response: dict,
             cursor: '_CardsearchCursor',
         ) -> CardsearchResponse:
+            logger.critical(cursor)
             _es8_total = es8_response['hits']['total']
             if _es8_total['relation'] != 'eq':
                 cursor.result_count = -1  # "too many"
@@ -699,44 +236,35 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 cursor.result_count = _es8_total['value']
                 if cursor.random_sort and not cursor.is_first_page():
                     # account for the filtered-out first page
-                    cursor.result_count += len(cursor.first_page_uuids)
+                    cursor.result_count += len(cursor.first_page_pks)
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
-                _card_iri = _es8_hit['_id']
                 _results.append(CardsearchResult(
-                    card_iri=_card_iri,
+                    card_iri=_es8_hit['fields']['indexcard_iri'][0],
+                    card_pk=_es8_hit['_id'],
                     text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
                 ))
-            if cursor.is_first_page() and cursor.first_page_uuids:
+            if cursor.is_first_page() and cursor.first_page_pks:
                 # revisiting first page; reproduce original random order
-                _uuid_index = {
-                    _uuid: _i
-                    for (_i, _uuid) in enumerate(cursor.first_page_uuids)
+                _ordering_by_id = {
+                    _id: _i
+                    for (_i, _id) in enumerate(cursor.first_page_pks)
                 }
-                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid()])
+                _results.sort(key=lambda _r: _ordering_by_id[_r.card_pk])
             else:
                 _should_start_reproducible_randomness = (
                     cursor.random_sort
+                    and not cursor.has_many_more()
                     and cursor.is_first_page()
-                    and not cursor.first_page_uuids
+                    and not cursor.first_page_pks
                     and any(
                         not _filter.is_type_filter()  # look for a non-default filter
                         for _filter in cardsearch_params.cardsearch_filter_set
                     )
                 )
                 if _should_start_reproducible_randomness:
-                    cursor.first_page_uuids = tuple(
-                        _result.card_uuid()
-                        for _result in _results
-                    )
-            _filtervalue_info = []
-            if cardsearch_params.unnamed_iri_values:
-                _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['agg_iri_values']
-                _filtervalue_info.extend(
-                    self._valuesearch_iri_result(_iri_bucket)
-                    for _iri_bucket in _filtervalue_agg['buckets']
-                )
-            _relatedproperty_list = []
+                    cursor.first_page_pks = tuple(_result.card_pk for _result in _results)
+            _relatedproperty_list: list[PropertypathUsage] = []
             if cardsearch_params.related_property_paths:
                 _relatedproperty_list.extend(
                     PropertypathUsage(property_path=_path, usage_count=0)
@@ -746,7 +274,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     _result.property_path: _result
                     for _result in _relatedproperty_list
                 }
-                for _bucket in es8_response['aggregations']['related_propertypath_usage']['buckets']:
+                for _bucket in es8_response['aggregations']['agg_related_propertypath_usage']['buckets']:
                     _path = tuple(json.loads(_bucket['key']))
                     _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
             return CardsearchResponse(
@@ -756,7 +284,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     else cursor.result_count
                 ),
                 search_result_page=_results,
-                filtervalue_info=_filtervalue_info,
                 related_propertypath_results=_relatedproperty_list,
                 next_page_cursor=cursor.next_cursor(),
                 prev_page_cursor=cursor.prev_cursor(),
@@ -780,113 +307,574 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                             card_iri=_innerhit['_id'],
                         )
 
-        class _SimpleTextQueryBuilder:
-            def __init__(
-                self, text_field, *,
-                relevance_matters=False,
-            ):
-                self._text_field = text_field
-                self._relevance_matters = relevance_matters
 
-            def textsegment_boolparts(self, textsegment: Textsegment) -> dict[str, list]:
-                if textsegment.is_negated:
-                    return {'must_not': [self.exact_text_query(textsegment.text)]}
-                if not textsegment.is_fuzzy:
-                    return {'must': [self.exact_text_query(textsegment.text)]}
-                if not self._relevance_matters:
-                    return {'must': [self.fuzzy_text_must_query(textsegment.text)]}
-                return {
-                    'must': [self.fuzzy_text_must_query(textsegment.text)],
-                    'should': [self.fuzzy_text_should_query(textsegment.text)],
-                }
+###
+# index mappings
 
-            def exact_text_query(self, text: str) -> dict:
-                # TODO: textsegment.is_openended (prefix query)
-                return {'match_phrase': {
-                    self._text_field: {'query': text},
-                }}
-
-            def fuzzy_text_must_query(self, text: str) -> dict:
-                # TODO: textsegment.is_openended (prefix query)
-                return {'match': {
-                    self._text_field: {
-                        'query': text,
-                        'fuzziness': 'AUTO',
-                        # TODO: 'operator': 'and' (by query param FilterOperator, `cardSearchText[*][every-word]=...`)
+def _build_index_mappings():
+    _keyword = {'type': 'keyword', 'ignore_above': KEYWORD_LENGTH_MAX}
+    _flattened = {'type': 'flattened', 'ignore_above': KEYWORD_LENGTH_MAX}
+    _exact_and_suffuniq_keywords = {
+        'type': 'object',
+        'properties': {  # for indexing iri values two ways:
+            'exact': _keyword,  # the exact iri value (e.g. "https://foo.example/bar/")
+            'suffuniq': _keyword,  # "sufficiently unique" (e.g. "://foo.example/bar")
+        },
+    }
+    _text = {
+        'type': 'text',
+        'fields': {'raw': _keyword},
+        # TODO: compare highlight performance tradeoffs -- how much do these help?
+        'index_options': 'offsets',  # for faster highlighting
+        'store': True,  # avoid loading _source to render highlights
+    }
+    return {
+        'dynamic': 'false',
+        'dynamic_templates': [
+            {'dynamic_text': {
+                'path_match': [
+                    'dynamics.text_by_propertypath.*',
+                    'dynamics.text_by_pathdepth.*',
+                ],
+                'mapping': _text,
+            }},
+            {'dynamic_date': {
+                'path_match': 'dynamics.date_by_propertypath.*',
+                'mapping': {
+                    'type': 'date',
+                    'format': 'strict_date_optional_time',
+                },
+            }},
+        ],
+        'properties': {
+            # simple keyword properties
+            'indexcard_iri': _keyword,
+            'indexcard_pk': _keyword,
+            'suid': {
+                'type': 'object',
+                'properties': {
+                    'source_config_label': _keyword,
+                    'source_record_identifier': _keyword,
+                },
+            },
+            'focus_iri': _exact_and_suffuniq_keywords,
+            'propertypaths_present': _keyword,
+            # flattened properties (dynamic sub-properties with keyword values)
+            'iri_by_propertypath': {
+                'properties': {
+                    'exact': _flattened,
+                    'suffuniq': _flattened,
+                },
+            },
+            # dynamic properties (see dynamic_templates, above)
+            'dynamics': {
+                'type': 'object',
+                'properties': {
+                    'text_by_propertypath': {'type': 'object', 'dynamic': True},
+                    'text_by_pathdepth': {'type': 'object', 'dynamic': True},
+                    'date_by_propertypath': {'type': 'object', 'dynamic': True},
+                },
+            },
+            # nested properties
+            # (warning: SLOW, meant only for value-search with `valueSearchText` or
+            # `valueSearchFilter[resourceType]` (...and even that seems a bit much))
+            'iri_usage': {
+                'type': 'nested',
+                'properties': {
+                    'iri': _exact_and_suffuniq_keywords,
+                    # TODO: consider 'iri_synonyms': _exact_and_suffuniq_keywords,
+                    'propertypath': _keyword,
+                    'type_iri': _exact_and_suffuniq_keywords,
+                    'depth': {'type': 'keyword'},  # numeric value as keyword (used for 'term' filter)
+                    'name_text': {
+                        **_text,
+                        'copy_to': 'iri_usage.namelike_text',
                     },
-                }}
-
-            def fuzzy_text_should_query(self, text: str):
-                return {'match_phrase': {
-                    self._text_field: {
-                        'query': text,
-                        'slop': len(text.split()),
+                    'title_text': {
+                        **_text,
+                        'copy_to': 'iri_usage.namelike_text',
                     },
-                }}
+                    'label_text': {
+                        **_text,
+                        'copy_to': 'iri_usage.namelike_text',
+                    },
+                    'namelike_text': _text,
+                },
+            },
+        },
+    }
 
-        class _NestedTextQueryBuilder(_SimpleTextQueryBuilder):
-            def __init__(self, **kwargs):
-                super().__init__('nested_text.text_value', **kwargs)
 
-            def textsegment_boolparts(self, textsegment: Textsegment) -> dict[str, list]:
-                return {
-                    _boolkey: [
-                        self._make_nested_query(textsegment, _query)
-                        for _query in _queries
-                    ]
-                    for _boolkey, _queries in super().textsegment_boolparts(textsegment).items()
-                }
+###
+# building source-docs
 
-            def _make_nested_query(self, textsegment, query):
-                _nested_q = {'nested': {
-                    'path': 'nested_text',
-                    'query': {'bool': {
-                        'filter': _pathset_as_nestedvalue_filter(textsegment.propertypath_set, 'nested_text'),
-                        'must': query,
-                    }},
-                }}
-                if self._relevance_matters:
-                    _nested_q['nested']['inner_hits'] = self._inner_hits()
-                return _nested_q
+@dataclasses.dataclass
+class _SourcedocBuilder:
+    '''build an elasticsearch sourcedoc for an rdf document
 
-            def _inner_hits(self, *, highlight_query=None) -> dict:
-                _highlight = {
-                    'type': 'unified',
-                    'fields': {'nested_text.text_value': {}},
-                }
-                if highlight_query is not None:
-                    _highlight['highlight_query'] = highlight_query
-                return {
-                    'name': str(uuid.uuid4()),  # avoid inner-hit name collisions
-                    'highlight': _highlight,
-                    '_source': False,  # _source is expensive for nested docs
-                    'docvalue_fields': [
-                        'nested_text.path_from_focus',
-                        'nested_text.language_iri',
-                    ],
-                }
+    agrees with the mappings from `_build_index_mappings`
+    '''
+    indexcard_rdf: trove_db.IndexcardRdf
+    indexcard: trove_db.Indexcard = dataclasses.field(init=False)
+    rdfdoc: primitive_rdf.RdfTripleDictionary = dataclasses.field(init=False)
+    focus_iri: str = dataclasses.field(init=False)
+
+    def __post_init__(self) -> None:
+        self.indexcard = self.indexcard_rdf.indexcard
+        self.rdfdoc = primitive_rdf.RdfGraph(self.indexcard_rdf.as_rdf_tripledict())
+        self.focus_iri = self.indexcard_rdf.focus_iri
+
+    def should_skip(self):
+        # skip cards without some value for name/title/label
+        return not any(self.rdfdoc.q(self.focus_iri, NAMELIKE_PROPERTIES))
+
+    def build(self) -> dict | None:
+        _iri_values, _date_values, _text_values, _pathset = _PredicatePathWalker.gather_values(
+            # TODO: subsume _PredicatePathWalker into _SourcedocBuilder
+            self.rdfdoc, self.focus_iri
+        )
+        return {
+            'indexcard_iri': self.indexcard.get_iri(),
+            'indexcard_pk': str(self.indexcard.pk),
+            'suid': {
+                'source_record_identifier': self.indexcard.source_record_suid.identifier,
+                'source_config_label': self.indexcard.source_record_suid.source_config.label,
+            },
+            'focus_iri': self._exact_and_suffuniq_iris(self._all_focus_iris()),
+            'propertypaths_present': [_propertypath_as_keyword(_path) for _path in _pathset],
+            'iri_by_propertypath': self._iris_by_propertypath(_iri_values),
+            'dynamics': {
+                'text_by_propertypath': self._texts_by_propertypath(_text_values),
+                'date_by_propertypath': self._dates_by_propertypath(_date_values),
+            },
+            'iri_usage': self._nested_iri_usages(_iri_values),
+        }
+
+    def _all_focus_iris(self):
+        _focus_iris = {self.focus_iri}
+        for _identifier in self.indexcard.focus_identifier_set.all():
+            _focus_iris.update(_identifier.raw_iri_list)
+        return _focus_iris
+
+    def _nested_iri_usages(self, nested_iris):
+        return list(filter(bool, (
+            self._iri_usage_sourcedoc(_nested_iri_key, _iris)
+            for _nested_iri_key, _iris in nested_iris.items()
+        )))
+
+    def _iri_usage_sourcedoc(self, iri_key: _NestedIriKey, iris):
+        _iris_with_synonyms = set(filter(is_worthwhile_iri, iris))
+        for _iri in iris:
+            _iris_with_synonyms.update(
+                filter(is_worthwhile_iri, self.rdfdoc.q(_iri, OWL.sameAs)),
+            )
+        if not _iris_with_synonyms:
+            return None
+        return {
+            'iri': self._exact_and_suffuniq_iris(_iris_with_synonyms),
+            'propertypath': _propertypath_as_keyword(iri_key.path),
+            'propertypath_length': str(len(iri_key.path)),
+            'type_iri': self._exact_and_suffuniq_iris(iri_key.type_iris),
+            'label_text': list(iri_key.label_text),
+            'name_text': list(iri_key.name_text),
+            'title_text': list(iri_key.title_text),
+        }
+
+    def _iris_by_propertypath(self, nested_iris: dict[_NestedIriKey, set[str]]):
+        _iris_by_path = defaultdict(set)
+        for _iri_key, _iris in nested_iris.items():
+            _iris_by_path[_iri_key.path].update(_iris)
+        _exact_flattened = {}
+        _suffuniq_flattened = {}
+        for _path, _iris in _iris_by_path.items():
+            _key = _propertypath_as_field_name(_path)
+            _exact_flattened[_key] = list(_iris)
+            _suffuniq_flattened[_key] = _suffuniq_iris(_iris)
+        return {
+            'exact': _exact_flattened,
+            'suffuniq': _suffuniq_flattened,
+        }
+
+    def _texts_by_propertypath(self, nested_texts):
+        return {
+            _propertypath_as_field_name(_path): list(_value_set)
+            for (_path, _language_iris), _value_set in nested_texts.items()
+        }
+
+    def _dates_by_propertypath(self, nested_dates):
+        return {
+            _propertypath_as_field_name(_path): list(_value_set)
+            for _path, _value_set in nested_dates.items()
+        }
+
+    def _exact_and_suffuniq_iris(self, iris):
+        return {
+            'exact': list(iris),
+            'suffuniq': _suffuniq_iris(iris),
+        }
+
+
+###
+# building queries
+
+@dataclasses.dataclass
+class _CardsearchQueryBuilder:
+    params: CardsearchParams
+
+    def build(self):
+        return {
+            'query': self._cardsearch_query(),
+            'aggs': self._cardsearch_aggs(),
+            'sort': list(self._cardsearch_sorts()) or None,
+            'from_': self.cardsearch_cursor.cardsearch_start_index(),
+            'size': self.cardsearch_cursor.page_size,
+            'source': False,  # no need to get _source, card identifiers are enough
+            'docvalue_fields': ['indexcard_iri'],
+        }
+
+    @functools.cached_property
+    def cardsearch_cursor(self):
+        return _CardsearchCursor.from_cardsearch_params(self.params)
+
+    @property
+    def relevance_matters(self) -> bool:
+        return not self.cardsearch_cursor.random_sort
+
+    def _cardsearch_query(self) -> dict:
+        _bool_query = {
+            'filter': self._additional_cardsearch_filters(),
+            'must': [],
+            'must_not': [],
+            'should': [],
+        }
+        # iri-keyword filters
+        for _searchfilter in self.params.cardsearch_filter_set:
+            if _searchfilter.operator == SearchFilter.FilterOperator.NONE_OF:
+                _bool_query['must_not'].append(self._cardsearch_iri_filter(_searchfilter))
+            elif _searchfilter.operator == SearchFilter.FilterOperator.ANY_OF:
+                _bool_query['filter'].append(self._cardsearch_iri_filter(_searchfilter))
+            elif _searchfilter.operator == SearchFilter.FilterOperator.IS_PRESENT:
+                _bool_query['filter'].append(self._cardsearch_presence_query(_searchfilter))
+            elif _searchfilter.operator == SearchFilter.FilterOperator.IS_ABSENT:
+                _bool_query['must_not'].append(self._cardsearch_presence_query(_searchfilter))
+            elif _searchfilter.operator.is_date_operator():
+                _bool_query['filter'].append(self._cardsearch_date_filter(_searchfilter))
+            else:
+                raise ValueError(f'unknown filter operator {_searchfilter.operator}')
+        # text-based queries
+        for _boolkey, _textquery in self._cardsearch_text_boolparts():
+            _bool_query[_boolkey].append(_textquery)
+        return self._wrap_bool_query(_bool_query)
+
+    def _wrap_bool_query(self, bool_query_innards) -> dict:
+        # note: may modify bool_query_innards in-place
+        _cursor = self.cardsearch_cursor
+        if not _cursor or not _cursor.random_sort:
+            # no need for randomness
+            return {'bool': bool_query_innards}
+        if not _cursor.first_page_pks:
+            # independent random sample
+            return {
+                'function_score': {
+                    'query': {'bool': bool_query_innards},
+                    'boost_mode': 'replace',
+                    'random_score': {},  # default random_score is fast and unpredictable
+                },
+            }
+        _firstpage_filter = {'terms': {'indexcard_pk': _cursor.first_page_pks}}
+        if _cursor.is_first_page():
+            # returning to a first page previously visited
+            bool_query_innards['filter'].append(_firstpage_filter)
+            return {'bool': bool_query_innards}
+        # get a subsequent page using reproducible randomness
+        bool_query_innards['must_not'].append(_firstpage_filter)
+        return {
+            'function_score': {
+                'query': {'bool': bool_query_innards},
+                'boost_mode': 'replace',
+                'random_score': {
+                    'seed': ''.join(_cursor.first_page_pks),
+                    'field': 'indexcard_pk',
+                },
+            },
+        }
+
+    def _additional_cardsearch_filters(self) -> list[dict]:
+        return []  # for overriding
+
+    def _cardsearch_aggs(self):
+        _aggs = {}
+        if self.params.related_property_paths:
+            _aggs['agg_related_propertypath_usage'] = {'terms': {
+                'field': 'propertypaths_present',
+                'include': [
+                    _propertypath_as_keyword(_path)
+                    for _path in self.params.related_property_paths
+                ],
+                'size': len(self.params.related_property_paths),
+            }}
+        return _aggs
+
+    def _cardsearch_presence_query(self, search_filter) -> dict:
+        return _any_query([
+            self._cardsearch_path_presence_query(_path)
+            for _path in search_filter.propertypath_set
+        ])
+
+    def _cardsearch_path_presence_query(self, path: tuple[str, ...]):
+        return (
+            {'exists': {'field': f'iri_by_propertypath_length.exact.{len(path)}'}}
+            if is_globpath(path)
+            else {'term': {'propertypaths_present': _propertypath_as_keyword(path)}}
+        )
+
+    def _cardsearch_iri_filter(self, search_filter) -> dict:
+        return _any_query([
+            self._cardsearch_path_iri_query(_path, search_filter.value_set)
+            for _path in search_filter.propertypath_set
+        ])
+
+    def _cardsearch_path_iri_query(self, path, value_set):
+        _field = (
+            f'iri_by_propertypath_length.suffuniq.{len(path)}'
+            if is_globpath(path)
+            else f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
+        )
+        return {'terms': {_field: _suffuniq_iris(value_set)}}
+
+    def _cardsearch_date_filter(self, search_filter):
+        return _any_query([
+            self._date_filter_for_path(_path, search_filter.operator, search_filter.value_set)
+            for _path in search_filter.propertypath_set
+        ])
+
+    def _date_filter_for_path(self, path, filter_operator, value_set):
+        _field = f'dynamics.date_by_propertypath.{_propertypath_as_field_name(path)}'
+        if filter_operator == SearchFilter.FilterOperator.BEFORE:
+            _value = min(value_set)  # rely on string-comparable isoformat
+            return {'range': {_field: {'lt': _daterange_value(_value)}}}
+        elif filter_operator == SearchFilter.FilterOperator.AFTER:
+            _value = max(value_set)  # rely on string-comparable isoformat
+            return {'range': {_field: {'gt': _daterange_value(_value)}}}
+        elif filter_operator == SearchFilter.FilterOperator.AT_DATE:
+            return _any_query([
+                {'range': {_field: {'gte': _filtervalue, 'lte': _filtervalue}}}
+                for _filtervalue in map(_daterange_value, value_set)
+            ])
+        else:
+            raise ValueError(f'invalid date filter operator (got {filter_operator})')
+
+    def _cardsearch_sorts(self):
+        for _sortparam in self.params.sort_list:
+            _pathfield = _propertypath_as_field_name((_sortparam.property_iri,))
+            _fieldpath = f'dynamics.date_by_propertypath.{_pathfield}'
+            _order = 'desc' if _sortparam.descending else 'asc'
+            yield {_fieldpath: _order}
+
+    def _cardsearch_text_boolparts(self) -> Iterator[tuple[str, dict]]:
+        for _textsegment in self.params.cardsearch_textsegment_set:
+            if _textsegment.is_negated:
+                yield 'must_not', self._exact_text_query(_textsegment)
+            elif not _textsegment.is_fuzzy:
+                yield 'must', self._exact_text_query(_textsegment)
+            else:
+                yield 'must', self._fuzzy_text_must_query(_textsegment)
+                # if self.relevance_matters:
+                #     yield 'should', self._fuzzy_text_should_query(_textsegment)
+
+    def _text_field_name(self, propertypath: tuple[str, ...]):
+        return (
+            f'dynamics.text_by_propertypath_length.{len(propertypath)}'
+            if is_globpath(propertypath)
+            else f'dyamics.text_by_propertypath.{_propertypath_as_field_name(propertypath)}'
+        )
+
+    def _exact_text_query(self, textsegment: Textsegment) -> dict:
+        # TODO: textsegment.is_openended (prefix query)
+        return _any_query([
+            {'match_phrase': {self._text_field_name(_path): {'query': textsegment.text}}}
+            for _path in textsegment.propertypath_set
+        ])
+
+    def _fuzzy_text_must_query(self, textsegment: Textsegment) -> dict:
+        # TODO: textsegment.is_openended (prefix query)
+        return _any_query([
+            {'match': {
+                self._text_field_name(_path): {
+                    'query': textsegment.text,
+                    'fuzziness': 'AUTO',
+                    # TODO: 'operator': 'and' (by query param FilterOperator, `cardSearchText[*][every-word]=...`)
+                },
+            }}
+            for _path in textsegment.propertypath_set
+        ])
+
+    def _fuzzy_text_should_query(self, textsegment: Textsegment):
+        _slop = len(textsegment.text.split())
+        return _any_query([
+            {'match_phrase': {
+                self._text_field_name(_path): {'query': textsegment.text, 'slop': _slop},
+            }}
+            for _path in textsegment.propertypath_set
+        ])
+
+
+class _ValuesearchQueryBuilder(_CardsearchQueryBuilder):
+    params: ValuesearchParams
+
+    # override _CardsearchQueryBuilder
+    def build(self):
+        if self._is_date_valuesearch():
+            _aggs = self._valuesearch_date_aggs()
+        elif self._can_use_nonnested_aggs():
+            _aggs = self._valuesearch_nonnested_iri_aggs()
+        else:
+            _aggs = self._valuesearch_nested_iri_aggs()
+        return dict(
+            query=self._cardsearch_query(),
+            size=0,  # ignore cardsearch hits; just want the aggs
+            aggs=_aggs,
+        )
+
+    @functools.cached_property
+    def valuesearch_cursor(self):
+        return _SimpleCursor.from_page_param(self.params.page)
+
+    # override _CardsearchQueryBuilder
+    @property
+    def relevance_matters(self) -> bool:
+        return False  # valuesearch always ordered by count
+
+    def _is_date_valuesearch(self) -> bool:
+        return all(
+            is_date_property(_path[-1])
+            for _path in self.params.valuesearch_propertypath_set
+        )
+
+    def _can_use_nonnested_aggs(self):
+        return (
+            len(self.params.valuesearch_propertypath_set) == 1
+            and not self.params.valuesearch_textsegment_set
+            and all(
+                _filter.is_sameas_filter()
+                for _filter in self.params.valuesearch_filter_set
+            )
+        )
+
+    def _additional_cardsearch_filters(self) -> list[dict]:
+        return [{'terms': {'propertypaths_present': [
+            _propertypath_as_keyword(_path)
+            for _path in self.params.valuesearch_propertypath_set
+        ]}}]
+
+    def _valuesearch_nonnested_iri_aggs(self):
+        (_propertypath,) = self.params.valuesearch_propertypath_set
+        _terms_agg: dict = {
+            'field': f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(_propertypath)}',
+        }
+        _specific_iris = list(set(self.params.valuesearch_iris()))
+        if _specific_iris:
+            _terms_agg['include'] = _specific_iris
+            _terms_agg['size'] = len(_specific_iris)
+        return {'agg_valuesearch': {'terms': _terms_agg}}
+
+    def _valuesearch_nested_iri_aggs(self):
+        raise NotImplementedError('_valuesearch_nested_iri_aggs')
+        _nested_iri_bool = {
+            'filter': ...,
+            'must': [],
+            'must_not': [],
+            'should': [],
+        }
+        _nested_terms_agg = {
+            'field': 'nested_iri.iri_value',
+            # WARNING: terribly inefficient pagination (part one)
+            'size': cursor.start_index + cursor.page_size + 1,
+        }
+        _specific_iris = list(self.params.valuesearch_iris())
+        if _specific_iris:
+            _nested_iri_bool['filter'].append({'terms': {
+                'nested_iri.iri_value': _specific_iris,
+            }})
+            _nested_terms_agg['size'] = len(_specific_iris)
+            _nested_terms_agg['include'] = _specific_iris
+        _type_iris = list(self.params.valuesearch_type_iris())
+        if _type_iris:
+            _nested_iri_bool['filter'].append({'terms': {
+                'nested_iri.type_iri': _type_iris,
+            }})
+        _textq_builder = self._SimpleTextQueryBuilder('nested_iri.value_namelike_text')
+        for _textsegment in self.params.valuesearch_textsegment_set:
+            for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
+                _nested_iri_bool[_boolkey].extend(_textqueries)
+        return {
+            'in_nested_iri': {
+                'nested': {'path': 'nested_iri'},
+                'aggs': {
+                    'value_at_propertypath': {
+                        'filter': {'bool': _nested_iri_bool},
+                        'aggs': {
+                            'agg_iri_values': {
+                                'terms': _nested_terms_agg,
+                                'aggs': {
+                                    'type_iri': {'terms': {
+                                        'field': 'nested_iri.type_iri',
+                                    }},
+                                    'name_text': {'terms': {
+                                        'field': 'nested_iri.name_text.raw',
+                                    }},
+                                    'title_text': {'terms': {
+                                        'field': 'nested_iri.title_text.raw',
+                                    }},
+                                    'label_text': {'terms': {
+                                        'field': 'nested_iri.label_text.raw',
+                                    }},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+
+    def _valuesearch_date_aggs(self):
+        _aggs = {
+            'in_nested_date': {
+                'nested': {'path': 'nested_date'},
+                'aggs': {
+                    'value_at_propertypath': {
+                        'filter': {'terms': {
+                            'nested_date.suffuniq_path_from_focus': [
+                                _propertypath_as_keyword(_path)
+                                for _path in self.params.valuesearch_propertypath_set
+                            ],
+                        }},
+                        'aggs': {
+                            'count_by_year': {
+                                'date_histogram': {
+                                    'field': 'nested_date.date_value',
+                                    'calendar_interval': 'year',
+                                    'format': 'yyyy',
+                                    'order': {'_key': 'desc'},
+                                    'min_doc_count': 1,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+        return _aggs
 
 
 ###
 # module-local utils
-
-def _should_skip_card(indexcard_rdf, rdfdoc):
-    # skip cards without some value for name/title/label
-    return not any(rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES))
-
 
 def _suffuniq_iris(iris: Iterable[str]) -> list[str]:
     return [
         get_sufficiently_unique_iri(_iri)
         for _iri in iris
     ]
-
-
-def _exact_and_suffuniq_iris(iris):
-    return {
-        'exact': list(iris),
-        'suffuniq': _suffuniq_iris(iris),
-    }
 
 
 def _bucketlist(agg_result: dict) -> list[str]:
@@ -907,11 +895,11 @@ def _daterange_value(datevalue: str):
     raise ValueError(f'bad date value "{datevalue}"')
 
 
-def _propertypath_as_keyword(path: Iterable[str]) -> str:
-    return json.dumps(_suffuniq_iris(path))
+def _propertypath_as_keyword(path: tuple[str, ...]) -> str:
+    return json.dumps(path if is_globpath(path) else _suffuniq_iris(path))
 
 
-def _propertypath_as_field_name(path: Iterable[str]) -> str:
+def _propertypath_as_field_name(path: tuple[str, ...]) -> str:
     _keyword_bytes = _propertypath_as_keyword(path).encode()
     return base64.urlsafe_b64encode(_keyword_bytes).decode()
 
@@ -1005,12 +993,12 @@ class _SimpleCursor:
 @dataclasses.dataclass
 class _CardsearchCursor(_SimpleCursor):
     random_sort: bool  # how to sort by relevance to nothingness? randomness!
-    first_page_uuids: tuple[str, ...] = ()
+    first_page_pks: tuple[str, ...] = ()
 
     MAX_INDEX: ClassVar[int] = CARDSEARCH_MAX
 
     @classmethod
-    def from_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
+    def from_cardsearch_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
         if params.page.cursor:
             return decode_cursor_dataclass(params.page.cursor, cls)
         return cls(
@@ -1026,7 +1014,17 @@ class _CardsearchCursor(_SimpleCursor):
     def cardsearch_start_index(self) -> int:
         if self.is_first_page() or not self.random_sort:
             return self.start_index
-        return self.start_index - len(self.first_page_uuids)
+        return self.start_index - len(self.first_page_pks)
+
+    def first_cursor(self) -> str | None:
+        if self.random_sort and not self.first_page_pks:
+            return None
+        return super().prev_cursor()
+
+    def prev_cursor(self) -> str | None:
+        if self.random_sort and not self.first_page_pks:
+            return None
+        return super().prev_cursor()
 
 
 class _PredicatePathWalker:
