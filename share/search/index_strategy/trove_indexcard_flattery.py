@@ -14,7 +14,7 @@ from typing import Iterable, ClassVar, Iterator
 from django.conf import settings
 from django.db.models import Exists, OuterRef
 import elasticsearch8
-from primitive_metadata import primitive_rdf
+from primitive_metadata import primitive_rdf as rdf
 
 from share.search import exceptions
 from share.search import messages
@@ -29,7 +29,6 @@ from trove.trovesearch.search_params import (
     Textsegment,
     PageParam,
     is_globpath,
-    make_globpath,
 )
 from trove.trovesearch.search_response import (
     CardsearchResponse,
@@ -69,7 +68,7 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TroveIndexcardFlatteryIndexStrategy',
-        hexdigest='38aa701181dc594f3c251ed87b6dafb9ac89869c1614438494db4df9c1fcc42d',
+        hexdigest='590b88fb82faee94188775e18c5d00300c35081bd2234b62d8434a15efca7486',
     )
 
     # abstract method from IndexStrategy
@@ -298,14 +297,13 @@ class TroveIndexcardFlatteryIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _gather_textmatch_evidence(self, card_iri, es8_hit) -> Iterator[TextMatchEvidence]:
-            logger.critical(json.dumps(es8_hit, indent=2))
             for _field, _snippets in es8_hit.get('highlight', {}).items():
                 (_, _, _encoded_path) = _field.rpartition('.')
                 _property_path = _parse_path_field_name(_encoded_path)
                 for _snippet in _snippets:
                     yield TextMatchEvidence(
                         property_path=_property_path,
-                        matching_highlight=primitive_rdf.literal(_snippet),
+                        matching_highlight=rdf.literal(_snippet),
                         card_iri=card_iri,
                     )
 
@@ -361,10 +359,10 @@ def _build_index_mappings():
             'propertypaths_present': _keyword,
             # flattened properties (dynamic sub-properties with keyword values)
             'iri_by_propertypath': {
-                'properties': {
-                    'exact': _flattened,
-                    'suffuniq': _flattened,
-                },
+                'properties': {'exact': _flattened, 'suffuniq': _flattened},
+            },
+            'iri_by_depth': {
+                'properties': {'exact': _flattened, 'suffuniq': _flattened},
             },
             # dynamic properties (see dynamic_templates, above)
             'dynamics': {
@@ -416,12 +414,12 @@ class _SourcedocBuilder:
     '''
     indexcard_rdf: trove_db.IndexcardRdf
     indexcard: trove_db.Indexcard = dataclasses.field(init=False)
-    rdfdoc: primitive_rdf.RdfTripleDictionary = dataclasses.field(init=False)
+    rdfdoc: rdf.RdfTripleDictionary = dataclasses.field(init=False)
     focus_iri: str = dataclasses.field(init=False)
 
     def __post_init__(self) -> None:
         self.indexcard = self.indexcard_rdf.indexcard
-        self.rdfdoc = primitive_rdf.RdfGraph(self.indexcard_rdf.as_rdf_tripledict())
+        self.rdfdoc = rdf.RdfGraph(self.indexcard_rdf.as_rdf_tripledict())
         self.focus_iri = self.indexcard_rdf.focus_iri
 
     def should_skip(self):
@@ -433,7 +431,7 @@ class _SourcedocBuilder:
             # TODO: subsume _PredicatePathWalker into _SourcedocBuilder
             self.rdfdoc, self.focus_iri
         )
-        return {
+        _sourcedoc = {
             'indexcard_iri': self.indexcard.get_iri(),
             'indexcard_pk': str(self.indexcard.pk),
             'suid': {
@@ -441,8 +439,9 @@ class _SourcedocBuilder:
                 'source_config_label': self.indexcard.source_record_suid.source_config.label,
             },
             'focus_iri': self._exact_and_suffuniq_iris(self._all_focus_iris()),
-            'propertypaths_present': [_propertypath_as_keyword(_path) for _path in _pathset],
+            'propertypaths_present': list({_propertypath_as_keyword(_path) for _path in _pathset}),
             'iri_by_propertypath': self._iris_by_propertypath(_iri_values),
+            'iri_by_depth': self._iris_by_depth(_iri_values),
             'dynamics': {
                 'text_by_propertypath': self._texts_by_propertypath(_text_values),
                 'text_by_depth': self._texts_by_depth(_text_values),
@@ -450,6 +449,8 @@ class _SourcedocBuilder:
             },
             'iri_usage': self._nested_iri_usages(_iri_values),
         }
+        logger.critical(json.dumps(_sourcedoc, indent=2))
+        return _sourcedoc
 
     def _all_focus_iris(self):
         _focus_iris = {self.focus_iri}
@@ -457,40 +458,56 @@ class _SourcedocBuilder:
             _focus_iris.update(_identifier.raw_iri_list)
         return _focus_iris
 
-    def _nested_iri_usages(self, nested_iris):
+    def _nested_iri_usages(self, iri_values):
+        _paths_by_iri: dict[str, set[tuple[str, ...]]] = defaultdict(set)
+        for _path, _iris in iri_values.items():
+            for _iri in _iris:
+                if is_worthwhile_iri(_iri):
+                    _paths_by_iri[_iri].add(_path)
         return list(filter(bool, (
-            self._iri_usage_sourcedoc(_nested_iri_key, _iris)
-            for _nested_iri_key, _iris in nested_iris.items()
+            self._iri_usage_sourcedoc(_iri, _paths)
+            for _iri, _paths in _paths_by_iri.items()
         )))
 
-    def _iri_usage_sourcedoc(self, iri_key: _NestedIriKey, iris):
-        _iris_with_synonyms = set(filter(is_worthwhile_iri, iris))
-        for _iri in iris:
-            _iris_with_synonyms.update(
-                filter(is_worthwhile_iri, self.rdfdoc.q(_iri, OWL.sameAs)),
-            )
-        if not _iris_with_synonyms:
+    def _iri_usage_sourcedoc(self, iri: str, paths: set[tuple[str, ...]]):
+        _iri_and_synonyms = {
+            iri,
+            *filter(is_worthwhile_iri, self.rdfdoc.q(iri, OWL.sameAs)),
+        }
+        if not _iri_and_synonyms:
             return None
         return {
-            'iri': self._exact_and_suffuniq_iris(_iris_with_synonyms),
-            'propertypath': _propertypath_as_keyword(iri_key.path),
-            'propertypath_length': str(len(iri_key.path)),
-            'type_iri': self._exact_and_suffuniq_iris(iri_key.type_iris),
-            'label_text': list(iri_key.label_text),
-            'name_text': list(iri_key.name_text),
-            'title_text': list(iri_key.title_text),
+            'iri': self._exact_and_suffuniq_iris(_iri_and_synonyms),
+            'propertypath': list(map(_propertypath_as_keyword, paths)),
+            'propertypath_length': list(map(len, paths)),
+            'type_iri': self._exact_and_suffuniq_iris(list(self.rdfdoc.q(iri, RDF.type))),
+            'label_text': list(self._gather_text_values(iri, LABEL_PROPERTIES)),
+            'name_text': list(self._gather_text_values(iri, NAME_PROPERTIES)),
+            'title_text': list(self._gather_text_values(iri, TITLE_PROPERTIES)),
         }
 
-    def _iris_by_propertypath(self, nested_iris: dict[_NestedIriKey, set[str]]):
-        _iris_by_path = defaultdict(set)
-        for _iri_key, _iris in nested_iris.items():
-            _iris_by_path[_iri_key.path].update(_iris)
-            # also index by globpath for querying by depth
-            _iris_by_path[make_globpath(len(_iri_key.path))].update(_iris)
+    def _iris_by_propertypath(self, iri_values: dict[tuple[str, ...], set[str]]):
         _exact_flattened = {}
         _suffuniq_flattened = {}
-        for _path, _iris in _iris_by_path.items():
+        for _path, _iris in iri_values.items():
             _key = _propertypath_as_field_name(_path)
+            assert _key not in _exact_flattened
+            assert _key not in _suffuniq_flattened
+            _exact_flattened[_key] = list(_iris)
+            _suffuniq_flattened[_key] = _suffuniq_iris(_iris)
+        return {
+            'exact': _exact_flattened,
+            'suffuniq': _suffuniq_flattened,
+        }
+
+    def _iris_by_depth(self, iri_values: dict[tuple[str, ...], set[str]]):
+        _iris_by_depth: dict[int, set[str]] = defaultdict(set)
+        for _path, _iris in iri_values.items():
+            _iris_by_depth[len(_path)].update(_iris)
+        _exact_flattened = {}
+        _suffuniq_flattened = {}
+        for _depth, _iris in _iris_by_depth.items():
+            _key = _depth_field_name(_depth)
             _exact_flattened[_key] = list(_iris)
             _suffuniq_flattened[_key] = _suffuniq_iris(_iris)
         return {
@@ -512,7 +529,7 @@ class _SourcedocBuilder:
         for (_path, _language_iris), _value_set in text_values.items():
             _texts[len(_path)].update(_value_set)
         return {
-            _depth: list(_value_set)
+            _depth_field_name(_depth): list(_value_set)
             for _depth, _value_set in _texts.items()
         }
 
@@ -522,11 +539,16 @@ class _SourcedocBuilder:
             for _path, _value_set in nested_dates.items()
         }
 
-    def _exact_and_suffuniq_iris(self, iris):
+    def _exact_and_suffuniq_iris(self, iris: Iterable[str]):
         return {
             'exact': list(iris),
             'suffuniq': _suffuniq_iris(iris),
         }
+
+    def _gather_text_values(self, focus_iri, pathset) -> Iterator[str]:
+        for _obj in self.rdfdoc.q(focus_iri, pathset):
+            if isinstance(_obj, rdf.Literal):
+                yield _obj.unicode_value
 
 
 ###
@@ -638,14 +660,19 @@ class _CardsearchQueryBuilder:
         return {'term': {'propertypaths_present': _propertypath_as_keyword(path)}}
 
     def _cardsearch_iri_filter(self, search_filter) -> dict:
+        _iris = _suffuniq_iris(search_filter.value_set)
         return _any_query([
-            self._cardsearch_path_iri_query(_path, search_filter.value_set)
+            self._cardsearch_path_iri_query(_path, _iris)
             for _path in search_filter.propertypath_set
         ])
 
-    def _cardsearch_path_iri_query(self, path, value_set):
-        _field = f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
-        return {'terms': {_field: _suffuniq_iris(value_set)}}
+    def _cardsearch_path_iri_query(self, path, suffuniq_iris):
+        _field = (
+            f'iri_by_propertypath.suffuniq.{_propertypath_as_field_name(path)}'
+            if not is_globpath(path)
+            else f'iri_by_depth.suffuniq.{_depth_field_name(len(path))}'
+        )
+        return {'terms': {_field: suffuniq_iris}}
 
     def _cardsearch_date_filter(self, search_filter):
         return _any_query([
@@ -691,7 +718,7 @@ class _CardsearchQueryBuilder:
         return (
             f'dynamics.text_by_propertypath.{_propertypath_as_field_name(propertypath)}'
             if not is_globpath(propertypath)
-            else f'dynamics.text_by_depth.{len(propertypath)}'
+            else f'dynamics.text_by_depth.{_depth_field_name(len(propertypath))}'
         )
 
     def _exact_text_query(self, textsegment: Textsegment) -> dict:
@@ -875,10 +902,11 @@ class _ValuesearchQueryBuilder(_CardsearchQueryBuilder):
 # module-local utils
 
 def _suffuniq_iris(iris: Iterable[str]) -> list[str]:
-    return list(set(
+    # deduplicates, may reorder
+    return list({
         get_sufficiently_unique_iri(_iri)
         for _iri in iris
-    ))
+    })
 
 
 def _bucketlist(agg_result: dict) -> list[str]:
@@ -900,12 +928,19 @@ def _daterange_value(datevalue: str):
 
 
 def _propertypath_as_keyword(path: tuple[str, ...]) -> str:
-    return json.dumps(path if is_globpath(path) else _suffuniq_iris(path))
+    return json.dumps(path if is_globpath(path) else [
+        get_sufficiently_unique_iri(_iri)
+        for _iri in path
+    ])
 
 
 def _propertypath_as_field_name(path: tuple[str, ...]) -> str:
     _path_keyword = _propertypath_as_keyword(path)
     return base64.urlsafe_b64encode(_path_keyword.encode()).decode()
+
+
+def _depth_field_name(depth: int) -> str:
+    return f'depth{depth}'
 
 
 def _parse_path_field_name(path_field_name: str) -> tuple[str, ...]:
@@ -1040,7 +1075,7 @@ class _CardsearchCursor(_SimpleCursor):
 
 
 class _PredicatePathWalker:
-    WalkYield = tuple[tuple[str, ...], primitive_rdf.RdfObject]
+    WalkYield = tuple[tuple[str, ...], rdf.RdfObject]
     _visiting: set[str | frozenset]
 
     @classmethod
@@ -1052,7 +1087,7 @@ class _PredicatePathWalker:
         for _walk_path, _walk_obj in cls(rdfdoc.tripledict).walk_from_subject(focus_iri):
             _pathset.add(_walk_path)
             if isinstance(_walk_obj, str):
-                _iris[_NestedIriKey.for_iri_at_path(_walk_path, _walk_obj, rdfdoc)].add(_walk_obj)
+                _iris[_walk_path].add(_walk_obj)
             elif isinstance(_walk_obj, datetime.date):
                 _dates[_walk_path].add(datetime.date.isoformat(_walk_obj))
             elif is_date_property(_walk_path[-1]):
@@ -1062,11 +1097,11 @@ class _PredicatePathWalker:
                     logger.debug('skipping malformatted date "%s"', _walk_obj.unicode_value)
                 else:
                     _dates[_walk_path].add(_walk_obj.unicode_value)
-            elif isinstance(_walk_obj, primitive_rdf.Literal):
+            elif isinstance(_walk_obj, rdf.Literal):
                 _texts[(_walk_path, tuple(_walk_obj.datatype_iris))].add(_walk_obj.unicode_value)
         return _iris, _dates, _texts, _pathset
 
-    def __init__(self, tripledict: primitive_rdf.RdfTripleDictionary):
+    def __init__(self, tripledict: rdf.RdfTripleDictionary):
         self.tripledict = tripledict
         self._visiting = set()
 
@@ -1075,7 +1110,7 @@ class _PredicatePathWalker:
         '''
         with self._visit(iri_or_blanknode):
             _twopledict = (
-                primitive_rdf.twopledict_from_twopleset(iri_or_blanknode)
+                rdf.twopledict_from_twopleset(iri_or_blanknode)
                 if isinstance(iri_or_blanknode, frozenset)
                 else self.tripledict.get(iri_or_blanknode, {})
             )
@@ -1095,37 +1130,3 @@ class _PredicatePathWalker:
         self._visiting.add(focus_obj)
         yield
         self._visiting.discard(focus_obj)
-
-
-@dataclasses.dataclass(frozen=True)
-class _NestedIriKey:
-    '''if this is the same for multiple iri values, they can be combined in one `nested_iri` doc
-    '''
-    path: tuple[str, ...]
-    type_iris: frozenset[str]
-    label_text: frozenset[str]
-    title_text: frozenset[str]
-    name_text: frozenset[str]
-
-    @classmethod
-    def for_iri_at_path(cls, path: tuple[str, ...], iri: str, rdfdoc):
-        return cls(
-            path=path,
-            type_iris=frozenset(rdfdoc.q(iri, RDF.type)),
-            # TODO: don't discard language for name/title/label
-            name_text=frozenset(
-                _text.unicode_value
-                for _text in rdfdoc.q(iri, NAME_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Literal)
-            ),
-            title_text=frozenset(
-                _text.unicode_value
-                for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Literal)
-            ),
-            label_text=frozenset(
-                _text.unicode_value
-                for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
-                if isinstance(_text, primitive_rdf.Literal)
-            ),
-        )

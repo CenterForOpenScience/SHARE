@@ -727,7 +727,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     _uuid: _i
                     for (_i, _uuid) in enumerate(cursor.first_page_uuids)
                 }
-                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid()])
+                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid])
             else:
                 _should_start_reproducible_randomness = (
                     cursor.random_sort
@@ -740,7 +740,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
                 if _should_start_reproducible_randomness:
                     cursor.first_page_uuids = tuple(
-                        _result.card_uuid()
+                        _result.card_uuid
                         for _result in _results
                     )
             _relatedproperty_list = []
