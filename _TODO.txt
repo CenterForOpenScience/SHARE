@@ -1,0 +1,68 @@
+using trove for a dashboard of metrics
+======================================
+
+on frontend...
+
+a dashboard has a consistent `cardSearchFilter` set
+
+for each metadata property (or property-path) of interest,
+make a request to `/trove/index-value-search` with that `valueSearchPropertyPath`
+and the dashboard's `cardSearchFilter` set
+
+
+
+denormalized IndexStrategy
+==========================
+
+to denormalize for performance (removing (most) `nested` mappings)
+while supporting existing api used by osf-search...
+
+
+current mappings:
+  simple:
+    indexcard_uuid
+    focus_iri
+    suffuniq_focus_iri
+    source_record_identifier
+    source_config_label
+    iri_paths_present
+    iri_paths_present_suffuniq
+  flattened:
+    flat_iri_values
+    flat_iri_values_suffuniq
+  nested: (THE PROBLEM)
+    nested_iri...
+    nested_date...
+    nested_text...
+
+
+possible future card-index mappings:
+  simple:
+    indexcard_uuid
+    suid.source_config_label
+    suid.source_record_identifier
+    focus_iri.exact
+    focus_iri.suffuniq
+    propertypaths_present
+  flattened:
+    iri_by_propertypath.exact.*
+    iri_by_propertypath.suffuniq.*
+    iri_by_propertypath_length.exact.*
+    iri_by_propertypath_length.suffuniq.*
+  dynamic: (used instead of the old nested fields for most queries)
+    dynamics.text_by_propertypath.*
+    dynamics.text_by_propertypath_length.*
+    dynamics.date_by_propertypath.*
+    (maybe) dynamics.number_by_propertypath.*
+  nested: (ONLY for index-value-search with `valueSearchText` or `valueSearchFilter[resourceType]`)
+    iri_usage
+      iri.exact
+      iri.suffuniq
+      propertypath
+      propertypath_length
+      type_iri.exact
+      type_iri.suffuniq
+      name_text
+      title_text
+      label_text
+      namelike_text (combined three)
