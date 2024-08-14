@@ -7,9 +7,23 @@ from django.conf import settings
 
 from share.search.exceptions import IndexStrategyError
 from share.models import FeatureFlag
+from trove.trovesearch import search_params
+from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
+from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
+from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
+from .trovesearch_flattery import TrovesearchFlatteryIndexStrategy
 
 if typing.TYPE_CHECKING:
     from ._base import IndexStrategy
+
+
+__all__ = (
+    'all_index_strategies',
+    'get_index_for_sharev2_search',
+    'get_index_for_trovesearch',
+    'get_index_strategy',
+    'get_specific_index',
+)
 
 
 @functools.cache
@@ -26,7 +40,7 @@ def _iter_all_index_strategies():
     if settings.ELASTICSEARCH8_URL:
         yield Sharev2Elastic8IndexStrategy(name='sharev2_elastic8')
         yield TroveIndexcardFlatsIndexStrategy(name='trove_indexcard_flats')
-        yield TroveIndexcardFlatteryIndexStrategy(name='trove_indexcard_flattery')
+        yield TrovesearchFlatteryIndexStrategy(name='trovesearch_flattery')
 
 
 def get_index_strategy(strategyname: str) -> IndexStrategy:
@@ -68,40 +82,15 @@ def get_index_for_sharev2_search(requested_name=None) -> IndexStrategy.SpecificI
     return get_specific_index(_name, for_search=True)
 
 
-def get_for_trovesearch(search_params: CardsearchParams) -> 'IndexStrategy.SpecificIndex':
-    if search_params.index_strategy_name:  # specific strategy requested
-        _name = search_params.index_strategy_name
+def get_index_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy.SpecificIndex:
+    if params.index_strategy_name:  # specific strategy requested
+        _name = params.index_strategy_name
+    elif not FeatureFlag.objects.flag_is_up(FeatureFlag.USE_FLATTERY_STRATEGY):
+        _name = 'trove_indexcard_flats'
     else:
         _name = (
-            'trove_indexcard_flattery'
-            if FeatureFlag.objects.flag_is_up(FeatureFlag.USE_FLATTERY_STRATEGY)
-            else 'trove_indexcard_flats'
+            'trovesearch_flattery'
+            if TrovesearchFlatteryIndexStrategy.works_with_params(params)
+            else 'trovesearch_nested'
         )
-    try:  # could be a strategy name
-        return cls.get_by_name(_name).pls_get_default_for_searching()
-    except IndexStrategyError:
-        try:  # could be a specific indexname
-            return cls.get_specific_index(_name)
-        except IndexStrategyError:
-            raise IndexStrategyError(f'unknown name: "{_name}"')
-
-def _load_from_settings(index_strategy_name, index_strategy_settings):
-    assert set(index_strategy_settings) == {'INDEX_STRATEGY_CLASS', 'CLUSTER_SETTINGS'}, (
-        'values in settings.ELASTICSEARCH[\'INDEX_STRATEGIES\'] must have keys: '
-        'INDEX_STRATEGY_CLASS, CLUSTER_SETTINGS'
-    )
-    class_path = index_strategy_settings['INDEX_STRATEGY_CLASS']
-    module_name, separator, class_name = class_path.rpartition('.')
-    if not separator:
-        raise IndexStrategyError(f'INDEX_STRATEGY_CLASS should be importable dotted-path to an IndexStrategy class; got "{class_path}"')
-    assert module_name.startswith('share.search.index_strategy.'), (
-        'for now, INDEX_STRATEGY_CLASS must start with "share.search.index_strategy."'
-        f' (got "{module_name}")'
-    )
-    index_strategy_class = getattr(importlib.import_module(module_name), class_name)
-    assert issubclass(index_strategy_class, cls)
-    return index_strategy_class(
-        name=index_strategy_name,
-        cluster_settings=index_strategy_settings['CLUSTER_SETTINGS'],
-    )
-
+    return get_specific_index(_name, for_search=True)
