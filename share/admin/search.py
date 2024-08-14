@@ -7,7 +7,7 @@ from django.urls import reverse
 from share.admin.util import admin_url
 from share.models.index_backfill import IndexBackfill
 from share.search.index_messenger import IndexMessenger
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        _specific_index = IndexStrategy.get_specific_index(request.POST['specific_indexname'])
+        _specific_index = index_strategy.get_specific_index(request.POST['specific_indexname'])
         _pls_doer = PLS_DOERS[request.POST['pls_do']]
         _pls_doer(_specific_index)
         _redirect_id = (
@@ -37,7 +37,7 @@ def search_indexes_view(request):
 
 
 def search_index_mappings_view(request, index_name):
-    _specific_index = IndexStrategy.get_specific_index(index_name)
+    _specific_index = index_strategy.get_specific_index(index_name)
     _mappings = _specific_index.pls_get_mappings()
     return JsonResponse(_mappings)
 
@@ -53,18 +53,18 @@ def _mappings_url_prefix():
 
 
 def _index_status_by_strategy():
-    backfill_by_indexname = {
+    backfill_by_indexname: dict[str, IndexBackfill] = {
         backfill.specific_indexname: backfill
         for backfill in (
             IndexBackfill.objects
-            .filter(index_strategy_name__in=IndexStrategy.all_strategies_by_name().keys())
+            .filter(index_strategy_name__in=index_strategy.all_index_strategies().keys())
         )
     }
     status_by_strategy = {}
     _messenger = IndexMessenger()
-    for index_strategy in IndexStrategy.all_strategies():
-        current_index = index_strategy.for_current_index()
-        status_by_strategy[index_strategy.name] = {
+    for _index_strategy in index_strategy.all_index_strategies().values():
+        current_index = _index_strategy.for_current_index()
+        status_by_strategy[_index_strategy.name] = {
             'current': {
                 'status': current_index.pls_get_status(),
                 'backfill': _serialize_backfill(
@@ -74,7 +74,7 @@ def _index_status_by_strategy():
             },
             'prior': sorted((
                 specific_index.pls_get_status()
-                for specific_index in index_strategy.each_specific_index()
+                for specific_index in _index_strategy.each_specific_index()
                 if not specific_index.is_current
             ), reverse=True),
             'queues': [
@@ -83,15 +83,18 @@ def _index_status_by_strategy():
                     **_messenger.get_queue_stats(_queue_name),
                 }
                 for _queue_name in (
-                    index_strategy.urgent_messagequeue_name,
-                    index_strategy.nonurgent_messagequeue_name,
+                    _index_strategy.urgent_messagequeue_name,
+                    _index_strategy.nonurgent_messagequeue_name,
                 )
             ],
         }
     return status_by_strategy
 
 
-def _serialize_backfill(specific_index: IndexStrategy.SpecificIndex, backfill: IndexBackfill):
+def _serialize_backfill(
+    specific_index: index_strategy.IndexStrategy.SpecificIndex,
+    backfill: IndexBackfill | None,
+):
     if not specific_index.is_current:
         return {}
     if not backfill:

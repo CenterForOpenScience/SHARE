@@ -26,10 +26,14 @@ class Elastic8IndexStrategy(IndexStrategy):
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         self.es8_client = elasticsearch8.Elasticsearch(
-            self.cluster_url,
+            settings.ELASTICSEARCH8_URL,
             # security:
-            ca_certs=self.cluster_settings.get('CERT_PATH'),
-            basic_auth=self.cluster_settings.get('AUTH'),
+            ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
+            basic_auth=(
+                (settings.ELASTICSEARCH8_USERNAME, settings.ELASTICSEARCH8_SECRET)
+                if settings.ELASTICSEARCH8_SECRET is not None
+                else None
+            ),
             # retry:
             retry_on_timeout=True,
             request_timeout=timeout,

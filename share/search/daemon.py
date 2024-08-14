@@ -11,7 +11,12 @@ from django.conf import settings
 from kombu.mixins import ConsumerMixin
 import sentry_sdk
 
-from share.search import exceptions, messages, IndexStrategy, IndexMessenger
+from share.search import (
+    exceptions,
+    messages,
+    index_strategy,
+    IndexMessenger,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +57,7 @@ class IndexerDaemonControl:
         return _daemon
 
     def start_all_daemonthreads(self):
-        for _index_strategy in IndexStrategy.all_strategies():
+        for _index_strategy in index_strategy.all_index_strategies().values():
             self.start_daemonthreads_for_strategy(_index_strategy)
 
     def stop_daemonthreads(self, *, wait=False):
@@ -176,7 +181,7 @@ class IndexerDaemon:
 
 @dataclasses.dataclass
 class MessageHandlingLoop:
-    index_strategy: IndexStrategy
+    index_strategy: index_strategy.IndexStrategy
     message_type: messages.MessageType
     stop_event: threading.Event
     local_message_queue: queue.Queue

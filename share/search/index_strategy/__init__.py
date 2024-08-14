@@ -1,4 +1,16 @@
 from ._base import IndexStrategy
+from ._strategy_selection import (
+    all_index_strategies,
+    get_index_strategy,
+    get_specific_index,
+    get_index_for_sharev2_search,
+)
 
 
-__all__ = ('IndexStrategy',)
+__all__ = (
+    'IndexStrategy',
+    'all_index_strategies',
+    'get_index_strategy',
+    'get_index_for_sharev2_search',
+    'get_specific_index',
+)

@@ -66,3 +66,15 @@ possible future card-index mappings:
       title_text
       label_text
       namelike_text (combined three)
+
+
+multiple strategies?
+====================
+after reluctantly accepting `nested` for certain value-searches... how about multiple index strategies?
+
+select suitable index-strategy based on query
+
+most queries go to a more constrained index-strategy with a smaller, faster, completely non-nested index
+
+queries that need the extra complexity go to a more complex index-strategy with larger, slower index
+

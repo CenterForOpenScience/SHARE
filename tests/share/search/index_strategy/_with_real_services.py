@@ -9,7 +9,7 @@ from django.db import connections
 from project.celery import app as celery_app
 from share.search.daemon import IndexerDaemonControl
 from share.search.index_messenger import IndexMessenger
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 
 
 # base class for testing IndexStrategy subclasses with actual elasticsearch.
@@ -30,7 +30,6 @@ class RealElasticTestCase(TransactionTestCase):
         super().setUp()
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.enterContext(self._settings_for_test())
-        IndexStrategy.clear_strategy_cache()
         self.index_strategy = self.get_index_strategy()
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
@@ -43,7 +42,6 @@ class RealElasticTestCase(TransactionTestCase):
     def tearDown(self):
         super().tearDown()
         self.current_index.pls_delete()
-        IndexStrategy.clear_strategy_cache()
         # HACK: copied from TransactionTestCase._fixture_setup; restores db
         # to the state from before TransactionTestCase clobbered it (relies
         # on how django 3.2 implements `serialized_rollback = True`, above)
@@ -58,7 +56,7 @@ class RealElasticTestCase(TransactionTestCase):
         return result
 
     def get_index_strategy(self):
-        return IndexStrategy.get_by_name(self.strategy_name_for_test)
+        return index_strategy.get_index_strategy(self.strategy_name_for_test)
 
     @contextlib.contextmanager
     def _daemon_up(self):
