@@ -6,8 +6,9 @@ from unittest import mock
 import pytest
 
 from share.bin.util import execute_cmd
-from share.test._testutil import patch_index_strategies
 import share.version
+
+from tests.share.search._testutil import patch_index_strategies
 
 
 def run_sharectl(*args):

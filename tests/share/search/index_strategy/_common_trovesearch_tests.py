@@ -305,6 +305,10 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'valueSearchPropertyPath': 'references'},
             {BLARG.b, BLARG.c},
         )
+        yield (
+            {'valueSearchPropertyPath': 'created'},
+            {'1999', '2012', '2024'},
+        )
         # TODO: more
 
     def valuesearch_complex_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:

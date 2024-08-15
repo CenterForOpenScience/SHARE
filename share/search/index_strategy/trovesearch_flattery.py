@@ -303,7 +303,6 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                     'date_by_propertypath': self._dates_by_propertypath(self._fullwalk),
                 },
             }
-            logger.critical(json.dumps(_sourcedoc, indent=2))
             return _sourcedoc
 
         @functools.cached_property
@@ -604,7 +603,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             _aggs = {
                 'agg_value_at_propertypath': {
                     'aggs': {
-                        'count_by_year': {
+                        'agg_count_by_year': {
                             'date_histogram': {
                                 'field': _field,
                                 'calendar_interval': 'year',
@@ -629,7 +628,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
     ) -> ValuesearchResponse:
         _iri_aggs = es8_response['aggregations'].get('in_nested_iri')
         if _iri_aggs:
-            _buckets = _iri_aggs['value_at_propertypath']['agg_iri_values']['buckets']
+            _buckets = _iri_aggs['agg_value_at_propertypath']['agg_iri_values']['buckets']
             _bucket_count = len(_buckets)
             # WARNING: terribly inefficient pagination (part two)
             _page_end_index = cursor.start_index + cursor.page_size
@@ -650,8 +649,10 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             )
         else:  # assume date
             _year_buckets = (
-                es8_response['aggregations']['in_nested_date']
-                ['value_at_propertypath']['count_by_year']['buckets']
+                es8_response['aggregations']
+                ['agg_value_at_propertypath']
+                ['agg_count_by_year']
+                ['buckets']
             )
             return ValuesearchResponse(
                 search_result_page=[
