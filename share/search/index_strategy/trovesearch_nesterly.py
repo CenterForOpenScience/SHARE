@@ -69,7 +69,7 @@ class TrovesearchNesterlyIndexStrategy(FlatteryStrategy):
         def _iri_usage_sourcedoc(self, iri: str, paths: set[flattery.Propertypath]) -> dict | None:
             _shortwalk = self._fullwalk.shortwalk(iri)
             return {
-                'iri': self._exact_and_suffuniq_iris(iri, _shortwalk),
+                'iri': self._exact_and_suffuniq_iris([iri], _shortwalk),
                 'propertypath_from_focus': list(map(flattery.propertypath_as_keyword, paths)),
                 'depth_from_focus': list(map(len, paths)),
                 'iri_by_propertypath': self._iris_by_propertypath(_shortwalk),

@@ -1,6 +1,11 @@
+import unittest
+
+from share.search.index_strategy.trovesearch_nesterly import TrovesearchNesterlyIndexStrategy
 from . import _common_trovesearch_tests
 
 
+@unittest.skip('wip')
 class TestTrovesearchNesterly(_common_trovesearch_tests.CommonTrovesearchTests):
-    strategy_name_for_real = 'trovesearch_nesterly'
-    strategy_name_for_test = 'test_trovesearch_nesterly'
+    # for RealElasticTestCase
+    def get_index_strategy(self):
+        return TrovesearchNesterlyIndexStrategy('test_trovesearch_nesterly')

@@ -2,10 +2,10 @@ from django.core import checks
 
 
 def check_all_index_strategies_current(app_configs, **kwargs):
-    from share.search.index_strategy import all_index_strategies
+    from share.search import index_strategy
     from share.search.exceptions import IndexStrategyError
     errors = []
-    for _index_strategy in all_index_strategies().values():
+    for _index_strategy in index_strategy.all_index_strategies().values():
         try:
             _index_strategy.assert_strategy_is_current()
         except IndexStrategyError as exception:

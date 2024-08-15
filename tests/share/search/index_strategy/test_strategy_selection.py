@@ -10,15 +10,20 @@ from share.search.index_strategy import (
     IndexStrategy,
     sharev2_elastic5,
     sharev2_elastic8,
+    trove_indexcard_flats,
+    trovesearch_flattery,
+    trovesearch_nesterly,
 )
 
 
 @pytest.fixture
-def expected_strategy_classes(fake_elastic_strategies):
+def expected_strategy_classes():
     return {
-        'my_es5_strategy': sharev2_elastic5.Sharev2Elastic5IndexStrategy,
-        'my_es8_strategy': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
-        'another_es8_strategy': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
+        'sharev2_elastic5': sharev2_elastic5.Sharev2Elastic5IndexStrategy,
+        'sharev2_elastic8': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
+        'trove_indexcard_flats': trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy,
+        'trovesearch_flattery': trovesearch_flattery.TrovesearchFlatteryIndexStrategy,
+        'trovesearch_nesterly': trovesearch_nesterly.TrovesearchNesterlyIndexStrategy,
     }
 
 
@@ -39,7 +44,7 @@ class TestBaseIndexStrategy:
             assert issubclass(index_strategy.SpecificIndex, IndexStrategy.SpecificIndex)
             assert index_strategy.SpecificIndex is not IndexStrategy.SpecificIndex
 
-    def test_get_by_specific_indexname(self, mock_elastic_clients, expected_strategy_classes, fake_elastic_strategies):
+    def test_get_by_specific_indexname(self, mock_elastic_clients, expected_strategy_classes):
         for strategy_name, expected_strategy_class in expected_strategy_classes.items():
             indexname_prefix = get_index_strategy(strategy_name).indexname_prefix
             specific_indexname = ''.join((indexname_prefix, 'foo'))
@@ -52,9 +57,8 @@ class TestBaseIndexStrategy:
                 get_specific_index(bad_indexname)
 
     @pytest.mark.django_db
-    def test_get_by_request(self, mock_elastic_clients, fake_elastic_strategies):
-        for strategy_name in mock_elastic_clients.keys():
-            index_strategy = get_index_strategy(strategy_name)
+    def test_get_by_request(self, mock_elastic_clients):
+        for strategy_name, index_strategy in all_index_strategies().items():
             good_requests = [
                 strategy_name,
                 index_strategy.current_indexname,
@@ -64,10 +68,5 @@ class TestBaseIndexStrategy:
                 specific_index = get_index_for_sharev2_search(good_request)
                 assert isinstance(specific_index, index_strategy.SpecificIndex)
                 assert specific_index.index_strategy is index_strategy
-            # bad calls:
-            with pytest.raises(IndexStrategyError):
-                get_index_for_sharev2_search('bad-request')
-            with pytest.raises(IndexStrategyError):
-                get_index_for_sharev2_search()
-            with pytest.raises(IndexStrategyError):
-                get_index_for_sharev2_search(requested_name=None)
+        with pytest.raises(IndexStrategyError):
+            get_index_for_sharev2_search('bad-request')

@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 
 from share.bin.util import execute_cmd
+from share.test._testutil import patch_index_strategies
 import share.version
 
 
@@ -49,14 +50,14 @@ class TestSharectlSearch:
             mock_specific_index.pls_delete.assert_called_once_with()
 
     def test_setup_initial(self, settings):
-        expected_indexes = ['baz', 'bar', 'foo']
-        mock_index_strategys = [
-            mock.Mock()
-            for _ in expected_indexes
-        ]
-        with mock.patch('share.bin.search.index_strategy.all_index_strategies', return_value=mock_index_strategys):
+        _expected_indexes = ['baz', 'bar', 'foo']
+        _mock_index_strategys = {
+            _name: mock.Mock()
+            for _name in _expected_indexes
+        }
+        with patch_index_strategies(_mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
-        for mock_index_strategy in mock_index_strategys:
+        for mock_index_strategy in _mock_index_strategys.values():
             mock_specific_index = mock_index_strategy.for_current_index.return_value
             assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
 

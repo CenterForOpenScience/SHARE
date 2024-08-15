@@ -294,7 +294,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                     'source_record_identifier': self.indexcard.source_record_suid.identifier,
                     'source_config_label': self.indexcard.source_record_suid.source_config.label,
                 },
-                'focus_iri': self._exact_and_suffuniq_iris(self.focus_iri, self._fullwalk),
+                'focus_iri': self._exact_and_suffuniq_iris([self.focus_iri], self._fullwalk),
                 'propertypaths_present': self._propertypaths_present(self._fullwalk),
                 'iri_by_propertypath': self._iris_by_propertypath(self._fullwalk),
                 'iri_by_depth': self._iris_by_depth(self._fullwalk),
@@ -340,7 +340,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _texts_by_depth(self, walk: _GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
-            for (_path, _language_iris), _value_set in walk.text_values.items():
+            for _path, _value_set in walk.text_values.items():
                 _by_depth[len(_path)].update(_value_set)
             return {
                 _depth_field_name(_depth): list(_value_set)
@@ -349,7 +349,10 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _dates_by_propertypath(self, walk: _GraphWalk):
             return {
-                propertypath_as_field_name(_path): list(_value_set)
+                propertypath_as_field_name(_path): [
+                    _date.isoformat()
+                    for _date in _value_set
+                ]
                 for _path, _value_set in walk.date_values.items()
             }
 
@@ -592,6 +595,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             )
 
         def _can_use_nonnested_aggs(self):
+            raise RuntimeError('remove this')
             return (
                 len(self.params.valuesearch_propertypath_set) == 1
                 and not self.params.valuesearch_textsegment_set
@@ -1118,7 +1122,7 @@ def walk_twoples(
     else:
         _iter_twoples = (
             (_pred, _obj)
-            for _pred, _obj_set in twoples.items
+            for _pred, _obj_set in twoples.items()
             if _pred not in SKIPPABLE_PROPERTIES
             for _obj in _obj_set
         )

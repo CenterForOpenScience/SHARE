@@ -1,5 +1,6 @@
 from typing import Iterable, Iterator
 from datetime import date
+import itertools
 from urllib.parse import urlencode
 
 from primitive_metadata import primitive_rdf as rdf
@@ -7,7 +8,7 @@ from primitive_metadata import primitive_rdf as rdf
 from tests import factories
 from share.search import messages
 from trove import models as trove_db
-from trove.trovesearch.search_params import CardsearchParams
+from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
 from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF
 from ._with_real_services import RealElasticTestCase
 
@@ -16,10 +17,6 @@ BLARG = rdf.IriNamespace('https://blarg.example/blarg/')
 
 
 class CommonTrovesearchTests(RealElasticTestCase):
-    # required attrs on subclasses (from RealElasticTestCase):
-    strategy_name_for_real: str
-    strategy_name_for_test: str
-
     _indexcard_focus_by_uuid: dict[str, str]
 
     def setUp(self):
@@ -56,8 +53,9 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_cardsearch(self):
         self._fill_test_data_for_querying()
-        for _queryparams, _expected_result_iris in self._cardsearch_cases():
+        for _queryparams, _expected_result_iris in self.cardsearch_cases():
             _cardsearch_params = CardsearchParams.from_querystring(urlencode(_queryparams))
+            assert isinstance(_cardsearch_params, CardsearchParams)
             _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
             # assumes all results fit on one page
             _actual_result_iris = {
@@ -65,6 +63,23 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 for _result in _cardsearch_response.search_result_page
             }
             self.assertEqual(_expected_result_iris, _actual_result_iris)
+
+    def test_valuesearch(self):
+        self._fill_test_data_for_querying()
+        _valuesearch_cases = itertools.chain(
+            self.valuesearch_simple_cases(),
+            self.valuesearch_complex_cases(),
+        )
+        for _queryparams, _expected_values in _valuesearch_cases:
+            _valuesearch_params = ValuesearchParams.from_querystring(urlencode(_queryparams))
+            assert isinstance(_valuesearch_params, ValuesearchParams)
+            _valuesearch_response = self.current_index.pls_handle_valuesearch(_valuesearch_params)
+            # assumes all results fit on one page
+            _actual_values = {
+                _result.value_iri or _result.value_value
+                for _result in _valuesearch_response.search_result_page
+            }
+            self.assertEqual(_expected_values, _actual_values)
 
     def _fill_test_data_for_querying(self):
         self._index_indexcards([
@@ -129,7 +144,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             }),
         ])
 
-    def _cardsearch_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+    def cardsearch_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
         # using data from _fill_test_data_for_querying
         yield (
             {'cardSearchFilter[creator]': BLARG.someone},
@@ -284,6 +299,30 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'cardSearchText': '"what is here"'},
             {BLARG.b},
         )
+
+    def valuesearch_simple_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+        yield (
+            {'valueSearchPropertyPath': 'references'},
+            {BLARG.b, BLARG.c},
+        )
+        # TODO: more
+
+    def valuesearch_complex_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+        yield (
+            {
+                'valueSearchPropertyPath': 'references',
+                'valueSearchFilter[resourceType]': BLARG.Thing,
+            },
+            {BLARG.b, BLARG.c},
+        )
+        yield (
+            {
+                'valueSearchPropertyPath': 'references',
+                'valueSearchText': 'bbbb',
+            },
+            {BLARG.b},
+        )
+        # TODO: more
 
     def _index_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
         _messages_chunk = messages.MessagesChunk(
