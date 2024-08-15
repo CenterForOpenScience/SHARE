@@ -9,14 +9,14 @@ from . import trovesearch_flattery as flattery
 from .trovesearch_flattery import TrovesearchFlatteryIndexStrategy as FlatteryStrategy
 
 
-class TrovesearchNestedIndexStrategy(FlatteryStrategy):
+class TrovesearchNesterlyIndexStrategy(FlatteryStrategy):
     '''a more complicated version of the "flattery" trovesearch strategy
 
     for `index-value-search` queries that the flatter index can't handle
     '''
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
-        salt='TrovesearchNestedIndexStrategy',
+        salt='TrovesearchNesterlyIndexStrategy',
         hexdigest='...',
     )
 

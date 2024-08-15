@@ -12,6 +12,7 @@ from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
 from .trovesearch_flattery import TrovesearchFlatteryIndexStrategy
+from .trovesearch_nesterly import TrovesearchNesterlyIndexStrategy
 
 if typing.TYPE_CHECKING:
     from ._base import IndexStrategy
@@ -41,6 +42,7 @@ def _iter_all_index_strategies():
         yield Sharev2Elastic8IndexStrategy(name='sharev2_elastic8')
         yield TroveIndexcardFlatsIndexStrategy(name='trove_indexcard_flats')
         yield TrovesearchFlatteryIndexStrategy(name='trovesearch_flattery')
+        yield TrovesearchNesterlyIndexStrategy(name='trovesearch_nesterly')
 
 
 def get_index_strategy(strategyname: str) -> IndexStrategy:
@@ -91,6 +93,6 @@ def get_index_for_trovesearch(params: search_params.CardsearchParams) -> IndexSt
         _name = (
             'trovesearch_flattery'
             if TrovesearchFlatteryIndexStrategy.works_with_params(params)
-            else 'trovesearch_nested'
+            else 'trovesearch_nesterly'
         )
     return get_specific_index(_name, for_search=True)
