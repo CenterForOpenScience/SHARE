@@ -79,7 +79,7 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
 def gather_valuesearch_propertypath(focus, *, search_params, **kwargs):
-    yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
+    yield from _single_propertypath_twoples(search_params.valuesearch_propertypath)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)

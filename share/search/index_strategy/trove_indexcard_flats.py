@@ -344,18 +344,14 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
-            _is_date_search = all(
-                is_date_property(_path[-1])
-                for _path in valuesearch_params.valuesearch_propertypath_set
-            )
+            _is_date_search = is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
                 query=self._cardsearch_query(
                     valuesearch_params.cardsearch_filter_set,
                     valuesearch_params.cardsearch_textsegment_set,
-                    additional_filters=[{'terms': {'iri_paths_present': [
-                        iri_path_as_keyword(_path)
-                        for _path in valuesearch_params.valuesearch_propertypath_set
-                    ]}}],
+                    additional_filters=[{'term': {'iri_paths_present': iri_path_as_keyword(
+                        valuesearch_params.valuesearch_propertypath,
+                    )}}],
                 ),
                 size=0,  # ignore cardsearch hits; just want the aggs
                 aggs=(
@@ -454,10 +450,10 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             _nested_iri_bool = {
-                'filter': [{'terms': {'nested_iri.suffuniq_path_from_focus': [
-                    iri_path_as_keyword(_path, suffuniq=True)
-                    for _path in valuesearch_params.valuesearch_propertypath_set
-                ]}}],
+                'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
+                    valuesearch_params.valuesearch_propertypath,
+                    suffuniq=True,
+                )}}],
                 'must': [],
                 'must_not': [],
                 'should': [],
@@ -519,11 +515,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     'nested': {'path': 'nested_date'},
                     'aggs': {
                         'value_at_propertypath': {
-                            'filter': {'terms': {
-                                'nested_date.suffuniq_path_from_focus': [
-                                    iri_path_as_keyword(_path, suffuniq=True)
-                                    for _path in valuesearch_params.valuesearch_propertypath_set
-                                ],
+                            'filter': {'term': {
+                                'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
+                                    valuesearch_params.valuesearch_propertypath,
+                                    suffuniq=True,
+                                ),
                             }},
                             'aggs': {
                                 'count_by_year': {

@@ -89,3 +89,10 @@ class TrovesearchNesterlyIndexStrategy(FlatteryStrategy):
     # override TrovesearchFlatteryIndexStrategy
     class _ValuesearchQueryBuilder(FlatteryStrategy._ValuesearchQueryBuilder):
         ...
+
+        # override _CardsearchQueryBuilder
+        def _additional_cardsearch_filters(self) -> list[dict]:
+            # TODO: consider
+            return [{'term': {'propertypaths_present': flattery.propertypath_as_keyword(
+                self.params.valuesearch_propertypath
+            )}}]

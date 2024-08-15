@@ -473,7 +473,7 @@ class CardsearchParams(BaseTroveParams):
 class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
-    valuesearch_propertypath_set: frozenset[tuple[str, ...]]
+    valuesearch_propertypath: tuple[str, ...]
     valuesearch_textsegment_set: frozenset[Textsegment]
     valuesearch_filter_set: frozenset[SearchFilter]
 
@@ -485,14 +485,14 @@ class ValuesearchParams(CardsearchParams):
             raise trove_exceptions.MissingRequiredQueryParam('valueSearchPropertyPath')
         return {
             **super().parse_queryparams(queryparams),
-            'valuesearch_propertypath_set': _parse_propertypath_set(_raw_propertypath, allow_globs=False),
+            'valuesearch_propertypath': _parse_propertypath(_raw_propertypath, allow_globs=False),
             'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
     def to_querydict(self):
         _querydict = super().to_querydict()
-        _querydict['valueSearchPropertyPath'] = propertypath_set_key(self.valuesearch_propertypath_set)
+        _querydict['valueSearchPropertyPath'] = propertypath_set_key(self.valuesearch_propertypath)
         for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:

@@ -39,7 +39,7 @@ from trove.trovesearch.search_response import (
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS, OSFMAP
+from trove.vocab.namespaces import TROVE, FOAF, RDFS, DCTERMS, OWL, SKOS, OSFMAP
 
 
 logger = logging.getLogger(__name__)
@@ -99,8 +99,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
         return (
             not isinstance(params, ValuesearchParams)
             or (  # constraints on valuesearch:
-                len(params.valuesearch_propertypath_set) == 1
-                and not params.valuesearch_textsegment_set
+                not params.valuesearch_textsegment_set
                 and all(
                     _filter.is_sameas_filter()
                     for _filter in params.valuesearch_filter_set
@@ -523,8 +522,8 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                     yield 'must', self._exact_text_query(_textsegment)
                 else:
                     yield 'must', self._fuzzy_text_must_query(_textsegment)
-                    # if self.relevance_matters:
-                    #     yield 'should', self._fuzzy_text_should_query(_textsegment)
+                    if self.relevance_matters:
+                        yield 'should', self._fuzzy_text_should_query(_textsegment)
 
         def _text_field_name(self, propertypath: Propertypath):
             return (
@@ -569,10 +568,8 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
         def build(self):
             if self._is_date_valuesearch():
                 _aggs = self._valuesearch_date_aggs()
-            elif self._can_use_nonnested_aggs():
-                _aggs = self._valuesearch_nonnested_iri_aggs()
             else:
-                _aggs = self._valuesearch_nested_iri_aggs()
+                _aggs = self._valuesearch_iri_aggs()
             return dict(
                 query=self._cardsearch_query(),
                 size=0,  # ignore cardsearch hits; just want the aggs
@@ -589,30 +586,10 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             return False  # valuesearch always ordered by count
 
         def _is_date_valuesearch(self) -> bool:
-            return all(
-                is_date_property(_path[-1])
-                for _path in self.params.valuesearch_propertypath_set
-            )
+            return is_date_property(self.params.valuesearch_propertypath[-1])
 
-        def _can_use_nonnested_aggs(self):
-            raise RuntimeError('remove this')
-            return (
-                len(self.params.valuesearch_propertypath_set) == 1
-                and not self.params.valuesearch_textsegment_set
-                and all(
-                    _filter.is_sameas_filter()
-                    for _filter in self.params.valuesearch_filter_set
-                )
-            )
-
-        def _additional_cardsearch_filters(self) -> list[dict]:
-            return [{'terms': {'propertypaths_present': [
-                propertypath_as_keyword(_path)
-                for _path in self.params.valuesearch_propertypath_set
-            ]}}]
-
-        def _valuesearch_nonnested_iri_aggs(self):
-            (_propertypath,) = self.params.valuesearch_propertypath_set
+        def _valuesearch_iri_aggs(self):
+            _propertypath = self.params.valuesearch_propertypath
             _field = f'iri_by_propertypath.{propertypath_as_field_name(_propertypath)}'
             _terms_agg: dict = {'field': _field}
             _specific_iris = list(set(self.params.valuesearch_iris()))
@@ -621,87 +598,19 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                 _terms_agg['size'] = len(_specific_iris)
             return {'agg_valuesearch': {'terms': _terms_agg}}
 
-        def _valuesearch_nested_iri_aggs(self):
-            raise NotImplementedError('_valuesearch_nested_iri_aggs')
-            _nested_iri_bool = {
-                'filter': ...,
-                'must': [],
-                'must_not': [],
-                'should': [],
-            }
-            _nested_terms_agg = {
-                'field': 'nested_iri.iri_value',
-                # WARNING: terribly inefficient pagination (part one)
-                'size': cursor.start_index + cursor.page_size + 1,
-            }
-            _specific_iris = list(self.params.valuesearch_iris())
-            if _specific_iris:
-                _nested_iri_bool['filter'].append({'terms': {
-                    'nested_iri.iri_value': _specific_iris,
-                }})
-                _nested_terms_agg['size'] = len(_specific_iris)
-                _nested_terms_agg['include'] = _specific_iris
-            _type_iris = list(self.params.valuesearch_type_iris())
-            if _type_iris:
-                _nested_iri_bool['filter'].append({'terms': {
-                    'nested_iri.type_iri': _type_iris,
-                }})
-            _textq_builder = self._SimpleTextQueryBuilder('nested_iri.value_namelike_text')
-            for _textsegment in self.params.valuesearch_textsegment_set:
-                for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
-                    _nested_iri_bool[_boolkey].extend(_textqueries)
-            return {
-                'in_nested_iri': {
-                    'nested': {'path': 'nested_iri'},
-                    'aggs': {
-                        'value_at_propertypath': {
-                            'filter': {'bool': _nested_iri_bool},
-                            'aggs': {
-                                'agg_iri_values': {
-                                    'terms': _nested_terms_agg,
-                                    'aggs': {
-                                        'type_iri': {'terms': {
-                                            'field': 'nested_iri.type_iri',
-                                        }},
-                                        'name_text': {'terms': {
-                                            'field': 'nested_iri.name_text.raw',
-                                        }},
-                                        'title_text': {'terms': {
-                                            'field': 'nested_iri.title_text.raw',
-                                        }},
-                                        'label_text': {'terms': {
-                                            'field': 'nested_iri.label_text.raw',
-                                        }},
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            }
-
         def _valuesearch_date_aggs(self):
+            _propertypath = self.params.valuesearch_propertypath
+            _field = f'date_by_propertypath.{propertypath_as_field_name(_propertypath)}'
             _aggs = {
-                'in_nested_date': {
-                    'nested': {'path': 'nested_date'},
+                'agg_value_at_propertypath': {
                     'aggs': {
-                        'value_at_propertypath': {
-                            'filter': {'terms': {
-                                'nested_date.suffuniq_path_from_focus': [
-                                    propertypath_as_keyword(_path)
-                                    for _path in self.params.valuesearch_propertypath_set
-                                ],
-                            }},
-                            'aggs': {
-                                'count_by_year': {
-                                    'date_histogram': {
-                                        'field': 'nested_date.date_value',
-                                        'calendar_interval': 'year',
-                                        'format': 'yyyy',
-                                        'order': {'_key': 'desc'},
-                                        'min_doc_count': 1,
-                                    },
-                                },
+                        'count_by_year': {
+                            'date_histogram': {
+                                'field': _field,
+                                'calendar_interval': 'year',
+                                'format': 'yyyy',
+                                'order': {'_key': 'desc'},
+                                'min_doc_count': 1,
                             },
                         },
                     },
