@@ -492,7 +492,7 @@ class ValuesearchParams(CardsearchParams):
 
     def to_querydict(self):
         _querydict = super().to_querydict()
-        _querydict['valueSearchPropertyPath'] = propertypath_set_key(self.valuesearch_propertypath)
+        _querydict['valueSearchPropertyPath'] = propertypath_key(self.valuesearch_propertypath)
         for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:

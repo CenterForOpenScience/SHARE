@@ -306,7 +306,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {BLARG.b, BLARG.c},
         )
         yield (
-            {'valueSearchPropertyPath': 'created'},
+            {'valueSearchPropertyPath': 'dateCreated'},
             {'1999', '2012', '2024'},
         )
         # TODO: more

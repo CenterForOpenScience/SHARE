@@ -692,6 +692,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             cursor.result_count = _es8_total['value']
             if cursor.random_sort and not cursor.is_first_page():
                 # account for the filtered-out first page
+                assert cursor.result_count is not None
                 cursor.result_count += len(cursor.first_page_pks)
         _results = []
         for _es8_hit in es8_response['hits']['hits']:
@@ -852,6 +853,7 @@ class _SimpleCursor:
     def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
         if page.cursor:
             return decode_cursor_dataclass(page.cursor, cls)
+        assert page.size is not None
         return cls(
             start_index=0,
             page_size=page.size,
@@ -891,7 +893,7 @@ class _SimpleCursor:
         return (
             self.MAX_INDEX
             if self.has_many_more()
-            else min(self.result_count, self.MAX_INDEX)
+            else min(self.result_count or 0, self.MAX_INDEX)
         )
 
     def is_valid_cursor(self) -> bool:
@@ -909,6 +911,7 @@ class _CardsearchCursor(_SimpleCursor):
     def from_cardsearch_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
         if params.page.cursor:
             return decode_cursor_dataclass(params.page.cursor, cls)
+        assert params.page.size is not None
         return cls(
             start_index=0,
             page_size=params.page.size,
@@ -1040,9 +1043,7 @@ def walk_twoples(
         _path = (_pred,)
         if isinstance(_obj, frozenset):
             for _innerpath, _innerobj in walk_twoples(_obj):
-                yield (
-                    (*_path, *_innerpath),
-                    _innerobj,
-                )
+                _fullpath = (*_path, *_innerpath)
+                yield (_fullpath, _innerobj)
         else:
             yield (_path, _obj)
