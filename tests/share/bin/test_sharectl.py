@@ -8,7 +8,7 @@ import pytest
 from share.bin.util import execute_cmd
 import share.version
 
-from tests.share.search._testutil import patch_index_strategies
+from tests.share.search import patch_index_strategies
 
 
 def run_sharectl(*args):

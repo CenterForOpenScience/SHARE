@@ -1,9 +1,7 @@
 import contextlib
-import typing
 from unittest import mock
 
-if typing.TYPE_CHECKING:
-    from share.search import index_strategy
+from share.search import index_strategy
 
 
 @contextlib.contextmanager
