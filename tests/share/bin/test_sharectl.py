@@ -41,7 +41,7 @@ class TestSharectlSearch:
         def _get_specific_index(indexname):
             return mock_specific_indexes[indexname]
 
-        with mock.patch('share.bin.search.IndexStrategy.get_specific_index', wraps=_get_specific_index) as mock_get_specific:
+        with mock.patch('share.bin.search.index_strategy.get_specific_index', wraps=_get_specific_index) as mock_get_specific:
             run_sharectl('search', 'purge', *indexnames)
         assert mock_get_specific.mock_calls == [
             mock.call(indexname)

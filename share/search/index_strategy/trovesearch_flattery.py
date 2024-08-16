@@ -595,23 +595,19 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             if _specific_iris:
                 _terms_agg['include'] = _specific_iris
                 _terms_agg['size'] = len(_specific_iris)
-            return {'agg_valuesearch': {'terms': _terms_agg}}
+            return {'agg_valuesearch_iris': {'terms': _terms_agg}}
 
         def _valuesearch_date_aggs(self):
             _propertypath = self.params.valuesearch_propertypath
             _field = f'date_by_propertypath.{propertypath_as_field_name(_propertypath)}'
             _aggs = {
-                'agg_value_at_propertypath': {
-                    'aggs': {
-                        'agg_count_by_year': {
-                            'date_histogram': {
-                                'field': _field,
-                                'calendar_interval': 'year',
-                                'format': 'yyyy',
-                                'order': {'_key': 'desc'},
-                                'min_doc_count': 1,
-                            },
-                        },
+                'agg_valuesearch_dates': {
+                    'date_histogram': {
+                        'field': _field,
+                        'calendar_interval': 'year',
+                        'format': 'yyyy',
+                        'order': {'_key': 'desc'},
+                        'min_doc_count': 1,
                     },
                 },
             }
@@ -626,9 +622,9 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
         es8_response: dict,
         cursor: '_SimpleCursor',
     ) -> ValuesearchResponse:
-        _iri_aggs = es8_response['aggregations'].get('in_nested_iri')
+        _iri_aggs = es8_response['aggregations'].get('agg_valuesearch_iris')
         if _iri_aggs:
-            _buckets = _iri_aggs['agg_value_at_propertypath']['agg_iri_values']['buckets']
+            _buckets = _iri_aggs['buckets']
             _bucket_count = len(_buckets)
             # WARNING: terribly inefficient pagination (part two)
             _page_end_index = cursor.start_index + cursor.page_size
@@ -650,8 +646,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
         else:  # assume date
             _year_buckets = (
                 es8_response['aggregations']
-                ['agg_value_at_propertypath']
-                ['agg_count_by_year']
+                ['agg_valuesearch_dates']
                 ['buckets']
             )
             return ValuesearchResponse(
@@ -664,10 +659,11 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
     def _valuesearch_iri_result(self, iri_bucket) -> ValuesearchResult:
         return ValuesearchResult(
             value_iri=iri_bucket['key'],
-            value_type=_bucketlist(iri_bucket['type_iri']),
-            name_text=_bucketlist(iri_bucket['name_text']),
-            title_text=_bucketlist(iri_bucket['title_text']),
-            label_text=_bucketlist(iri_bucket['label_text']),
+            # TODO: get type and text somehow
+            value_type=_bucketlist(iri_bucket.get('type_iri', [])),
+            name_text=_bucketlist(iri_bucket.get('name_text', [])),
+            title_text=_bucketlist(iri_bucket.get('title_text', [])),
+            label_text=_bucketlist(iri_bucket.get('label_text', [])),
             match_count=iri_bucket['doc_count'],
         )
 
