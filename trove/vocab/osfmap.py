@@ -767,6 +767,7 @@ ALL_SUGGESTED_PROPERTY_PATHS = (
 PROJECT_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.created,),
     (OSFMAP.funder,),
+    (DCTERMS.subject,),
     (DCTERMS.rights,),
     (DCTERMS.type,),
     (OSFMAP.affiliation,),
