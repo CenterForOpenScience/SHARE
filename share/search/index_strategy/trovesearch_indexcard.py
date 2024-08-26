@@ -1,9 +1,7 @@
 from __future__ import annotations
 import base64
 from collections import abc, defaultdict
-import contextlib
 import dataclasses
-import datetime
 import functools
 import json
 import logging
@@ -11,7 +9,6 @@ import re
 from typing import Iterable, ClassVar, Iterator
 
 from django.conf import settings
-from django.db.models import Exists, OuterRef
 import elasticsearch8
 from primitive_metadata import primitive_rdf as rdf
 
@@ -37,60 +34,18 @@ from trove.trovesearch.search_response import (
     ValuesearchResult,
     PropertypathUsage,
 )
-from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, FOAF, RDFS, DCTERMS, OWL, SKOS, OSFMAP
+from trove.vocab.namespaces import TROVE
+from . import _trovesearch_util as ts
 
 
 logger = logging.getLogger(__name__)
 
 
-###
-# constants
-
-TITLE_PROPERTIES = (DCTERMS.title,)
-NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
-LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
-NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
-
-SKIPPABLE_PROPERTIES = (
-    OSFMAP.contains,  # too much, not helpful
-    OWL.sameAs,  # handled special
-)
-
-VALUESEARCH_MAX = 234
-CARDSEARCH_MAX = 9997
-
-KEYWORD_LENGTH_MAX = 8191  # skip keyword terms that might exceed lucene's internal limit
-# (see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html)
-KEYWORD_MAPPING = {'type': 'keyword', 'ignore_above': KEYWORD_LENGTH_MAX}
-FLATTENED_MAPPING = {'type': 'flattened', 'ignore_above': KEYWORD_LENGTH_MAX}
-TEXT_MAPPING = {
-    'type': 'text',
-    'index_options': 'offsets',  # for highlighting
-}
-IRI_KEYWORD_MAPPING = {
-    'type': 'object',
-    'properties': {  # for indexing iri values two ways:
-        'exact': KEYWORD_MAPPING,  # the exact iri value (e.g. "https://foo.example/bar/")
-        'suffuniq': KEYWORD_MAPPING,  # "sufficiently unique" (e.g. "://foo.example/bar")
-    },
-}
-
-
-###
-# type aliases
-
-Propertypath = tuple[str, ...]
-
-
-###
-# the strategy itself
-
-class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
+class TrovesearchIndexcardIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
-        salt='TrovesearchFlatteryIndexStrategy',
+        salt='TrovesearchIndexcardIndexStrategy',
         hexdigest='...',
     )
 
@@ -128,40 +83,23 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
     def index_mappings(self):
         return {
             'dynamic': 'false',
-            'dynamic_templates': [
-                {'dynamic_text_by_path': {
-                    'path_match': 'dynamics.text_by_propertypath.*',
-                    'mapping': TEXT_MAPPING,
-                }},
-                {'dynamic_text_by_depth': {
-                    'path_match': 'dynamics.text_by_depth.*',
-                    'mapping': TEXT_MAPPING,
-                }},
-                {'dynamic_date': {
-                    'path_match': 'dynamics.date_by_propertypath.*',
-                    'mapping': {
-                        'type': 'date',
-                        'format': 'strict_date_optional_time',
-                    },
-                }},
-            ],
             'properties': {
                 # simple keyword properties
-                'indexcard_iri': KEYWORD_MAPPING,
-                'indexcard_pk': KEYWORD_MAPPING,
+                'indexcard_iri': ts.KEYWORD_MAPPING,
+                'indexcard_pk': ts.KEYWORD_MAPPING,
                 'suid': {
                     'type': 'object',
                     'properties': {
-                        'source_config_label': KEYWORD_MAPPING,
-                        'source_record_identifier': KEYWORD_MAPPING,
+                        'source_config_label': ts.KEYWORD_MAPPING,
+                        'source_record_identifier': ts.KEYWORD_MAPPING,
                     },
                 },
-                'focus_iri': IRI_KEYWORD_MAPPING,
-                'propertypaths_present': KEYWORD_MAPPING,
+                'focus_iri': ts.IRI_KEYWORD_MAPPING,
+                'propertypaths_present': ts.KEYWORD_MAPPING,
                 # flattened properties (dynamic sub-properties with keyword values)
-                'iri_by_propertypath': FLATTENED_MAPPING,
-                'iri_by_depth': FLATTENED_MAPPING,
-                # dynamic properties (see dynamic_templates, above)
+                'iri_by_propertypath': ts.FLATTENED_MAPPING,
+                'iri_by_depth': ts.FLATTENED_MAPPING,
+                # dynamic properties (see dynamic_templates, below)
                 'dynamics': {
                     'type': 'object',
                     'properties': {
@@ -171,39 +109,45 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                     },
                 },
             },
+            'dynamic_templates': [
+                {'dynamic_text_by_path': {
+                    'path_match': 'dynamics.text_by_propertypath.*',
+                    'mapping': ts.TEXT_MAPPING,
+                }},
+                {'dynamic_text_by_depth': {
+                    'path_match': 'dynamics.text_by_depth.*',
+                    'mapping': ts.TEXT_MAPPING,
+                }},
+                {'dynamic_date': {
+                    'path_match': 'dynamics.date_by_propertypath.*',
+                    'mapping': {
+                        'type': 'date',
+                        'format': 'strict_date_optional_time',
+                    },
+                }},
+            ],
         }
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _indexcard_rdf_qs = (
-            trove_db.LatestIndexcardRdf.objects
-            .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
-            .filter(Exists(
-                trove_db.DerivedIndexcard.objects
-                .filter(upriver_indexcard_id=OuterRef('indexcard_id'))
-                .filter(deriver_identifier__in=(
-                    trove_db.ResourceIdentifier.objects
-                    .queryset_for_iri(TROVE['derive/osfmap_json'])
-                ))
-            ))
-            .exclude(indexcard__deleted__isnull=False)
+            ts.latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
             .select_related('indexcard__source_record_suid__source_config')
-            .prefetch_related('indexcard__focus_identifier_set')
         )
-        _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
+        _remaining_indexcard_pks = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
             _docbuilder = self._SourcedocBuilder(_indexcard_rdf)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
+                _indexcard_pk = _indexcard_rdf.indexcard_id
                 _index_action = self.build_index_action(
-                    doc_id=str(_indexcard_rdf.indexcard.pk),
+                    doc_id=str(_indexcard_pk),
                     doc_source=_docbuilder.build(),
                 )
-                _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
-                yield _indexcard_rdf.indexcard_id, _index_action
+                _remaining_indexcard_pks.discard(_indexcard_pk)
+                yield _indexcard_pk, _index_action
         # delete any that don't have "latest" rdf and derived osfmap_json
-        _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
-        for _indexcard in _leftovers:
-            yield _indexcard.id, self.build_delete_action(str(_indexcard.pk))
+        for _indexcard_pk in _remaining_indexcard_pks:
+            yield _indexcard_pk, self.build_delete_action(_indexcard_pk)
 
     ###
     # implement abstract IndexStrategy.SpecificIndex
@@ -282,7 +226,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                 # skip cards that belong to an obsolete suid with a later duplicate
                 _suid.has_forecompat_replacement()
                 # ...or that are without some value for name/title/label
-                or not any(self.rdfdoc.q(self.focus_iri, NAMELIKE_PROPERTIES))
+                or not any(self.rdfdoc.q(self.focus_iri, ts.NAMELIKE_PROPERTIES))
             )
 
         def build(self) -> dict:
@@ -306,37 +250,37 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             return _sourcedoc
 
         @functools.cached_property
-        def _fullwalk(self) -> _GraphWalk:
-            return _GraphWalk(self.rdfdoc, self.focus_iri)
+        def _fullwalk(self) -> ts.GraphWalk:
+            return ts.GraphWalk(self.rdfdoc, self.focus_iri)
 
-        def _propertypaths_present(self, walk: _GraphWalk):
+        def _propertypaths_present(self, walk: ts.GraphWalk):
             return [
-                propertypath_as_keyword(_path)
+                ts.propertypath_as_keyword(_path)
                 for _path in walk.paths_walked
             ]
 
-        def _iris_by_propertypath(self, walk: _GraphWalk):
+        def _iris_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                propertypath_as_field_name(_path): _suffuniq_iris(walk.iris_synonyms(_iris))
+                ts.propertypath_as_field_name(_path): ts.suffuniq_iris(walk.iris_synonyms(_iris))
                 for _path, _iris in walk.iri_values.items()
             }
 
-        def _iris_by_depth(self, walk: _GraphWalk):
+        def _iris_by_depth(self, walk: ts.GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
             for _path, _iris in walk.iri_values.items():
                 _by_depth[len(_path)].update(_iris)
             return {
-                _depth_field_name(_depth): _suffuniq_iris(walk.iris_synonyms(_iris))
+                _depth_field_name(_depth): ts.suffuniq_iris(walk.iris_synonyms(_iris))
                 for _depth, _iris in _by_depth.items()
             }
 
-        def _texts_by_propertypath(self, walk: _GraphWalk):
+        def _texts_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                propertypath_as_field_name(_path): list(_value_set)
+                ts.propertypath_as_field_name(_path): list(_value_set)
                 for _path, _value_set in walk.text_values.items()
             }
 
-        def _texts_by_depth(self, walk: _GraphWalk):
+        def _texts_by_depth(self, walk: ts.GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
             for _path, _value_set in walk.text_values.items():
                 _by_depth[len(_path)].update(_value_set)
@@ -345,20 +289,20 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                 for _depth, _value_set in _by_depth.items()
             }
 
-        def _dates_by_propertypath(self, walk: _GraphWalk):
+        def _dates_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                propertypath_as_field_name(_path): [
+                ts.propertypath_as_field_name(_path): [
                     _date.isoformat()
                     for _date in _value_set
                 ]
                 for _path, _value_set in walk.date_values.items()
             }
 
-        def _exact_and_suffuniq_iris(self, iris: Iterable[str], walk: _GraphWalk):
+        def _exact_and_suffuniq_iris(self, iris: Iterable[str], walk: ts.GraphWalk):
             _synonyms = walk.iris_synonyms(iris)
             return {
                 'exact': list(_synonyms),
-                'suffuniq': _suffuniq_iris(_synonyms),
+                'suffuniq': ts.suffuniq_iris(_synonyms),
             }
 
     ###
@@ -453,7 +397,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                 _aggs['agg_related_propertypath_usage'] = {'terms': {
                     'field': 'propertypaths_present',
                     'include': [
-                        propertypath_as_keyword(_path)
+                        ts.propertypath_as_keyword(_path)
                         for _path in self.params.related_property_paths
                     ],
                     'size': len(self.params.related_property_paths),
@@ -466,11 +410,11 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                 for _path in search_filter.propertypath_set
             ])
 
-        def _cardsearch_path_presence_query(self, path: Propertypath):
-            return {'term': {'propertypaths_present': propertypath_as_keyword(path)}}
+        def _cardsearch_path_presence_query(self, path: ts.Propertypath):
+            return {'term': {'propertypaths_present': ts.propertypath_as_keyword(path)}}
 
         def _cardsearch_iri_filter(self, search_filter) -> dict:
-            _iris = _suffuniq_iris(search_filter.value_set)
+            _iris = ts.suffuniq_iris(search_filter.value_set)
             return _any_query([
                 self._cardsearch_path_iri_query(_path, _iris)
                 for _path in search_filter.propertypath_set
@@ -478,7 +422,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _cardsearch_path_iri_query(self, path, suffuniq_iris):
             _field = (
-                f'iri_by_propertypath.{propertypath_as_field_name(path)}'
+                f'iri_by_propertypath.{ts.propertypath_as_field_name(path)}'
                 if not is_globpath(path)
                 else f'iri_by_depth.{_depth_field_name(len(path))}'
             )
@@ -491,7 +435,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
             ])
 
         def _date_filter_for_path(self, path, filter_operator, value_set):
-            _field = f'dynamics.date_by_propertypath.{propertypath_as_field_name(path)}'
+            _field = f'dynamics.date_by_propertypath.{ts.propertypath_as_field_name(path)}'
             if filter_operator == SearchFilter.FilterOperator.BEFORE:
                 _value = min(value_set)  # rely on string-comparable isoformat
                 return {'range': {_field: {'lt': _daterange_value(_value)}}}
@@ -508,7 +452,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _cardsearch_sorts(self):
             for _sortparam in self.params.sort_list:
-                _pathfield = propertypath_as_field_name((_sortparam.property_iri,))
+                _pathfield = ts.propertypath_as_field_name((_sortparam.property_iri,))
                 _fieldpath = f'dynamics.date_by_propertypath.{_pathfield}'
                 _order = 'desc' if _sortparam.descending else 'asc'
                 yield {_fieldpath: _order}
@@ -524,9 +468,9 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
                     if self.relevance_matters:
                         yield 'should', self._fuzzy_text_should_query(_textsegment)
 
-        def _text_field_name(self, propertypath: Propertypath):
+        def _text_field_name(self, propertypath: ts.Propertypath):
             return (
-                f'dynamics.text_by_propertypath.{propertypath_as_field_name(propertypath)}'
+                f'dynamics.text_by_propertypath.{ts.propertypath_as_field_name(propertypath)}'
                 if not is_globpath(propertypath)
                 else f'dynamics.text_by_depth.{_depth_field_name(len(propertypath))}'
             )
@@ -589,7 +533,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _valuesearch_iri_aggs(self):
             _propertypath = self.params.valuesearch_propertypath
-            _field = f'iri_by_propertypath.{propertypath_as_field_name(_propertypath)}'
+            _field = f'iri_by_propertypath.{ts.propertypath_as_field_name(_propertypath)}'
             _terms_agg: dict = {'field': _field}
             _specific_iris = list(set(self.params.valuesearch_iris()))
             if _specific_iris:
@@ -599,7 +543,7 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 
         def _valuesearch_date_aggs(self):
             _propertypath = self.params.valuesearch_propertypath
-            _field = f'date_by_propertypath.{propertypath_as_field_name(_propertypath)}'
+            _field = f'date_by_propertypath.{ts.propertypath_as_field_name(_propertypath)}'
             _aggs = {
                 'agg_valuesearch_dates': {
                     'date_histogram': {
@@ -759,26 +703,6 @@ class TrovesearchFlatteryIndexStrategy(Elastic8IndexStrategy):
 ###
 # assorted helper functions
 
-def propertypath_as_keyword(path: Propertypath) -> str:
-    return json.dumps(path if is_globpath(path) else [
-        get_sufficiently_unique_iri(_iri)
-        for _iri in path
-    ])
-
-
-def propertypath_as_field_name(path: Propertypath) -> str:
-    _path_keyword = propertypath_as_keyword(path)
-    return base64.urlsafe_b64encode(_path_keyword.encode()).decode()
-
-
-def _suffuniq_iris(iris: Iterable[str]) -> list[str]:
-    # deduplicates, may reorder
-    return list({
-        get_sufficiently_unique_iri(_iri)
-        for _iri in iris
-    })
-
-
 def _bucketlist(agg_result: dict) -> list[str]:
     return [
         _bucket['key']
@@ -801,7 +725,7 @@ def _depth_field_name(depth: int) -> str:
     return f'depth{depth}'
 
 
-def _parse_path_field_name(path_field_name: str) -> Propertypath:
+def _parse_path_field_name(path_field_name: str) -> ts.Propertypath:
     # inverse of propertypath_as_field_name
     _list = json.loads(base64.urlsafe_b64decode(path_field_name.encode()).decode())
     assert isinstance(_list, list)
@@ -816,14 +740,14 @@ def _any_query(queries: abc.Collection[dict]):
     return {'bool': {'should': list(queries), 'minimum_should_match': 1}}
 
 
-def _pathset_as_nestedvalue_filter(propertypath_set: frozenset[Propertypath], nested_path: str):
+def _pathset_as_nestedvalue_filter(propertypath_set: frozenset[ts.Propertypath], nested_path: str):
     _suffuniq_iri_paths = []
     _glob_path_lengths = []
     for _path in propertypath_set:
         if is_globpath(_path):
             _glob_path_lengths.append(len(_path))
         else:
-            _suffuniq_iri_paths.append(propertypath_as_keyword(_path))
+            _suffuniq_iri_paths.append(ts.propertypath_as_keyword(_path))
     if _suffuniq_iri_paths and _glob_path_lengths:
         return {'bool': {
             'minimum_should_match': 1,
@@ -843,7 +767,7 @@ class _SimpleCursor:
     page_size: int
     result_count: int | None  # use -1 to indicate "many more"
 
-    MAX_INDEX: ClassVar[int] = VALUESEARCH_MAX
+    MAX_INDEX: ClassVar[int] = ts.VALUESEARCH_MAX
 
     @classmethod
     def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
@@ -901,7 +825,7 @@ class _CardsearchCursor(_SimpleCursor):
     random_sort: bool  # how to sort by relevance to nothingness? randomness!
     first_page_pks: tuple[str, ...] = ()
 
-    MAX_INDEX: ClassVar[int] = CARDSEARCH_MAX
+    MAX_INDEX: ClassVar[int] = ts.CARDSEARCH_MAX
 
     @classmethod
     def from_cardsearch_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
@@ -932,114 +856,3 @@ class _CardsearchCursor(_SimpleCursor):
         if self.random_sort and not self.first_page_pks:
             return None
         return super().prev_cursor()
-
-
-@dataclasses.dataclass
-class _GraphWalk:
-    rdfdoc: rdf.RdfGraph
-    focus_iri: str
-    recursive: bool = True
-    iri_values: dict[Propertypath, set[str]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
-    )
-    text_values: dict[Propertypath, set[rdf.Literal]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
-    )
-    date_values: dict[Propertypath, set[datetime.date]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
-    )
-    paths_walked: set[Propertypath] = dataclasses.field(default_factory=set)
-    _visiting: set[str] = dataclasses.field(default_factory=set)
-
-    def __post_init__(self):
-        for _walk_path, _walk_obj in self._walk_from_subject(self.focus_iri):
-            self.paths_walked.add(_walk_path)
-            if isinstance(_walk_obj, str):
-                self.iri_values[_walk_path].add(_walk_obj)
-            elif isinstance(_walk_obj, datetime.date):
-                self.date_values[_walk_path].add(_walk_obj)
-            elif is_date_property(_walk_path[-1]):
-                try:
-                    _parsed_date = datetime.date.fromisoformat(_walk_obj.unicode_value)
-                except ValueError:
-                    logger.debug('skipping malformatted date "%s"', _walk_obj.unicode_value)
-                else:
-                    self.date_values[_walk_path].add(_parsed_date)
-            elif isinstance(_walk_obj, rdf.Literal):
-                self.text_values[_walk_path].add(_walk_obj.unicode_value)
-
-    def shortwalk(self, from_iri: str) -> _GraphWalk:
-        return _GraphWalk(
-            self.rdfdoc,
-            self.focus_iri,
-            recursive=False,
-        )
-
-    def _walk_from_subject(
-        self,
-        iri_or_blanknode: str | rdf.Blanknode,
-        path_so_far: tuple[str, ...] = (),
-    ) -> Iterator[tuple[Propertypath, rdf.RdfObject]]:
-        '''walk the graph from the given subject, yielding (pathkey, obj) for every reachable object
-        '''
-        with self._visit(iri_or_blanknode):
-            _twoples = (
-                iri_or_blanknode
-                if isinstance(iri_or_blanknode, frozenset)
-                else self.rdfdoc.tripledict.get(iri_or_blanknode, {})
-            )
-            for _next_steps, _obj in walk_twoples(_twoples):
-                _path = (*path_so_far, *_next_steps)
-                yield (_path, _obj)
-                if self.recursive and isinstance(_obj, str) and (_obj not in self._visiting):
-                    # step further for iri or blanknode
-                    yield from self._walk_from_subject(_obj, path_so_far=_path)
-
-    def iri_synonyms(self, iri: str) -> set[str]:
-        # note: extremely limited inference -- assumes objects of owl:sameAs are not used as subjects
-        _synonyms = (
-            _synonym
-            for _synonym in self.rdfdoc.q(iri, OWL.sameAs)
-            if is_worthwhile_iri(_synonym)
-        )
-        return {iri, *_synonyms}
-
-    def iris_synonyms(self, iris: Iterable[str]) -> set[str]:
-        return {
-            _synonym
-            for _iri in iris
-            for _synonym in self.iri_synonyms(_iri)
-        }
-
-    @contextlib.contextmanager
-    def _visit(self, focus_obj):
-        assert focus_obj not in self._visiting
-        self._visiting.add(focus_obj)
-        yield
-        self._visiting.discard(focus_obj)
-
-
-def walk_twoples(
-    twoples: rdf.RdfTwopleDictionary | rdf.Blanknode,
-) -> Iterator[tuple[Propertypath, rdf.RdfObject]]:
-    if isinstance(twoples, frozenset):
-        _iter_twoples = (
-            (_pred, _obj)
-            for _pred, _obj in twoples
-            if _pred not in SKIPPABLE_PROPERTIES
-        )
-    else:
-        _iter_twoples = (
-            (_pred, _obj)
-            for _pred, _obj_set in twoples.items()
-            if _pred not in SKIPPABLE_PROPERTIES
-            for _obj in _obj_set
-        )
-    for _pred, _obj in _iter_twoples:
-        _path = (_pred,)
-        if isinstance(_obj, frozenset):
-            for _innerpath, _innerobj in walk_twoples(_obj):
-                _fullpath = (*_path, *_innerpath)
-                yield (_fullpath, _innerobj)
-        else:
-            yield (_path, _obj)

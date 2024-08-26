@@ -44,6 +44,7 @@ class IndexcardManager(models.Manager):
                     .filter(id__in=_seen_focus_identifier_ids.intersection(_focus_identifier_ids))
                 )
                 raise DigestiveError(f'duplicate focus iris: {list(_duplicates)}')
+            _seen_focus_identifier_ids.update(_focus_identifier_ids)
             _indexcards.append(_indexcard)
         # cards seen previously on this suid (but not this time) treated as deleted
         for _indexcard_to_delete in (
