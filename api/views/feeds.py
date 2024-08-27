@@ -10,7 +10,7 @@ from furl import furl
 import pendulum
 import sentry_sdk
 
-from share.search import IndexStrategy
+from share.search import index_strategy
 from share.search.exceptions import IndexStrategyError
 from share.util.xml import strip_illegal_xml_chars
 
@@ -34,6 +34,8 @@ class MetadataRecordsRSS(Feed):
     description = 'Updates to the SHARE open dataset'
     author_name = 'SHARE'
 
+    _search_index: index_strategy.IndexStrategy.SpecificIndex
+
     def title(self, obj):
         query = json.dumps(obj.get('query', 'All'))
         return prepare_string('SHARE: Atom feed for query: {}'.format(query))
@@ -41,7 +43,7 @@ class MetadataRecordsRSS(Feed):
     def get_object(self, request):
         self._order = request.GET.get('order')
         elastic_query = request.GET.get('elasticQuery')
-        self._index_strategy = IndexStrategy.get_for_sharev2_search(request.GET.get('indexStrategy'))
+        self._search_index = index_strategy.get_index_for_sharev2_search(request.GET.get('indexStrategy'))
 
         if self._order not in {'date_modified', 'date_updated', 'date_created', 'date_published'}:
             self._order = 'date_modified'
@@ -62,7 +64,7 @@ class MetadataRecordsRSS(Feed):
 
     def items(self, obj):
         try:
-            json_response = self._index_strategy.pls_handle_search__sharev2_backcompat(
+            json_response = self._search_index.pls_handle_search__sharev2_backcompat(
                 request_body=obj,
             )
         except IndexStrategyError:

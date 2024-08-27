@@ -79,13 +79,13 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
 def gather_valuesearch_propertypath(focus, *, search_params, **kwargs):
-    yield from _multi_propertypath_twoples(search_params.valuesearch_propertypath_set)
+    yield from _single_propertypath_twoples(search_params.valuesearch_propertypath)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)
 def gather_valuesearch_filter(focus, *, search_params, **kwargs):
     for _filter in search_params.valuesearch_filter_set:
-        yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter, {}))
+        yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -131,13 +131,9 @@ def gather_cardsearch(focus, *, specific_index, search_params, **kwargs):
     ]
     if _relatedproperty_list:
         yield (TROVE.relatedPropertyList, sequence(_relatedproperty_list))
-    # filter-values from search params, with any additional info
-    _valueinfo_by_iri = {}
-    for _filtervalue in _cardsearch_resp.filtervalue_info:
-        _value_info = _valuesearch_result_as_json(_filtervalue)
-        _valueinfo_by_iri[_filtervalue.value_iri] = _value_info
+    # filter-values from search params
     for _filter in search_params.cardsearch_filter_set:
-        yield (TROVE.cardSearchFilter, _filter_as_blanknode(_filter, _valueinfo_by_iri))
+        yield (TROVE.cardSearchFilter, _filter_as_blanknode(_filter))
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -261,7 +257,7 @@ def gather_card(focus, *, deriver_iri, **kwargs):
 ###
 # local helpers
 
-def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
+def _filter_as_blanknode(search_filter) -> frozenset:
     _filter_twoples = [
         (TROVE.filterType, search_filter.operator.value),
         *_multi_propertypath_twoples(search_filter.propertypath_set),
@@ -269,10 +265,7 @@ def _filter_as_blanknode(search_filter, valueinfo_by_iri) -> frozenset:
     if not search_filter.operator.is_valueless_operator():
         for _value in search_filter.value_set:
             if search_filter.operator.is_iri_operator():
-                _valueinfo = (
-                    valueinfo_by_iri.get(_value)
-                    or _osfmap_or_unknown_iri_as_json(_value)
-                )
+                _valueinfo = _osfmap_or_unknown_iri_as_json(_value)
             else:
                 _valueinfo = literal_json({'@value': _value})
             _filter_twoples.append((TROVE.filterValue, _valueinfo))

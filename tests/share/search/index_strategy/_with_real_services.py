@@ -1,15 +1,13 @@
 import contextlib
-import unittest
 from unittest import mock
 
-from django.test import override_settings, TransactionTestCase
-from django.conf import settings
+from django.test import TransactionTestCase
 from django.db import connections
 
 from project.celery import app as celery_app
 from share.search.daemon import IndexerDaemonControl
 from share.search.index_messenger import IndexMessenger
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 
 
 # base class for testing IndexStrategy subclasses with actual elasticsearch.
@@ -19,18 +17,12 @@ class RealElasticTestCase(TransactionTestCase):
     serialized_rollback = True  # for TransactionTestCase; restore db after
 
     # required for subclasses
-    strategy_name_for_real: str
-    strategy_name_for_test: str
-
-    @classmethod
-    def setUpClass(cls):
-        cls.__original_es_settings = settings.ELASTICSEARCH
+    def get_index_strategy(self) -> index_strategy.IndexStrategy:
+        raise NotImplementedError(f'{self.__class__} must implement `get_index_strategy`')
 
     def setUp(self):
         super().setUp()
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
-        self.enterContext(self._settings_for_test())
-        IndexStrategy.clear_strategy_cache()
         self.index_strategy = self.get_index_strategy()
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
@@ -43,7 +35,6 @@ class RealElasticTestCase(TransactionTestCase):
     def tearDown(self):
         super().tearDown()
         self.current_index.pls_delete()
-        IndexStrategy.clear_strategy_cache()
         # HACK: copied from TransactionTestCase._fixture_setup; restores db
         # to the state from before TransactionTestCase clobbered it (relies
         # on how django 3.2 implements `serialized_rollback = True`, above)
@@ -57,42 +48,14 @@ class RealElasticTestCase(TransactionTestCase):
         self.addCleanup(lambda: context_manager.__exit__(None, None, None))
         return result
 
-    def get_index_strategy(self):
-        return IndexStrategy.get_by_name(self.strategy_name_for_test)
-
     @contextlib.contextmanager
     def _daemon_up(self):
-        _daemon_control = IndexerDaemonControl(
-            celery_app,
-            daemonthread_context=self._settings_for_test,  # will be called in daemonthread
-        )
+        _daemon_control = IndexerDaemonControl(celery_app)
         _daemon_control.start_daemonthreads_for_strategy(self.get_index_strategy())
         try:
             yield _daemon_control
         finally:
             _daemon_control.stop_daemonthreads(wait=True)
-
-    @contextlib.contextmanager
-    def _settings_for_test(self):
-        try:
-            _real_strategy_settings = (
-                self.__original_es_settings
-                ['INDEX_STRATEGIES']
-                [self.strategy_name_for_real]
-            )
-        except KeyError:
-            raise unittest.SkipTest(
-                f'index strategy "{self.strategy_name_for_real}" not configured in'
-                " ELASTICSEARCH['INDEX_STRATEGIES'] (perhaps missing env)"
-            )
-        _new_es_settings = {
-            **self.__original_es_settings,
-            'INDEX_STRATEGIES': {  # wipe out all configured strategies
-                self.strategy_name_for_test: _real_strategy_settings,
-            }
-        }
-        with override_settings(ELASTICSEARCH=_new_es_settings):
-            yield
 
     # for test methods on subclasses to call:
     def _assert_happypath_without_daemon(self, messages_chunk, expected_doc_count):

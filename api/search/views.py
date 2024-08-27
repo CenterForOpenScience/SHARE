@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from api import authentication
 from share.search import exceptions
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 
 
 class Sharev2ElasticSearchView(views.APIView):
@@ -32,7 +32,7 @@ class Sharev2ElasticSearchView(views.APIView):
         if 'scroll' in queryparams:
             return http.HttpResponseForbidden(reason='Scroll is not supported.')
         try:
-            specific_index = IndexStrategy.get_for_sharev2_search(requested_index_strategy)
+            specific_index = index_strategy.get_index_for_sharev2_search(requested_index_strategy)
         except exceptions.IndexStrategyError as error:
             raise http.Http404(str(error))
         try:

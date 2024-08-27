@@ -39,7 +39,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         super().__init__(*args, **kwargs)
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         self.es5_client = elasticsearch5.Elasticsearch(
-            self.cluster_url,
+            settings.ELASTICSEARCH5_URL,
             retry_on_timeout=True,
             timeout=settings.ELASTICSEARCH['TIMEOUT'],
             # sniff before doing anything

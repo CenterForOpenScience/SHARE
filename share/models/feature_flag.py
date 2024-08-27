@@ -30,6 +30,7 @@ class FeatureFlag(models.Model):
     ELASTIC_EIGHT_DEFAULT = 'elastic_eight_default'
     IGNORE_SHAREV2_INGEST = 'ignore_sharev2_ingest'
     SUGGEST_CREATOR_FACET = 'suggest_creator_facet'
+    TROVESEARCH_POLYSTRAT = 'trovesearch_polystrat'
 
     # name _should_ be one of the constants above, but that is not enforced by `choices`
     name = models.TextField(unique=True)

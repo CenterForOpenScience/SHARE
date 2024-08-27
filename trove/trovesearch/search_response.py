@@ -26,13 +26,16 @@ class TextMatchEvidence:
 class CardsearchResult:
     text_match_evidence: Iterable[TextMatchEvidence]
     card_iri: str
+    card_uuid: str = ''
+    card_pk: str = ''  # TODO: use or remove
 
-    def card_uuid(self):
-        # card iri has the uuid at the end
-        return primitive_rdf.iri_minus_namespace(
-            self.card_iri,
-            namespace=trove_indexcard_namespace(),
-        )
+    def __post_init__(self):
+        if not self.card_uuid:
+            # card iri has the uuid at the end
+            self.card_uuid = primitive_rdf.iri_minus_namespace(
+                self.card_iri,
+                namespace=trove_indexcard_namespace(),
+            )
 
 
 @dataclasses.dataclass
@@ -42,13 +45,12 @@ class CardsearchResponse:
     next_page_cursor: Optional[str]
     prev_page_cursor: Optional[str]
     first_page_cursor: Optional[str]
-    filtervalue_info: Iterable['ValuesearchResult']
     related_propertypath_results: Iterable['PropertypathUsage']
 
 
 @dataclasses.dataclass
 class PropertypathUsage:
-    property_path: tuple[str]
+    property_path: tuple[str, ...]
     usage_count: int
 
 

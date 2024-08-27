@@ -344,18 +344,14 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
-            _is_date_search = all(
-                is_date_property(_path[-1])
-                for _path in valuesearch_params.valuesearch_propertypath_set
-            )
+            _is_date_search = is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
                 query=self._cardsearch_query(
                     valuesearch_params.cardsearch_filter_set,
                     valuesearch_params.cardsearch_textsegment_set,
-                    additional_filters=[{'terms': {'iri_paths_present': [
-                        iri_path_as_keyword(_path)
-                        for _path in valuesearch_params.valuesearch_propertypath_set
-                    ]}}],
+                    additional_filters=[{'term': {'iri_paths_present': iri_path_as_keyword(
+                        valuesearch_params.valuesearch_propertypath,
+                    )}}],
                 ),
                 size=0,  # ignore cardsearch hits; just want the aggs
                 aggs=(
@@ -450,46 +446,14 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     ],
                     'size': len(cardsearch_params.related_property_paths),
                 }}
-            if cardsearch_params.unnamed_iri_values:
-                _aggs['global_agg'] = {
-                    'global': {},
-                    'aggs': {
-                        'filtervalue_info': {
-                            'nested': {'path': 'nested_iri'},
-                            'aggs': {
-                                'iri_values': {
-                                    'terms': {
-                                        'field': 'nested_iri.iri_value',
-                                        'include': list(cardsearch_params.unnamed_iri_values),
-                                        'size': len(cardsearch_params.unnamed_iri_values),
-                                    },
-                                    'aggs': {
-                                        'type_iri': {'terms': {
-                                            'field': 'nested_iri.value_type_iri',
-                                        }},
-                                        'name_text': {'terms': {
-                                            'field': 'nested_iri.value_name_text.raw',
-                                        }},
-                                        'title_text': {'terms': {
-                                            'field': 'nested_iri.value_title_text.raw',
-                                        }},
-                                        'label_text': {'terms': {
-                                            'field': 'nested_iri.value_label_text.raw',
-                                        }},
-                                    },
-                                },
-                            },
-                        },
-                    },
-                }
             return _aggs
 
         def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
             _nested_iri_bool = {
-                'filter': [{'terms': {'nested_iri.suffuniq_path_from_focus': [
-                    iri_path_as_keyword(_path, suffuniq=True)
-                    for _path in valuesearch_params.valuesearch_propertypath_set
-                ]}}],
+                'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
+                    valuesearch_params.valuesearch_propertypath,
+                    suffuniq=True,
+                )}}],
                 'must': [],
                 'must_not': [],
                 'should': [],
@@ -551,11 +515,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     'nested': {'path': 'nested_date'},
                     'aggs': {
                         'value_at_propertypath': {
-                            'filter': {'terms': {
-                                'nested_date.suffuniq_path_from_focus': [
-                                    iri_path_as_keyword(_path, suffuniq=True)
-                                    for _path in valuesearch_params.valuesearch_propertypath_set
-                                ],
+                            'filter': {'term': {
+                                'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
+                                    valuesearch_params.valuesearch_propertypath,
+                                    suffuniq=True,
+                                ),
                             }},
                             'aggs': {
                                 'count_by_year': {
@@ -759,7 +723,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     _uuid: _i
                     for (_i, _uuid) in enumerate(cursor.first_page_uuids)
                 }
-                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid()])
+                _results.sort(key=lambda _r: _uuid_index[_r.card_uuid])
             else:
                 _should_start_reproducible_randomness = (
                     cursor.random_sort
@@ -772,16 +736,9 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
                 if _should_start_reproducible_randomness:
                     cursor.first_page_uuids = tuple(
-                        _result.card_uuid()
+                        _result.card_uuid
                         for _result in _results
                     )
-            _filtervalue_info = []
-            if cardsearch_params.unnamed_iri_values:
-                _filtervalue_agg = es8_response['aggregations']['global_agg']['filtervalue_info']['iri_values']
-                _filtervalue_info.extend(
-                    self._valuesearch_iri_result(_iri_bucket)
-                    for _iri_bucket in _filtervalue_agg['buckets']
-                )
             _relatedproperty_list = []
             if cardsearch_params.related_property_paths:
                 _relatedproperty_list.extend(
@@ -802,7 +759,6 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     else cursor.result_count
                 ),
                 search_result_page=_results,
-                filtervalue_info=_filtervalue_info,
                 related_propertypath_results=_relatedproperty_list,
                 next_page_cursor=cursor.next_cursor(),
                 prev_page_cursor=cursor.prev_cursor(),

@@ -2,14 +2,15 @@ import json
 
 from tests import factories
 from share.search import messages
+from share.search.index_strategy.sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from share.util import IDObfuscator
 from ._with_real_services import RealElasticTestCase
 
 
 class TestSharev2Elastic8(RealElasticTestCase):
     # for RealElasticTestCase
-    strategy_name_for_real = 'sharev2_elastic8'
-    strategy_name_for_test = 'test_sharev2_elastic8'
+    def get_index_strategy(self):
+        return Sharev2Elastic8IndexStrategy('test_sharev2_elastic8')
 
     def setUp(self):
         super().setUp()

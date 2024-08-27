@@ -52,10 +52,10 @@ class TestElasticSearchProxy:
             '/api/v2/search/creativeworks/_search?q=foo',
             '/api/v2/search/creativeworks/_search/?q=foo',
         )
-        with mock.patch('api.search.views.IndexStrategy') as mock_IndexStrategy:
+        with mock.patch('api.search.views.index_strategy') as _mock_index_strategy_module:
             mock_handle_search = (
-                mock_IndexStrategy
-                .get_for_sharev2_search
+                _mock_index_strategy_module
+                .get_index_for_sharev2_search
                 .return_value
                 .pls_handle_search__sharev2_backcompat
             )

@@ -8,6 +8,8 @@ import pytest
 from share.bin.util import execute_cmd
 import share.version
 
+from tests.share.search import patch_index_strategies
+
 
 def run_sharectl(*args):
     """run sharectl, assert that it returned as expected, and return its stdout
@@ -39,7 +41,7 @@ class TestSharectlSearch:
         def _get_specific_index(indexname):
             return mock_specific_indexes[indexname]
 
-        with mock.patch('share.bin.search.IndexStrategy.get_specific_index', wraps=_get_specific_index) as mock_get_specific:
+        with mock.patch('share.bin.search.index_strategy.get_specific_index', wraps=_get_specific_index) as mock_get_specific:
             run_sharectl('search', 'purge', *indexnames)
         assert mock_get_specific.mock_calls == [
             mock.call(indexname)
@@ -49,20 +51,20 @@ class TestSharectlSearch:
             mock_specific_index.pls_delete.assert_called_once_with()
 
     def test_setup_initial(self, settings):
-        expected_indexes = ['baz', 'bar', 'foo']
-        mock_index_strategys = [
-            mock.Mock()
-            for _ in expected_indexes
-        ]
-        with mock.patch('share.bin.search.IndexStrategy.all_strategies', return_value=mock_index_strategys):
+        _expected_indexes = ['baz', 'bar', 'foo']
+        _mock_index_strategys = {
+            _name: mock.Mock()
+            for _name in _expected_indexes
+        }
+        with patch_index_strategies(_mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
-        for mock_index_strategy in mock_index_strategys:
+        for mock_index_strategy in _mock_index_strategys.values():
             mock_specific_index = mock_index_strategy.for_current_index.return_value
             assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
-        with mock.patch('share.bin.search.IndexStrategy.get_by_name', return_value=mock_index_strategy):
+        with mock.patch('share.bin.search.index_strategy.get_index_strategy', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
         mock_current_index = mock_index_strategy.for_current_index.return_value
         assert mock_current_index.pls_setup.mock_calls == [mock.call(skip_backfill=False)]

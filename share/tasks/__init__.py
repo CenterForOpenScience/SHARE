@@ -9,7 +9,7 @@ from django.db import transaction
 from share.harvest.scheduler import HarvestScheduler
 from share import models as db
 from share.search.index_messenger import IndexMessenger
-from share.search.index_strategy import IndexStrategy
+from share.search import index_strategy
 from share.search.messages import MessageType
 from share.tasks.jobs import HarvestJobConsumer
 from share.util.source_stat import SourceStatus
@@ -61,7 +61,7 @@ def schedule_index_backfill(self, index_backfill_pk):
     _index_backfill = db.IndexBackfill.objects.get(pk=index_backfill_pk)
     _index_backfill.pls_note_scheduling_has_begun()
     try:
-        _index_strategy = IndexStrategy.get_by_name(_index_backfill.index_strategy_name)
+        _index_strategy = index_strategy.get_index_strategy(_index_backfill.index_strategy_name)
         _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
         _messagetype = _index_strategy.backfill_message_type
         assert _messagetype in _index_strategy.supported_message_types

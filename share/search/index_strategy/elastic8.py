@@ -1,5 +1,8 @@
+from __future__ import annotations
 import abc
 import collections
+import dataclasses
+from http import HTTPStatus
 import logging
 import typing
 
@@ -26,10 +29,14 @@ class Elastic8IndexStrategy(IndexStrategy):
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         self.es8_client = elasticsearch8.Elasticsearch(
-            self.cluster_url,
+            settings.ELASTICSEARCH8_URL,
             # security:
-            ca_certs=self.cluster_settings.get('CERT_PATH'),
-            basic_auth=self.cluster_settings.get('AUTH'),
+            ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
+            basic_auth=(
+                (settings.ELASTICSEARCH8_USERNAME, settings.ELASTICSEARCH8_SECRET)
+                if settings.ELASTICSEARCH8_SECRET is not None
+                else None
+            ),
             # retry:
             retry_on_timeout=True,
             request_timeout=timeout,
@@ -56,6 +63,13 @@ class Elastic8IndexStrategy(IndexStrategy):
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[tuple[int, dict]]:
         # yield (message_target_id, elastic_action) pairs
         raise NotImplementedError
+
+    def before_chunk(
+        self,
+        messages_chunk: messages.MessagesChunk,
+        indexnames: typing.Iterable[str],
+    ) -> None:
+        pass  # implement when needed
 
     ###
     # helper methods for subclasses to use (or override)
@@ -109,45 +123,56 @@ class Elastic8IndexStrategy(IndexStrategy):
     def pls_handle_messages_chunk(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
         if messages_chunk.message_type.is_backfill:
-            indexnames = [self.current_indexname]
+            _indexnames = {self.current_indexname}
         else:
-            indexnames = self._get_indexnames_for_alias(self._alias_for_keeping_live)
-        _targetid_by_docid = {}
-        done_counter = collections.Counter()
-        bulk_stream = streaming_bulk(
+            _indexnames = self._get_indexnames_for_alias(self._alias_for_keeping_live)
+        self.before_chunk(messages_chunk, _indexnames)
+        _action_tracker = _ActionTracker()
+        _bulk_stream = streaming_bulk(
             self.es8_client,
-            self._elastic_actions_with_index(messages_chunk, indexnames, _targetid_by_docid),
+            self._elastic_actions_with_index(messages_chunk, _indexnames, _action_tracker),
             raise_on_error=False,
             max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
-        for (_ok, _response) in bulk_stream:
+        for (_ok, _response) in _bulk_stream:
             (_op_type, _response_body) = next(iter(_response.items()))
             _status = _response_body.get('status')
             _docid = _response_body['_id']
+            _indexname = _response_body['_index']
             _is_done = _ok or (_op_type == 'delete' and _status == 404)
-            _message_target_id = _targetid_by_docid[_docid]
-            done_counter[_message_target_id] += 1
-            if done_counter[_message_target_id] >= len(indexnames):
+            if _is_done:
+                _action_tracker.action_done(_indexname, _docid)
+            else:
+                _action_tracker.action_errored(_indexname, _docid)
+                # yield error responses immediately
                 yield messages.IndexMessageResponse(
-                    is_done=_is_done,
-                    index_message=messages.IndexMessage(messages_chunk.message_type, _message_target_id),
-                    status_code=_response_body.get('status'),
-                    error_text=(
-                        None
-                        if _ok
-                        else str(_response_body)
-                    )
+                    is_done=False,
+                    index_message=messages.IndexMessage(
+                        messages_chunk.message_type,
+                        _action_tracker.get_message_id(_docid),
+                    ),
+                    status_code=_status,
+                    error_text=str(_response_body),
                 )
+        # yield successes after the whole chunk completes
+        # (since one message may involve several actions)
+        for _messageid in _action_tracker.all_done_messages():
+            yield messages.IndexMessageResponse(
+                is_done=True,
+                index_message=messages.IndexMessage(messages_chunk.message_type, _messageid),
+                status_code=HTTPStatus.OK.value,
+                error_text=None,
+            )
 
     # abstract method from IndexStrategy
-    def pls_make_default_for_searching(self, specific_index: 'SpecificIndex'):
+    def pls_make_default_for_searching(self, specific_index: IndexStrategy.SpecificIndex):
         self._set_indexnames_for_alias(
             self._alias_for_searching,
             {specific_index.indexname},
         )
 
     # abstract method from IndexStrategy
-    def pls_get_default_for_searching(self) -> 'SpecificIndex':
+    def pls_get_default_for_searching(self) -> IndexStrategy.SpecificIndex:
         # a SpecificIndex for an alias will work fine for searching, but
         # will error if you try to invoke lifecycle hooks
         return self.for_specific_index(self._alias_for_searching)
@@ -166,12 +191,13 @@ class Elastic8IndexStrategy(IndexStrategy):
     def _alias_for_keeping_live(self):
         return f'{self.indexname_prefix}live'
 
-    def _elastic_actions_with_index(self, messages_chunk, indexnames, targetid_by_docid):
+    def _elastic_actions_with_index(self, messages_chunk, indexnames, action_tracker: _ActionTracker):
         if not indexnames:
             raise ValueError('cannot index to no indexes')
         for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
-            targetid_by_docid[_elastic_action['_id']] = _message_target_id
+            _docid = _elastic_action['_id']
             for _indexname in indexnames:
+                action_tracker.add_action(_message_target_id, _indexname, _docid)
                 yield {
                     **_elastic_action,
                     '_index': _indexname,
@@ -325,3 +351,37 @@ class Elastic8IndexStrategy(IndexStrategy):
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
             logger.warning('%r: no longer kept live', self)
+
+        def pls_get_mappings(self):
+            return self.index_strategy.es8_client.indices.get_mapping(index=self.indexname).body
+
+
+@dataclasses.dataclass
+class _ActionTracker:
+    messageid_by_docid: dict[str, int] = dataclasses.field(default_factory=dict)
+    actions_by_messageid: dict[int, set[tuple[str, str]]] = dataclasses.field(
+        default_factory=lambda: collections.defaultdict(set),
+    )
+    errored_messageids: set[int] = dataclasses.field(default_factory=set)
+
+    def add_action(self, message_id: int, index_name: str, doc_id: str):
+        self.messageid_by_docid[doc_id] = message_id
+        self.actions_by_messageid[message_id].add((index_name, doc_id))
+
+    def action_done(self, index_name: str, doc_id: str):
+        _messageid = self.messageid_by_docid[doc_id]
+        _message_actions = self.actions_by_messageid[_messageid]
+        _message_actions.discard((index_name, doc_id))
+
+    def action_errored(self, index_name: str, doc_id: str):
+        _messageid = self.messageid_by_docid[doc_id]
+        self.errored_messageids.add(_messageid)
+
+    def get_message_id(self, doc_id: str):
+        return self.messageid_by_docid[doc_id]
+
+    def all_done_messages(self):
+        for _messageid, _actions in self.actions_by_messageid.items():
+            if _messageid not in self.errored_messageids:
+                assert not _actions
+                yield _messageid

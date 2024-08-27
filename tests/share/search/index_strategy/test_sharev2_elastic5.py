@@ -1,19 +1,20 @@
 import json
+import unittest
+
+from django.conf import settings
 
 from tests import factories
 from share.search import messages
+from share.search.index_strategy.sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from share.util import IDObfuscator
 from ._with_real_services import RealElasticTestCase
 
 
+@unittest.skipUnless(settings.ELASTICSEARCH5_URL, 'missing ELASTICSEARCH5_URL setting')
 class TestSharev2Elastic5(RealElasticTestCase):
     # for RealElasticTestCase
-    strategy_name_for_real = 'sharev2_elastic5'
-    strategy_name_for_test = 'test_sharev2_elastic5'
-
-    # override method from RealElasticTestCase
     def get_index_strategy(self):
-        index_strategy = super().get_index_strategy()
+        index_strategy = Sharev2Elastic5IndexStrategy('test_sharev2_elastic5')
         if not index_strategy.STATIC_INDEXNAME.startswith('test_'):
             index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
         return index_strategy
