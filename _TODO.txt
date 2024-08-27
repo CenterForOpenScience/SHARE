@@ -14,10 +14,6 @@ and the dashboard's `cardSearchFilter` set
 denormalized IndexStrategy
 ==========================
 
-to denormalize for performance (removing (most) `nested` mappings)
-while supporting existing api used by osf-search...
-
-
 current mappings:
   simple:
     indexcard_uuid
@@ -34,6 +30,25 @@ current mappings:
     nested_iri...
     nested_date...
     nested_text...
+
+
+to denormalize for performance (removing (most) `nested` mappings)
+while supporting existing api used by osf-search...
+
+edges to consider:
+- `cardSearchText[property.path]`
+  - dynamic template for text values per property-path (...to limited depth?)
+- `valueSearchFilter[resourceType]`
+  - dynamic template for iri values per resource-type?
+- `valueSearchText`
+  - ...new index for value-search?
+  - ...maybe can use the same dynamic fields added for `cardSearchText[property.path]`?
+      ...but how to keep the text associated with the iri value...
+  - ...could keep the old `nested` garbage around, but only use it when `valueSearchText`?
+- `cardSearchFilter[sameAs][iri-prefix]=https://orcid.org/`
+  - new filter operator
+- `cardSearchText[*.*.*]`, `cardSearchFilter[*.*.*]`
+  - dynamic templates for values by depth?
 
 
 possible future card-index mappings:
