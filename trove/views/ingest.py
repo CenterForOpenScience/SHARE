@@ -35,6 +35,7 @@ class RdfIngestView(View):
                 record_mediatype=request.content_type,
                 focus_iri=_focus_iri,
                 urgent=(request.GET.get('nonurgent') is None),
+                is_supplementary=(request.GET.get('is_supplementary') is not None),
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))

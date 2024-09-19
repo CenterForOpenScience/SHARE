@@ -40,6 +40,7 @@ def swallow(
     focus_iri: str,
     datestamp=None,  # default "now"
     urgent=False,
+    is_supplementary=False,
 ):
     '''swallow: store a given record by checksum; queue for extraction
 
@@ -55,7 +56,12 @@ def swallow(
     _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
         source_config=_source_config,
         identifier=record_identifier,
+        defaults={
+            'is_supplementary': is_supplementary,
+        },
     )
+    if bool(_suid.is_supplementary) != is_supplementary:
+        raise DigestiveError(f'suid is_supplementary should not change! suid={_suid}, is_supplementary changed from {bool(_suid.is_supplementary)} to {is_supplementary}')
     _focus_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(focus_iri)
     if _suid.focus_identifier is None:
         _suid.focus_identifier = _focus_identifier
@@ -104,11 +110,12 @@ def swallow__sharev2_legacy(
 def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_db.Indexcard]:
     '''extract: gather rdf graph from a record; store as index card(s)
 
-    will create (or update):
+    may create (or update):
         ResourceIdentifier (for each described resource and its types)
         Indexcard (with identifiers and type-identifiers for each described resource)
-        ArchivedIndexcardRdf (all extracted metadata)
-        LatestIndexcardRdf (all extracted metadata, if latest raw)
+        ArchivedIndexcardRdf (all extracted metadata, if non-supplementary)
+        LatestIndexcardRdf (all extracted metadata, if latest raw and non-supplementary)
+        SupplementaryIndexcardRdf (all extracted metadata, if supplementary)
     may delete:
         LatestIndexcardRdf (previously extracted from the record, but no longer present)
     '''
@@ -153,7 +160,10 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
     if indexcard.deleted or not indexcard.latest_rdf:
         return
     for _deriver_class in get_deriver_classes(deriver_iris):
-        _deriver = _deriver_class(upriver_rdf=indexcard.latest_rdf)
+        _deriver = _deriver_class(
+            upriver_rdf=indexcard.latest_rdf,
+            supplementary_rdf_set=indexcard.supplementary_rdf_set.all(),
+        )
         _deriver_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver.deriver_iri())
         if _deriver.should_skip():
             trove_db.DerivedIndexcard.objects.filter(
@@ -177,6 +187,11 @@ def expel(from_user: share_db.ShareUser, record_identifier: str):
     _suid_qs = share_db.SourceUniqueIdentifier.objects.filter(
         source_config__source__user=from_user,
         identifier=record_identifier,
+    )
+    (
+        trove_db.SupplementaryIndexcardRdf.objects
+        .filter(supplementary_suid__in=_suid_qs)
+        .delete()
     )
     for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid__in=_suid_qs):
         _indexcard.pls_delete()
@@ -247,6 +262,9 @@ def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
 def _sharev2_legacy_ingest(raw, urgent: bool):
     assert raw.mediatype is None, 'raw datum has a mediatype -- did you mean to call non-legacy extract?'
     _extractor = get_rdf_extractor_class(None)(raw.suid.source_config)
+    if typing.TYPE_CHECKING:
+        from trove.extract.legacy_sharev2 import LegacySharev2Extractor
+        assert isinstance(_extractor, LegacySharev2Extractor)
     _sharev2graph = _extractor.extract_sharev2_graph(raw.datum)
     _centralnode = _sharev2graph.get_central_node(guess=True)
     _normd = share_db.NormalizedData.objects.create(
