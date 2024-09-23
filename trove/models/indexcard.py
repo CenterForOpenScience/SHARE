@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional
 import uuid
 
 from django.db import models
@@ -179,10 +178,10 @@ class Indexcard(models.Model):
         ]
 
     @property
-    def latest_rdf(self) -> Optional['LatestIndexcardRdf']:
+    def latest_rdf(self) -> LatestIndexcardRdf:
         '''convenience for the "other side" of LatestIndexcardRdf.indexcard
         '''
-        return self.trove_latestindexcardrdf_set.first()
+        return self.trove_latestindexcardrdf_set.get()  # may raise DoesNotExist
 
     @property
     def archived_rdf_set(self):

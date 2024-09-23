@@ -144,6 +144,11 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
                     (_iri, RDFS.isDefinedBy, _focus_iri),
                 )
                 _tripledicts_by_focus_iri[_iri] = _term_tripledict
+    if raw.suid.is_supplementary:
+        return trove_db.Indexcard.objects.supplement_indexcards_from_tripledicts(
+            from_raw_datum=raw,
+            rdf_tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
+        )
     return trove_db.Indexcard.objects.save_indexcards_from_tripledicts(
         from_raw_datum=raw,
         rdf_tripledicts_by_focus_iri=_tripledicts_by_focus_iri,
@@ -157,11 +162,16 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
     will create, update, or delete:
         DerivedIndexcard
     '''
-    if indexcard.deleted or not indexcard.latest_rdf:
-        return
+    if indexcard.deleted:
+        return []
+    try:
+        _latest_rdf = indexcard.latest_rdf
+    except trove_db.LatestIndexcardRdf.DoesNotExist:
+        return []
+    _derived_list = []
     for _deriver_class in get_deriver_classes(deriver_iris):
         _deriver = _deriver_class(
-            upriver_rdf=indexcard.latest_rdf,
+            upriver_rdf=_latest_rdf,
             supplementary_rdf_set=indexcard.supplementary_rdf_set.all(),
         )
         _deriver_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver.deriver_iri())
@@ -173,14 +183,16 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
         else:
             _derived_text = _deriver.derive_card_as_text()
             _derived_checksum_iri = ChecksumIri.digest('sha-256', salt='', raw_data=_derived_text)
-            trove_db.DerivedIndexcard.objects.update_or_create(
+            _derived, _ = trove_db.DerivedIndexcard.objects.update_or_create(
                 upriver_indexcard=indexcard,
                 deriver_identifier=_deriver_identifier,
                 defaults={
-                    'derived_text': _deriver.derive_card_as_text(),
+                    'derived_text': _derived_text,
                     'derived_checksum_iri': _derived_checksum_iri,
                 },
             )
+            _derived_list.append(_derived)
+    return _derived_list
 
 
 def expel(from_user: share_db.ShareUser, record_identifier: str):
