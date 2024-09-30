@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import logging
 
 from django import http
@@ -17,16 +18,18 @@ class RdfIngestView(View):
 
     def post(self, request):
         # TODO: better error responses (jsonapi? shacl:ValidationReport?)
-        # TODO: permissions, validate focus_iri domain with user Source?
+        # TODO: permissions by focus_iri domain (compare with user's Source)?
         if not request.user.is_authenticated:
-            return http.HttpResponse(status=401)
+            return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
+        if not request.user.is_trusted:
+            return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass
         _focus_iri = request.GET.get('focus_iri')
         if not _focus_iri:
-            return http.HttpResponse('focus_iri queryparam required', status=400)
+            return http.HttpResponse('focus_iri queryparam required', status=HTTPStatus.BAD_REQUEST)
         _record_identifier = request.GET.get('record_identifier')
         if not _record_identifier:
-            return http.HttpResponse('record_identifier queryparam required', status=400)
+            return http.HttpResponse('record_identifier queryparam required', status=HTTPStatus.BAD_REQUEST)
         try:
             digestive_tract.swallow(
                 from_user=request.user,
@@ -35,24 +38,27 @@ class RdfIngestView(View):
                 record_mediatype=request.content_type,
                 focus_iri=_focus_iri,
                 urgent=(request.GET.get('nonurgent') is None),
+                is_supplementary=(request.GET.get('is_supplementary') is not None),
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))
-            return http.HttpResponse(str(e), status=400)
+            return http.HttpResponse(str(e), status=HTTPStatus.BAD_REQUEST)
         else:
             # TODO: include link to view status (return task id from `swallow`?)
-            return http.HttpResponse(status=201)
+            return http.HttpResponse(status=HTTPStatus.CREATED)
 
     def delete(self, request):
         # TODO: cleaner permissions
         if not request.user.is_authenticated:
-            return http.HttpResponse(status=401)
+            return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
+        if not request.user.is_trusted:
+            return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass
         _record_identifier = request.GET.get('record_identifier')
         if not _record_identifier:
-            return http.HttpResponse('record_identifier queryparam required', status=400)
+            return http.HttpResponse('record_identifier queryparam required', status=HTTPStatus.BAD_REQUEST)
         digestive_tract.expel(
             from_user=request.user,
             record_identifier=_record_identifier,
         )
-        return http.HttpResponse(status=200)
+        return http.HttpResponse(status=HTTPStatus.OK)

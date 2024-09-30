@@ -4,7 +4,15 @@ __all__ = (
     'IndexcardRdf',
     'LatestIndexcardRdf',
     'ArchivedIndexcardRdf',
+    'SupplementaryIndexcardRdf',
     'DerivedIndexcard',
 )
-from .indexcard import Indexcard, IndexcardRdf, LatestIndexcardRdf, ArchivedIndexcardRdf, DerivedIndexcard
+from .indexcard import (
+    ArchivedIndexcardRdf,
+    DerivedIndexcard,
+    Indexcard,
+    IndexcardRdf,
+    LatestIndexcardRdf,
+    SupplementaryIndexcardRdf,
+)
 from .resource_identifier import ResourceIdentifier

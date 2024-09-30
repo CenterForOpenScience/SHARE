@@ -14,6 +14,7 @@ class SourceUniqueIdentifier(models.Model):
     identifier = models.TextField()  # no restrictions on identifier format
     source_config = models.ForeignKey('SourceConfig', on_delete=models.CASCADE)
     focus_identifier = models.ForeignKey('trove.ResourceIdentifier', null=True, on_delete=models.PROTECT, related_name='suid_set')
+    is_supplementary = models.BooleanField(null=True)
 
     class JSONAPIMeta(BaseJSONAPIMeta):
         pass
