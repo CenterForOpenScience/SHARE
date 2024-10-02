@@ -54,6 +54,7 @@ class IndexcardManager(models.Manager):
             .exclude(id__in=[_card.id for _card in _indexcards])
         ):
             _indexcard_to_delete.pls_delete()
+            _indexcards.append(_indexcard_to_delete)
         return _indexcards
 
     @transaction.atomic

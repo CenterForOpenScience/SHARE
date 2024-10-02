@@ -89,3 +89,42 @@ blarg:this blarg:like blarg:another ;
             },
         })
         self.assertEqual(_indexcard.latest_rdf.modified, _orig_timestamp)
+
+    def test_extract_empty_with_prior(self):
+        (_prior_indexcard,) = digestive_tract.extract(self.raw)
+        self.assertFalse(self.raw.no_output)
+        self.assertIsNone(_prior_indexcard.deleted)
+        # add a later raw
+        _empty_raw = factories.RawDatumFactory(
+            mediatype='text/turtle',
+            datum=' ',
+            suid=self.raw.suid,
+        )
+        (_indexcard,) = digestive_tract.extract(_empty_raw)
+        self.assertTrue(_empty_raw.no_output)
+        self.assertEqual(_indexcard.id, _prior_indexcard.id)
+        self.assertIsNotNone(_indexcard.deleted)
+        with self.assertRaises(trove_db.LatestIndexcardRdf.DoesNotExist):
+            _indexcard.latest_rdf
+
+    def test_extract_empty_without_prior(self):
+        _empty_raw = factories.RawDatumFactory(
+            mediatype='text/turtle',
+            datum=' ',
+        )
+        _cards = digestive_tract.extract(_empty_raw)
+        self.assertEqual(_cards, [])
+        self.assertTrue(_empty_raw.no_output)
+
+    def test_extract_empty_supplementary(self):
+        (_orig_indexcard,) = digestive_tract.extract(self.raw)
+        digestive_tract.extract(self.supplementary_raw)
+        self.assertTrue(_orig_indexcard.supplementary_rdf_set.exists())
+        _empty_raw = factories.RawDatumFactory(
+            mediatype='text/turtle',
+            datum='',
+            suid=self.supplementary_raw.suid,
+        )
+        (_indexcard,) = digestive_tract.extract(_empty_raw)
+        self.assertEqual(_indexcard.id, _orig_indexcard.id)
+        self.assertFalse(_orig_indexcard.supplementary_rdf_set.exists())

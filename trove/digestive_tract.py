@@ -120,6 +120,7 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
         LatestIndexcardRdf (previously extracted from the record, but no longer present)
     '''
     assert raw.mediatype is not None, 'raw datum has no mediatype -- did you mean to call extract_legacy?'
+    _tripledicts_by_focus_iri = {}
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     # TODO normalize (or just validate) tripledict:
     #   - synonymous iris should be grouped (only one as subject-key, others under owl:sameAs)
@@ -127,23 +128,24 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
     #   - no subject-key iris which collide by trove_db.ResourceIdentifier equivalence
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _extracted_tripledict: primitive_rdf.RdfTripleDictionary = _extractor.extract_rdf(raw.datum)
-    try:
-        _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
-    except ValueError:
-        raise DigestiveError(f'could not find {raw.suid.focus_identifier} in {raw}')
-    _tripledicts_by_focus_iri = {_focus_iri: _extracted_tripledict}
-    # special case: if the record defines an ontology, create a
-    # card for each subject iri that starts with the focus iri
-    # (TODO: consider a separate index card for *every* subject iri?)
-    if OWL.Ontology in _extracted_tripledict[_focus_iri].get(RDF.type, ()):
-        for _iri, _twopledict in _extracted_tripledict.items():
-            if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
-                _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
-                # ensure a link to the ontology (in case there's not already)
-                primitive_rdf.RdfGraph(_term_tripledict).add(
-                    (_iri, RDFS.isDefinedBy, _focus_iri),
-                )
-                _tripledicts_by_focus_iri[_iri] = _term_tripledict
+    if _extracted_tripledict:
+        try:
+            _focus_iri = raw.suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
+        except ValueError:
+            raise DigestiveError(f'could not find {raw.suid.focus_identifier} in {raw}')
+        _tripledicts_by_focus_iri[_focus_iri] = _extracted_tripledict
+        # special case: if the record defines an ontology, create a
+        # card for each subject iri that starts with the focus iri
+        # (TODO: consider a separate index card for *every* subject iri?)
+        if OWL.Ontology in _extracted_tripledict.get(_focus_iri, {}).get(RDF.type, ()):
+            for _iri, _twopledict in _extracted_tripledict.items():
+                if (_iri != _focus_iri) and _iri.startswith(_focus_iri):
+                    _term_tripledict = {_iri: copy.deepcopy(_twopledict)}
+                    # ensure a link to the ontology (in case there's not already)
+                    primitive_rdf.RdfGraph(_term_tripledict).add(
+                        (_iri, RDFS.isDefinedBy, _focus_iri),
+                    )
+                    _tripledicts_by_focus_iri[_iri] = _term_tripledict
     if raw.suid.is_supplementary:
         return trove_db.Indexcard.objects.supplement_indexcards_from_tripledicts(
             from_raw_datum=raw,
