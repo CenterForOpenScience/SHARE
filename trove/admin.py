@@ -4,7 +4,14 @@ from django.utils.html import format_html
 from share.admin import admin_site
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many
 from share.search.index_messenger import IndexMessenger
-from trove.models import ResourceIdentifier, Indexcard, LatestIndexcardRdf, ArchivedIndexcardRdf, DerivedIndexcard
+from trove.models import (
+    ArchivedIndexcardRdf,
+    DerivedIndexcard,
+    Indexcard,
+    LatestIndexcardRdf,
+    ResourceIdentifier,
+    SupplementaryIndexcardRdf,
+)
 
 
 @admin.register(ResourceIdentifier, site=admin_site)
@@ -24,6 +31,7 @@ class ResourceIdentifierAdmin(admin.ModelAdmin):
 
 @admin.register(Indexcard, site=admin_site)
 @linked_many('archived_rdf_set', defer=('rdf_as_turtle',))
+@linked_many('supplementary_rdf_set', defer=('rdf_as_turtle',))
 @linked_many('derived_indexcard_set', defer=('derived_text',))
 @linked_fk('latest_rdf')
 @linked_fk('source_record_suid')
@@ -75,6 +83,29 @@ class LatestIndexcardRdfAdmin(admin.ModelAdmin):
 @linked_fk('from_raw_datum')
 @linked_fk('indexcard')
 class ArchivedIndexcardRdfAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'created',
+        'modified',
+        'turtle_checksum_iri',
+        'focus_iri',
+        'rdf_as_turtle__pre',
+    )
+    exclude = ('rdf_as_turtle',)
+    paginator = TimeLimitedPaginator
+    list_display = ('id', 'indexcard', 'from_raw_datum', 'created', 'modified')
+    list_select_related = ('indexcard', 'from_raw_datum',)
+    show_full_result_count = False
+
+    def rdf_as_turtle__pre(self, instance):
+        return format_html('<pre>{}</pre>', instance.rdf_as_turtle)
+    rdf_as_turtle__pre.short_description = 'rdf as turtle'
+
+
+@admin.register(SupplementaryIndexcardRdf, site=admin_site)
+@linked_fk('from_raw_datum')
+@linked_fk('indexcard')
+@linked_fk('supplementary_suid')
+class SupplementaryIndexcardRdfAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
