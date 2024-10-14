@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from unittest import mock
 from urllib.parse import urlencode
@@ -32,6 +33,7 @@ class TestIngest(TestCase):
                 focus_iri='https://foo.example/blarg',
                 urgent=True,
                 is_supplementary=False,
+                expiration_date=None,
             )
 
     def test_post_nonurgent(self):
@@ -55,6 +57,7 @@ class TestIngest(TestCase):
                 focus_iri='https://foo.example/blarg',
                 urgent=False,
                 is_supplementary=False,
+                expiration_date=None,
             )
 
     def test_post_supplementary(self):
@@ -78,6 +81,32 @@ class TestIngest(TestCase):
                 focus_iri='https://foo.example/blarg',
                 urgent=True,
                 is_supplementary=True,
+                expiration_date=None,
+            )
+
+    def test_post_with_expiration(self):
+        with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
+            _resp = self.client.post(
+                '/trove/ingest?' + urlencode({
+                    'focus_iri': 'https://foo.example/blarg',
+                    'record_identifier': 'blarg',
+                    'is_supplementary': '',
+                    'expiration_date': '2055-05-05',
+                }),
+                content_type='text/turtle',
+                data='turtleturtleturtle',
+                HTTP_AUTHORIZATION=self.user.authorization(),
+            )
+            self.assertEqual(_resp.status_code, HTTPStatus.CREATED)
+            _mock_tract.swallow.assert_called_once_with(
+                from_user=self.user,
+                record='turtleturtleturtle',
+                record_identifier='blarg',
+                record_mediatype='text/turtle',
+                focus_iri='https://foo.example/blarg',
+                urgent=True,
+                is_supplementary=True,
+                expiration_date=datetime.date(2055, 5, 5),
             )
 
     def test_delete(self):
@@ -137,3 +166,19 @@ class TestIngest(TestCase):
             )
         self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
         self.assertFalse(_mock_tract.expel.called)
+
+    def test_invalid_expiration_date(self):
+        with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
+            _resp = self.client.post(
+                '/trove/ingest?' + urlencode({
+                    'focus_iri': 'https://foo.example/blarg',
+                    'record_identifier': 'blarg',
+                    'is_supplementary': '',
+                    'expiration_date': '05-05-2055',
+                }),
+                content_type='text/turtle',
+                data='turtleturtleturtle',
+                HTTP_AUTHORIZATION=self.user.authorization(),
+            )
+        self.assertEqual(_resp.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertFalse(_mock_tract.swallow.called)

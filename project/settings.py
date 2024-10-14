@@ -385,6 +385,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'share.tasks.harvest',
         'schedule': 120,
     },
+    'Expel expired data': {
+        'task': 'trove.digestive_tract.task__expel_expired_data',
+        'schedule': crontab(hour=0, minute=0),  # every day at midnight UTC
+    },
 }
 
 if not DEBUG:

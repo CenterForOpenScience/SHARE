@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 import logging
 
@@ -30,6 +31,14 @@ class RdfIngestView(View):
         _record_identifier = request.GET.get('record_identifier')
         if not _record_identifier:
             return http.HttpResponse('record_identifier queryparam required', status=HTTPStatus.BAD_REQUEST)
+        _expiration_date_str = request.GET.get('expiration_date')
+        if _expiration_date_str is None:
+            _expiration_date = None
+        else:
+            try:
+                _expiration_date = datetime.date.fromisoformat(_expiration_date_str)
+            except ValueError:
+                return http.HttpResponse('expiration_date queryparam must be in ISO-8601 date format (YYYY-MM-DD)', status=HTTPStatus.BAD_REQUEST)
         try:
             digestive_tract.swallow(
                 from_user=request.user,
@@ -39,6 +48,7 @@ class RdfIngestView(View):
                 focus_iri=_focus_iri,
                 urgent=(request.GET.get('nonurgent') is None),
                 is_supplementary=(request.GET.get('is_supplementary') is not None),
+                expiration_date=_expiration_date,
             )
         except exceptions.IngestError as e:
             logger.exception(str(e))

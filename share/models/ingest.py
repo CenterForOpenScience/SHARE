@@ -355,7 +355,15 @@ class RawDatumManager(FuzzyCountManager):
 
         return rd
 
-    def store_datum_for_suid(self, *, suid, datum: str, mediatype, datestamp: datetime.datetime):
+    def store_datum_for_suid(
+        self,
+        *,
+        suid,
+        datum: str,
+        mediatype: str | None,  # `None` indicates sharev2-legacy ingestion
+        datestamp: datetime.datetime,
+        expiration_date: datetime.date | None = None,
+    ):
         _raw, _raw_created = self.get_or_create(
             suid=suid,
             sha256=hashlib.sha256(datum.encode()).hexdigest(),
@@ -363,6 +371,7 @@ class RawDatumManager(FuzzyCountManager):
                 'datum': datum,
                 'mediatype': mediatype,
                 'datestamp': datestamp,
+                'expiration_date': expiration_date,
             },
         )
         if not _raw_created:
@@ -371,10 +380,11 @@ class RawDatumManager(FuzzyCountManager):
                 logger.critical(_msg)
                 sentry_sdk.capture_message(_msg)
             _raw.mediatype = mediatype
+            _raw.expiration_date = expiration_date
             # keep the latest datestamp
             if (not _raw.datestamp) or (datestamp > _raw.datestamp):
                 _raw.datestamp = datestamp
-            _raw.save(update_fields=('mediatype', 'datestamp'))
+            _raw.save(update_fields=('mediatype', 'datestamp', 'expiration_date'))
         return _raw
 
     def latest_by_suid_id(self, suid_id) -> models.QuerySet:
@@ -420,6 +430,10 @@ class RawDatum(models.Model):
         'This may be, but is not limited to, a deletion, modification, publication, or creation datestamp. '
         'Ideally, this datetime should be appropriate for determining the chronological order its data will be applied.'
     ))
+    expiration_date = models.DateField(
+        null=True,
+        help_text='An (optional) date after which this datum is no longer valid.',
+    )
 
     date_modified = models.DateTimeField(auto_now=True, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
@@ -447,11 +461,19 @@ class RawDatum(models.Model):
             .exists()
         )
 
+    @property
+    def is_expired(self) -> bool:
+        return (
+            self.expiration_date is not None
+            and self.expiration_date >= datetime.date.today()
+        )
+
     class Meta:
         unique_together = ('suid', 'sha256')
         verbose_name_plural = 'Raw Data'
         indexes = [
             models.Index(fields=['no_output'], name='share_rawda_no_outp_f0330f_idx'),
+            models.Index(fields=['expiration_date'], name='share_rawdatum_expiration_idx'),
         ]
 
     class JSONAPIMeta(BaseJSONAPIMeta):
