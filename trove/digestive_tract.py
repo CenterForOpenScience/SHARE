@@ -202,12 +202,17 @@ def expel(from_user: share_db.ShareUser, record_identifier: str):
         source_config__source__user=from_user,
         identifier=record_identifier,
     )
+    for _suid in _suid_qs:
+        expel_suid(_suid)
+
+
+def expel_suid(suid: share_db.SourceUniqueIdentifier):
     (
         trove_db.SupplementaryIndexcardRdf.objects
-        .filter(supplementary_suid__in=_suid_qs)
+        .filter(supplementary_suid=suid)
         .delete()
     )
-    for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid__in=_suid_qs):
+    for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=suid):
         _indexcard.pls_delete()
 
 
@@ -222,8 +227,7 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     )
     _source_config = _raw.suid.source_config
     if _source_config.disabled or _source_config.source.is_deleted:
-        for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=_raw.suid):
-            _indexcard.pls_delete()
+        expel_suid(_raw.suid)
     else:
         if _raw.mediatype:
             _indexcards = extract(_raw, undelete_indexcards=urgent)

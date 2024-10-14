@@ -38,7 +38,6 @@ from share.models import (
     SourceUniqueIdentifier,
 )
 from trove import digestive_tract
-from trove.models import Indexcard
 
 
 class ShareAdminSite(admin.AdminSite):
@@ -292,8 +291,7 @@ class SourceUniqueIdentifierAdmin(admin.ModelAdmin):
     def delete_cards_for_suid(self, request, queryset):
         for suid in queryset:
             FormattedMetadataRecord.objects.delete_formatted_records(suid)
-            for _indexcard in Indexcard.objects.filter(source_record_suid__in=queryset):
-                _indexcard.pls_delete()
+            digestive_tract.expel_suid(suid)
 
     def get_search_results(self, request, queryset, search_term):
         if not search_term:
