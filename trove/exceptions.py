@@ -27,6 +27,10 @@ class CannotDigestDateValue(DigestiveError):
     pass
 
 
+class CannotDigestExpiredDatum(DigestiveError):
+    pass
+
+
 ###
 # parsing a request
 

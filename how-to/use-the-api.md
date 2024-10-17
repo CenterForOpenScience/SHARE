@@ -20,6 +20,7 @@ query params:
 - `record_identifier` (required): a source-specific identifier for the metadata record (no format restrictions) -- sending another record with the same `record_identifier` is considered a full update (only the most recent is used)
 - `nonurgent`: if present (regardless of value), ingestion may be given a lower priority -- recommended for bulk or background operations
 - `is_supplementary`: if present (regardless of value), this record's metadata will be added to all pre-existing index-cards from the same user with the same `focus_iri` (if any), but will not get an index-card of its own nor affect the last-updated timestamp (e.g. in OAI-PMH) of the index-cards it supplements
+- `expiration_date`: optional date (in format `YYYY-MM-DD`) when the record is no longer valid and should be removed
 
 ## Deleting index-cards
 

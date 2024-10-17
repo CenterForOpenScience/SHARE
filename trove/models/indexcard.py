@@ -64,6 +64,7 @@ class IndexcardManager(models.Manager):
         rdf_tripledicts_by_focus_iri: dict[str, rdf.RdfTripleDictionary],
     ) -> list[Indexcard]:
         assert from_raw_datum.suid.is_supplementary
+        assert not from_raw_datum.is_expired
         from_raw_datum.no_output = (not rdf_tripledicts_by_focus_iri)
         from_raw_datum.save(update_fields=['no_output'])
         if not from_raw_datum.is_latest():
@@ -96,6 +97,7 @@ class IndexcardManager(models.Manager):
         undelete: bool = False,
     ):
         assert not from_raw_datum.suid.is_supplementary
+        assert not from_raw_datum.is_expired
         _focus_identifier_set = (
             ResourceIdentifier.objects
             .save_equivalent_identifier_set(rdf_tripledict, focus_iri)

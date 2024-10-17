@@ -21,7 +21,7 @@ from share import models as share_db
 from share.search import IndexMessenger
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.exceptions import DigestiveError
+from trove.exceptions import DigestiveError, CannotDigestExpiredDatum
 from trove.extract import get_rdf_extractor_class
 from trove.derive import get_deriver_classes
 from trove.vocab.namespaces import RDFS, RDF, OWL
@@ -36,11 +36,12 @@ def swallow(
     from_user: share_db.ShareUser,
     record: str,
     record_identifier: str,
-    record_mediatype: typing.Optional[str],  # passing None indicates sharev2 backcompat
+    record_mediatype: str | None,  # passing None indicates sharev2 backcompat
     focus_iri: str,
-    datestamp=None,  # default "now"
-    urgent=False,
-    is_supplementary=False,
+    datestamp: datetime.datetime | None = None,  # default "now"
+    expiration_date: datetime.date | None = None,
+    urgent: bool = False,
+    is_supplementary: bool = False,
 ):
     '''swallow: store a given record by checksum; queue for extraction
 
@@ -74,6 +75,7 @@ def swallow(
         datum=record,
         mediatype=record_mediatype,
         datestamp=(datestamp or datetime.datetime.now(tz=datetime.timezone.utc)),
+        expiration_date=expiration_date,
     )
     _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
     return _task.id
@@ -120,6 +122,8 @@ def extract(raw: share_db.RawDatum, *, undelete_indexcards=False) -> list[trove_
         LatestIndexcardRdf (previously extracted from the record, but no longer present)
     '''
     assert raw.mediatype is not None, 'raw datum has no mediatype -- did you mean to call extract_legacy?'
+    if raw.is_expired:
+        raise CannotDigestExpiredDatum(raw)
     _tripledicts_by_focus_iri = {}
     _extractor = get_rdf_extractor_class(raw.mediatype)(raw.suid.source_config)
     # TODO normalize (or just validate) tripledict:
@@ -202,13 +206,41 @@ def expel(from_user: share_db.ShareUser, record_identifier: str):
         source_config__source__user=from_user,
         identifier=record_identifier,
     )
-    (
-        trove_db.SupplementaryIndexcardRdf.objects
-        .filter(supplementary_suid__in=_suid_qs)
-        .delete()
-    )
-    for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid__in=_suid_qs):
+    for _suid in _suid_qs:
+        expel_suid(_suid)
+
+
+def expel_suid(suid: share_db.SourceUniqueIdentifier) -> None:
+    for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=suid):
         _indexcard.pls_delete()
+    _expel_supplementary_rdf(
+        trove_db.SupplementaryIndexcardRdf.objects.filter(supplementary_suid=suid),
+    )
+
+
+def expel_expired_data(today: datetime.date) -> None:
+    # mark indexcards deleted if their latest update has now expired
+    for _indexcard in trove_db.Indexcard.objects.filter(
+        trove_latestindexcardrdf_set__from_raw_datum__expiration_date__lte=today,
+    ):
+        _indexcard.pls_delete()
+    # delete expired supplementary metadata
+    _expel_supplementary_rdf(
+        trove_db.SupplementaryIndexcardRdf.objects.filter(
+            from_raw_datum__expiration_date__lte=today,
+        ),
+    )
+
+
+def _expel_supplementary_rdf(supplementary_rdf_queryset) -> None:
+    # delete expired supplementary metadata
+    _affected_indexcards = set()
+    for _supplementary_rdf in supplementary_rdf_queryset.select_related('indexcard'):
+        if not _supplementary_rdf.indexcard.deleted:
+            _affected_indexcards.add(_supplementary_rdf.indexcard)
+        _supplementary_rdf.delete()
+    for _indexcard in _affected_indexcards:
+        task__derive.delay(_indexcard.id)
 
 
 ### BEGIN celery tasks
@@ -222,8 +254,7 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     )
     _source_config = _raw.suid.source_config
     if _source_config.disabled or _source_config.source.is_deleted:
-        for _indexcard in trove_db.Indexcard.objects.filter(source_record_suid=_raw.suid):
-            _indexcard.pls_delete()
+        expel_suid(_raw.suid)
     else:
         if _raw.mediatype:
             _indexcards = extract(_raw, undelete_indexcards=urgent)
@@ -237,9 +268,17 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
 
 
 @celery.shared_task(acks_late=True, bind=True)
-def task__derive(task: celery.Task, indexcard_id: int, deriver_iri: str, notify_index=True):
+def task__derive(
+    task: celery.Task,
+    indexcard_id: int,
+    deriver_iri: str | None = None,
+    notify_index=True,
+):
     _indexcard = trove_db.Indexcard.objects.get(id=indexcard_id)
-    derive(_indexcard, deriver_iris=[deriver_iri])
+    derive(
+        _indexcard,
+        deriver_iris=(None if deriver_iri is None else [deriver_iri]),
+    )
     # TODO: avoid unnecessary work; let IndexStrategy subscribe to a specific
     # IndexcardDeriver (perhaps by deriver-specific MessageType?)
     if notify_index:
@@ -270,6 +309,11 @@ def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
     )
     for _indexcard_id in _indexcard_id_qs.iterator():
         task__derive.apply_async((_indexcard_id, deriver_iri, notify_index))
+
+
+@celery.shared_task(acks_late=True)
+def task__expel_expired_data():
+    expel_expired_data(datetime.date.today())
 
 
 # TODO: remove legacy ingest

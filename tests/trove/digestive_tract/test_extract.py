@@ -1,8 +1,10 @@
+import datetime
 from django.test import TestCase
 from primitive_metadata import primitive_rdf as rdf
 
 from tests import factories
 from trove import digestive_tract
+from trove import exceptions as trove_exceptions
 from trove import models as trove_db
 
 
@@ -128,3 +130,13 @@ blarg:this blarg:like blarg:another ;
         (_indexcard,) = digestive_tract.extract(_empty_raw)
         self.assertEqual(_indexcard.id, _orig_indexcard.id)
         self.assertFalse(_orig_indexcard.supplementary_rdf_set.exists())
+
+    def test_extract_expired(self):
+        self.raw.expiration_date = datetime.date.today()
+        with self.assertRaises(trove_exceptions.CannotDigestExpiredDatum):
+            digestive_tract.extract(self.raw)
+
+    def test_extract_expired_supplement(self):
+        self.supplementary_raw.expiration_date = datetime.date.today()
+        with self.assertRaises(trove_exceptions.CannotDigestExpiredDatum):
+            digestive_tract.extract(self.supplementary_raw)
