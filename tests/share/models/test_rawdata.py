@@ -1,3 +1,4 @@
+import datetime
 import pytest
 import hashlib
 
@@ -65,3 +66,15 @@ class TestRawDatum:
         assert rd2.created is False
         assert rd1.date_modified < rd2.date_modified
         assert rd1.date_created == rd2.date_created
+
+    def test_is_expired(self):
+        rd = RawDatum()
+        assert rd.expiration_date is None
+        assert not rd.is_expired
+        _today = datetime.date.today()
+        rd.expiration_date = datetime.date(_today.year - 1, _today.month, _today.day)
+        assert rd.is_expired
+        rd.expiration_date = datetime.date(_today.year, _today.month, _today.day)
+        assert rd.is_expired
+        rd.expiration_date = datetime.date(_today.year + 1, _today.month, _today.day)
+        assert not rd.is_expired

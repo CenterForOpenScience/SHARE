@@ -466,7 +466,7 @@ class RawDatum(models.Model):
     def is_expired(self) -> bool:
         return (
             self.expiration_date is not None
-            and self.expiration_date >= datetime.date.today()
+            and self.expiration_date <= datetime.date.today()
         )
 
     class Meta:
