@@ -432,6 +432,7 @@ class RawDatum(models.Model):
     ))
     expiration_date = models.DateField(
         null=True,
+        blank=True,
         help_text='An (optional) date after which this datum is no longer valid.',
     )
 

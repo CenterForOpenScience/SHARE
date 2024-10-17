@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rawdatum',
             name='expiration_date',
-            field=models.DateField(help_text='An (optional) date after which this datum is no longer valid.', null=True),
+            field=models.DateField(blank=True, help_text='An (optional) date after which this datum is no longer valid.', null=True),
         ),
     ]
