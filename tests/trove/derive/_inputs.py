@@ -10,6 +10,7 @@ from trove.vocab.namespaces import (
     OSFMAP,
     FOAF,
     OWL,
+    PROV,
     SHAREv2,
 )
 
@@ -40,7 +41,7 @@ DERIVER_TEST_DOCS: dict[str, DeriverTestDoc] = {
         BLARG.my_project: {
             RDF.type: {BLARG.Item, OSFMAP.Project},
             DCTERMS.title: {rdf.literal('title', language='en')},
-            DCTERMS.creator: {BLARG.ME},
+            DCTERMS.creator: {BLARG.me},
             DCTERMS.created: {rdf.literal('2024-02-14')},
         },
         BLARG.me: {
@@ -166,6 +167,10 @@ DERIVER_TEST_DOCS: dict[str, DeriverTestDoc] = {
             OSFMAP.contains: {'https://osf.example/2ph9b'},
             OSFMAP.hostingInstitution: {'https://cos.example/'},
             OSFMAP.keyword: {rdf.literal('Demo'), rdf.literal('IA'), rdf.literal('IMLS'), rdf.literal('OSF')},
+            PROV.qualifiedAttribution: {rdf.blanknode({
+                DCAT.hadRole: {OSFMAP['admin-contributor']},
+                PROV.agent: {'https://osf.example/bhcjn'},
+            })},
         },
         'https://osf.example/2ph9b': {
             RDF.type: {OSFMAP.File},

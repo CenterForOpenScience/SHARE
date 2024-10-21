@@ -11,6 +11,7 @@ class TestOaiDcXmlDeriver(BaseIndexcardDeriverTest):
         'blarg-project': (
             '<oai_dc:dc xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'
             '<dc:title xml:lang="en">title</dc:title>'
+            '<dc:creator>me me</dc:creator>'
             '<dc:date>2024-02-14T00:00:00Z</dc:date>'
             '<dc:type>Project</dc:type>'
             '</oai_dc:dc>'

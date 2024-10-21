@@ -6,19 +6,17 @@ from ._base import BaseIndexcardDeriverTest, SHOULD_SKIP
 
 
 class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
-    maxDiff = None
     deriver_class = ShareV2ElasticDeriver
 
     def assert_derived_texts_equal(self, expected, actual):
-        _actual = json.loads(actual)
-        if expected is None:
-            print(f'actual:\n{actual}')
-        else:
-            self.assertEqual(expected, _actual)
+        self.assertEqual(expected, json.loads(actual))
 
     expected_outputs = {
         'blarg-item': SHOULD_SKIP,
         'blarg-project': {
+            "contributors": [
+                "me me"
+            ],
             "date": "2024-02-14",
             "date_created": "2345-01-01T00:00:00",
             "date_modified": "2345-02-02T00:00:00",
@@ -28,6 +26,8 @@ class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
             "lists": {
                 "contributors": [
                     {
+                        "cited_as": "me me",
+                        "name": "me me",
                         "relation": "http://purl.org/dc/terms/creator"
                     }
                 ]
