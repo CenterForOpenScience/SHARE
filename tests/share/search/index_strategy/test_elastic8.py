@@ -46,11 +46,9 @@ class TestIndexStrategy:
             yield es8_mockclient
 
     @pytest.fixture
-    def fake_strategy(self, mock_es_client):
-        strat = FakeElastic8IndexStrategy(
-            name='fake_es8',
-            cluster_settings={'URL': 'http://nowhere.example:12345/'},
-        )
+    def fake_strategy(self, mock_es_client, settings):
+        settings.ELASTICSEARCH8_URL = 'http://nowhere.example:12345/'
+        strat = FakeElastic8IndexStrategy(name='fake_es8')
         strat.assert_strategy_is_current()
         return strat
 

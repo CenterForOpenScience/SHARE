@@ -18,9 +18,6 @@ class MessageType(enum.Enum):
     # for indexcard-based indexes:
     UPDATE_INDEXCARD = 'update-indexcard'
     BACKFILL_INDEXCARD = 'backfill-indexcard'
-    # for aggregating identifier usage across index cards:
-    IDENTIFIER_USAGE = 'identifier-used'
-    BACKFILL_IDENTIFIER_USAGE = 'backfill-identifier-usage'
 
     @classmethod
     def from_int(cls, message_type_int: int):
@@ -41,8 +38,6 @@ class IntMessageType(enum.IntEnum):
     BACKFILL_SUID = 6
     UPDATE_INDEXCARD = 7
     BACKFILL_INDEXCARD = 8
-    IDENTIFIER_USAGE = 11
-    BACKFILL_IDENTIFIER_USAGE = 12
 
 
 if __debug__:
@@ -56,7 +51,6 @@ if __debug__:
 BACKFILL_MESSAGE_TYPES = {
     MessageType.BACKFILL_SUID,
     MessageType.BACKFILL_INDEXCARD,
-    MessageType.BACKFILL_IDENTIFIER_USAGE,
 }
 
 

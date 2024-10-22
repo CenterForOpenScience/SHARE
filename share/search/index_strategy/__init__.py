@@ -10,9 +10,6 @@ from trove.trovesearch import search_params
 from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
-from .trovesearch_indexcard import TrovesearchIndexcardIndexStrategy
-from .trovesearch_irivalues import TrovesearchIrivaluesIndexStrategy
-from .trovesearch_excessive import TrovesearchExcessiveIndexStrategy
 from ._base import IndexStrategy
 
 
@@ -40,9 +37,6 @@ def _iter_all_index_strategies():
     if settings.ELASTICSEARCH8_URL:
         yield Sharev2Elastic8IndexStrategy(name='sharev2_elastic8')
         yield TroveIndexcardFlatsIndexStrategy(name='trove_indexcard_flats')
-        yield TrovesearchIndexcardIndexStrategy(name='trovesearch_indexcard')
-        yield TrovesearchIrivaluesIndexStrategy(name='trovesearch_irivalues')
-        yield TrovesearchExcessiveIndexStrategy(name='trovesearch_excessive')
 
 
 def get_index_strategy(strategyname: str) -> IndexStrategy:
@@ -87,12 +81,6 @@ def get_index_for_sharev2_search(requested_name=None) -> IndexStrategy.SpecificI
 def get_index_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy.SpecificIndex:
     if params.index_strategy_name:  # specific strategy requested
         _name = params.index_strategy_name
-    elif not FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_POLYSTRAT):
-        _name = 'trove_indexcard_flats'
     else:
-        _name = (
-            'trovesearch_indexcard'
-            if TrovesearchIndexcardIndexStrategy.works_with_params(params)
-            else 'trovesearch_excessive'
-        )
+        _name = 'trove_indexcard_flats'
     return get_specific_index(_name, for_search=True)

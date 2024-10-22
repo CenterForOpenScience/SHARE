@@ -48,7 +48,6 @@ def _search_url_prefix():
 
 
 def _mappings_url_prefix():
-    # return reverse('admin:search-index-mappings', kwargs={'index_name': ''})
     return '/admin/search-index-mappings/'
 
 

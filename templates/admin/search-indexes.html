@@ -109,6 +109,7 @@ section, table {
             <th>{% trans "is default for searching" %}</th>
             <th>{% trans "doc count" %}</th>
             <th>{% trans "actions" %}</th>
+            <th>{% trans "links" %}</th>
             <th>{% trans "index name" %}</th>
           </tr>
           {% for index_status in indexes.prior %}
@@ -149,11 +150,11 @@ section, table {
               </form>
               {% endif %}
             </td>
-            <td><i>{{ index_status.specific_indexname }}</i>
-            {% if index_status.creation_date %}
-              <p><a href="{{mappings_url_prefix}}{{index_status.specific_indexname}}" target="_blank">({% trans "mappings" %})</a></p>
+            <td>{% if index_status.creation_date %}
+              <p><a href="{{mappings_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
             {% endif %}
             </td>
+            <td><i>{{ index_status.specific_indexname }}</i></td>
           </tr>
           {% endfor %}
         </table>
