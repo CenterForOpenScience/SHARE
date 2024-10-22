@@ -203,9 +203,9 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
                     ]
                 }
             ],
-            'prov:qualifiedAttribution': [{
-                'prov:agent': [{'@id': 'https://osf.example/bhcjn'}],
-                'dcat:hadRole': [{'@id': 'osf:admin-contributor'}],
+            'qualifiedAttribution': [{
+                'agent': [{'@id': 'https://osf.example/bhcjn'}],
+                'hadRole': [{'@id': 'osf:admin-contributor'}],
             }],
             "dateCopyrighted": [
                 {"@value": "2021"}
