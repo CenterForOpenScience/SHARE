@@ -10,6 +10,7 @@ from trove.trovesearch import search_params
 from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
+from .trovesearch_denorm import TrovesearchDenormIndexStrategy
 from ._base import IndexStrategy
 
 
@@ -37,6 +38,7 @@ def _iter_all_index_strategies():
     if settings.ELASTICSEARCH8_URL:
         yield Sharev2Elastic8IndexStrategy(name='sharev2_elastic8')
         yield TroveIndexcardFlatsIndexStrategy(name='trove_indexcard_flats')
+        yield TrovesearchDenormIndexStrategy(name='trovesearch_denorm')
 
 
 def get_index_strategy(strategyname: str) -> IndexStrategy:
@@ -81,6 +83,8 @@ def get_index_for_sharev2_search(requested_name=None) -> IndexStrategy.SpecificI
 def get_index_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy.SpecificIndex:
     if params.index_strategy_name:  # specific strategy requested
         _name = params.index_strategy_name
+    elif FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY):
+        _name = 'trovesearch_denorm'
     else:
         _name = 'trove_indexcard_flats'
     return get_specific_index(_name, for_search=True)

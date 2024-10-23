@@ -22,9 +22,11 @@ from trove.vocab.namespaces import (
     FOAF,
     OSFMAP,
     OWL,
+    RDF,
     RDFS,
     SKOS,
     TROVE,
+    XSD,
 )
 from trove.vocab.osfmap import is_date_property
 
@@ -92,16 +94,42 @@ def latest_rdf_for_indexcard_pks(indexcard_pks):
     )
 
 
+def iri_synonyms(iri: str, rdfdoc: rdf.RdfGraph) -> set[str]:
+    # note: extremely limited inference -- assumes objects of owl:sameAs are not used as subjects
+    _synonyms = (
+        _synonym
+        for _synonym in rdfdoc.q(iri, OWL.sameAs)
+        if is_worthwhile_iri(_synonym)
+    )
+    return {iri, *_synonyms}
+
+
+def iris_synonyms(iris: typing.Iterable[str], rdfdoc: rdf.RdfGraph) -> set[str]:
+    return {
+        _synonym
+        for _iri in iris
+        for _synonym in iri_synonyms(_iri, rdfdoc)
+    }
+
+
 def propertypath_as_keyword(path: Propertypath) -> str:
-    return json.dumps(path if is_globpath(path) else [
+    assert not is_globpath(path)
+    return json.dumps([
         get_sufficiently_unique_iri(_iri)
         for _iri in path
     ])
 
 
 def propertypath_as_field_name(path: Propertypath) -> str:
-    _path_keyword = propertypath_as_keyword(path)
-    return base64.urlsafe_b64encode(_path_keyword.encode()).decode()
+    return b64(propertypath_as_keyword(path))
+
+
+def b64(value: str) -> str:
+    return base64.urlsafe_b64encode(value.encode()).decode()
+
+
+def b64_reverse(b64_str: str) -> str:
+    return base64.urlsafe_b64decode(b64_str.encode()).decode()
 
 
 def suffuniq_iris(iris: typing.Iterable[str]) -> list[str]:
@@ -112,22 +140,28 @@ def suffuniq_iris(iris: typing.Iterable[str]) -> list[str]:
     })
 
 
+def _dict_of_sets():
+    return defaultdict(set)
+
+
 @dataclasses.dataclass
 class GraphWalk:
     rdfdoc: rdf.RdfGraph
     focus_iri: str
-    recursive: bool = True
+    already_visiting: set[str] = dataclasses.field(default_factory=set)
     iri_values: dict[Propertypath, set[str]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
+        default_factory=_dict_of_sets,
     )
     text_values: dict[Propertypath, set[rdf.Literal]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
+        default_factory=_dict_of_sets,
     )
     date_values: dict[Propertypath, set[datetime.date]] = dataclasses.field(
-        default_factory=lambda: defaultdict(set),
+        default_factory=_dict_of_sets,
+    )
+    integer_values: dict[Propertypath, set[int]] = dataclasses.field(
+        default_factory=_dict_of_sets,
     )
     paths_walked: set[Propertypath] = dataclasses.field(default_factory=set)
-    _visiting: set[str] = dataclasses.field(default_factory=set)
 
     def __post_init__(self):
         for _walk_path, _walk_obj in self._walk_from_subject(self.focus_iri):
@@ -144,33 +178,33 @@ class GraphWalk:
                 else:
                     self.date_values[_walk_path].add(_parsed_date)
             elif isinstance(_walk_obj, rdf.Literal):
-                self.text_values[_walk_path].add(_walk_obj.unicode_value)
+                if XSD.integer in _walk_obj.datatype_iris:
+                    self.integer_values[_walk_path].add(_walk_obj)
+                if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
+                    self.text_values[_walk_path].add(_walk_obj.unicode_value)
 
-    def shortwalk(self, from_iri: str) -> GraphWalk:
+    def shortwalk_from(self, from_iri: str) -> GraphWalk:
         return GraphWalk(
             self.rdfdoc,
-            self.focus_iri,
-            recursive=False,
+            from_iri,
+            already_visiting={self.focus_iri},
         )
 
     def _walk_from_subject(
         self,
-        iri_or_blanknode: str | rdf.Blanknode,
+        iri: str,
         path_so_far: tuple[str, ...] = (),
     ) -> typing.Iterator[tuple[Propertypath, rdf.RdfObject]]:
         '''walk the graph from the given subject, yielding (pathkey, obj) for every reachable object
         '''
-        with self._visit(iri_or_blanknode):
-            _twoples = (
-                iri_or_blanknode
-                if isinstance(iri_or_blanknode, frozenset)
-                else self.rdfdoc.tripledict.get(iri_or_blanknode, {})
-            )
+        if iri in self.already_visiting:
+            return
+        with self._visit(iri):
+            _twoples = self.rdfdoc.tripledict.get(iri, {})
             for _next_steps, _obj in walk_twoples(_twoples):
                 _path = (*path_so_far, *_next_steps)
                 yield (_path, _obj)
-                if self.recursive and isinstance(_obj, str) and (_obj not in self._visiting):
-                    # step further for iri or blanknode
+                if isinstance(_obj, str):  # step further for iri
                     yield from self._walk_from_subject(_obj, path_so_far=_path)
 
     @functools.cached_property
@@ -181,28 +215,12 @@ class GraphWalk:
                 _paths_by_iri[_iri].add(_path)
         return _paths_by_iri
 
-    def iri_synonyms(self, iri: str) -> set[str]:
-        # note: extremely limited inference -- assumes objects of owl:sameAs are not used as subjects
-        _synonyms = (
-            _synonym
-            for _synonym in self.rdfdoc.q(iri, OWL.sameAs)
-            if is_worthwhile_iri(_synonym)
-        )
-        return {iri, *_synonyms}
-
-    def iris_synonyms(self, iris: typing.Iterable[str]) -> set[str]:
-        return {
-            _synonym
-            for _iri in iris
-            for _synonym in self.iri_synonyms(_iri)
-        }
-
     @contextlib.contextmanager
     def _visit(self, focus_obj):
-        assert focus_obj not in self._visiting
-        self._visiting.add(focus_obj)
+        assert focus_obj not in self.already_visiting
+        self.already_visiting.add(focus_obj)
         yield
-        self._visiting.discard(focus_obj)
+        self.already_visiting.discard(focus_obj)
 
 
 def walk_twoples(

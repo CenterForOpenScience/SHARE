@@ -235,7 +235,7 @@ cardSearchFilter[affiliation][is-absent]
             TROVE.valueSearchFilter,
             TROVE.pageSize,
             TROVE.pageCursor,
-            TROVE.sort,
+            # TROVE.sort,
             # TROVE.include,
         },
         RDFS.label: {literal('index-value-search', language='en')},

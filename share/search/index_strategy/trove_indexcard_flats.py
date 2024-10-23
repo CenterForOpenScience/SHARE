@@ -39,28 +39,20 @@ from trove.trovesearch.search_response import (
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, FOAF, RDF, RDFS, DCTERMS, OWL, SKOS, OSFMAP
-
-
-logger = logging.getLogger(__name__)
-
-
-TITLE_PROPERTIES = (DCTERMS.title,)
-NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
-LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
-NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
-
-
-SKIPPABLE_PROPERTIES = (
-    OSFMAP.contains,
+from trove.vocab.namespaces import TROVE, RDF, OWL
+from ._trovesearch_util import (
+    TITLE_PROPERTIES,
+    NAME_PROPERTIES,
+    LABEL_PROPERTIES,
+    NAMELIKE_PROPERTIES,
+    VALUESEARCH_MAX,
+    CARDSEARCH_MAX,
+    KEYWORD_LENGTH_MAX,
+    SKIPPABLE_PROPERTIES,
 )
 
 
-VALUESEARCH_MAX = 234
-CARDSEARCH_MAX = 9997
-
-KEYWORD_LENGTH_MAX = 8191  # skip keyword terms that might exceed lucene's internal limit
-# (see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html)
+logger = logging.getLogger(__name__)
 
 
 class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):

@@ -11,6 +11,7 @@ from share.search.index_strategy import (
     sharev2_elastic5,
     sharev2_elastic8,
     trove_indexcard_flats,
+    trovesearch_denorm,
 )
 
 
@@ -20,6 +21,7 @@ def expected_strategy_classes():
         'sharev2_elastic5': sharev2_elastic5.Sharev2Elastic5IndexStrategy,
         'sharev2_elastic8': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
         'trove_indexcard_flats': trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy,
+        'trovesearch_denorm': trovesearch_denorm.TrovesearchDenormIndexStrategy,
     }
 
 

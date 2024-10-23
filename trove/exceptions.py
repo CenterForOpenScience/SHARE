@@ -70,6 +70,10 @@ class InvalidPropertyPath(RequestParsingError):
     pass
 
 
+class InvalidQueryParams(RequestParsingError):
+    pass
+
+
 ###
 # rendering a response
 

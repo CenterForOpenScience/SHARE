@@ -490,6 +490,18 @@ class ValuesearchParams(CardsearchParams):
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
+    def __post_init__(self):
+        if is_date_property(self.valuesearch_propertypath[-1]):
+            # date-value limitations
+            if self.valuesearch_textsegment_set:
+                raise trove_exceptions.InvalidQueryParams(
+                    'valueSearchText may not be used with valueSearchPropertyPath leading to a "date" property',
+                )
+            if self.valuesearch_filter_set:
+                raise trove_exceptions.InvalidQueryParams(
+                    'valueSearchFilter may not be used with valueSearchPropertyPath leading to a "date" property',
+                )
+
     def to_querydict(self):
         _querydict = super().to_querydict()
         _querydict['valueSearchPropertyPath'] = propertypath_key(self.valuesearch_propertypath)
