@@ -151,7 +151,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self.es8_client.delete_by_query(
             index=list(indexnames),
             query={'bool': {'must': [
-                {'terms': {'card.pk': messages_chunk.target_ids_chunk}},
+                {'terms': {'card.card_pk': messages_chunk.target_ids_chunk}},
                 {'exists': {'field': 'iri_value.value_iri'}},
             ]}},
         )
@@ -718,7 +718,7 @@ class _CardsearchQueryBuilder:
                     'random_score': {},  # default random_score is fast and unpredictable
                 },
             }
-        _firstpage_filter = {'terms': {'card.pk': self.cursor.first_page_pks}}
+        _firstpage_filter = {'terms': {'card.card_pk': self.cursor.first_page_pks}}
         if self.cursor.is_first_page():
             # returning to a first page previously visited
             _bool.add_boolpart('filter', _firstpage_filter)
@@ -731,7 +731,7 @@ class _CardsearchQueryBuilder:
                 'boost_mode': 'replace',
                 'random_score': {
                     'seed': ''.join(self.cursor.first_page_pks),
-                    'field': 'card.pk',
+                    'field': 'card.card_pk',
                 },
             },
         }
