@@ -9,6 +9,7 @@ SHOULD_SKIP = object()  # for deriver inputs that should be skipped
 
 
 class BaseIndexcardDeriverTest(TestCase):
+    maxDiff = None
 
     #######
     # implement these things:

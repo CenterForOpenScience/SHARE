@@ -50,7 +50,7 @@ class _RdfOsfmapJsonldRenderer:
                 rdf.twopledict_from_twopleset(rdfobject),
             )
         elif isinstance(rdfobject, rdf.Literal):
-            if not rdfobject.datatype_iris:
+            if not rdfobject.datatype_iris or rdfobject.datatype_iris == {RDF.string}:
                 return {'@value': rdfobject.unicode_value}
             if RDF.JSON in rdfobject.datatype_iris:
                 # NOTE: does not reset jsonld context (is that a problem?)
@@ -62,13 +62,16 @@ class _RdfOsfmapJsonldRenderer:
                     '@language': _language_tag,
                 }
             # datatype iri (or non-standard language iri)
+            _datatype_iris = sorted(
+                (
+                    osfmap_shorthand().compact_iri(_datatype_iri)
+                    for _datatype_iri in rdfobject.datatype_iris
+                ),
+                key=len,
+            )
             return {
                 '@value': rdfobject.unicode_value,
-                '@type': (
-                    list(rdfobject.datatype_iris)
-                    if len(rdfobject.datatype_iris) > 1
-                    else next(iter(rdfobject.datatype_iris))
-                ),
+                '@type': (_datatype_iris if (len(_datatype_iris) > 1) else _datatype_iris[0]),
             }
         elif isinstance(rdfobject, str):
             return {'@id': osfmap_shorthand().compact_iri(rdfobject)}
@@ -111,7 +114,7 @@ class _RdfOsfmapJsonldRenderer:
         _nested_obj = (
             {}
             if rdfobject.startswith('_:')  # HACK: non-blank blank nodes (stop that)
-            else {'@id': rdfobject}
+            else {'@id': osfmap_shorthand().compact_iri(rdfobject)}
         )
         for _pred, _objectset in tripledict[rdfobject].items():
             _label = osfmap_shorthand().compact_iri(_pred)
@@ -126,22 +129,26 @@ class _RdfOsfmapJsonldRenderer:
         self.__nestvisiting_iris.discard(rdfobject)
         return _nested_obj
 
-    def _list_or_single_value(self, predicate_iri, objectset):
+    def _list_or_single_value(self, predicate_iri, json_list: list):
         _only_one_object = OWL.FunctionalProperty in (
             OSFMAP_THESAURUS
             .get(predicate_iri, {})
             .get(RDF.type, ())
         )
         if _only_one_object:
-            if len(objectset) > 1:
+            if len(json_list) > 1:
                 raise trove_exceptions.OwlObjection((
                     f'expected at most one object for <{predicate_iri}>'
-                    f' (got {objectset})'
+                    f' (got {json_list})'
                 ))
             try:
-                (_only_obj,) = objectset
+                (_only_obj,) = json_list
             except ValueError:
                 return None
             else:
                 return _only_obj
-        return list(objectset)
+        return (
+            sorted(json_list, key=json.dumps)
+            if len(json_list) > 1
+            else json_list
+        )

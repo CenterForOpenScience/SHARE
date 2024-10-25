@@ -17,6 +17,7 @@ from trove.vocab.namespaces import (
     FOAF,
     OSFMAP,
     OWL,
+    PROV,
     RDF,
     RDFS,
     SKOS,
@@ -543,6 +544,54 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('hostingInstitution', language='en'),
         },
     },
+    PROV.qualifiedAttribution: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('qualifiedAttribution', language='en')},
+    },
+    PROV.agent: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('agent', language='en')},
+    },
+    DCAT.hadRole: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('hadRole', language='en')},
+    },
+    OSFMAP.usage: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('usage', language='en')},
+    },
+    OSFMAP.storageRegion: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('storageRegion', language='en')},
+    },
+    OSFMAP.storageByteCount: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('storageByteCount', language='en')},
+    },
+    OSFMAP.hasOsfAddon: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('hasOsfAddon', language='en')},
+    },
+    OSFMAP.viewCount: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('viewCount', language='en')},
+    },
+    OSFMAP.viewSessionCount: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('viewSessionCount', language='en')},
+    },
+    OSFMAP.downloadCount: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('downloadCount', language='en')},
+    },
+    OSFMAP.downloadSessionCount: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('downloadSessionCount', language='en')},
+    },
+    DCTERMS.temporal: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {literal('temporalCoverage', language='en')},
+    },
     RDFS.label: {
         RDF.type: {RDF.Property},
         RDFS.label: {
@@ -708,6 +757,7 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('hasCedarTemplate', language='en'),
         },
     },
+
     ###
     # values:
     OSFMAP['no-conflict-of-interest']: {
