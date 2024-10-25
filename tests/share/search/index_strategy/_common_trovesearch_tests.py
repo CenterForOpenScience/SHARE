@@ -9,7 +9,7 @@ from tests import factories
 from share.search import messages
 from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
-from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF
+from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF, DCAT
 from ._with_real_services import RealElasticTestCase
 
 
@@ -53,16 +53,23 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_cardsearch(self):
         self._fill_test_data_for_querying()
-        for _queryparams, _expected_result_iris in self.cardsearch_cases():
+        _cardsearch_cases = itertools.chain(
+            self.cardsearch_cases(),
+            self.cardsearch_integer_cases(),
+        )
+        for _queryparams, _expected_result_iris in _cardsearch_cases:
             _cardsearch_params = CardsearchParams.from_querystring(urlencode(_queryparams))
             assert isinstance(_cardsearch_params, CardsearchParams)
             _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
             # assumes all results fit on one page
-            _actual_result_iris = {
+            _actual_result_iris: set[str] | list[str] = [
                 self._indexcard_focus_by_uuid[_result.card_uuid]
                 for _result in _cardsearch_response.search_result_page
-            }
-            self.assertEqual(_expected_result_iris, _actual_result_iris)
+            ]
+            # test sort order only when expected results are ordered
+            if isinstance(_expected_result_iris, set):
+                _actual_result_iris = set(_actual_result_iris)
+            self.assertEqual(_expected_result_iris, _actual_result_iris, msg=f'?{_queryparams}')
 
     def test_valuesearch(self):
         self._fill_test_data_for_querying()
@@ -82,70 +89,105 @@ class CommonTrovesearchTests(RealElasticTestCase):
             self.assertEqual(_expected_values, _actual_values)
 
     def _fill_test_data_for_querying(self):
-        self._index_indexcards([
-            self._create_indexcard(BLARG.a, {
-                BLARG.a: {
-                    RDF.type: {BLARG.Thing},
-                    OWL.sameAs: {BLARG.a_same, BLARG.a_same2},
-                    DCTERMS.created: {rdf.literal(date(1999, 12, 31))},
-                    DCTERMS.creator: {BLARG.someone},
-                    DCTERMS.title: {rdf.literal('aaaa')},
-                    DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_a},
-                    DCTERMS.references: {BLARG.b, BLARG.c},
-                    DCTERMS.description: {rdf.literal('This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.', language='en')},
+        _card_a = self._create_indexcard(BLARG.a, {
+            BLARG.a: {
+                RDF.type: {BLARG.Thing},
+                OWL.sameAs: {BLARG.a_same, BLARG.a_same2},
+                DCTERMS.created: {rdf.literal(date(1999, 12, 31))},
+                DCTERMS.creator: {BLARG.someone},
+                DCTERMS.title: {rdf.literal('aaaa')},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_a},
+                DCTERMS.references: {BLARG.b, BLARG.c},
+                DCTERMS.description: {rdf.literal('This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.', language='en')},
+            },
+            BLARG.someone: {
+                FOAF.name: {rdf.literal('some one')},
+            },
+            BLARG.b: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
+                DCTERMS.title: {rdf.literal('bbbb')},
+                DCTERMS.references: {BLARG.c},
+            },
+            BLARG.c: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.title: {rdf.literal('cccc')},
+            },
+        })
+        _card_b = self._create_indexcard(BLARG.b, {
+            BLARG.b: {
+                RDF.type: {BLARG.Thing},
+                OWL.sameAs: {BLARG.b_same},
+                DCTERMS.created: {rdf.literal(date(2012, 12, 31))},
+                DCTERMS.creator: {BLARG.someone},
+                DCTERMS.title: {rdf.literal('bbbb')},
+                DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
+                DCTERMS.references: {BLARG.c},
+                DCTERMS.description: {rdf.literal('What is here was dangerous and repulsive to us. This message is a warning about danger. ', language='en')},
+            },
+            BLARG.someone: {
+                FOAF.name: {rdf.literal('some one')},
+            },
+            BLARG.c: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.title: {rdf.literal('cccc')},
+            },
+        })
+        _card_c = self._create_indexcard(BLARG.c, {
+            BLARG.c: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
+                DCTERMS.creator: {BLARG.someone_else},
+                DCTERMS.title: {rdf.literal('cccc')},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
+            },
+            BLARG.someone_else: {
+                FOAF.name: {rdf.literal('some one else')},
+            },
+        })
+        self._create_supplement(_card_a, BLARG.a, {
+            BLARG.a: {
+                DCTERMS.replaces: {BLARG.a_past},
+                DCAT.servesDataset: {
+                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(10)}}),
                 },
-                BLARG.someone: {
-                    FOAF.name: {rdf.literal('some one')},
+            },
+        })
+        self._create_supplement(_card_b, BLARG.b, {
+            BLARG.b: {
+                DCTERMS.replaces: {BLARG.b_past},
+                DCAT.servesDataset: {
+                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(7)}}),
                 },
-                BLARG.b: {
-                    RDF.type: {BLARG.Thing},
-                    DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
-                    DCTERMS.title: {rdf.literal('bbbb')},
-                    DCTERMS.references: {BLARG.c},
+            },
+        })
+        self._create_supplement(_card_c, BLARG.c, {
+            BLARG.c: {
+                DCTERMS.replaces: {BLARG.c_past},
+                DCAT.servesDataset: {
+                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(333)}}),
                 },
-                BLARG.c: {
-                    RDF.type: {BLARG.Thing},
-                    DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
-                    DCTERMS.title: {rdf.literal('cccc')},
-                },
-            }),
-            self._create_indexcard(BLARG.b, {
-                BLARG.b: {
-                    RDF.type: {BLARG.Thing},
-                    OWL.sameAs: {BLARG.b_same},
-                    DCTERMS.created: {rdf.literal(date(2012, 12, 31))},
-                    DCTERMS.creator: {BLARG.someone},
-                    DCTERMS.title: {rdf.literal('bbbb')},
-                    DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
-                    DCTERMS.references: {BLARG.c},
-                    DCTERMS.description: {rdf.literal('What is here was dangerous and repulsive to us. This message is a warning about danger. ', language='en')},
-                },
-                BLARG.someone: {
-                    FOAF.name: {rdf.literal('some one')},
-                },
-                BLARG.c: {
-                    RDF.type: {BLARG.Thing},
-                    DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
-                    DCTERMS.title: {rdf.literal('cccc')},
-                },
-            }),
-            self._create_indexcard(BLARG.c, {
-                BLARG.c: {
-                    RDF.type: {BLARG.Thing},
-                    DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
-                    DCTERMS.creator: {BLARG.someone_else},
-                    DCTERMS.title: {rdf.literal('cccc')},
-                    DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
-                    DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
-                },
-                BLARG.someone_else: {
-                    FOAF.name: {rdf.literal('some one else')},
-                },
-            }),
-        ])
+            },
+        })
+        self._index_indexcards([_card_a, _card_b, _card_c])
 
-    def cardsearch_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+    def cardsearch_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
         # using data from _fill_test_data_for_querying
+        yield (
+            {},  # no query params
+            {BLARG.a, BLARG.b, BLARG.c},
+        )
+        yield (
+            {'sort': 'dateCreated'},
+            [BLARG.a, BLARG.b, BLARG.c],  # ordered list
+        )
+        yield (
+            {'sort': '-dateCreated'},
+            [BLARG.c, BLARG.b, BLARG.a],  # ordered list
+        )
         yield (
             {'cardSearchFilter[creator]': BLARG.someone},
             {BLARG.a, BLARG.b},
@@ -189,6 +231,14 @@ class CommonTrovesearchTests(RealElasticTestCase):
         yield (
             {'cardSearchFilter[references.references.subject][is-absent]': ''},
             {BLARG.c, BLARG.b},
+        )
+        yield (
+            {'cardSearchFilter[dcterms:replaces]': BLARG.b_past},
+            {BLARG.b},
+        )
+        yield (
+            {'cardSearchFilter[dcterms:replaces][is-absent]': ''},
+            set(),
         )
         yield (
             {'cardSearchFilter[subject]': BLARG.subj_ac},
@@ -300,6 +350,17 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {BLARG.b},
         )
 
+    def cardsearch_integer_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
+        # cases that depend on integer values getting indexed
+        yield (
+            {'sort': 'dcat:servesDataset.dcat:spatialResolutionInMeters'},
+            [BLARG.b, BLARG.a, BLARG.c],  # ordered list
+        )
+        yield (
+            {'sort': '-dcat:servesDataset.dcat:spatialResolutionInMeters'},
+            [BLARG.c, BLARG.a, BLARG.b],  # ordered list
+        )
+
     def valuesearch_simple_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
         yield (
             {'valueSearchPropertyPath': 'references'},
@@ -361,3 +422,20 @@ class CommonTrovesearchTests(RealElasticTestCase):
         )
         self._indexcard_focus_by_uuid[str(_indexcard.uuid)] = focus_iri
         return _indexcard
+
+    def _create_supplement(
+        self,
+        indexcard: trove_db.Indexcard,
+        focus_iri: str,
+        rdf_tripledict: rdf.RdfTripleDictionary,
+    ) -> trove_db.SupplementaryIndexcardRdf:
+        _supp_suid = factories.SourceUniqueIdentifierFactory()
+        _supp_raw = factories.RawDatumFactory(suid=_supp_suid)
+        return trove_db.SupplementaryIndexcardRdf.objects.create(
+            from_raw_datum=_supp_raw,
+            indexcard=indexcard,
+            supplementary_suid=_supp_suid,
+            focus_iri=focus_iri,
+            rdf_as_turtle=rdf.turtle_from_tripledict(rdf_tripledict),
+            turtle_checksum_iri='sup',  # not enforced
+        )

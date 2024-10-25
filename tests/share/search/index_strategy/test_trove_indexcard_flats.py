@@ -7,3 +7,6 @@ class TestTroveIndexcardFlats(_common_trovesearch_tests.CommonTrovesearchTests):
     # for RealElasticTestCase
     def get_index_strategy(self):
         return TroveIndexcardFlatsIndexStrategy('test_trove_indexcard_flats')
+
+    def cardsearch_integer_cases(self):
+        yield from ()  # integers not indexed by this strategy
