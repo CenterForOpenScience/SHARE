@@ -10,7 +10,6 @@ import uuid
 from typing import Iterable, ClassVar, Optional, Iterator
 
 from django.conf import settings
-from django.db.models import Exists, OuterRef
 import elasticsearch8
 from primitive_metadata import primitive_rdf
 
@@ -41,6 +40,7 @@ from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, RDF, OWL
 from ._trovesearch_util import (
+    latest_rdf_for_indexcard_pks,
     TITLE_PROPERTIES,
     NAME_PROPERTIES,
     LABEL_PROPERTIES,
@@ -263,22 +263,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         }
 
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        _indexcard_rdf_qs = (
-            trove_db.LatestIndexcardRdf.objects
-            .filter(indexcard_id__in=messages_chunk.target_ids_chunk)
-            .filter(Exists(
-                trove_db.DerivedIndexcard.objects
-                .filter(upriver_indexcard_id=OuterRef('indexcard_id'))
-                .filter(deriver_identifier__in=(
-                    trove_db.ResourceIdentifier.objects
-                    .queryset_for_iri(TROVE['derive/osfmap_json'])
-                ))
-            ))
-            .exclude(indexcard__deleted__isnull=False)
-            .select_related('indexcard__source_record_suid__source_config')
-            .prefetch_related('indexcard__focus_identifier_set')
-            .prefetch_related('indexcard__supplementary_rdf_set')
-        )
+        _indexcard_rdf_qs = latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
             _suid = _indexcard_rdf.indexcard.source_record_suid

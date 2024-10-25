@@ -80,7 +80,7 @@ def latest_rdf_for_indexcard_pks(indexcard_pks):
     return (
         trove_db.LatestIndexcardRdf.objects
         .filter(indexcard_id__in=indexcard_pks)
-        .filter(Exists(
+        .filter(Exists(  # only index items that have an osfmap_json representation
             trove_db.DerivedIndexcard.objects
             .filter(upriver_indexcard_id=OuterRef('indexcard_id'))
             .filter(deriver_identifier__in=(
@@ -91,6 +91,7 @@ def latest_rdf_for_indexcard_pks(indexcard_pks):
         .exclude(indexcard__deleted__isnull=False)
         .select_related('indexcard__source_record_suid__source_config')
         .prefetch_related('indexcard__focus_identifier_set')
+        .prefetch_related('indexcard__supplementary_rdf_set')
     )
 
 
@@ -118,10 +119,6 @@ def propertypath_as_keyword(path: Propertypath) -> str:
         get_sufficiently_unique_iri(_iri)
         for _iri in path
     ])
-
-
-def propertypath_as_field_name(path: Propertypath) -> str:
-    return b64(propertypath_as_keyword(path))
 
 
 def b64(value: str) -> str:

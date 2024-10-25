@@ -158,10 +158,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        _indexcard_rdf_qs = (
-            ts.latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
-            .select_related('indexcard__source_record_suid__source_config')
-        )
+        _indexcard_rdf_qs = ts.latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
         _remaining_indexcard_pks = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
             _docbuilder = self._SourcedocBuilder(_indexcard_rdf)
@@ -244,13 +241,13 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         '''
         indexcard_rdf: trove_db.IndexcardRdf
         indexcard: trove_db.Indexcard = dataclasses.field(init=False)
-        rdfdoc: rdf.RdfTripleDictionary = dataclasses.field(init=False)
         focus_iri: str = dataclasses.field(init=False)
+        rdfdoc: rdf.RdfTripleDictionary = dataclasses.field(init=False)
 
         def __post_init__(self) -> None:
             self.indexcard = self.indexcard_rdf.indexcard
-            self.rdfdoc = rdf.RdfGraph(self.indexcard_rdf.as_rdf_tripledict())
             self.focus_iri = self.indexcard_rdf.focus_iri
+            self.rdfdoc = self.indexcard_rdf.as_rdfdoc_with_supplements()
 
         def should_skip(self) -> bool:
             _suid = self.indexcard.source_record_suid
@@ -329,7 +326,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def _iris_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                ts.propertypath_as_field_name(_path): ts.suffuniq_iris(ts.iris_synonyms(_iris, self.rdfdoc))
+                _path_field_name(_path): ts.suffuniq_iris(ts.iris_synonyms(_iris, self.rdfdoc))
                 for _path, _iris in walk.iri_values.items()
             }
 
@@ -344,7 +341,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def _texts_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                ts.propertypath_as_field_name(_path): list(_value_set)
+                _path_field_name(_path): list(_value_set)
                 for _path, _value_set in walk.text_values.items()
             }
 
@@ -363,7 +360,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def _dates_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                ts.propertypath_as_field_name(_path): [
+                _path_field_name(_path): [
                     _date.isoformat()
                     for _date in _value_set
                 ]
@@ -372,7 +369,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def _ints_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                ts.propertypath_as_field_name(_path): list(_value_set)
+                _path_field_name(_path): list(_value_set)
                 for _path, _value_set in walk.integer_values.items()
             }
 
@@ -429,7 +426,6 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     def _valuesearch_iri_result(self, iri_bucket) -> ValuesearchResult:
         return ValuesearchResult(
             value_iri=iri_bucket['key'],
-            # TODO: get type and text somehow
             value_type=_bucketlist(iri_bucket.get('agg_type_iri', [])),
             name_text=_bucketlist(iri_bucket.get('agg_value_name', [])),
             title_text=_bucketlist(iri_bucket.get('agg_value_title', [])),
@@ -449,7 +445,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self,
         cardsearch_params: CardsearchParams,
         es8_response: dict,
-        cursor: '_CardsearchCursor',
+        cursor: _CardsearchCursor,
     ) -> CardsearchResponse:
         _es8_total = es8_response['hits']['total']
         if _es8_total['relation'] != 'eq':
@@ -642,7 +638,7 @@ class _QueryHelper:
         return (
             f'{self.base_field}.text_by_depth.{_depth_field_name(len(propertypath))}'
             if is_globpath(propertypath)
-            else f'{self.base_field}.text_by_propertypath.{ts.propertypath_as_field_name(propertypath)}'
+            else f'{self.base_field}.text_by_propertypath.{_path_field_name(propertypath)}'
         )
 
     def _exact_text_query(self, textsegment: Textsegment) -> dict:
@@ -864,7 +860,7 @@ def _path_field_name(path: ts.Propertypath) -> str:
 
 
 def _parse_path_field_name(path_field_name: str) -> ts.Propertypath:
-    # inverse of propertypath_as_field_name
+    # inverse of _path_field_name
     _list = json.loads(ts.b64_reverse(path_field_name))
     assert isinstance(_list, list)
     assert all(isinstance(_item, str) for _item in _list)
@@ -878,6 +874,9 @@ def _any_query(queries: abc.Collection[dict]):
     return {'bool': {'should': list(queries), 'minimum_should_match': 1}}
 
 
+###
+# cursor implementations
+
 @dataclasses.dataclass
 class _SimpleCursor:
     start_index: int
@@ -887,7 +886,7 @@ class _SimpleCursor:
     MAX_INDEX: ClassVar[int] = ts.VALUESEARCH_MAX
 
     @classmethod
-    def from_page_param(cls, page: PageParam) -> '_SimpleCursor':
+    def from_page_param(cls, page: PageParam) -> _SimpleCursor:
         if page.cursor:
             return decode_cursor_dataclass(page.cursor, cls)
         assert page.size is not None
@@ -945,7 +944,7 @@ class _CardsearchCursor(_SimpleCursor):
     MAX_INDEX: ClassVar[int] = ts.CARDSEARCH_MAX
 
     @classmethod
-    def from_cardsearch_params(cls, params: CardsearchParams) -> '_CardsearchCursor':
+    def from_cardsearch_params(cls, params: CardsearchParams) -> _CardsearchCursor:
         if params.page.cursor:
             return decode_cursor_dataclass(params.page.cursor, cls)
         assert params.page.size is not None
