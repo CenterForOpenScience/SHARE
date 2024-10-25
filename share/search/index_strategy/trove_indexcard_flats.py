@@ -665,7 +665,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         'path': 'nested_date',
                         'filter': {'term': {
                             'nested_date.suffuniq_path_from_focus': iri_path_as_keyword(
-                                [_sortparam.property_iri],
+                                _sortparam.propertypath,
                                 suffuniq=True,
                             ),
                         }},

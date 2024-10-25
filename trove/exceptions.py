@@ -74,6 +74,10 @@ class InvalidQueryParams(RequestParsingError):
     pass
 
 
+class InvalidSort(RequestParsingError):
+    pass
+
+
 ###
 # rendering a response
 

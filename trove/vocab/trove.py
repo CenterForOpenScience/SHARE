@@ -799,9 +799,17 @@ the special path segment `*` matches any property
         RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {literal('after', language='en')},
     },
-    TROVE['at-date']: {
+    TROVE['value-type/iri']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('at-date', language='en')},
+        JSONAPI_MEMBERNAME: {literal('iri-value', language='en')},
+    },
+    TROVE['value-type/date']: {
+        RDF.type: {TROVE.ValueType},
+        JSONAPI_MEMBERNAME: {literal('date-value', language='en')},
+    },
+    TROVE['value-type/integer']: {
+        RDF.type: {TROVE.ValueType},
+        JSONAPI_MEMBERNAME: {literal('integer-value', language='en')},
     },
 
     # other:

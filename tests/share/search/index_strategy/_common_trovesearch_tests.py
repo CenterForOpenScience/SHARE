@@ -353,11 +353,11 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def cardsearch_integer_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
         # cases that depend on integer values getting indexed
         yield (
-            {'sort': 'dcat:servesDataset.dcat:spatialResolutionInMeters'},
+            {'sort[integer-value]': 'dcat:servesDataset.dcat:spatialResolutionInMeters'},
             [BLARG.b, BLARG.a, BLARG.c],  # ordered list
         )
         yield (
-            {'sort': '-dcat:servesDataset.dcat:spatialResolutionInMeters'},
+            {'sort[integer-value]': '-dcat:servesDataset.dcat:spatialResolutionInMeters'},
             [BLARG.c, BLARG.a, BLARG.b],  # ordered list
         )
 

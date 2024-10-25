@@ -15,6 +15,7 @@ from primitive_metadata import primitive_rdf as rdf
 from trove import models as trove_db
 from trove.trovesearch.search_params import (
     is_globpath,
+    Propertypath,
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.namespaces import (
@@ -32,12 +33,6 @@ from trove.vocab.osfmap import is_date_property
 
 
 _logger = logging.getLogger(__name__)
-
-
-###
-# type aliases
-
-Propertypath = tuple[str, ...]
 
 
 ###
@@ -167,18 +162,26 @@ class GraphWalk:
                 self.iri_values[_walk_path].add(_walk_obj)
             elif isinstance(_walk_obj, datetime.date):
                 self.date_values[_walk_path].add(_walk_obj)
-            elif is_date_property(_walk_path[-1]):
-                try:
-                    _parsed_date = datetime.date.fromisoformat(_walk_obj.unicode_value)
-                except ValueError:
-                    _logger.debug('skipping malformatted date "%s"', _walk_obj.unicode_value)
-                else:
-                    self.date_values[_walk_path].add(_parsed_date)
+            elif isinstance(_walk_obj, int):
+                self.integer_values[_walk_path].add(_walk_obj)
             elif isinstance(_walk_obj, rdf.Literal):
                 if XSD.integer in _walk_obj.datatype_iris:
                     self.integer_values[_walk_path].add(_walk_obj)
                 if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
                     self.text_values[_walk_path].add(_walk_obj.unicode_value)
+            # try for date in a date property, regardless of the above
+            if is_date_property(_walk_path[-1]) and isinstance(_walk_obj, (str, rdf.Literal)):
+                _date_str = (
+                    _walk_obj.unicode_value
+                    if isinstance(_walk_obj, rdf.Literal)
+                    else _walk_obj
+                )
+                try:
+                    _parsed_date = datetime.date.fromisoformat(_date_str)
+                except ValueError:
+                    _logger.debug('skipping malformatted date "%s"', _date_str)
+                else:
+                    self.date_values[_walk_path].add(_parsed_date)
 
     def shortwalk_from(self, from_iri: str) -> GraphWalk:
         return GraphWalk(

@@ -24,19 +24,21 @@ from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
 from trove.trovesearch.search_params import (
     CardsearchParams,
-    ValuesearchParams,
+    PageParam,
+    Propertypath,
     SearchFilter,
     Textsegment,
-    PageParam,
+    ValueType,
+    ValuesearchParams,
     is_globpath,
 )
 from trove.trovesearch.search_response import (
     CardsearchResponse,
-    ValuesearchResponse,
-    TextMatchEvidence,
     CardsearchResult,
-    ValuesearchResult,
     PropertypathUsage,
+    TextMatchEvidence,
+    ValuesearchResponse,
+    ValuesearchResult,
 )
 from trove.vocab.osfmap import is_date_property
 from trove.vocab.namespaces import TROVE, OWL, RDF
@@ -202,7 +204,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                     index=self.indexname,
                     source=False,  # no need to get _source, identifiers are enough
                     docvalue_fields=['card.card_iri'],
-                    highlight={  # TODO: only one field gets highlighted?
+                    highlight={
                         'require_field_match': False,
                         'fields': {'card.text_by_propertypath.*': {}},
                     },
@@ -592,7 +594,7 @@ class _QueryHelper:
             for _path in search_filter.propertypath_set
         ])
 
-    def _path_presence_query(self, path: ts.Propertypath):
+    def _path_presence_query(self, path: Propertypath):
         _field = f'{self.base_field}.propertypaths_present'
         return {'term': {_field: ts.propertypath_as_keyword(path)}}
 
@@ -634,7 +636,7 @@ class _QueryHelper:
         else:
             raise ValueError(f'invalid date filter operator (got {filter_operator})')
 
-    def _text_field_name(self, propertypath: ts.Propertypath):
+    def _text_field_name(self, propertypath: Propertypath):
         return (
             f'{self.base_field}.text_by_depth.{_depth_field_name(len(propertypath))}'
             if is_globpath(propertypath)
@@ -749,10 +751,19 @@ class _CardsearchQueryBuilder:
 
     def _cardsearch_sorts(self):
         for _sortparam in self.params.sort_list:
-            _path = (_sortparam.property_iri,)
-            _field = f'card.date_by_propertypath.{_path_field_name(_path)}'
-            _order = 'desc' if _sortparam.descending else 'asc'
-            yield {_field: _order}
+            _fieldkey = _path_field_name(_sortparam.propertypath)
+            if _sortparam.value_type == ValueType.DATE:
+                _field = f'card.date_by_propertypath.{_fieldkey}'
+                _unmapped_type = 'date'
+            elif _sortparam.value_type == ValueType.INTEGER:
+                _field = f'card.int_by_propertypath.{_fieldkey}'
+                _unmapped_type = 'long'
+            else:
+                raise ValueError(f'unsupported sort value type: {_sortparam}')
+            yield {_field: {
+                'order': 'desc' if _sortparam.descending else 'asc',
+                'unmapped_type': _unmapped_type,
+            }}
 
 
 def _build_iri_valuesearch(params: ValuesearchParams, cursor: _SimpleCursor) -> dict:
@@ -855,11 +866,11 @@ def _depth_field_name(depth: int) -> str:
     return f'depth{depth}'
 
 
-def _path_field_name(path: ts.Propertypath) -> str:
+def _path_field_name(path: Propertypath) -> str:
     return ts.b64(ts.propertypath_as_keyword(path))
 
 
-def _parse_path_field_name(path_field_name: str) -> ts.Propertypath:
+def _parse_path_field_name(path_field_name: str) -> Propertypath:
     # inverse of _path_field_name
     _list = json.loads(ts.b64_reverse(path_field_name))
     assert isinstance(_list, list)
