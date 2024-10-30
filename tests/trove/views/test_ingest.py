@@ -5,7 +5,9 @@ from urllib.parse import urlencode
 
 from django.test import TestCase
 
+from share.models.feature_flag import FeatureFlag
 from tests import factories
+from tests._testutil import patch_feature_flag
 
 
 class TestIngest(TestCase):
@@ -136,20 +138,21 @@ class TestIngest(TestCase):
         self.assertFalse(_mock_tract.swallow.called)
 
     def test_nontrusted_post(self):
-        _nontrusted_user = factories.ShareUserFactory()
-        with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
-            _resp = self.client.post(
-                '/trove/ingest?' + urlencode({
-                    'focus_iri': 'https://foo.example/blarg',
-                    'record_identifier': 'blarg',
-                    'is_supplementary': '',
-                }),
-                content_type='text/turtle',
-                data='turtleturtleturtle',
-                HTTP_AUTHORIZATION=_nontrusted_user.authorization(),
-            )
-        self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
-        self.assertFalse(_mock_tract.swallow.called)
+        with patch_feature_flag(FeatureFlag.FORBID_UNTRUSTED_FEED):
+            _nontrusted_user = factories.ShareUserFactory()
+            with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
+                _resp = self.client.post(
+                    '/trove/ingest?' + urlencode({
+                        'focus_iri': 'https://foo.example/blarg',
+                        'record_identifier': 'blarg',
+                        'is_supplementary': '',
+                    }),
+                    content_type='text/turtle',
+                    data='turtleturtleturtle',
+                    HTTP_AUTHORIZATION=_nontrusted_user.authorization(),
+                )
+            self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
+            self.assertFalse(_mock_tract.swallow.called)
 
     def test_anonymous_delete(self):
         with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
@@ -158,14 +161,15 @@ class TestIngest(TestCase):
         self.assertFalse(_mock_tract.expel.called)
 
     def test_nontrusted_delete(self):
-        _nontrusted_user = factories.ShareUserFactory()
-        with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
-            _resp = self.client.delete(
-                '/trove/ingest?record_identifier=blarg',
-                HTTP_AUTHORIZATION=_nontrusted_user.authorization(),
-            )
-        self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
-        self.assertFalse(_mock_tract.expel.called)
+        with patch_feature_flag(FeatureFlag.FORBID_UNTRUSTED_FEED):
+            _nontrusted_user = factories.ShareUserFactory()
+            with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
+                _resp = self.client.delete(
+                    '/trove/ingest?record_identifier=blarg',
+                    HTTP_AUTHORIZATION=_nontrusted_user.authorization(),
+                )
+            self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
+            self.assertFalse(_mock_tract.expel.called)
 
     def test_invalid_expiration_date(self):
         with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:

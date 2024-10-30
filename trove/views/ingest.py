@@ -6,6 +6,7 @@ from django import http
 from django.views import View
 
 from share import exceptions
+from share.models.feature_flag import FeatureFlag
 from trove import digestive_tract
 
 
@@ -22,7 +23,7 @@ class RdfIngestView(View):
         # TODO: permissions by focus_iri domain (compare with user's Source)?
         if not request.user.is_authenticated:
             return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
-        if not request.user.is_trusted:
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.FORBID_UNTRUSTED_FEED) and not request.user.is_trusted:
             return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass
         _focus_iri = request.GET.get('focus_iri')
@@ -61,7 +62,7 @@ class RdfIngestView(View):
         # TODO: cleaner permissions
         if not request.user.is_authenticated:
             return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
-        if not request.user.is_trusted:
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.FORBID_UNTRUSTED_FEED) and not request.user.is_trusted:
             return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass
         _record_identifier = request.GET.get('record_identifier')
