@@ -110,7 +110,7 @@ OAUTH2_PROVIDER = {
         'approve_changesets': 'Approve ChangeSets'
     }
 }
-SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.views.OSFOAuth2Adapter'
+SOCIALACCOUNT_ADAPTER = 'osf_oauth2_adapter.adapters.OSFSocialAccountAdapter'
 SOCIALACCOUNT_PROVIDERS = \
     {'osf':
         {

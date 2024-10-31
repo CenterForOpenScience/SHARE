@@ -1,6 +1,8 @@
-from .apps import OsfOauth2AdapterConfig
 from allauth.socialaccount.providers.base import ProviderAccount
 from allauth.socialaccount.providers.oauth2.provider import OAuth2Provider
+
+from .apps import OsfOauth2AdapterConfig
+from .adapters import OSFOAuth2Adapter
 
 
 class OSFAccount(ProviderAccount):
@@ -26,6 +28,7 @@ class OSFProvider(OAuth2Provider):
     id = 'osf'
     name = 'Open Science Framework'
     account_class = OSFAccount
+    oauth2_adapter_class = OSFOAuth2Adapter
 
     def extract_common_fields(self, data):
         attributes = data.get('data').get('attributes')
