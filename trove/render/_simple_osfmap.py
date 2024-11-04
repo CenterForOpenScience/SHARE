@@ -1,3 +1,4 @@
+import json
 from typing import Iterable
 
 from primitive_metadata import primitive_rdf as rdf
@@ -7,13 +8,17 @@ from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
 
 
-class BaseSimpleCardRenderer(BaseRenderer):
-    '''for "simple" search api responses -- very entangled with trove/trovesearch/trovesearch_gathering.py
+class BaseSimpleOsfmapRenderer(BaseRenderer):
+    '''for "simple" search api responses based on osfmap json
+
+    (very entangled with trove/trovesearch/trovesearch_gathering.py)
     '''
-    def render_unicard_document(self, card_iri, card_content) -> str | None:
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
+
+    def render_unicard_document(self, card_iri: str, osfmap_json: dict) -> str | None:
         raise NotImplementedError
 
-    def render_multicard_document(self, cards_iris_and_contents: Iterable[tuple]) -> str | None:
+    def render_multicard_document(self, cards: Iterable[tuple[str, dict]]) -> str | None:
         raise NotImplementedError
 
     def render_document(self) -> str | None:
@@ -40,13 +45,17 @@ class BaseSimpleCardRenderer(BaseRenderer):
                 )
                 yield self._get_card_content(_card)
 
-    def _get_card_content(self, card: str | rdf.Blanknode):
+    def _get_card_content(self, card: str | rdf.Blanknode) -> dict:
         if isinstance(card, str):
-            return next(self.response_data.q(card, TROVE.resourceMetadata))
-        if isinstance(card, frozenset):
-            return next(
+            _card_content = next(self.response_data.q(card, TROVE.resourceMetadata))
+        elif isinstance(card, frozenset):
+            _card_content = next(
                 _obj
                 for _pred, _obj in card
                 if _pred == TROVE.resourceMetadata
             )
-        raise trove_exceptions.ExpectedIriOrBlanknode(card)
+        else:
+            raise trove_exceptions.ExpectedIriOrBlanknode(card)
+        assert isinstance(_card_content, rdf.Literal)
+        assert RDF.JSON in _card_content.datatype_iris
+        return json.loads(_card_content.unicode_value)

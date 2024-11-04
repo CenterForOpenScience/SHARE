@@ -8,38 +8,34 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from ._simple import BaseSimpleCardRenderer
+from ._simple_osfmap import BaseSimpleOsfmapRenderer
 
 
-class TrovesearchSimpleJsonRenderer(BaseSimpleCardRenderer):
+class TrovesearchSimpleJsonRenderer(BaseSimpleOsfmapRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
-    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def render_unicard_document(self, card_iri, card_content):
+    def render_unicard_document(self, card_iri, osfmap_json):
         return json.dumps({
-            'data': self._render_card_content(card_iri, card_content),
+            'data': self._render_card_content(card_iri, osfmap_json),
             'links': self._render_links(),
             'meta': self._render_meta(),
         }, indent=2)
 
-    def render_multicard_document(self, cards_iris_and_contents):
+    def render_multicard_document(self, cards):
         return json.dumps({
             'data': [
-                self._render_card_content(_card_iri, _card_content)
-                for _card_iri, _card_content in cards_iris_and_contents
+                self._render_card_content(_card_iri, _osfmap_json)
+                for _card_iri, _osfmap_json in cards
             ],
             'links': self._render_links(),
             'meta': self._render_meta(),
         }, indent=2)
 
-    def _render_card_content(self, card_iri: str, card_content):
-        assert isinstance(card_content, rdf.Literal)
-        assert RDF.JSON in card_content.datatype_iris
-        _json_contents = json.loads(card_content.unicode_value)
-        self._add_twople(_json_contents, 'foaf:primaryTopicOf', card_iri)
-        return _json_contents
+    def _render_card_content(self, card_iri: str, osfmap_json: dict):
+        self._add_twople(osfmap_json, 'foaf:primaryTopicOf', card_iri)
+        return osfmap_json
 
     def _render_meta(self):
         _meta: dict[str, int | str] = {}
