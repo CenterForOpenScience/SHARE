@@ -2,6 +2,8 @@ import datetime
 from unittest import mock, TestCase
 import typing
 
+from primitive_metadata import primitive_rdf as rdf
+
 from ._inputs import DERIVER_TEST_DOCS, DeriverTestDoc
 
 
@@ -54,7 +56,7 @@ class BaseIndexcardDeriverTest(TestCase):
         _mock_indexcard_rdf = mock.Mock()
         _mock_indexcard_rdf.id = '--indexcardf-id--'
         _mock_indexcard_rdf.modified = datetime.datetime(2345, 2, 2)
-        _mock_indexcard_rdf.as_rdf_tripledict.return_value = input_doc.tripledict
+        _mock_indexcard_rdf.as_rdfdoc_with_supplements.return_value = rdf.RdfGraph(input_doc.tripledict)
         _mock_indexcard_rdf.focus_iri = input_doc.focus_iri
         _mock_indexcard_rdf.from_raw_datum_id = '--rawdatum-id--'
         _mock_indexcard_rdf.indexcard.id = '--indexcard-id--'

@@ -167,7 +167,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         }
 
     def _build_sourcedoc(self, indexcard_rdf):
-        _rdfdoc = primitive_rdf.RdfGraph(indexcard_rdf.as_rdf_tripledict())
+        _rdfdoc = indexcard_rdf.as_rdfdoc_with_supplements()
         if _should_skip_card(indexcard_rdf, _rdfdoc):
             return None  # will be deleted from the index
         _nested_iris = defaultdict(set)
@@ -285,6 +285,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             .exclude(indexcard__deleted__isnull=False)
             .select_related('indexcard__source_record_suid__source_config')
             .prefetch_related('indexcard__focus_identifier_set')
+            .prefetch_related('indexcard__supplementary_rdf_set')
         )
         _remaining_indexcard_ids = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:

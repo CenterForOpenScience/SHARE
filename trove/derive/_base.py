@@ -1,5 +1,4 @@
 import abc
-from collections.abc import Iterable
 
 from primitive_metadata import primitive_rdf
 
@@ -11,16 +10,10 @@ class IndexcardDeriver(abc.ABC):
     focus_iri: str
     data: primitive_rdf.RdfGraph
 
-    def __init__(
-        self,
-        upriver_rdf: IndexcardRdf,
-        supplementary_rdf_set: Iterable[IndexcardRdf] = (),
-    ):
+    def __init__(self, upriver_rdf: IndexcardRdf):
         self.upriver_rdf = upriver_rdf
         self.focus_iri = upriver_rdf.focus_iri
-        self.data = primitive_rdf.RdfGraph(upriver_rdf.as_rdf_tripledict())
-        for _supplementary_rdf in supplementary_rdf_set:
-            self.data.add_tripledict(_supplementary_rdf.as_rdf_tripledict())
+        self.data = upriver_rdf.as_rdfdoc_with_supplements()
 
     def q(self, pathset):
         # convenience for querying self.data on self.focus_iri

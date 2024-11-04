@@ -65,6 +65,12 @@ blarg:this blarg:like blarg:another ;
                 _BLARG.like: {_BLARG.that},
             },
         })
+        self.assertEqual(_latest_rdf.as_rdfdoc_with_supplements().tripledict, {
+            _BLARG.this: {
+                rdf.RDF.type: {_BLARG.Thing},
+                _BLARG.like: {_BLARG.that},
+            },
+        })
 
     def test_extract_supplementary_without_prior(self):
         _cards = digestive_tract.extract(self.supplementary_raw)
@@ -91,6 +97,13 @@ blarg:this blarg:like blarg:another ;
             },
         })
         self.assertEqual(_indexcard.latest_rdf.modified, _orig_timestamp)
+        self.assertEqual(_indexcard.latest_rdf.as_rdfdoc_with_supplements().tripledict, {
+            _BLARG.this: {
+                rdf.RDF.type: {_BLARG.Thing},
+                _BLARG.like: {_BLARG.that, _BLARG.another},
+                _BLARG.unlike: {_BLARG.nonthing},
+            },
+        })
 
     def test_extract_empty_with_prior(self):
         (_prior_indexcard,) = digestive_tract.extract(self.raw)

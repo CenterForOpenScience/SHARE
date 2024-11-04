@@ -313,6 +313,13 @@ class IndexcardRdf(models.Model):
             focus_iri=self.focus_iri,
         )
 
+    def as_rdfdoc_with_supplements(self) -> rdf.RdfGraph:
+        '''build an rdf graph composed of this rdf and all current card supplements'''
+        _rdfdoc = rdf.RdfGraph(self.as_rdf_tripledict())
+        for _supplementary_rdf in self.indexcard.supplementary_rdf_set.all():
+            _rdfdoc.add_tripledict(_supplementary_rdf.as_rdf_tripledict())
+        return _rdfdoc
+
     class Meta:
         abstract = True
 
