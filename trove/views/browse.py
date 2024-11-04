@@ -24,13 +24,12 @@ class BrowseIriView(View):
         _thesaurus_entry = static_vocab.combined_thesaurus__suffuniq().get(_suffuniq_iri, {})
         if _thesaurus_entry:
             _combined_rdf.add_twopledict(_card_focus_iri, _thesaurus_entry)
-        return get_renderer(request).render_response(
+        _resp = get_renderer(request).render_response(
             _combined_rdf.tripledict,
             _card_focus_iri,
-            headers={
-                'Content-Disposition': 'inline',
-            },
         )
+        _resp.headers['Content-Disposition'] = 'inline'
+        return _resp
 
 
 def _get_latest_cardf(iri: str):

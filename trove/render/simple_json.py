@@ -2,87 +2,49 @@ import json
 
 from primitive_metadata import primitive_rdf as rdf
 
-from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from ._base import BaseRenderer
+from ._simple import BaseSimpleCardRenderer
 
 
-class TrovesearchSimpleJsonRenderer(BaseRenderer):
+class TrovesearchSimpleJsonRenderer(BaseSimpleCardRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
-        _focustypes = set(data.q(focus_iri, RDF.type))
-        if TROVE.Cardsearch in _focustypes:
-            _jsonable = self._render_cardsearch(data, focus_iri)
-        elif TROVE.Valuesearch in _focustypes:
-            _jsonable = self._render_valuesearch(data, focus_iri)
-        elif TROVE.Indexcard in _focustypes:
-            _jsonable = self._render_card(data, focus_iri)
-        else:
-            raise trove_exceptions.UnsupportedRdfType(_focustypes)
+    def render_unicard_document(self, card_iri, card_content):
         return json.dumps({
-            'data': _jsonable,
-            'links': self._render_links(data, focus_iri),
-            'meta': self._render_meta(data, focus_iri),
+            'data': self._render_card_content(card_iri, card_content),
+            'links': self._render_links(),
+            'meta': self._render_meta(),
         }, indent=2)
 
-    def _render_cardsearch(self, graph: rdf.RdfGraph, cardsearch_iri: str):
-        return self._render_searchresultpage(graph, cardsearch_iri)
+    def render_multicard_document(self, cards_iris_and_contents):
+        return json.dumps({
+            'data': [
+                self._render_card_content(_card_iri, _card_content)
+                for _card_iri, _card_content in cards_iris_and_contents
+            ],
+            'links': self._render_links(),
+            'meta': self._render_meta(),
+        }, indent=2)
 
-    def _render_valuesearch(self, graph: rdf.RdfGraph, valuesearch_iri: str):
-        return self._render_searchresultpage(graph, valuesearch_iri)
-
-    def _render_searchresultpage(self, graph: rdf.RdfGraph, focus_iri: str):
-        # just each card's contents
-        _results_sequence = next(
-            _page
-            for _page in graph.q(focus_iri, TROVE.searchResultPage)
-            if rdf.is_container(_page)  # filter out page links
-        )
-        return [
-            self._render_result(graph, _search_result_blanknode)
-            for _search_result_blanknode in rdf.sequence_objects_in_order(_results_sequence)
-        ]
-
-    def _render_result(self, graph: rdf.RdfGraph, search_result_blanknode: rdf.RdfBlanknode):
-        _card = next(
-            _obj
-            for _pred, _obj in search_result_blanknode
-            if _pred == TROVE.indexCard
-        )
-        return self._render_card(graph, _card)
-
-    def _render_card(self, graph: rdf.RdfGraph, card: rdf.RdfObject):
-        # just the card contents
-        if isinstance(card, str):
-            _card_contents = next(graph.q(card, TROVE.resourceMetadata))
-        elif isinstance(card, frozenset):
-            _card_contents = next(
-                _obj
-                for _pred, _obj in card
-                if _pred == TROVE.resourceMetadata
-            )
-        else:
-            raise trove_exceptions.ExpectedIriOrBlanknode(card)
-        assert isinstance(_card_contents, rdf.Literal)
-        assert RDF.JSON in _card_contents.datatype_iris
-        _json_contents = json.loads(_card_contents.unicode_value)
-        if isinstance(card, str):
-            self._add_twople(_json_contents, 'foaf:primaryTopicOf', card)
+    def _render_card_content(self, card_iri: str, card_content):
+        assert isinstance(card_content, rdf.Literal)
+        assert RDF.JSON in card_content.datatype_iris
+        _json_contents = json.loads(card_content.unicode_value)
+        self._add_twople(_json_contents, 'foaf:primaryTopicOf', card_iri)
         return _json_contents
 
-    def _render_meta(self, graph: rdf.RdfGraph, focus_iri: str):
+    def _render_meta(self):
         _meta: dict[str, int | str] = {}
         try:
-            _total = next(graph.q(focus_iri, TROVE.totalResultCount))
+            _total = next(self.response_data.q(self.response_focus_iri, TROVE.totalResultCount))
             if isinstance(_total, int):
                 _meta['total'] = _total
             elif isinstance(_total, rdf.Literal):
@@ -93,9 +55,9 @@ class TrovesearchSimpleJsonRenderer(BaseRenderer):
             pass
         return _meta
 
-    def _render_links(self, graph: rdf.RdfGraph, focus_iri: str):
+    def _render_links(self):
         _links = {}
-        for _pagelink in graph.q(focus_iri, TROVE.searchResultPage):
+        for _pagelink in self.response_data.q(self.response_focus_iri, TROVE.searchResultPage):
             _twopledict = rdf.twopledict_from_twopleset(_pagelink)
             if JSONAPI_LINK_OBJECT in _twopledict.get(RDF.type, ()):
                 (_membername,) = _twopledict[JSONAPI_MEMBERNAME]
