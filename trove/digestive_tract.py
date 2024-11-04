@@ -176,10 +176,7 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
         return []
     _derived_list = []
     for _deriver_class in get_deriver_classes(deriver_iris):
-        _deriver = _deriver_class(
-            upriver_rdf=_latest_rdf,
-            supplementary_rdf_set=indexcard.supplementary_rdf_set.all(),
-        )
+        _deriver = _deriver_class(upriver_rdf=_latest_rdf)
         _deriver_identifier = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver.deriver_iri())
         if _deriver.should_skip():
             trove_db.DerivedIndexcard.objects.filter(
