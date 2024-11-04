@@ -1,4 +1,5 @@
 import contextlib
+import dataclasses
 import datetime
 import markdown2
 import random
@@ -28,15 +29,25 @@ UNSTABLE_MEDIATYPES = (mediatypes.TURTLE, mediatypes.JSONLD, mediatypes.JSON,)
 class RdfHtmlBrowseRenderer(BaseRenderer):
     MEDIATYPE = 'text/html; charset=utf-8'
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.rendered_element = None
-        self.__current_element = None
-        self.__visiting_iris = None
-        self.__heading_depth = None
+    def render_document(self) -> str:
+        _rendered_html_element = _HtmlRenderHelper(
+            data=primitive_rdf.RdfGraph(self.response_data),
+        ).render(self.response_focus_iri)
+        return ''.join((
+            '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
+            etree_tostring(_rendered_html_element, encoding='unicode', method='html'),
+        ))
 
-    def render_document(self, data: primitive_rdf.RdfGraph, focus_iri: str) -> str:
-        self.data = data
+
+@dataclasses.dataclass
+class _HtmlRenderHelper:
+    data: primitive_rdf.RdfGraph
+    rendered_element = None
+    __current_element = None
+    __visiting_iris = None
+    __heading_depth = None
+
+    def render(self, focus_iri: str) -> Element:
         with self.__rendering():
             with self.__nest('head'):
                 self.__leaf('link', attrs={
@@ -51,13 +62,8 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                 self.__render_subj(focus_iri),
                 self.__render_mediatype_links()
                 # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
-        return ''.join((
-            '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
-            etree_tostring(self.rendered_element, encoding='unicode', method='html'),
-        ))
-
-    ###
-    # private rdf-rendering helpers
+        assert self.rendered_element
+        return self.rendered_element
 
     def __render_mediatype_links(self):
         with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
@@ -68,12 +74,12 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                         self.__mediatype_link(_mediatype)
 
     def __mediatype_link(self, mediatype: str):
-        _qparams = self.request.GET.copy()
+        _qparams = self.http_request.GET.copy()
         _qparams['acceptMediatype'] = mediatype
         _href = urlunsplit((
-            self.request.scheme,
-            self.request.get_host(),
-            self.request.path,
+            self.http_request.scheme,
+            self.http_request.get_host(),
+            self.http_request.path,
             _qparams.urlencode(),
             '',
         ))
@@ -254,7 +260,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             _link.text = self.iri_shorthand.compact_iri(iri)
 
     def __href_for_iri(self, iri: str):
-        if self.request and (self.request.get_host() == urlsplit(iri).netloc):
+        if self.http_request and (self.http_request.get_host() == urlsplit(iri).netloc):
             return iri
         return trove_browse_link(iri)
 

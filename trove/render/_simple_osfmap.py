@@ -45,7 +45,7 @@ class BaseSimpleOsfmapRenderer(BaseRenderer):
                 )
                 yield self._get_card_content(_card)
 
-    def _get_card_content(self, card: str | rdf.Blanknode) -> dict:
+    def _get_card_content(self, card: str | rdf.RdfBlanknode) -> dict:
         if isinstance(card, str):
             _card_content = next(self.response_data.q(card, TROVE.resourceMetadata))
         elif isinstance(card, frozenset):

@@ -26,11 +26,11 @@ class BaseRenderer(abc.ABC):
 
     # instance fields
     response_focus_iri: str
-    response_data: rdf.RdfTripleDictionary
+    response_data: rdf.RdfTripleDictionary = dataclasses.field(default_factory=dict)
     http_request: http.HttpRequest | None = None
     http_response: http.HttpResponse = dataclasses.field(default_factory=http.HttpResponse)
     iri_shorthand: rdf.IriShorthand = NAMESPACES_SHORTHAND
-    thesaurus_tripledict: rdf.RdfTripleDictionary = TROVE_API_THESAURUS
+    thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
     @functools.cached_property
     def thesaurus(self):

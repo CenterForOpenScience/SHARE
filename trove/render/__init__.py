@@ -1,17 +1,16 @@
 from django import http
 
 from trove import exceptions as trove_exceptions
-from trove.vocab.trove import TROVE_API_THESAURUS
-from trove.vocab.namespaces import NAMESPACES_SHORTHAND
 from ._base import BaseRenderer
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 from .turtle import RdfTurtleRenderer
 from .jsonld import RdfJsonldRenderer
 from .simple_json import TrovesearchSimpleJsonRenderer
+from .simple_tsv import TrovesearchTsvRenderer
 
 
-__all__ = ('get_renderer',)
+__all__ = ('get_renderer_class',)
 
 RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfHtmlBrowseRenderer,
@@ -19,6 +18,7 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfTurtleRenderer,
     RdfJsonldRenderer,
     TrovesearchSimpleJsonRenderer,
+    TrovesearchTsvRenderer,
 )
 
 RENDERER_BY_MEDIATYPE = {
@@ -28,7 +28,7 @@ RENDERER_BY_MEDIATYPE = {
 DEFAULT_RENDERER = RdfJsonapiRenderer  # the most stable one
 
 
-def get_renderer(request: http.HttpRequest):
+def get_renderer_class(request: http.HttpRequest):
     # TODO: recognize .extension?
     _chosen_renderer_cls = None
     _requested_mediatype = request.GET.get('acceptMediatype')
@@ -44,8 +44,4 @@ def get_renderer(request: http.HttpRequest):
                 break
     if _chosen_renderer_cls is None:
         _chosen_renderer_cls = DEFAULT_RENDERER
-    return _chosen_renderer_cls(
-        iri_shorthand=NAMESPACES_SHORTHAND,
-        thesaurus=TROVE_API_THESAURUS,
-        request=request,
-    )
+    return _chosen_renderer_cls
