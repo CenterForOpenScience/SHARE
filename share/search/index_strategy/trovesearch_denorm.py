@@ -217,7 +217,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         # abstract method from IndexStrategy.SpecificIndex
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _path = valuesearch_params.valuesearch_propertypath
-            _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
+            _cursor = OffsetCursor.from_page_param(valuesearch_params.page)
             _query = (
                 _build_date_valuesearch(valuesearch_params, _cursor)
                 if is_date_property(_path[-1])
@@ -389,7 +389,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self,
         valuesearch_params: ValuesearchParams,
         es8_response: dict,
-        cursor: _SimpleCursor,
+        cursor: OffsetCursor,
     ) -> ValuesearchResponse:
         _iri_aggs = es8_response['aggregations'].get('agg_valuesearch_iris')
         if _iri_aggs:
@@ -766,7 +766,7 @@ class _CardsearchQueryBuilder:
             }}
 
 
-def _build_iri_valuesearch(params: ValuesearchParams, cursor: _SimpleCursor) -> dict:
+def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> dict:
     _path = params.valuesearch_propertypath
     _bool = _BoolBuilder()
     _bool.add_boolpart('filter', {'term': {
@@ -811,7 +811,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: _SimpleCursor) -> 
     }
 
 
-def _build_date_valuesearch(params: ValuesearchParams, cursor: _SimpleCursor) -> dict:
+def _build_date_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> dict:
     assert not params.valuesearch_textsegment_set
     assert not params.valuesearch_filter_set
     _bool = _BoolBuilder()
@@ -885,101 +885,3 @@ def _any_query(queries: abc.Collection[dict]):
     return {'bool': {'should': list(queries), 'minimum_should_match': 1}}
 
 
-###
-# cursor implementations
-
-@dataclasses.dataclass
-class _SimpleCursor:
-    start_index: int
-    page_size: int
-    result_count: int | None  # use -1 to indicate "many more"
-
-    MAX_INDEX: ClassVar[int] = ts.VALUESEARCH_MAX
-
-    @classmethod
-    def from_page_param(cls, page: PageParam) -> _SimpleCursor:
-        if page.cursor:
-            return decode_cursor_dataclass(page.cursor, cls)
-        assert page.size is not None
-        return cls(
-            start_index=0,
-            page_size=page.size,
-            result_count=None,  # should be set when results are in
-        )
-
-    def next_cursor(self) -> str | None:
-        if not self.result_count:
-            return None
-        _next = dataclasses.replace(self, start_index=(self.start_index + self.page_size))
-        return (
-            encode_cursor_dataclass(_next)
-            if _next.is_valid_cursor()
-            else None
-        )
-
-    def prev_cursor(self) -> str | None:
-        _prev = dataclasses.replace(self, start_index=(self.start_index - self.page_size))
-        return (
-            encode_cursor_dataclass(_prev)
-            if _prev.is_valid_cursor()
-            else None
-        )
-
-    def first_cursor(self) -> str | None:
-        if self.is_first_page():
-            return None
-        return encode_cursor_dataclass(dataclasses.replace(self, start_index=0))
-
-    def is_first_page(self) -> bool:
-        return self.start_index == 0
-
-    def has_many_more(self) -> bool:
-        return self.result_count == -1
-
-    def max_index(self) -> int:
-        return (
-            self.MAX_INDEX
-            if self.has_many_more()
-            else min(self.result_count or 0, self.MAX_INDEX)
-        )
-
-    def is_valid_cursor(self) -> bool:
-        return 0 <= self.start_index < self.max_index()
-
-
-@dataclasses.dataclass
-class _CardsearchCursor(_SimpleCursor):
-    random_sort: bool  # how to sort by relevance to nothingness? randomness!
-    first_page_pks: tuple[str, ...] = ()
-
-    MAX_INDEX: ClassVar[int] = ts.CARDSEARCH_MAX
-
-    @classmethod
-    def from_cardsearch_params(cls, params: CardsearchParams) -> _CardsearchCursor:
-        if params.page.cursor:
-            return decode_cursor_dataclass(params.page.cursor, cls)
-        assert params.page.size is not None
-        return cls(
-            start_index=0,
-            page_size=params.page.size,
-            result_count=None,  # should be set when results are in
-            random_sort=(
-                not params.sort_list
-                and not params.cardsearch_textsegment_set
-            ),
-        )
-
-    def cardsearch_start_index(self) -> int:
-        if self.is_first_page() or not self.random_sort:
-            return self.start_index
-        return self.start_index - len(self.first_page_pks)
-
-    def first_cursor(self) -> str | None:
-        if self.random_sort and not self.first_page_pks:
-            return None
-        return super().prev_cursor()
-
-    def prev_cursor(self) -> str | None:
-        if self.random_sort and not self.first_page_pks:
-            return None
-        return super().prev_cursor()
