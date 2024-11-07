@@ -457,7 +457,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             if cursor.random_sort and not cursor.is_first_page():
                 # account for the filtered-out first page
                 assert cursor.result_count is not None
-                cursor.result_count += len(cursor.first_page_pks)
+                cursor.result_count += len(cursor.first_page_ids)
         _results = []
         for _es8_hit in es8_response['hits']['hits']:
             _card_iri = _es8_hit['fields']['card.card_iri'][0]
@@ -466,18 +466,18 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 card_pk=_es8_hit['_id'],
                 text_match_evidence=list(self._gather_textmatch_evidence(_card_iri, _es8_hit)),
             ))
-        if cursor.is_first_page() and cursor.first_page_pks:
+        if cursor.is_first_page() and cursor.first_page_ids:
             # revisiting first page; reproduce original random order
             _ordering_by_id = {
                 _id: _i
-                for (_i, _id) in enumerate(cursor.first_page_pks)
+                for (_i, _id) in enumerate(cursor.first_page_ids)
             }
             _results.sort(key=lambda _r: _ordering_by_id[_r.card_pk])
         else:
             _should_start_reproducible_randomness = (
                 cursor.random_sort
                 and cursor.is_first_page()
-                and not cursor.first_page_pks
+                and not cursor.first_page_ids
                 and not cursor.has_many_more()
                 and any(
                     not _filter.is_type_filter()  # look for a non-default filter
@@ -485,7 +485,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 )
             )
             if _should_start_reproducible_randomness:
-                cursor.first_page_pks = tuple(_result.card_pk for _result in _results)
+                cursor.first_page_ids = tuple(_result.card_pk for _result in _results)
         _relatedproperty_list: list[PropertypathUsage] = []
         if cardsearch_params.related_property_paths:
             _relatedproperty_list.extend(
@@ -709,7 +709,7 @@ class _CardsearchQueryBuilder:
         )
 
     def _randomly_ordered_query(self, _bool: _BoolBuilder) -> dict:
-        if not self.cursor.first_page_pks:
+        if not self.cursor.first_page_ids:
             # independent random sample
             return {
                 'function_score': {
@@ -718,7 +718,7 @@ class _CardsearchQueryBuilder:
                     'random_score': {},  # default random_score is fast and unpredictable
                 },
             }
-        _firstpage_filter = {'terms': {'card.card_pk': self.cursor.first_page_pks}}
+        _firstpage_filter = {'terms': {'card.card_pk': self.cursor.first_page_ids}}
         if self.cursor.is_first_page():
             # returning to a first page previously visited
             _bool.add_boolpart('filter', _firstpage_filter)
@@ -730,7 +730,7 @@ class _CardsearchQueryBuilder:
                 'query': _bool.as_query(),
                 'boost_mode': 'replace',
                 'random_score': {
-                    'seed': ''.join(self.cursor.first_page_pks),
+                    'seed': ''.join(self.cursor.first_page_ids),
                     'field': 'card.card_pk',
                 },
             },

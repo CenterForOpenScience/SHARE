@@ -15,15 +15,16 @@ if typing.TYPE_CHECKING:
         PageParam,
     )
 
-__all__ = ('OffsetCursor', 'CardsearchCursor')
+__all__ = ('BasicCursor', 'OffsetCursor', 'CardsearchCursor')
 
+_MANY_MORE = -1  # special count value
 
 _SomeDataclass = typing.TypeVar('_SomeDataclass')
 
 
 @dataclasses.dataclass
-class PageCursor:
-    page_size: int
+class BasicCursor:
+    sample_size: int
 
     def as_queryparam_value(self) -> str:
         _as_json = json.dumps(dataclasses.astuple(self))
@@ -35,47 +36,42 @@ class PageCursor:
         _as_list = json.loads(base64.urlsafe_b64decode(cursor_value))
         return cls(*_as_list)
 
+    @classmethod
+    def from_page_param(cls, page: PageParam) -> BasicCursor:
+        if page.cursor:
+            return cls.from_queryparam_value(page.cursor)
+        assert page.size is not None
+        return cls(sample_size=page.size)
+
+    def next_cursor(self) -> typing.Self | None:
+        return None
+
+    def prev_cursor(self) -> typing.Self | None:
+        return None
+
+    def first_cursor(self) -> typing.Self | None:
+        return None
+
 
 @dataclasses.dataclass
-class OffsetCursor(PageCursor):
-    start_index: int
-    result_count: int | None  # use -1 to indicate "many more"
+class OffsetCursor(BasicCursor):
+    start_index: int = 0
+    result_count: int = _MANY_MORE
 
     MAX_INDEX: typing.ClassVar[int] = VALUESEARCH_MAX
 
-    @classmethod
-    def from_page_param(cls, page: PageParam) -> OffsetCursor:
-        if page.cursor:
-            return cls.from_value(page.cursor)
-        assert page.size is not None
-        return cls(
-            start_index=0,
-            page_size=page.size,
-            result_count=None,  # should be set when results are in
-        )
+    def next_cursor(self) -> typing.Self | None:
+        _next = dataclasses.replace(self, start_index=(self.start_index + self.sample_size))
+        return (_next if _next.is_valid_cursor() else None)
 
-    def next_cursor(self) -> str | None:
-        if not self.result_count:
-            return None
-        _next = dataclasses.replace(self, start_index=(self.start_index + self.page_size))
-        return (
-            encode_cursor_dataclass(_next)
-            if _next.is_valid_cursor()
-            else None
-        )
+    def prev_cursor(self) -> typing.Self | None:
+        _prev = dataclasses.replace(self, start_index=(self.start_index - self.sample_size))
+        return (_prev if _prev.is_valid_cursor() else None)
 
-    def prev_cursor(self) -> str | None:
-        _prev = dataclasses.replace(self, start_index=(self.start_index - self.page_size))
-        return (
-            encode_cursor_dataclass(_prev)
-            if _prev.is_valid_cursor()
-            else None
-        )
-
-    def first_cursor(self) -> str | None:
+    def first_cursor(self) -> typing.Self | None:
         if self.is_first_page():
             return None
-        return encode_cursor_dataclass(dataclasses.replace(self, start_index=0))
+        return dataclasses.replace(self, start_index=0)
 
     def is_first_page(self) -> bool:
         return self.start_index == 0
@@ -96,37 +92,37 @@ class OffsetCursor(PageCursor):
 
 @dataclasses.dataclass
 class CardsearchCursor(OffsetCursor):
-    random_sort: bool  # how to sort by relevance to nothingness? randomness!
-    first_page_pks: tuple[str, ...] = ()
+    random_sort: bool = True  # how to sort by relevance to nothingness? randomness!
+    first_page_ids: tuple[str, ...] = ()
 
     MAX_INDEX: typing.ClassVar[int] = CARDSEARCH_MAX
 
     @classmethod
     def from_cardsearch_params(cls, params: CardsearchParams) -> CardsearchCursor:
         if params.page.cursor:
-            return decode_cursor_dataclass(params.page.cursor, cls)
+            return cls.from_queryparam_value(params.page.cursor)
         assert params.page.size is not None
         return cls(
-            start_index=0,
-            page_size=params.page.size,
-            result_count=None,  # should be set when results are in
+            sample_size=params.page.size,
             random_sort=(
                 not params.sort_list
                 and not params.cardsearch_textsegment_set
             ),
+            start_index=0,
         )
 
     def cardsearch_start_index(self) -> int:
         if self.is_first_page() or not self.random_sort:
             return self.start_index
-        return self.start_index - len(self.first_page_pks)
+        return self.start_index - len(self.first_page_ids)
 
-    def first_cursor(self) -> str | None:
-        if self.random_sort and not self.first_page_pks:
+    def first_cursor(self) -> typing.Self | None:
+        if self.random_sort and not self.first_page_ids:
+            return None
+        return super().first_cursor()
+
+    def prev_cursor(self) -> typing.Self | None:
+        if self.random_sort and not self.first_page_ids:
             return None
         return super().prev_cursor()
 
-    def prev_cursor(self) -> str | None:
-        if self.random_sort and not self.first_page_pks:
-            return None
-        return super().prev_cursor()

@@ -386,7 +386,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             if not cardsearch_cursor or not cardsearch_cursor.random_sort:
                 # no need for randomness
                 return {'bool': _bool_query}
-            if not cardsearch_cursor.first_page_uuids:
+            if not cardsearch_cursor.first_page_ids:
                 # independent random sample
                 return {
                     'function_score': {
@@ -395,7 +395,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         'random_score': {},  # default random_score is fast and unpredictable
                     },
                 }
-            _firstpage_uuid_query = {'terms': {'indexcard_uuid': cardsearch_cursor.first_page_uuids}}
+            _firstpage_uuid_query = {'terms': {'indexcard_uuid': cardsearch_cursor.first_page_ids}}
             if cardsearch_cursor.is_first_page():
                 # returning to a first page previously visited
                 _bool_query['filter'].append(_firstpage_uuid_query)
@@ -407,7 +407,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     'query': {'bool': _bool_query},
                     'boost_mode': 'replace',
                     'random_score': {
-                        'seed': ''.join(cardsearch_cursor.first_page_uuids),
+                        'seed': ''.join(cardsearch_cursor.first_page_ids),
                         'field': 'indexcard_uuid',
                     },
                 },
@@ -687,7 +687,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 cursor.result_count = _es8_total['value']
                 if cursor.random_sort and not cursor.is_first_page():
                     # account for the filtered-out first page
-                    cursor.result_count += len(cursor.first_page_uuids)
+                    cursor.result_count += len(cursor.first_page_ids)
             _results = []
             for _es8_hit in es8_response['hits']['hits']:
                 _card_iri = _es8_hit['_id']
@@ -695,25 +695,25 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     card_iri=_card_iri,
                     text_match_evidence=list(self._gather_textmatch_evidence(_es8_hit)),
                 ))
-            if cursor.is_first_page() and cursor.first_page_uuids:
+            if cursor.is_first_page() and cursor.first_page_ids:
                 # revisiting first page; reproduce original random order
                 _uuid_index = {
                     _uuid: _i
-                    for (_i, _uuid) in enumerate(cursor.first_page_uuids)
+                    for (_i, _uuid) in enumerate(cursor.first_page_ids)
                 }
                 _results.sort(key=lambda _r: _uuid_index[_r.card_uuid])
             else:
                 _should_start_reproducible_randomness = (
                     cursor.random_sort
                     and cursor.is_first_page()
-                    and not cursor.first_page_uuids
+                    and not cursor.first_page_ids
                     and any(
                         not _filter.is_type_filter()  # look for a non-default filter
                         for _filter in cardsearch_params.cardsearch_filter_set
                     )
                 )
                 if _should_start_reproducible_randomness:
-                    cursor.first_page_uuids = tuple(
+                    cursor.first_page_ids = tuple(
                         _result.card_uuid
                         for _result in _results
                     )

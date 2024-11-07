@@ -5,6 +5,7 @@ from primitive_metadata import primitive_rdf
 
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
+from trove.trovesearch impo
 
 
 BoundedCount = Union[
@@ -42,9 +43,7 @@ class CardsearchResult:
 class CardsearchResponse:
     total_result_count: BoundedCount
     search_result_page: Iterable[CardsearchResult]
-    next_page_cursor: Optional[str]
-    prev_page_cursor: Optional[str]
-    first_page_cursor: Optional[str]
+    cursor: BasicCursor | None
     related_propertypath_results: Iterable['PropertypathUsage']
 
 
