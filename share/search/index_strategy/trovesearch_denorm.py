@@ -6,7 +6,6 @@ import json
 import logging
 import re
 from typing import (
-    ClassVar,
     Iterable,
     Iterator,
     Literal,
@@ -19,12 +18,15 @@ from primitive_metadata import primitive_rdf as rdf
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
-from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
+from trove.trovesearch.page_cursor import (
+    PageCursor,
+    OffsetCursor,
+    ReproduciblyRandomSampleCursor,
+)
 from trove.trovesearch.search_params import (
     CardsearchParams,
-    PageParam,
     Propertypath,
     SearchFilter,
     Textsegment,
@@ -395,9 +397,9 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         if _iri_aggs:
             _buckets = _iri_aggs['buckets']
             _bucket_count = len(_buckets)
-            # WARNING: terribly inefficient pagination (part two)
-            _page_end_index = cursor.start_index + cursor.page_size
-            _bucket_page = _buckets[cursor.start_index:_page_end_index]  # discard prior pages
+            # WARNING: terribly hacky pagination (part two)
+            _page_end_index = cursor.start_offset + cursor.page_size
+            _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
             cursor.result_count = (
                 -1  # "many more"
                 if (_bucket_count > _page_end_index)  # agg includes one more, if there
@@ -408,9 +410,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                     self._valuesearch_iri_result(_iri_bucket)
                     for _iri_bucket in _bucket_page
                 ],
-                next_page_cursor=cursor.next_cursor(),
-                prev_page_cursor=cursor.prev_cursor(),
-                first_page_cursor=cursor.first_cursor(),
+                cursor=cursor,
             )
         else:  # assume date
             _year_buckets = (
@@ -447,7 +447,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self,
         cardsearch_params: CardsearchParams,
         es8_response: dict,
-        cursor: _CardsearchCursor,
+        cursor: ReproduciblyRandomSampleCursor,
     ) -> CardsearchResponse:
         _es8_total = es8_response['hits']['total']
         if _es8_total['relation'] != 'eq':
@@ -507,9 +507,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             ),
             search_result_page=_results,
             related_propertypath_results=_relatedproperty_list,
-            next_page_cursor=cursor.next_cursor(),
-            prev_page_cursor=cursor.prev_cursor(),
-            first_page_cursor=cursor.first_cursor(),
+            cursor=cursor,
         )
 
     def _gather_textmatch_evidence(self, card_iri, es8_hit) -> Iterator[TextMatchEvidence]:
@@ -688,7 +686,21 @@ class _CardsearchQueryBuilder:
 
     @functools.cached_property
     def cursor(self):
-        return _CardsearchCursor.from_cardsearch_params(self.params)
+        if self.params.page.cursor:
+            return PageCursor.from_queryparam_value(self.params.page.cursor)
+        assert self.params.page.size is not None
+        _has_sort = bool(self.params.sort_list or self.params.cardsearch_textsegment_set)
+        if _has_sort:
+            return OffsetCursor(page_size=self.params.page.size)
+        # how to sort by relevance to nothingness? randomness!
+        return ReproduciblyRandomSampleCursor(sample_size=self.params.page.size)
+
+    def _cardsearch_start_offset(self):
+        return (
+            self.cursor.start_offset
+            if self.cursor.is_first_page()
+            else self.cursor.start_offset - len(self.cursor.first_page_ids)
+        )
 
     def _cardsearch_query(self) -> dict:
         _bool = _BoolBuilder()
@@ -795,8 +807,8 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
             'agg_valuesearch_iris': {
                 'terms': {
                     'field': 'iri_value.value_iri',
-                    # WARNING: terribly inefficient pagination (part one)
-                    'size': cursor.start_index + cursor.page_size + 1,
+                    # WARNING: terribly hacky pagination (part one)
+                    'size': cursor.start_offset + cursor.page_size + 1,
                 },
                 'aggs': {
                     'agg_type_iri': {'terms': {
@@ -883,5 +895,3 @@ def _any_query(queries: abc.Collection[dict]):
         (_query,) = queries
         return _query
     return {'bool': {'should': list(queries), 'minimum_should_match': 1}}
-
-

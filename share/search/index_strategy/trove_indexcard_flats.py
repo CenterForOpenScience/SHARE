@@ -7,7 +7,7 @@ import json
 import logging
 import re
 import uuid
-from typing import Iterable, ClassVar, Optional, Iterator
+from typing import Iterable, Optional, Iterator
 
 from django.conf import settings
 import elasticsearch8
@@ -16,16 +16,18 @@ from primitive_metadata import primitive_rdf
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
-from share.search.index_strategy._util import encode_cursor_dataclass, decode_cursor_dataclass
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
+from trove.trovesearch.cursor import (
+    OffsetCursor,
+    CardsearchCursor,
+)
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
     SearchFilter,
     Textsegment,
     SortParam,
-    PageParam,
     GLOB_PATHSTEP,
 )
 from trove.trovesearch.search_response import (
@@ -45,8 +47,6 @@ from ._trovesearch_util import (
     NAME_PROPERTIES,
     LABEL_PROPERTIES,
     NAMELIKE_PROPERTIES,
-    VALUESEARCH_MAX,
-    CARDSEARCH_MAX,
     KEYWORD_LENGTH_MAX,
     SKIPPABLE_PROPERTIES,
 )
@@ -294,18 +294,23 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             )
 
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
-            _cursor = _CardsearchCursor.from_params(cardsearch_params)
+            _cursor = CardsearchCursor.from_params(cardsearch_params)
             _sort = self._cardsearch_sort(cardsearch_params.sort_list)
             _query = self._cardsearch_query(
                 cardsearch_params.cardsearch_filter_set,
                 cardsearch_params.cardsearch_textsegment_set,
                 cardsearch_cursor=_cursor,
             )
+            _from_offset = (
+                _cursor.start_offset
+                if _cursor.is_first_page()
+                else _cursor.start_offset - len(_cursor.first_page_ids)
+            )
             _search_kwargs = dict(
                 query=_query,
                 aggs=self._cardsearch_aggs(cardsearch_params),
                 sort=_sort,
-                from_=_cursor.cardsearch_start_index(),
+                from_=_from_offset,
                 size=_cursor.page_size,
                 source=False,  # no need to get _source; _id is enough
             )
@@ -321,7 +326,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             return self._cardsearch_response(cardsearch_params, _es8_response, _cursor)
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
-            _cursor = _SimpleCursor.from_page_param(valuesearch_params.page)
+            _cursor = OffsetCursor.from_page_param(valuesearch_params.page)
             _is_date_search = is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
                 query=self._cardsearch_query(
@@ -356,7 +361,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             self,
             filter_set, textsegment_set, *,
             additional_filters=None,
-            cardsearch_cursor: Optional['_CardsearchCursor'] = None,
+            cardsearch_cursor: Optional[CardsearchCursor] = None,
         ) -> dict:
             _bool_query = {
                 'filter': additional_filters or [],
@@ -426,7 +431,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 }}
             return _aggs
 
-        def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: '_SimpleCursor'):
+        def _valuesearch_iri_aggs(self, valuesearch_params: ValuesearchParams, cursor: OffsetCursor):
             _nested_iri_bool = {
                 'filter': [{'term': {'nested_iri.suffuniq_path_from_focus': iri_path_as_keyword(
                     valuesearch_params.valuesearch_propertypath,
@@ -439,7 +444,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             _nested_terms_agg = {
                 'field': 'nested_iri.iri_value',
                 # WARNING: terribly inefficient pagination (part one)
-                'size': cursor.start_index + cursor.page_size + 1,
+                'size': cursor.start_offset + cursor.page_size + 1,
             }
             _iris = list(valuesearch_params.valuesearch_iris())
             if _iris:
@@ -520,15 +525,15 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             self,
             valuesearch_params: ValuesearchParams,
             es8_response: dict,
-            cursor: '_SimpleCursor',
+            cursor: OffsetCursor,
         ):
             _iri_aggs = es8_response['aggregations'].get('in_nested_iri')
             if _iri_aggs:
                 _buckets = _iri_aggs['value_at_propertypath']['iri_values']['buckets']
                 _bucket_count = len(_buckets)
                 # WARNING: terribly inefficient pagination (part two)
-                _page_end_index = cursor.start_index + cursor.page_size
-                _bucket_page = _buckets[cursor.start_index:_page_end_index]  # discard prior pages
+                _page_end_index = cursor.start_offset + cursor.page_size
+                _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
                 cursor.result_count = (
                     -1  # "many more"
                     if (_bucket_count > _page_end_index)  # agg includes one more, if there
@@ -539,9 +544,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         self._valuesearch_iri_result(_iri_bucket)
                         for _iri_bucket in _bucket_page
                     ],
-                    next_page_cursor=cursor.next_cursor(),
-                    prev_page_cursor=cursor.prev_cursor(),
-                    first_page_cursor=cursor.first_cursor(),
+                    cursor=cursor,
                 )
             else:  # assume date
                 _year_buckets = (
@@ -678,7 +681,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             self,
             cardsearch_params: CardsearchParams,
             es8_response: dict,
-            cursor: '_CardsearchCursor',
+            cursor: CardsearchCursor,
         ) -> CardsearchResponse:
             _es8_total = es8_response['hits']['total']
             if _es8_total['relation'] != 'eq':
@@ -738,9 +741,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 ),
                 search_result_page=_results,
                 related_propertypath_results=_relatedproperty_list,
-                next_page_cursor=cursor.next_cursor(),
-                prev_page_cursor=cursor.prev_cursor(),
-                first_page_cursor=cursor.first_cursor(),
+                cursor=cursor,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
@@ -910,8 +911,6 @@ def _pathset_as_nestedvalue_filter(propertypath_set: frozenset[tuple[str, ...]],
     if _glob_path_lengths:
         return {'terms': {f'{nested_path}.distance_from_focus': _glob_path_lengths}}
     return {'terms': {f'{nested_path}.suffuniq_path_from_focus': _suffuniq_iri_paths}}
-
-
 
 
 class _PredicatePathWalker:

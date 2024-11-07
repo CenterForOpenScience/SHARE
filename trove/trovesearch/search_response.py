@@ -43,7 +43,7 @@ class CardsearchResult:
 class CardsearchResponse:
     total_result_count: BoundedCount
     search_result_page: Iterable[CardsearchResult]
-    cursor: BasicCursor | None
+    cursor: Cursor | None
     related_propertypath_results: Iterable['PropertypathUsage']
 
 
@@ -74,6 +74,28 @@ class ValuesearchResult:
 class ValuesearchResponse:
     search_result_page: Iterable[ValuesearchResult]
     total_result_count: Optional[int] = None
-    next_page_cursor: Optional[str] = None
-    prev_page_cursor: Optional[str] = None
-    first_page_cursor: Optional[str] = None
+    cursor: Cursor | None = None
+
+    @functools.cached_property
+    def next_page_cursor(self) -> str:
+        if self.cursor is not None:
+            _next = self.cursor.next_cursor()
+            if _next.is_valid():
+                return _next
+        return ''
+
+    @functools.cached_property
+    def prev_page_cursor(self) -> str:
+        if self.cursor is not None:
+            _prev = self.cursor.prev_cursor()
+            if _prev.is_valid():
+                return _prev
+        return ''
+
+    @functools.cached_property
+    def first_page_cursor(self) -> str:
+        if self.cursor is not None:
+            _first = self.cursor.first_cursor()
+            if _first.is_valid():
+                return _first
+        return ''
