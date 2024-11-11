@@ -13,7 +13,6 @@ class BaseSimpleOsfmapRenderer(BaseRenderer):
 
     (very entangled with trove/trovesearch/trovesearch_gathering.py)
     '''
-    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
     def render_unicard_document(self, card_iri: str, osfmap_json: dict) -> str | None:
         raise NotImplementedError

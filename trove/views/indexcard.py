@@ -6,6 +6,7 @@ from trove.render import get_renderer_class
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_iri
+from . import _responder
 
 
 class IndexcardView(View):
@@ -23,7 +24,7 @@ class IndexcardView(View):
                 {},  # TODO: build from `include`/`fields`
                 focus=gather.Focus.new(_indexcard_iri, TROVE.Indexcard),
             )
-            _response_tripledict = _search_gathering.leaf_a_record()
-            return _renderer_cls(_indexcard_iri, _response_tripledict).render_response()
+            _renderer = _renderer_cls(_indexcard_iri, _search_gathering.leaf_a_record())
+            return _responder.make_response(content_rendering=_renderer.render_document())
         except trove_exceptions.TroveError as _error:
             return _renderer_cls(_indexcard_iri).render_error_response(_error)

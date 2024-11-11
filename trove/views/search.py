@@ -13,6 +13,7 @@ from trove.trovesearch.search_params import (
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
 from trove.render import get_renderer_class
+from . import _responder
 
 
 logger = logging.getLogger(__name__)
@@ -52,7 +53,8 @@ class CardsearchView(View):
                 DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
                 focus=gather.Focus.new(_search_iri, TROVE.Cardsearch),
             )
-            return _renderer_cls(_search_iri, _search_gathering.leaf_a_record()).render_response()
+            _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
+            return _responder.make_response(content_rendering=_renderer.render_document())
         except trove_exceptions.TroveError as _error:
             return _renderer_cls(_search_iri).render_error_response(_error)
 
@@ -66,7 +68,8 @@ class ValuesearchView(View):
                 DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
                 focus=gather.Focus.new(_search_iri, TROVE.Valuesearch),
             )
-            return _renderer_cls(_search_iri, _search_gathering.leaf_a_record()).render_response()
+            _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
+            return _responder.make_response(content_rendering=_renderer.render_document())
         except trove_exceptions.TroveError as _error:
             return _renderer_cls(_search_iri).render_error_response(_error)
 

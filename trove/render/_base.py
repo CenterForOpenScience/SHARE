@@ -2,9 +2,9 @@ import abc
 import dataclasses
 import functools
 import json
-from typing import ClassVar
+from typing import ClassVar, Iterable
 
-from django import http
+from django import http as djhttp
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import exceptions as trove_exceptions
@@ -13,9 +13,30 @@ from trove.vocab.namespaces import NAMESPACES_SHORTHAND
 from trove.vocab.trove import TROVE_API_THESAURUS
 
 
+class ProtoRendering:
+    @property
+    def mediatype(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def is_streamed(self) -> bool:
+        return False
+
+    def iter_content(self) -> Iterable[str | bytes | memoryview]:
+        yield from ()
+
+
+@dataclasses.dataclass
+class LiteralRendering(ProtoRendering):
+    literal: rdf.Literal
+
+    def iter_content(self):
+        yield self.literal.unicode_value
+
+
 @dataclasses.dataclass
 class BaseRenderer(abc.ABC):
-    """for rendering an api response modeled as rdf into an rdf serialization"""
+    """for rendering an api response modeled as rdf into a serialized http response"""
 
     # required in subclasses
     MEDIATYPE: ClassVar[str]
@@ -27,8 +48,8 @@ class BaseRenderer(abc.ABC):
     # instance fields
     response_focus_iri: str
     response_data: rdf.RdfTripleDictionary = dataclasses.field(default_factory=dict)
-    http_request: http.HttpRequest | None = None
-    http_response: http.HttpResponse = dataclasses.field(default_factory=http.HttpResponse)
+    http_request: djhttp.HttpRequest | None = None
+    http_response: djhttp.HttpResponse = dataclasses.field(default_factory=djhttp.HttpResponse)
     iri_shorthand: rdf.IriShorthand = NAMESPACES_SHORTHAND
     thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
@@ -39,7 +60,7 @@ class BaseRenderer(abc.ABC):
     def render_document(self) -> str | None:
         raise NotImplementedError
 
-    def render_response(self) -> http.HttpResponse:
+    def render_response(self) -> djhttp.HttpResponse:
         self.http_response.content_type = self.MEDIATYPE
         _content = self.render_document()
         if isinstance(_content, str):
