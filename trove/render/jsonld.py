@@ -22,9 +22,9 @@ class RdfJsonldRenderer(BaseRenderer):
 
     __visiting_iris: set | None = None
 
-    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
+    def simple_render_document(self) -> str:
         return json.dumps(
-            self.render_jsonld(data, focus_iri),
+            self.render_jsonld(self.response_data, self.response_focus_iri),
             indent=2,
             sort_keys=True,
         )

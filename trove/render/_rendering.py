@@ -20,6 +20,15 @@ class ProtoRendering:
 
 
 @dataclasses.dataclass
+class SimpleRendering(ProtoRendering):
+    mediatype: str
+    rendered_content: str = ''
+
+    def iter_content(self):
+        yield self.rendered_content
+
+
+@dataclasses.dataclass
 class LiteralRendering(ProtoRendering):
     literal: rdf.Literal
     # (TODO: language(s))

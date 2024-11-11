@@ -13,7 +13,10 @@ from trove.trovesearch.search_params import (
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
 from trove.render import get_renderer_class
-from . import _responder
+from ._responder import (
+    make_http_error_response,
+    make_http_response,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -54,9 +57,12 @@ class CardsearchView(View):
                 focus=gather.Focus.new(_search_iri, TROVE.Cardsearch),
             )
             _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
-            return _responder.make_response(content_rendering=_renderer.render_document())
+            return make_http_response(content_rendering=_renderer.render_document())
         except trove_exceptions.TroveError as _error:
-            return _renderer_cls(_search_iri).render_error_response(_error)
+            return make_http_error_response(
+                error=_error,
+                renderer=_renderer_cls(_search_iri),
+            )
 
 
 class ValuesearchView(View):
@@ -69,9 +75,12 @@ class ValuesearchView(View):
                 focus=gather.Focus.new(_search_iri, TROVE.Valuesearch),
             )
             _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
-            return _responder.make_response(content_rendering=_renderer.render_document())
+            return make_http_response(content_rendering=_renderer.render_document())
         except trove_exceptions.TroveError as _error:
-            return _renderer_cls(_search_iri).render_error_response(_error)
+            return make_http_error_response(
+                error=_error,
+                renderer=_renderer_cls(_search_iri),
+            )
 
 
 ###

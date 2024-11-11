@@ -29,10 +29,11 @@ UNSTABLE_MEDIATYPES = (mediatypes.TURTLE, mediatypes.JSONLD, mediatypes.JSON,)
 class RdfHtmlBrowseRenderer(BaseRenderer):
     MEDIATYPE = 'text/html; charset=utf-8'
 
-    def render_document(self) -> str:
-        _rendered_html_element = _HtmlRenderHelper(
-            data=primitive_rdf.RdfGraph(self.response_data),
-        ).render(self.response_focus_iri)
+    def simple_render_document(self) -> str:
+        _rendered_html_element = (
+            _HtmlRenderHelper(data=self.response_data)
+            .render(self.response_focus_iri)
+        )
         return ''.join((
             '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
             etree_tostring(_rendered_html_element, encoding='unicode', method='html'),

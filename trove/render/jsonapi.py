@@ -1,4 +1,5 @@
 import contextlib
+import dataclasses
 import datetime
 import hashlib
 import json
@@ -21,7 +22,6 @@ from trove.vocab.namespaces import (
     TROVE,
 )
 from trove.vocab.trove import (
-    TROVE_API_THESAURUS,
     trove_indexcard_namespace,
 )
 from ._base import BaseRenderer
@@ -32,6 +32,7 @@ from ._base import BaseRenderer
 _IriOrBlanknode = Union[str, frozenset]
 
 
+@dataclasses.dataclass
 class RdfJsonapiRenderer(BaseRenderer):
     '''render rdf data into jsonapi resources, guided by a given rdf vocabulary
 
@@ -53,19 +54,13 @@ class RdfJsonapiRenderer(BaseRenderer):
     MEDIATYPE = mediatypes.JSONAPI
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
+    _identifier_object_cache: dict = dataclasses.field(default_factory=dict)
+    _id_namespace_set: Iterable[primitive_rdf.IriNamespace] = (trove_indexcard_namespace(),)
     __to_include: set[primitive_rdf.RdfObject] | None = None
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._vocab = primitive_rdf.RdfGraph(TROVE_API_THESAURUS)
-        self._identifier_object_cache = {}
-        # TODO: move "id namespace" to vocab (property on each type)
-        self._id_namespace_set = [trove_indexcard_namespace()]
-
-    def render_document(self, data: primitive_rdf.RdfGraph, focus_iri: str) -> str:
-        self._data = data
+    def simple_render_document(self) -> str:
         return json.dumps(
-            self.render_dict(focus_iri),
+            self.render_dict(self.response_focus_iri),
             indent=2,  # TODO: pretty-print query param?
         )
 
@@ -95,7 +90,7 @@ class RdfJsonapiRenderer(BaseRenderer):
     def render_resource_object(self, iri_or_blanknode: _IriOrBlanknode) -> dict:
         _resource_object = {**self.render_identifier_object(iri_or_blanknode)}
         _twopledict = (
-            (self._data.tripledict.get(iri_or_blanknode) or {})
+            (self.response_data.tripledict.get(iri_or_blanknode) or {})
             if isinstance(iri_or_blanknode, str)
             else primitive_rdf.twopledict_from_twopleset(iri_or_blanknode)
         )
@@ -111,7 +106,7 @@ class RdfJsonapiRenderer(BaseRenderer):
             return self._identifier_object_cache[iri_or_blanknode]
         except KeyError:
             if isinstance(iri_or_blanknode, str):
-                _type_iris = list(self._data.q(iri_or_blanknode, RDF.type))
+                _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
                 _id_obj = {
                     'id': self._resource_id_for_iri(iri_or_blanknode),
                     'type': self._single_typename(_type_iris),
@@ -145,7 +140,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     def _membername_for_iri(self, iri: str):
         try:
-            _membername = next(self._vocab.q(iri, JSONAPI_MEMBERNAME))
+            _membername = next(self.thesaurus.q(iri, JSONAPI_MEMBERNAME))
         except StopIteration:
             pass
         else:
@@ -167,8 +162,8 @@ class RdfJsonapiRenderer(BaseRenderer):
         return hashlib.sha256(iri.encode()).hexdigest()
 
     def _render_field(self, predicate_iri, object_set, *, into: dict):
-        _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self._vocab
-        _is_attribute = (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE) in self._vocab
+        _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self.thesaurus
+        _is_attribute = (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE) in self.thesaurus
         _field_key = self._membername_for_iri(predicate_iri)
         _doc_key = 'meta'  # unless configured for jsonapi, default to unstructured 'meta'
         if ':' not in _field_key:
@@ -184,7 +179,7 @@ class RdfJsonapiRenderer(BaseRenderer):
         into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
 
     def _one_or_many(self, predicate_iri: str, datalist: list):
-        _only_one = (predicate_iri, RDF.type, OWL.FunctionalProperty) in self._vocab
+        _only_one = (predicate_iri, RDF.type, OWL.FunctionalProperty) in self.thesaurus
         if _only_one:
             if len(datalist) > 1:
                 raise trove_exceptions.OwlObjection(f'multiple objects for to-one relation <{predicate_iri}>: {datalist}')

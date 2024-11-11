@@ -8,6 +8,7 @@ from trove.render import get_renderer_class
 from trove.util.iris import unquote_iri, get_sufficiently_unique_iri
 from trove.vocab import namespaces as ns
 from trove.vocab import static_vocab
+from ._responder import make_http_response
 
 
 class BrowseIriView(View):
@@ -25,13 +26,15 @@ class BrowseIriView(View):
         if _thesaurus_entry:
             _combined_rdf.add_twopledict(_card_focus_iri, _thesaurus_entry)
         _renderer_cls = get_renderer_class(request)
-        _resp = _renderer_cls(
+        _renderer = _renderer_cls(
             _card_focus_iri,
             _combined_rdf.tripledict,
             http_request=request,
-        ).render_response()
-        _resp.headers['Content-Disposition'] = 'inline'
-        return _resp
+        )
+        return make_http_response(
+            content_rendering=_renderer.render_document(),
+            http_headers=[('Content-Disposition', 'inline')],
+        )
 
 
 def _get_latest_cardf(iri: str):
