@@ -11,6 +11,7 @@ from django.http import QueryDict
 from primitive_metadata import primitive_rdf
 
 from trove import exceptions as trove_exceptions
+from trove.trovesearch.page_cursor import PageCursor
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -49,6 +50,10 @@ DESCENDING_SORT_PREFIX = '-'
 # for "page[size]" values
 DEFAULT_PAGE_SIZE = 13
 MAX_PAGE_SIZE = 101
+
+# limits on paging
+VALUESEARCH_MAX = 234
+CARDSEARCH_MAX = 9997
 
 # between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
@@ -463,29 +468,12 @@ class SortParam:
 
 
 @dataclasses.dataclass(frozen=True)
-class PageParam:
-    cursor: str | None  # intentionally opaque; for IndexStrategy to generate/interpret
-    size: int | None = None  # size is None iff cursor is not None
-
-    @classmethod
-    def from_page_queryparams(cls, queryparams: QueryparamDict) -> PageParam:
-        _cursor = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
-        if _cursor:
-            return cls(cursor=_cursor)
-        _size = int(  # TODO: 400 response on non-int value
-            _get_single_value(queryparams, QueryparamName('page', ('size',)))
-            or DEFAULT_PAGE_SIZE
-        )
-        return cls(size=min(_size, MAX_PAGE_SIZE), cursor=None)
-
-
-@dataclasses.dataclass(frozen=True)
 class CardsearchParams(BaseTroveParams):
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
     sort_list: tuple[SortParam]
-    page: PageParam
+    page_cursor: PageCursor
     related_property_paths: tuple[Propertypath, ...]
     unnamed_iri_values: frozenset[str]
 
@@ -498,7 +486,7 @@ class CardsearchParams(BaseTroveParams):
             'cardsearch_filter_set': _filter_set,
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
-            'page': PageParam.from_page_queryparams(queryparams),
+            'page_cursor': _get_page_cursor(queryparams),
             'include': None,  # TODO
             'related_property_paths': _get_related_property_paths(_filter_set),
             'unnamed_iri_values': frozenset(),  # TODO: frozenset(_get_unnamed_iri_values(_filter_set)),
@@ -511,10 +499,10 @@ class CardsearchParams(BaseTroveParams):
         for _sort in self.sort_list:
             _qp_name, _qp_value = _sort.as_queryparam()
             _querydict.appendlist(_qp_name, _qp_value)
-        if self.page.cursor:
-            _querydict['page[cursor]'] = self.page.cursor
-        elif self.page.size != DEFAULT_PAGE_SIZE:
-            _querydict['page[size]'] = self.page.size
+        if not self.page_cursor.is_basic():
+            _querydict['page[cursor]'] = self.page_cursor.as_queryparam_value()
+        elif self.page_cursor.page_size != DEFAULT_PAGE_SIZE:
+            _querydict['page[size]'] = self.page_cursor.page_size
         for _filter in self.cardsearch_filter_set:
             _qp_name, _qp_value = _filter.as_queryparam('cardSearchFilter')
             _querydict.appendlist(_qp_name, _qp_value)
@@ -683,3 +671,17 @@ def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
             for _iri in _filter.value_set:
                 if _iri not in OSFMAP_THESAURUS:
                     yield _iri
+
+
+def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
+    _cursor_value = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
+    if _cursor_value:
+        return PageCursor.from_queryparam_value(_cursor_value)
+    try:
+        _size = int(  # TODO: 400 response on non-int value
+            _get_single_value(queryparams, QueryparamName('page', ('size',)))
+            or DEFAULT_PAGE_SIZE
+        )
+    except ValueError:
+        raise trove_exceptions.InvalidQueryParamValue('page[size]')
+    return PageCursor(page_size=min(_size, MAX_PAGE_SIZE))

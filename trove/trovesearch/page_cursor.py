@@ -3,50 +3,55 @@ import base64
 import dataclasses
 import enum
 import json
-import math
 import typing
 
 from trove.exceptions import InvalidPageCursorValue
-from ._trovesearch_util import (
-    VALUESEARCH_MAX,
-    CARDSEARCH_MAX,
-)
-
-if typing.TYPE_CHECKING:
-    from number import Number
 
 
 __all__ = ('PageCursor', 'OffsetCursor', 'ReproduciblyRandomSampleCursor')
 
 
-_MANY_MORE = math.inf
+MANY_MORE = -1
 
 
 @dataclasses.dataclass
 class PageCursor:
-    page_size: Number
-    total_count: Number = _MANY_MORE
+    page_size: int
+    total_count: int = MANY_MORE
 
-    @staticmethod
-    def from_queryparam_value(cursor_value: str) -> PageCursor:
+    @classmethod
+    def from_queryparam_value(cls, cursor_value: str) -> typing.Self:
         try:
             (_type_key, _args) = json.loads(base64.urlsafe_b64decode(cursor_value))
             _cls = _PageCursorTypes[_type_key].value
-            assert issubclass(_cls, PageCursor)
+            assert issubclass(_cls, cls)
             return _cls(*_args)
         except Exception:
             raise InvalidPageCursorValue(cursor_value)
 
+    @classmethod
+    def from_cursor(cls, other_cursor: PageCursor) -> typing.Self:
+        if isinstance(other_cursor, cls):
+            return dataclasses.replace(other_cursor)  # simple copy
+        return cls(*dataclasses.astuple(other_cursor))
+
     def as_queryparam_value(self) -> str:
-        _as_json = json.dumps(dataclasses.astuple(self))
+        _cls_key = _PageCursorTypes(type(self)).name
+        _as_json = json.dumps([_cls_key, *dataclasses.astuple(self)])
         _cursor_bytes = base64.urlsafe_b64encode(_as_json.encode())
         return _cursor_bytes.decode()
 
+    def is_basic(self) -> bool:
+        return type(self) is PageCursor
+
     def is_valid(self) -> bool:
-        return self.page_size > 0 and (0 <= self.total_count <= _MANY_MORE)
+        return self.page_size > 0 and (
+            self.total_count == MANY_MORE
+            or self.total_count >= 0
+        )
 
     def has_many_more(self) -> bool:
-        return self.total_count >= _MANY_MORE
+        return self.total_count == MANY_MORE
 
     def next_cursor(self) -> typing.Self | None:
         return None
@@ -60,27 +65,18 @@ class PageCursor:
 
 @dataclasses.dataclass
 class OffsetCursor(PageCursor):
-    # page_size: Number (from PageCursor)
-    # total_count: Number (from PageCursor)
-    start_offset: Number = 0
-
-    MAX_INDEX: typing.ClassVar[Number] = VALUESEARCH_MAX
+    # page_size: int (from PageCursor)
+    # total_count: int (from PageCursor)
+    start_offset: int = 0
 
     def is_valid(self) -> bool:
         return (
             super().is_valid()
-            and 0 <= self.start_offset < self.max_index()
+            and 0 <= self.start_offset
         )
 
     def is_first_page(self) -> bool:
         return self.start_offset == 0
-
-    def max_index(self) -> Number:
-        return (
-            self.MAX_INDEX
-            if self.has_many_more()
-            else min(self.total_count or 0, self.MAX_INDEX)
-        )
 
     def next_cursor(self):
         return dataclasses.replace(self, start_offset=(self.start_offset + self.page_size))
@@ -94,12 +90,10 @@ class OffsetCursor(PageCursor):
 
 @dataclasses.dataclass
 class ReproduciblyRandomSampleCursor(OffsetCursor):
-    # page_size: Number (from PageCursor)
-    # total_count: Number (from PageCursor)
-    # start_offset: Number (from OffsetCursor)
-    first_page_ids: typing.Iterable[str] = ()
-
-    MAX_INDEX: typing.ClassVar[Number] = CARDSEARCH_MAX
+    # page_size: int (from PageCursor)
+    # total_count: int (from PageCursor)
+    # start_offset: int (from OffsetCursor)
+    first_page_ids: list[str] = dataclasses.field(default_factory=list)
 
     def next_cursor(self):
         return (

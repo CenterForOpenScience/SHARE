@@ -3,9 +3,17 @@ from typing import Literal, Iterable, Union, Optional
 
 from primitive_metadata import primitive_rdf
 
+from trove.trovesearch.page_cursor import (
+    PageCursor,
+    ReproduciblyRandomSampleCursor,
+)
+from trove.trovesearch.search_params import (
+    VALUESEARCH_MAX,
+    CARDSEARCH_MAX,
+    CardsearchParams,
+)
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
-from trove.trovesearch impo
 
 
 BoundedCount = Union[
@@ -25,26 +33,21 @@ class TextMatchEvidence:
 
 @dataclasses.dataclass
 class CardsearchResult:
-    text_match_evidence: Iterable[TextMatchEvidence]
+    text_match_evidence: list[TextMatchEvidence]
     card_iri: str
-    card_uuid: str = ''
-    card_pk: str = ''  # TODO: use or remove
+    card_pk: str = ''
 
-    def __post_init__(self):
-        if not self.card_uuid:
-            # card iri has the uuid at the end
-            self.card_uuid = primitive_rdf.iri_minus_namespace(
-                self.card_iri,
-                namespace=trove_indexcard_namespace(),
-            )
+    @property
+    def card_uuid(self):
+        # card iri has the uuid at the end
+        return primitive_rdf.iri_minus_namespace(
+            self.card_iri,
+            namespace=trove_indexcard_namespace(),
+        )
 
-
-@dataclasses.dataclass
-class CardsearchResponse:
-    total_result_count: BoundedCount
-    search_result_page: Iterable[CardsearchResult]
-    cursor: Cursor | None
-    related_propertypath_results: Iterable['PropertypathUsage']
+    @property
+    def card_id(self):
+        return self.card_pk or self.card_uuid
 
 
 @dataclasses.dataclass
@@ -70,32 +73,72 @@ class ValuesearchResult:
         )
 
 
+###
+# paged responses
+
 @dataclasses.dataclass
-class ValuesearchResponse:
+class PagedResponse:
+    cursor: PageCursor
+
+    @property
+    def max_offset(self) -> int:
+        raise NotImplementedError
+
+    @property
+    def total_result_count(self) -> BoundedCount:
+        return (
+            TROVE['ten-thousands-and-more']
+            if (self.cursor is None) or self.cursor.has_many_more()
+            else self.cursor.total_count
+        )
+
+
+@dataclasses.dataclass
+class CardsearchResponse(PagedResponse):
+    search_result_page: list[CardsearchResult]
+    related_propertypath_results: list['PropertypathUsage']
+    cardsearch_params: CardsearchParams
+
+    max_offset = CARDSEARCH_MAX
+
+    def __post_init__(self):
+        _cursor = self.cursor
+        if (
+            isinstance(_cursor, ReproduciblyRandomSampleCursor)
+            and _cursor.is_first_page()
+        ):
+            if _cursor.first_page_ids:
+                # revisiting first page; reproduce original random order
+                _ordering_by_id = {
+                    _id: _i
+                    for (_i, _id) in enumerate(_cursor.first_page_ids)
+                }
+                self.search_result_page.sort(key=lambda _r: _ordering_by_id[_r.card_id])
+            else:
+                _should_start_reproducible_randomness = (
+                    not _cursor.has_many_more()
+                    and any(
+                        not _filter.is_type_filter()  # look for a non-default filter
+                        for _filter in self.cardsearch_params.cardsearch_filter_set
+                    )
+                )
+                if _should_start_reproducible_randomness:
+                    _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
+
+
+@dataclasses.dataclass
+class ValuesearchResponse(PagedResponse):
     search_result_page: Iterable[ValuesearchResult]
-    total_result_count: Optional[int] = None
-    cursor: Cursor | None = None
 
-    @functools.cached_property
-    def next_page_cursor(self) -> str:
-        if self.cursor is not None:
-            _next = self.cursor.next_cursor()
-            if _next.is_valid():
-                return _next
-        return ''
+    max_offset = VALUESEARCH_MAX
 
-    @functools.cached_property
-    def prev_page_cursor(self) -> str:
-        if self.cursor is not None:
-            _prev = self.cursor.prev_cursor()
-            if _prev.is_valid():
-                return _prev
-        return ''
 
-    @functools.cached_property
-    def first_page_cursor(self) -> str:
-        if self.cursor is not None:
-            _first = self.cursor.first_cursor()
-            if _first.is_valid():
-                return _first
-        return ''
+###
+# local helpers
+
+def _cursor_value(cursor: PageCursor | None) -> str:
+    return (
+        cursor.as_queryparam_value()
+        if cursor is not None and cursor.is_valid()
+        else ''
+    )

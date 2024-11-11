@@ -15,10 +15,10 @@ from primitive_metadata.primitive_rdf import literal_json
 from trove import models as trove_db
 from trove import exceptions as trove_exceptions
 from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
+from trove.trovesearch.page_cursor import PageCursor
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
-    PageParam,
     propertypath_key,
     propertypath_set_key,
 )
@@ -362,27 +362,24 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
 def _search_page_links(search_focus, search_params, search_response):
     _search_iri_split = urllib.parse.urlsplit(next(iter(search_focus.iris)))
 
-    def _iri_with_page_param(page_param: PageParam):
+    def _iri_with_cursor(page_cursor: PageCursor):
         return urllib.parse.urlunsplit((
             _search_iri_split.scheme,
             _search_iri_split.netloc,
             _search_iri_split.path,
-            dataclasses.replace(search_params, page=page_param).to_querystring(),
+            dataclasses.replace(search_params, page_cursor=page_cursor).to_querystring(),
             _search_iri_split.fragment,
         ))
 
-    if search_response.first_page_cursor:
-        yield (TROVE.searchResultPage, _jsonapi_link('first', _iri_with_page_param(
-            PageParam(cursor=search_response.first_page_cursor),
-        )))
-    if search_response.next_page_cursor:
-        yield (TROVE.searchResultPage, _jsonapi_link('next', _iri_with_page_param(
-            PageParam(cursor=search_response.next_page_cursor),
-        )))
-    if search_response.prev_page_cursor:
-        yield (TROVE.searchResultPage, _jsonapi_link('prev', _iri_with_page_param(
-            PageParam(cursor=search_response.prev_page_cursor),
-        )))
+    _next = search_response.cursor.next_cursor()
+    if _next is not None and _next.is_valid():
+        yield (TROVE.searchResultPage, _jsonapi_link('next', _iri_with_cursor(_next)))
+    _prev = search_response.cursor.prev_cursor()
+    if _prev is not None and _prev.is_valid():
+        yield (TROVE.searchResultPage, _jsonapi_link('prev', _iri_with_cursor(_prev)))
+    _first = search_response.cursor.first_cursor()
+    if _first is not None and _first.is_valid():
+        yield (TROVE.searchResultPage, _jsonapi_link('first', _iri_with_cursor(_first)))
 
 
 def _jsonapi_link(membername, iri):

@@ -20,9 +20,11 @@ from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
+from trove import exceptions as trove_exceptions
 from trove.trovesearch.page_cursor import (
-    PageCursor,
+    MANY_MORE,
     OffsetCursor,
+    PageCursor,
     ReproduciblyRandomSampleCursor,
 )
 from trove.trovesearch.search_params import (
@@ -43,7 +45,7 @@ from trove.trovesearch.search_response import (
     ValuesearchResult,
 )
 from trove.vocab.osfmap import is_date_property
-from trove.vocab.namespaces import TROVE, OWL, RDF
+from trove.vocab.namespaces import OWL, RDF
 from . import _trovesearch_util as ts
 
 
@@ -214,15 +216,20 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self.index_strategy._cardsearch_response(cardsearch_params, _es8_response, _querybuilder.cursor)
+            return self.index_strategy._cardsearch_response(
+                cardsearch_params,
+                _es8_response,
+                _querybuilder.response_cursor,
+            )
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _path = valuesearch_params.valuesearch_propertypath
-            _cursor = OffsetCursor.from_page_param(valuesearch_params.page)
+            _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
+            _is_date_search = is_date_property(_path[-1])
             _query = (
-                _build_date_valuesearch(valuesearch_params, _cursor)
-                if is_date_property(_path[-1])
+                _build_date_valuesearch(valuesearch_params)
+                if _is_date_search
                 else _build_iri_valuesearch(valuesearch_params, _cursor)
             )
             if settings.DEBUG:
@@ -234,7 +241,11 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self.index_strategy._valuesearch_response(valuesearch_params, _es8_response, _cursor)
+            return (
+                self.index_strategy._valuesearch_dates_response(valuesearch_params, _es8_response)
+                if _is_date_search
+                else self.index_strategy._valuesearch_iris_response(valuesearch_params, _es8_response, _cursor)
+            )
 
     ###
     # building sourcedocs
@@ -345,18 +356,19 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def _texts_by_propertypath(self, walk: ts.GraphWalk):
             return {
-                _path_field_name(_path): list(_value_set)
-                for _path, _value_set in walk.text_values.items()
+                _path_field_name(_path): [_text.unicode_value for _text in _text_set]
+                for _path, _text_set in walk.text_values.items()
             }
 
         def _texts_at_properties(self, walk: ts.GraphWalk, properties: Iterable[str]):
             for _property in properties:
-                yield from walk.text_values.get((_property,), [])
+                for _text_literal in walk.text_values.get((_property,), []):
+                    yield _text_literal.unicode_value
 
         def _texts_by_depth(self, walk: ts.GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
-            for _path, _value_set in walk.text_values.items():
-                _by_depth[len(_path)].update(_value_set)
+            for _path, _text_set in walk.text_values.items():
+                _by_depth[len(_path)].update(_text.unicode_value for _text in _text_set)
             return {
                 _depth_field_name(_depth): list(_value_set)
                 for _depth, _value_set in _by_depth.items()
@@ -387,43 +399,48 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     ###
     # normalizing search responses
 
-    def _valuesearch_response(
+    def _valuesearch_iris_response(
         self,
         valuesearch_params: ValuesearchParams,
         es8_response: dict,
         cursor: OffsetCursor,
     ) -> ValuesearchResponse:
         _iri_aggs = es8_response['aggregations'].get('agg_valuesearch_iris')
-        if _iri_aggs:
-            _buckets = _iri_aggs['buckets']
-            _bucket_count = len(_buckets)
-            # WARNING: terribly hacky pagination (part two)
-            _page_end_index = cursor.start_offset + cursor.page_size
-            _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
-            cursor.result_count = (
-                -1  # "many more"
-                if (_bucket_count > _page_end_index)  # agg includes one more, if there
-                else _bucket_count
-            )
-            return ValuesearchResponse(
-                search_result_page=[
-                    self._valuesearch_iri_result(_iri_bucket)
-                    for _iri_bucket in _bucket_page
-                ],
-                cursor=cursor,
-            )
-        else:  # assume date
-            _year_buckets = (
-                es8_response['aggregations']
-                ['agg_valuesearch_dates']
-                ['buckets']
-            )
-            return ValuesearchResponse(
-                search_result_page=[
-                    self._valuesearch_date_result(_year_bucket)
-                    for _year_bucket in _year_buckets
-                ],
-            )
+        _buckets = _iri_aggs['buckets']
+        _bucket_count = len(_buckets)
+        # WARNING: terribly hacky pagination (part two)
+        _page_end_index = cursor.start_offset + cursor.page_size
+        _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
+        cursor.total_count = (
+            MANY_MORE
+            if (_bucket_count > _page_end_index)  # agg includes one more, if there
+            else _bucket_count
+        )
+        return ValuesearchResponse(
+            cursor=cursor,
+            search_result_page=[
+                self._valuesearch_iri_result(_iri_bucket)
+                for _iri_bucket in _bucket_page
+            ],
+        )
+
+    def _valuesearch_dates_response(
+        self,
+        valuesearch_params: ValuesearchParams,
+        es8_response: dict,
+    ) -> ValuesearchResponse:
+        _year_buckets = (
+            es8_response['aggregations']
+            ['agg_valuesearch_dates']
+            ['buckets']
+        )
+        return ValuesearchResponse(
+            cursor=PageCursor(len(_year_buckets)),
+            search_result_page=[
+                self._valuesearch_date_result(_year_bucket)
+                for _year_bucket in _year_buckets
+            ],
+        )
 
     def _valuesearch_iri_result(self, iri_bucket) -> ValuesearchResult:
         return ValuesearchResult(
@@ -447,17 +464,16 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self,
         cardsearch_params: CardsearchParams,
         es8_response: dict,
-        cursor: ReproduciblyRandomSampleCursor,
+        cursor: OffsetCursor,
     ) -> CardsearchResponse:
         _es8_total = es8_response['hits']['total']
         if _es8_total['relation'] != 'eq':
-            cursor.result_count = -1  # "too many"
+            cursor.total_count = MANY_MORE
+        elif isinstance(cursor, ReproduciblyRandomSampleCursor) and not cursor.is_first_page():
+            # account for the filtered-out first page
+            cursor.total_count = _es8_total['value'] + len(cursor.first_page_ids)
         else:  # exact (and small) count
-            cursor.result_count = _es8_total['value']
-            if cursor.random_sort and not cursor.is_first_page():
-                # account for the filtered-out first page
-                assert cursor.result_count is not None
-                cursor.result_count += len(cursor.first_page_ids)
+            cursor.total_count = _es8_total['value']
         _results = []
         for _es8_hit in es8_response['hits']['hits']:
             _card_iri = _es8_hit['fields']['card.card_iri'][0]
@@ -466,26 +482,6 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 card_pk=_es8_hit['_id'],
                 text_match_evidence=list(self._gather_textmatch_evidence(_card_iri, _es8_hit)),
             ))
-        if cursor.is_first_page() and cursor.first_page_ids:
-            # revisiting first page; reproduce original random order
-            _ordering_by_id = {
-                _id: _i
-                for (_i, _id) in enumerate(cursor.first_page_ids)
-            }
-            _results.sort(key=lambda _r: _ordering_by_id[_r.card_pk])
-        else:
-            _should_start_reproducible_randomness = (
-                cursor.random_sort
-                and cursor.is_first_page()
-                and not cursor.first_page_ids
-                and not cursor.has_many_more()
-                and any(
-                    not _filter.is_type_filter()  # look for a non-default filter
-                    for _filter in cardsearch_params.cardsearch_filter_set
-                )
-            )
-            if _should_start_reproducible_randomness:
-                cursor.first_page_ids = tuple(_result.card_pk for _result in _results)
         _relatedproperty_list: list[PropertypathUsage] = []
         if cardsearch_params.related_property_paths:
             _relatedproperty_list.extend(
@@ -500,14 +496,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 _path = tuple(json.loads(_bucket['key']))
                 _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
         return CardsearchResponse(
-            total_result_count=(
-                TROVE['ten-thousands-and-more']
-                if cursor.has_many_more()
-                else cursor.result_count
-            ),
+            cursor=cursor,
             search_result_page=_results,
             related_propertypath_results=_relatedproperty_list,
-            cursor=cursor,
+            cardsearch_params=cardsearch_params,
         )
 
     def _gather_textmatch_evidence(self, card_iri, es8_hit) -> Iterator[TextMatchEvidence]:
@@ -680,27 +672,28 @@ class _CardsearchQueryBuilder:
             'query': self._cardsearch_query(),
             'aggs': self._cardsearch_aggs(),
             'sort': list(self._cardsearch_sorts()) or None,
-            'from_': self.cursor.cardsearch_start_index(),
-            'size': self.cursor.page_size,
+            'from_': self._cardsearch_start_offset(),
+            'size': self.response_cursor.page_size,
         }
 
     @functools.cached_property
-    def cursor(self):
-        if self.params.page.cursor:
-            return PageCursor.from_queryparam_value(self.params.page.cursor)
-        assert self.params.page.size is not None
-        _has_sort = bool(self.params.sort_list or self.params.cardsearch_textsegment_set)
-        if _has_sort:
-            return OffsetCursor(page_size=self.params.page.size)
-        # how to sort by relevance to nothingness? randomness!
-        return ReproduciblyRandomSampleCursor(sample_size=self.params.page.size)
+    def response_cursor(self) -> OffsetCursor:
+        _request_cursor = self.params.page_cursor
+        if (
+            _request_cursor.is_basic()
+            and not self.params.sort_list
+            and not self.params.cardsearch_textsegment_set
+        ):
+            return ReproduciblyRandomSampleCursor.from_cursor(_request_cursor)
+        return OffsetCursor.from_cursor(_request_cursor)
 
     def _cardsearch_start_offset(self):
-        return (
-            self.cursor.start_offset
-            if self.cursor.is_first_page()
-            else self.cursor.start_offset - len(self.cursor.first_page_ids)
-        )
+        if (
+            self.response_cursor.is_first_page()
+            or not isinstance(self.response_cursor, ReproduciblyRandomSampleCursor)
+        ):
+            return self.response_cursor.start_offset
+        return self.response_cursor.start_offset - len(self.response_cursor.first_page_ids)
 
     def _cardsearch_query(self) -> dict:
         _bool = _BoolBuilder()
@@ -716,12 +709,13 @@ class _CardsearchQueryBuilder:
         _bool.add_boolpart('must_not', {'exists': {'field': 'iri_value'}})
         return (
             self._randomly_ordered_query(_bool)
-            if self.cursor.random_sort
+            if isinstance(self.response_cursor, ReproduciblyRandomSampleCursor)
             else _bool.as_query()
         )
 
     def _randomly_ordered_query(self, _bool: _BoolBuilder) -> dict:
-        if not self.cursor.first_page_ids:
+        assert isinstance(self.response_cursor, ReproduciblyRandomSampleCursor)
+        if not self.response_cursor.first_page_ids:
             # independent random sample
             return {
                 'function_score': {
@@ -730,8 +724,8 @@ class _CardsearchQueryBuilder:
                     'random_score': {},  # default random_score is fast and unpredictable
                 },
             }
-        _firstpage_filter = {'terms': {'card.card_pk': self.cursor.first_page_ids}}
-        if self.cursor.is_first_page():
+        _firstpage_filter = {'terms': {'card.card_pk': self.response_cursor.first_page_ids}}
+        if self.response_cursor.is_first_page():
             # returning to a first page previously visited
             _bool.add_boolpart('filter', _firstpage_filter)
             return _bool.as_query()
@@ -742,7 +736,7 @@ class _CardsearchQueryBuilder:
                 'query': _bool.as_query(),
                 'boost_mode': 'replace',
                 'random_score': {
-                    'seed': ''.join(self.cursor.first_page_ids),
+                    'seed': ''.join(self.response_cursor.first_page_ids),
                     'field': 'card.card_pk',
                 },
             },
@@ -823,7 +817,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
     }
 
 
-def _build_date_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> dict:
+def _build_date_valuesearch(params: ValuesearchParams) -> dict:
     assert not params.valuesearch_textsegment_set
     assert not params.valuesearch_filter_set
     _bool = _BoolBuilder()

@@ -48,9 +48,6 @@ NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
 LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 
-VALUESEARCH_MAX = 234
-CARDSEARCH_MAX = 9997
-
 KEYWORD_LENGTH_MAX = 8191  # skip keyword terms that might exceed lucene's internal limit
 # (see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html)
 KEYWORD_MAPPING = {'type': 'keyword', 'ignore_above': KEYWORD_LENGTH_MAX}
@@ -168,7 +165,7 @@ class GraphWalk:
                 if XSD.integer in _walk_obj.datatype_iris:
                     self.integer_values[_walk_path].add(_walk_obj)
                 if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
-                    self.text_values[_walk_path].add(_walk_obj.unicode_value)
+                    self.text_values[_walk_path].add(_walk_obj)
             # try for date in a date property, regardless of the above
             if is_date_property(_walk_path[-1]) and isinstance(_walk_obj, (str, rdf.Literal)):
                 _date_str = (
