@@ -1,6 +1,7 @@
 from typing import Iterable, Iterator
-from datetime import date
+from datetime import date, timedelta
 import itertools
+import math
 from urllib.parse import urlencode
 
 from primitive_metadata import primitive_rdf as rdf
@@ -70,6 +71,46 @@ class CommonTrovesearchTests(RealElasticTestCase):
             if isinstance(_expected_result_iris, set):
                 _actual_result_iris = set(_actual_result_iris)
             self.assertEqual(_expected_result_iris, _actual_result_iris, msg=f'?{_queryparams}')
+
+    def test_cardsearch_pagination(self):
+        _cards: list[trove_db.Indexcard] = []
+        _expected_iris = set()
+        _page_size = 7
+        _total_count = 55
+        _start_date = date(1999, 12, 31)
+        for _i in range(_total_count):
+            _card_iri = BLARG[f'i{_i}']
+            _expected_iris.add(_card_iri)
+            _cards.append(self._create_indexcard(_card_iri, {
+                _card_iri: {
+                    RDF.type: {BLARG.Thing},
+                    DCTERMS.title: {rdf.literal(f'card #{_i}')},
+                    DCTERMS.created: {rdf.literal(_start_date + timedelta(weeks=_i, days=_i))},
+                },
+            }))
+        self._index_indexcards(_cards)
+        # gather all pages results:
+        _querystring: str = f'page[size]={_page_size}'
+        _result_iris: set[str] = set()
+        _page_count = 0
+        while True:
+            _cardsearch_response = self.current_index.pls_handle_cardsearch(
+                CardsearchParams.from_querystring(_querystring),
+            )
+            _page_iris = {
+                self._indexcard_focus_by_uuid[_result.card_uuid]
+                for _result in _cardsearch_response.search_result_page
+            }
+            self.assertFalse(_result_iris.intersection(_page_iris))
+            self.assertLessEqual(len(_page_iris), _page_size)
+            _result_iris.update(_page_iris)
+            _page_count += 1
+            _next_cursor = _cardsearch_response.cursor.next_cursor()
+            if _next_cursor is None:
+                break
+            _querystring = urlencode({'page[cursor]': _next_cursor.as_queryparam_value()})
+        self.assertEqual(_page_count, math.ceil(_total_count / _page_size))
+        self.assertEqual(_result_iris, _expected_iris)
 
     def test_valuesearch(self):
         self._fill_test_data_for_querying()

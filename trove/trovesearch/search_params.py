@@ -51,10 +51,6 @@ DESCENDING_SORT_PREFIX = '-'
 DEFAULT_PAGE_SIZE = 13
 MAX_PAGE_SIZE = 101
 
-# limits on paging
-VALUESEARCH_MAX = 234
-CARDSEARCH_MAX = 9997
-
 # between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
 
@@ -94,11 +90,11 @@ class BaseTroveParams:
     accept_mediatype: str | None
 
     @classmethod
-    def from_querystring(cls, querystring: str) -> BaseTroveParams:  # TODO py3.11: typing.Self
+    def from_querystring(cls, querystring: str) -> typing.Self:
         return cls.from_queryparams(queryparams_from_querystring(querystring))
 
     @classmethod
-    def from_queryparams(cls, queryparams: QueryparamDict) -> BaseTroveParams:
+    def from_queryparams(cls, queryparams: QueryparamDict) -> typing.Self:
         return cls(**cls.parse_queryparams(queryparams))
 
     @classmethod

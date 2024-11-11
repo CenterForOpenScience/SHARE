@@ -7,11 +7,7 @@ from trove.trovesearch.page_cursor import (
     PageCursor,
     ReproduciblyRandomSampleCursor,
 )
-from trove.trovesearch.search_params import (
-    VALUESEARCH_MAX,
-    CARDSEARCH_MAX,
-    CardsearchParams,
-)
+from trove.trovesearch.search_params import CardsearchParams
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
 
@@ -81,10 +77,6 @@ class PagedResponse:
     cursor: PageCursor
 
     @property
-    def max_offset(self) -> int:
-        raise NotImplementedError
-
-    @property
     def total_result_count(self) -> BoundedCount:
         return (
             TROVE['ten-thousands-and-more']
@@ -99,8 +91,6 @@ class CardsearchResponse(PagedResponse):
     related_propertypath_results: list['PropertypathUsage']
     cardsearch_params: CardsearchParams
 
-    max_offset = CARDSEARCH_MAX
-
     def __post_init__(self):
         _cursor = self.cursor
         if (
@@ -114,23 +104,13 @@ class CardsearchResponse(PagedResponse):
                     for (_i, _id) in enumerate(_cursor.first_page_ids)
                 }
                 self.search_result_page.sort(key=lambda _r: _ordering_by_id[_r.card_id])
-            else:
-                _should_start_reproducible_randomness = (
-                    not _cursor.has_many_more()
-                    and any(
-                        not _filter.is_type_filter()  # look for a non-default filter
-                        for _filter in self.cardsearch_params.cardsearch_filter_set
-                    )
-                )
-                if _should_start_reproducible_randomness:
-                    _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
+            elif not _cursor.has_many_more():
+                _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
 
 
 @dataclasses.dataclass
 class ValuesearchResponse(PagedResponse):
     search_result_page: Iterable[ValuesearchResult]
-
-    max_offset = VALUESEARCH_MAX
 
 
 ###

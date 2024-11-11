@@ -20,7 +20,6 @@ from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove import exceptions as trove_exceptions
 from trove.trovesearch.page_cursor import (
     MANY_MORE,
     OffsetCursor,

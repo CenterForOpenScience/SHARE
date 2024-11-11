@@ -12,6 +12,7 @@ __all__ = ('PageCursor', 'OffsetCursor', 'ReproduciblyRandomSampleCursor')
 
 
 MANY_MORE = -1
+MAX_OFFSET = 9997
 
 
 @dataclasses.dataclass
@@ -22,7 +23,7 @@ class PageCursor:
     @classmethod
     def from_queryparam_value(cls, cursor_value: str) -> typing.Self:
         try:
-            (_type_key, _args) = json.loads(base64.urlsafe_b64decode(cursor_value))
+            (_type_key, *_args) = json.loads(base64.urlsafe_b64decode(cursor_value))
             _cls = _PageCursorTypes[_type_key].value
             assert issubclass(_cls, cls)
             return _cls(*_args)
@@ -46,8 +47,7 @@ class PageCursor:
 
     def is_valid(self) -> bool:
         return self.page_size > 0 and (
-            self.total_count == MANY_MORE
-            or self.total_count >= 0
+            self.total_count == MANY_MORE or self.total_count >= 0
         )
 
     def has_many_more(self) -> bool:
@@ -72,20 +72,27 @@ class OffsetCursor(PageCursor):
     def is_valid(self) -> bool:
         return (
             super().is_valid()
-            and 0 <= self.start_offset
+            and 0 <= self.start_offset <= MAX_OFFSET
+            and (
+                self.total_count == MANY_MORE
+                or self.start_offset < self.total_count
+            )
         )
 
     def is_first_page(self) -> bool:
         return self.start_offset == 0
 
     def next_cursor(self):
-        return dataclasses.replace(self, start_offset=(self.start_offset + self.page_size))
+        _next = dataclasses.replace(self, start_offset=(self.start_offset + self.page_size))
+        return (_next if _next.is_valid() else None)
 
     def prev_cursor(self):
-        return dataclasses.replace(self, start_offset=(self.start_offset - self.page_size))
+        _prev = dataclasses.replace(self, start_offset=(self.start_offset - self.page_size))
+        return (_prev if _prev.is_valid() else None)
 
     def first_cursor(self):
-        return dataclasses.replace(self, start_offset=0)
+        _first = dataclasses.replace(self, start_offset=0)
+        return (_first if _first.is_valid() else None)
 
 
 @dataclasses.dataclass
