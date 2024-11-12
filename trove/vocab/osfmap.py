@@ -898,6 +898,13 @@ DATE_PROPERTIES = frozenset((
 ))
 
 
+TITLE_PROPERTIES = (DCTERMS.title,)
+NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
+LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
+NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
+SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
+
+
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]:
     _suggested: tuple[tuple[str, ...], ...]
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):

@@ -5,6 +5,7 @@ import dataclasses
 import typing
 
 from trove.vocab import mediatypes
+from trove.vocab.osfmap import SKIPPABLE_PROPERTIES
 from trove.vocab.namespaces import TROVE
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 from ._rendering import StreamableRendering
@@ -74,7 +75,7 @@ class TabularDoc:
 def _osfmap_tabular_paths(osfmap_json: dict) -> typing.Iterator[Jsonpath]:
     # currently simple: paths of length one
     for _key, _value in osfmap_json.items():
-        if _should_render_tabularly(_value):
+        if (_key not in SKIPPABLE_PROPERTIES) and _should_render_tabularly(_value):
             yield (_key,)
 
 

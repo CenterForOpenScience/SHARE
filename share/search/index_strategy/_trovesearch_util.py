@@ -19,17 +19,15 @@ from trove.trovesearch.search_params import (
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.namespaces import (
-    DCTERMS,
-    FOAF,
-    OSFMAP,
     OWL,
     RDF,
-    RDFS,
-    SKOS,
     TROVE,
     XSD,
 )
-from trove.vocab.osfmap import is_date_property
+from trove.vocab.osfmap import (
+    is_date_property,
+    SKIPPABLE_PROPERTIES,
+)
 
 
 _logger = logging.getLogger(__name__)
@@ -37,16 +35,6 @@ _logger = logging.getLogger(__name__)
 
 ###
 # constants
-
-SKIPPABLE_PROPERTIES = (
-    OSFMAP.contains,  # too much, not helpful
-    OWL.sameAs,  # handled special
-)
-
-TITLE_PROPERTIES = (DCTERMS.title,)
-NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
-LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
-NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 
 KEYWORD_LENGTH_MAX = 8191  # skip keyword terms that might exceed lucene's internal limit
 # (see https://www.elastic.co/guide/en/elasticsearch/reference/current/ignore-above.html)

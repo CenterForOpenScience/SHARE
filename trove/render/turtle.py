@@ -6,7 +6,7 @@ from ._base import BaseRenderer
 
 class RdfTurtleRenderer(BaseRenderer):
     MEDIATYPE = 'text/turtle'
-    # include indexcard metadata as JSON literals (rather than QuotedGraph)
+    # include indexcard metadata as JSON literals (because QuotedGraph is non-standard)
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
     def simple_render_document(self) -> str:
