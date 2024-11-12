@@ -28,7 +28,10 @@ class IndexcardView(View):
                 focus=gather.Focus.new(_indexcard_iri, TROVE.Indexcard),
             )
             _renderer = _renderer_cls(_indexcard_iri, _search_gathering.leaf_a_record())
-            return make_http_response(content_rendering=_renderer.render_document())
+            return make_http_response(
+                content_rendering=_renderer.render_document(),
+                http_request=request,
+            )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,

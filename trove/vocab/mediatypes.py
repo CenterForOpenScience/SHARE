@@ -8,15 +8,18 @@ COMMA_SEPARATED_VALUES = 'text/csv'
 
 
 _file_extensions = {
-    JSON: 'json',
-    JSONAPI: 'json',
-    JSONLD: 'json',
-    TURTLE: 'turtle',
-    HTML: 'html',
-    TAB_SEPARATED_VALUES: 'tsv',
-    COMMA_SEPARATED_VALUES: 'csv',
+    JSON: '.json',
+    JSONAPI: '.json',
+    JSONLD: '.json',
+    TURTLE: '.turtle',
+    HTML: '.html',
+    TAB_SEPARATED_VALUES: '.tsv',
+    COMMA_SEPARATED_VALUES: '.csv',
 }
 
 
-def get_file_extension(mediatype: str) -> str | None:
-    return _file_extensions.get(mediatype)
+def dot_extension(mediatype: str) -> str:
+    try:
+        return _file_extensions[mediatype]
+    except KeyError:
+        raise ValueError(f'unrecognized mediatype: {mediatype}')

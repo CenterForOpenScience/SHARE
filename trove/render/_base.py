@@ -2,9 +2,8 @@ import abc
 import dataclasses
 import functools
 import json
-from typing import ClassVar, Iterable
+from typing import ClassVar
 
-from django import http as djhttp
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import exceptions as trove_exceptions

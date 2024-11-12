@@ -33,6 +33,7 @@ class BrowseIriView(View):
         return make_http_response(
             content_rendering=_renderer.render_document(),
             http_headers=[('Content-Disposition', 'inline')],
+            http_request=request,
         )
 
 

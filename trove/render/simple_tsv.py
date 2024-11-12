@@ -5,7 +5,10 @@ import dataclasses
 import typing
 
 from trove.vocab import mediatypes
-from trove.vocab.osfmap import SKIPPABLE_PROPERTIES
+from trove.vocab.osfmap import (
+    osfmap_shorthand,
+    SKIPPABLE_PROPERTIES
+)
 from trove.vocab.namespaces import TROVE
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 from ._rendering import StreamableRendering
@@ -15,6 +18,7 @@ Jsonpath = tuple[str, ...]  # path of json keys
 
 _MULTIVALUE_DELIMITER = ' ; '  # possible improvement: smarter in-value delimiting?
 _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
+_SKIPPABLE_KEYS = {osfmap_shorthand().compact_iri(_iri) for _iri in SKIPPABLE_PROPERTIES}
 
 
 class TrovesearchTsvRenderer(SimpleTrovesearchRenderer):
@@ -26,7 +30,7 @@ class TrovesearchTsvRenderer(SimpleTrovesearchRenderer):
         self.multicard_rendering(cards=[(card_iri, osfmap_json)])
 
     def multicard_rendering(self, cards: typing.Iterable[tuple[str, dict]]):
-        _doc = TabularDoc(list(cards))  # TODO: actual stream
+        _doc = TabularDoc(list(cards))  # TODO: static column header, actual stream
         return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=csv_stream(self._CSV_DIALECT, _doc.header(), _doc.rows()),
@@ -75,7 +79,7 @@ class TabularDoc:
 def _osfmap_tabular_paths(osfmap_json: dict) -> typing.Iterator[Jsonpath]:
     # currently simple: paths of length one
     for _key, _value in osfmap_json.items():
-        if (_key not in SKIPPABLE_PROPERTIES) and _should_render_tabularly(_value):
+        if (_key not in _SKIPPABLE_KEYS) and _should_render_tabularly(_value):
             yield (_key,)
 
 
@@ -118,8 +122,14 @@ def _render_tabularly(json_val):
     if isinstance(json_val, dict):
         for _key in _VALUE_KEY_PREFERENCE:
             _val = json_val.get(_key)
+            if isinstance(_val, list):
+                return (
+                    _render_tabularly(_val[0])
+                    if _val
+                    else None
+                )
             if _val is not None:
-                return _val[_key]
+                return _val
     return None
 
 

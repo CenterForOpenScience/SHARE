@@ -15,4 +15,7 @@ class TroveVocabView(View):
         except KeyError:
             raise http.Http404
         _renderer = get_renderer_class(request)(_iri, _data)
-        return make_http_response(content_rendering=_renderer.render_document())
+        return make_http_response(
+            content_rendering=_renderer.render_document(),
+            http_request=request,
+        )
