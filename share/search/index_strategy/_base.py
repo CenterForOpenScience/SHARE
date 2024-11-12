@@ -1,12 +1,8 @@
 import abc
-import importlib
 import logging
 import typing
 
-from django.conf import settings
-
 from share.search import messages
-from share.models.feature_flag import FeatureFlag
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
 from share.search.index_status import IndexStatus
@@ -40,110 +36,16 @@ class IndexStrategy(abc.ABC):
     * may know of version- or cluster-specific features
       (should include identifiers like version numbers in subclass name)
     '''
-    CURRENT_STRATEGY_CHECKSUM: ChecksumIri = None  # set on subclasses to protect against accidents
+    CURRENT_STRATEGY_CHECKSUM: ChecksumIri  # set on subclasses to protect against accidents
 
-    __all_strategys_by_name = None  # cache for cls.all_strategies_by_name()
-
-    @classmethod
-    def clear_strategy_cache(self):
-        self.__all_strategys_by_name = None
-
-    @classmethod
-    def all_strategies_by_name(cls) -> 'dict[str, IndexStrategy]':
-        if cls.__all_strategys_by_name is None:
-            cls.__all_strategys_by_name = {
-                name: cls._load_from_settings(name, index_strategy_settings)
-                for name, index_strategy_settings
-                in settings.ELASTICSEARCH['INDEX_STRATEGIES'].items()
-            }
-        return cls.__all_strategys_by_name
-
-    @classmethod
-    def all_strategies(cls) -> 'typing.Iterable[IndexStrategy]':
-        yield from cls.all_strategies_by_name().values()
-
-    @classmethod
-    def get_by_name(cls, index_strategy_name: str) -> 'IndexStrategy':
-        try:
-            return cls.all_strategies_by_name()[index_strategy_name]
-        except KeyError:
-            raise IndexStrategyError(f'unknown index strategy "{index_strategy_name}"')
-
-    @classmethod
-    def get_specific_index(cls, specific_indexname: str) -> 'IndexStrategy.SpecificIndex':
-        for index_strategy in cls.all_strategies():
-            try:
-                return index_strategy.for_specific_index(specific_indexname)
-            except IndexStrategyError:
-                pass
-        raise IndexStrategyError(f'unrecognized indexname "{specific_indexname}"')
-
-    @classmethod
-    def get_for_sharev2_search(cls, requested_name=None) -> 'IndexStrategy.SpecificIndex':
-        if requested_name:
-            _name = requested_name
-        else:
-            _name = (
-                'sharev2_elastic8'
-                if FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
-                else settings.DEFAULT_INDEX_STRATEGY_FOR_LEGACY_SEARCH
-            )
-        try:  # could be a strategy name
-            return cls.get_by_name(_name).pls_get_default_for_searching()
-        except IndexStrategyError:
-            try:  # could be a specific indexname
-                return cls.get_specific_index(_name)
-            except IndexStrategyError:
-                raise IndexStrategyError(f'unknown name: "{_name}"')
-
-    @classmethod
-    def get_for_trove_search(cls, requested_name=None) -> 'IndexStrategy.SpecificIndex':
-        if requested_name:
-            _name = requested_name
-        else:
-            _name = 'trove_indexcard_flats'
-        try:  # could be a strategy name
-            return cls.get_by_name(_name).pls_get_default_for_searching()
-        except IndexStrategyError:
-            try:  # could be a specific indexname
-                return cls.get_specific_index(_name)
-            except IndexStrategyError:
-                raise IndexStrategyError(f'unknown name: "{_name}"')
-
-    @classmethod
-    def _load_from_settings(cls, index_strategy_name, index_strategy_settings):
-        assert set(index_strategy_settings) == {'INDEX_STRATEGY_CLASS', 'CLUSTER_SETTINGS'}, (
-            'values in settings.ELASTICSEARCH[\'INDEX_STRATEGIES\'] must have keys: '
-            'INDEX_STRATEGY_CLASS, CLUSTER_SETTINGS'
-        )
-        class_path = index_strategy_settings['INDEX_STRATEGY_CLASS']
-        module_name, separator, class_name = class_path.rpartition('.')
-        if not separator:
-            raise IndexStrategyError(f'INDEX_STRATEGY_CLASS should be importable dotted-path to an IndexStrategy class; got "{class_path}"')
-        assert module_name.startswith('share.search.index_strategy.'), (
-            'for now, INDEX_STRATEGY_CLASS must start with "share.search.index_strategy."'
-            f' (got "{module_name}")'
-        )
-        index_strategy_class = getattr(importlib.import_module(module_name), class_name)
-        assert issubclass(index_strategy_class, cls)
-        return index_strategy_class(
-            name=index_strategy_name,
-            cluster_settings=index_strategy_settings['CLUSTER_SETTINGS'],
-        )
-
-    def __init__(self, name, cluster_settings):
+    def __init__(self, name):
         self.name = name
-        self.cluster_settings = cluster_settings
 
     def __repr__(self):
         return ''.join((
             self.__class__.__qualname__,
-            f'(name={self.name})'
+            f'(name="{self.name}")'
         ))
-
-    @property
-    def cluster_url(self):
-        return self.cluster_settings['URL']
 
     @property
     def nonurgent_messagequeue_name(self):
@@ -188,7 +90,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 ```''')
 
     def for_specific_index(self, specific_indexname) -> 'IndexStrategy.SpecificIndex':
-        return self.SpecificIndex(self, specific_indexname)
+        return self.SpecificIndex(self, specific_indexname)  # type: ignore[abstract]
 
     def for_current_index(self) -> 'IndexStrategy.SpecificIndex':
         return self.for_specific_index(self.current_indexname)
@@ -319,6 +221,9 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             raise NotImplementedError
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+            raise NotImplementedError
+
+        def pls_get_mappings(self) -> dict:
             raise NotImplementedError
 
         # TODO someday:

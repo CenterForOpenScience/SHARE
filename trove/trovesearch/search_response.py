@@ -3,6 +3,11 @@ from typing import Literal, Iterable, Union, Optional
 
 from primitive_metadata import primitive_rdf
 
+from trove.trovesearch.page_cursor import (
+    PageCursor,
+    ReproduciblyRandomSampleCursor,
+)
+from trove.trovesearch.search_params import CardsearchParams
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
 
@@ -24,9 +29,11 @@ class TextMatchEvidence:
 
 @dataclasses.dataclass
 class CardsearchResult:
-    text_match_evidence: Iterable[TextMatchEvidence]
+    text_match_evidence: list[TextMatchEvidence]
     card_iri: str
+    card_pk: str = ''
 
+    @property
     def card_uuid(self):
         # card iri has the uuid at the end
         return primitive_rdf.iri_minus_namespace(
@@ -34,21 +41,14 @@ class CardsearchResult:
             namespace=trove_indexcard_namespace(),
         )
 
-
-@dataclasses.dataclass
-class CardsearchResponse:
-    total_result_count: BoundedCount
-    search_result_page: Iterable[CardsearchResult]
-    next_page_cursor: Optional[str]
-    prev_page_cursor: Optional[str]
-    first_page_cursor: Optional[str]
-    filtervalue_info: Iterable['ValuesearchResult']
-    related_propertypath_results: Iterable['PropertypathUsage']
+    @property
+    def card_id(self):
+        return self.card_pk or self.card_uuid
 
 
 @dataclasses.dataclass
 class PropertypathUsage:
-    property_path: tuple[str]
+    property_path: tuple[str, ...]
     usage_count: int
 
 
@@ -69,10 +69,56 @@ class ValuesearchResult:
         )
 
 
+###
+# paged responses
+
 @dataclasses.dataclass
-class ValuesearchResponse:
+class PagedResponse:
+    cursor: PageCursor
+
+    @property
+    def total_result_count(self) -> BoundedCount:
+        return (
+            TROVE['ten-thousands-and-more']
+            if (self.cursor is None) or self.cursor.has_many_more()
+            else self.cursor.total_count
+        )
+
+
+@dataclasses.dataclass
+class CardsearchResponse(PagedResponse):
+    search_result_page: list[CardsearchResult]
+    related_propertypath_results: list['PropertypathUsage']
+    cardsearch_params: CardsearchParams
+
+    def __post_init__(self):
+        _cursor = self.cursor
+        if (
+            isinstance(_cursor, ReproduciblyRandomSampleCursor)
+            and _cursor.is_first_page()
+        ):
+            if _cursor.first_page_ids:
+                # revisiting first page; reproduce original random order
+                _ordering_by_id = {
+                    _id: _i
+                    for (_i, _id) in enumerate(_cursor.first_page_ids)
+                }
+                self.search_result_page.sort(key=lambda _r: _ordering_by_id[_r.card_id])
+            elif not _cursor.has_many_more():
+                _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
+
+
+@dataclasses.dataclass
+class ValuesearchResponse(PagedResponse):
     search_result_page: Iterable[ValuesearchResult]
-    total_result_count: Optional[int] = None
-    next_page_cursor: Optional[str] = None
-    prev_page_cursor: Optional[str] = None
-    first_page_cursor: Optional[str] = None
+
+
+###
+# local helpers
+
+def _cursor_value(cursor: PageCursor | None) -> str:
+    return (
+        cursor.as_queryparam_value()
+        if cursor is not None and cursor.is_valid()
+        else ''
+    )

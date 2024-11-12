@@ -235,7 +235,7 @@ cardSearchFilter[affiliation][is-absent]
             TROVE.valueSearchFilter,
             TROVE.pageSize,
             TROVE.pageCursor,
-            TROVE.sort,
+            # TROVE.sort,
             # TROVE.include,
         },
         RDFS.label: {literal('index-value-search', language='en')},
@@ -656,17 +656,21 @@ may not be used with `page[cursor]`
         RDFS.comment: {literal('how to order search results', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown(f'''**sort** is
-a query param to control ordering of search results
+a query param to control ordering of search results based on values of a specific type at a specific path.
 
-accepts a short-hand iri for a date property:
+to sort by date values, use `sort` (or `sort[date-value]`) with a **property-path** that ends with
+one of the following supported date properties:
 {", ".join(f"`{osfmap_shorthand().compact_iri(_date_iri)}`" for _date_iri in DATE_PROPERTIES)}
 
-prefix with `-` to sort descending (latest first), otherwise sorts ascending (earliest first)
+to sort by integer values, use `sort[integer-value]` with a **property-path** to the integers of interest.
 
-if missing (or if `sort=-relevance`), results are sorted by some notion of
+by default, sorts "ascending" (beginning with earliest date or smallest integer) --
+prefix the value with `-` to sort "descending" (beginning with latest date or largest integer).
+
+if missing (or with value `-relevance`), results are sorted by some notion of
 relevance to the request's search-text or (if no search-text) by random.
 
-may not be used with `page[cursor]`
+may not be used with `page[cursor]`.
 ''', language='en')},
     },
 
@@ -799,9 +803,17 @@ the special path segment `*` matches any property
         RDF.type: {TROVE.FilterOperator},
         JSONAPI_MEMBERNAME: {literal('after', language='en')},
     },
-    TROVE['at-date']: {
+    TROVE['value-type/iri']: {
         RDF.type: {TROVE.FilterOperator},
-        JSONAPI_MEMBERNAME: {literal('at-date', language='en')},
+        JSONAPI_MEMBERNAME: {literal('iri-value', language='en')},
+    },
+    TROVE['value-type/date']: {
+        RDF.type: {TROVE.ValueType},
+        JSONAPI_MEMBERNAME: {literal('date-value', language='en')},
+    },
+    TROVE['value-type/integer']: {
+        RDF.type: {TROVE.ValueType},
+        JSONAPI_MEMBERNAME: {literal('integer-value', language='en')},
     },
 
     # other:

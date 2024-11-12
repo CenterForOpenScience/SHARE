@@ -10,6 +10,7 @@ from primitive_metadata.namespaces import (
     DCAT,
     PROV,
     SKOS,
+    XSD,
     DEFAULT_SHORTHAND,
 )
 
@@ -30,6 +31,7 @@ __all__ = (
     'SHAREv2',
     'SKOS',
     'TROVE',
+    'XSD',
     'NAMESPACES_SHORTHAND',
 )
 

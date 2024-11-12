@@ -17,7 +17,7 @@ from share import tasks
 from share.admin.celery import CeleryTaskResultAdmin
 from share.admin.jobs import HarvestJobAdmin
 from share.admin.readonly import ReadOnlyAdmin
-from share.admin.search import search_indexes_view
+from share.admin.search import search_indexes_view, search_index_mappings_view
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many, SourceConfigFilter
 from share.harvest.scheduler import HarvestScheduler
 from share.models import (
@@ -47,6 +47,11 @@ class ShareAdminSite(admin.AdminSite):
                 'search-indexes',
                 self.admin_view(search_indexes_view),
                 name='search-indexes',
+            ),
+            path(
+                'search-index-mappings/<index_name>',
+                self.admin_view(search_index_mappings_view),
+                name='search-index-mappings',
             ),
             *super().get_urls(),
         ]

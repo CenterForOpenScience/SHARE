@@ -1,7 +1,7 @@
 from project.celery import app as celery_app
 
 from share.bin.util import command
-from share.search import IndexStrategy
+from share.search import index_strategy
 from share.search.exceptions import IndexStrategyError
 from share.search.daemon import IndexerDaemonControl
 
@@ -29,7 +29,7 @@ def purge(args, argv):
     Usage: {0} search purge <index_names>...
     """
     for index_name in args['<index_names>']:
-        specific_index = IndexStrategy.get_specific_index(index_name)
+        specific_index = index_strategy.get_specific_index(index_name)
         specific_index.pls_delete()
 
 
@@ -43,18 +43,16 @@ def setup(args, argv):
     if _is_initial:
         _specific_indexes = [
             _index_strategy.for_current_index()
-            for _index_strategy in IndexStrategy.all_strategies()
+            for _index_strategy in index_strategy.all_index_strategies().values()
         ]
     else:
         _index_or_strategy_name = args['<index_or_strategy_name>']
         try:
-            _specific_indexes = [
-                IndexStrategy.get_by_name(_index_or_strategy_name).for_current_index(),
-            ]
+            _specific_indexes = [index_strategy.get_specific_index(_index_or_strategy_name)]
         except IndexStrategyError:
             try:
                 _specific_indexes = [
-                    IndexStrategy.get_specific_index(_index_or_strategy_name),
+                    index_strategy.get_specific_index(_index_or_strategy_name),
                 ]
             except IndexStrategyError:
                 raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')

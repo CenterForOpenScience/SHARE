@@ -31,6 +31,7 @@ class FeatureFlag(models.Model):
     IGNORE_SHAREV2_INGEST = 'ignore_sharev2_ingest'
     SUGGEST_CREATOR_FACET = 'suggest_creator_facet'
     FORBID_UNTRUSTED_FEED = 'forbid_untrusted_feed'
+    TROVESEARCH_DENORMILY = 'trovesearch_denormily'
 
     # name _should_ be one of the constants above, but that is not enforced by `choices`
     name = models.TextField(unique=True)

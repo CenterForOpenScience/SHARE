@@ -314,52 +314,15 @@ ELASTICSEARCH = {
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
     'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
-    'INDEX_STRATEGIES': {},  # populated below based on environment
 }
 ELASTICSEARCH5_URL = (
     os.environ.get('ELASTICSEARCH5_URL')
-    or os.environ.get('ELASTICSEARCH_URL')
+    or os.environ.get('ELASTICSEARCH_URL')  # backcompat
 )
-if ELASTICSEARCH5_URL:
-    ELASTICSEARCH['INDEX_STRATEGIES']['sharev2_elastic5'] = {
-        'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic5.Sharev2Elastic5IndexStrategy',
-        'CLUSTER_SETTINGS': {
-            'URL': ELASTICSEARCH5_URL,
-        },
-    }
 ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
-if ELASTICSEARCH8_URL:
-    ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
-    ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
-    ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
-    ELASTICSEARCH8_CLUSTER_SETTINGS = {
-        'URL': ELASTICSEARCH8_URL,
-        'AUTH': (
-            (ELASTICSEARCH8_USERNAME, ELASTICSEARCH8_SECRET)
-            if ELASTICSEARCH8_SECRET is not None
-            else None
-        ),
-        'CERT_PATH': ELASTICSEARCH8_CERT_PATH,
-    }
-    ELASTICSEARCH['INDEX_STRATEGIES'].update({
-        'sharev2_elastic8': {
-            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.sharev2_elastic8.Sharev2Elastic8IndexStrategy',
-            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
-        },
-        'trove_indexcard_flats': {
-            'INDEX_STRATEGY_CLASS': 'share.search.index_strategy.trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy',
-            'CLUSTER_SETTINGS': ELASTICSEARCH8_CLUSTER_SETTINGS,
-        },
-    })
-DEFAULT_INDEX_STRATEGY_FOR_LEGACY_SEARCH = (
-    'sharev2_elastic5'
-    if ELASTICSEARCH5_URL
-    else (
-        'sharev2_elastic8'
-        if ELASTICSEARCH8_URL
-        else None
-    )
-)
+ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
+ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
+ELASTICSEARCH8_SECRET = os.environ.get('ELASTICSEARCH8_SECRET')
 
 # Seconds, not an actual celery settings
 CELERY_RETRY_BACKOFF_BASE = int(os.environ.get('CELERY_RETRY_BACKOFF_BASE', 2 if DEBUG else 10))

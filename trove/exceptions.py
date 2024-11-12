@@ -58,6 +58,10 @@ class InvalidSearchText(InvalidQueryParamValue):
     pass
 
 
+class InvalidPageCursorValue(InvalidQueryParamValue):
+    pass
+
+
 class MissingRequiredQueryParam(RequestParsingError):
     pass
 
@@ -67,6 +71,14 @@ class InvalidRepeatedQueryParam(RequestParsingError):
 
 
 class InvalidPropertyPath(RequestParsingError):
+    pass
+
+
+class InvalidQueryParams(RequestParsingError):
+    pass
+
+
+class InvalidSort(RequestParsingError):
     pass
 
 
