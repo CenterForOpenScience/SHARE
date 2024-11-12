@@ -60,19 +60,54 @@ class CommonTrovesearchTests(RealElasticTestCase):
             self.cardsearch_cases(),
             self.cardsearch_integer_cases(),
         )
-        for _queryparams, _expected_result_iris in _cardsearch_cases:
-            _cardsearch_params = CardsearchParams.from_querystring(urlencode(_queryparams))
-            assert isinstance(_cardsearch_params, CardsearchParams)
-            _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
-            # assumes all results fit on one page
-            _actual_result_iris: set[str] | list[str] = [
-                self._indexcard_focus_by_uuid[_result.card_uuid]
-                for _result in _cardsearch_response.search_result_page
-            ]
-            # test sort order only when expected results are ordered
-            if isinstance(_expected_result_iris, set):
-                _actual_result_iris = set(_actual_result_iris)
-            self.assertEqual(_expected_result_iris, _actual_result_iris, msg=f'?{_queryparams}')
+        for _queryparams, _expected_focus_iris in _cardsearch_cases:
+            self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
+
+    def test_cardsearch_after_deletion(self):
+        _cards = self._fill_test_data_for_querying()
+        _deleted_focus_iris = {BLARG.b}
+        self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
+        _cardsearch_cases = itertools.chain(
+            self.cardsearch_cases(),
+            self.cardsearch_integer_cases(),
+        )
+        for _queryparams, _expected_focus_iris in _cardsearch_cases:
+            if isinstance(_expected_focus_iris, set):
+                _expected_focus_iris -= _deleted_focus_iris
+            else:
+                _expected_focus_iris = [
+                    _iri
+                    for _iri in _expected_focus_iris
+                    if _iri not in _deleted_focus_iris
+                ]
+            self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
+
+    def test_cardsearch_after_updates(self):
+        _cards = self._fill_test_data_for_querying()
+        self._update_indexcard_content(_cards[BLARG.c], BLARG.c, {
+            BLARG.c: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c},  # subj_bc removed; subj_c added
+                DCTERMS.title: {rdf.literal('cccc')},
+            },
+        })
+        self._index_indexcards([_cards[BLARG.c]])
+        _cases = [
+            (
+                {'cardSearchFilter[subject]': BLARG.subj_bc},
+                {BLARG.b},
+            ),
+            (
+                {'cardSearchFilter[subject]': BLARG.subj_ac},
+                {BLARG.c, BLARG.a},
+            ),
+            (
+                {'cardSearchFilter[subject]': BLARG.subj_c},
+                {BLARG.c},
+            ),
+        ]
+        for _queryparams, _expected_focus_iris in _cases:
+            self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
 
     def test_cardsearch_pagination(self):
         _cards: list[trove_db.Indexcard] = []
@@ -81,10 +116,10 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _total_count = 55
         _start_date = date(1999, 12, 31)
         for _i in range(_total_count):
-            _card_iri = BLARG[f'i{_i}']
-            _expected_iris.add(_card_iri)
-            _cards.append(self._create_indexcard(_card_iri, {
-                _card_iri: {
+            _focus_iri = BLARG[f'i{_i}']
+            _expected_iris.add(_focus_iri)
+            _cards.append(self._create_indexcard(_focus_iri, {
+                _focus_iri: {
                     RDF.type: {BLARG.Thing},
                     DCTERMS.title: {rdf.literal(f'card #{_i}')},
                     DCTERMS.created: {rdf.literal(_start_date + timedelta(weeks=_i, days=_i))},
@@ -133,20 +168,80 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_valuesearch(self):
         self._fill_test_data_for_querying()
-        _valuesearch_cases = itertools.chain(
-            self.valuesearch_simple_cases(),
-            self.valuesearch_complex_cases(),
-        )
-        for _queryparams, _expected_values in _valuesearch_cases:
-            _valuesearch_params = ValuesearchParams.from_querystring(urlencode(_queryparams))
-            assert isinstance(_valuesearch_params, ValuesearchParams)
-            _valuesearch_response = self.current_index.pls_handle_valuesearch(_valuesearch_params)
-            # assumes all results fit on one page
-            _actual_values = {
-                _result.value_iri or _result.value_value
-                for _result in _valuesearch_response.search_result_page
-            }
-            self.assertEqual(_expected_values, _actual_values)
+        for _queryparams, _expected_values in self.valuesearch_cases():
+            self._assert_valuesearch_values(_queryparams, _expected_values)
+
+    def test_valuesearch_after_deletion(self):
+        _cards = self._fill_test_data_for_querying()
+        _deleted_focus_iris = {BLARG.b}
+        self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
+        _cases = [
+            (
+                {'valueSearchPropertyPath': 'subject'},
+                {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},  # BLARG.subj_b no longer present
+            ), (
+                {'valueSearchPropertyPath': 'dateCreated'},
+                {'1999', '2024'},  # 2012 no longer present
+            ), (
+                {'valueSearchPropertyPath': 'subject', 'cardSearchText': 'bbbb'},
+                set(),  # none
+            )
+        ]
+        for _queryparams, _expected_values in _cases:
+            self._assert_valuesearch_values(_queryparams, _expected_values)
+
+    def test_valuesearch_after_updates(self):
+        _cards = self._fill_test_data_for_querying()
+        self._update_indexcard_content(_cards[BLARG.c], BLARG.c, {
+            BLARG.c: {
+                RDF.type: {BLARG.Thing},
+                DCTERMS.creator: {BLARG.someone_new},  # someone_else removed; someone_new added
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c, BLARG.subj_new},  # subj_bc removed; subj_new added
+                DCTERMS.title: {rdf.literal('cccc')},
+            },
+        })
+        self._index_indexcards([_cards[BLARG.c]])
+        _cases = [
+            (
+                {'valueSearchPropertyPath': 'subject'},
+                {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_b, BLARG.subj_bc, BLARG.subj_c, BLARG.subj_new},  # subj_c new
+            ), (
+                {'valueSearchPropertyPath': 'subject', 'cardSearchFilter[creator]': BLARG.someone_new},
+                {BLARG.subj_ac, BLARG.subj_c, BLARG.subj_new},
+            ), (
+                {'valueSearchPropertyPath': 'subject', 'cardSearchFilter[creator]': BLARG.someone_else},
+                set(),  # none
+            )
+        ]
+        for _queryparams, _expected_values in _cases:
+            self._assert_valuesearch_values(_queryparams, _expected_values)
+
+    def _assert_cardsearch_iris(self, queryparams: dict, expected_focus_iris: Iterable[str]):
+        _querystring = urlencode(queryparams)
+        _cardsearch_params = CardsearchParams.from_querystring(_querystring)
+        assert isinstance(_cardsearch_params, CardsearchParams)
+        _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+        # assumes all results fit on one page
+        _actual_result_iris: set[str] | list[str] = [
+            self._indexcard_focus_by_uuid[_result.card_uuid]
+            for _result in _cardsearch_response.search_result_page
+        ]
+        # test sort order only when expected results are ordered
+        if isinstance(expected_focus_iris, set):
+            _actual_result_iris = set(_actual_result_iris)
+        self.assertEqual(expected_focus_iris, _actual_result_iris, msg=f'?{_querystring}')
+
+    def _assert_valuesearch_values(self, queryparams, expected_values):
+        _querystring = urlencode(queryparams)
+        _valuesearch_params = ValuesearchParams.from_querystring(_querystring)
+        assert isinstance(_valuesearch_params, ValuesearchParams)
+        _valuesearch_response = self.current_index.pls_handle_valuesearch(_valuesearch_params)
+        # assumes all results fit on one page
+        _actual_values = {
+            _result.value_iri or _result.value_value
+            for _result in _valuesearch_response.search_result_page
+        }
+        self.assertEqual(expected_values, _actual_values, msg=f'?{_querystring}')
 
     def _fill_test_data_for_querying(self):
         _card_a = self._create_indexcard(BLARG.a, {
@@ -171,7 +266,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             },
             BLARG.c: {
                 RDF.type: {BLARG.Thing},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},
                 DCTERMS.title: {rdf.literal('cccc')},
             },
         })
@@ -191,7 +286,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             },
             BLARG.c: {
                 RDF.type: {BLARG.Thing},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},
                 DCTERMS.title: {rdf.literal('cccc')},
             },
         })
@@ -201,7 +296,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
                 DCTERMS.creator: {BLARG.someone_else},
                 DCTERMS.title: {rdf.literal('cccc')},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc},
+                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},
                 DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
             },
             BLARG.someone_else: {
@@ -232,7 +327,13 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 },
             },
         })
-        self._index_indexcards([_card_a, _card_b, _card_c])
+        _cards = {
+            BLARG.a: _card_a,
+            BLARG.b: _card_b,
+            BLARG.c: _card_c,
+        }
+        self._index_indexcards(_cards.values())
+        return _cards
 
     def cardsearch_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
         # using data from _fill_test_data_for_querying
@@ -421,7 +522,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             [BLARG.c, BLARG.a, BLARG.b],  # ordered list
         )
 
-    def valuesearch_simple_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+    def valuesearch_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
         yield (
             {'valueSearchPropertyPath': 'references'},
             {BLARG.b, BLARG.c},
@@ -430,9 +531,22 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'valueSearchPropertyPath': 'dateCreated'},
             {'1999', '2012', '2024'},
         )
-        # TODO: more
-
-    def valuesearch_complex_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+        yield (
+            {'valueSearchPropertyPath': 'subject'},
+            {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_b, BLARG.subj_bc, BLARG.subj_c},
+        )
+        yield (
+            {'valueSearchPropertyPath': 'subject', 'cardSearchFilter[creator]': BLARG.someone},
+            {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_a, BLARG.subj_b},
+        )
+        yield (
+            {'valueSearchPropertyPath': 'subject', 'cardSearchFilter[creator]': BLARG.someone_else},
+            {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},
+        )
+        yield (
+            {'valueSearchPropertyPath': 'subject', 'cardSearchText': 'aaaa'},
+            {BLARG.subj_ac, BLARG.subj_a},
+        )
         yield (
             {
                 'valueSearchPropertyPath': 'references',
@@ -460,28 +574,39 @@ class CommonTrovesearchTests(RealElasticTestCase):
         ))
         self.current_index.pls_refresh()
 
+    def _delete_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
+        for _indexcard in indexcards:
+            _indexcard.pls_delete(notify_indexes=False)  # notify by hand to know when done
+        self._index_indexcards(indexcards)
+
     def _create_indexcard(self, focus_iri: str, rdf_tripledict: rdf.RdfTripleDictionary) -> trove_db.Indexcard:
         _suid = factories.SourceUniqueIdentifierFactory()
-        _raw = factories.RawDatumFactory(
-            suid=_suid,
-        )
-        _indexcard = trove_db.Indexcard.objects.create(
-            source_record_suid=_suid,
-        )
+        _indexcard = trove_db.Indexcard.objects.create(source_record_suid=_suid)
+        self._update_indexcard_content(_indexcard, focus_iri, rdf_tripledict)
         # an osfmap_json card is required for indexing, but not used in these tests
-        trove_db.DerivedIndexcard.objects.create(
+        trove_db.DerivedIndexcard.objects.get_or_create(
             upriver_indexcard=_indexcard,
             deriver_identifier=trove_db.ResourceIdentifier.objects.get_or_create_for_iri(TROVE['derive/osfmap_json']),
         )
-        trove_db.LatestIndexcardRdf.objects.create(
-            from_raw_datum=_raw,
-            indexcard=_indexcard,
-            focus_iri=focus_iri,
-            rdf_as_turtle=rdf.turtle_from_tripledict(rdf_tripledict),
-            turtle_checksum_iri='foo',  # not enforced
-        )
-        self._indexcard_focus_by_uuid[str(_indexcard.uuid)] = focus_iri
         return _indexcard
+
+    def _update_indexcard_content(
+        self,
+        indexcard: trove_db.Indexcard,
+        focus_iri: str,
+        rdf_tripledict: rdf.RdfTripleDictionary,
+    ) -> None:
+        _raw = factories.RawDatumFactory(suid=indexcard.source_record_suid)
+        trove_db.LatestIndexcardRdf.objects.update_or_create(
+            indexcard=indexcard,
+            defaults={
+                'from_raw_datum': _raw,
+                'focus_iri': focus_iri,
+                'rdf_as_turtle': rdf.turtle_from_tripledict(rdf_tripledict),
+                'turtle_checksum_iri': 'foo',  # not enforced
+            },
+        )
+        self._indexcard_focus_by_uuid[str(indexcard.uuid)] = focus_iri
 
     def _create_supplement(
         self,
