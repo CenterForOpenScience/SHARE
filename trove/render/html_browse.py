@@ -12,6 +12,7 @@ from xml.etree.ElementTree import (
 )
 
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.http import QueryDict
 from django.urls import reverse
 from primitive_metadata import primitive_rdf
 
@@ -23,48 +24,58 @@ from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
 
 STABLE_MEDIATYPES = (mediatypes.JSONAPI,)
-UNSTABLE_MEDIATYPES = (mediatypes.TURTLE, mediatypes.JSONLD, mediatypes.JSON,)
+UNSTABLE_MEDIATYPES = (
+    mediatypes.TURTLE,
+    mediatypes.JSONLD,
+    # TODO: below are only for search/index-card views
+    mediatypes.JSON,
+    mediatypes.TAB_SEPARATED_VALUES,
+    mediatypes.COMMA_SEPARATED_VALUES,
+)
 
 
+@dataclasses.dataclass
 class RdfHtmlBrowseRenderer(BaseRenderer):
     MEDIATYPE = 'text/html; charset=utf-8'
 
     def simple_render_document(self) -> str:
-        _rendered_html_element = (
-            _HtmlRenderHelper(data=self.response_data)
-            .render(self.response_focus_iri)
-        )
+        _html_builder = _HtmlBuilder(self.response_tripledict, self.response_focus_iri, self.iri_shorthand)
+        _html_str = etree_tostring(_html_builder.html_element, encoding='unicode', method='html')
         return ''.join((
             '<!DOCTYPE html>',  # TODO: can etree put the doctype in?
-            etree_tostring(_rendered_html_element, encoding='unicode', method='html'),
+            _html_str,
         ))
 
 
 @dataclasses.dataclass
-class _HtmlRenderHelper:
-    data: primitive_rdf.RdfGraph
-    rendered_element = None
-    __current_element = None
-    __visiting_iris = None
-    __heading_depth = None
+class _HtmlBuilder:
+    all_data: primitive_rdf.RdfTripleDictionary
+    focus_iri: str
+    iri_shorthand: primitive_rdf.IriShorthand
+    html_element: Element = dataclasses.field(init=False)
+    __current_data: primitive_rdf.RdfTripleDictionary = dataclasses.field(init=False)
+    __current_element: Element = dataclasses.field(init=False)
+    __visiting_iris: set[str] = dataclasses.field(init=False)
+    __heading_depth: int = 0
 
-    def render(self, focus_iri: str) -> Element:
-        with self.__rendering():
-            with self.__nest('head'):
-                self.__leaf('link', attrs={
-                    'rel': 'stylesheet',
-                    'href': staticfiles_storage.url('css/browse.css'),
-                })
-            _body_attrs = {
-                'class': 'BrowseWrapper',
-                'style': f'--random-turn: {random.random()}turn;',
-            }
-            with self.__nest('body', attrs=_body_attrs):
-                self.__render_subj(focus_iri),
-                self.__render_mediatype_links()
-                # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
-        assert self.rendered_element
-        return self.rendered_element
+    def __post_init__(self):
+        # TODO: lang (according to request -- also translate)
+        self.html_element = self.__current_element = Element('html')
+        self.__current_data = self.all_data
+        self.__visiting_iris = set()
+        with self.__nest('head'):
+            self.__leaf('link', attrs={
+                'rel': 'stylesheet',
+                'href': staticfiles_storage.url('css/browse.css'),
+            })
+        _body_attrs = {
+            'class': 'BrowseWrapper',
+            'style': f'--random-turn: {random.random()}turn;',
+        }
+        with self.__nest('body', attrs=_body_attrs):
+            self.__render_subj(self.focus_iri),
+            self.__render_mediatype_links()
+            # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
 
     def __render_mediatype_links(self):
         with self.__nest('nav', attrs={'class': 'VisibleNest Browse__card'}):
@@ -75,14 +86,15 @@ class _HtmlRenderHelper:
                         self.__mediatype_link(_mediatype)
 
     def __mediatype_link(self, mediatype: str):
-        _qparams = self.http_request.GET.copy()
+        (_scheme, _netloc, _path, _query, _fragment) = urlsplit(self.focus_iri)
+        _qparams = QueryDict(_query, mutable=True)
         _qparams['acceptMediatype'] = mediatype
         _href = urlunsplit((
-            self.http_request.scheme,
-            self.http_request.get_host(),
-            self.http_request.path,
+            _scheme,
+            _netloc,
+            _path,
             _qparams.urlencode(),
-            '',
+            _fragment,
         ))
         self.__leaf('a', text=mediatype, attrs={'href': _href})
         if mediatype in UNSTABLE_MEDIATYPES:
@@ -95,7 +107,7 @@ class _HtmlRenderHelper:
                     _link.tail = ')'
 
     def __render_subj(self, subj_iri: str, start_collapsed=False):
-        _twopledict = self.data.tripledict.get(subj_iri, {})
+        _twopledict = self.__current_data.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__h_tag() as _h_tag:
                 with self.__nest(
@@ -131,7 +143,7 @@ class _HtmlRenderHelper:
     def __obj(self, obj: primitive_rdf.RdfObject):
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
-            if obj in self.data.tripledict:
+            if obj in self.__current_data:
                 if obj in self.__visiting_iris:
                     self.__leaf_link(obj)  # TODO: consider
                 else:
@@ -185,18 +197,6 @@ class _HtmlRenderHelper:
     # private html-building helpers
 
     @contextlib.contextmanager
-    def __rendering(self):
-        # TODO: lang (according to request -- also translate)
-        self.__current_element = Element('html')
-        self.__visiting_iris = set()
-        try:
-            yield
-            self.rendered_element = self.__current_element
-        finally:
-            self.__current_element = None
-            self.__visiting_iris = None
-
-    @contextlib.contextmanager
     def __visiting(self, iri: str):
         assert iri not in self.__visiting_iris
         self.__visiting_iris.add(iri)
@@ -219,14 +219,14 @@ class _HtmlRenderHelper:
 
     @contextlib.contextmanager
     def __quoted_data(self, quoted_data: dict):
-        _outer_data = self.data
+        _outer_data = self.__current_data
         _outer_visiting_iris = self.__visiting_iris
-        self.data = primitive_rdf.RdfGraph(quoted_data)
+        self.__current_data = quoted_data
         self.__visiting_iris = set()
         try:
             yield
         finally:
-            self.data = _outer_data
+            self.__current_data = _outer_data
             self.__visiting_iris = _outer_visiting_iris
 
     @contextlib.contextmanager
@@ -253,17 +253,12 @@ class _HtmlRenderHelper:
     def __nest_link(self, iri: str, *, attrs=None):
         return self.__nest('a', attrs={
             **(attrs or {}),
-            'href': self.__href_for_iri(iri),
+            'href': trove_browse_link(iri),
         })
 
     def __leaf_link(self, iri: str, *, attrs=None):
         with self.__nest_link(iri, attrs=attrs) as _link:
             _link.text = self.iri_shorthand.compact_iri(iri)
-
-    def __href_for_iri(self, iri: str):
-        if self.http_request and (self.http_request.get_host() == urlsplit(iri).netloc):
-            return iri
-        return trove_browse_link(iri)
 
     def __label_for_iri(self, iri: str):
         # TODO: get actual label in requested language

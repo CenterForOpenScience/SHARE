@@ -4,7 +4,10 @@ import functools
 import dataclasses
 import typing
 
-from ._simple_osfmap import BaseSimpleOsfmapRenderer
+from trove.vocab import mediatypes
+from trove.vocab.namespaces import TROVE
+from ._simple_trovesearch import SimpleTrovesearchRenderer
+from ._rendering import StreamableRendering
 
 
 Jsonpath = tuple[str, ...]  # path of json keys
@@ -13,20 +16,27 @@ _MULTIVALUE_DELIMITER = ' ; '  # possible improvement: smarter in-value delimiti
 _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
 
 
-class TrovesearchTsvRenderer(BaseSimpleOsfmapRenderer):
-    MEDIATYPE = 'text/tab-separated-values'
+class TrovesearchTsvRenderer(SimpleTrovesearchRenderer):
+    MEDIATYPE = mediatypes.TAB_SEPARATED_VALUES
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
     _CSV_DIALECT = csv.excel_tab
 
-    def render_unicard_document(self, card_iri: str, osfmap_json: dict):
-        self.render_multicard_document(cards=[(card_iri, osfmap_json)])
+    def unicard_rendering(self, card_iri: str, osfmap_json: dict):
+        self.multicard_rendering(cards=[(card_iri, osfmap_json)])
 
-    def render_multicard_document(self, cards: typing.Iterable[tuple[str, dict]]):
-        # possible optimization: StreamingHttpResponse (to be worthwhile, should
-        # support streaming all the way from asgi thru gathering and index strategy)
-        _writer = csv.writer(self.http_response, dialect=self._CSV_DIALECT)
-        _doc = TabularDoc(cards)
-        _writer.writerow(_doc.header())
-        _writer.writerows(_doc.rows())
+    def multicard_rendering(self, cards: typing.Iterable[tuple[str, dict]]):
+        _doc = TabularDoc(list(cards))  # TODO: actual stream
+        return StreamableRendering(
+            mediatype=self.MEDIATYPE,
+            content_stream=csv_stream(self._CSV_DIALECT, _doc.header(), _doc.rows()),
+        )
+
+
+def csv_stream(csv_dialect, header: list, rows: typing.Iterator[list]) -> typing.Iterator[str]:
+    _writer = csv.writer(_Echo(), dialect=csv_dialect)
+    yield _writer.writerow(header)
+    for _row in rows:
+        yield _writer.writerow(_row)
 
 
 @dataclasses.dataclass
@@ -62,6 +72,7 @@ class TabularDoc:
 
 
 def _osfmap_tabular_paths(osfmap_json: dict) -> typing.Iterator[Jsonpath]:
+    # currently simple: paths of length one
     for _key, _value in osfmap_json.items():
         if _should_render_tabularly(_value):
             yield (_key,)
@@ -109,3 +120,12 @@ def _render_tabularly(json_val):
             if _val is not None:
                 return _val[_key]
     return None
+
+
+class _Echo:
+    '''a write-only file-like object, to convince `csv.csvwriter.writerow` to return strings
+
+    from https://docs.djangoproject.com/en/5.1/howto/outputting-csv/#streaming-large-csv-files
+    '''
+    def write(self, line: str):
+        return line

@@ -29,7 +29,6 @@ class BrowseIriView(View):
         _renderer = _renderer_cls(
             _card_focus_iri,
             _combined_rdf.tripledict,
-            http_request=request,
         )
         return make_http_response(
             content_rendering=_renderer.render_document(),

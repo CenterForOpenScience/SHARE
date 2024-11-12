@@ -9,5 +9,8 @@ class RdfTurtleRenderer(BaseRenderer):
     # include indexcard metadata as JSON literals (rather than QuotedGraph)
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def render_document(self, rdf_graph: rdf.RdfGraph, focus_iri: str):
-        return rdf.turtle_from_tripledict(rdf_graph.tripledict, focus=focus_iri)
+    def simple_render_document(self) -> str:
+        return rdf.turtle_from_tripledict(
+            self.response_data.tripledict,
+            focus=self.response_focus_iri,
+        )

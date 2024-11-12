@@ -8,22 +8,23 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from ._simple_osfmap import BaseSimpleOsfmapRenderer
+from ._simple_trovesearch import SimpleTrovesearchRenderer
 
 
-class TrovesearchSimpleJsonRenderer(BaseSimpleOsfmapRenderer):
+class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def render_unicard_document(self, card_iri, osfmap_json):
+    def simple_unicard_rendering(self, card_iri, osfmap_json):
         return json.dumps({
             'data': self._render_card_content(card_iri, osfmap_json),
             'links': self._render_links(),
             'meta': self._render_meta(),
         }, indent=2)
 
-    def render_multicard_document(self, cards):
+    def simple_multicard_rendering(self, cards):
         return json.dumps({
             'data': [
                 self._render_card_content(_card_iri, _osfmap_json)

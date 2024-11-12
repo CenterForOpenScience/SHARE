@@ -1,26 +1,34 @@
+import abc
 import dataclasses
-from typing import Iterable
+from typing import Iterator
 
 from primitive_metadata import primitive_rdf as rdf
 
+from trove import exceptions as trove_exceptions
 
-class ProtoRendering:
-    '''base class for all renderings'''
+
+class ProtoRendering(abc.ABC):
+    '''base class for all renderings
+
+    (TODO: typing.Protocol (when py3.12+))
+    '''
 
     @property
+    @abc.abstractmethod
     def mediatype(self) -> str:
+        '''`mediatype`: required readable attribute
+        '''
         raise NotImplementedError
 
-    @property
-    def is_streamed(self) -> bool:
-        return False
-
-    def iter_content(self) -> Iterable[str | bytes | memoryview]:
+    @abc.abstractmethod
+    def iter_content(self) -> Iterator[str | bytes | memoryview]:
+        '''`iter_content`: (only) required method
+        '''
         yield from ()
 
 
 @dataclasses.dataclass
-class SimpleRendering(ProtoRendering):
+class SimpleRendering:  # implements ProtoRendering
     mediatype: str
     rendered_content: str = ''
 
@@ -29,9 +37,22 @@ class SimpleRendering(ProtoRendering):
 
 
 @dataclasses.dataclass
+class StreamableRendering:  # implements ProtoRendering
+    mediatype: str
+    content_stream: Iterator[str | bytes | memoryview]
+    _started_already: bool = False
+
+    def iter_content(self):
+        if self._started_already:
+            raise trove_exceptions.CannotRenderStreamTwice
+        self._started_already = True
+        yield from self.content_stream
+
+
+@dataclasses.dataclass
 class LiteralRendering(ProtoRendering):
     literal: rdf.Literal
-    # (TODO: language(s))
+    # (TODO: languages)
 
     @property
     def mediatype(self) -> str:

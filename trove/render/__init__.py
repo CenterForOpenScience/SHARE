@@ -6,6 +6,7 @@ from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 from .turtle import RdfTurtleRenderer
 from .jsonld import RdfJsonldRenderer
+from .simple_csv import TrovesearchCsvRenderer
 from .simple_json import TrovesearchSimpleJsonRenderer
 from .simple_tsv import TrovesearchTsvRenderer
 
@@ -17,6 +18,7 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfJsonapiRenderer,
     RdfTurtleRenderer,
     RdfJsonldRenderer,
+    TrovesearchCsvRenderer,
     TrovesearchSimpleJsonRenderer,
     TrovesearchTsvRenderer,
 )
@@ -28,7 +30,7 @@ RENDERER_BY_MEDIATYPE = {
 DEFAULT_RENDERER = RdfJsonapiRenderer  # the most stable one
 
 
-def get_renderer_class(request: http.HttpRequest):
+def get_renderer_class(request: http.HttpRequest) -> type[BaseRenderer]:
     # TODO: recognize .extension?
     _chosen_renderer_cls = None
     _requested_mediatype = request.GET.get('acceptMediatype')
