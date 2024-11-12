@@ -487,13 +487,12 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 PropertypathUsage(property_path=_path, usage_count=0)
                 for _path in cardsearch_params.related_property_paths
             )
-            _relatedproperty_by_path = {
-                _result.property_path: _result
+            _relatedproperty_by_pathkey = {
+                ts.propertypath_as_keyword(_result.property_path): _result
                 for _result in _relatedproperty_list
             }
             for _bucket in es8_response['aggregations']['agg_related_propertypath_usage']['buckets']:
-                _path = tuple(json.loads(_bucket['key']))
-                _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
+                _relatedproperty_by_pathkey[_bucket['key']].usage_count += _bucket['doc_count']
         return CardsearchResponse(
             cursor=cursor,
             search_result_page=_results,

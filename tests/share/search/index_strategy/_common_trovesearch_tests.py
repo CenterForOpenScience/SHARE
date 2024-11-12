@@ -1,4 +1,5 @@
 from typing import Iterable, Iterator
+import dataclasses
 from datetime import date, timedelta
 import itertools
 import math
@@ -10,6 +11,7 @@ from tests import factories
 from share.search import messages
 from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
+from trove.trovesearch.search_response import PropertypathUsage
 from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF, DCAT
 from ._with_real_services import RealElasticTestCase
 
@@ -111,6 +113,23 @@ class CommonTrovesearchTests(RealElasticTestCase):
             _querystring = urlencode({'page[cursor]': _next_cursor.as_queryparam_value()})
         self.assertEqual(_page_count, math.ceil(_total_count / _page_size))
         self.assertEqual(_result_iris, _expected_iris)
+
+    def test_cardsearch_related_properties(self):
+        self._fill_test_data_for_querying()
+        _cardsearch_params = dataclasses.replace(
+            CardsearchParams.from_querystring(''),
+            related_property_paths=(
+                (DCTERMS.creator,),
+                (DCTERMS.references,),
+                (BLARG.nada,),
+            ),
+        )
+        _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+        self.assertEqual(_cardsearch_response.related_propertypath_results, [
+            PropertypathUsage((DCTERMS.creator,), 3),
+            PropertypathUsage((DCTERMS.references,), 2),
+            PropertypathUsage((BLARG.nada,), 0),
+        ])
 
     def test_valuesearch(self):
         self._fill_test_data_for_querying()
