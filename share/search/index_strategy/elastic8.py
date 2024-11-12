@@ -69,7 +69,14 @@ class Elastic8IndexStrategy(IndexStrategy):
         messages_chunk: messages.MessagesChunk,
         indexnames: typing.Iterable[str],
     ) -> None:
-        pass  # implement when needed
+        ...  # implement when needed
+
+    def after_chunk(
+        self,
+        messages_chunk: messages.MessagesChunk,
+        indexnames: typing.Iterable[str],
+    ) -> None:
+        ...  # implement when needed
 
     ###
     # helper methods for subclasses to use (or override)
@@ -154,6 +161,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                     status_code=_status,
                     error_text=str(_response_body),
                 )
+        self.after_chunk(messages_chunk, _indexnames)
         # yield successes after the whole chunk completes
         # (since one message may involve several actions)
         for _messageid in _action_tracker.all_done_messages():
