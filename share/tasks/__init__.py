@@ -79,14 +79,6 @@ def schedule_index_backfill(self, index_backfill_pk):
                 .exclude(source_config__source__is_deleted=True)
                 .values_list('id', flat=True)
             )
-        elif _messagetype == MessageType.BACKFILL_IDENTIFIER:
-            _targetid_queryset = (
-                trove_db.ResourceIdentifier.objects
-                .exclude(suid_set__source_config__disabled=True)
-                .exclude(suid_set__source_config__source__is_deleted=True)
-                .values_list('id', flat=True)
-                .distinct()
-            )
         else:
             raise ValueError(f'unknown backfill messagetype {_messagetype}')
         _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
