@@ -1,4 +1,5 @@
 import abc
+import functools
 import logging
 import typing
 
@@ -63,8 +64,9 @@ class IndexStrategy(abc.ABC):
     def indexname_wildcard(self):
         return f'{self.indexname_prefix}*'
 
-    @property
+    @functools.cached_property
     def current_indexname(self):
+        self.assert_strategy_is_current()
         return ''.join((
             self.indexname_prefix,
             self.CURRENT_STRATEGY_CHECKSUM.hexdigest,

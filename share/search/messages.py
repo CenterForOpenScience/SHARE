@@ -1,7 +1,9 @@
 import abc
 import dataclasses
 import enum
+import functools
 import logging
+import time
 import typing
 
 from share.search import exceptions
@@ -82,6 +84,10 @@ class MessagesChunk:
                 message_type=self.message_type,
                 target_id=target_id,
             )
+
+    @functools.cached_property  # cached so it's constant (and unique-enough) for an instance
+    def timestamp(self) -> int:
+        return time.time_ns()
 
     @classmethod
     def stream_chunks(

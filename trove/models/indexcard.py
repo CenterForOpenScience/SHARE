@@ -205,7 +205,7 @@ class Indexcard(models.Model):
     def get_iri(self):
         return trove_indexcard_iri(self.uuid)
 
-    def pls_delete(self):
+    def pls_delete(self, *, notify_indexes=True):
         # do not actually delete Indexcard, just mark deleted:
         if self.deleted is None:
             self.deleted = timezone.now()
@@ -220,9 +220,10 @@ class Indexcard(models.Model):
             .filter(upriver_indexcard=self)
             .delete()
         )
-        # TODO: rearrange to avoid local import
-        from share.search.index_messenger import IndexMessenger
-        IndexMessenger().notify_indexcard_update([self])
+        if notify_indexes:
+            # TODO: rearrange to avoid local import
+            from share.search.index_messenger import IndexMessenger
+            IndexMessenger().notify_indexcard_update([self])
 
     def __repr__(self):
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'

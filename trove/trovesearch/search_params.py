@@ -468,10 +468,9 @@ class CardsearchParams(BaseTroveParams):
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
-    sort_list: tuple[SortParam]
+    sort_list: tuple[SortParam, ...]
     page_cursor: PageCursor
     related_property_paths: tuple[Propertypath, ...]
-    unnamed_iri_values: frozenset[str]
 
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
@@ -485,7 +484,6 @@ class CardsearchParams(BaseTroveParams):
             'page_cursor': _get_page_cursor(queryparams),
             'include': None,  # TODO
             'related_property_paths': _get_related_property_paths(_filter_set),
-            'unnamed_iri_values': frozenset(),  # TODO: frozenset(_get_unnamed_iri_values(_filter_set)),
         }
 
     def to_querydict(self) -> QueryDict:

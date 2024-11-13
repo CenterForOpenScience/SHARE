@@ -55,7 +55,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='fa8fe6459f658877f84620412dcab5e2e70d0c949d8977354c586dca99ff2f28',
+        hexdigest='e538bbc5966a6a289da9e5ba51ecde5ff29528bf07e940716ef8a888d6601916',
     )
 
     # abstract method from IndexStrategy
@@ -83,6 +83,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             'properties': {
                 'card': {'properties': self._card_mappings()},
                 'iri_value': {'properties': self._iri_value_mappings()},
+                'chunk_timestamp': {'type': 'unsigned_long'},
             },
         }
 
@@ -149,24 +150,24 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         }
 
     # override method from Elastic8IndexStrategy
-    def before_chunk(self, messages_chunk: messages.MessagesChunk, indexnames: Iterable[str]):
-        # delete all per-value docs (to account for missing values)
+    def after_chunk(self, messages_chunk: messages.MessagesChunk, indexnames: Iterable[str]):
+        # refresh to avoid delete-by-query conflicts
+        self.es8_client.indices.refresh(index=','.join(indexnames))
+        # delete any docs that belong to cards in this chunk but weren't touched by indexing
         self.es8_client.delete_by_query(
             index=list(indexnames),
             query={'bool': {'must': [
                 {'terms': {'card.card_pk': messages_chunk.target_ids_chunk}},
-                {'exists': {'field': 'iri_value.value_iri'}},
+                {'range': {'chunk_timestamp': {'lt': messages_chunk.timestamp}}},
             ]}},
         )
-        # (possible optimization: instead, hold onto doc_ids and (in `after_chunk`?)
-        #                         delete_by_query excluding those)
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
         _indexcard_rdf_qs = ts.latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
         _remaining_indexcard_pks = set(messages_chunk.target_ids_chunk)
         for _indexcard_rdf in _indexcard_rdf_qs:
-            _docbuilder = self._SourcedocBuilder(_indexcard_rdf)
+            _docbuilder = self._SourcedocBuilder(_indexcard_rdf, messages_chunk.timestamp)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
                 _indexcard_pk = _indexcard_rdf.indexcard_id
                 for _doc_id, _doc in _docbuilder.build_docs():
@@ -254,6 +255,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         '''build elasticsearch sourcedocs for an rdf document
         '''
         indexcard_rdf: trove_db.IndexcardRdf
+        chunk_timestamp: int
         indexcard: trove_db.Indexcard = dataclasses.field(init=False)
         focus_iri: str = dataclasses.field(init=False)
         rdfdoc: rdf.RdfTripleDictionary = dataclasses.field(init=False)
@@ -279,6 +281,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 yield self._doc_id(_iri), {
                     'card': self._card_subdoc,
                     'iri_value': self._iri_value_subdoc(_iri),
+                    'chunk_timestamp': self.chunk_timestamp,
                 }
 
         def _doc_id(self, value_iri=None) -> str:
@@ -487,13 +490,12 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 PropertypathUsage(property_path=_path, usage_count=0)
                 for _path in cardsearch_params.related_property_paths
             )
-            _relatedproperty_by_path = {
-                _result.property_path: _result
+            _relatedproperty_by_pathkey = {
+                ts.propertypath_as_keyword(_result.property_path): _result
                 for _result in _relatedproperty_list
             }
             for _bucket in es8_response['aggregations']['agg_related_propertypath_usage']['buckets']:
-                _path = tuple(json.loads(_bucket['key']))
-                _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
+                _relatedproperty_by_pathkey[_bucket['key']].usage_count += _bucket['doc_count']
         return CardsearchResponse(
             cursor=cursor,
             search_result_page=_results,
