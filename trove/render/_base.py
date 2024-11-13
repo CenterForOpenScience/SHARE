@@ -15,7 +15,7 @@ from ._rendering import ProtoRendering, SimpleRendering
 
 @dataclasses.dataclass
 class BaseRenderer(abc.ABC):
-    """for rendering an api response modeled as rdf into a serialized http response"""
+    """for creating a serialized rendering of an api response modeled as rdf"""
 
     # required in subclasses
     MEDIATYPE: ClassVar[str]
@@ -45,14 +45,14 @@ class BaseRenderer(abc.ABC):
         except NotImplementedError:
             raise NotImplementedError(f'class "{type(self)}" must implement either `render_document` or `simple_render_document`')
         else:
-            return SimpleRendering(
+            return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
                 mediatype=self.MEDIATYPE,
                 rendered_content=_content,
             )
 
     def render_error_document(self, error: trove_exceptions.TroveError) -> ProtoRendering:
         # may override, but default to jsonapi
-        return SimpleRendering(
+        return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
             mediatype=mediatypes.JSONAPI,
             rendered_content=json.dumps(
                 {'errors': [{  # https://jsonapi.org/format/#error-objects

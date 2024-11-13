@@ -11,7 +11,7 @@ from .simple_json import TrovesearchSimpleJsonRenderer
 from .simple_tsv import TrovesearchTsvRenderer
 
 
-__all__ = ('get_renderer_class',)
+__all__ = ('get_renderer_type',)
 
 RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfHtmlBrowseRenderer,
@@ -24,26 +24,26 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
 )
 
 RENDERER_BY_MEDIATYPE = {
-    _renderer_cls.MEDIATYPE: _renderer_cls
-    for _renderer_cls in RENDERERS
+    _renderer_type.MEDIATYPE: _renderer_type
+    for _renderer_type in RENDERERS
 }
 DEFAULT_RENDERER = RdfJsonapiRenderer  # the most stable one
 
 
-def get_renderer_class(request: http.HttpRequest) -> type[BaseRenderer]:
+def get_renderer_type(request: http.HttpRequest) -> type[BaseRenderer]:
     # TODO: recognize .extension?
-    _chosen_renderer_cls = None
+    _chosen_renderer_type = None
     _requested_mediatype = request.GET.get('acceptMediatype')
     if _requested_mediatype:
         try:
-            _chosen_renderer_cls = RENDERER_BY_MEDIATYPE[_requested_mediatype]
+            _chosen_renderer_type = RENDERER_BY_MEDIATYPE[_requested_mediatype]
         except KeyError:
             raise trove_exceptions.CannotRenderMediatype(_requested_mediatype)
     else:
-        for _mediatype, _renderer_cls in RENDERER_BY_MEDIATYPE.items():
+        for _mediatype, _renderer_type in RENDERER_BY_MEDIATYPE.items():
             if request.accepts(_mediatype):
-                _chosen_renderer_cls = _renderer_cls
+                _chosen_renderer_type = _renderer_type
                 break
-    if _chosen_renderer_cls is None:
-        _chosen_renderer_cls = DEFAULT_RENDERER
-    return _chosen_renderer_cls
+    if _chosen_renderer_type is None:
+        _chosen_renderer_type = DEFAULT_RENDERER
+    return _chosen_renderer_type

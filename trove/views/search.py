@@ -12,7 +12,7 @@ from trove.trovesearch.search_params import (
 )
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
-from trove.render import get_renderer_class
+from trove.render import get_renderer_type
 from ._responder import (
     make_http_error_response,
     make_http_response,
@@ -49,14 +49,14 @@ DEFAULT_VALUESEARCH_ASK = {
 
 class CardsearchView(View):
     def get(self, request):
-        _renderer_cls = get_renderer_class(request)
+        _renderer_type = get_renderer_type(request)
         try:
-            _search_iri, _search_gathering = _parse_request(request, _renderer_cls, CardsearchParams)
+            _search_iri, _search_gathering = _parse_request(request, _renderer_type, CardsearchParams)
             _search_gathering.ask(
                 DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
                 focus=gather.Focus.new(_search_iri, TROVE.Cardsearch),
             )
-            _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
+            _renderer = _renderer_type(_search_iri, _search_gathering.leaf_a_record())
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
@@ -64,20 +64,20 @@ class CardsearchView(View):
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
-                renderer=_renderer_cls(_search_iri),
+                renderer=_renderer_type(_search_iri),
             )
 
 
 class ValuesearchView(View):
     def get(self, request):
-        _renderer_cls = get_renderer_class(request)
+        _renderer_type = get_renderer_type(request)
         try:
-            _search_iri, _search_gathering = _parse_request(request, _renderer_cls, ValuesearchParams)
+            _search_iri, _search_gathering = _parse_request(request, _renderer_type, ValuesearchParams)
             _search_gathering.ask(
                 DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
                 focus=gather.Focus.new(_search_iri, TROVE.Valuesearch),
             )
-            _renderer = _renderer_cls(_search_iri, _search_gathering.leaf_a_record())
+            _renderer = _renderer_type(_search_iri, _search_gathering.leaf_a_record())
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
@@ -85,14 +85,14 @@ class ValuesearchView(View):
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
-                renderer=_renderer_cls(_search_iri),
+                renderer=_renderer_type(_search_iri),
             )
 
 
 ###
 # local helpers
 
-def _parse_request(request: http.HttpRequest, renderer_cls, search_params_dataclass):
+def _parse_request(request: http.HttpRequest, renderer_type, search_params_dataclass):
     _search_iri = request.build_absolute_uri()
     _search_params = search_params_dataclass.from_querystring(
         request.META['QUERY_STRING'],
@@ -102,6 +102,6 @@ def _parse_request(request: http.HttpRequest, renderer_cls, search_params_datacl
     _search_gathering = trovesearch_by_indexstrategy.new_gathering({
         'search_params': _search_params,
         'specific_index': _specific_index,
-        'deriver_iri': renderer_cls.INDEXCARD_DERIVER_IRI,
+        'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
     })
     return (_search_iri, _search_gathering)
