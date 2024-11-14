@@ -2,9 +2,9 @@ import csv
 
 from trove.vocab import mediatypes
 
-from .simple_tsv import TrovesearchTsvRenderer
+from .simple_tsv import TrovesearchSimpleTsvRenderer
 
 
-class TrovesearchCsvRenderer(TrovesearchTsvRenderer):
+class TrovesearchSimpleCsvRenderer(TrovesearchSimpleTsvRenderer):
     MEDIATYPE = mediatypes.COMMA_SEPARATED_VALUES
     _CSV_DIALECT = csv.excel

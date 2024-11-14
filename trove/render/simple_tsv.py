@@ -21,10 +21,10 @@ _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
 _SKIPPABLE_KEYS = {osfmap_shorthand().compact_iri(_iri) for _iri in SKIPPABLE_PROPERTIES}
 
 
-class TrovesearchTsvRenderer(SimpleTrovesearchRenderer):
+class TrovesearchSimpleTsvRenderer(SimpleTrovesearchRenderer):
     MEDIATYPE = mediatypes.TAB_SEPARATED_VALUES
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
-    _CSV_DIALECT = csv.excel_tab
+    _CSV_DIALECT: type[csv.Dialect] = csv.excel_tab
 
     def unicard_rendering(self, card_iri: str, osfmap_json: dict):
         self.multicard_rendering(cards=[(card_iri, osfmap_json)])
