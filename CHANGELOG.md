@@ -1,5 +1,15 @@
 # Change Log
 
+# [24.5.0] - 2024-11-14
+- fix for M chips with docker
+- add "subject" related property for `cardSearchFilter[resourceType]=Project`
+- allow "supplementary" metadata records
+- allow expiration date on metadata records
+- osfmap: add properties with shorthands
+- add `trovesearch_denorm` index strategy (more denormalized for better scaling)
+- dependency updates
+- many tests
+
 # [24.4.0] - 2024-05-31
 - specific exception classes within `trove`
 - better search api error responses
