@@ -55,7 +55,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='e538bbc5966a6a289da9e5ba51ecde5ff29528bf07e940716ef8a888d6601916',
+        hexdigest='05fde844940b927edaab6d7096d2d845273fde10d3cb5ff1e2862c1161318bbe',
     )
 
     # abstract method from IndexStrategy
@@ -127,7 +127,6 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     def _iri_value_mappings(self):
         return {
-            'value_iri': ts.KEYWORD_MAPPING,
             'value_name': ts.KEYWORD_MAPPING,
             'value_title': ts.KEYWORD_MAPPING,
             'value_label': ts.KEYWORD_MAPPING,
@@ -137,7 +136,8 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     def _paths_and_values_mappings(self):
         return {
-            'focus_iri': ts.IRI_KEYWORD_MAPPING,
+            'single_focus_iri': ts.KEYWORD_MAPPING,
+            'focus_iri_synonyms': ts.KEYWORD_MAPPING,
             'propertypaths_present': ts.KEYWORD_MAPPING,
             # flattened properties (dynamic sub-properties with keyword values)
             'iri_by_propertypath': ts.FLATTENED_MAPPING,
@@ -311,8 +311,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         def _iri_value_subdoc(self, iri: str) -> dict:
             _shortwalk = self._fullwalk.shortwalk_from(iri)
             return {
-                'value_iri': iri,
-                'value_iris': self._exact_and_suffuniq_iris(iri),
+                **self._paths_and_values(_shortwalk),
                 'value_name': list(self._texts_at_properties(_shortwalk, ts.NAME_PROPERTIES)),
                 'value_title': list(self._texts_at_properties(_shortwalk, ts.TITLE_PROPERTIES)),
                 'value_label': list(self._texts_at_properties(_shortwalk, ts.LABEL_PROPERTIES)),
@@ -320,12 +319,15 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                     ts.propertypath_as_keyword(_path)
                     for _path in self._fullwalk.paths_by_iri[iri]
                 ],
-                **self._paths_and_values(_shortwalk),
             }
 
         def _paths_and_values(self, walk: ts.GraphWalk):
             return {
-                'focus_iri': self._exact_and_suffuniq_iris(walk.focus_iri),
+                'single_focus_iri': walk.focus_iri.rstrip('/'),  # remove trailing slash, but keep the scheme
+                'focus_iri_synonyms': ts.suffuniq_iris(ts.iri_synonyms(
+                    walk.focus_iri,
+                    self.rdfdoc,
+                )),
                 'propertypaths_present': self._propertypaths_present(walk),
                 'iri_by_propertypath': self._iris_by_propertypath(walk),
                 'iri_by_depth': self._iris_by_depth(walk),
@@ -389,13 +391,6 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             return {
                 _path_field_name(_path): list(_value_set)
                 for _path, _value_set in walk.integer_values.items()
-            }
-
-        def _exact_and_suffuniq_iris(self, iri: str):
-            _synonyms = ts.iri_synonyms(iri, self.rdfdoc)
-            return {
-                'exact': list(_synonyms),
-                'suffuniq': ts.suffuniq_iris(_synonyms),
             }
 
     ###
@@ -598,7 +593,7 @@ class _QueryHelper:
 
     def _path_iri_query(self, path, suffuniq_iris):
         if path == (OWL.sameAs,):
-            _field = f'{self.base_field}.focus_iri.suffuniq'
+            _field = f'{self.base_field}.focus_iri_synonyms'
         elif is_globpath(path):
             _field = f'{self.base_field}.iri_by_depth.{_depth_field_name(len(path))}'
         else:
@@ -801,7 +796,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
         'aggs': {
             'agg_valuesearch_iris': {
                 'terms': {
-                    'field': 'iri_value.value_iri',
+                    'field': 'iri_value.single_focus_iri',
                     # WARNING: terribly hacky pagination (part one)
                     'size': cursor.start_offset + cursor.page_size + 1,
                 },

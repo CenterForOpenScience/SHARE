@@ -1,7 +1,6 @@
 from typing import Iterable, Iterator
 import dataclasses
 from datetime import date, timedelta
-import itertools
 import math
 from urllib.parse import urlencode
 
@@ -56,22 +55,14 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_cardsearch(self):
         self._fill_test_data_for_querying()
-        _cardsearch_cases = itertools.chain(
-            self.cardsearch_cases(),
-            self.cardsearch_integer_cases(),
-        )
-        for _queryparams, _expected_focus_iris in _cardsearch_cases:
+        for _queryparams, _expected_focus_iris in self.cardsearch_cases():
             self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
 
     def test_cardsearch_after_deletion(self):
         _cards = self._fill_test_data_for_querying()
         _deleted_focus_iris = {BLARG.b}
         self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
-        _cardsearch_cases = itertools.chain(
-            self.cardsearch_cases(),
-            self.cardsearch_integer_cases(),
-        )
-        for _queryparams, _expected_focus_iris in _cardsearch_cases:
+        for _queryparams, _expected_focus_iris in self.cardsearch_cases():
             if isinstance(_expected_focus_iris, set):
                 _expected_focus_iris -= _deleted_focus_iris
             else:
@@ -173,17 +164,17 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_valuesearch_after_deletion(self):
         _cards = self._fill_test_data_for_querying()
-        _deleted_focus_iris = {BLARG.b}
+        _deleted_focus_iris = {BLARG.c}
         self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
         _cases = [
             (
                 {'valueSearchPropertyPath': 'subject'},
-                {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},  # BLARG.subj_b no longer present
+                {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_b},  # BLARG.subj_c no longer present
             ), (
                 {'valueSearchPropertyPath': 'dateCreated'},
-                {'1999', '2024'},  # 2012 no longer present
+                {'1999', '2012'},  # 2024 no longer present
             ), (
-                {'valueSearchPropertyPath': 'subject', 'cardSearchText': 'bbbb'},
+                {'valueSearchPropertyPath': 'subject', 'cardSearchText': 'cccc'},
                 set(),  # none
             )
         ]
@@ -296,7 +287,11 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
                 DCTERMS.creator: {BLARG.someone_else},
                 DCTERMS.title: {rdf.literal('cccc')},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_bc, BLARG.subj_c},
+                DCTERMS.subject: {
+                    BLARG['subj_ac/'],  # this one has an extra trailing slash
+                    BLARG.subj_bc,
+                    BLARG.subj_c,
+                },
                 DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
             },
             BLARG.someone_else: {
@@ -402,14 +397,6 @@ class CommonTrovesearchTests(RealElasticTestCase):
             set(),
         )
         yield (
-            {'cardSearchFilter[subject]': BLARG.subj_ac},
-            {BLARG.c, BLARG.a},
-        )
-        yield (
-            {'cardSearchFilter[subject][none-of]': BLARG.subj_ac},
-            {BLARG.b},
-        )
-        yield (
             {
                 'cardSearchFilter[subject]': BLARG.subj_bc,
                 'cardSearchFilter[creator]': BLARG.someone,
@@ -510,6 +497,8 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'cardSearchText': '"what is here"'},
             {BLARG.b},
         )
+        yield from self.cardsearch_trailingslash_cases()
+        yield from self.cardsearch_integer_cases()
 
     def cardsearch_integer_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
         # cases that depend on integer values getting indexed
@@ -522,6 +511,17 @@ class CommonTrovesearchTests(RealElasticTestCase):
             [BLARG.c, BLARG.a, BLARG.b],  # ordered list
         )
 
+    def cardsearch_trailingslash_cases(self) -> Iterator[tuple[dict[str, str], set[str] | list[str]]]:
+        # cases that depend on trailing-slash ignorance
+        yield (
+            {'cardSearchFilter[subject]': BLARG.subj_ac},
+            {BLARG.c, BLARG.a},
+        )
+        yield (
+            {'cardSearchFilter[subject][none-of]': BLARG.subj_ac},
+            {BLARG.b},
+        )
+
     def valuesearch_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
         yield (
             {'valueSearchPropertyPath': 'references'},
@@ -531,6 +531,26 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'valueSearchPropertyPath': 'dateCreated'},
             {'1999', '2012', '2024'},
         )
+        yield (
+            {
+                'valueSearchPropertyPath': 'references',
+                'valueSearchFilter[resourceType]': BLARG.Thing,
+            },
+            {BLARG.b, BLARG.c},
+        )
+        yield (
+            {
+                'valueSearchPropertyPath': 'references',
+                'valueSearchText': 'bbbb',
+            },
+            {BLARG.b},
+        )
+        yield from self.valuesearch_trailingslash_cases()
+        yield from self.valuesearch_sameas_cases()
+        # TODO: more
+
+    def valuesearch_trailingslash_cases(self) -> Iterator[tuple[dict[str, str], set[str]]]:
+        # cases that depend on trailing-slash ignorance
         yield (
             {'valueSearchPropertyPath': 'subject'},
             {BLARG.subj_a, BLARG.subj_ac, BLARG.subj_b, BLARG.subj_bc, BLARG.subj_c},
@@ -547,21 +567,43 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {'valueSearchPropertyPath': 'subject', 'cardSearchText': 'aaaa'},
             {BLARG.subj_ac, BLARG.subj_a},
         )
+
+    def valuesearch_sameas_cases(self):
         yield (
             {
-                'valueSearchPropertyPath': 'references',
-                'valueSearchFilter[resourceType]': BLARG.Thing,
+                'valueSearchPropertyPath': 'subject',
+                'cardSearchFilter[sameAs]': BLARG.a,
             },
-            {BLARG.b, BLARG.c},
+            {BLARG.subj_ac, BLARG.subj_a},
         )
         yield (
             {
-                'valueSearchPropertyPath': 'references',
-                'valueSearchText': 'bbbb',
+                'valueSearchPropertyPath': 'subject',
+                'cardSearchFilter[sameAs]': BLARG.a_same,
             },
-            {BLARG.b},
+            {BLARG.subj_ac, BLARG.subj_a},
         )
-        # TODO: more
+        yield (
+            {
+                'valueSearchPropertyPath': 'subject',
+                'cardSearchFilter[sameAs]': BLARG.b_same,
+            },
+            {BLARG.subj_b, BLARG.subj_bc},
+        )
+        yield (
+            {
+                'valueSearchPropertyPath': 'subject',
+                'valueSearchFilter[sameAs]': BLARG.subj_a,
+            },
+            {BLARG.subj_a},
+        )
+        yield (
+            {
+                'valueSearchPropertyPath': 'subject',
+                'cardSearchFilter[subject]': BLARG.subj_ac,
+            },
+            {BLARG.subj_ac, BLARG.subj_a, BLARG.subj_c, BLARG.subj_bc},
+        )
 
     def _index_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
         _messages_chunk = messages.MessagesChunk(

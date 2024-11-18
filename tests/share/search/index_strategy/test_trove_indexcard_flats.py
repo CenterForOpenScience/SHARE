@@ -10,3 +10,12 @@ class TestTroveIndexcardFlats(_common_trovesearch_tests.CommonTrovesearchTests):
 
     def cardsearch_integer_cases(self):
         yield from ()  # integers not indexed by this strategy
+
+    def cardsearch_trailingslash_cases(self):
+        yield from ()  # trailing-slash handling improved in trovesearch_denorm
+
+    def valuesearch_sameas_cases(self):
+        yield from ()  # sameas handling improved in trovesearch_denorm
+
+    def valuesearch_trailingslash_cases(self):
+        yield from ()  # trailing-slash handling improved in trovesearch_denorm
