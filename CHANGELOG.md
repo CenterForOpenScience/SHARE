@@ -1,5 +1,9 @@
 # Change Log
 
+# [24.6.0] - 2024-11-27
+- ignore trailing slashes on iri values
+- have more than one shard and replicas
+
 # [24.5.0] - 2024-11-14
 - fix for M chips with docker
 - add "subject" related property for `cardSearchFilter[resourceType]=Project`
