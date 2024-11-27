@@ -1,5 +1,8 @@
 # Change Log
 
+# [24.6.1] - 2024-11-27
+- fix(trovesearch_denorm): keep iris whole in path-based fieldnames
+
 # [24.6.0] - 2024-11-27
 - ignore trailing slashes on iri values
 - have more than one shard and replicas
