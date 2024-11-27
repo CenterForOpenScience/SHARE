@@ -107,10 +107,7 @@ def iris_synonyms(iris: typing.Iterable[str], rdfdoc: rdf.RdfGraph) -> set[str]:
 
 def propertypath_as_keyword(path: Propertypath) -> str:
     assert not is_globpath(path)
-    return json.dumps([
-        get_sufficiently_unique_iri(_iri)
-        for _iri in path
-    ])
+    return json.dumps(path)
 
 
 def b64(value: str) -> str:
