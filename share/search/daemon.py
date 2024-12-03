@@ -55,8 +55,6 @@ class IndexerDaemonControl:
             stop_event=self.stop_event,
             daemonthread_context=self.daemonthread_context,
         )
-        # spin up daemonthreads, ready for messages
-        self._daemonthreads.extend(_daemon.start())
         _consumer = KombuMessageConsumer(
             kombu_connection=self.kombu_connection.clone(),
             stop_event=self.stop_event,
@@ -65,7 +63,10 @@ class IndexerDaemonControl:
         )
         # give the daemon a more robust callback for ack-ing
         _daemon.ack_callback = _consumer.ensure_ack
-        # assign a thread for the consumer to receive and enqueue messages to this daemon
+        # spin up daemonthreads, ready for messages
+        self._daemonthreads.extend(_daemon.start())
+        # start a thread to consume messages from this strategy's queues
+        # (and enqueue them for daemonthreads)
         threading.Thread(target=_consumer.run).start()
         return _daemon
 
