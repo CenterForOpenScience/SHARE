@@ -6,6 +6,8 @@ import logging
 import time
 import typing
 
+import amqp.exceptions
+
 from share.search import exceptions
 from share.util import chunked
 
@@ -142,7 +144,12 @@ class DaemonMessage(abc.ABC):
     def ack(self):
         if self.kombu_message is None:
             raise exceptions.DaemonMessageError('ack! called DaemonMessage.ack() but there is nothing to ack')
-        return self.kombu_message.ack()
+        try:
+            self.kombu_message.ack()
+        except (ConnectionError, amqp.exceptions.ConnectionError):
+            # acks must be on the same channel the message was received on --
+            # if the channel failed, oh well, the message already got requeued
+            pass
 
     def requeue(self):
         if self.kombu_message is None:

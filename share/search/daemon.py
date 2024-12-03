@@ -8,7 +8,6 @@ import random
 import threading
 import time
 
-import amqp.exceptions
 from django.conf import settings
 import kombu
 from kombu.mixins import ConsumerMixin
@@ -61,8 +60,6 @@ class IndexerDaemonControl:
             index_strategy=index_strategy,
             message_callback=_daemon.on_message,
         )
-        # give the daemon a more robust callback for ack-ing
-        _daemon.ack_callback = _consumer.ensure_ack
         # spin up daemonthreads, ready for messages
         self._daemonthreads.extend(_daemon.start())
         # start a thread to consume messages from this strategy's queues
@@ -130,28 +127,9 @@ class KombuMessageConsumer(ConsumerMixin):
         consume = self.connection.ensure(self.connection, super().consume)
         return consume(*args, **kwargs)
 
-    def ensure_ack(self, daemon_message: messages.DaemonMessage):
-        # if the connection the message came thru is no longer usable,
-        # use `kombu.Connection.autoretry` to revive it for an ack
-        try:
-            daemon_message.ack()
-        except (ConnectionError, amqp.exceptions.ConnectionError):
-            @self.connection.autoretry
-            def _do_ack(*, channel):
-                try:
-                    channel.basic_ack(daemon_message.kombu_message.delivery_tag)
-                finally:
-                    channel.close()
-            _do_ack()
-
-
-def _default_ack_callback(daemon_message: messages.DaemonMessage) -> None:
-    daemon_message.ack()
-
 
 class IndexerDaemon:
     MAX_LOCAL_QUEUE_SIZE = 5000
-    ack_callback: Callable[[messages.DaemonMessage], None]
 
     def __init__(self, index_strategy, *, stop_event=None, daemonthread_context=None):
         self.stop_event = (
@@ -163,7 +141,6 @@ class IndexerDaemon:
         self.__daemonthread_context = daemonthread_context or contextlib.nullcontext
         self.__local_message_queues = {}
         self.__started = False
-        self.ack_callback = _default_ack_callback
 
     def start(self) -> list[threading.Thread]:
         if self.__started:
@@ -192,7 +169,6 @@ class IndexerDaemon:
             local_message_queue=_queue_from_rabbit_to_daemon,
             log_prefix=f'{repr(self)} MessageHandlingLoop: ',
             daemonthread_context=self.__daemonthread_context,
-            ack_callback=self.ack_callback,
         )
         return _handling_loop.start_thread()
 
@@ -226,7 +202,6 @@ class MessageHandlingLoop:
     local_message_queue: queue.Queue
     log_prefix: str
     daemonthread_context: Callable[[], contextlib.AbstractContextManager]
-    ack_callback: Callable[[messages.DaemonMessage], None]
     _leftover_daemon_messages_by_target_id = None
 
     def __post_init__(self):
@@ -310,7 +285,7 @@ class MessageHandlingLoop:
                     sentry_sdk.capture_message('error handling message', extras={'message_response': message_response})
                 target_id = message_response.index_message.target_id
                 for daemon_message in daemon_messages_by_target_id.pop(target_id, ()):
-                    self.ack_callback(daemon_message)
+                    daemon_message.ack()  # finally set it free
             if daemon_messages_by_target_id:  # should be empty by now
                 logger.error('%sUnhandled messages?? %s', self.log_prefix, len(daemon_messages_by_target_id))
                 sentry_sdk.capture_message(
