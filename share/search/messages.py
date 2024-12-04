@@ -6,8 +6,6 @@ import logging
 import time
 import typing
 
-import amqp.exceptions
-
 from share.search import exceptions
 from share.util import chunked
 
