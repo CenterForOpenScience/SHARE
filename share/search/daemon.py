@@ -79,7 +79,7 @@ class IndexerDaemonControl:
 
 
 class KombuMessageConsumer(ConsumerMixin):
-    PREFETCH_COUNT = 7500
+    PREFETCH_COUNT = settings.ELASTICSEARCH['CHUNK_SIZE']
 
     should_stop: bool  # (from ConsumerMixin)
 
@@ -129,7 +129,7 @@ class KombuMessageConsumer(ConsumerMixin):
 
 
 class IndexerDaemon:
-    MAX_LOCAL_QUEUE_SIZE = 5000
+    MAX_LOCAL_QUEUE_SIZE = settings.ELASTICSEARCH['CHUNK_SIZE']
 
     def __init__(self, index_strategy, *, stop_event=None, daemonthread_context=None):
         self.stop_event = (
