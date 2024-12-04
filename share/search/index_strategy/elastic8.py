@@ -60,8 +60,11 @@ class Elastic8IndexStrategy(IndexStrategy):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def build_elastic_actions(self, messages_chunk: messages.MessagesChunk) -> typing.Iterable[tuple[int, dict]]:
-        # yield (message_target_id, elastic_action) pairs
+    def build_elastic_actions(
+        self,
+        messages_chunk: messages.MessagesChunk,
+    ) -> typing.Iterable[tuple[int, dict | typing.Iterable[dict]]]:
+        # yield (message_target_id, [elastic_action, ...]) pairs
         raise NotImplementedError
 
     def before_chunk(
@@ -148,10 +151,17 @@ class Elastic8IndexStrategy(IndexStrategy):
             _indexname = _response_body['_index']
             _is_done = _ok or (_op_type == 'delete' and _status == 404)
             if _is_done:
-                _action_tracker.action_done(_indexname, _docid)
+                _finished_message_id = _action_tracker.action_done(_indexname, _docid)
+                if _finished_message_id is not None:
+                    yield messages.IndexMessageResponse(
+                        is_done=True,
+                        index_message=messages.IndexMessage(messages_chunk.message_type, _finished_message_id),
+                        status_code=HTTPStatus.OK.value,
+                        error_text=None,
+                    )
+                    _action_tracker.forget_message(_finished_message_id)
             else:
                 _action_tracker.action_errored(_indexname, _docid)
-                # yield error responses immediately
                 yield messages.IndexMessageResponse(
                     is_done=False,
                     index_message=messages.IndexMessage(
@@ -162,15 +172,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                     error_text=str(_response_body),
                 )
         self.after_chunk(messages_chunk, _indexnames)
-        # yield successes after the whole chunk completes
-        # (since one message may involve several actions)
-        for _messageid in _action_tracker.all_done_messages():
-            yield messages.IndexMessageResponse(
-                is_done=True,
-                index_message=messages.IndexMessage(messages_chunk.message_type, _messageid),
-                status_code=HTTPStatus.OK.value,
-                error_text=None,
-            )
 
     # abstract method from IndexStrategy
     def pls_make_default_for_searching(self, specific_index: IndexStrategy.SpecificIndex):
@@ -202,14 +203,18 @@ class Elastic8IndexStrategy(IndexStrategy):
     def _elastic_actions_with_index(self, messages_chunk, indexnames, action_tracker: _ActionTracker):
         if not indexnames:
             raise ValueError('cannot index to no indexes')
-        for _message_target_id, _elastic_action in self.build_elastic_actions(messages_chunk):
-            _docid = _elastic_action['_id']
-            for _indexname in indexnames:
-                action_tracker.add_action(_message_target_id, _indexname, _docid)
-                yield {
-                    **_elastic_action,
-                    '_index': _indexname,
-                }
+        for _message_target_id, _elastic_actions in self.build_elastic_actions(messages_chunk):
+            if isinstance(_elastic_actions, dict):  # allow a single action
+                _elastic_actions = [_elastic_actions]
+            for _elastic_action in _elastic_actions:
+                _docid = _elastic_action['_id']
+                for _indexname in indexnames:
+                    action_tracker.add_action(_message_target_id, _indexname, _docid)
+                    yield {
+                        **_elastic_action,
+                        '_index': _indexname,
+                    }
+            action_tracker.done_scheduling(_message_target_id)
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:
         try:
@@ -371,24 +376,37 @@ class _ActionTracker:
         default_factory=lambda: collections.defaultdict(set),
     )
     errored_messageids: set[int] = dataclasses.field(default_factory=set)
+    fully_scheduled_messageids: set[int] = dataclasses.field(default_factory=set)
 
     def add_action(self, message_id: int, index_name: str, doc_id: str):
         self.messageid_by_docid[doc_id] = message_id
         self.actions_by_messageid[message_id].add((index_name, doc_id))
 
-    def action_done(self, index_name: str, doc_id: str):
-        _messageid = self.messageid_by_docid[doc_id]
-        _message_actions = self.actions_by_messageid[_messageid]
-        _message_actions.discard((index_name, doc_id))
+    def action_done(self, index_name: str, doc_id: str) -> int | None:
+        _messageid = self.get_message_id(doc_id)
+        _remaining_message_actions = self.actions_by_messageid[_messageid]
+        _remaining_message_actions.discard((index_name, doc_id))
+        # return the message id only if this was the last action for that message
+        return (
+            None
+            if _remaining_message_actions or (_messageid not in self.fully_scheduled_messageids)
+            else _messageid
+        )
 
     def action_errored(self, index_name: str, doc_id: str):
         _messageid = self.messageid_by_docid[doc_id]
         self.errored_messageids.add(_messageid)
 
+    def done_scheduling(self, message_id: int):
+        self.fully_scheduled_messageids.add(message_id)
+
+    def forget_message(self, message_id: int):
+        del self.actions_by_messageid[message_id]
+
     def get_message_id(self, doc_id: str):
         return self.messageid_by_docid[doc_id]
 
-    def all_done_messages(self):
+    def remaining_done_messages(self):
         for _messageid, _actions in self.actions_by_messageid.items():
             if _messageid not in self.errored_messageids:
                 assert not _actions

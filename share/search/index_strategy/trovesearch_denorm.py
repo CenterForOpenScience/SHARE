@@ -173,12 +173,13 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             _docbuilder = self._SourcedocBuilder(_indexcard_rdf, messages_chunk.timestamp)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
                 _indexcard_pk = _indexcard_rdf.indexcard_id
-                for _doc_id, _doc in _docbuilder.build_docs():
-                    _index_action = self.build_index_action(
+                yield _indexcard_pk, (
+                    self.build_index_action(
                         doc_id=_doc_id,
                         doc_source=_doc,
                     )
-                    yield _indexcard_pk, _index_action
+                    for _doc_id, _doc in _docbuilder.build_docs()
+                )
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
@@ -279,7 +280,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def build_docs(self) -> Iterator[tuple[str, dict]]:
             # index once without `iri_value`
-            yield self._doc_id(), {'card': self._card_subdoc}
+            yield self._doc_id(), {
+                'card': self._card_subdoc,
+                'chunk_timestamp': self.chunk_timestamp,
+            }
             for _iri in self._fullwalk.paths_by_iri:
                 yield self._doc_id(_iri), {
                     'card': self._card_subdoc,
