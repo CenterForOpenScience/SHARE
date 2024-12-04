@@ -171,6 +171,13 @@ class Elastic8IndexStrategy(IndexStrategy):
                     status_code=_status,
                     error_text=str(_response_body),
                 )
+        for _message_id in _action_tracker.remaining_done_messages():
+            yield messages.IndexMessageResponse(
+                is_done=True,
+                index_message=messages.IndexMessage(messages_chunk.message_type, _message_id),
+                status_code=HTTPStatus.OK.value,
+                error_text=None,
+            )
         self.after_chunk(messages_chunk, _indexnames)
 
     # abstract method from IndexStrategy
