@@ -314,6 +314,7 @@ ELASTICSEARCH = {
     'TIMEOUT': int(os.environ.get('ELASTICSEARCH_TIMEOUT', '45')),
     'CHUNK_SIZE': int(os.environ.get('ELASTICSEARCH_CHUNK_SIZE', 2000)),
     'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
+    'POST_INDEX_DELAY': int(os.environ.get('ELASTICSEARCH_POST_INDEX_DELAY', 3)),
 }
 ELASTICSEARCH5_URL = (
     os.environ.get('ELASTICSEARCH5_URL')

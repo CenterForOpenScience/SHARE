@@ -142,7 +142,7 @@ class DaemonMessage(abc.ABC):
     def ack(self):
         if self.kombu_message is None:
             raise exceptions.DaemonMessageError('ack! called DaemonMessage.ack() but there is nothing to ack')
-        return self.kombu_message.ack()
+        self.kombu_message.ack()
 
     def requeue(self):
         if self.kombu_message is None:

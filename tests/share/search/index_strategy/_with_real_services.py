@@ -24,6 +24,16 @@ class RealElasticTestCase(TransactionTestCase):
         super().setUp()
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.index_strategy = self.get_index_strategy()
+
+        def _fake_get_index_strategy(name):
+            if self.index_strategy.name == name:
+                return self.index_strategy
+            raise ValueError(f'unknown index strategy in test: {name}')
+
+        self.enterContext(mock.patch(
+            'share.search.index_strategy.get_index_strategy',
+            new=_fake_get_index_strategy,
+        ))
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
             index_strategys=[self.index_strategy],

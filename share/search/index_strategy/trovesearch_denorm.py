@@ -11,6 +11,7 @@ from typing import (
     Literal,
 )
 
+import celery
 from django.conf import settings
 import elasticsearch8
 from primitive_metadata import primitive_rdf as rdf
@@ -154,15 +155,14 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     # override method from Elastic8IndexStrategy
     def after_chunk(self, messages_chunk: messages.MessagesChunk, indexnames: Iterable[str]):
-        # refresh to avoid delete-by-query conflicts
-        self.es8_client.indices.refresh(index=','.join(indexnames))
-        # delete any docs that belong to cards in this chunk but weren't touched by indexing
-        self.es8_client.delete_by_query(
-            index=list(indexnames),
-            query={'bool': {'must': [
-                {'terms': {'card.card_pk': messages_chunk.target_ids_chunk}},
-                {'range': {'chunk_timestamp': {'lt': messages_chunk.timestamp}}},
-            ]}},
+        task__delete_iri_value_scraps.apply_async(
+            kwargs={
+                'index_strategy_name': self.name,
+                'indexnames': list(indexnames),
+                'card_pks': messages_chunk.target_ids_chunk,
+                'timestamp': messages_chunk.timestamp,
+            },
+            countdown=settings.ELASTICSEARCH['POST_INDEX_DELAY'],
         )
 
     # abstract method from Elastic8IndexStrategy
@@ -173,12 +173,13 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             _docbuilder = self._SourcedocBuilder(_indexcard_rdf, messages_chunk.timestamp)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
                 _indexcard_pk = _indexcard_rdf.indexcard_id
-                for _doc_id, _doc in _docbuilder.build_docs():
-                    _index_action = self.build_index_action(
+                yield _indexcard_pk, (
+                    self.build_index_action(
                         doc_id=_doc_id,
                         doc_source=_doc,
                     )
-                    yield _indexcard_pk, _index_action
+                    for _doc_id, _doc in _docbuilder.build_docs()
+                )
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
@@ -279,7 +280,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         def build_docs(self) -> Iterator[tuple[str, dict]]:
             # index once without `iri_value`
-            yield self._doc_id(), {'card': self._card_subdoc}
+            yield self._doc_id(), {
+                'card': self._card_subdoc,
+                'chunk_timestamp': self.chunk_timestamp,
+            }
             for _iri in self._fullwalk.paths_by_iri:
                 yield self._doc_id(_iri), {
                     'card': self._card_subdoc,
@@ -888,3 +892,46 @@ def _any_query(queries: abc.Collection[dict]):
         (_query,) = queries
         return _query
     return {'bool': {'should': list(queries), 'minimum_should_match': 1}}
+
+
+@celery.shared_task(
+    name='share.search.index_strategy.trovesearch_denorm.task__delete_iri_value_scraps',
+    max_retries=None,  # retries only on delete_by_query conflicts -- should work eventually!
+    retry_backoff=True,
+    bind=True,  # for explicit retry
+)
+def task__delete_iri_value_scraps(
+    task: celery.Task,
+    index_strategy_name: str,
+    card_pks: list[int],
+    indexnames: list[str],
+    timestamp: int,
+):
+    '''followup task to delete value-docs no longer present
+
+    each time an index-card is updated, value-docs are created (or updated) for each iri value
+    present in the card's contents -- if some values are absent from a later update, the
+    corresponding docs will remain untouched
+
+    this task deletes those untouched value-docs after the index has refreshed at its own pace
+    (allowing a slightly longer delay for items to _stop_ matching queries for removed values)
+    '''
+    from share.search.index_strategy import get_index_strategy
+    _index_strategy = get_index_strategy(index_strategy_name)
+    assert isinstance(_index_strategy, Elastic8IndexStrategy)
+    # delete any docs that belong to cards in this chunk but weren't touched by indexing
+    _delete_resp = _index_strategy.es8_client.delete_by_query(
+        index=indexnames,
+        query={'bool': {'must': [
+            {'terms': {'card.card_pk': card_pks}},
+            {'range': {'chunk_timestamp': {'lt': timestamp}}},
+        ]}},
+        params={
+            'slices': 'auto',
+            'conflicts': 'proceed',  # count conflicts instead of halting
+            'request_cache': False,
+        },
+    )
+    _conflict_count = _delete_resp.get('version_conflicts', 0)
+    if _conflict_count > 0:
+        raise task.retry()

@@ -184,7 +184,9 @@ services:
 
   worker:
     image: quay.io/centerforopenscience/share:develop
-    command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
+    command:
+      chown -R daemon:daemon /elastic8_certs/ &&
+      /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
       - rabbitmq
