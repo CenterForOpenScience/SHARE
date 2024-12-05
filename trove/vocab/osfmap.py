@@ -851,7 +851,7 @@ PREPRINT_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.subject,),
     (DCTERMS.rights,),
     (DCTERMS.publisher,),
-    (DCTERMS.creator, OSFMAP.affiliation),
+    (OSFMAP.affiliation,),
     (OSFMAP.hasDataResource,),
     (OSFMAP.hasPreregisteredAnalysisPlan,),
     (OSFMAP.hasPreregisteredStudyDesign,),
@@ -906,6 +906,14 @@ def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]
         _suggested = AGENT_SUGGESTED_PROPERTY_PATHS
     elif type_iris == {OSFMAP.Preprint}:
         _suggested = PREPRINT_SUGGESTED_PROPERTY_PATHS
+        if not FeatureFlag.objects.flag_is_up(FeatureFlag.PREPRINT_AFFILIATIONS):
+            # replace `affilation` with `creator.affiliation`
+            _no = (OSFMAP.affiliation,)
+            _instead = (DCTERMS.creator, OSFMAP.affiliation)
+            _suggested = tuple(
+                (_instead if (_path == _no) else _path)
+                for _path in _suggested
+            )
     elif type_iris == {OSFMAP.File}:
         _suggested = FILE_SUGGESTED_PROPERTY_PATHS
     elif type_iris <= {OSFMAP.Project, OSFMAP.ProjectComponent}:
