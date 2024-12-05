@@ -162,7 +162,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
             },
-            countdown=3,  # TODO: config?
+            countdown=settings.ELASTICSEARCH['POST_INDEX_DELAY'],
         )
 
     # abstract method from Elastic8IndexStrategy
