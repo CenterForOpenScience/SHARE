@@ -1,5 +1,12 @@
 # Change Log
 
+# [24.6.2] - 2024-12-05
+- more stable indexer daemon
+- `trovesearch_denorm` indexing tweaks:
+  - move iri-value delete_by_query into followup task
+- suggest `affiliation` instead of `creator.affiliation` for osf:Preprint searches
+- local docker-compose: give worker access to elasticsearch
+
 # [24.6.1] - 2024-11-27
 - fix(trovesearch_denorm): keep iris whole in path-based fieldnames
 
