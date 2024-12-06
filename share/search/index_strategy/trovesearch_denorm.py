@@ -44,7 +44,7 @@ from trove.trovesearch.search_response import (
     ValuesearchResponse,
     ValuesearchResult,
 )
-from trove.vocab.osfmap import is_date_property
+from trove.vocab import osfmap
 from trove.vocab.namespaces import OWL, RDF
 from . import _trovesearch_util as ts
 
@@ -230,7 +230,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _path = valuesearch_params.valuesearch_propertypath
             _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
-            _is_date_search = is_date_property(_path[-1])
+            _is_date_search = osfmap.is_date_property(_path[-1])
             _query = (
                 _build_date_valuesearch(valuesearch_params)
                 if _is_date_search
@@ -275,7 +275,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 # skip cards that belong to an obsolete suid with a later duplicate
                 _suid.has_forecompat_replacement()
                 # ...or that are without some value for name/title/label
-                or not any(self.rdfdoc.q(self.focus_iri, ts.NAMELIKE_PROPERTIES))
+                or not any(self.rdfdoc.q(self.focus_iri, osfmap.NAMELIKE_PROPERTIES))
             )
 
         def build_docs(self) -> Iterator[tuple[str, dict]]:
@@ -319,9 +319,9 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             _shortwalk = self._fullwalk.shortwalk_from(iri)
             return {
                 **self._paths_and_values(_shortwalk),
-                'value_name': list(self._texts_at_properties(_shortwalk, ts.NAME_PROPERTIES)),
-                'value_title': list(self._texts_at_properties(_shortwalk, ts.TITLE_PROPERTIES)),
-                'value_label': list(self._texts_at_properties(_shortwalk, ts.LABEL_PROPERTIES)),
+                'value_name': list(self._texts_at_properties(_shortwalk, osfmap.NAME_PROPERTIES)),
+                'value_title': list(self._texts_at_properties(_shortwalk, osfmap.TITLE_PROPERTIES)),
+                'value_label': list(self._texts_at_properties(_shortwalk, osfmap.LABEL_PROPERTIES)),
                 'at_card_propertypaths': [
                     ts.propertypath_as_keyword(_path)
                     for _path in self._fullwalk.paths_by_iri[iri]

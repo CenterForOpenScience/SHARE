@@ -40,15 +40,11 @@ from trove.trovesearch.search_response import (
     PropertypathUsage,
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
-from trove.vocab.osfmap import is_date_property
+from trove.vocab import osfmap
 from trove.vocab.namespaces import RDF, OWL
 from ._trovesearch_util import (
     latest_rdf_for_indexcard_pks,
     GraphWalk,
-    TITLE_PROPERTIES,
-    NAME_PROPERTIES,
-    LABEL_PROPERTIES,
-    NAMELIKE_PROPERTIES,
     KEYWORD_LENGTH_MAX,
 )
 
@@ -322,7 +318,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
         def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
             _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
-            _is_date_search = is_date_property(valuesearch_params.valuesearch_propertypath[-1])
+            _is_date_search = osfmap.is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
                 query=self._cardsearch_query(
                     valuesearch_params.cardsearch_filter_set,
@@ -833,7 +829,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
 def _should_skip_card(indexcard_rdf, rdfdoc):
     # skip cards without some value for name/title/label
-    return not any(rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES))
+    return not any(rdfdoc.q(indexcard_rdf.focus_iri, osfmap.NAMELIKE_PROPERTIES))
 
 
 def _bucketlist(agg_result: dict) -> list[str]:
@@ -911,17 +907,17 @@ class _NestedIriKey:
             # TODO: don't discard language for name/title/label
             name_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, NAME_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.NAME_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
             title_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.TITLE_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
             label_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.LABEL_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
         )

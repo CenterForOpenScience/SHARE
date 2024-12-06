@@ -4,10 +4,11 @@ from django.views import View
 from primitive_metadata import primitive_rdf
 
 from trove import models as trove_db
-from trove.render import get_renderer
+from trove.render import get_renderer_type
 from trove.util.iris import unquote_iri, get_sufficiently_unique_iri
 from trove.vocab import namespaces as ns
 from trove.vocab import static_vocab
+from ._responder import make_http_response
 
 
 class BrowseIriView(View):
@@ -24,12 +25,15 @@ class BrowseIriView(View):
         _thesaurus_entry = static_vocab.combined_thesaurus__suffuniq().get(_suffuniq_iri, {})
         if _thesaurus_entry:
             _combined_rdf.add_twopledict(_card_focus_iri, _thesaurus_entry)
-        return get_renderer(request).render_response(
-            _combined_rdf.tripledict,
+        _renderer_type = get_renderer_type(request)
+        _renderer = _renderer_type(
             _card_focus_iri,
-            headers={
-                'Content-Disposition': 'inline',
-            },
+            _combined_rdf.tripledict,
+        )
+        return make_http_response(
+            content_rendering=_renderer.render_document(),
+            http_headers=[('Content-Disposition', 'inline')],
+            http_request=request,
         )
 
 
