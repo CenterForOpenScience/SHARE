@@ -3,7 +3,7 @@ import dataclasses
 import datetime
 import hashlib
 import json
-from typing import Iterable, Union
+from typing import Iterable, Union, Any
 
 from primitive_metadata import primitive_rdf
 
@@ -149,10 +149,21 @@ class RdfJsonapiRenderer(BaseRenderer):
             raise trove_exceptions.ExpectedLiteralObject((iri, JSONAPI_MEMBERNAME, _membername))
         return self.iri_shorthand.compact_iri(iri)
 
-    def _resource_id_for_blanknode(self, blanknode: frozenset):
-        # content-addressed blanknode id (maybe-TODO: care about hash stability,
-        # tho don't need it with cached render_identifier_object implementation)
-        return hashlib.sha256(str(blanknode).encode()).hexdigest()
+    def _resource_id_for_blanknode(self, blanknode: frozenset, /):
+        # content-addressed blanknode id
+        _serializable_twoples = []
+        for _pred, _obj in blanknode:
+            _serializable_obj: Any
+            if isinstance(_obj, primitive_rdf.Literal):
+                _serializable_obj = [_obj.unicode_value, *sorted(_obj.datatype_iris)]
+            elif isinstance(_obj, str):
+                _serializable_obj = _obj
+            elif isinstance(_obj, frozenset):
+                _serializable_obj = self._resource_id_for_blanknode(_obj)
+            else:
+                raise ValueError(_obj)
+            _serializable_twoples.append((_pred, _serializable_obj))
+        return hashlib.sha256(json.dumps(sorted(_serializable_twoples)).encode()).hexdigest()
 
     def _resource_id_for_iri(self, iri: str):
         for _iri_namespace in self._id_namespace_set:
