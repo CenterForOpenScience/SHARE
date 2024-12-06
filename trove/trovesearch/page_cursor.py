@@ -14,10 +14,13 @@ __all__ = ('PageCursor', 'OffsetCursor', 'ReproduciblyRandomSampleCursor')
 MANY_MORE = -1
 MAX_OFFSET = 9997
 
+DEFAULT_PAGE_SIZE = 13
+MAX_PAGE_SIZE = 10000
+
 
 @dataclasses.dataclass
 class PageCursor:
-    page_size: int
+    page_size: int = DEFAULT_PAGE_SIZE
     total_count: int = MANY_MORE
 
     @classmethod
@@ -35,6 +38,10 @@ class PageCursor:
         if isinstance(other_cursor, cls):
             return dataclasses.replace(other_cursor)  # simple copy
         return cls(*dataclasses.astuple(other_cursor))
+
+    def __post_init__(self):
+        if self.page_size > MAX_PAGE_SIZE:
+            self.page_size = MAX_PAGE_SIZE
 
     def as_queryparam_value(self) -> str:
         _cls_key = _PageCursorTypes(type(self)).name
