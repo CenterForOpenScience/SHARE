@@ -77,10 +77,14 @@ class TabularDoc:
         ]
 
     def _row_field_value(self, osfmap_json: dict, field_path: Jsonpath) -> str:
-        return _MULTIVALUE_DELIMITER.join(
+        _rendered_values = [
             _render_tabularly(_obj)
             for _obj in _iter_values(osfmap_json, field_path)
-        )
+        ]
+        if len(_rendered_values) == 1:
+            return _rendered_values[0]  # preserve type for single numbers
+        # for multiple values, can only be a string
+        return _MULTIVALUE_DELIMITER.join(map(str, _rendered_values))
 
 
 def _osfmap_jsonpath(iri_path: typing.Iterable[str]) -> Jsonpath:
