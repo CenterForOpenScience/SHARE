@@ -11,7 +11,10 @@ from django.http import QueryDict
 from primitive_metadata import primitive_rdf
 
 from trove import exceptions as trove_exceptions
-from trove.trovesearch.page_cursor import PageCursor
+from trove.trovesearch.page_cursor import (
+    DEFAULT_PAGE_SIZE,
+    PageCursor,
+)
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -46,10 +49,6 @@ DOUBLE_QUOTATION_MARK = '"'
 
 # optional prefix for "sort" values
 DESCENDING_SORT_PREFIX = '-'
-
-# for "page[size]" values
-DEFAULT_PAGE_SIZE = 13
-MAX_PAGE_SIZE = 101
 
 # between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
@@ -671,11 +670,11 @@ def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
     _cursor_value = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
     if _cursor_value:
         return PageCursor.from_queryparam_value(_cursor_value)
+    _size_value = _get_single_value(queryparams, QueryparamName('page', ('size',)))
+    if _size_value is None:
+        return PageCursor()
     try:
-        _size = int(  # TODO: 400 response on non-int value
-            _get_single_value(queryparams, QueryparamName('page', ('size',)))
-            or DEFAULT_PAGE_SIZE
-        )
+        _size = int(_size_value)
     except ValueError:
         raise trove_exceptions.InvalidQueryParamValue('page[size]')
-    return PageCursor(page_size=min(_size, MAX_PAGE_SIZE))
+    return PageCursor(page_size=_size)

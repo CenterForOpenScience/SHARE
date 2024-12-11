@@ -7,7 +7,7 @@ from ._base import BaseIndexcardDeriverTest
 class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
     deriver_class = OsfmapJsonDeriver
 
-    def assert_derived_texts_equal(self, expected, actual):
+    def assert_outputs_equal(self, expected, actual):
         self.assertEqual(expected, json.loads(actual))
 
     expected_outputs = {

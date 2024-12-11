@@ -93,6 +93,10 @@ class CannotRenderMediatype(ResponseRenderingError):
     http_status = http.HTTPStatus.NOT_ACCEPTABLE
 
 
+class CannotRenderStreamTwice(ResponseRenderingError):
+    pass
+
+
 ###
 # primitive rdf
 
