@@ -18,7 +18,7 @@ _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
 
 
 class TrovesearchSimpleTsvRenderer(SimpleTrovesearchRenderer):
-    MEDIATYPE = mediatypes.TAB_SEPARATED_VALUES
+    MEDIATYPE = mediatypes.TSV
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
     CSV_DIALECT: type[csv.Dialect] = csv.excel_tab
 

@@ -29,8 +29,8 @@ UNSTABLE_MEDIATYPES = (
     mediatypes.JSONLD,
     # TODO: below are only for search/index-card views
     mediatypes.JSON,
-    mediatypes.TAB_SEPARATED_VALUES,
-    mediatypes.COMMA_SEPARATED_VALUES,
+    mediatypes.TSV,
+    mediatypes.CSV,
 )
 
 

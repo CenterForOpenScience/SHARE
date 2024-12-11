@@ -3,8 +3,8 @@ JSONAPI = 'application/vnd.api+json'
 JSONLD = 'application/ld+json'
 TURTLE = 'text/turtle'
 HTML = 'text/html'
-TAB_SEPARATED_VALUES = 'text/tab-separated-values'
-COMMA_SEPARATED_VALUES = 'text/csv'
+TSV = 'text/tab-separated-values'
+CSV = 'text/csv'
 
 
 _file_extensions = {
@@ -13,8 +13,8 @@ _file_extensions = {
     JSONLD: '.json',
     TURTLE: '.turtle',
     HTML: '.html',
-    TAB_SEPARATED_VALUES: '.tsv',
-    COMMA_SEPARATED_VALUES: '.csv',
+    TSV: '.tsv',
+    CSV: '.csv',
 }
 
 

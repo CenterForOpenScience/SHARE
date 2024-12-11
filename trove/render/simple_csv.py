@@ -6,5 +6,5 @@ from .simple_tsv import TrovesearchSimpleTsvRenderer
 
 
 class TrovesearchSimpleCsvRenderer(TrovesearchSimpleTsvRenderer):
-    MEDIATYPE = mediatypes.COMMA_SEPARATED_VALUES
+    MEDIATYPE = mediatypes.CSV
     CSV_DIALECT = csv.excel
