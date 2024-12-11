@@ -27,7 +27,7 @@ RENDERER_BY_MEDIATYPE = {
     _renderer_type.MEDIATYPE: _renderer_type
     for _renderer_type in RENDERERS
 }
-DEFAULT_RENDERER = RdfJsonapiRenderer  # the most stable one
+DEFAULT_RENDERER_TYPE = RdfJsonapiRenderer  # the most stable one
 
 
 def get_renderer_type(request: http.HttpRequest) -> type[BaseRenderer]:
@@ -45,5 +45,5 @@ def get_renderer_type(request: http.HttpRequest) -> type[BaseRenderer]:
                 _chosen_renderer_type = _renderer_type
                 break
     if _chosen_renderer_type is None:
-        _chosen_renderer_type = DEFAULT_RENDERER
+        _chosen_renderer_type = DEFAULT_RENDERER_TYPE
     return _chosen_renderer_type

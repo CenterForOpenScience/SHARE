@@ -2,7 +2,10 @@ from django.views import View
 from primitive_metadata import gather
 
 from trove import exceptions as trove_exceptions
-from trove.render import get_renderer_type
+from trove.render import (
+    DEFAULT_RENDERER_TYPE,
+    get_renderer_type,
+)
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_iri
@@ -14,8 +17,8 @@ from ._responder import (
 
 class IndexcardView(View):
     def get(self, request, indexcard_uuid):
-        _renderer_type = get_renderer_type(request)
         try:
+            _renderer_type = get_renderer_type(request)
             _search_gathering = trovesearch_by_indexstrategy.new_gathering({
                 # TODO (gather): allow omitting kwargs that go unused
                 'search_params': None,
@@ -31,6 +34,11 @@ class IndexcardView(View):
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
+            )
+        except trove_exceptions.CannotRenderMediatype as _error:
+            return make_http_error_response(
+                error=_error,
+                renderer=DEFAULT_RENDERER_TYPE(_indexcard_iri),
             )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(

@@ -12,7 +12,10 @@ from trove.trovesearch.search_params import (
 )
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.vocab.namespaces import TROVE
-from trove.render import get_renderer_type
+from trove.render import (
+    DEFAULT_RENDERER_TYPE,
+    get_renderer_type,
+)
 from ._responder import (
     make_http_error_response,
     make_http_response,
@@ -49,8 +52,8 @@ DEFAULT_VALUESEARCH_ASK = {
 
 class CardsearchView(View):
     def get(self, request):
-        _renderer_type = get_renderer_type(request)
         try:
+            _renderer_type = get_renderer_type(request)
             _search_iri, _search_gathering = _parse_request(request, _renderer_type, CardsearchParams)
             _search_gathering.ask(
                 DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
@@ -61,6 +64,11 @@ class CardsearchView(View):
                 content_rendering=_renderer.render_document(),
                 http_request=request,
             )
+        except trove_exceptions.CannotRenderMediatype as _error:
+            return make_http_error_response(
+                error=_error,
+                renderer=DEFAULT_RENDERER_TYPE(_search_iri),
+            )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
@@ -70,8 +78,8 @@ class CardsearchView(View):
 
 class ValuesearchView(View):
     def get(self, request):
-        _renderer_type = get_renderer_type(request)
         try:
+            _renderer_type = get_renderer_type(request)
             _search_iri, _search_gathering = _parse_request(request, _renderer_type, ValuesearchParams)
             _search_gathering.ask(
                 DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
@@ -81,6 +89,11 @@ class ValuesearchView(View):
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
+            )
+        except trove_exceptions.CannotRenderMediatype as _error:
+            return make_http_error_response(
+                error=_error,
+                renderer=DEFAULT_RENDERER_TYPE(_search_iri),
             )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
