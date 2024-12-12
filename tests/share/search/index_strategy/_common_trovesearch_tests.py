@@ -10,7 +10,7 @@ from tests import factories
 from share.search import messages
 from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
-from trove.trovesearch.search_response import PropertypathUsage
+from trove.trovesearch.search_handle import PropertypathUsage
 from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF, DCAT
 from ._with_real_services import RealElasticTestCase
 
@@ -122,18 +122,18 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _result_iris: set[str] = set()
         _page_count = 0
         while True:
-            _cardsearch_response = self.current_index.pls_handle_cardsearch(
+            _cardsearch_handle = self.current_index.pls_handle_cardsearch(
                 CardsearchParams.from_querystring(_querystring),
             )
             _page_iris = {
                 self._indexcard_focus_by_uuid[_result.card_uuid]
-                for _result in _cardsearch_response.search_result_page
+                for _result in _cardsearch_handle.search_result_page
             }
             self.assertFalse(_result_iris.intersection(_page_iris))
             self.assertLessEqual(len(_page_iris), _page_size)
             _result_iris.update(_page_iris)
             _page_count += 1
-            _next_cursor = _cardsearch_response.cursor.next_cursor()
+            _next_cursor = _cardsearch_handle.cursor.next_cursor()
             if _next_cursor is None:
                 break
             _querystring = urlencode({'page[cursor]': _next_cursor.as_queryparam_value()})
@@ -150,8 +150,8 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 (BLARG.nada,),
             ),
         )
-        _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
-        self.assertEqual(_cardsearch_response.related_propertypath_results, [
+        _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+        self.assertEqual(_cardsearch_handle.related_propertypath_results, [
             PropertypathUsage((DCTERMS.creator,), 3),
             PropertypathUsage((DCTERMS.references,), 2),
             PropertypathUsage((BLARG.nada,), 0),
@@ -211,11 +211,11 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _querystring = urlencode(queryparams)
         _cardsearch_params = CardsearchParams.from_querystring(_querystring)
         assert isinstance(_cardsearch_params, CardsearchParams)
-        _cardsearch_response = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+        _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
         # assumes all results fit on one page
         _actual_result_iris: set[str] | list[str] = [
             self._indexcard_focus_by_uuid[_result.card_uuid]
-            for _result in _cardsearch_response.search_result_page
+            for _result in _cardsearch_handle.search_result_page
         ]
         # test sort order only when expected results are ordered
         if isinstance(expected_focus_iris, set):
@@ -226,11 +226,11 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _querystring = urlencode(queryparams)
         _valuesearch_params = ValuesearchParams.from_querystring(_querystring)
         assert isinstance(_valuesearch_params, ValuesearchParams)
-        _valuesearch_response = self.current_index.pls_handle_valuesearch(_valuesearch_params)
+        _valuesearch_handle = self.current_index.pls_handle_valuesearch(_valuesearch_params)
         # assumes all results fit on one page
         _actual_values = {
             _result.value_iri or _result.value_value
-            for _result in _valuesearch_response.search_result_page
+            for _result in _valuesearch_handle.search_result_page
         }
         self.assertEqual(expected_values, _actual_values, msg=f'?{_querystring}')
 

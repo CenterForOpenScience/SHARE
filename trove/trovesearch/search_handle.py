@@ -86,7 +86,7 @@ class PagedResponse:
 
 
 @dataclasses.dataclass
-class CardsearchResponse(PagedResponse):
+class CardsearchHandle(PagedResponse):
     search_result_page: list[CardsearchResult]
     related_propertypath_results: list['PropertypathUsage']
     cardsearch_params: CardsearchParams
@@ -109,7 +109,7 @@ class CardsearchResponse(PagedResponse):
 
 
 @dataclasses.dataclass
-class ValuesearchResponse(PagedResponse):
+class ValuesearchHandle(PagedResponse):
     search_result_page: Iterable[ValuesearchResult]
 
 

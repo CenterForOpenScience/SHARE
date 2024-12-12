@@ -22,7 +22,7 @@ from trove.trovesearch.search_params import (
     propertypath_key,
     propertypath_set_key,
 )
-from trove.trovesearch.search_response import ValuesearchResult
+from trove.trovesearch.search_handle import ValuesearchResult
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -62,18 +62,23 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_kwargnames={'search_params', 'specific_index', 'deriver_iri'},
+    gatherer_kwargnames={
+        'search_params',
+        'deriver_iri',
+        'cardsearch_handle',
+        'valuesearch_handle',
+    },
 )
 
 
 # TODO: per-field text search in rdf
 # @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchText)
-# def gather_cardsearch_text(focus, *, specific_index, search_params, deriver_iri):
+# def gather_cardsearch_text(focus, *, search_params, **kwargs):
 #     yield (TROVE.cardSearchText, literal(search_params.cardsearch_text))
 #
 #
 # @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchText)
-# def gather_valuesearch_text(focus, *, specific_index, search_params, deriver_iri):
+# def gather_valuesearch_text(focus, *, search_params, **kwargs):
 #     yield (TROVE.valueSearchText, literal(search_params.valuesearch_text))
 
 
@@ -94,14 +99,12 @@ def gather_valuesearch_filter(focus, *, search_params, **kwargs):
     TROVE.cardSearchFilter,
     focustype_iris={TROVE.Cardsearch},
 )
-def gather_cardsearch(focus, *, specific_index, search_params, **kwargs):
+def gather_cardsearch(focus, *, search_params, cardsearch_handle, **kwargs):
     assert isinstance(search_params, CardsearchParams)
-    # defer to the IndexStrategy implementation to do the search
-    _cardsearch_resp = specific_index.pls_handle_cardsearch(search_params)
     # resulting index-cards
-    yield (TROVE.totalResultCount, _cardsearch_resp.total_result_count)
+    yield (TROVE.totalResultCount, cardsearch_handle.total_result_count)
     _result_page = []
-    for _result in _cardsearch_resp.search_result_page:
+    for _result in cardsearch_handle.search_result_page:
         yield (_result.card_iri, RDF.type, TROVE.Indexcard)
         _text_evidence_twoples = (
             (TROVE.matchEvidence, frozenset((
@@ -119,11 +122,11 @@ def gather_cardsearch(focus, *, specific_index, search_params, **kwargs):
         )))
     yield (TROVE.searchResultPage, sequence(_result_page))
     # links to more pages of results
-    yield from _search_page_links(focus, search_params, _cardsearch_resp)
+    yield from _search_page_links(focus, search_params, cardsearch_handle)
     # info about related properties (for refining/filtering further)
     _prop_usage_counts = {
         _prop_result.property_path: _prop_result.usage_count
-        for _prop_result in _cardsearch_resp.related_propertypath_results
+        for _prop_result in cardsearch_handle.related_propertypath_results
     }
     _relatedproperty_list = [
         _related_property_result(_propertypath, _prop_usage_counts.get(_propertypath, 0))
@@ -137,15 +140,14 @@ def gather_cardsearch(focus, *, specific_index, search_params, **kwargs):
 
 
 @trovesearch_by_indexstrategy.gatherer(
+    TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch(focus, *, specific_index, search_params, **kwargs):
-    assert isinstance(search_params, ValuesearchParams)
-    _valuesearch_resp = specific_index.pls_handle_valuesearch(search_params)
+def gather_valuesearch_page(focus, *, search_params, valuesearch_handle, **kwargs):
     _result_page = []
     _value_iris = {
         _result.value_iri
-        for _result in _valuesearch_resp.search_result_page
+        for _result in valuesearch_handle.search_result_page
         if _result.value_iri
     }
     if _value_iris:
@@ -166,7 +168,7 @@ def gather_valuesearch(focus, *, specific_index, search_params, **kwargs):
         )
     else:
         _value_indexcards = []
-    for _result in _valuesearch_resp.search_result_page:
+    for _result in valuesearch_handle.search_result_page:
         _indexcard_obj = None
         if _result.value_iri in _value_iris:
             for _indexcard in _value_indexcards:
@@ -185,9 +187,16 @@ def gather_valuesearch(focus, *, specific_index, search_params, **kwargs):
             TROVE.cardsearchResultCount: {_result.match_count},
             TROVE.indexCard: {_indexcard_obj},
         }))
-    yield (TROVE.totalResultCount, _valuesearch_resp.total_result_count)
     yield (TROVE.searchResultPage, sequence(_result_page))
-    yield from _search_page_links(focus, search_params, _valuesearch_resp)
+    yield from _search_page_links(focus, search_params, valuesearch_handle)
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    TROVE.totalResultCount,
+    focustype_iris={TROVE.Valuesearch},
+)
+def gather_valuesearch_count(focus, *, search_params, valuesearch_handle, **kwargs):
+    yield (TROVE.totalResultCount, valuesearch_handle.total_result_count)
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -359,7 +368,7 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
     ))
 
 
-def _search_page_links(search_focus, search_params, search_response):
+def _search_page_links(search_focus, search_params, search_handle):
     _search_iri_split = urllib.parse.urlsplit(next(iter(search_focus.iris)))
 
     def _iri_with_cursor(page_cursor: PageCursor):
@@ -371,13 +380,13 @@ def _search_page_links(search_focus, search_params, search_response):
             _search_iri_split.fragment,
         ))
 
-    _next = search_response.cursor.next_cursor()
+    _next = search_handle.cursor.next_cursor()
     if _next is not None and _next.is_valid():
         yield (TROVE.searchResultPage, _jsonapi_link('next', _iri_with_cursor(_next)))
-    _prev = search_response.cursor.prev_cursor()
+    _prev = search_handle.cursor.prev_cursor()
     if _prev is not None and _prev.is_valid():
         yield (TROVE.searchResultPage, _jsonapi_link('prev', _iri_with_cursor(_prev)))
-    _first = search_response.cursor.first_cursor()
+    _first = search_handle.cursor.first_cursor()
     if _first is not None and _first.is_valid():
         yield (TROVE.searchResultPage, _jsonapi_link('first', _iri_with_cursor(_first)))
 

@@ -36,12 +36,12 @@ from trove.trovesearch.search_params import (
     ValuesearchParams,
     is_globpath,
 )
-from trove.trovesearch.search_response import (
-    CardsearchResponse,
+from trove.trovesearch.search_handle import (
+    CardsearchHandle,
     CardsearchResult,
     PropertypathUsage,
     TextMatchEvidence,
-    ValuesearchResponse,
+    ValuesearchHandle,
     ValuesearchResult,
 )
 from trove.vocab import osfmap
@@ -202,7 +202,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             )
 
         # abstract method from IndexStrategy.SpecificIndex
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
             _querybuilder = _CardsearchQueryBuilder(cardsearch_params)
             _search_kwargs = _querybuilder.build()
             if settings.DEBUG:
@@ -220,14 +220,14 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self.index_strategy._cardsearch_response(
+            return self.index_strategy._cardsearch_handle(
                 cardsearch_params,
                 _es8_response,
                 _querybuilder.response_cursor,
             )
 
         # abstract method from IndexStrategy.SpecificIndex
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
             _path = valuesearch_params.valuesearch_propertypath
             _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
             _is_date_search = osfmap.is_date_property(_path[-1])
@@ -408,7 +408,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         valuesearch_params: ValuesearchParams,
         es8_response: dict,
         cursor: OffsetCursor,
-    ) -> ValuesearchResponse:
+    ) -> ValuesearchHandle:
         _iri_aggs = es8_response['aggregations'].get('agg_valuesearch_iris')
         _buckets = _iri_aggs['buckets']
         _bucket_count = len(_buckets)
@@ -420,7 +420,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             if (_bucket_count > _page_end_index)  # agg includes one more, if there
             else _bucket_count
         )
-        return ValuesearchResponse(
+        return ValuesearchHandle(
             cursor=cursor,
             search_result_page=[
                 self._valuesearch_iri_result(_iri_bucket)
@@ -432,13 +432,13 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         self,
         valuesearch_params: ValuesearchParams,
         es8_response: dict,
-    ) -> ValuesearchResponse:
+    ) -> ValuesearchHandle:
         _year_buckets = (
             es8_response['aggregations']
             ['agg_valuesearch_dates']
             ['buckets']
         )
-        return ValuesearchResponse(
+        return ValuesearchHandle(
             cursor=PageCursor(len(_year_buckets)),
             search_result_page=[
                 self._valuesearch_date_result(_year_bucket)
@@ -464,12 +464,12 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             match_count=date_bucket['doc_count'],
         )
 
-    def _cardsearch_response(
+    def _cardsearch_handle(
         self,
         cardsearch_params: CardsearchParams,
         es8_response: dict,
         cursor: OffsetCursor,
-    ) -> CardsearchResponse:
+    ) -> CardsearchHandle:
         _es8_total = es8_response['hits']['total']
         if _es8_total['relation'] != 'eq':
             cursor.total_count = MANY_MORE
@@ -498,7 +498,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             }
             for _bucket in es8_response['aggregations']['agg_related_propertypath_usage']['buckets']:
                 _relatedproperty_by_pathkey[_bucket['key']].usage_count += _bucket['doc_count']
-        return CardsearchResponse(
+        return CardsearchHandle(
             cursor=cursor,
             search_result_page=_results,
             related_propertypath_results=_relatedproperty_list,

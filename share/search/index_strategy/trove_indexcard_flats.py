@@ -31,9 +31,9 @@ from trove.trovesearch.search_params import (
     SortParam,
     GLOB_PATHSTEP,
 )
-from trove.trovesearch.search_response import (
-    CardsearchResponse,
-    ValuesearchResponse,
+from trove.trovesearch.search_handle import (
+    CardsearchHandle,
+    ValuesearchHandle,
     TextMatchEvidence,
     CardsearchResult,
     ValuesearchResult,
@@ -284,7 +284,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 params=(request_queryparams or {}),
             )
 
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
             _cursor = self._cardsearch_cursor(cardsearch_params)
             _sort = self._cardsearch_sort(cardsearch_params.sort_list)
             _query = self._cardsearch_query(
@@ -314,9 +314,9 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._cardsearch_response(cardsearch_params, _es8_response, _cursor)
+            return self._cardsearch_handle(cardsearch_params, _es8_response, _cursor)
 
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
             _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
             _is_date_search = osfmap.is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
@@ -343,7 +343,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._valuesearch_response(valuesearch_params, _es8_response, _cursor)
+            return self._valuesearch_handle(valuesearch_params, _es8_response, _cursor)
 
         ###
         # query implementation
@@ -522,7 +522,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             }
             return _aggs
 
-        def _valuesearch_response(
+        def _valuesearch_handle(
             self,
             valuesearch_params: ValuesearchParams,
             es8_response: dict,
@@ -540,7 +540,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     if (_bucket_count > _page_end_index)  # agg includes one more, if there
                     else _bucket_count
                 )
-                return ValuesearchResponse(
+                return ValuesearchHandle(
                     cursor=cursor,
                     search_result_page=[
                         self._valuesearch_iri_result(_iri_bucket)
@@ -552,7 +552,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     es8_response['aggregations']['in_nested_date']
                     ['value_at_propertypath']['count_by_year']['buckets']
                 )
-                return ValuesearchResponse(
+                return ValuesearchHandle(
                     cursor=PageCursor(len(_year_buckets)),
                     search_result_page=[
                         self._valuesearch_date_result(_year_bucket)
@@ -679,12 +679,12 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 for _sortparam in sort_list
             ]
 
-        def _cardsearch_response(
+        def _cardsearch_handle(
             self,
             cardsearch_params: CardsearchParams,
             es8_response: dict,
             cursor: OffsetCursor,
-        ) -> CardsearchResponse:
+        ) -> CardsearchHandle:
             _es8_total = es8_response['hits']['total']
             if _es8_total['relation'] != 'eq':
                 cursor.total_count = MANY_MORE
@@ -713,7 +713,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 for _bucket in es8_response['aggregations']['related_propertypath_usage']['buckets']:
                     _path = tuple(json.loads(_bucket['key']))
                     _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
-            return CardsearchResponse(
+            return CardsearchHandle(
                 cursor=cursor,
                 search_result_page=_results,
                 related_propertypath_results=_relatedproperty_list,
