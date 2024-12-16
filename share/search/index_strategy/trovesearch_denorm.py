@@ -203,6 +203,14 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
+            # cases to handle:
+            # - sort by field value (streamable)
+            # - sort by relevance to text (non-streamable)
+            # - random sort (...non-streamable?)
+            #   - first page (full random)
+            #   - subsequent page (reproducibly randomm)
+            # (for streaming pages, skip aggs and such on subsequents)
+            # maybe start with a "header" request (no hits, minimal aggs)
             _querybuilder = _CardsearchQueryBuilder(cardsearch_params)
             _search_kwargs = _querybuilder.build()
             if settings.DEBUG:

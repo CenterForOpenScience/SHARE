@@ -1,5 +1,8 @@
+from __future__ import annotations
 import dataclasses
-from typing import Literal, Iterable, Union, Optional
+import functools
+import itertools
+from typing import Literal, Iterable, Union, Optional, Generator
 
 from primitive_metadata import primitive_rdf
 
@@ -7,9 +10,14 @@ from trove.trovesearch.page_cursor import (
     PageCursor,
     ReproduciblyRandomSampleCursor,
 )
-from trove.trovesearch.search_params import CardsearchParams
+from trove.trovesearch.search_params import (
+    CardsearchParams,
+    ValuesearchParams,
+)
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
+
+# TODO: add `metadata={OWL.sameAs: ...}` to each field; use dataclass-to-rdf to simplify gatherers
 
 
 BoundedCount = Union[
@@ -18,7 +26,68 @@ BoundedCount = Union[
 ]
 
 
-# TODO: add `metadata={OWL.sameAs: ...}` to each field; use dataclass-to-rdf instead of gatherers
+@dataclasses.dataclass
+class BasicSearchHandle:
+    cursor: PageCursor
+    search_result_generator: Generator
+
+    @property
+    def total_result_count(self) -> BoundedCount:
+        return (
+            TROVE['ten-thousands-and-more']
+            if self.cursor.has_many_more()
+            else self.cursor.total_count
+        )
+
+    @functools.cached_property
+    def search_result_page(self) -> tuple:
+        # note: use either search_result_page or search_result_generator, not both
+        return tuple(
+            itertools.islice(self.search_result_generator, self.cursor.page_size)
+        )
+
+
+@dataclasses.dataclass
+class CardsearchHandle(BasicSearchHandle):
+    related_propertypath_results: list[PropertypathUsage]
+    cardsearch_params: CardsearchParams
+
+    def __post_init__(self):
+        _cursor = self.cursor
+        if (  # TODO: move this logic into the... index strategy?
+            isinstance(_cursor, ReproduciblyRandomSampleCursor)
+            and _cursor.is_first_page()
+            and not _cursor.first_page_ids
+            and not _cursor.has_many_more()
+        ):
+            _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
+
+    @functools.cached_property
+    def search_result_page(self) -> tuple:
+        _page = super().search_result_page
+        if (
+            isinstance(self.cursor, ReproduciblyRandomSampleCursor)
+            and self.cursor.is_first_page()
+            and self.cursor.first_page_ids
+        ):
+            # revisiting first page; reproduce original random order
+            _ordering_by_id = {
+                _id: _i
+                for (_i, _id) in enumerate(self.cursor.first_page_ids)
+            }
+            return tuple(
+                sorted(
+                    _page,
+                    key=lambda _r: _ordering_by_id[_r.card_id],
+                ),
+            )
+        return _page
+
+
+@dataclasses.dataclass
+class ValuesearchHandle(BasicSearchHandle):
+    valuesearch_params: ValuesearchParams
+
 
 @dataclasses.dataclass
 class TextMatchEvidence:
@@ -67,50 +136,6 @@ class ValuesearchResult:
         assert self.value_iri or self.value_value, (
             f'either value_iri or value_value required (on {self})'
         )
-
-
-###
-# paged responses
-
-@dataclasses.dataclass
-class PagedResponse:
-    cursor: PageCursor
-
-    @property
-    def total_result_count(self) -> BoundedCount:
-        return (
-            TROVE['ten-thousands-and-more']
-            if (self.cursor is None) or self.cursor.has_many_more()
-            else self.cursor.total_count
-        )
-
-
-@dataclasses.dataclass
-class CardsearchHandle(PagedResponse):
-    search_result_page: list[CardsearchResult]
-    related_propertypath_results: list['PropertypathUsage']
-    cardsearch_params: CardsearchParams
-
-    def __post_init__(self):
-        _cursor = self.cursor
-        if (
-            isinstance(_cursor, ReproduciblyRandomSampleCursor)
-            and _cursor.is_first_page()
-        ):
-            if _cursor.first_page_ids:
-                # revisiting first page; reproduce original random order
-                _ordering_by_id = {
-                    _id: _i
-                    for (_i, _id) in enumerate(_cursor.first_page_ids)
-                }
-                self.search_result_page.sort(key=lambda _r: _ordering_by_id[_r.card_id])
-            elif not _cursor.has_many_more():
-                _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
-
-
-@dataclasses.dataclass
-class ValuesearchHandle(PagedResponse):
-    search_result_page: Iterable[ValuesearchResult]
 
 
 ###

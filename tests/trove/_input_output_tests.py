@@ -1,4 +1,5 @@
 import abc
+import pprint
 from unittest import TestCase
 import typing
 
@@ -31,10 +32,22 @@ class BasicInputOutputTestCase(TestCase):
         _actual_output = self.compute_output(given_input)
         self.assert_outputs_equal(expected_output, _actual_output)
 
+    # (optional override, for when logic is more complicated)
+    def missing_case(self, name: str, given_input):
+        _cls = self.__class__
+        _actual_output = self.compute_output(given_input)
+        raise NotImplementedError('\n'.join((
+            'missing test case!',
+            f'\tadd "{name}" to {_cls.__module__}.{_cls.__qualname__}.expected_outputs',
+            '\tactual output, fwiw:',
+            pprint.pformat(_actual_output),
+        )))
+
     ###
     # private details
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
         # HACK: assign `test_*` method only on concrete subclasses,
         # so the test runner doesn't try instantiating a base class
         if getattr(cls, 'inputs', None) and getattr(cls, 'expected_outputs', None):
@@ -52,5 +65,5 @@ class BasicInputOutputTestCase(TestCase):
             try:
                 _expected_output = self.expected_outputs[_name]
             except KeyError:
-                raise NotImplementedError(f'{self.__class__.__qualname__}.expected_outputs["{_name}"]')
+                self.missing_case(_name, _input)
             yield (_name, _input, _expected_output)

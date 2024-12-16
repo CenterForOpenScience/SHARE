@@ -21,7 +21,7 @@ class TroveRendererTests(BasicInputOutputTestCase):
         return _renderer.render_document()
 
     def assert_outputs_equal(self, expected_output, actual_output) -> None:
-        if expected_output is ...:
+        if expected_output is None:
             print(repr(actual_output))
             raise NotImplementedError
         self.assertEqual(expected_output.mediatype, actual_output.mediatype)
@@ -29,6 +29,17 @@ class TroveRendererTests(BasicInputOutputTestCase):
             self._get_rendered_output(expected_output),
             self._get_rendered_output(actual_output),
         )
+
+    def missing_case_message(self, name: str, given_input) -> str:
+        _cls = self.__class__
+        _actual_output = self.compute_output(given_input)
+        return '\n'.join((
+            super().missing_case_message(name, given_input)
+            'missing test case!',
+            f'\tadd "{name}" to {_cls.__module__}.{_cls.__qualname__}.expected_outputs',
+            '\tactual output, fwiw:',
+            self._get_rendered_output(_actual_output)
+        )))
 
     def _get_rendered_output(self, rendering: ProtoRendering):
         # for now, they always iter strings (update if/when bytes are in play)
