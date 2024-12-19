@@ -7,11 +7,12 @@ from primitive_metadata import gather
 from share.search import index_strategy
 from trove import exceptions as trove_exceptions
 from trove.trovesearch.search_params import (
+    BaseTroveParams,
     CardsearchParams,
     ValuesearchParams,
 )
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
-from trove.vocab.namespaces import TROVE
+from trove.vocab.namespaces import TROVE, FOAF, DCTERMS
 from trove.render import (
     DEFAULT_RENDERER_TYPE,
     get_renderer_type,
@@ -25,96 +26,97 @@ from ._responder import (
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_CARDSEARCH_ASK = {
-    TROVE.totalResultCount: None,
-    TROVE.cardSearchText: None,
-    TROVE.cardSearchFilter: None,
-    TROVE.searchResultPage: {
-        TROVE.indexCard: {
-            TROVE.resourceMetadata,
-        },
+DEFAULT_INCLUDES_BY_TYPE = {
+    TROVE.Cardsearch: {
+        TROVE.searchResultPage,
+        TROVE.relatedPropertyList,
+    },
+    TROVE.Valuesearch: {
+        TROVE.searchResultPage,
+    },
+    TROVE.SearchResult: {
+        TROVE.indexCard,
     },
 }
 
-DEFAULT_VALUESEARCH_ASK = {
-    TROVE.propertyPath: None,
-    TROVE.valueSearchText: None,
-    TROVE.valueSearchFilter: None,
-    TROVE.cardSearchText: None,
-    TROVE.cardSearchFilter: None,
-    TROVE.searchResultPage: {
-        TROVE.indexCard: {
-            TROVE.resourceMetadata,
-        },
+DEFAULT_FIELDS_BY_TYPE = {
+    TROVE.Indexcard: {
+        TROVE.resourceMetadata,
+        TROVE.focusIdentifier,
+        DCTERMS.issued,
+        DCTERMS.modified,
+        FOAF.primaryTopic
+    },
+    TROVE.Cardsearch: {
+        TROVE.totalResultCount,
+        TROVE.cardSearchText,
+        TROVE.cardSearchFilter,
+    },
+    TROVE.Valuesearch: {
+        TROVE.propertyPath,
+        TROVE.valueSearchText,
+        TROVE.valueSearchFilter,
+        TROVE.cardSearchText,
+        TROVE.cardSearchFilter,
     },
 }
 
 
-class CardsearchView(View):
+class _BaseTrovesearchView(View):
+    # expected on inheritors
+    focus_type_iri: str
+    params_dataclass: type[BaseTroveParams]
+
     def get(self, request):
+        _url = request.build_absolute_uri()
         try:
             _renderer_type = get_renderer_type(request)
-            _search_iri, _search_gathering = _parse_request(request, _renderer_type, CardsearchParams)
-            _search_gathering.ask(
-                DEFAULT_CARDSEARCH_ASK,  # TODO: build from `include`/`fields`
-                focus=gather.Focus.new(_search_iri, TROVE.Cardsearch),
+        except trove_exceptions.CannotRenderMediatype as _error:
+            return make_http_error_response(
+                error=_error,
+                renderer=DEFAULT_RENDERER_TYPE(_url),
             )
-            _renderer = _renderer_type(_search_iri, _search_gathering.leaf_a_record())
+        try:
+            _search_gathering = self._start_gathering(
+                search_params=self._parse_search_params(request),
+                renderer_type=_renderer_type,
+            )
+            _focus = gather.Focus.new(_url, self.focus_type_iri)
+            _search_gathering.ask(self._get_asktree(request), focus=_focus)
+            _renderer = _renderer_type(_url, _search_gathering.leaf_a_record())
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
             )
-        except trove_exceptions.CannotRenderMediatype as _error:
-            return make_http_error_response(
-                error=_error,
-                renderer=DEFAULT_RENDERER_TYPE(_search_iri),
-            )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
-                renderer=_renderer_type(_search_iri),
+                renderer=_renderer_type(_url),
             )
 
+    def _parse_search_params(self, request: http.HttpRequest):
+        return self.params_dataclass.from_querystring(
+            request.META['QUERY_STRING'],
+        )
 
-class ValuesearchView(View):
-    def get(self, request):
-        try:
-            _renderer_type = get_renderer_type(request)
-            _search_iri, _search_gathering = _parse_request(request, _renderer_type, ValuesearchParams)
-            _search_gathering.ask(
-                DEFAULT_VALUESEARCH_ASK,  # TODO: build from `include`/`fields`
-                focus=gather.Focus.new(_search_iri, TROVE.Valuesearch),
-            )
-            _renderer = _renderer_type(_search_iri, _search_gathering.leaf_a_record())
-            return make_http_response(
-                content_rendering=_renderer.render_document(),
-                http_request=request,
-            )
-        except trove_exceptions.CannotRenderMediatype as _error:
-            return make_http_error_response(
-                error=_error,
-                renderer=DEFAULT_RENDERER_TYPE(_search_iri),
-            )
-        except trove_exceptions.TroveError as _error:
-            return make_http_error_response(
-                error=_error,
-                renderer=_renderer_type(_search_iri),
-            )
+    def _start_gathering(self, search_params, renderer_type) -> gather.Gathering:
+        _specific_index = index_strategy.get_index_for_trovesearch(search_params)
+        # TODO: 404 for unknown strategy
+        return trovesearch_by_indexstrategy.new_gathering({
+            'search_params': search_params,
+            'specific_index': _specific_index,
+            'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
+        })
+
+    def _get_asktree(self, request: http.HttpRequest):
+        ...
 
 
-###
-# local helpers
+class CardsearchView(_BaseTrovesearchView):
+    focus_type_iri = TROVE.Cardsearch
+    params_dataclass = CardsearchParams
 
-def _parse_request(request: http.HttpRequest, renderer_type, search_params_dataclass):
-    _search_iri = request.build_absolute_uri()
-    _search_params = search_params_dataclass.from_querystring(
-        request.META['QUERY_STRING'],
-    )
-    _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
-    # TODO: 404 for unknown strategy
-    _search_gathering = trovesearch_by_indexstrategy.new_gathering({
-        'search_params': _search_params,
-        'specific_index': _specific_index,
-        'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
-    })
-    return (_search_iri, _search_gathering)
+
+class ValuesearchView(_BaseTrovesearchView):
+    focus_type_iri = TROVE.Valuesearch
+    params_dataclass = ValuesearchParams

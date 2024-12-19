@@ -71,6 +71,10 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 )
 
 
+class TrovesearchFocus(gather.Focus):
+    search_handle: PagedResponse
+
+
 # TODO: per-field text search in rdf
 # @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchText)
 # def gather_cardsearch_text(focus, *, search_params, **kwargs):

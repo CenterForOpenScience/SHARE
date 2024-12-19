@@ -2,6 +2,7 @@ from __future__ import annotations
 import collections
 import dataclasses
 import enum
+import functools
 import itertools
 import logging
 import typing
@@ -78,6 +79,13 @@ class ValueType(enum.Enum):
     def to_shortname(self) -> str:
         return trove_shorthand().compact_iri(self.value)
 
+
+class TrovesearchIncludePaths(enum.Enum):
+    # property-path values; correspond with expensive work could be skipped
+    CARDS = (TROVE.searchResultPage, TROVE.indexCard)
+    RELATED = (TROVE.relatedPropertyList,)
+
+
 ###
 # dataclasses for parsed search-api query parameters
 
@@ -130,8 +138,12 @@ class BaseTroveParams:
 
     @classmethod
     def _gather_include(cls, queryparams: QueryparamDict):
-        # TODO: for _qp_name, _iri in queryparams.get('include', []):
-        return frozenset()
+        return frozenset(
+            itertools.chain.from_iterable(
+                _parse_propertypath_set(_include_value)
+                for _, _include_value in queryparams.get('include', [])
+            )
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -469,7 +481,6 @@ class CardsearchParams(BaseTroveParams):
     index_strategy_name: str | None
     sort_list: tuple[SortParam, ...]
     page_cursor: PageCursor
-    related_property_paths: tuple[Propertypath, ...]
 
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
@@ -482,8 +493,15 @@ class CardsearchParams(BaseTroveParams):
             'sort_list': SortParam.from_sort_queryparams(queryparams),
             'page_cursor': _get_page_cursor(queryparams),
             'include': None,  # TODO
-            'related_property_paths': _get_related_property_paths(_filter_set),
         }
+
+    @functools.cached_property
+    def related_property_paths(self) -> tuple[Propertypath, ...]:
+        return (
+            _get_related_property_paths(self.cardsearch_filter_set)
+            if TrovesearchIncludePaths.RELATED.value in self.include
+            else ()
+        )
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
