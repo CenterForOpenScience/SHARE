@@ -546,6 +546,8 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         self._valuesearch_iri_result(_iri_bucket)
                         for _iri_bucket in _bucket_page
                     ],
+                    index_strategy=self.index_strategy,
+                    valuesearch_params=valuesearch_params,
                 )
             else:  # assume date
                 _year_buckets = (
@@ -558,6 +560,8 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         self._valuesearch_date_result(_year_bucket)
                         for _year_bucket in _year_buckets
                     ],
+                    index_strategy=self.index_strategy,
+                    valuesearch_params=valuesearch_params,
                 )
 
         def _valuesearch_iri_result(self, iri_bucket):
@@ -660,7 +664,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
 
-        def _cardsearch_sort(self, sort_list: tuple[SortParam]):
+        def _cardsearch_sort(self, sort_list: tuple[SortParam, ...]):
             if not sort_list:
                 return None
             return [
@@ -718,6 +722,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 search_result_page=_results,
                 related_propertypath_results=_relatedproperty_list,
                 cardsearch_params=cardsearch_params,
+                index_strategy=self.index_strategy,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:

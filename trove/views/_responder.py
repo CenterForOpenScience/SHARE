@@ -32,10 +32,10 @@ def make_http_response(
 def make_http_error_response(
     *,
     error: TroveError,
-    renderer: BaseRenderer,
+    renderer_type: type[BaseRenderer],
     http_headers: typing.Iterable[tuple[str, str]] = ()
 ) -> djhttp.HttpResponse:
-    _content_rendering = renderer.render_error_document(error)
+    _content_rendering = renderer_type.render_error_document(error)
     return djhttp.HttpResponse(
         _content_rendering.iter_content(),
         status=error.http_status,

@@ -4,7 +4,10 @@ import functools
 import json
 from typing import ClassVar
 
-from primitive_metadata import primitive_rdf as rdf
+from primitive_metadata import (
+    gather,
+    primitive_rdf as rdf,
+)
 
 from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
@@ -23,8 +26,8 @@ class BaseRenderer(abc.ABC):
     INDEXCARD_DERIVER_IRI: ClassVar[str | None] = None
 
     # instance fields
-    response_focus_iri: str
-    response_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=dict)
+    response_focus: gather.Focus
+    response_gathering: gather.Gathering
     iri_shorthand: rdf.IriShorthand = NAMESPACES_SHORTHAND
     thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
@@ -35,6 +38,11 @@ class BaseRenderer(abc.ABC):
     @functools.cached_property
     def response_data(self):
         return rdf.RdfGraph(self.response_tripledict)
+
+    @functools.cached_property
+    def response_tripledict(self) -> rdf.RdfTripleDictionary:
+        # TODO: self.response_gathering.ask_all_about or a default ask...
+        return self.response_gathering.leaf_a_record()
 
     def simple_render_document(self) -> str:
         raise NotImplementedError
@@ -50,7 +58,8 @@ class BaseRenderer(abc.ABC):
                 rendered_content=_content,
             )
 
-    def render_error_document(self, error: trove_exceptions.TroveError) -> ProtoRendering:
+    @classmethod
+    def render_error_document(cls, error: trove_exceptions.TroveError) -> ProtoRendering:
         # may override, but default to jsonapi
         return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
             mediatype=mediatypes.JSONAPI,

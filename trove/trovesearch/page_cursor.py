@@ -15,7 +15,7 @@ MANY_MORE = -1
 MAX_OFFSET = 9997
 
 DEFAULT_PAGE_SIZE = 13
-MAX_PAGE_SIZE = 10000
+MAX_PAGE_SIZE = 101
 
 
 @dataclasses.dataclass

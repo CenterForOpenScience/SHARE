@@ -1,8 +1,12 @@
 from __future__ import annotations
 import dataclasses
 import functools
-import itertools
-from typing import Literal, Iterable, Union, Optional, Generator
+from typing import (
+    Generator,
+    Iterable,
+    Optional,
+    TYPE_CHECKING,
+)
 
 from primitive_metadata import primitive_rdf
 
@@ -11,28 +15,25 @@ from trove.trovesearch.page_cursor import (
     ReproduciblyRandomSampleCursor,
 )
 from trove.trovesearch.search_params import (
+    BaseTroveParams,
     CardsearchParams,
     ValuesearchParams,
 )
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
 
-# TODO: add `metadata={OWL.sameAs: ...}` to each field; use dataclass-to-rdf to simplify gatherers
-
-
-BoundedCount = Union[
-    int,  # exact count, if less than ten thousands
-    Literal[TROVE['ten-thousands-and-more']],
-]
+if TYPE_CHECKING:
+    from share.search.index_strategy import IndexStrategy
 
 
 @dataclasses.dataclass
 class BasicSearchHandle:
     cursor: PageCursor
-    search_result_generator: Generator
+    index_strategy: IndexStrategy | None  # TODO: make the handle the one that knows how to use the strategy
+    search_params: BaseTroveParams
 
     @property
-    def total_result_count(self) -> BoundedCount:
+    def total_result_count(self) -> primitive_rdf.Literal:
         return (
             TROVE['ten-thousands-and-more']
             if self.cursor.has_many_more()
@@ -40,11 +41,32 @@ class BasicSearchHandle:
         )
 
     @functools.cached_property
-    def search_result_page(self) -> tuple:
-        # note: use either search_result_page or search_result_generator, not both
-        return tuple(
-            itertools.islice(self.search_result_generator, self.cursor.page_size)
+    def search_result_page(self) -> Iterable | None:
+        ...
+
+    def iter_all_pages(self) -> Generator:
+        _handle: BasicSearchHandle | None = self
+        while _handle is not None:
+            yield from _handle.search_result_page
+            _handle = _handle.get_next()
+
+    def get_next(self) -> BasicSearchHandle | None:
+        _next_cursor = self.cursor.next_cursor()
+        return (
+            None
+            if _next_cursor is None
+            else dataclasses.replace(
+                self,
+                cursor=_next_cursor,
+                **self._next_replace_kwargs(),
+            )
         )
+
+    def _next_replace_kwargs(self) -> dict:
+        return {
+            'cursor': self.cursor.next_cursor(),
+            'search_result_page': None,
+        }
 
 
 @dataclasses.dataclass
@@ -54,34 +76,37 @@ class CardsearchHandle(BasicSearchHandle):
 
     def __post_init__(self):
         _cursor = self.cursor
-        if (  # TODO: move this logic into the... index strategy?
+        _page = self.search_result_page
+        if (  # TODO: move this logic into the... cursor?
             isinstance(_cursor, ReproduciblyRandomSampleCursor)
             and _cursor.is_first_page()
-            and not _cursor.first_page_ids
-            and not _cursor.has_many_more()
+            and _page is not None
         ):
-            _cursor.first_page_ids = [_result.card_id for _result in self.search_result_page]
-
-    @functools.cached_property
-    def search_result_page(self) -> tuple:
-        _page = super().search_result_page
-        if (
-            isinstance(self.cursor, ReproduciblyRandomSampleCursor)
-            and self.cursor.is_first_page()
-            and self.cursor.first_page_ids
-        ):
-            # revisiting first page; reproduce original random order
-            _ordering_by_id = {
-                _id: _i
-                for (_i, _id) in enumerate(self.cursor.first_page_ids)
-            }
-            return tuple(
-                sorted(
+            if _cursor.first_page_ids:
+                # revisiting first page; reproduce original random order
+                _ordering_by_id = {
+                    _id: _i
+                    for (_i, _id) in enumerate(_cursor.first_page_ids)
+                }
+                self.search_result_page = sorted(
                     _page,
                     key=lambda _r: _ordering_by_id[_r.card_id],
-                ),
-            )
+                )
+            elif not _cursor.has_many_more():
+                # visiting first page for the first time
+                _cursor.first_page_ids = [_result.card_id for _result in _page]
         return _page
+
+    def _next_replace_kwargs(self) -> dict:
+        _next_kwargs = super()._next_replace_kwargs()
+        return {
+            **_next_kwargs,
+            'related_propertypath_results': [],
+            'cardsearch_params': dataclasses.replace(
+                self.cardsearch_params,
+                page_cursor=_next_kwargs['cursor'],
+            ),
+        }
 
 
 @dataclasses.dataclass
@@ -133,7 +158,7 @@ class ValuesearchResult:
     total_count: int = 0
 
     def __post_init__(self):
-        assert self.value_iri or self.value_value, (
+        assert (self.value_iri is not None) or (self.value_value is not None), (
             f'either value_iri or value_value required (on {self})'
         )
 

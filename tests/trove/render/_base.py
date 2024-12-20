@@ -15,8 +15,8 @@ class TroveRendererTests(BasicInputOutputTestCase):
 
     def compute_output(self, given_input: RdfCase):
         _renderer = self.renderer_class(
-            response_focus_iri=given_input.focus,
-            response_tripledict=given_input.tripledict,
+            response_focus=given_input.focus,
+            response_gathering=...,
         )
         return _renderer.render_document()
 
@@ -29,17 +29,6 @@ class TroveRendererTests(BasicInputOutputTestCase):
             self._get_rendered_output(expected_output),
             self._get_rendered_output(actual_output),
         )
-
-    def missing_case_message(self, name: str, given_input) -> str:
-        _cls = self.__class__
-        _actual_output = self.compute_output(given_input)
-        return '\n'.join((
-            super().missing_case_message(name, given_input)
-            'missing test case!',
-            f'\tadd "{name}" to {_cls.__module__}.{_cls.__qualname__}.expected_outputs',
-            '\tactual output, fwiw:',
-            self._get_rendered_output(_actual_output)
-        )))
 
     def _get_rendered_output(self, rendering: ProtoRendering):
         # for now, they always iter strings (update if/when bytes are in play)
