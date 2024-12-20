@@ -181,7 +181,10 @@ def gather_page_links(focus, **kwargs):
     yield from _search_page_links(focus, focus.search_params)
 
 
-@trovesearch_by_indexstrategy.gatherer(TROVE.relatedPropertyList)
+@trovesearch_by_indexstrategy.gatherer(
+    TROVE.relatedPropertyList,
+    focustype_iris={TROVE.Cardsearch},
+)
 def gather_related_properties(focus, **kwargs):
     # info about related properties (for refining/filtering further)
     _prop_usage_counts = {
