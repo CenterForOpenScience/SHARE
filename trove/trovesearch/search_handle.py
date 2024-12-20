@@ -27,13 +27,8 @@ class BasicSearchHandle:
             else self.cursor.total_count
         )
 
-    def get_next_streaming_handle(self):
-        _next_params = self.search_params.get_next_streaming_params()
-        return (
-            self.handler(_next_params)
-            if (_next_params is not None) and (self.handler is not None)
-            else None
-        )
+    def get_next_streaming_handle(self) -> typing.Self | None:
+        raise NotImplementedError
 
 
 @dataclasses.dataclass
@@ -63,6 +58,18 @@ class CardsearchHandle(BasicSearchHandle):
                 # visiting first page for the first time
                 _cursor.first_page_ids = [_result.card_id for _result in _page]
         return _page
+
+    def get_next_streaming_handle(self) -> typing.Self | None:
+        _next_cursor = self.cursor.next_cursor()
+        if (_next_cursor is not None) and (self.handler is not None):
+            _next_params = dataclasses.replace(
+                self.search_params,
+                page_cursor=_next_cursor,
+                include=frozenset([(TROVE.searchResultPage,)]),
+            )
+            if self.handler is not None:
+                return self.handler(_next_params)
+        return None
 
 
 @dataclasses.dataclass

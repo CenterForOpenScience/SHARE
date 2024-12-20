@@ -83,10 +83,15 @@ class OffsetCursor(PageCursor):
     start_offset: int = 0
 
     def is_valid(self) -> bool:
+        _end_offset = (
+            self.total_count
+            if self.bounded_page_size == self.page_size
+            else min(self.total_count, self.page_size)
+        )
         return (
             super().is_valid()
             and 0 <= self.start_offset <= MAX_OFFSET
-            and self.start_offset < self.total_count
+            and self.start_offset < _end_offset
         )
 
     def is_first_page(self) -> bool:

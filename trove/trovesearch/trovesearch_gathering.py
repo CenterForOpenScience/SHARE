@@ -1,6 +1,7 @@
 import dataclasses
 import logging
 import urllib.parse
+from typing import ClassVar
 
 from primitive_metadata.primitive_rdf import (
     Literal,
@@ -72,16 +73,15 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 
 
 class _TypedFocus(gather.Focus):
-    # TYPE_IRI: str (expected on subclasses)
-    # ADDITIONAL_TYPE_IRIS: Iterable[str] (optional on subclasses)
+    TYPE_IRI: ClassVar[str]  # (expected on subclasses)
+    ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = ()  # (optional on subclasses)
 
     @classmethod
-    def new(cls, *args, type_iris=(), **kwargs):
+    def new(cls, *, type_iris=(), **kwargs):
         return super().new(
-            *args,
             # add type_iri to new Focus instance
             type_iris={
-                cls.TYPE_IRI
+                cls.TYPE_IRI,
                 *getattr(cls, 'ADDITIONAL_TYPE_IRIS', ()),
                 *type_iris
             },
@@ -89,38 +89,22 @@ class _TypedFocus(gather.Focus):
         )
 
 
+@dataclasses.dataclass(frozen=True)
 class CardsearchFocus(_TypedFocus):
     TYPE_IRI = TROVE.Cardsearch
 
-    # additional namedtuple fields
-    search_params: CardsearchParams
-    search_handle: CardsearchHandle
-
-    @classmethod
-    def new(cls, *args, search_params, search_handle, **kwargs):
-        _base = super().new(*args, **kwargs)
-        return cls(
-            *_base,
-            search_params=search_params,
-            search_handle=search_handle,
-        )
+    # additional dataclass fields
+    search_params: CardsearchParams = dataclasses.field(compare=False)
+    search_handle: CardsearchHandle = dataclasses.field(compare=False)
 
 
+@dataclasses.dataclass(frozen=True)
 class ValuesearchFocus(_TypedFocus):
     TYPE_IRI = TROVE.Valuesearch
 
-    # additional namedtuple fields
-    search_params: ValuesearchParams
-    search_handle: ValuesearchHandle
-
-    @classmethod
-    def new(cls, *args, search_params, search_handle, **kwargs):
-        _base = super().new(*args, **kwargs)
-        return cls(
-            *_base,
-            search_params=search_params,
-            search_handle=search_handle,
-        )
+    # additional dataclass fields
+    search_params: ValuesearchParams = dataclasses.field(compare=False)
+    search_handle: ValuesearchHandle = dataclasses.field(compare=False)
 
 
 class IndexcardFocus(_TypedFocus):
@@ -347,7 +331,6 @@ def _load_card_descriptions_derived(card_iris, deriver_iri: str) -> dict[str, rd
         )
         .select_related('upriver_indexcard')
         .prefetch_related('upriver_indexcard__focus_identifier_set')
-        .get()
     )
     _by_card_iri = {}
     for _derived in _derived_indexcard_qs:

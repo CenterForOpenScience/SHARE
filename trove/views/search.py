@@ -54,14 +54,13 @@ class _BaseTrovesearchView(View, abc.ABC):
             _search_params = self._parse_search_params(request)
             _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
             _focus = self.focus_type.new(
-                _url,
-                self.focus_type.TYPE_IRI,
+                iris=_url,
                 search_params=_search_params,
                 search_handle=self.get_search_handle(_specific_index, _search_params),
             )
             if _renderer_type.PASSIVE_RENDER:
                 # fill the gathering's cache with requested info
-                self._gather_as_requested(_search_gathering, _focus)
+                _search_gathering.ask(_search_params.include, focus=_focus)
             # take gathered data into a response
             _renderer = _renderer_type(_focus, _search_gathering)
             return make_http_response(
@@ -86,10 +85,7 @@ class _BaseTrovesearchView(View, abc.ABC):
         })
 
     def get_search_handle(self, specific_index, search_params) -> BasicSearchHandle:
-        _handler = self.get_search_handler(specific_index)
-        _handle = _handler(search_params)
-        _handle.handler = _handler
-        return _handle
+        return self._get_wrapped_handler(specific_index)(search_params)
 
     def get_search_handler(
         self,
@@ -97,9 +93,14 @@ class _BaseTrovesearchView(View, abc.ABC):
     ) -> _TrovesearchHandler:
         raise NotImplementedError
 
-    def _gather_as_requested(self, gathering, focus) -> None:
-        _search_params: BaseTroveParams = gathering.gatherer_kwargs['search_params']
-        gathering.ask(_search_params.include)
+    def _get_wrapped_handler(self, specific_index):
+        _raw_handler = self.get_search_handler(specific_index)
+
+        def _wrapped_handler(search_params):
+            _handle = _raw_handler(search_params)
+            _handle.handler = _wrapped_handler
+            return _handle
+        return _wrapped_handler
 
 
 class CardsearchView(_BaseTrovesearchView):
