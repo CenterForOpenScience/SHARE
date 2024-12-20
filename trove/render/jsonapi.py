@@ -157,7 +157,7 @@ class RdfJsonapiRenderer(BaseRenderer):
             _serializable_obj: Any
             if isinstance(_obj, primitive_rdf.Literal):
                 _serializable_obj = [_obj.unicode_value, *sorted(_obj.datatype_iris)]
-            elif isinstance(_obj, str):
+            elif isinstance(_obj, (str, int, float)):
                 _serializable_obj = _obj
             elif isinstance(_obj, frozenset):
                 _serializable_obj = self._resource_id_for_blanknode(_obj)

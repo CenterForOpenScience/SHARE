@@ -30,7 +30,7 @@ from trove.vocab.osfmap import (
     OSFMAP_THESAURUS,
 )
 from trove.vocab.trove import trove_shorthand
-from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND
+from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND, FOAF, DCTERMS
 
 
 logger = logging.getLogger(__name__)
@@ -59,6 +59,41 @@ GLOB_PATHSTEP = '*'
 ONE_GLOB_PROPERTYPATH: Propertypath = (GLOB_PATHSTEP,)
 DEFAULT_PROPERTYPATH_SET: PropertypathSet = frozenset([ONE_GLOB_PROPERTYPATH])
 
+DEFAULT_INCLUDES_BY_TYPE = {
+    TROVE.Cardsearch: {
+        (TROVE.searchResultPage,),
+        (TROVE.relatedPropertyList,),
+    },
+    TROVE.Valuesearch: {
+        (TROVE.searchResultPage,),
+    },
+    TROVE.SearchResult: {
+        (TROVE.indexCard,),
+    },
+}
+
+DEFAULT_FIELDS_BY_TYPE = {
+    TROVE.Indexcard: {
+        (TROVE.resourceMetadata,),
+        (TROVE.focusIdentifier,),
+        (DCTERMS.issued,),
+        (DCTERMS.modified,),
+        (FOAF.primaryTopic),
+    },
+    TROVE.Cardsearch: {
+        (TROVE.totalResultCount,),
+        (TROVE.cardSearchText,),
+        (TROVE.cardSearchFilter,),
+    },
+    TROVE.Valuesearch: {
+        (TROVE.propertyPath,),
+        (TROVE.valueSearchText,),
+        (TROVE.valueSearchFilter,),
+        (TROVE.cardSearchText,),
+        (TROVE.cardSearchFilter,),
+    },
+}
+
 
 class ValueType(enum.Enum):
     # note: enum values are iris
@@ -78,12 +113,6 @@ class ValueType(enum.Enum):
 
     def to_shortname(self) -> str:
         return trove_shorthand().compact_iri(self.value)
-
-
-class TrovesearchIncludePaths(enum.Enum):
-    # property-path values; correspond with expensive work could be skipped
-    CARDS = (TROVE.searchResultPage, TROVE.indexCard)
-    RELATED = (TROVE.relatedPropertyList,)
 
 
 ###
@@ -109,7 +138,7 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': cls._gather_include(queryparams),
+            'include': frozenset(cls._gather_include(queryparams)),
             'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
@@ -138,11 +167,9 @@ class BaseTroveParams:
 
     @classmethod
     def _gather_include(cls, queryparams: QueryparamDict):
-        return frozenset(
-            itertools.chain.from_iterable(
-                _parse_propertypath_set(_include_value)
-                for _, _include_value in queryparams.get('include', [])
-            )
+        return itertools.chain.from_iterable(
+            _parse_propertypath_set(_include_value)
+            for _, _include_value in queryparams.get('include', [])
         )
 
     def get_next_streaming_params(self) -> typing.Self | None:
@@ -497,11 +524,19 @@ class CardsearchParams(BaseTroveParams):
             'page_cursor': _get_page_cursor(queryparams),
         }
 
+    @classmethod
+    def _gather_include(cls, queryparams: QueryparamDict):
+        _explicit_includes = set(super()._gather_include(queryparams))
+        return itertools.chain(
+            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Cardsearch],
+            DEFAULT_FIELDS_BY_TYPE[TROVE.Cardsearch],
+        )
+
     @functools.cached_property
     def related_property_paths(self) -> tuple[Propertypath, ...]:
         return (
             _get_related_property_paths(self.cardsearch_filter_set)
-            if TrovesearchIncludePaths.RELATED.value in self.include
+            if (TROVE.relatedPropertyList,) in self.include
             else ()
         )
 
@@ -558,6 +593,14 @@ class ValuesearchParams(CardsearchParams):
             'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
+
+    @classmethod
+    def _gather_include(cls, queryparams: QueryparamDict):
+        _explicit_includes = set(super()._gather_include(queryparams))
+        return itertools.chain(
+            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Valuesearch],
+            DEFAULT_FIELDS_BY_TYPE[TROVE.Valuesearch],
+        )
 
     def __post_init__(self):
         if is_date_property(self.valuesearch_propertypath[-1]):

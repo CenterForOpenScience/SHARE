@@ -148,7 +148,7 @@ class GraphWalk:
                 self.integer_values[_walk_path].add(_walk_obj)
             elif isinstance(_walk_obj, rdf.Literal):
                 if XSD.integer in _walk_obj.datatype_iris:
-                    self.integer_values[_walk_path].add(_walk_obj)
+                    self.integer_values[_walk_path].add(int(_walk_obj.unicode_value))
                 if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
                     self.text_values[_walk_path].add(_walk_obj)
             # try for date in a date property, regardless of the above

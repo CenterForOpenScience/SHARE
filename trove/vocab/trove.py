@@ -772,15 +772,15 @@ the special path segment `*` matches any property
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {literal('suggestedFilterOperator', language='en')},
     },
+    TROVE.evidenceCardIdentifier: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {literal('evidenceCardIdentifier', language='en')},
+    },
 
     # relationships:
     TROVE.searchResultPage: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {literal('searchResultPage', language='en')},
-    },
-    TROVE.evidenceCardIdentifier: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('evidenceCardIdentifier', language='en')},
     },
     TROVE.relatedPropertyList: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
