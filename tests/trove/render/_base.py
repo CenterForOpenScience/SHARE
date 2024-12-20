@@ -1,9 +1,40 @@
 import json
 
+from primitive_metadata import (
+    gather,
+    primitive_rdf as rdf,
+)
+
+from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.render._base import BaseRenderer
 from trove.render._rendering import ProtoRendering
+from trove.vocab.namespaces import RDF
 from tests.trove._input_output_tests import BasicInputOutputTestCase
 from ._inputs import UNRENDERED_RDF, UNRENDERED_SEARCH_RDF, RdfCase
+
+
+class FakeGatherCache(gather.GatherCache):
+    def already_gathered(self, *args, **kwargs):
+        return True  # prevent gathering
+
+
+class FakeGathering(gather.Gathering):
+    def ask_exhaustively(self, *args, **kwargs):
+        # skip exhaustion for these tests (note: only works for non-streaming)
+        for _obj in self.ask(*args, **kwargs):
+            yield (_obj, self.cache.gathered)
+
+
+def _make_fake_gathering(tripledict, renderer_type):
+    _organizer = trovesearch_by_indexstrategy
+    return FakeGathering(
+        norms=_organizer.norms,
+        organizer=_organizer,
+        gatherer_kwargs={
+            'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
+        },
+        cache=FakeGatherCache(gathered=rdf.RdfGraph(tripledict))
+    )
 
 
 class TroveRendererTests(BasicInputOutputTestCase):
@@ -15,8 +46,11 @@ class TroveRendererTests(BasicInputOutputTestCase):
 
     def compute_output(self, given_input: RdfCase):
         _renderer = self.renderer_class(
-            response_focus=given_input.focus,
-            response_gathering=...,
+            response_focus=gather.Focus.new(
+                given_input.focus,
+                given_input.tripledict.get(given_input.focus, {}).get(RDF.type),
+            ),
+            response_gathering=_make_fake_gathering(given_input.tripledict, self.renderer_class),
         )
         return _renderer.render_document()
 

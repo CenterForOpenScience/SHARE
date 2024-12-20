@@ -41,7 +41,10 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
     def _render_meta(self):
         _meta: dict[str, int | str] = {}
         try:
-            _total = next(self.response_data.q(self.response_focus_iri, TROVE.totalResultCount))
+            _total = next(self.response_gathering.ask(
+                TROVE.totalResultCount,
+                focus=self.response_focus,
+            ))
             if isinstance(_total, int):
                 _meta['total'] = _total
             elif isinstance(_total, rdf.Literal):
@@ -54,7 +57,7 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
 
     def _render_links(self):
         _links = {}
-        for _pagelink in self.response_data.q(self.response_focus_iri, TROVE.searchResultPage):
+        for _pagelink in self._page_links:
             _twopledict = rdf.twopledict_from_twopleset(_pagelink)
             if JSONAPI_LINK_OBJECT in _twopledict.get(RDF.type, ()):
                 (_membername,) = _twopledict[JSONAPI_MEMBERNAME]

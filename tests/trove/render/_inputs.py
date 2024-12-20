@@ -38,14 +38,12 @@ UNRENDERED_RDF = {
     'various_types': RdfCase(BLARG.aSubject, {
         BLARG.aSubject: {
             RDF.type: {BLARG.aType},
-            BLARG.aVerb: {
-                BLARG.anIri,  # an IRI value
-                rdf.literal('an rdf:string literal'),
-                rdf.literal('a rdf:langString literal', language='en'),
-                rdf.literal(17),  # an integer literal
-                rdf.literal(datetime.date(2024, 1, 1)),  # a date literal
-                rdf.literal('a literal of strange datatype', datatype_iris=BLARG.aStrangeDatatype),
-            },
+            BLARG.hasIri: {BLARG.anIri},
+            BLARG.hasRdfStringLiteral: {rdf.literal('an rdf:string literal')},
+            BLARG.hasRdfLangStringLiteral: {rdf.literal('a rdf:langString literal', language='en')},
+            BLARG.hasIntegerLiteral: {rdf.literal(17)},
+            BLARG.hasDateLiteral: {rdf.literal(datetime.date(2024, 1, 1))},
+            BLARG.hasStrangeLiteral: {rdf.literal('a literal of strange datatype', datatype_iris=BLARG.aStrangeDatatype)},
         },
     }),
 }

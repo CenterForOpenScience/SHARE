@@ -421,7 +421,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         _buckets = _iri_aggs['buckets']
         _bucket_count = len(_buckets)
         # WARNING: terribly hacky pagination (part two)
-        _page_end_index = cursor.start_offset + cursor.page_size
+        _page_end_index = cursor.start_offset + cursor.bounded_page_size
         _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
         cursor.total_count = (
             MANY_MORE
@@ -434,8 +434,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 self._valuesearch_iri_result(_iri_bucket)
                 for _iri_bucket in _bucket_page
             ],
-            index_strategy=self,
-            valuesearch_params=valuesearch_params,
+            search_params=valuesearch_params,
         )
 
     def _valuesearch_dates_response(
@@ -454,8 +453,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 self._valuesearch_date_result(_year_bucket)
                 for _year_bucket in _year_buckets
             ],
-            index_strategy=self,
-            valuesearch_params=valuesearch_params,
+            search_params=valuesearch_params,
         )
 
     def _valuesearch_iri_result(self, iri_bucket) -> ValuesearchResult:
@@ -514,8 +512,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             cursor=cursor,
             search_result_page=_results,
             related_propertypath_results=_relatedproperty_list,
-            cardsearch_params=cardsearch_params,
-            index_strategy=self,
+            search_params=cardsearch_params,
         )
 
     def _gather_textmatch_evidence(self, card_iri, es8_hit) -> Iterator[TextMatchEvidence]:
@@ -689,7 +686,7 @@ class _CardsearchQueryBuilder:
             'aggs': self._cardsearch_aggs(),
             'sort': list(self._cardsearch_sorts()) or None,
             'from_': self._cardsearch_start_offset(),
-            'size': self.response_cursor.page_size,
+            'size': self.response_cursor.bounded_page_size,
         }
 
     @functools.cached_property
@@ -818,7 +815,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
                 'terms': {
                     'field': 'iri_value.single_focus_iri',
                     # WARNING: terribly hacky pagination (part one)
-                    'size': cursor.start_offset + cursor.page_size + 1,
+                    'size': cursor.start_offset + cursor.bounded_page_size + 1,
                 },
                 'aggs': {
                     'agg_type_iri': {'terms': {

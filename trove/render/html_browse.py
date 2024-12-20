@@ -39,7 +39,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     MEDIATYPE = 'text/html; charset=utf-8'
 
     def simple_render_document(self) -> str:
-        _html_builder = _HtmlBuilder(self.response_tripledict, self.response_focus_iri, self.iri_shorthand)
+        _html_builder = _HtmlBuilder(self.response_tripledict, self.response_focus.single_iri(), self.iri_shorthand)
         _html_str = etree_tostring(_html_builder.html_element, encoding='unicode', method='html')
         return ''.join((
             '<!DOCTYPE html>',  # TODO: can etree put the doctype in?

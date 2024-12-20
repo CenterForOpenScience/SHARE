@@ -5,7 +5,10 @@ import typing
 from django import http as djhttp
 
 from trove.render._base import BaseRenderer
-from trove.render._rendering import ProtoRendering
+from trove.render._rendering import (
+    ProtoRendering,
+    StreamableRendering,
+)
 from trove.exceptions import TroveError
 from trove.vocab import mediatypes
 
@@ -16,8 +19,12 @@ def make_http_response(
     http_headers: typing.Iterable[tuple[str, str]] = (),
     http_request: djhttp.HttpRequest | None = None,
 ) -> djhttp.HttpResponse:
-    # TODO: StreamingHttpResponse for StreamableRendering, when async-friendly
-    _response = djhttp.HttpResponse(
+    _response_type = (
+        djhttp.StreamingHttpResponse
+        if isinstance(content_rendering, StreamableRendering)
+        else djhttp.HttpResponse
+    )
+    _response = _response_type(
         content_rendering.iter_content(),
         content_type=content_rendering.mediatype,
     )

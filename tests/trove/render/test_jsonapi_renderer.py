@@ -2,6 +2,7 @@ import json
 
 from trove.render.jsonapi import RdfJsonapiRenderer
 from trove.render._rendering import SimpleRendering
+from ._inputs import BLARG
 from . import _base
 
 
@@ -31,19 +32,19 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                     "type": "index-card",
                     "attributes": {
                         "resourceIdentifier": [
-                            "http://blarg.example/vocab/anItem"
+                            BLARG.anItem
                         ],
                         "resourceMetadata": {
-                            "@id": "http://blarg.example/vocab/anItem",
+                            "@id": BLARG.anItem,
                             "title": "an item, yes"
                         }
                     },
                     "links": {
-                        "self": "http://blarg.example/vocab/aCard"
+                        "self": BLARG.aCard
                     },
                     "meta": {
                         "foaf:primaryTopic": [
-                            "http://blarg.example/vocab/anItem"
+                            BLARG.anItem
                         ],
                         "dcterms:issued": [
                             "2024-01-01"
@@ -52,6 +53,24 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                             "2024-01-01"
                         ]
                     },
+                }
+            }),
+        ),
+        'various_types': SimpleRendering(
+            mediatype='application/vnd.api+json',
+            rendered_content=json.dumps({
+                "data": {
+                    "id": "11f60e4d2fceb50ca695c3c77dcd7983ff78116ff2e7a2f315800c8ca645f469",
+                    "type": BLARG.aType,
+                    "meta": {
+                        BLARG.hasIri: [BLARG.anIri],
+                        BLARG.hasRdfStringLiteral: ["an rdf:string literal"],
+                        BLARG.hasRdfLangStringLiteral: ['a rdf:langString literal'],
+                        BLARG.hasIntegerLiteral: [17],
+                        BLARG.hasDateLiteral: ["2024-01-01"],
+                        BLARG.hasStrangeLiteral: ['a literal of strange datatype'],
+                    },
+                    "links": {"self": BLARG.aSubject},
                 }
             }),
         ),
@@ -67,10 +86,10 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                     "id": "4b79207d8ecd4817c36b75b16cee6c4a1874774cfbcfbd0caede339148403325",
                     "type": "index-card-search",
                     "attributes": {
-                        "totalResultCount": "0",
+                        "totalResultCount": 0,
                     },
                     "links": {
-                        "self": "http://blarg.example/vocab/aSearch",
+                        "self": BLARG.aSearch,
                     }
                 }
             }),
@@ -82,7 +101,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                     "id": "79183793c0eea20ca6338d71c936deee113b94641ee77346fb66f9c4bcebfe0a",
                     "type": "index-card-search",
                     "attributes": {
-                        "totalResultCount": "3"
+                        "totalResultCount": 3
                     },
                     "relationships": {
                         "searchResultPage": {
@@ -103,7 +122,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         }
                     },
                     "links": {
-                        "self": "http://blarg.example/vocab/aSearchFew"
+                        "self": BLARG.aSearchFew
                     }
                 },
                 "included": [
@@ -148,7 +167,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "http://blarg.example/vocab/anItem"
+                                BLARG.anItem
                             ],
                             "dcterms:issued": [
                                 "2024-01-01"
@@ -159,15 +178,15 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         },
                         "attributes": {
                             "resourceIdentifier": [
-                                "http://blarg.example/vocab/anItem"
+                                BLARG.anItem
                             ],
                             "resourceMetadata": {
-                                "@id": "http://blarg.example/vocab/anItem",
+                                "@id": BLARG.anItem,
                                 "title": "an item, yes"
                             }
                         },
                         "links": {
-                            "self": "http://blarg.example/vocab/aCard"
+                            "self": BLARG.aCard
                         }
                     },
                     {
@@ -175,7 +194,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "http://blarg.example/vocab/anItemmm"
+                                BLARG.anItemmm
                             ],
                             "dcterms:issued": [
                                 "2024-03-03"
@@ -186,15 +205,15 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         },
                         "attributes": {
                             "resourceIdentifier": [
-                                "http://blarg.example/vocab/anItemmm"
+                                BLARG.anItemmm
                             ],
                             "resourceMetadata": {
-                                "@id": "http://blarg.example/vocab/anItemmm",
+                                "@id": BLARG.anItemmm,
                                 "title": "an itemmm, yes"
                             }
                         },
                         "links": {
-                            "self": "http://blarg.example/vocab/aCarddd"
+                            "self": BLARG.aCarddd
                         }
                     },
                     {
@@ -202,7 +221,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "http://blarg.example/vocab/anItemm"
+                                BLARG.anItemm
                             ],
                             "dcterms:issued": [
                                 "2024-02-02"
@@ -213,15 +232,15 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         },
                         "attributes": {
                             "resourceIdentifier": [
-                                "http://blarg.example/vocab/anItemm"
+                                BLARG.anItemm
                             ],
                             "resourceMetadata": {
-                                "@id": "http://blarg.example/vocab/anItemm",
+                                "@id": BLARG.anItemm,
                                 "title": "an itemm, yes"
                             }
                         },
                         "links": {
-                            "self": "http://blarg.example/vocab/aCardd"
+                            "self": BLARG.aCardd
                         }
                     }
                 ],

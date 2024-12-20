@@ -302,7 +302,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 aggs=self._cardsearch_aggs(cardsearch_params),
                 sort=_sort,
                 from_=_from_offset,
-                size=_cursor.page_size,
+                size=_cursor.bounded_page_size,
                 source=False,  # no need to get _source; _id is enough
             )
             if settings.DEBUG:
@@ -445,7 +445,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             _nested_terms_agg = {
                 'field': 'nested_iri.iri_value',
                 # WARNING: terribly inefficient pagination (part one)
-                'size': cursor.start_offset + cursor.page_size + 1,
+                'size': cursor.start_offset + cursor.bounded_page_size + 1,
             }
             _iris = list(valuesearch_params.valuesearch_iris())
             if _iris:
@@ -533,7 +533,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 _buckets = _iri_aggs['value_at_propertypath']['iri_values']['buckets']
                 _bucket_count = len(_buckets)
                 # WARNING: terribly inefficient pagination (part two)
-                _page_end_index = cursor.start_offset + cursor.page_size
+                _page_end_index = cursor.start_offset + cursor.bounded_page_size
                 _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
                 cursor.total_count = (
                     MANY_MORE
@@ -546,8 +546,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         self._valuesearch_iri_result(_iri_bucket)
                         for _iri_bucket in _bucket_page
                     ],
-                    index_strategy=self.index_strategy,
-                    valuesearch_params=valuesearch_params,
+                    search_params=valuesearch_params,
                 )
             else:  # assume date
                 _year_buckets = (
@@ -560,8 +559,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                         self._valuesearch_date_result(_year_bucket)
                         for _year_bucket in _year_buckets
                     ],
-                    index_strategy=self.index_strategy,
-                    valuesearch_params=valuesearch_params,
+                    search_params=valuesearch_params,
                 )
 
         def _valuesearch_iri_result(self, iri_bucket):
@@ -721,8 +719,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 cursor=cursor,
                 search_result_page=_results,
                 related_propertypath_results=_relatedproperty_list,
-                cardsearch_params=cardsearch_params,
-                index_strategy=self.index_strategy,
+                search_params=cardsearch_params,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:

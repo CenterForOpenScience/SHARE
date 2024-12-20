@@ -20,6 +20,7 @@ from trove.vocab.namespaces import (
     OWL,
     RDF,
     TROVE,
+    XSD,
 )
 from trove.vocab.trove import (
     trove_indexcard_namespace,
@@ -60,7 +61,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     def simple_render_document(self) -> str:
         return json.dumps(
-            self.render_dict(self.response_focus_iri),
+            self.render_dict(self.response_focus.single_iri()),
             indent=2,  # TODO: pretty-print query param?
         )
 
@@ -286,6 +287,8 @@ class RdfJsonapiRenderer(BaseRenderer):
         if isinstance(rdfobject, primitive_rdf.Literal):
             if RDF.JSON in rdfobject.datatype_iris:
                 return json.loads(rdfobject.unicode_value)
+            if XSD.integer in rdfobject.datatype_iris:
+                return int(rdfobject.unicode_value)
             return rdfobject.unicode_value  # TODO: decide how to represent language
         elif isinstance(rdfobject, str):
             try:  # maybe it's a jsonapi resource

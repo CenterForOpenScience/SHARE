@@ -2,6 +2,7 @@ import json
 
 from trove.render.jsonld import RdfJsonldRenderer
 from trove.render._rendering import SimpleRendering
+from ._inputs import BLARG
 from . import _base
 
 
@@ -12,7 +13,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
         'simple_card': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": "http://blarg.example/vocab/aCard",
+                "@id": BLARG.aCard,
                 "dcterms:issued": [
                     {
                         "@type": "xsd:date",
@@ -26,7 +27,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                     }
                 ],
                 "foaf:primaryTopic": [
-                    "http://blarg.example/vocab/anItem"
+                    BLARG.anItem
                 ],
                 "rdf:type": [
                     "trove:Indexcard",
@@ -34,13 +35,52 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                 ],
                 "trove:focusIdentifier": [
                     {
-                        "@value": "http://blarg.example/vocab/anItem"
+                        "@value": BLARG.anItem
                     }
                 ],
                 "trove:resourceMetadata": {
-                    "@id": "http://blarg.example/vocab/anItem",
+                    "@id": BLARG.anItem,
                     "title": "an item, yes"
                 }
+            }),
+        ),
+        'various_types': SimpleRendering(
+            mediatype='application/ld+json',
+            rendered_content=json.dumps({
+                "@id": BLARG.aSubject,
+                BLARG.hasDateLiteral: [
+                    {
+                        "@type": "xsd:date",
+                        "@value": "2024-01-01"
+                    }
+                ],
+                BLARG.hasIntegerLiteral: [
+                    {
+                        "@type": "xsd:integer",
+                        "@value": "17"
+                    }
+                ],
+                BLARG.hasIri: [
+                    BLARG.anIri
+                ],
+                BLARG.hasRdfLangStringLiteral: [
+                    {
+                        "@language": "en",
+                        "@value": "a rdf:langString literal"
+                    }
+                ],
+                BLARG.hasRdfStringLiteral: [
+                    {
+                        "@value": "an rdf:string literal"
+                    }
+                ],
+                BLARG.hasStrangeLiteral: [
+                    {
+                        "@type": BLARG.aStrangeDatatype,
+                        "@value": "a literal of strange datatype"
+                    }
+                ],
+                "rdf:type": [BLARG.aType],
             }),
         ),
     }
@@ -53,7 +93,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
         'no_results': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": "http://blarg.example/vocab/aSearch",
+                "@id": BLARG.aSearch,
                 "rdf:type": [
                     "trove:Cardsearch"
                 ],
@@ -66,7 +106,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
         'few_results': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": "http://blarg.example/vocab/aSearchFew",
+                "@id": BLARG.aSearchFew,
                 "rdf:type": [
                     "trove:Cardsearch"
                 ],
@@ -82,7 +122,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": "http://blarg.example/vocab/aCard",
+                                    "@id": BLARG.aCard,
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -96,7 +136,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "http://blarg.example/vocab/anItem"
+                                        BLARG.anItem
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",
@@ -104,11 +144,11 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:focusIdentifier": [
                                         {
-                                            "@value": "http://blarg.example/vocab/anItem"
+                                            "@value": BLARG.anItem
                                         }
                                     ],
                                     "trove:resourceMetadata": {
-                                        "@id": "http://blarg.example/vocab/anItem",
+                                        "@id": BLARG.anItem,
                                         "title": "an item, yes"
                                     }
                                 }
@@ -118,7 +158,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": "http://blarg.example/vocab/aCardd",
+                                    "@id": BLARG.aCardd,
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -132,7 +172,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "http://blarg.example/vocab/anItemm"
+                                        BLARG.anItemm
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",
@@ -140,11 +180,11 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:focusIdentifier": [
                                         {
-                                            "@value": "http://blarg.example/vocab/anItemm"
+                                            "@value": BLARG.anItemm
                                         }
                                     ],
                                     "trove:resourceMetadata": {
-                                        "@id": "http://blarg.example/vocab/anItemm",
+                                        "@id": BLARG.anItemm,
                                         "title": "an itemm, yes"
                                     }
                                 }
@@ -154,7 +194,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": "http://blarg.example/vocab/aCarddd",
+                                    "@id": BLARG.aCarddd,
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -168,7 +208,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "http://blarg.example/vocab/anItemmm"
+                                        BLARG.anItemmm
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",
@@ -176,11 +216,11 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:focusIdentifier": [
                                         {
-                                            "@value": "http://blarg.example/vocab/anItemmm"
+                                            "@value": BLARG.anItemmm
                                         }
                                     ],
                                     "trove:resourceMetadata": {
-                                        "@id": "http://blarg.example/vocab/anItemmm",
+                                        "@id": BLARG.anItemmm,
                                         "title": "an itemmm, yes"
                                     }
                                 }

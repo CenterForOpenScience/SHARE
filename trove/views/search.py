@@ -1,5 +1,6 @@
 import abc
 import logging
+from typing import Callable
 
 from django import http
 from django.views import View
@@ -13,7 +14,11 @@ from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
-from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
+from trove.trovesearch.trovesearch_gathering import (
+    trovesearch_by_indexstrategy,
+    CardsearchFocus,
+    ValuesearchFocus,
+)
 from trove.vocab.namespaces import TROVE, FOAF, DCTERMS
 from trove.render import (
     DEFAULT_RENDERER_TYPE,
@@ -26,6 +31,9 @@ from ._responder import (
 
 
 logger = logging.getLogger(__name__)
+
+
+_TrovesearchHandler = Callable[[BaseTroveParams], BasicSearchHandle]
 
 
 DEFAULT_INCLUDES_BY_TYPE = {
@@ -66,8 +74,8 @@ DEFAULT_FIELDS_BY_TYPE = {
 
 class _BaseTrovesearchView(View, abc.ABC):
     # expected on inheritors
-    focus_type_iri: str
-    params_dataclass: type[BaseTroveParams]
+    focus_type: type[gather.Focus]
+    params_dataclass: type[CardsearchParams]
 
     def get(self, request):
         try:
@@ -78,14 +86,18 @@ class _BaseTrovesearchView(View, abc.ABC):
                 renderer_type=DEFAULT_RENDERER_TYPE,
             )
         try:
-            _search_gathering = self._start_gathering(
-                search_params=self._parse_search_params(request),
-                renderer_type=_renderer_type,
-            )
             _url = request.build_absolute_uri()
-            _focus = gather.Focus.new(_url, self.focus_type_iri)
+            _search_gathering = self._start_gathering(renderer_type=_renderer_type)
+            _search_params = self._parse_search_params(request)
+            _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
+            _focus = self.focus_type.new(
+                _url,
+                self.focus_type.TYPE_IRI,
+                search_params=_search_params,
+                search_handle=self.get_search_handle(_specific_index, _search_params),
+            )
             # fill the gathering's cache with requested info
-            self._gather_by_request(_search_gathering, _focus, request)
+            self._gather_as_requested(_search_gathering, _focus)
             # take gathered data into a response
             _renderer = _renderer_type(_focus, _search_gathering)
             return make_http_response(
@@ -98,45 +110,54 @@ class _BaseTrovesearchView(View, abc.ABC):
                 renderer_type=_renderer_type,
             )
 
-    def _parse_search_params(self, request: http.HttpRequest) -> BaseTroveParams:
+    def _parse_search_params(self, request: http.HttpRequest) -> CardsearchParams:
         return self.params_dataclass.from_querystring(
             request.META['QUERY_STRING'],
         )
 
-    def _start_gathering(self, search_params: BaseTroveParams, renderer_type) -> gather.Gathering:
-        _specific_index = index_strategy.get_index_for_trovesearch(search_params)
+    def _start_gathering(self, renderer_type) -> gather.Gathering:
         # TODO: 404 for unknown strategy
         return trovesearch_by_indexstrategy.new_gathering({
-            'search_params': search_params,
-            'search_handle': self._get_search_handle(_specific_index),
-            'specific_index': _specific_index,
             'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
         })
 
-    def _gather_by_request(self, gathering, focus, request) -> None:
-        gathering.ask(self._get_asktree(request), focus=focus)
+    def get_search_handle(self, specific_index, search_params) -> BasicSearchHandle:
+        _handler = self.get_search_handler(specific_index)
+        _handle = _handler(search_params)
+        _handle.handler = _handler
+        return _handle
 
-    def _get_asktree(self, request: http.HttpRequest):
-        ...
-
-    def _get_gathering_kwargs(
+    def get_search_handler(
         self,
         specific_index: index_strategy.IndexStrategy.SpecificIndex,
-    ) -> BasicSearchHandle:
+    ) -> _TrovesearchHandler:
         raise NotImplementedError
+
+    def _gather_as_requested(self, gathering, focus) -> None:
+        _search_params: BaseTroveParams = gathering.gatherer_kwargs['search_params']
+        if _search_params.include is not None:
+            gathering.ask(_search_params.include)
+        else:
+            for _type_iri in focus.type_iris:
+                try:
+                    _include_paths = DEFAULT_INCLUDES_BY_TYPE[_type_iri]
+                except KeyError:
+                    pass
+                else:
+                    gathering.ask(_include_paths)
 
 
 class CardsearchView(_BaseTrovesearchView):
-    focus_type_iri = TROVE.Cardsearch
+    focus_type = CardsearchFocus
     params_dataclass = CardsearchParams
 
-    def _get_search_handle(self, specific_index, search_params) -> BasicSearchHandle:
-        return specific_index.pls_handle_cardsearch(search_params)
+    def get_search_handler(self, specific_index):
+        return specific_index.pls_handle_cardsearch
 
 
 class ValuesearchView(_BaseTrovesearchView):
-    focus_type_iri = TROVE.Valuesearch
+    focus_type = ValuesearchFocus
     params_dataclass = ValuesearchParams
 
-    def _get_search_handle(self, specific_index, search_params) -> BasicSearchHandle:
-        return specific_index.pls_handle_valuesearch(search_params)
+    def get_search_handler(self, specific_index):
+        return specific_index.pls_handle_valuesearch

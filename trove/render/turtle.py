@@ -12,5 +12,5 @@ class RdfTurtleRenderer(BaseRenderer):
     def simple_render_document(self) -> str:
         return rdf.turtle_from_tripledict(
             self.response_data.tripledict,
-            focus=self.response_focus_iri,
+            focus=self.response_focus.single_iri(),
         )

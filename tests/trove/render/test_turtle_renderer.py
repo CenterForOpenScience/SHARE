@@ -32,6 +32,22 @@ class TestTurtleRenderer(_BaseTurtleRendererTest):
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
 ''',
         ),
+        'various_types': SimpleRendering(
+            mediatype='text/turtle',
+            rendered_content='''
+@prefix blarg: <http://blarg.example/vocab/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+blarg:aSubject a blarg:aType ;
+    blarg:hasDateLiteral "2024-01-01"^^xsd:date ;
+    blarg:hasIntegerLiteral 17 ;
+    blarg:hasIri blarg:anIri ;
+    blarg:hasRdfLangStringLiteral "a rdf:langString literal"@en ;
+    blarg:hasRdfStringLiteral "an rdf:string literal"^^rdf:string ;
+    blarg:hasStrangeLiteral "a literal of strange datatype"^^blarg:aStrangeDatatype .
+''',
+        ),
     }
 
 

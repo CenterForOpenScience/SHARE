@@ -1,9 +1,10 @@
 import json
-from typing import Iterable
+from typing import Iterator, Any
 
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import exceptions as trove_exceptions
+from trove.vocab.jsonapi import JSONAPI_LINK_OBJECT
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
 from ._rendering import ProtoRendering, SimpleRendering
@@ -14,58 +15,85 @@ class SimpleTrovesearchRenderer(BaseRenderer):
 
     (very entangled with trove/trovesearch/trovesearch_gathering.py)
     '''
+    PASSIVE_RENDER = False  # knows the properties it cares about
+    _page_links: set
+    __already_iterated_cards = False
 
     def simple_unicard_rendering(self, card_iri: str, osfmap_json: dict) -> str:
         raise NotImplementedError
 
-    def simple_multicard_rendering(self, cards: Iterable[tuple[str, dict]]) -> str:
+    def simple_multicard_rendering(self, cards: Iterator[tuple[str, dict]]) -> str:
         raise NotImplementedError
 
     def unicard_rendering(self, card_iri: str, osfmap_json: dict) -> ProtoRendering:
-        return SimpleRendering(
+        return SimpleRendering(  # type: ignore[return-value]
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_unicard_rendering(card_iri, osfmap_json),
         )
 
-    def multicard_rendering(self, cards: Iterable[tuple[str, dict]]) -> ProtoRendering:
-        return SimpleRendering(
+    def multicard_rendering(self, card_pages: Iterator[dict[str, dict]]) -> ProtoRendering:
+        _cards = (
+            (_card_iri, _card_contents)
+            for _page in card_pages
+            for _card_iri, _card_contents in _page.items()
+        )
+        return SimpleRendering(  # type: ignore[return-value]
             mediatype=self.MEDIATYPE,
-            rendered_content=self.simple_multicard_rendering(cards),
+            rendered_content=self.simple_multicard_rendering(_cards),
         )
 
     def render_document(self) -> ProtoRendering:
-        _focustypes = set(self.response_data.q(self.response_focus_iri, RDF.type))
+        _focustypes = set(self.response_gathering.ask(RDF.type, focus=self.response_focus))
         if (TROVE.Cardsearch in _focustypes) or (TROVE.Valuesearch in _focustypes):
-            return self.multicard_rendering(self._iter_search_contents())
+            return self.multicard_rendering(self._iter_card_pages())
         if TROVE.Indexcard in _focustypes:
             return self.unicard_rendering(
-                self.response_focus_iri,
-                self._get_card_content(self.response_focus_iri),
+                self.response_focus.iri,
+                self._get_card_content(self.response_focus.iri),
             )
         raise trove_exceptions.UnsupportedRdfType(_focustypes)
 
-    def _iter_search_contents(self):
-        # just each card's contents
-        for _page in self.response_data.q(self.response_focus_iri, TROVE.searchResultPage):
-            if not rdf.is_container(_page):
-                continue  # filter out page links
-            for _search_result in rdf.sequence_objects_in_order(_page):
-                try:
-                    _card = next(
-                        _obj
-                        for _pred, _obj in _search_result
-                        if _pred == TROVE.indexCard
-                    )
-                except StopIteration:
-                    continue  # skip malformed
-                yield self._get_card_iri(_card), self._get_card_content(_card)
+    def _iter_card_pages(self) -> Iterator[dict[str, Any]]:
+        assert not self.__already_iterated_cards
+        self.__already_iterated_cards = True
+        self._page_links = set()
+        for _page, _page_graph in self.response_gathering.ask_exhaustively(
+            TROVE.searchResultPage, focus=self.response_focus
+        ):
+            if (RDF.type, JSONAPI_LINK_OBJECT) in _page:
+                self._page_links.add(_page)
+            elif rdf.is_container(_page):
+                _cardpage = []
+                for _search_result in rdf.container_objects(_page):
+                    try:
+                        _card = next(
+                            _obj
+                            for _pred, _obj in _search_result
+                            if _pred == TROVE.indexCard
+                        )
+                    except StopIteration:
+                        pass  # skip malformed
+                    else:
+                        _cardpage.append(_card)
+                yield {
+                    self._get_card_iri(_card): self._get_card_content(_card, _page_graph)
+                    for _card in _cardpage
+                }
 
     def _get_card_iri(self, card: str | rdf.RdfBlanknode) -> str:
         return card if isinstance(card, str) else ''
 
-    def _get_card_content(self, card: str | rdf.RdfBlanknode) -> dict:
+    def _get_card_content(
+        self,
+        card: str | rdf.RdfBlanknode,
+        graph: rdf.RdfGraph | None = None,
+    ) -> dict:
         if isinstance(card, str):
-            _card_content = next(self.response_data.q(card, TROVE.resourceMetadata))
+            _card_content = (
+                next(self.response_gathering.ask(TROVE.resourceMetadata, focus=card))
+                if graph is None
+                else next(graph.q(card, TROVE.resourceMetadata))
+            )
         elif isinstance(card, frozenset):
             _card_content = next(
                 _obj

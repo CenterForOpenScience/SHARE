@@ -24,6 +24,9 @@ class BaseRenderer(abc.ABC):
     MEDIATYPE: ClassVar[str]
     # should be set when the renderer expects a specific derived metadata format
     INDEXCARD_DERIVER_IRI: ClassVar[str | None] = None
+    # when True, the renderer renders only what's already been gathered
+    # (set False if the renderer knows what to request)
+    PASSIVE_RENDER: ClassVar[bool] = True
 
     # instance fields
     response_focus: gather.Focus

@@ -145,6 +145,9 @@ class BaseTroveParams:
             )
         )
 
+    def get_next_streaming_params(self) -> typing.Self | None:
+        return None
+
 
 @dataclasses.dataclass(frozen=True)
 class Textsegment:
@@ -492,7 +495,6 @@ class CardsearchParams(BaseTroveParams):
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
             'page_cursor': _get_page_cursor(queryparams),
-            'include': None,  # TODO
         }
 
     @functools.cached_property
@@ -520,6 +522,20 @@ class CardsearchParams(BaseTroveParams):
         if self.index_strategy_name:
             _querydict['indexStrategy'] = self.index_strategy_name
         return _querydict
+
+    def get_next_streaming_params(self) -> typing.Self | None:
+        _next_diff = self._streaming_next_diff_kwargs()
+        return (
+            None
+            if _next_diff.get('cursor') is None
+            else dataclasses.replace(self, **_next_diff)
+        )
+
+    def _streaming_next_diff_kwargs(self) -> dict:
+        return {
+            'cursor': self.page_cursor.next_cursor(),
+            'include': frozenset([(TROVE.searchResultPage,)]),
+        }
 
 
 @dataclasses.dataclass(frozen=True)

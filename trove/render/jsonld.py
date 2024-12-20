@@ -24,7 +24,7 @@ class RdfJsonldRenderer(BaseRenderer):
 
     def simple_render_document(self) -> str:
         return json.dumps(
-            self.render_jsonld(self.response_data, self.response_focus_iri),
+            self.render_jsonld(self.response_data, self.response_focus.single_iri()),
             indent=2,
             sort_keys=True,
         )

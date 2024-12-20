@@ -1,8 +1,8 @@
 from typing import Iterable, Iterator
-import dataclasses
 from datetime import date, timedelta
 import math
 from urllib.parse import urlencode
+from unittest import mock
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -142,20 +142,18 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def test_cardsearch_related_properties(self):
         self._fill_test_data_for_querying()
-        _cardsearch_params = dataclasses.replace(
-            CardsearchParams.from_querystring(''),
-            related_property_paths=(
-                (DCTERMS.creator,),
-                (DCTERMS.references,),
-                (BLARG.nada,),
-            ),
-        )
-        _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
-        self.assertEqual(_cardsearch_handle.related_propertypath_results, [
-            PropertypathUsage((DCTERMS.creator,), 3),
-            PropertypathUsage((DCTERMS.references,), 2),
-            PropertypathUsage((BLARG.nada,), 0),
-        ])
+        _cardsearch_params = CardsearchParams.from_querystring('')
+        with mock.patch.object(_cardsearch_params, 'related_property_paths', new=(
+            (DCTERMS.creator,),
+            (DCTERMS.references,),
+            (BLARG.nada,),
+        )):
+            _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+            self.assertEqual(_cardsearch_handle.related_propertypath_results, [
+                PropertypathUsage((DCTERMS.creator,), 3),
+                PropertypathUsage((DCTERMS.references,), 2),
+                PropertypathUsage((BLARG.nada,), 0),
+            ])
 
     def test_valuesearch(self):
         self._fill_test_data_for_querying()

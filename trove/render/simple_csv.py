@@ -23,10 +23,10 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
     CSV_DIALECT = csv.excel
 
     def unicard_rendering(self, card_iri: str, osfmap_json: dict):
-        self.multicard_rendering(cards=[(card_iri, osfmap_json)])
+        self.multicard_rendering(card_pages=[{card_iri: osfmap_json}])
 
-    def multicard_rendering(self, cards: typing.Iterable[tuple[str, dict]]):
-        _doc = TabularDoc(list(cards))  # TODO: static column header, actual stream
+    def multicard_rendering(self, card_pages: typing.Iterable[dict[str, dict]]):
+        _doc = TabularDoc(card_pages)
         return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=csv_stream(self.CSV_DIALECT, _doc.header(), _doc.rows()),
@@ -42,7 +42,8 @@ def csv_stream(csv_dialect, header: list, rows: typing.Iterator[list]) -> typing
 
 @dataclasses.dataclass
 class TabularDoc:
-    cards: typing.Iterable[tuple[str, dict]]
+    card_pages: typing.Iterator[dict[str, dict]]
+    _started: bool = False
 
     @functools.cached_property
     def field_paths(self) -> tuple[Jsonpath, ...]:
@@ -53,19 +54,31 @@ class TabularDoc:
             *self._nonempty_field_paths()
         ))
 
+    @functools.cached_property
+    def first_page(self) -> dict[str, dict]:
+        return next(self.card_pages, {})
+
+    def _iter_card_pages(self):
+        assert not self._started
+        self._started = True
+        if self.first_page:
+            yield self.first_page
+            yield from self.card_pages
+
     def header(self) -> list[str]:
         return ['.'.join(_path) for _path in self.field_paths]
 
     def rows(self) -> typing.Iterator[list[str]]:
-        for _card_iri, _osfmap_json in self.cards:
-            yield self._row_values(_osfmap_json)
+        for _page in self._iter_card_pages():
+            for _card_iri, _osfmap_json in _page.items():
+                yield self._row_values(_osfmap_json)
 
     def _nonempty_field_paths(self) -> typing.Iterator[Jsonpath]:
         for _path in osfmap.DEFAULT_TABULAR_SEARCH_COLUMN_PATHS:
             _jsonpath = _osfmap_jsonpath(_path)
             _path_is_present = any(
                 _has_value(_card, _jsonpath)
-                for (_, _card) in self.cards
+                for _card in self.first_page.values()
             )
             if _path_is_present:
                 yield _jsonpath
