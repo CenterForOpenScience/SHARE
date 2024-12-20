@@ -1,63 +1,78 @@
 import abc
+import dataclasses
+import functools
 import json
-from typing import Optional, ClassVar
+from typing import ClassVar
 
-from django import http
-from primitive_metadata import primitive_rdf as rdf
+from primitive_metadata import (
+    gather,
+    primitive_rdf as rdf,
+)
 
 from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
+from trove.vocab.namespaces import NAMESPACES_SHORTHAND
+from trove.vocab.trove import TROVE_API_THESAURUS
+from ._rendering import ProtoRendering, SimpleRendering
 
 
+@dataclasses.dataclass
 class BaseRenderer(abc.ABC):
+    """for creating a serialized rendering of an api response modeled as rdf"""
+
     # required in subclasses
     MEDIATYPE: ClassVar[str]
-    # should be set when render_error_document is overridden:
-    ERROR_MEDIATYPE: ClassVar[str] = mediatypes.JSONAPI
     # should be set when the renderer expects a specific derived metadata format
     INDEXCARD_DERIVER_IRI: ClassVar[str | None] = None
+    # when True, the renderer renders only what's already been gathered
+    # (set False if the renderer knows what to request)
+    PASSIVE_RENDER: ClassVar[bool] = True
 
-    def __init__(
-        self, *,
-        iri_shorthand: rdf.IriShorthand,
-        thesaurus: rdf.RdfTripleDictionary,
-        request: Optional[http.HttpRequest] = None,
-    ):
-        self.iri_shorthand = iri_shorthand
-        self.thesaurus = rdf.RdfGraph(thesaurus)
-        self.request = request
+    # instance fields
+    response_focus: gather.Focus
+    response_gathering: gather.Gathering
+    iri_shorthand: rdf.IriShorthand = NAMESPACES_SHORTHAND
+    thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
-    def render_response(
-        self,
-        response_data: rdf.RdfTripleDictionary,
-        response_focus_iri: str,
-        **response_kwargs,
-    ):
-        return http.HttpResponse(
-            content=self.render_document(rdf.RdfGraph(response_data), response_focus_iri),
-            content_type=self.MEDIATYPE,
-            **response_kwargs,
-        )
+    @functools.cached_property
+    def thesaurus(self):
+        return rdf.RdfGraph(self.thesaurus_tripledict)
 
-    def render_error_response(self, error: trove_exceptions.TroveError):
-        return http.HttpResponse(
-            content=self.render_error_document(error),
-            content_type=self.ERROR_MEDIATYPE,
-            status=error.http_status,
-        )
+    @functools.cached_property
+    def response_data(self):
+        return rdf.RdfGraph(self.response_tripledict)
 
-    @abc.abstractmethod
-    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
+    @functools.cached_property
+    def response_tripledict(self) -> rdf.RdfTripleDictionary:
+        # TODO: self.response_gathering.ask_all_about or a default ask...
+        return self.response_gathering.leaf_a_record()
+
+    def simple_render_document(self) -> str:
         raise NotImplementedError
 
-    def render_error_document(self, error: trove_exceptions.TroveError) -> str:
+    def render_document(self) -> ProtoRendering:
+        try:
+            _content = self.simple_render_document()
+        except NotImplementedError:
+            raise NotImplementedError(f'class "{type(self)}" must implement either `render_document` or `simple_render_document`')
+        else:
+            return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
+                mediatype=self.MEDIATYPE,
+                rendered_content=_content,
+            )
+
+    @classmethod
+    def render_error_document(cls, error: trove_exceptions.TroveError) -> ProtoRendering:
         # may override, but default to jsonapi
-        return json.dumps(
-            {'errors': [{  # https://jsonapi.org/format/#error-objects
-                'status': error.http_status,
-                'code': error.error_location,
-                'title': error.__class__.__name__,
-                'detail': str(error),
-            }]},
-            indent=2,
+        return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
+            mediatype=mediatypes.JSONAPI,
+            rendered_content=json.dumps(
+                {'errors': [{  # https://jsonapi.org/format/#error-objects
+                    'status': error.http_status,
+                    'code': error.error_location,
+                    'title': error.__class__.__name__,
+                    'detail': str(error),
+                }]},
+                indent=2,
+            ),
         )

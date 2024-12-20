@@ -2,6 +2,7 @@ from __future__ import annotations
 import collections
 import dataclasses
 import enum
+import functools
 import itertools
 import logging
 import typing
@@ -11,7 +12,10 @@ from django.http import QueryDict
 from primitive_metadata import primitive_rdf
 
 from trove import exceptions as trove_exceptions
-from trove.trovesearch.page_cursor import PageCursor
+from trove.trovesearch.page_cursor import (
+    DEFAULT_PAGE_SIZE,
+    PageCursor,
+)
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -26,7 +30,7 @@ from trove.vocab.osfmap import (
     OSFMAP_THESAURUS,
 )
 from trove.vocab.trove import trove_shorthand
-from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND
+from trove.vocab.namespaces import RDF, TROVE, OWL, NAMESPACES_SHORTHAND, FOAF, DCTERMS
 
 
 logger = logging.getLogger(__name__)
@@ -47,10 +51,6 @@ DOUBLE_QUOTATION_MARK = '"'
 # optional prefix for "sort" values
 DESCENDING_SORT_PREFIX = '-'
 
-# for "page[size]" values
-DEFAULT_PAGE_SIZE = 13
-MAX_PAGE_SIZE = 101
-
 # between each step in a property path "foo.bar.baz"
 PROPERTYPATH_DELIMITER = '.'
 
@@ -58,6 +58,41 @@ PROPERTYPATH_DELIMITER = '.'
 GLOB_PATHSTEP = '*'
 ONE_GLOB_PROPERTYPATH: Propertypath = (GLOB_PATHSTEP,)
 DEFAULT_PROPERTYPATH_SET: PropertypathSet = frozenset([ONE_GLOB_PROPERTYPATH])
+
+DEFAULT_INCLUDES_BY_TYPE = {
+    TROVE.Cardsearch: {
+        (TROVE.searchResultPage,),
+        (TROVE.relatedPropertyList,),
+    },
+    TROVE.Valuesearch: {
+        (TROVE.searchResultPage,),
+    },
+    TROVE.SearchResult: {
+        (TROVE.indexCard,),
+    },
+}
+
+DEFAULT_FIELDS_BY_TYPE = {
+    TROVE.Indexcard: {
+        (TROVE.resourceMetadata,),
+        (TROVE.focusIdentifier,),
+        (DCTERMS.issued,),
+        (DCTERMS.modified,),
+        (FOAF.primaryTopic),
+    },
+    TROVE.Cardsearch: {
+        (TROVE.totalResultCount,),
+        (TROVE.cardSearchText,),
+        (TROVE.cardSearchFilter,),
+    },
+    TROVE.Valuesearch: {
+        (TROVE.propertyPath,),
+        (TROVE.valueSearchText,),
+        (TROVE.valueSearchFilter,),
+        (TROVE.cardSearchText,),
+        (TROVE.cardSearchFilter,),
+    },
+}
 
 
 class ValueType(enum.Enum):
@@ -78,6 +113,7 @@ class ValueType(enum.Enum):
 
     def to_shortname(self) -> str:
         return trove_shorthand().compact_iri(self.value)
+
 
 ###
 # dataclasses for parsed search-api query parameters
@@ -102,7 +138,7 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': cls._gather_include(queryparams),
+            'include': frozenset(cls._gather_include(queryparams)),
             'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
@@ -131,8 +167,10 @@ class BaseTroveParams:
 
     @classmethod
     def _gather_include(cls, queryparams: QueryparamDict):
-        # TODO: for _qp_name, _iri in queryparams.get('include', []):
-        return frozenset()
+        return itertools.chain.from_iterable(
+            _parse_propertypath_set(_include_value)
+            for _, _include_value in queryparams.get('include', [])
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -470,7 +508,6 @@ class CardsearchParams(BaseTroveParams):
     index_strategy_name: str | None
     sort_list: tuple[SortParam, ...]
     page_cursor: PageCursor
-    related_property_paths: tuple[Propertypath, ...]
 
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
@@ -482,9 +519,23 @@ class CardsearchParams(BaseTroveParams):
             'index_strategy_name': _get_single_value(queryparams, QueryparamName('indexStrategy')),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
             'page_cursor': _get_page_cursor(queryparams),
-            'include': None,  # TODO
-            'related_property_paths': _get_related_property_paths(_filter_set),
         }
+
+    @classmethod
+    def _gather_include(cls, queryparams: QueryparamDict):
+        _explicit_includes = set(super()._gather_include(queryparams))
+        return itertools.chain(
+            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Cardsearch],
+            DEFAULT_FIELDS_BY_TYPE[TROVE.Cardsearch],
+        )
+
+    @functools.cached_property
+    def related_property_paths(self) -> tuple[Propertypath, ...]:
+        return (
+            _get_related_property_paths(self.cardsearch_filter_set)
+            if (TROVE.relatedPropertyList,) in self.include
+            else ()
+        )
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
@@ -525,6 +576,14 @@ class ValuesearchParams(CardsearchParams):
             'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
+
+    @classmethod
+    def _gather_include(cls, queryparams: QueryparamDict):
+        _explicit_includes = set(super()._gather_include(queryparams))
+        return itertools.chain(
+            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Valuesearch],
+            DEFAULT_FIELDS_BY_TYPE[TROVE.Valuesearch],
+        )
 
     def __post_init__(self):
         if is_date_property(self.valuesearch_propertypath[-1]):
@@ -671,11 +730,11 @@ def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
     _cursor_value = _get_single_value(queryparams, QueryparamName('page', ('cursor',)))
     if _cursor_value:
         return PageCursor.from_queryparam_value(_cursor_value)
+    _size_value = _get_single_value(queryparams, QueryparamName('page', ('size',)))
+    if _size_value is None:
+        return PageCursor()
     try:
-        _size = int(  # TODO: 400 response on non-int value
-            _get_single_value(queryparams, QueryparamName('page', ('size',)))
-            or DEFAULT_PAGE_SIZE
-        )
+        _size = int(_size_value)
     except ValueError:
         raise trove_exceptions.InvalidQueryParamValue('page[size]')
-    return PageCursor(page_size=min(_size, MAX_PAGE_SIZE))
+    return PageCursor(page_size=_size)

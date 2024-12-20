@@ -22,9 +22,9 @@ class RdfJsonldRenderer(BaseRenderer):
 
     __visiting_iris: set | None = None
 
-    def render_document(self, data: rdf.RdfGraph, focus_iri: str) -> str:
+    def simple_render_document(self) -> str:
         return json.dumps(
-            self.render_jsonld(data, focus_iri),
+            self.render_jsonld(self.response_data, self.response_focus.single_iri()),
             indent=2,
             sort_keys=True,
         )
@@ -147,13 +147,9 @@ class RdfJsonldRenderer(BaseRenderer):
                 return None
             else:
                 return _only_obj
-        if predicate_iri in _PREDICATES_OF_FLEXIBLE_CARDINALITY:
-            return (
-                objectlist
-                if len(objectlist) != 1
-                else objectlist[0]
-            )
-        return objectlist
+        if predicate_iri in _PREDICATES_OF_FLEXIBLE_CARDINALITY and len(objectlist) == 1:
+            return objectlist[0]
+        return sorted(objectlist, key=_naive_sort_key)
 
     @contextlib.contextmanager
     def __visiting(self, iri: str):
@@ -165,3 +161,8 @@ class RdfJsonldRenderer(BaseRenderer):
 
     def __already_visiting(self, iri: str) -> bool:
         return bool(self.__visiting_iris and (iri in self.__visiting_iris))
+
+
+def _naive_sort_key(jsonable_obj):
+    _json = json.dumps(jsonable_obj)
+    return (len(_json), _json)

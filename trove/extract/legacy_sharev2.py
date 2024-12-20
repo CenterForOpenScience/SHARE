@@ -54,7 +54,10 @@ osfmap_from_normd = gather.GatheringOrganizer(
         primitive_rdf.literal('sharev2-normd'),
     ),
     norms=OSFMAP_NORMS,
-    gatherer_kwargnames={'mnode', 'source_config'},
+    gatherer_params={
+        'mnode': SHAREv2.MutableNode,
+        'source_config': SHAREv2.SourceConfig,
+    },
 )
 
 

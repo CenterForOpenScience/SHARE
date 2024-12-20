@@ -12,9 +12,9 @@ from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
-from trove.trovesearch.search_response import (
-    CardsearchResponse,
-    ValuesearchResponse,
+from trove.trovesearch.search_handle import (
+    CardsearchHandle,
+    ValuesearchHandle,
 )
 
 
@@ -219,10 +219,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
 
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
             raise NotImplementedError
 
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
             raise NotImplementedError
 
         def pls_get_mappings(self) -> dict:

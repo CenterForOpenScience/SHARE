@@ -31,24 +31,20 @@ from trove.trovesearch.search_params import (
     SortParam,
     GLOB_PATHSTEP,
 )
-from trove.trovesearch.search_response import (
-    CardsearchResponse,
-    ValuesearchResponse,
+from trove.trovesearch.search_handle import (
+    CardsearchHandle,
+    ValuesearchHandle,
     TextMatchEvidence,
     CardsearchResult,
     ValuesearchResult,
     PropertypathUsage,
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri, iri_path_as_keyword
-from trove.vocab.osfmap import is_date_property
+from trove.vocab import osfmap
 from trove.vocab.namespaces import RDF, OWL
 from ._trovesearch_util import (
     latest_rdf_for_indexcard_pks,
     GraphWalk,
-    TITLE_PROPERTIES,
-    NAME_PROPERTIES,
-    LABEL_PROPERTIES,
-    NAMELIKE_PROPERTIES,
     KEYWORD_LENGTH_MAX,
 )
 
@@ -288,7 +284,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 params=(request_queryparams or {}),
             )
 
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchResponse:
+        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
             _cursor = self._cardsearch_cursor(cardsearch_params)
             _sort = self._cardsearch_sort(cardsearch_params.sort_list)
             _query = self._cardsearch_query(
@@ -306,7 +302,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 aggs=self._cardsearch_aggs(cardsearch_params),
                 sort=_sort,
                 from_=_from_offset,
-                size=_cursor.page_size,
+                size=_cursor.bounded_page_size,
                 source=False,  # no need to get _source; _id is enough
             )
             if settings.DEBUG:
@@ -318,11 +314,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._cardsearch_response(cardsearch_params, _es8_response, _cursor)
+            return self._cardsearch_handle(cardsearch_params, _es8_response, _cursor)
 
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchResponse:
+        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
             _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
-            _is_date_search = is_date_property(valuesearch_params.valuesearch_propertypath[-1])
+            _is_date_search = osfmap.is_date_property(valuesearch_params.valuesearch_propertypath[-1])
             _search_kwargs = dict(
                 query=self._cardsearch_query(
                     valuesearch_params.cardsearch_filter_set,
@@ -347,7 +343,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 )
             except elasticsearch8.TransportError as error:
                 raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self._valuesearch_response(valuesearch_params, _es8_response, _cursor)
+            return self._valuesearch_handle(valuesearch_params, _es8_response, _cursor)
 
         ###
         # query implementation
@@ -449,7 +445,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             _nested_terms_agg = {
                 'field': 'nested_iri.iri_value',
                 # WARNING: terribly inefficient pagination (part one)
-                'size': cursor.start_offset + cursor.page_size + 1,
+                'size': cursor.start_offset + cursor.bounded_page_size + 1,
             }
             _iris = list(valuesearch_params.valuesearch_iris())
             if _iris:
@@ -526,7 +522,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             }
             return _aggs
 
-        def _valuesearch_response(
+        def _valuesearch_handle(
             self,
             valuesearch_params: ValuesearchParams,
             es8_response: dict,
@@ -537,31 +533,33 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 _buckets = _iri_aggs['value_at_propertypath']['iri_values']['buckets']
                 _bucket_count = len(_buckets)
                 # WARNING: terribly inefficient pagination (part two)
-                _page_end_index = cursor.start_offset + cursor.page_size
+                _page_end_index = cursor.start_offset + cursor.bounded_page_size
                 _bucket_page = _buckets[cursor.start_offset:_page_end_index]  # discard prior pages
                 cursor.total_count = (
                     MANY_MORE
                     if (_bucket_count > _page_end_index)  # agg includes one more, if there
                     else _bucket_count
                 )
-                return ValuesearchResponse(
+                return ValuesearchHandle(
                     cursor=cursor,
                     search_result_page=[
                         self._valuesearch_iri_result(_iri_bucket)
                         for _iri_bucket in _bucket_page
                     ],
+                    search_params=valuesearch_params,
                 )
             else:  # assume date
                 _year_buckets = (
                     es8_response['aggregations']['in_nested_date']
                     ['value_at_propertypath']['count_by_year']['buckets']
                 )
-                return ValuesearchResponse(
+                return ValuesearchHandle(
                     cursor=PageCursor(len(_year_buckets)),
                     search_result_page=[
                         self._valuesearch_date_result(_year_bucket)
                         for _year_bucket in _year_buckets
                     ],
+                    search_params=valuesearch_params,
                 )
 
         def _valuesearch_iri_result(self, iri_bucket):
@@ -664,7 +662,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             else:
                 raise ValueError(f'invalid date filter operator (got {search_filter.operator})')
 
-        def _cardsearch_sort(self, sort_list: tuple[SortParam]):
+        def _cardsearch_sort(self, sort_list: tuple[SortParam, ...]):
             if not sort_list:
                 return None
             return [
@@ -683,12 +681,12 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 for _sortparam in sort_list
             ]
 
-        def _cardsearch_response(
+        def _cardsearch_handle(
             self,
             cardsearch_params: CardsearchParams,
             es8_response: dict,
             cursor: OffsetCursor,
-        ) -> CardsearchResponse:
+        ) -> CardsearchHandle:
             _es8_total = es8_response['hits']['total']
             if _es8_total['relation'] != 'eq':
                 cursor.total_count = MANY_MORE
@@ -717,11 +715,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 for _bucket in es8_response['aggregations']['related_propertypath_usage']['buckets']:
                     _path = tuple(json.loads(_bucket['key']))
                     _relatedproperty_by_path[_path].usage_count += _bucket['doc_count']
-            return CardsearchResponse(
+            return CardsearchHandle(
                 cursor=cursor,
                 search_result_page=_results,
                 related_propertypath_results=_relatedproperty_list,
-                cardsearch_params=cardsearch_params,
+                search_params=cardsearch_params,
             )
 
         def _gather_textmatch_evidence(self, es8_hit) -> Iterable[TextMatchEvidence]:
@@ -833,7 +831,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
 def _should_skip_card(indexcard_rdf, rdfdoc):
     # skip cards without some value for name/title/label
-    return not any(rdfdoc.q(indexcard_rdf.focus_iri, NAMELIKE_PROPERTIES))
+    return not any(rdfdoc.q(indexcard_rdf.focus_iri, osfmap.NAMELIKE_PROPERTIES))
 
 
 def _bucketlist(agg_result: dict) -> list[str]:
@@ -911,17 +909,17 @@ class _NestedIriKey:
             # TODO: don't discard language for name/title/label
             name_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, NAME_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.NAME_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
             title_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, TITLE_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.TITLE_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
             label_text=frozenset(
                 _text.unicode_value
-                for _text in rdfdoc.q(iri, LABEL_PROPERTIES)
+                for _text in rdfdoc.q(iri, osfmap.LABEL_PROPERTIES)
                 if isinstance(_text, primitive_rdf.Literal)
             ),
         )
