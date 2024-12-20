@@ -348,6 +348,7 @@ def _describe_indexcard_nonderived(
 ) -> rdf.RdfGraph:
     _card_description = rdf.RdfGraph({
         indexcard_iri: {
+            RDF.type: {TROVE.Indexcard, DCAT.CatalogRecord},
             TROVE.resourceMetadata: {indexcard_rdf.as_quoted_graph()},
             DCTERMS.issued: {indexcard_rdf.indexcard.created.date()},
             DCTERMS.modified: {indexcard_rdf.modified.date()},
@@ -366,6 +367,7 @@ def _describe_indexcard_derived(
 ) -> rdf.RdfGraph:
     _card_description = rdf.RdfGraph({
         indexcard_iri: {
+            RDF.type: {TROVE.Indexcard, DCAT.CatalogRecord},
             TROVE.resourceMetadata: {derived_indexcard.as_rdf_literal()},
             DCTERMS.issued: {derived_indexcard.upriver_indexcard.created.date()},
             DCTERMS.modified: {derived_indexcard.modified.date()},
