@@ -898,6 +898,31 @@ DATE_PROPERTIES = frozenset((
 ))
 
 
+TITLE_PROPERTIES = (DCTERMS.title,)
+NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
+LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
+NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
+SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
+
+DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
+    (DCTERMS.title,),
+    (OWL.sameAs,),  # includes DOI
+    (DCTERMS.created,),
+    (DCTERMS.modified,),
+    (RDF.type,),
+    (OSFMAP.storageRegion, SKOS.prefLabel),
+    (OSFMAP.storageByteCount,),
+    (DCTERMS.creator,),
+    (DCTERMS.rights,),
+    (DCTERMS.publisher,),
+    (OSFMAP.affiliation,),
+    (OSFMAP.funder,),
+    (DCTERMS.conformsTo, DCTERMS.title),
+    (OSFMAP.usage, OSFMAP.viewCount),
+    (OSFMAP.usage, OSFMAP.downloadCount),
+)
+
+
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]:
     _suggested: tuple[tuple[str, ...], ...]
     if not type_iris or not type_iris.issubset(OSFMAP_NORMS.focustype_iris):

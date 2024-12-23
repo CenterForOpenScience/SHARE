@@ -142,6 +142,7 @@ contains a json object that has:
         TROVE.iriPath: {literal('/trove/index-card-search')},
         TROVE.hasParameter: {
             TROVE.acceptMediatype,
+            TROVE.withFileName,
             TROVE.cardSearchText,
             TROVE.cardSearchFilter,
             TROVE.pageSize,
@@ -228,6 +229,7 @@ cardSearchFilter[affiliation][is-absent]
         TROVE.iriPath: {literal('/trove/index-value-search')},
         TROVE.hasParameter: {
             TROVE.acceptMediatype,
+            TROVE.withFileName,
             TROVE.valueSearchPropertyPath,
             TROVE.cardSearchText,
             TROVE.cardSearchFilter,
@@ -324,6 +326,7 @@ valueSearchText=cc
         TROVE.iriPath: {literal('/trove/index-card/{indexCardId}')},
         TROVE.hasParameter: {
             TROVE.acceptMediatype,
+            TROVE.withFileName,
             TROVE.indexCardId,
         },
         TROVE.usesConcept: {TROVE.Indexcard},
@@ -507,6 +510,19 @@ unstable mediatypes (may change or sometimes respond 500):
 * `application/ld+json`: rdf as [json-ld](https://www.w3.org/TR/json-ld11/)
 
 `acceptMediatype` will override the `Accept` header, if present.
+''', language='en')},
+    },
+    TROVE.withFileName: {
+        RDF.type: {RDF.Property, TROVE.QueryParameter},
+        JSONAPI_MEMBERNAME: {literal('withFileName', language='en')},
+        RDFS.label: {literal('withFileName', language='en')},
+        RDFS.comment: {literal('request the response be treated as a file download (with the given file name)', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**withFileName** is
+a query parameter that indicates the response should be downloaded by a browser
+
+the response will have the http header `Content-Disposition: attachment`
+with a filename based on the query param value, current date, and response content mediatype
 ''', language='en')},
     },
     TROVE.cardSearchText: {
@@ -756,15 +772,15 @@ the special path segment `*` matches any property
         RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
         JSONAPI_MEMBERNAME: {literal('suggestedFilterOperator', language='en')},
     },
+    TROVE.evidenceCardIdentifier: {
+        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_ATTRIBUTE},
+        JSONAPI_MEMBERNAME: {literal('evidenceCardIdentifier', language='en')},
+    },
 
     # relationships:
     TROVE.searchResultPage: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},
         JSONAPI_MEMBERNAME: {literal('searchResultPage', language='en')},
-    },
-    TROVE.evidenceCardIdentifier: {
-        RDF.type: {RDF.Property, OWL.FunctionalProperty, JSONAPI_RELATIONSHIP},
-        JSONAPI_MEMBERNAME: {literal('evidenceCardIdentifier', language='en')},
     },
     TROVE.relatedPropertyList: {
         RDF.type: {RDF.Property, JSONAPI_RELATIONSHIP},

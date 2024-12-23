@@ -1,4 +1,5 @@
 import json
+from unittest import mock
 
 from trove.derive.sharev2_elastic import ShareV2ElasticDeriver
 
@@ -8,7 +9,13 @@ from ._base import BaseIndexcardDeriverTest, SHOULD_SKIP
 class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
     deriver_class = ShareV2ElasticDeriver
 
-    def assert_derived_texts_equal(self, expected, actual):
+    def setUp(self):
+        # un-obfuscated ids, please
+        _patcher = mock.patch('share.util.IDObfuscator.encode', new=lambda x: x.id)
+        _patcher.start()
+        self.addCleanup(_patcher.stop)
+
+    def assert_outputs_equal(self, expected, actual):
         self.assertEqual(expected, json.loads(actual))
 
     expected_outputs = {
