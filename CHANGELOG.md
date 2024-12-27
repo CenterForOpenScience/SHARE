@@ -1,5 +1,10 @@
 # Change Log
 
+
+# [24.7.0] - 2024-12-27
+- allow rendering search responses as downloadable CSVs/TSVs
+- add, reshape renderer output types
+
 # [24.6.2] - 2024-12-05
 - more stable indexer daemon
 - `trovesearch_denorm` indexing tweaks:
