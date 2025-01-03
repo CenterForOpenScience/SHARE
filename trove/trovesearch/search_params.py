@@ -5,6 +5,7 @@ import enum
 import functools
 import itertools
 import logging
+import types
 import typing
 import urllib
 
@@ -16,6 +17,7 @@ from trove.trovesearch.page_cursor import (
     DEFAULT_PAGE_SIZE,
     PageCursor,
 )
+from trove.util.frozen import freeze
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -59,7 +61,7 @@ GLOB_PATHSTEP = '*'
 ONE_GLOB_PROPERTYPATH: Propertypath = (GLOB_PATHSTEP,)
 DEFAULT_PROPERTYPATH_SET: PropertypathSet = frozenset([ONE_GLOB_PROPERTYPATH])
 
-DEFAULT_INCLUDES_BY_TYPE = {
+DEFAULT_INCLUDES_BY_TYPE: collections.abc.Mapping[str, frozenset[Propertypath]] = freeze({
     TROVE.Cardsearch: {
         (TROVE.searchResultPage,),
         (TROVE.relatedPropertyList,),
@@ -70,29 +72,29 @@ DEFAULT_INCLUDES_BY_TYPE = {
     TROVE.SearchResult: {
         (TROVE.indexCard,),
     },
-}
+})
 
-DEFAULT_FIELDS_BY_TYPE = {
-    TROVE.Indexcard: {
+DEFAULT_FIELDS_BY_TYPE: collections.abc.Mapping[str, tuple[Propertypath, ...]] = freeze({
+    TROVE.Indexcard: [
         (TROVE.resourceMetadata,),
         (TROVE.focusIdentifier,),
         (DCTERMS.issued,),
         (DCTERMS.modified,),
         (FOAF.primaryTopic),
-    },
-    TROVE.Cardsearch: {
+    ],
+    TROVE.Cardsearch: [
         (TROVE.totalResultCount,),
         (TROVE.cardSearchText,),
         (TROVE.cardSearchFilter,),
-    },
-    TROVE.Valuesearch: {
+    ],
+    TROVE.Valuesearch: [
         (TROVE.propertyPath,),
         (TROVE.valueSearchText,),
         (TROVE.valueSearchFilter,),
         (TROVE.cardSearchText,),
         (TROVE.cardSearchFilter,),
-    },
-}
+    ],
+})
 
 
 class ValueType(enum.Enum):
@@ -121,9 +123,12 @@ class ValueType(enum.Enum):
 
 @dataclasses.dataclass(frozen=True)
 class BaseTroveParams:
+    static_focus_type: typing.ClassVar[str]  # expected on subclasses
+
     iri_shorthand: primitive_rdf.IriShorthand = dataclasses.field(repr=False)
-    include: PropertypathSet
     accept_mediatype: str | None
+    included_relations: PropertypathSet = dataclasses.field(repr=False, compare=False)
+    attrpaths_by_type: collections.abc.Mapping[str, PropertypathSet] = dataclasses.field(repr=False, compare=False)
 
     @classmethod
     def from_querystring(cls, querystring: str) -> typing.Self:
@@ -138,7 +143,8 @@ class BaseTroveParams:
         # subclasses should override and add their fields to super().parse_queryparams(queryparams)
         return {
             'iri_shorthand': cls._gather_shorthand(queryparams),
-            'include': frozenset(cls._gather_include(queryparams)),
+            'included_relations': cls._gather_include(queryparams),
+            'attrpaths_by_type': cls._gather_attrpaths(queryparams),
             'accept_mediatype': _get_single_value(queryparams, QueryparamName('acceptMediatype')),
         }
 
@@ -150,7 +156,7 @@ class BaseTroveParams:
         _querydict = QueryDict(mutable=True)
         if self.accept_mediatype:
             _querydict['acceptMediatype'] = self.accept_mediatype
-        # TODO: self.iri_shorthand, self.include
+        # TODO: iriShorthand, include, fields[...]
         return _querydict
 
     @classmethod
@@ -166,11 +172,40 @@ class BaseTroveParams:
         return NAMESPACES_SHORTHAND.with_update(_prefixmap)
 
     @classmethod
-    def _gather_include(cls, queryparams: QueryparamDict):
-        return itertools.chain.from_iterable(
-            _parse_propertypath_set(_include_value)
-            for _, _include_value in queryparams.get('include', [])
+    def _gather_include(cls, queryparams: QueryparamDict) -> PropertypathSet:
+        _include_params = queryparams.get('include', [])
+        if _include_params:
+            return frozenset(itertools.chain.from_iterable(
+                _parse_propertypath_set(_include_value)
+                for _, _include_value in _include_params
+            ))
+        return DEFAULT_INCLUDES_BY_TYPE[cls.static_focus_type]
+
+    @classmethod
+    def _gather_attrpaths(cls, queryparams: QueryparamDict) -> collections.abc.Mapping[
+            str,
+            tuple[Propertypath, ...],
+    ]:
+        _attrpaths: collections.ChainMap[str, tuple[Propertypath, ...]] = collections.ChainMap(
+            DEFAULT_FIELDS_BY_TYPE,  # type: ignore[arg-type]
         )
+        _fields_params = queryparams.get('fields', [])
+        if _fields_params:
+            _requested: dict[str, list[Propertypath]] = collections.defaultdict(list)
+            for _param_name, _param_value in _fields_params:
+                try:
+                    (_typenames,) = filter(bool, _param_name.bracketed_names)
+                except (IndexError, ValueError):
+                    raise trove_exceptions.InvalidQueryParamName(
+                        f'expected "fields[TYPE]" (with exactly one non-empty bracketed segment)'
+                        f' (got "{_param_name}")'
+                    )
+                else:
+                    for _type in split_queryparam_value(_typenames):
+                        _type_iri = osfmap_shorthand().expand_iri(_type)
+                        _requested[_type_iri].extend(_parse_propertypaths(_param_value))
+            _attrpaths = _attrpaths.new_child(freeze(_requested))
+        return _attrpaths
 
 
 @dataclasses.dataclass(frozen=True)
@@ -509,6 +544,8 @@ class CardsearchParams(BaseTroveParams):
     sort_list: tuple[SortParam, ...]
     page_cursor: PageCursor
 
+    static_focus_type = TROVE.Cardsearch
+
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
         _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
@@ -521,21 +558,18 @@ class CardsearchParams(BaseTroveParams):
             'page_cursor': _get_page_cursor(queryparams),
         }
 
-    @classmethod
-    def _gather_include(cls, queryparams: QueryparamDict):
-        _explicit_includes = set(super()._gather_include(queryparams))
-        return itertools.chain(
-            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Cardsearch],
-            DEFAULT_FIELDS_BY_TYPE[TROVE.Cardsearch],
-        )
-
     @functools.cached_property
     def related_property_paths(self) -> tuple[Propertypath, ...]:
         return (
             _get_related_property_paths(self.cardsearch_filter_set)
-            if (TROVE.relatedPropertyList,) in self.include
+            if (TROVE.relatedPropertyList,) in self.included_relations
             else ()
         )
+
+    def cardsearch_type_iris(self):
+        for _filter in self.cardsearch_filter_set:
+            if _filter.is_type_filter():
+                yield from _filter.value_set
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
@@ -564,6 +598,8 @@ class ValuesearchParams(CardsearchParams):
     valuesearch_textsegment_set: frozenset[Textsegment]
     valuesearch_filter_set: frozenset[SearchFilter]
 
+    static_focus_type = TROVE.Valuesearch
+
     # override CardsearchParams
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
@@ -576,14 +612,6 @@ class ValuesearchParams(CardsearchParams):
             'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
-
-    @classmethod
-    def _gather_include(cls, queryparams: QueryparamDict):
-        _explicit_includes = set(super()._gather_include(queryparams))
-        return itertools.chain(
-            _explicit_includes or DEFAULT_INCLUDES_BY_TYPE[TROVE.Valuesearch],
-            DEFAULT_FIELDS_BY_TYPE[TROVE.Valuesearch],
-        )
 
     def __post_init__(self):
         if is_date_property(self.valuesearch_propertypath[-1]):
@@ -686,10 +714,12 @@ def _get_single_value(
 
 def _parse_propertypath_set(serialized_path_set: str, *, allow_globs=True) -> PropertypathSet:
     # comma-delimited set of dot-delimited paths
-    return frozenset(
-        _parse_propertypath(_path, allow_globs=allow_globs)
-        for _path in split_queryparam_value(serialized_path_set)
-    )
+    return frozenset(_parse_propertypaths(serialized_path_set, allow_globs=allow_globs))
+
+
+def _parse_propertypaths(serialized_path_set: str, *, allow_globs=True) -> typing.Iterator[Propertypath]:
+    for _path in split_queryparam_value(serialized_path_set):
+        yield _parse_propertypath(_path, allow_globs=allow_globs)
 
 
 def _parse_propertypath(serialized_path: str, *, allow_globs=True) -> Propertypath:
@@ -738,3 +768,7 @@ def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
     except ValueError:
         raise trove_exceptions.InvalidQueryParamValue('page[size]')
     return PageCursor(page_size=_size)
+
+
+def _frozen_mapping(**kwargs) -> collections.abc.Mapping:
+    return types.MappingProxyType(kwargs)

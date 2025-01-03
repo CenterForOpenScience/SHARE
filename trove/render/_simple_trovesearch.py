@@ -43,13 +43,13 @@ class SimpleTrovesearchRenderer(BaseRenderer):
         )
 
     def render_document(self) -> ProtoRendering:
-        _focustypes = set(self.response_gathering.ask(RDF.type, focus=self.response_focus))
+        _focustypes = self.response_focus.type_iris
         if (TROVE.Cardsearch in _focustypes) or (TROVE.Valuesearch in _focustypes):
             return self.multicard_rendering(self._iter_card_pages())
         if TROVE.Indexcard in _focustypes:
             return self.unicard_rendering(
-                self.response_focus.iri,
-                self._get_card_content(self.response_focus.iri),
+                self.response_focus.single_iri(),
+                self._get_card_content(self.response_focus.single_iri()),
             )
         raise trove_exceptions.UnsupportedRdfType(_focustypes)
 
