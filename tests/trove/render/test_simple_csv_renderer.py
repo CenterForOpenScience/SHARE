@@ -10,15 +10,15 @@ class TestSimpleCsvRenderer(_base.TrovesearchRendererTests):
     expected_outputs = {
         'no_results': SimpleRendering(
             mediatype='text/csv',
-            rendered_content='@id\r\n',
+            rendered_content='@id,sameAs,resourceType,resourceNature,title,name,dateCreated,dateModified,rights\r\n',
         ),
         'few_results': SimpleRendering(
             mediatype='text/csv',
             rendered_content=''.join((
-                '@id,title\r\n',
-                'http://blarg.example/vocab/anItem,"an item, yes"\r\n',
-                'http://blarg.example/vocab/anItemm,"an itemm, yes"\r\n',
-                'http://blarg.example/vocab/anItemmm,"an itemmm, yes"\r\n',
+                '@id,sameAs,resourceType,resourceNature,title,name,dateCreated,dateModified,rights\r\n',
+                'http://blarg.example/vocab/anItem,,,,"an item, yes",,,,\r\n',
+                'http://blarg.example/vocab/anItemm,,,,"an itemm, yes",,,,\r\n',
+                'http://blarg.example/vocab/anItemmm,,,,"an itemmm, yes",,,,\r\n',
             )),
         ),
     }

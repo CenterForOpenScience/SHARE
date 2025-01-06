@@ -1,9 +1,16 @@
 from __future__ import annotations
 import csv
 import functools
+import itertools
 import dataclasses
 import typing
 
+from trove.trovesearch.search_params import (
+    Propertypath,
+    BaseTroveParams,
+    CardsearchParams,
+    ValuesearchParams,
+)
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
 from trove.vocab.namespaces import TROVE
@@ -15,6 +22,7 @@ Jsonpath = typing.Iterable[str]  # path of json keys
 
 _MULTIVALUE_DELIMITER = ' ; '  # possible improvement: smarter in-value delimiting?
 _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
+_ID_JSONPATH = ('@id',)
 
 
 class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
@@ -23,10 +31,13 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
     CSV_DIALECT = csv.excel
 
     def unicard_rendering(self, card_iri: str, osfmap_json: dict):
-        self.multicard_rendering(card_pages=[{card_iri: osfmap_json}])
+        self.multicard_rendering(card_pages=iter([{card_iri: osfmap_json}]))
 
-    def multicard_rendering(self, card_pages: typing.Iterable[dict[str, dict]]):
-        _doc = TabularDoc(card_pages)
+    def multicard_rendering(self, card_pages: typing.Iterator[dict[str, dict]]):
+        _doc = TabularDoc(
+            card_pages,
+            trove_params=getattr(self.response_focus, 'search_params', None),
+        )
         return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=csv_stream(self.CSV_DIALECT, _doc.header(), _doc.rows()),
@@ -43,20 +54,40 @@ def csv_stream(csv_dialect, header: list, rows: typing.Iterator[list]) -> typing
 @dataclasses.dataclass
 class TabularDoc:
     card_pages: typing.Iterator[dict[str, dict]]
+    trove_params: BaseTroveParams | None = None
     _started: bool = False
 
     @functools.cached_property
-    def field_paths(self) -> tuple[Jsonpath, ...]:
-        # TODO: use jsonapi's "sparse fieldsets" to allow selecting
-        #       https://jsonapi.org/format/#fetching-sparse-fieldsets
-        return tuple((
-            ('@id',),
-            *self._nonempty_field_paths()
-        ))
+    def column_jsonpaths(self) -> tuple[Jsonpath, ...]:
+        _column_jsonpaths = (
+            _osfmap_jsonpath(_path)
+            for _path in self._column_paths()
+        )
+        return (_ID_JSONPATH, *_column_jsonpaths)
 
     @functools.cached_property
     def first_page(self) -> dict[str, dict]:
         return next(self.card_pages, {})
+
+    def _column_paths(self) -> typing.Iterator[Propertypath]:
+        _pathlists: list[typing.Iterable[Propertypath]] = []
+        if self.trove_params is not None:  # hacks
+            if isinstance(self.trove_params, ValuesearchParams):
+                _expected_card_types = set(self.trove_params.valuesearch_type_iris())
+            elif isinstance(self.trove_params, CardsearchParams):
+                _expected_card_types = set(self.trove_params.cardsearch_type_iris())
+            else:
+                _expected_card_types = set()
+            for _type_iri in sorted(_expected_card_types, key=len):
+                try:
+                    _pathlist = self.trove_params.attrpaths_by_type[_type_iri]
+                except KeyError:
+                    pass
+                else:
+                    _pathlists.append(_pathlist)
+        if not _pathlists:
+            _pathlists.append(osfmap.DEFAULT_TABULAR_SEARCH_COLUMN_PATHS)
+        return itertools.chain.from_iterable(_pathlists)
 
     def _iter_card_pages(self):
         assert not self._started
@@ -66,27 +97,17 @@ class TabularDoc:
             yield from self.card_pages
 
     def header(self) -> list[str]:
-        return ['.'.join(_path) for _path in self.field_paths]
+        return ['.'.join(_path) for _path in self.column_jsonpaths]
 
     def rows(self) -> typing.Iterator[list[str]]:
         for _page in self._iter_card_pages():
             for _card_iri, _osfmap_json in _page.items():
                 yield self._row_values(_osfmap_json)
 
-    def _nonempty_field_paths(self) -> typing.Iterator[Jsonpath]:
-        for _path in osfmap.DEFAULT_TABULAR_SEARCH_COLUMN_PATHS:
-            _jsonpath = _osfmap_jsonpath(_path)
-            _path_is_present = any(
-                _has_value(_card, _jsonpath)
-                for _card in self.first_page.values()
-            )
-            if _path_is_present:
-                yield _jsonpath
-
     def _row_values(self, osfmap_json: dict) -> list[str]:
         return [
             self._row_field_value(osfmap_json, _field_path)
-            for _field_path in self.field_paths
+            for _field_path in self.column_jsonpaths
         ]
 
     def _row_field_value(self, osfmap_json: dict, field_path: Jsonpath) -> str:

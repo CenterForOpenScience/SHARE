@@ -771,17 +771,20 @@ class _CardsearchQueryBuilder:
     def _cardsearch_sorts(self):
         for _sortparam in self.params.sort_list:
             _fieldkey = _path_field_name(_sortparam.propertypath)
+            _when_missing: str | int = '_last'
             if _sortparam.value_type == ValueType.DATE:
                 _field = f'card.date_by_propertypath.{_fieldkey}'
                 _unmapped_type = 'date'
             elif _sortparam.value_type == ValueType.INTEGER:
                 _field = f'card.int_by_propertypath.{_fieldkey}'
                 _unmapped_type = 'long'
+                _when_missing = 0  # HACK: treat missing values as zero
             else:
                 raise ValueError(f'unsupported sort value type: {_sortparam}')
             yield {_field: {
                 'order': 'desc' if _sortparam.descending else 'asc',
                 'unmapped_type': _unmapped_type,
+                'missing': _when_missing,
             }}
 
 

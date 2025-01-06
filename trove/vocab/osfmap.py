@@ -905,21 +905,14 @@ NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
 
 DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
-    (DCTERMS.title,),
     (OWL.sameAs,),  # includes DOI
+    (RDF.type,),
+    (DCTERMS.type,),
+    (DCTERMS.title,),
+    (FOAF.name,),
     (DCTERMS.created,),
     (DCTERMS.modified,),
-    (RDF.type,),
-    (OSFMAP.storageRegion, SKOS.prefLabel),
-    (OSFMAP.storageByteCount,),
-    (DCTERMS.creator,),
     (DCTERMS.rights,),
-    (DCTERMS.publisher,),
-    (OSFMAP.affiliation,),
-    (OSFMAP.funder,),
-    (DCTERMS.conformsTo, DCTERMS.title),
-    (OSFMAP.usage, OSFMAP.viewCount),
-    (OSFMAP.usage, OSFMAP.downloadCount),
 )
 
 
