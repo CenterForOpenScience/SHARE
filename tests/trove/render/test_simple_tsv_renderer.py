@@ -10,15 +10,15 @@ class TestSimpleTsvRenderer(_base.TrovesearchRendererTests):
     expected_outputs = {
         'no_results': SimpleRendering(
             mediatype='text/tab-separated-values',
-            rendered_content='@id\r\n',
+            rendered_content='@id\tsameAs\tresourceType\tresourceNature\ttitle\tname\tdateCreated\tdateModified\trights\r\n',
         ),
         'few_results': SimpleRendering(
             mediatype='text/tab-separated-values',
             rendered_content=''.join((
-                '@id\ttitle\r\n',
-                'http://blarg.example/vocab/anItem\tan item, yes\r\n',
-                'http://blarg.example/vocab/anItemm\tan itemm, yes\r\n',
-                'http://blarg.example/vocab/anItemmm\tan itemmm, yes\r\n',
+                '@id\tsameAs\tresourceType\tresourceNature\ttitle\tname\tdateCreated\tdateModified\trights\r\n',
+                'http://blarg.example/vocab/anItem\t\t\t\tan item, yes\t\t\t\t\r\n',
+                'http://blarg.example/vocab/anItemm\t\t\t\tan itemm, yes\t\t\t\t\r\n',
+                'http://blarg.example/vocab/anItemmm\t\t\t\tan itemmm, yes\t\t\t\t\r\n',
             )),
         ),
     }

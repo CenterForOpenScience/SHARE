@@ -1,4 +1,6 @@
 import json
+import re
+import typing
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -8,6 +10,7 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
+from ._rendering import StreamableRendering
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 
 
@@ -24,15 +27,32 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
             'meta': self._render_meta(),
         }, indent=2)
 
-    def simple_multicard_rendering(self, cards):
-        return json.dumps({
-            'data': [
-                self._render_card_content(_card_iri, _osfmap_json)
-                for _card_iri, _osfmap_json in cards
-            ],
-            'links': self._render_links(),
+    def multicard_rendering(self, card_pages: typing.Iterator[dict[str, dict]]):
+        return StreamableRendering(
+            mediatype=self.MEDIATYPE,
+            content_stream=self._stream_json(card_pages),
+        )
+
+    def _stream_json(self, card_pages: typing.Iterator[dict[str, dict]]):
+        _prefix = '{"data": ['
+        yield _prefix
+        _datum_prefix = None
+        for _page in card_pages:
+            for _card_iri, _osfmap_json in _page.items():
+                if _datum_prefix is not None:
+                    yield _datum_prefix
+                yield json.dumps(self._render_card_content(_card_iri, _osfmap_json))
+                _datum_prefix = ','
+        _nondata = json.dumps({
             'meta': self._render_meta(),
-        }, indent=2)
+            'links': self._render_links(),
+        })
+        yield re.sub(
+            '^{',  # replace the opening {
+            '],',  # ...with a closing ] for the "data" list
+            _nondata,
+            count=1,
+        )
 
     def _render_card_content(self, card_iri: str, osfmap_json: dict):
         self._add_twople(osfmap_json, 'foaf:primaryTopicOf', card_iri)

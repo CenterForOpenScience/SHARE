@@ -8,7 +8,10 @@ from trove.trovesearch.page_cursor import (
     PageCursor,
     ReproduciblyRandomSampleCursor,
 )
-from trove.trovesearch.search_params import BaseTroveParams
+from trove.trovesearch.search_params import (
+    BaseTroveParams,
+    CardsearchParams,
+)
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
 
@@ -62,13 +65,13 @@ class CardsearchHandle(BasicSearchHandle):
     def get_next_streaming_handle(self) -> typing.Self | None:
         _next_cursor = self.cursor.next_cursor()
         if (_next_cursor is not None) and (self.handler is not None):
+            assert isinstance(self.search_params, CardsearchParams)
             _next_params = dataclasses.replace(
                 self.search_params,
                 page_cursor=_next_cursor,
-                include=frozenset([(TROVE.searchResultPage,)]),
+                included_relations=frozenset([(TROVE.searchResultPage,)]),
             )
-            if self.handler is not None:
-                return self.handler(_next_params)
+            return self.handler(_next_params)
         return None
 
 
