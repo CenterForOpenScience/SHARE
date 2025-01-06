@@ -1,5 +1,14 @@
 # Change Log
 
+# [25.0.0] - 2024-12-27
+- update calendar version to `25`, reset semantic versions to `0`
+- trove-search api:
+  - support jsonapi `fields[TYPE]` query params; see https://jsonapi.org/format/#fetching-sparse-fieldsets
+  - when `TYPE` in `fields[TYPE]` matches the value of a `cardSearchFilter[resourceType]` query param,
+    interpret the given fields as shorthand property-paths and use for custom csv/tsv columns
+  - streaming "simple json" rendering (`acceptMediatype=application/json`)
+  - when sorting by integer values, treat missing values as zero
+    (tho there may be future times this is wrong...)
 
 # [24.7.0] - 2024-12-27
 - allow rendering search responses as downloadable CSVs/TSVs
