@@ -65,12 +65,13 @@ class IndexStrategy(abc.ABC):
         return f'{self.indexname_prefix}*'
 
     @functools.cached_property
-    def current_indexname(self):
+    def all_current_indexnames(self) -> tuple[str, ...]:
         self.assert_strategy_is_current()
-        return ''.join((
+        _single_indexname = ''.join((
             self.indexname_prefix,
             self.CURRENT_STRATEGY_CHECKSUM.hexdigest,
         ))
+        return (_single_indexname,)
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:
