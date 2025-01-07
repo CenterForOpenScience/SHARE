@@ -59,6 +59,29 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         hexdigest='8a87bb51d46af9794496e798f033e8ba1ea0251fa7a8ffa5d037e90fb0c602c8',
     )
 
+    @classmethod
+    def each_index_definition(cls) -> typing.Iterator[Elastic8IndexStrategy.IndexDefiniton]:
+        yield Elastic8IndexStrategy.IndexDefinition(
+            settings=cls._index_settings(),
+            mappings=cls._card_index_mappings(),
+        )
+        yield strategy.SpecificIndex(
+            index_strategy=strategy,
+            shortname='card',
+            elastic8_index_settings=cls._index_settings(),
+            elastic8_index_mappings=cls._card_index_mappings(),
+        )
+        yield self.SpecificIndex(
+            index_strategy=strategy,
+            shortname='iris',
+            elastic8_index_settings=cls._index_settings(),
+            elastic8_index_mappings=cls._iris_index_mappings(),
+        )
+
+        yield Elastic8IndexDefinition(
+            settings=cls._index_settings(),
+            mappings=cls._card_index_mappings(),
+        )
     # abstract method from IndexStrategy
     @property
     def supported_message_types(self):
@@ -71,6 +94,11 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     @property
     def backfill_message_type(self):
         return messages.MessageType.BACKFILL_INDEXCARD
+
+    def each_index(self) -> typing.Iterator[TrovesearchDenormIndexStrategy.SpecificIndex]:
+        yield self.SpecificIndex(
+            index_strategy=self,
+        )
 
     # abstract method from Elastic8IndexStrategy
     def index_settings(self):

@@ -26,10 +26,12 @@ __all__ = (
 
 @functools.cache
 def all_index_strategies() -> MappingProxyType[str, IndexStrategy]:
-    return MappingProxyType({
-        _strategy.name: _strategy
-        for _strategy in _iter_all_index_strategies()
-    })
+    _all_strategies = {}
+    for _strategy in _iter_all_index_strategies():
+        if _strategy.name in _all_strategies:
+            raise IndexStrategyError(f'strategy names must be unique! (duplicate "{_strategy.name}")')
+        _all_strategies[_strategy.name] = _strategy
+    return MappingProxyType(_all_strategies)  # a single cached readonly proxy -- set of strategy names immutable
 
 
 def _iter_all_index_strategies():
@@ -41,11 +43,24 @@ def _iter_all_index_strategies():
         yield TrovesearchDenormIndexStrategy(name='trovesearch_denorm')
 
 
-def get_index_strategy(strategyname: str) -> IndexStrategy:
+def parse_strategy_request(self, requested_strategy_name: str) -> IndexStrategy:
+    (_strategyname, *_etc) = requested_strategy_name.split(_INDEXNAME_DELIM)
     try:
-        return all_index_strategies()[strategyname]
+        _strategy = get_index_strategy(
+            _strategyname,
+            subname=(_etc[0] if _etc else ''),
+        )
+    except IndexStrategyError:
+        raise IndexStrategyError(f'unrecognized strategy name "{requested_strategy_name}"')
+    else:
+        return _strategy
+
+
+def get_index_strategy(strategy_name: str, subname: str = '') -> IndexStrategy:
+    try:
+        return all_index_strategies()[strategy_name]
     except KeyError:
-        raise IndexStrategyError(f'unknown index strategy "{strategyname}"')
+        raise IndexStrategyError(f'unknown index strategy "{strategy_name}"')
 
 
 def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> IndexStrategy.SpecificIndex:
@@ -59,7 +74,7 @@ def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> I
     except IndexStrategyError:
         for _index_strategy in all_index_strategies().values():
             try:
-                return _index_strategy.get_index_by_name(indexname_or_strategyname)
+                return _index_strategy.get_index_by_shortname(indexname_or_strategyname)
             except IndexStrategyError:
                 pass
     raise IndexStrategyError(f'unrecognized name "{indexname_or_strategyname}"')

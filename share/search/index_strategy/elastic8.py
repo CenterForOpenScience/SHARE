@@ -20,12 +20,14 @@ from share.util.checksum_iri import ChecksumIri
 logger = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
 class Elastic8IndexStrategy(IndexStrategy):
     '''abstract base class for index strategies using elasticsearch 8
     '''
+    es8_client: elasticsearch8.Elasticsearch = dataclasses.field(init=False)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __post_init__(self):
+        super().__post_init__()
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         self.es8_client = elasticsearch8.Elasticsearch(
@@ -49,7 +51,22 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
 
     ###
+    # for use when defining indexes
+    @dataclasses.dataclass
+    class IndexDefinition:
+        settings: dict
+        mappings: dict
+
+    ###
     # abstract methods for subclasses to implement
+    @abc.abstractmethod
+    @classmethod
+    def index_definitions(cls) -> typing.Iterator[IndexDefinition]:
+        ...
+
+    def each_named_index(self):
+        for _index_def in self.each_index_definition():
+            yield self.get_index_by_shortname('iris')
 
     @abc.abstractmethod
     def index_settings(self):
@@ -127,7 +144,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
         indexname_set.add(self.current_indexname)
         for indexname in indexname_set:
-            yield self.get_index_by_name(indexname)
+            yield self.get_index_by_shortname(indexname)
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
@@ -191,7 +208,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     def pls_get_default_for_searching(self) -> IndexStrategy.SpecificIndex:
         # a SpecificIndex for an alias will work fine for searching, but
         # will error if you try to invoke lifecycle hooks
-        return self.get_index_by_name(self._alias_for_searching)
+        return self.get_index_by_shortname(self._alias_for_searching)
 
     # override from IndexStrategy
     def pls_mark_backfill_complete(self):

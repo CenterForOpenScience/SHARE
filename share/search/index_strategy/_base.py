@@ -1,5 +1,6 @@
 from __future__ import annotations
 import abc
+import dataclasses
 import functools
 import logging
 import typing
@@ -22,6 +23,10 @@ from trove.trovesearch.search_handle import (
 logger = logging.getLogger(__name__)
 
 
+_INDEXNAME_DELIM = '__'  # used to separate indexnames into a list of meaningful values
+
+
+@dataclasses.dataclass
 class IndexStrategy(abc.ABC):
     '''an abstraction for indexes in different places and ways.
 
@@ -38,32 +43,37 @@ class IndexStrategy(abc.ABC):
     * may know of version- or cluster-specific features
       (should include identifiers like version numbers in subclass name)
     '''
-    CURRENT_STRATEGY_CHECKSUM: ChecksumIri  # set on subclasses to protect against accidents
+    CURRENT_STRATEGY_CHECKSUM: typing.ClassVar[ChecksumIri]  # set on subclasses to protect against accidents
 
-    def __init__(self, name):
-        self.name = name
+    name: str
+    subname: str = ''  # if unspecified, uses current
 
-    def __repr__(self):
-        return ''.join((
-            self.__class__.__qualname__,
-            f'(name="{self.name}")'
-        ))
+    def __post_init__(self):
+        if _INDEXNAME_DELIM in self.name:
+            raise IndexStrategyError(f'strategy name may not contain "{_INDEXNAME_DELIM}" (got "{self.name}")')
+        if not self.subname:
+            self.subname = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
 
     @property
-    def nonurgent_messagequeue_name(self):
+    def nonurgent_messagequeue_name(self) -> str:
         return f'{self.name}.nonurgent'
 
     @property
-    def urgent_messagequeue_name(self):
+    def urgent_messagequeue_name(self) -> str:
         return f'{self.name}.urgent'
 
     @property
-    def indexname_prefix(self):
-        return f'{self.name}__'
+    def indexname_prefix(self) -> str:
+        # note: ends with _INDEXNAME_DELIM
+        return _INDEXNAME_DELIM.join((self.name, self.subname, ''))
 
     @property
-    def indexname_wildcard(self):
+    def indexname_wildcard(self) -> str:
         return f'{self.indexname_prefix}*'
+
+    @property
+    def is_current(self) -> bool:
+        return self.subname == self.CURRENT_STRATEGY_CHECKSUM.hexdigest
 
     @functools.cached_property
     def all_current_indexnames(self) -> tuple[str, ...]:
@@ -93,11 +103,14 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_name(self, specific_indexname) -> 'IndexStrategy.SpecificIndex':
-        return self.SpecificIndex(self, specific_indexname)  # type: ignore[abstract]
+    def with_hex(self, subname: str):
+        return dataclasses.replace(self, subname=subname)
 
-    def for_current_index(self) -> 'IndexStrategy.SpecificIndex':
-        return self.get_index_by_name(self.current_indexname)
+    def get_index_by_shortname(self, shortname: str) -> typing.Self.SpecificIndex:
+        return self.SpecificIndex(self, shortname)  # type: ignore[abstract]
+
+    def for_current_index(self) -> IndexStrategy.SpecificIndex:
+        return self.get_index_by_shortname(self.current_indexname)
 
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(index_strategy_name=self.name)
@@ -146,33 +159,25 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
     # IndexStrategy.SpecificIndex must be implemented by subclasses
     # in their own `class SpecificIndex(IndexStrategy.SpecificIndex)`
+    @dataclasses.dataclass
     class SpecificIndex(abc.ABC):
-        def __init__(self, index_strategy, indexname):
-            if not indexname.startswith(index_strategy.indexname_prefix):
+        index_strategy: IndexStrategy
+        short_indexname: str  # unique per index_strategy
+
+        def __post_init__(self):
+            if self.short_indexname not in self.index_strategy.short_indexname_set:
                 raise IndexStrategyError(
-                    f'invalid indexname "{indexname}"!'
-                    f' (expected to start with "{index_strategy.indexname_prefix}")'
+                    f'invalid short_indexname "{self.short_indexname}"!'
+                    f' (expected to start with "{self.index_strategy.short_indexname_set}")'
                 )
-            self.index_strategy = index_strategy
-            self.indexname = indexname
-
-        def __eq__(self, other):
-            return (
-                other.__class__ is self.__class__
-                and other.index_strategy is self.index_strategy
-                and other.indexname == self.indexname
-            )
-
-        def __repr__(self):
-            return ''.join((
-                self.__class__.__qualname__,
-                f'(index_strategy={self.index_strategy}, '
-                f'indexname={self.indexname})'
-            ))
 
         @property
-        def is_current(self):
-            return self.indexname == self.index_strategy.current_indexname
+        def is_current(self) -> bool:
+            return self.index_strategy.is_current
+
+        @property
+        def indexname(self) -> str:
+            return f'{self.index_strategy.indexname_prefix}{self.short_indexname}'
 
         def pls_setup(self, *, skip_backfill=False):
             assert self.is_current, 'cannot setup a non-current index'

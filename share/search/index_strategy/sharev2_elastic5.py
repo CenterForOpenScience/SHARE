@@ -89,11 +89,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_get_default_for_searching(self):
-        return self.get_index_by_name(self.STATIC_INDEXNAME)
+        return self.parse_index_name(self.STATIC_INDEXNAME)
 
     # abstract method from IndexStrategy
     def each_existing_index(self):
-        yield self.get_index_by_name(self.STATIC_INDEXNAME)
+        yield self.parse_index_name(self.STATIC_INDEXNAME)
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
