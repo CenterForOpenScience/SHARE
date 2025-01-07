@@ -18,12 +18,10 @@ from trove.trovesearch.search_handle import (
     CardsearchHandle,
     ValuesearchHandle,
 )
+from . import _indexnames as indexnames
 
 
 logger = logging.getLogger(__name__)
-
-
-_INDEXNAME_DELIM = '__'  # used to separate indexnames into a list of meaningful values
 
 
 @dataclasses.dataclass
@@ -46,13 +44,13 @@ class IndexStrategy(abc.ABC):
     CURRENT_STRATEGY_CHECKSUM: typing.ClassVar[ChecksumIri]  # set on subclasses to protect against accidents
 
     name: str
-    subname: str = ''  # if unspecified, uses current
+    subname: str = ''  # if unspecified, uses current checksum
 
     def __post_init__(self):
-        if _INDEXNAME_DELIM in self.name:
-            raise IndexStrategyError(f'strategy name may not contain "{_INDEXNAME_DELIM}" (got "{self.name}")')
+        indexnames.raise_if_invalid_indexname_part(self.name)
         if not self.subname:
             self.subname = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
+        indexnames.raise_if_invalid_indexname_part(self.subname)
 
     @property
     def nonurgent_messagequeue_name(self) -> str:
@@ -64,8 +62,7 @@ class IndexStrategy(abc.ABC):
 
     @property
     def indexname_prefix(self) -> str:
-        # note: ends with _INDEXNAME_DELIM
-        return _INDEXNAME_DELIM.join((self.name, self.subname, ''))
+        return indexnames.combine_indexname_parts(self.name, self.subname)
 
     @property
     def indexname_wildcard(self) -> str:
@@ -78,10 +75,10 @@ class IndexStrategy(abc.ABC):
     @functools.cached_property
     def all_current_indexnames(self) -> tuple[str, ...]:
         self.assert_strategy_is_current()
-        _single_indexname = ''.join((
+        _single_indexname = indexnames.combine_indexname_parts(
             self.indexname_prefix,
             self.CURRENT_STRATEGY_CHECKSUM.hexdigest,
-        ))
+        )
         return (_single_indexname,)
 
     def assert_message_type(self, message_type: messages.MessageType):
@@ -106,11 +103,12 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def with_hex(self, subname: str):
         return dataclasses.replace(self, subname=subname)
 
-    def get_index_by_shortname(self, shortname: str) -> typing.Self.SpecificIndex:
+    def get_index_by_subname(self, shortname: str) -> IndexStrategy.SpecificIndex:
         return self.SpecificIndex(self, shortname)  # type: ignore[abstract]
 
-    def for_current_index(self) -> IndexStrategy.SpecificIndex:
-        return self.get_index_by_shortname(self.current_indexname)
+    def each_current_index(self) -> typing.Iterator[IndexStrategy.SpecificIndex]:
+        for _subname in self.:
+            yield self.get_index_by_subname(_subname)
 
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(index_strategy_name=self.name)
@@ -177,7 +175,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
         @property
         def indexname(self) -> str:
-            return f'{self.index_strategy.indexname_prefix}{self.short_indexname}'
+            return indexnames.combine_indexname_parts(
+                self.index_strategy.indexname_prefix,
+                self.short_indexname,
+            )
 
         def pls_setup(self, *, skip_backfill=False):
             assert self.is_current, 'cannot setup a non-current index'

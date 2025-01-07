@@ -47,7 +47,7 @@ class IndexBackfill(models.Model):
     )
     backfill_status = models.TextField(choices=BACKFILL_STATUS_CHOICES, default=INITIAL)
     index_strategy_name = models.TextField(unique=True)
-    specific_indexname = models.TextField()
+    strategy_checksum = models.TextField()
     error_type = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     error_context = models.TextField(blank=True)
@@ -77,13 +77,13 @@ class IndexBackfill(models.Model):
     def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
             assert locked_self.index_strategy_name == index_strategy.name
-            current_index = index_strategy.for_current_index()
-            if locked_self.specific_indexname == current_index.indexname:
+            _current_checksum = str(index_strategy.CURRENT_STRATEGY_CHECKSUM)
+            if locked_self.strategy_checksum == _current_checksum:
                 # what is "current" has not changed -- should be INITIAL
                 assert locked_self.backfill_status == IndexBackfill.INITIAL
             else:
                 # what is "current" has changed! disregard backfill_status
-                locked_self.specific_indexname = current_index.indexname
+                locked_self.strategy_checksum = _current_checksum
                 locked_self.backfill_status = IndexBackfill.INITIAL
             locked_self.__update_error(None)
             try:

@@ -52,9 +52,9 @@ def _mappings_url_prefix():
 
 
 def _index_status_by_strategy():
-    backfill_by_indexname: dict[str, IndexBackfill] = {
-        backfill.specific_indexname: backfill
-        for backfill in (
+    _backfill_by_checksum: dict[str, IndexBackfill] = {
+        _backfill.strategy_checksum: _backfill
+        for _backfill in (
             IndexBackfill.objects
             .filter(index_strategy_name__in=index_strategy.all_index_strategies().keys())
         )
@@ -62,13 +62,18 @@ def _index_status_by_strategy():
     status_by_strategy = {}
     _messenger = IndexMessenger()
     for _index_strategy in index_strategy.all_index_strategies().values():
-        current_index = _index_strategy.for_current_index()
+        _current_backfill = _backfill_by_checksum.get(
+            str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
+        )
         status_by_strategy[_index_strategy.name] = {
             'current': {
-                'status': current_index.pls_get_status(),
+                'status': [
+                    _index.pls_get_status()
+                    for _index in _index_strategy.each_current_index()
+                ],
                 'backfill': _serialize_backfill(
                     current_index,
-                    backfill_by_indexname.get(current_index.indexname),
+                    _backfill_by_checksum.get(current_index.indexname),
                 ),
             },
             'prior': sorted((
@@ -91,14 +96,14 @@ def _index_status_by_strategy():
 
 
 def _serialize_backfill(
-    specific_index: index_strategy.IndexStrategy.SpecificIndex,
+    strategy: index_strategy.IndexStrategy,
     backfill: IndexBackfill | None,
 ):
-    if not specific_index.is_current:
+    if not strategy.is_current:
         return {}
     if not backfill:
         return {
-            'can_start_backfill': specific_index.pls_check_exists(),
+            'can_start_backfill': strategy.pls_check_exists(),
         }
     return {
         'backfill_status': backfill.backfill_status,

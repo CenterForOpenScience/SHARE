@@ -232,11 +232,12 @@ class MessageHandlingLoop:
     def _raise_if_backfill_noncurrent(self):
         if self.message_type.is_backfill:
             index_backfill = self.index_strategy.get_or_create_backfill()
-            if index_backfill.specific_indexname != self.index_strategy.current_indexname:
+            _current_checksum = str(self.index_strategy.CURRENT_STRATEGY_CHECKSUM)
+            if index_backfill.strategy_checksum != _current_checksum:
                 raise exceptions.DaemonSetupError(
                     'IndexerDaemon observes conflicting currence:'
-                    f'\n\tIndexBackfill (from database) says current is "{index_backfill.specific_indexname}"'
-                    f'\n\tIndexStrategy (from static code) says current is "{self.index_strategy.current_indexname}"'
+                    f'\n\tIndexBackfill (from database) says current is "{index_backfill.strategy_checksum}"'
+                    f'\n\tIndexStrategy (from static code) says current is "{_current_checksum}"'
                     '\n\t(may be the daemon is running old code -- will die and retry,'
                     ' but if this keeps happening you may need to reset backfill_status'
                     ' to INITIAL and restart the backfill)'

@@ -43,7 +43,7 @@ def _iter_all_index_strategies():
         yield TrovesearchDenormIndexStrategy(name='trovesearch_denorm')
 
 
-def parse_strategy_request(self, requested_strategy_name: str) -> IndexStrategy:
+def parse_strategy_request(requested_strategy_name: str) -> IndexStrategy:
     (_strategyname, *_etc) = requested_strategy_name.split(_INDEXNAME_DELIM)
     try:
         _strategy = get_index_strategy(
@@ -74,7 +74,7 @@ def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> I
     except IndexStrategyError:
         for _index_strategy in all_index_strategies().values():
             try:
-                return _index_strategy.get_index_by_shortname(indexname_or_strategyname)
+                return _index_strategy.get_index_by_subname(indexname_or_strategyname)
             except IndexStrategyError:
                 pass
     raise IndexStrategyError(f'unrecognized name "{indexname_or_strategyname}"')
