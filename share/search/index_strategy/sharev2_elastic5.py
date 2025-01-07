@@ -92,7 +92,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         return self.for_specific_index(self.STATIC_INDEXNAME)
 
     # abstract method from IndexStrategy
-    def each_specific_index(self):
+    def each_existing_index(self):
         yield self.for_specific_index(self.STATIC_INDEXNAME)
 
     # abstract method from IndexStrategy

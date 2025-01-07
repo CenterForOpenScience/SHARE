@@ -119,7 +119,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
 
     # abstract method from IndexStrategy
-    def each_specific_index(self):
+    def each_existing_index(self):
         indexname_set = set(
             self.es8_client.indices
             .get(index=self.indexname_wildcard, features=',')

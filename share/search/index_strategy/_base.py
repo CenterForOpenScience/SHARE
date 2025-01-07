@@ -1,3 +1,4 @@
+from __future__ import annotations
 import abc
 import functools
 import logging
@@ -128,7 +129,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         raise NotImplementedError
 
     @abc.abstractmethod
-    def each_specific_index(self) -> 'typing.Iterable[SpecificIndex]':
+    def each_existing_index(self) -> typing.Iterator[SpecificIndex]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -177,7 +178,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             assert self.is_current, 'cannot setup a non-current index'
             _preexisting_index_count = sum(
                 _index.pls_check_exists()
-                for _index in self.index_strategy.each_specific_index()
+                for _index in self.index_strategy.each_existing_index()
             )
             self.pls_create()
             self.pls_start_keeping_live()
