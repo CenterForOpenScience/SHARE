@@ -1,0 +1,49 @@
+
+IndexStrategy revamp plan/log:
+
+- update existing classes to dataclasses
+    - IndexStrategy (each instance represents a current or past version of the strategy, identified by subname)
+        - name (existing attr)
+        - subname (new; default from CURRENT_STRATEGY_CHECKSUM)
+    - IndexStrategy.SpecificIndex (each strategy has a set of indexes with unique short-names)
+        - index_strategy (existing)
+        - short_indexname (new; unique within a strategy)
+        - (base SpecificIndex now mainly inward, focused on constructing index names and checking index status)
+
+- move search methods from IndexStrategy.SpecificIndex to IndexStrategy
+
+- consolidate parsing names from `indexStrategy` queryparam and from elastic state
+
+- remove uniindex methods from IndexStrategy (and friends)
+    - each_specific_index
+    - for_specific_index
+    - for_current_index
+    - SpecificIndex.pls_setup
+    - SpecificIndex.pls_handle_cardsearch
+    - SpecificIndex.pls_handle_valuesearch
+    - SpecificIndex.pls_refresh
+    - SpecificIndex.pls_delete
+    - SpecificIndex.pls_start_keeping_live
+    - Elastic8IndexStrategy.index_settings
+    - Elastic8IndexStrategy.index_mappings
+
+- add replacement multiindex methods to IndexStrategy (and friends)
+    - (classmethod) each_existing_index (based on index names from elastic; may be any hex)
+    - each_named_index (includes non-existent; )
+    - index_shortname_set
+    - get_index_by_shortname
+    - is_current
+    - pls_setup
+    - pls_start_keeping_live
+    - pls_teardown
+    - pls_handle_cardsearch
+    - pls_handle_valuesearch
+    - pls_ensure_fresh
+    - Elastic8IndexStrategy.index_definitions (abstractmethod)
+    - Elastic8IndexStrategy.each_named_index (based on index_definitions)
+
+- update existing base methods
+    - add subname to indexname_prefix
+    - pls_get_default_for_searching (classmethod, return IndexStrategy)
+    - pls_make_default_for_searching (by self.subname, not SpecificIndex)
+
