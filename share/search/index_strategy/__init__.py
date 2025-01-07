@@ -59,7 +59,7 @@ def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> I
     except IndexStrategyError:
         for _index_strategy in all_index_strategies().values():
             try:
-                return _index_strategy.for_specific_index(indexname_or_strategyname)
+                return _index_strategy.get_index_by_name(indexname_or_strategyname)
             except IndexStrategyError:
                 pass
     raise IndexStrategyError(f'unrecognized name "{indexname_or_strategyname}"')

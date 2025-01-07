@@ -93,11 +93,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def for_specific_index(self, specific_indexname) -> 'IndexStrategy.SpecificIndex':
+    def get_index_by_name(self, specific_indexname) -> 'IndexStrategy.SpecificIndex':
         return self.SpecificIndex(self, specific_indexname)  # type: ignore[abstract]
 
     def for_current_index(self) -> 'IndexStrategy.SpecificIndex':
-        return self.for_specific_index(self.current_indexname)
+        return self.get_index_by_name(self.current_indexname)
 
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(index_strategy_name=self.name)

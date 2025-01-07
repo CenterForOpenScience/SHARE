@@ -127,7 +127,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
         indexname_set.add(self.current_indexname)
         for indexname in indexname_set:
-            yield self.for_specific_index(indexname)
+            yield self.get_index_by_name(indexname)
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
@@ -191,7 +191,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     def pls_get_default_for_searching(self) -> IndexStrategy.SpecificIndex:
         # a SpecificIndex for an alias will work fine for searching, but
         # will error if you try to invoke lifecycle hooks
-        return self.for_specific_index(self._alias_for_searching)
+        return self.get_index_by_name(self._alias_for_searching)
 
     # override from IndexStrategy
     def pls_mark_backfill_complete(self):
