@@ -267,11 +267,11 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                     doc_source=_sourcedoc,
                 )
                 _remaining_indexcard_ids.discard(_indexcard_rdf.indexcard_id)
-                yield _indexcard_rdf.indexcard_id, _index_action
+                yield _indexcard_rdf.indexcard_id, '', _index_action
         # delete any that don't have "latest" rdf and derived osfmap_json
         _leftovers = trove_db.Indexcard.objects.filter(id__in=_remaining_indexcard_ids)
         for _indexcard in _leftovers:
-            yield _indexcard.id, self.build_delete_action(_indexcard.get_iri())
+            yield _indexcard.id, '', self.build_delete_action(_indexcard.get_iri())
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:

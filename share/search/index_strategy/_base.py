@@ -52,6 +52,11 @@ class IndexStrategy(abc.ABC):
             self.strategy_check = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
         indexnames.raise_if_invalid_indexname_part(self.strategy_check)
 
+    @functools.cache
+    @classmethod
+    def index_subname_set(cls) -> frozenset[str]:
+        return frozenset(cls.each_index_subname())
+
     @property
     def nonurgent_messagequeue_name(self) -> str:
         return f'{self.strategy_name}.nonurgent'
@@ -66,7 +71,7 @@ class IndexStrategy(abc.ABC):
 
     @property
     def indexname_prefix(self) -> str:
-        return indexnames.combine_indexname_parts(self.indexname_prefix_parts)
+        return indexnames.combine_indexname_parts(*self.indexname_prefix_parts)
 
     @property
     def indexname_wildcard(self) -> str:
@@ -75,11 +80,6 @@ class IndexStrategy(abc.ABC):
     @property
     def is_current(self) -> bool:
         return self.strategy_check == self.CURRENT_STRATEGY_CHECKSUM.hexdigest
-
-    @functools.cached_property
-    def all_current_indexnames(self) -> frozenset[str]:
-        self.assert_strategy_is_current()
-        return frozenset((...))  # TODO
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:
@@ -100,8 +100,23 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_subname(self, subname: str) -> IndexStrategy.SpecificIndex:
+    def get_index_by_subname(self, *subnames: str) -> IndexStrategy.SpecificIndex:
         return self.SpecificIndex(self, subname)  # type: ignore[abstract]
+
+    def pls_setup(self, *, skip_backfill=False):
+        assert self.is_current, 'cannot setup a non-current strategy'
+        _preexisting_index_count = sum(
+            _index.pls_check_exists()
+            for _index in self.each_existing_index()
+        )
+        self.pls_create()
+        self.pls_start_keeping_live()
+        if skip_backfill:
+            _backfill = self.index_strategy.get_or_create_backfill()
+            _backfill.backfill_status = _backfill.COMPLETE
+            _backfill.save()
+        if not _preexisting_index_count:  # first index for a strategy is automatic default
+            self.index_strategy.pls_make_default_for_searching(self)
 
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(
@@ -115,6 +130,28 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def pls_mark_backfill_complete(self):
         self.get_or_create_backfill().pls_mark_complete()
 
+    ###
+    # abstract methods (required for concrete subclasses)
+
+    @classmethod
+    @abc.abstractmethod
+    def compute_strategy_checksum(self) -> ChecksumIri:
+        '''get a dict (json-serializable and thereby checksummable) of all
+        configuration held still by this IndexStrategy subclass -- changes
+        in the checksum may result in new indices being created and filled
+        '''
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def each_index_subname(self) -> typing.Iterable[str]:
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def each_setup_strategy(cls) -> typing.Iterator[typing.Self]:
+        raise NotImplementedError
+
     @property
     @abc.abstractmethod
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:
@@ -123,15 +160,6 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     @property
     @abc.abstractmethod
     def backfill_message_type(self) -> messages.MessageType:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def compute_strategy_checksum(self) -> ChecksumIri:
-        '''get a dict (json-serializable and thereby checksummable) of all
-        configuration held still by this IndexStrategy instance -- changes
-        in this value's checksum may invoke changes in index lifecycle, as
-        may be defined by IndexStrategy subclasses
-        '''
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -155,13 +183,13 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     @dataclasses.dataclass
     class SpecificIndex(abc.ABC):
         index_strategy: IndexStrategy
-        short_indexname: str  # unique per index_strategy
+        subname: str  # unique per index_strategy
 
         def __post_init__(self):
-            if self.short_indexname not in self.index_strategy.short_indexname_set:
+            if self.subname not in self.index_strategy.index_subname_set():
                 raise IndexStrategyError(
-                    f'invalid short_indexname "{self.short_indexname}"!'
-                    f' (expected to start with "{self.index_strategy.short_indexname_set}")'
+                    f'invalid subname "{self.subname}"!'
+                    f' (expected one of {self.index_strategy.index_subname_set}")'
                 )
 
         @property
@@ -169,26 +197,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             return self.index_strategy.is_current
 
         @property
-        def indexname(self) -> str:
+        def full_index_name(self) -> str:
             return indexnames.combine_indexname_parts(
                 self.index_strategy.indexname_prefix,
-                self.short_indexname,
+                self.subname,
             )
-
-        def pls_setup(self, *, skip_backfill=False):
-            assert self.is_current, 'cannot setup a non-current index'
-            _preexisting_index_count = sum(
-                _index.pls_check_exists()
-                for _index in self.index_strategy.each_existing_index()
-            )
-            self.pls_create()
-            self.pls_start_keeping_live()
-            if skip_backfill:
-                _backfill = self.index_strategy.get_or_create_backfill()
-                _backfill.backfill_status = _backfill.COMPLETE
-                _backfill.save()
-            if not _preexisting_index_count:  # first index for a strategy is automatic default
-                self.index_strategy.pls_make_default_for_searching(self)
 
         @abc.abstractmethod
         def pls_get_status(self) -> IndexStatus:

@@ -59,8 +59,9 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         hexdigest='8a87bb51d46af9794496e798f033e8ba1ea0251fa7a8ffa5d037e90fb0c602c8',
     )
 
+    # abstract method from Elastic8IndexStrategy
     @classmethod
-    def each_index_definition(cls) -> dict[str, Elastic8IndexStrategy.IndexDefiniton]:
+    def each_index_definition(cls) -> Iterator[Elastic8IndexStrategy.IndexDefiniton]:
         yield Elastic8IndexStrategy.IndexDefinition(
             subname='card',
             settings=cls._index_settings(),
@@ -85,31 +86,27 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     def backfill_message_type(self):
         return messages.MessageType.BACKFILL_INDEXCARD
 
-    def each_index(self) -> Iterator[TrovesearchDenormIndexStrategy.SpecificIndex]:
-        yield self.SpecificIndex(
-            index_strategy=self,
-        )
-
-    # abstract method from Elastic8IndexStrategy
-    def index_settings(self):
+    @classmethod
+    def _index_settings(cls):
         return {
             'number_of_shards': 5,
             'number_of_replicas': 2,
         }
 
-    # abstract method from Elastic8IndexStrategy
-    def index_mappings(self):
+    @classmethod
+    def _card_index_mappings(cls):
         return {
             'dynamic': 'false',
-            'dynamic_templates': self._dynamic_templates(),
+            'dynamic_templates': cls._dynamic_templates(),
             'properties': {
-                'card': {'properties': self._card_mappings()},
-                'iri_value': {'properties': self._iri_value_mappings()},
+                'card': {'properties': cls._card_mappings()},
+                'iri_value': {'properties': cls._iri_value_mappings()},
                 'chunk_timestamp': {'type': 'unsigned_long'},
             },
         }
 
-    def _dynamic_templates(self):
+    @classmethod
+    def _dynamic_templates(cls):
         return [
             {'dynamic_text_by_propertypath': {
                 'path_match': '*.text_by_propertypath.*',
@@ -132,7 +129,8 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             }},
         ]
 
-    def _card_mappings(self):
+    @classmethod
+    def _card_mappings(cls):
         return {
             # simple keyword properties
             'card_iri': ts.KEYWORD_MAPPING,
@@ -144,19 +142,21 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                     'source_record_identifier': ts.KEYWORD_MAPPING,
                 },
             },
-            **self._paths_and_values_mappings(),
+            **cls._paths_and_values_mappings(),
         }
 
-    def _iri_value_mappings(self):
+    @classmethod
+    def _iri_value_mappings(cls):
         return {
             'value_name': ts.KEYWORD_MAPPING,
             'value_title': ts.KEYWORD_MAPPING,
             'value_label': ts.KEYWORD_MAPPING,
             'at_card_propertypaths': ts.KEYWORD_MAPPING,
-            **self._paths_and_values_mappings(),
+            **cls._paths_and_values_mappings(),
         }
 
-    def _paths_and_values_mappings(self):
+    @classmethod
+    def _paths_and_values_mappings(cls):
         return {
             'single_focus_iri': ts.KEYWORD_MAPPING,
             'focus_iri_synonyms': ts.KEYWORD_MAPPING,
@@ -175,7 +175,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     def after_chunk(self, messages_chunk: messages.MessagesChunk, indexnames: Iterable[str]):
         task__delete_iri_value_scraps.apply_async(
             kwargs={
-                'index_strategy_name': self.name,
+                'index_strategy_name': self.strategy_name,
                 'indexnames': list(indexnames),
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
@@ -207,6 +207,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     # implement abstract IndexStrategy.SpecificIndex
 
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
+        index_strategy: TrovesearchDenormIndexStrategy
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
