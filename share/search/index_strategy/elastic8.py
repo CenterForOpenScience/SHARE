@@ -61,15 +61,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     # abstract methods for subclasses to implement
     @abc.abstractmethod
     @classmethod
-    def index_definitions(cls) -> dict[str, IndexDefinition]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def index_settings(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def index_mappings(self):
+    def current_index_definitions(cls) -> dict[str, IndexDefinition]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -131,9 +123,10 @@ class Elastic8IndexStrategy(IndexStrategy):
             },
         )
 
+    # abstract method from IndexStrategy
     def each_named_index(self):
-        for _subname, _index_def in self.index_definitions().items():
-            yield self.get_index_by_subname('iris')
+        for _subname, _index_def in self.current_index_definitions().items():
+            yield self.get_index_by_subname(_subname)
 
     # abstract method from IndexStrategy
     def each_existing_index(self):

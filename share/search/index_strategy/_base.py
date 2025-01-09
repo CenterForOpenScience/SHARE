@@ -43,26 +43,30 @@ class IndexStrategy(abc.ABC):
     '''
     CURRENT_STRATEGY_CHECKSUM: typing.ClassVar[ChecksumIri]  # set on subclasses to protect against accidents
 
-    name: str
-    subname: str = ''  # if unspecified, uses current checksum
+    strategy_name: str
+    strategy_check: str = ''  # if unspecified, uses current checksum
 
     def __post_init__(self):
-        indexnames.raise_if_invalid_indexname_part(self.name)
-        if not self.subname:
-            self.subname = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
-        indexnames.raise_if_invalid_indexname_part(self.subname)
+        indexnames.raise_if_invalid_indexname_part(self.strategy_name)
+        if not self.strategy_check:
+            self.strategy_check = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
+        indexnames.raise_if_invalid_indexname_part(self.strategy_check)
 
     @property
     def nonurgent_messagequeue_name(self) -> str:
-        return f'{self.name}.nonurgent'
+        return f'{self.strategy_name}.nonurgent'
 
     @property
     def urgent_messagequeue_name(self) -> str:
-        return f'{self.name}.urgent'
+        return f'{self.strategy_name}.urgent'
+
+    @property
+    def indexname_prefix_parts(self) -> list[str]:
+        return [self.strategy_name, self.strategy_check]
 
     @property
     def indexname_prefix(self) -> str:
-        return indexnames.combine_indexname_parts(self.name, self.subname)
+        return indexnames.combine_indexname_parts(self.indexname_prefix_parts)
 
     @property
     def indexname_wildcard(self) -> str:
@@ -70,16 +74,12 @@ class IndexStrategy(abc.ABC):
 
     @property
     def is_current(self) -> bool:
-        return self.subname == self.CURRENT_STRATEGY_CHECKSUM.hexdigest
+        return self.strategy_check == self.CURRENT_STRATEGY_CHECKSUM.hexdigest
 
     @functools.cached_property
-    def all_current_indexnames(self) -> tuple[str, ...]:
+    def all_current_indexnames(self) -> frozenset[str]:
         self.assert_strategy_is_current()
-        _single_indexname = indexnames.combine_indexname_parts(
-            self.indexname_prefix,
-            self.CURRENT_STRATEGY_CHECKSUM.hexdigest,
-        )
-        return (_single_indexname,)
+        return frozenset((...))  # TODO
 
     def assert_message_type(self, message_type: messages.MessageType):
         if message_type not in self.supported_message_types:
@@ -100,18 +100,13 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def with_hex(self, subname: str):
-        return dataclasses.replace(self, subname=subname)
-
-    def get_index_by_subname(self, shortname: str) -> IndexStrategy.SpecificIndex:
-        return self.SpecificIndex(self, shortname)  # type: ignore[abstract]
-
-    def each_current_index(self) -> typing.Iterator[IndexStrategy.SpecificIndex]:
-        for _subname in self.:
-            yield self.get_index_by_subname(_subname)
+    def get_index_by_subname(self, subname: str) -> IndexStrategy.SpecificIndex:
+        return self.SpecificIndex(self, subname)  # type: ignore[abstract]
 
     def get_or_create_backfill(self):
-        (index_backfill, _) = IndexBackfill.objects.get_or_create(index_strategy_name=self.name)
+        (index_backfill, _) = IndexBackfill.objects.get_or_create(
+            index_strategy_name=self.strategy_name,
+        )
         return index_backfill
 
     def pls_start_backfill(self):

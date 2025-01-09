@@ -42,10 +42,10 @@ IndexStrategy revamp plan/log:
     - pls_handle_valuesearch
     - pls_ensure_fresh
     - Elastic8IndexStrategy.each_index_definition (abstractmethod)
-    - Elastic8IndexStrategy.each_named_index (based on index_definitions)
+    - Elastic8IndexStrategy.each_named_index (based on current_index_definitions)
 
 - update existing base methods
-    - add subname to indexname_prefix
+    - add strategy_check to indexname_prefix
     - pls_get_default_for_searching (classmethod, return IndexStrategy)
-    - pls_make_default_for_searching (by self.subname, not SpecificIndex)
+    - pls_make_default_for_searching (by strategy instance (or strategy_check), not SpecificIndex)
 

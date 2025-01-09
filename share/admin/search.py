@@ -25,19 +25,17 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        _specific_index = index_strategy.get_specific_index(request.POST['specific_indexname'])
-        _pls_doer = PLS_DOERS[request.POST['pls_do']]
-        _pls_doer(_specific_index)
-        _redirect_id = (
-            _specific_index.index_strategy.name
-            if _pls_doer is _pls_delete
-            else _specific_index.indexname
+        _index_strategy = index_strategy.parse_strategy_request(
+            request.POST['specific_indexname'],  # TODO: rename in form
         )
+        _pls_doer = PLS_DOERS[request.POST['pls_do']]
+        _pls_doer(_index_strategy)
+        _redirect_id = _index_strategy.strategy_name
         return HttpResponseRedirect('#'.join((request.path, _redirect_id)))
 
 
 def search_index_mappings_view(request, index_name):
-    _specific_index = index_strategy.get_specific_index(index_name)
+    _specific_index = index_strategy.parse_index_name(index_name)
     _mappings = _specific_index.pls_get_mappings()
     return JsonResponse(_mappings)
 
@@ -65,16 +63,13 @@ def _index_status_by_strategy():
         _current_backfill = _backfill_by_checksum.get(
             str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
         )
-        status_by_strategy[_index_strategy.name] = {
+        status_by_strategy[_index_strategy.strategy_name] = {
             'current': {
                 'status': [
                     _index.pls_get_status()
-                    for _index in _index_strategy.each_current_index()
+                    for _index in _index_strategy.each_named_index()
                 ],
-                'backfill': _serialize_backfill(
-                    current_index,
-                    _backfill_by_checksum.get(current_index.indexname),
-                ),
+                'backfill': _serialize_backfill(_index_strategy, _current_backfill),
             },
             'prior': sorted((
                 specific_index.pls_get_status()
@@ -114,35 +109,35 @@ def _serialize_backfill(
     }
 
 
-def _pls_setup(specific_index):
-    assert specific_index.is_current
-    specific_index.pls_setup()
+def _pls_setup(index_strategy):
+    assert index_strategy.is_current
+    index_strategy.pls_setup()
 
 
-def _pls_start_keeping_live(specific_index):
-    specific_index.pls_start_keeping_live()
+def _pls_start_keeping_live(index_strategy):
+    index_strategy.pls_start_keeping_live()
 
 
-def _pls_stop_keeping_live(specific_index):
-    specific_index.pls_stop_keeping_live()
+def _pls_stop_keeping_live(index_strategy):
+    index_strategy.pls_stop_keeping_live()
 
 
-def _pls_start_backfill(specific_index):
-    assert specific_index.is_current
-    specific_index.index_strategy.pls_start_backfill()
+def _pls_start_backfill(index_strategy):
+    assert index_strategy.is_current
+    index_strategy.pls_start_backfill()
 
 
-def _pls_mark_backfill_complete(specific_index):
-    specific_index.index_strategy.pls_mark_backfill_complete()
+def _pls_mark_backfill_complete(index_strategy):
+    index_strategy.pls_mark_backfill_complete()
 
 
-def _pls_make_default_for_searching(specific_index):
-    specific_index.index_strategy.pls_make_default_for_searching(specific_index)
+def _pls_make_default_for_searching(index_strategy):
+    index_strategy.pls_make_default_for_searching()
 
 
-def _pls_delete(specific_index):
-    assert not specific_index.is_current
-    specific_index.pls_delete()
+def _pls_delete(index_strategy):
+    assert not index_strategy.is_current
+    index_strategy.pls_delete()
 
 
 PLS_DOERS = {

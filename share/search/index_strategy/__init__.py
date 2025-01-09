@@ -12,6 +12,7 @@ from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
 from .trovesearch_denorm import TrovesearchDenormIndexStrategy
 from ._base import IndexStrategy
+from ._indexnames import parse_indexname_parts
 
 
 __all__ = (
@@ -44,7 +45,7 @@ def _iter_all_index_strategies():
 
 
 def parse_strategy_request(requested_strategy_name: str) -> IndexStrategy:
-    (_strategyname, *_etc) = requested_strategy_name.split(_INDEXNAME_DELIM)
+    (_strategyname, *_etc) = parse_indexname_parts(requested_strategy_name)
     try:
         _strategy = get_index_strategy(
             _strategyname,
@@ -54,6 +55,15 @@ def parse_strategy_request(requested_strategy_name: str) -> IndexStrategy:
         raise IndexStrategyError(f'unrecognized strategy name "{requested_strategy_name}"')
     else:
         return _strategy
+
+
+def parse_index_name(index_name: str) -> IndexStrategy.SpecificIndex:
+    try:
+        (_strategy_name, _strategy_check, *_etc) = parse_indexname_parts(index_name)
+        _strategy = get_index_strategy(_strategy_name, _strategy_check)
+        return _strategy.get_index_by_subname(*_etc)
+    except IndexStrategyError:
+        raise IndexStrategyError(f'invalid index_name "{index_name}"')
 
 
 def get_index_strategy(strategy_name: str, subname: str = '') -> IndexStrategy:
