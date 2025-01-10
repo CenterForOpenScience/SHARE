@@ -1,6 +1,7 @@
 from __future__ import annotations
 import functools
 from types import MappingProxyType
+from typing import Iterator
 
 from django.conf import settings
 
@@ -17,25 +18,24 @@ from ._indexnames import parse_indexname_parts
 
 __all__ = (
     'IndexStrategy',
-    'all_index_strategies',
-    'get_index_for_sharev2_search',
-    'get_index_for_trovesearch',
-    'get_index_strategy',
-    'get_specific_index',
+    'each_strategy',
+    'all_strategy_names',
+    'get_strategy',
+    # TODO: cleanup
+    # 'all_index_strategies',
+    # 'get_index_for_sharev2_search',
+    # 'get_index_for_trovesearch',
+    # 'get_index_strategy',
+    # 'get_specific_index',
 )
 
 
 @functools.cache
-def all_index_strategies() -> MappingProxyType[str, IndexStrategy]:
-    _all_strategies = {}
-    for _strategy in _iter_all_index_strategies():
-        if _strategy.name in _all_strategies:
-            raise IndexStrategyError(f'strategy names must be unique! (duplicate "{_strategy.name}")')
-        _all_strategies[_strategy.name] = _strategy
-    return MappingProxyType(_all_strategies)  # a single cached readonly proxy -- set of strategy names immutable
+def all_strategy_names() -> frozenset[str]:
+    return frozenset(_strategy.name for _strategy in each_strategy())
 
 
-def _iter_all_index_strategies():
+def each_strategy() -> Iterator[IndexStrategy]:
     if settings.ELASTICSEARCH5_URL:
         yield Sharev2Elastic5IndexStrategy(name='sharev2_elastic5')
     if settings.ELASTICSEARCH8_URL:
@@ -44,7 +44,7 @@ def _iter_all_index_strategies():
         yield TrovesearchDenormIndexStrategy(name='trovesearch_denorm')
 
 
-def parse_strategy_request(requested_strategy_name: str) -> IndexStrategy:
+def get_strategy(requested_strategy_name: str) -> IndexStrategy:
     (_strategyname, *_etc) = parse_indexname_parts(requested_strategy_name)
     try:
         _strategy = get_index_strategy(

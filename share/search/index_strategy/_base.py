@@ -100,7 +100,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_subname(self, *subnames: str) -> IndexStrategy.SpecificIndex:
+    def get_index_by_subname(self, subname: str = '') -> IndexStrategy.SpecificIndex:
         return self.SpecificIndex(self, subname)  # type: ignore[abstract]
 
     def pls_setup(self, *, skip_backfill=False):
@@ -178,6 +178,18 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def pls_get_default_for_searching(self) -> 'SpecificIndex':
         raise NotImplementedError
 
+    ###
+    # optional implementations
+
+    def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
+        raise NotImplementedError
+
+    def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
+        raise NotImplementedError
+
+    def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+
     # IndexStrategy.SpecificIndex must be implemented by subclasses
     # in their own `class SpecificIndex(IndexStrategy.SpecificIndex)`
     @dataclasses.dataclass
@@ -229,16 +241,6 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
         @abc.abstractmethod
         def pls_stop_keeping_live(self):
-            raise NotImplementedError
-
-        # optional for subclasses
-        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
-
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
-            raise NotImplementedError
-
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
             raise NotImplementedError
 
         def pls_get_mappings(self) -> dict:

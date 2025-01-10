@@ -41,25 +41,16 @@ def setup(args, argv):
     """
     _is_initial = args.get('--initial')
     if _is_initial:
-        _specific_indexes = [
-            _index_strategy.for_current_index()
-            for _index_strategy in index_strategy.all_index_strategies().values()
-        ]
+        for _index_strategy in index_strategy.each_strategy():
+            _index_strategy.pls_setup()
     else:
         _index_or_strategy_name = args['<index_or_strategy_name>']
         try:
-            _specific_indexes = [index_strategy.get_specific_index(_index_or_strategy_name)]
+            _strategy = index_strategy.get_strategy(_index_or_strategy_name)
         except IndexStrategyError:
-            try:
-                _specific_indexes = [
-                    index_strategy.get_specific_index(_index_or_strategy_name),
-                ]
-            except IndexStrategyError:
-                raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')
-    for _specific_index in _specific_indexes:
-        _specific_index.pls_setup(
-            skip_backfill=_is_initial,  # for initial setup, there's nothing back to fill
-        )
+            raise IndexStrategyError(f'unrecognized index or strategy name "{_index_or_strategy_name}"')
+        else:
+            _strategy.pls_setup()
 
 
 @search.subcommand('Start the search indexing daemon')

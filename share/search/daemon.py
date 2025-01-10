@@ -68,7 +68,7 @@ class IndexerDaemonControl:
         return _daemon
 
     def start_all_daemonthreads(self):
-        for _index_strategy in index_strategy.all_index_strategies().values():
+        for _index_strategy in index_strategy.each_strategy():
             self.start_daemonthreads_for_strategy(_index_strategy)
 
     def stop_daemonthreads(self, *, wait=False):

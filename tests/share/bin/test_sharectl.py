@@ -52,13 +52,13 @@ class TestSharectlSearch:
 
     def test_setup_initial(self, settings):
         _expected_indexes = ['baz', 'bar', 'foo']
-        _mock_index_strategys = {
-            _name: mock.Mock()
+        _mock_index_strategys = [
+            mock.Mock(name=_name)
             for _name in _expected_indexes
-        }
+        ]
         with patch_index_strategies(_mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
-        for mock_index_strategy in _mock_index_strategys.values():
+        for mock_index_strategy in _mock_index_strategys:
             mock_specific_index = mock_index_strategy.for_current_index.return_value
             assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
 

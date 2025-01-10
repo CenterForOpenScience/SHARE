@@ -25,7 +25,7 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        _index_strategy = index_strategy.parse_strategy_request(
+        _index_strategy = index_strategy.get_strategy(
             request.POST['specific_indexname'],  # TODO: rename in form
         )
         _pls_doer = PLS_DOERS[request.POST['pls_do']]
@@ -54,12 +54,12 @@ def _index_status_by_strategy():
         _backfill.strategy_checksum: _backfill
         for _backfill in (
             IndexBackfill.objects
-            .filter(index_strategy_name__in=index_strategy.all_index_strategies().keys())
+            .filter(index_strategy_name__in=index_strategy.all_strategy_names())
         )
     }
     status_by_strategy = {}
     _messenger = IndexMessenger()
-    for _index_strategy in index_strategy.all_index_strategies().values():
+    for _index_strategy in index_strategy.each_strategy():
         _current_backfill = _backfill_by_checksum.get(
             str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
         )
