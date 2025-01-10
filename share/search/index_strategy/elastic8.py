@@ -82,17 +82,10 @@ class Elastic8IndexStrategy(IndexStrategy):
     ) -> typing.Iterable[MessageActionSet]:
         raise NotImplementedError
 
-    def before_chunk(
-        self,
-        messages_chunk: messages.MessagesChunk,
-        indexnames: typing.Iterable[str],
-    ) -> None:
-        ...  # implement when needed
-
     def after_chunk(
         self,
         messages_chunk: messages.MessagesChunk,
-        indexnames: typing.Iterable[str],
+        affected_indexnames: typing.Iterable[str],
     ) -> None:
         ...  # implement when needed
 
@@ -137,6 +130,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     @classmethod
     @functools.cache
     def current_index_definitions(cls):
+        # readonly and cached per class
         return types.MappingProxyType({
             _def.subname: _def
             for _def in cls.each_index_definition()
@@ -162,7 +156,6 @@ class Elastic8IndexStrategy(IndexStrategy):
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
-        self.before_chunk(messages_chunk, _indexnames)
         _action_tracker = _ActionTracker()
         _bulk_stream = streaming_bulk(
             self.es8_client,
@@ -170,11 +163,13 @@ class Elastic8IndexStrategy(IndexStrategy):
             raise_on_error=False,
             max_retries=settings.ELASTICSEARCH['MAX_RETRIES'],
         )
+        _affected_indexnames: set[str] = set()
         for (_ok, _response) in _bulk_stream:
             (_op_type, _response_body) = next(iter(_response.items()))
             _status = _response_body.get('status')
             _docid = _response_body['_id']
             _indexname = _response_body['_index']
+            _affected_indexnames.add(_indexname)
             _is_done = _ok or (_op_type == 'delete' and _status == 404)
             if _is_done:
                 _finished_message_id = _action_tracker.action_done(_indexname, _docid)
@@ -204,7 +199,7 @@ class Elastic8IndexStrategy(IndexStrategy):
                 status_code=HTTPStatus.OK.value,
                 error_text=None,
             )
-        self.after_chunk(messages_chunk, _indexnames)
+        self.after_chunk(messages_chunk, _affected_indexnames)
 
     # abstract method from IndexStrategy
     def pls_make_default_for_searching(self, specific_index: IndexStrategy.SpecificIndex):

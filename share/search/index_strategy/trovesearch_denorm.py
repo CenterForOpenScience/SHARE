@@ -172,11 +172,11 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         }
 
     # override method from Elastic8IndexStrategy
-    def after_chunk(self, messages_chunk: messages.MessagesChunk, indexnames: Iterable[str]):
+    def after_chunk(self, messages_chunk: messages.MessagesChunk, affected_indexnames: Iterable[str]):
         task__delete_iri_value_scraps.apply_async(
             kwargs={
                 'index_strategy_name': self.strategy_name,
-                'indexnames': list(indexnames),
+                'indexnames': list(affected_indexnames),
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
             },
