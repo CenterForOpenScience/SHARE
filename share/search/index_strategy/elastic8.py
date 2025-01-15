@@ -27,33 +27,7 @@ logger = logging.getLogger(__name__)
 class Elastic8IndexStrategy(IndexStrategy):
     '''abstract base class for index strategies using elasticsearch 8
     '''
-    es8_client: elasticsearch8.Elasticsearch = dataclasses.field(init=False)
-
     index_definitions: typing.ClassVar[IndexDefinitionDict]
-
-    def __post_init__(self):
-        super().__post_init__()
-        should_sniff = settings.ELASTICSEARCH['SNIFF']
-        timeout = settings.ELASTICSEARCH['TIMEOUT']
-        self.es8_client = elasticsearch8.Elasticsearch(
-            settings.ELASTICSEARCH8_URL,
-            # security:
-            ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
-            basic_auth=(
-                (settings.ELASTICSEARCH8_USERNAME, settings.ELASTICSEARCH8_SECRET)
-                if settings.ELASTICSEARCH8_SECRET is not None
-                else None
-            ),
-            # retry:
-            retry_on_timeout=True,
-            request_timeout=timeout,
-            # sniffing:
-            sniff_on_start=should_sniff,
-            sniff_before_requests=should_sniff,
-            sniff_on_node_failure=should_sniff,
-            sniff_timeout=timeout,
-            min_delay_between_sniffing=timeout,
-        )
 
     ###
     # for use when defining abstract methods in subclasses
@@ -134,6 +108,35 @@ class Elastic8IndexStrategy(IndexStrategy):
         # readonly and cached per class
         return types.MappingProxyType(cls.define_current_indexes())
 
+    @classmethod
+    @functools.cache
+    def _make_elastic8_client(cls) -> elasticsearch8.Elasticsearch:
+        should_sniff = settings.ELASTICSEARCH['SNIFF']
+        timeout = settings.ELASTICSEARCH['TIMEOUT']
+        return elasticsearch8.Elasticsearch(
+            settings.ELASTICSEARCH8_URL,
+            # security:
+            ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
+            basic_auth=(
+                (settings.ELASTICSEARCH8_USERNAME, settings.ELASTICSEARCH8_SECRET)
+                if settings.ELASTICSEARCH8_SECRET is not None
+                else None
+            ),
+            # retry:
+            retry_on_timeout=True,
+            request_timeout=timeout,
+            # sniffing:
+            sniff_on_start=should_sniff,
+            sniff_before_requests=should_sniff,
+            sniff_on_node_failure=should_sniff,
+            sniff_timeout=timeout,
+            min_delay_between_sniffing=timeout,
+        )
+
+    @property
+    def es8_client(self):
+        return self._make_elastic8_client()  # cached shared client
+
     # abstract method from IndexStrategy
     def each_named_index(self):
         for _subname in self.current_index_defs().keys():
@@ -200,14 +203,19 @@ class Elastic8IndexStrategy(IndexStrategy):
         self.after_chunk(messages_chunk, _affected_indexnames)
 
     # abstract method from IndexStrategy
-    def pls_make_default_for_searching(self, specific_index: IndexStrategy.SpecificIndex):
+    def pls_make_default_for_searching(self):
         self._set_indexnames_for_alias(
             self._alias_for_searching,
-            {specific_index.full_index_name},
+            {self.indexname_wildcard},
         )
 
     # abstract method from IndexStrategy
-    def pls_get_default_for_searching(self) -> IndexStrategy.SpecificIndex:
+    def pls_get_default_for_searching(self) -> IndexStrategy:
+        _indexnames = self._get_indexnames_for_alias(self._alias_for_searching)
+        try:
+            _indexname = _indexnames.pop()
+        except KeyError:
+            return 
         # a SpecificIndex for an alias will work fine for searching, but
         # will error if you try to invoke lifecycle hooks
         return self.get_index_by_subnames(self._alias_for_searching)

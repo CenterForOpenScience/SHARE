@@ -52,6 +52,7 @@ class _BaseTrovesearchView(View, abc.ABC):
             _url = request.build_absolute_uri()
             _search_gathering = self._start_gathering(renderer_type=_renderer_type)
             _search_params = self._parse_search_params(request)
+            _strategy = index_strategy.get_strategy_for_trovesearch(_search_params)
             _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
             _focus = self.focus_type.new(
                 iris=_url,

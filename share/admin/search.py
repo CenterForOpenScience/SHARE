@@ -7,7 +7,10 @@ from django.urls import reverse
 from share.admin.util import admin_url
 from share.models.index_backfill import IndexBackfill
 from share.search.index_messenger import IndexMessenger
-from share.search import index_strategy
+from share.search.index_strategy import (
+    IndexStrategy,
+    parse_strategy_name,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +28,7 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        _index_strategy = index_strategy.parse_strategy_name(
+        _index_strategy = parse_strategy_name(
             request.POST['specific_indexname'],  # TODO: rename in form
         )
         _pls_doer = PLS_DOERS[request.POST['pls_do']]
@@ -35,7 +38,7 @@ def search_indexes_view(request):
 
 
 def search_index_mappings_view(request, index_name):
-    _specific_index = index_strategy.get_specific_index(index_name)
+    _specific_index = get_specific_index(index_name)
     _mappings = _specific_index.pls_get_mappings()
     return JsonResponse(_mappings)
 
@@ -54,12 +57,12 @@ def _index_status_by_strategy():
         _backfill.strategy_checksum: _backfill
         for _backfill in (
             IndexBackfill.objects
-            .filter(index_strategy_name__in=index_strategy.all_strategy_names())
+            .filter(index_strategy_name__in=all_strategy_names())
         )
     }
     status_by_strategy = {}
     _messenger = IndexMessenger()
-    for _index_strategy in index_strategy.all_index_strategies().values():
+    for _index_strategy in all_index_strategies().values():
         _current_backfill = _backfill_by_checksum.get(
             str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
         )
@@ -91,7 +94,7 @@ def _index_status_by_strategy():
 
 
 def _serialize_backfill(
-    strategy: index_strategy.IndexStrategy,
+    strategy: IndexStrategy,
     backfill: IndexBackfill | None,
 ):
     if not strategy.is_current:
@@ -109,33 +112,33 @@ def _serialize_backfill(
     }
 
 
-def _pls_setup(index_strategy):
+def _pls_setup(index_strategy: IndexStrategy):
     assert index_strategy.is_current
     index_strategy.pls_setup()
 
 
-def _pls_start_keeping_live(index_strategy):
+def _pls_start_keeping_live(index_strategy: IndexStrategy):
     index_strategy.pls_start_keeping_live()
 
 
-def _pls_stop_keeping_live(index_strategy):
+def _pls_stop_keeping_live(index_strategy: IndexStrategy):
     index_strategy.pls_stop_keeping_live()
 
 
-def _pls_start_backfill(index_strategy):
+def _pls_start_backfill(index_strategy: IndexStrategy):
     assert index_strategy.is_current
     index_strategy.pls_start_backfill()
 
 
-def _pls_mark_backfill_complete(index_strategy):
+def _pls_mark_backfill_complete(index_strategy: IndexStrategy):
     index_strategy.pls_mark_backfill_complete()
 
 
-def _pls_make_default_for_searching(index_strategy):
+def _pls_make_default_for_searching(index_strategy: IndexStrategy):
     index_strategy.pls_make_default_for_searching()
 
 
-def _pls_delete(index_strategy):
+def _pls_delete(index_strategy: IndexStrategy):
     assert not index_strategy.is_current
     index_strategy.pls_delete()
 

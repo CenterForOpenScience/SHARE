@@ -100,10 +100,8 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_subnames(self, *subnames: str) -> IndexStrategy.SpecificIndex:
-        if len(subnames == 1):
-            return self.SpecificIndex(self, subnames[0])  # type: ignore[abstract]
-        raise NotImplementedError(f'how subnames {subnames}')
+    def get_index_by_subname(self, subname: str) -> IndexStrategy.SpecificIndex:
+        return self.SpecificIndex(self, subname)  # type: ignore[abstract]
 
     def pls_setup(self, *, skip_backfill=False):
         assert self.is_current, 'cannot setup a non-current strategy'
@@ -149,11 +147,6 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def each_index_subname(self) -> typing.Iterable[str]:
         raise NotImplementedError
 
-    @classmethod
-    @abc.abstractmethod
-    def each_setup_strategy(cls) -> typing.Iterator[typing.Self]:
-        raise NotImplementedError
-
     @property
     @abc.abstractmethod
     def supported_message_types(self) -> typing.Iterable[messages.MessageType]:
@@ -173,11 +166,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         raise NotImplementedError
 
     @abc.abstractmethod
-    def pls_make_default_for_searching(self, specific_index: 'SpecificIndex'):
+    def pls_make_default_for_searching(self) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def pls_get_default_for_searching(self) -> 'SpecificIndex':
+    def pls_get_default_for_searching(self) -> IndexStrategy:
         raise NotImplementedError
 
     ###
