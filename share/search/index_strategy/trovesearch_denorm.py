@@ -61,17 +61,17 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     @classmethod
-    def each_index_definition(cls) -> Iterator[Elastic8IndexStrategy.IndexDefiniton]:
-        yield Elastic8IndexStrategy.IndexDefinition(
-            subname='card',
-            settings=cls._index_settings(),
-            mappings=cls._card_index_mappings(),
-        )
-        yield Elastic8IndexStrategy.IndexDefinition(
-            subname='value',
-            settings=cls._index_settings(),
-            mappings=cls._value_index_mappings(),
-        )
+    def define_current_indexes(cls) -> dict[str, Elastic8IndexStrategy.IndexDefiniton]:
+        return {
+            'cardsearch': cls.IndexDefinition(
+                settings=cls._index_settings(),
+                mappings=cls._cardsearch_index_mappings(),
+            ),
+            'valuesearch': cls.IndexDefinition(
+                settings=cls._index_settings(),
+                mappings=cls._valuesearch_index_mappings(),
+            ),
+        }
 
     # abstract method from IndexStrategy
     @property
@@ -94,7 +94,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         }
 
     @classmethod
-    def _card_index_mappings(cls):
+    def _cardsearch_index_mappings(cls):
         return {
             'dynamic': 'false',
             'dynamic_templates': cls._dynamic_templates(),
@@ -104,6 +104,14 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 'chunk_timestamp': {'type': 'unsigned_long'},
             },
         }
+
+    @classmethod
+    def _valuesearch_index_mappings(cls):
+        _card_mappings = cls._cardsearch_index_mappings()
+        _card_mappings['properties']['iri_value'] = {
+            'properties': cls._iri_value_mappings(),
+        }
+        return _card_mappings
 
     @classmethod
     def _dynamic_templates(cls):
@@ -948,8 +956,8 @@ def task__delete_iri_value_scraps(
     this task deletes those untouched value-docs after the index has refreshed at its own pace
     (allowing a slightly longer delay for items to _stop_ matching queries for removed values)
     '''
-    from share.search.index_strategy import get_index_strategy
-    _index_strategy = get_index_strategy(index_strategy_name)
+    from share.search.index_strategy import get_strategy
+    _index_strategy = get_strategy(index_strategy_name)
     assert isinstance(_index_strategy, Elastic8IndexStrategy)
     # delete any docs that belong to cards in this chunk but weren't touched by indexing
     _delete_resp = _index_strategy.es8_client.delete_by_query(

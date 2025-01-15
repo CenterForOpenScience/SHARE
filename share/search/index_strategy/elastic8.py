@@ -17,7 +17,7 @@ from share.search.index_status import IndexStatus
 from share.search import messages
 from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util.checksum_iri import ChecksumIri
-from ._indexnames import parse_index_name
+from ._indexnames import parse_indexname_parts
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ class Elastic8IndexStrategy(IndexStrategy):
     '''abstract base class for index strategies using elasticsearch 8
     '''
     es8_client: elasticsearch8.Elasticsearch = dataclasses.field(init=False)
+
+    index_definitions: typing.ClassVar[IndexDefinitionDict]
 
     def __post_init__(self):
         super().__post_init__()
@@ -56,11 +58,10 @@ class Elastic8IndexStrategy(IndexStrategy):
     ###
     # for use when defining abstract methods in subclasses
 
-    @dataclasses.dataclass
+    @dataclasses.dataclass(frozen=True)
     class IndexDefinition:
-        subname: str
-        settings: dict
         mappings: dict
+        settings: dict
 
     @dataclasses.dataclass
     class MessageActionSet:
@@ -70,9 +71,9 @@ class Elastic8IndexStrategy(IndexStrategy):
     ###
     # abstract methods for subclasses to implement
 
-    @abc.abstractmethod
     @classmethod
-    def each_index_definition(cls) -> typing.Iterable[IndexDefinition]:
+    @abc.abstractmethod
+    def define_current_indexes(cls) -> dict[str, IndexDefinition]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -123,23 +124,20 @@ class Elastic8IndexStrategy(IndexStrategy):
             salt=cls.__name__,
             raw_json={
                 _subname: dataclasses.asdict(_def)
-                for _subname, _def in cls.current_index_definitions().items()
+                for _subname, _def in cls.current_index_defs().items()
             }
         )
 
     @classmethod
     @functools.cache
-    def current_index_definitions(cls):
+    def current_index_defs(cls):
         # readonly and cached per class
-        return types.MappingProxyType({
-            _def.subname: _def
-            for _def in cls.each_index_definition()
-        })
+        return types.MappingProxyType(cls.define_current_indexes())
 
     # abstract method from IndexStrategy
     def each_named_index(self):
-        for _subname, _index_def in self.current_index_definitions().items():
-            yield self.get_index_by_subname(_subname)
+        for _subname in self.current_index_defs().keys():
+            yield self.get_index_by_subnames(_subname)
 
     # abstract method from IndexStrategy
     def each_existing_index(self):
@@ -149,7 +147,7 @@ class Elastic8IndexStrategy(IndexStrategy):
             .keys()
         )
         for indexname in indexname_set:
-            _index = parse_index_name(indexname)
+            _index = self.parse_full_index_name(indexname)
             assert _index.index_strategy == self
             yield _index
 
@@ -212,7 +210,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     def pls_get_default_for_searching(self) -> IndexStrategy.SpecificIndex:
         # a SpecificIndex for an alias will work fine for searching, but
         # will error if you try to invoke lifecycle hooks
-        return self.get_index_by_subname(self._alias_for_searching)
+        return self.get_index_by_subnames(self._alias_for_searching)
 
     # override from IndexStrategy
     def pls_mark_backfill_complete(self):
@@ -256,7 +254,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         is_backfill_action: bool = False,
     ) -> set[str]:
         if is_backfill_action:
-            return {self.get_index_by_subname(index_subname).full_index_name}
+            return {self.get_index_by_subnames(index_subname).full_index_name}
         _indexes_kept_live = self._get_indexnames_for_alias(self._alias_for_keeping_live)
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:

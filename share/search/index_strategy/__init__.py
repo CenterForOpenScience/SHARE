@@ -1,4 +1,5 @@
 from __future__ import annotations
+import enum
 import functools
 from types import MappingProxyType
 from typing import Iterator
@@ -21,49 +22,61 @@ __all__ = (
     'each_strategy',
     'all_strategy_names',
     'get_strategy',
+    'parse_strategy_name',
+    'get_specific_index',
     # TODO: cleanup
     # 'all_index_strategies',
     # 'get_index_for_sharev2_search',
     # 'get_index_for_trovesearch',
     # 'get_index_strategy',
-    # 'get_specific_index',
 )
+
+
+class StrategyTypes(enum.Enum):
+    if settings.ELASTICSEARCH5_URL:
+        sharev2_elastic5 = Sharev2Elastic5IndexStrategy
+    if settings.ELASTICSEARCH8_URL:
+        sharev2_elastic8 = Sharev2Elastic8IndexStrategy
+        trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy
+        trovesearch_denorm = TrovesearchDenormIndexStrategy
+
+    def instantiate_strategy(self, strategy_check: str = ''):
+        _strategy_type = self.value
+        return _strategy_type(strategy_name=self.name, strategy_check=strategy_check)
+
+
+def each_strategy() -> Iterator[IndexStrategy]:
+    for _strat_enum in StrategyTypes:
+        yield _strat_enum.instantiate_strategy()
 
 
 @functools.cache
 def all_strategy_names() -> frozenset[str]:
-    return frozenset(_strategy.name for _strategy in each_strategy())
+    return frozenset(StrategyTypes.__members__.keys())
 
 
-def each_strategy() -> Iterator[IndexStrategy]:
-    if settings.ELASTICSEARCH5_URL:
-        yield Sharev2Elastic5IndexStrategy(name='sharev2_elastic5')
-    if settings.ELASTICSEARCH8_URL:
-        yield Sharev2Elastic8IndexStrategy(name='sharev2_elastic8')
-        yield TroveIndexcardFlatsIndexStrategy(name='trove_indexcard_flats')
-        yield TrovesearchDenormIndexStrategy(name='trovesearch_denorm')
-
-
-def get_strategy(requested_strategy_name: str) -> IndexStrategy:
+def parse_strategy_name(requested_strategy_name: str) -> IndexStrategy:
     (_strategyname, *_etc) = parse_indexname_parts(requested_strategy_name)
-    try:
-        _strategy = get_index_strategy(
-            _strategyname,
-            subname=(_etc[0] if _etc else ''),
-        )
-    except IndexStrategyError:
-        raise IndexStrategyError(f'unrecognized strategy name "{requested_strategy_name}"')
-    else:
-        return _strategy
+    return get_strategy(
+        strategy_name=_strategyname,
+        strategy_check=(_etc[0] if _etc else ''),
+    )
 
 
-def parse_index_name(index_name: str) -> IndexStrategy.SpecificIndex:
+def parse_specific_index_name(index_name: str) -> IndexStrategy.SpecificIndex:
     try:
-        (_strategy_name, _strategy_check, *_etc) = parse_indexname_parts(index_name)
-        _strategy = get_index_strategy(_strategy_name, _strategy_check)
-        return _strategy.get_index_by_subname(*_etc)
+        _strategy = parse_strategy_name(index_name)
+        return _strategy.parse_full_index_name(index_name)
     except IndexStrategyError:
         raise IndexStrategyError(f'invalid index_name "{index_name}"')
+
+
+def get_strategy(strategy_name: str, strategy_check: str = '') -> IndexStrategy:
+    try:
+        _strat_enum = StrategyTypes[strategy_name]
+    except KeyError:
+        raise IndexStrategyError(f'unrecognized strategy name "{strategy_name}"')
+    return _strat_enum.instantiate_strategy(strategy_check=strategy_check)
 
 
 def get_index_strategy(strategy_name: str, subname: str = '') -> IndexStrategy:
@@ -73,7 +86,7 @@ def get_index_strategy(strategy_name: str, subname: str = '') -> IndexStrategy:
         raise IndexStrategyError(f'unknown index strategy "{strategy_name}"')
 
 
-def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> IndexStrategy.SpecificIndex:
+def get_strategy_for_search(strategy_name_request: str = '') -> IndexStrategy.SpecificIndex:
     try:
         _strategy = get_index_strategy(indexname_or_strategyname)
         return (
@@ -84,7 +97,7 @@ def get_specific_index(indexname_or_strategyname: str, *, for_search=False) -> I
     except IndexStrategyError:
         for _index_strategy in all_index_strategies().values():
             try:
-                return _index_strategy.get_index_by_subname(indexname_or_strategyname)
+                return _index_strategy.get_index_by_subnames(indexname_or_strategyname)
             except IndexStrategyError:
                 pass
     raise IndexStrategyError(f'unrecognized name "{indexname_or_strategyname}"')

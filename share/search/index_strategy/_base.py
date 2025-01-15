@@ -100,8 +100,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_subname(self, subname: str = '') -> IndexStrategy.SpecificIndex:
-        return self.SpecificIndex(self, subname)  # type: ignore[abstract]
+    def get_index_by_subnames(self, *subnames: str) -> IndexStrategy.SpecificIndex:
+        if len(subnames == 1):
+            return self.SpecificIndex(self, subnames[0])  # type: ignore[abstract]
+        raise NotImplementedError(f'how subnames {subnames}')
 
     def pls_setup(self, *, skip_backfill=False):
         assert self.is_current, 'cannot setup a non-current strategy'

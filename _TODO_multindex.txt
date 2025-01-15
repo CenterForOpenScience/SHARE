@@ -31,7 +31,7 @@ IndexStrategy revamp plan/log:
 - add replacement multiindex methods to IndexStrategy (and friends)
     - (classmethod) each_existing_index (based on index names from elastic; may be any hex)
     - each_named_index (includes non-existent; )
-    - get_index_by_subname
+    - get_index_by_subnames
     - subnames
     - is_current
     - pls_setup
@@ -41,7 +41,7 @@ IndexStrategy revamp plan/log:
     - pls_handle_cardsearch
     - pls_handle_valuesearch
     - pls_ensure_fresh
-    - Elastic8IndexStrategy.each_index_definition (abstractmethod)
+    - Elastic8IndexStrategy.define_current_indexes (abstractmethod)
     - Elastic8IndexStrategy.each_named_index (based on current_index_definitions)
 
 - update existing base methods
