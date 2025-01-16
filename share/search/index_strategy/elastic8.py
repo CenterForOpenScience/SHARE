@@ -242,6 +242,12 @@ class Elastic8IndexStrategy(IndexStrategy):
         for _index in self.each_subnamed_index():
             _index.pls_refresh()
 
+    # override from IndexStrategy
+    def pls_refresh(self):
+        super().pls_refresh()  # refreshes each index
+        logger.debug('%s: Waiting for yellow status', self.strategy_name)
+        self.es8_client.cluster.health(wait_for_status='yellow')
+
     @property
     def _alias_for_searching(self):
         return f'{self.indexname_prefix}__search'
@@ -370,11 +376,17 @@ class Elastic8IndexStrategy(IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_check_exists(self):
-            logger.info(f'{self.__class__.__name__}: checking for index {self}')
-            return bool(
+            _indexname = self.full_index_name
+            _result = bool(
                 self.index_strategy.es8_client.indices
-                .exists(index=self.full_index_name)
+                .exists(index=_indexname)
             )
+            logger.info(
+                f'{_indexname}: exists'
+                if _result
+                else f'{_indexname}: does not exist'
+            )
+            return _result
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_create(self):
@@ -403,24 +415,21 @@ class Elastic8IndexStrategy(IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_refresh(self):
+            _indexname = self.full_index_name
             (
                 self.index_strategy.es8_client.indices
-                .refresh(index=self.full_index_name)
+                .refresh(index=_indexname)
             )
-            logger.debug('%r: Waiting for yellow status', self)
-            (
-                self.index_strategy.es8_client.cluster
-                .health(wait_for_status='yellow')
-            )
-            logger.info('%r: Refreshed', self)
+            logger.info('%s: Refreshed', _indexname)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_delete(self):
+            _indexname = self.full_index_name
             (
                 self.index_strategy.es8_client.indices
-                .delete(index=self.full_index_name, ignore=[400, 404])
+                .delete(index=_indexname, ignore=[400, 404])
             )
-            logger.warning('%r: deleted', self)
+            logger.warning('%s: deleted', _indexname)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_start_keeping_live(self):

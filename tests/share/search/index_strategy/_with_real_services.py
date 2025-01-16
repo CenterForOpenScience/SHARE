@@ -39,7 +39,6 @@ class RealElasticTestCase(TransactionTestCase):
             index_strategys=[self.index_strategy],
         )
         self.index_strategy.pls_teardown()  # in case it already exists
-        self.index_strategy.pls_refresh()
         self._assert_setup_happypath()
 
     def tearDown(self):
