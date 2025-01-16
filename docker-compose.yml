@@ -185,8 +185,7 @@ services:
   worker:
     image: quay.io/centerforopenscience/share:develop
     command:
-      chown -R daemon:daemon /elastic8_certs/ &&
-      /usr/local/bin/celery --app project worker --uid daemon -l INFO
+      /bin/bash -c 'cp -r /elastic8_certs /elastic_certs && chown -R daemon:daemon /elastic_certs/ && /usr/local/bin/celery --app project worker --uid daemon -l INFO'
     depends_on:
       - postgres
       - rabbitmq
@@ -201,7 +200,7 @@ services:
       - .docker-compose.env
     environment:
       ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
-      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
+      ELASTICSEARCH8_CERT_PATH: /elastic_certs/ca/ca.crt
     stdin_open: true
     networks:
       - share_network
