@@ -72,10 +72,21 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
     def backfill_message_type(self):
         return messages.MessageType.BACKFILL_INDEXCARD
 
-    def index_settings(self):
+    @classmethod
+    def define_current_indexes(cls):
+        return {  # empty index subname, for backcompat
+            '': cls.IndexDefinition(
+                mappings=cls.index_mappings(),
+                settings=cls.index_settings(),
+            ),
+        }
+
+    @classmethod
+    def index_settings(cls):
         return {}
 
-    def index_mappings(self):
+    @classmethod
+    def index_mappings(cls):
         _capped_keyword = {
             'type': 'keyword',
             'ignore_above': KEYWORD_LENGTH_MAX,
@@ -276,7 +287,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
     class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
         def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
             return self.index_strategy.es8_client.search(
-                index=self.indexname,
+                index=self.full_index_name,
                 body={
                     **(request_body or {}),
                     'track_total_hits': True,
@@ -309,7 +320,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 logger.info(json.dumps(_search_kwargs, indent=2))
             try:
                 _es8_response = self.index_strategy.es8_client.search(
-                    index=self.indexname,
+                    index=self.full_index_name,
                     **_search_kwargs,
                 )
             except elasticsearch8.TransportError as error:
@@ -338,7 +349,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 logger.info(json.dumps(_search_kwargs, indent=2))
             try:
                 _es8_response = self.index_strategy.es8_client.search(
-                    index=self.indexname,
+                    index=self.full_index_name,
                     **_search_kwargs,
                 )
             except elasticsearch8.TransportError as error:

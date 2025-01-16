@@ -53,11 +53,10 @@ class _BaseTrovesearchView(View, abc.ABC):
             _search_gathering = self._start_gathering(renderer_type=_renderer_type)
             _search_params = self._parse_search_params(request)
             _strategy = index_strategy.get_strategy_for_trovesearch(_search_params)
-            _specific_index = index_strategy.get_index_for_trovesearch(_search_params)
             _focus = self.focus_type.new(
                 iris=_url,
                 search_params=_search_params,
-                search_handle=self.get_search_handle(_specific_index, _search_params),
+                search_handle=self.get_search_handle(_strategy, _search_params),
             )
             if _renderer_type.PASSIVE_RENDER:
                 self._fill_gathering(_search_gathering, _search_params, _focus)
@@ -97,17 +96,17 @@ class _BaseTrovesearchView(View, abc.ABC):
                 else:
                     search_gathering.ask(_attrpaths, focus=_focus)
 
-    def get_search_handle(self, specific_index, search_params) -> BasicSearchHandle:
-        return self._get_wrapped_handler(specific_index)(search_params)
+    def get_search_handle(self, strategy, search_params) -> BasicSearchHandle:
+        return self._get_wrapped_handler(strategy)(search_params)
 
     def get_search_handler(
         self,
-        specific_index: index_strategy.IndexStrategy.SpecificIndex,
+        strategy: index_strategy.IndexStrategy,
     ) -> _TrovesearchHandler:
         raise NotImplementedError
 
-    def _get_wrapped_handler(self, specific_index):
-        _raw_handler = self.get_search_handler(specific_index)
+    def _get_wrapped_handler(self, strategy: index_strategy.IndexStrategy):
+        _raw_handler = self.get_search_handler(strategy)
 
         def _wrapped_handler(search_params):
             _handle = _raw_handler(search_params)
@@ -120,13 +119,13 @@ class CardsearchView(_BaseTrovesearchView):
     focus_type = CardsearchFocus
     params_dataclass = CardsearchParams
 
-    def get_search_handler(self, specific_index):
-        return specific_index.pls_handle_cardsearch
+    def get_search_handler(self, strategy):
+        return strategy.pls_handle_cardsearch
 
 
 class ValuesearchView(_BaseTrovesearchView):
     focus_type = ValuesearchFocus
     params_dataclass = ValuesearchParams
 
-    def get_search_handler(self, specific_index):
-        return specific_index.pls_handle_valuesearch
+    def get_search_handler(self, strategy):
+        return strategy.pls_handle_valuesearch

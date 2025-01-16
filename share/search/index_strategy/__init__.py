@@ -1,7 +1,5 @@
 from __future__ import annotations
 import enum
-import functools
-from types import MappingProxyType
 from typing import Iterator
 
 from django.conf import settings
@@ -29,48 +27,31 @@ __all__ = (
 )
 
 
-class _StrategyTypes(enum.Enum):
-    if settings.ELASTICSEARCH5_URL:
-        sharev2_elastic5 = Sharev2Elastic5IndexStrategy
-    if settings.ELASTICSEARCH8_URL:
-        sharev2_elastic8 = Sharev2Elastic8IndexStrategy
-        trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy
-        trovesearch_denorm = TrovesearchDenormIndexStrategy
+class _AvailableStrategies(enum.Enum):
+    '''static source of truth for available index strategies
 
-    def new_strategy_instance(self, strategy_check: str = '', *, for_search=False) -> IndexStrategy:
-        _strategy_type = self.value
-        _strategy = _strategy_type(strategy_name=self.name, strategy_check=strategy_check)
-        return (
-            _strategy.get_default_search_strategy()
-            if (for_search and not strategy_check)
-            else _strategy
-        )
+    (don't import this enum directly -- access via the other functions in this module)
+    '''
+
+    if settings.ELASTICSEARCH5_URL:
+        sharev2_elastic5 = Sharev2Elastic5IndexStrategy('sharev2_elastic5')
+
+    if settings.ELASTICSEARCH8_URL:
+        sharev2_elastic8 = Sharev2Elastic8IndexStrategy('sharev2_elastic8')
+        trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats')
+        trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
+
+
+###
+# module public interface
+
+def all_strategy_names() -> frozenset[str]:
+    return frozenset(_AvailableStrategies.__members__.keys())
 
 
 def each_strategy() -> Iterator[IndexStrategy]:
-    for _strat_enum in _StrategyTypes:
-        yield _strat_enum.new_strategy_instance()
-
-
-def all_strategy_names() -> frozenset[str]:
-    return frozenset(_StrategyTypes.__members__.keys())
-
-
-def parse_strategy_name(requested_strategy_name: str, *, for_search=False) -> IndexStrategy:
-    (_strategyname, *_etc) = parse_indexname_parts(requested_strategy_name)
-    return get_strategy(
-        strategy_name=_strategyname,
-        strategy_check=(_etc[0] if _etc else ''),
-        for_search=for_search
-    )
-
-
-def parse_specific_index_name(index_name: str) -> IndexStrategy.SpecificIndex:
-    try:
-        _strategy = parse_strategy_name(index_name)
-        return _strategy.parse_full_index_name(index_name)
-    except IndexStrategyError:
-        raise IndexStrategyError(f'invalid index_name "{index_name}"')
+    for _strat_enum in _AvailableStrategies:
+        yield _strat_enum.value
 
 
 def get_strategy(
@@ -80,14 +61,19 @@ def get_strategy(
     for_search: bool = False,
 ) -> IndexStrategy:
     try:
-        _strat_enum = _StrategyTypes[strategy_name]
+        _strategy: IndexStrategy = _AvailableStrategies[strategy_name].value
     except KeyError:
         raise IndexStrategyError(f'unrecognized strategy name "{strategy_name}"')
-    return _strat_enum.new_strategy_instance(strategy_check=strategy_check)
+    if strategy_check:
+        _strategy = _strategy.with_strategy_check(strategy_check)
+    return (
+        _strategy.pls_get_default_for_searching()
+        if (for_search and not strategy_check)
+        else _strategy
+    )
 
 
-
-def get_strategy_for_sharev2_search(requested_name=None) -> IndexStrategy.SpecificIndex:
+def get_strategy_for_sharev2_search(requested_name: str | None = None) -> IndexStrategy:
     if requested_name:
         _name = requested_name
     elif (
@@ -102,13 +88,33 @@ def get_strategy_for_sharev2_search(requested_name=None) -> IndexStrategy.Specif
     return parse_strategy_name(_name)
 
 
-def get_strategy_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy.SpecificIndex:
+def get_strategy_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy:
     if params.index_strategy_name:  # specific strategy requested
         _strategy = parse_strategy_name(params.index_strategy_name, for_search=True)
     else:
-        _default_strategy_enum = (
-            _StrategyTypes.trovesearch_denorm
-            if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY)
-            else _StrategyTypes.trove_indexcard_flats
+        _strategy = get_strategy(
+            strategy_name=(
+                _AvailableStrategies.trovesearch_denorm.name
+                if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY)
+                else _AvailableStrategies.trove_indexcard_flats.name
+            ),
+            for_search=True,
         )
-        _strategy = _default_strategy_enum.new_strategy_instance()
+    return _strategy
+
+
+def parse_specific_index_name(index_name: str) -> IndexStrategy.SpecificIndex:
+    try:
+        _strategy = parse_strategy_name(index_name)
+        return _strategy.parse_full_index_name(index_name)
+    except IndexStrategyError:
+        raise IndexStrategyError(f'invalid index_name "{index_name}"')
+
+
+def parse_strategy_name(requested_strategy_name: str, *, for_search=False) -> IndexStrategy:
+    (_strategyname, *_etc) = parse_indexname_parts(requested_strategy_name)
+    return get_strategy(
+        strategy_name=_strategyname,
+        strategy_check=(_etc[0] if _etc else ''),
+        for_search=for_search
+    )

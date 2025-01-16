@@ -1,6 +1,7 @@
 from __future__ import annotations
 import abc
 import collections
+from collections.abc import Mapping
 import dataclasses
 import functools
 from http import HTTPStatus
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 class Elastic8IndexStrategy(IndexStrategy):
     '''abstract base class for index strategies using elasticsearch 8
     '''
-    index_definitions: typing.ClassVar[IndexDefinitionDict]
+    index_definitions: typing.ClassVar[dict[str, IndexDefinition]]
 
     ###
     # for use when defining abstract methods in subclasses
@@ -102,15 +103,20 @@ class Elastic8IndexStrategy(IndexStrategy):
             }
         )
 
+    # abstract method from IndexStrategy
+    @classmethod
+    def each_index_subname(self) -> typing.Iterable[str]:
+        yield from self.current_index_defs().keys()
+
     @classmethod
     @functools.cache
-    def current_index_defs(cls):
+    def current_index_defs(cls) -> Mapping[str, IndexDefinition]:
         # readonly and cached per class
         return types.MappingProxyType(cls.define_current_indexes())
 
     @classmethod
     @functools.cache
-    def _make_elastic8_client(cls) -> elasticsearch8.Elasticsearch:
+    def _get_elastic8_client(cls) -> elasticsearch8.Elasticsearch:
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         return elasticsearch8.Elasticsearch(
@@ -135,12 +141,12 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     @property
     def es8_client(self):
-        return self._make_elastic8_client()  # cached shared client
+        return self._get_elastic8_client()  # cached classmethod for shared client
 
     # abstract method from IndexStrategy
-    def each_named_index(self):
+    def each_subnamed_index(self):
         for _subname in self.current_index_defs().keys():
-            yield self.get_index_by_subnames(_subname)
+            yield self.get_index(_subname)
 
     # abstract method from IndexStrategy
     def each_existing_index(self):
@@ -211,20 +217,21 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     # abstract method from IndexStrategy
     def pls_get_default_for_searching(self) -> IndexStrategy:
-        _indexnames = self._get_indexnames_for_alias(self._alias_for_searching)
+        _searchnames = self._get_indexnames_for_alias(self._alias_for_searching)
         try:
-            _indexname = _indexnames.pop()
-        except KeyError:
-            return 
-        # a SpecificIndex for an alias will work fine for searching, but
-        # will error if you try to invoke lifecycle hooks
-        return self.get_index_by_subnames(self._alias_for_searching)
+            (_indexname, *_) = _searchnames
+        except ValueError:
+            return self  # no default set, this one's fine
+        (_strategyname, _strategycheck, *_) = parse_indexname_parts(_indexname)
+        assert _strategyname == self.strategy_name
+        return self.with_strategy_check(_strategycheck)
 
     # override from IndexStrategy
     def pls_mark_backfill_complete(self):
         super().pls_mark_backfill_complete()
         # explicit refresh after bulk operation
-        self.for_current_index().pls_refresh()
+        for _index in self.each_subnamed_index():
+            _index.pls_refresh()
 
     @property
     def _alias_for_searching(self):
@@ -262,8 +269,10 @@ class Elastic8IndexStrategy(IndexStrategy):
         is_backfill_action: bool = False,
     ) -> set[str]:
         if is_backfill_action:
-            return {self.get_index_by_subnames(index_subname).full_index_name}
-        _indexes_kept_live = self._get_indexnames_for_alias(self._alias_for_keeping_live)
+            return {self.get_index(index_subname).full_index_name}
+        # note: using alias directly to reduce bulk-action clutter
+        # -- shortcut around `self._get_indexnames_for_alias(self._alias_for_keeping_live)`
+        return {self._alias_for_keeping_live}
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:
         try:
@@ -304,7 +313,11 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     @dataclasses.dataclass
     class SpecificIndex(IndexStrategy.SpecificIndex):
-        index_strategy: Elastic8IndexStrategy
+        index_strategy: Elastic8IndexStrategy  # note: narrower type
+
+        @property
+        def index_def(self) -> Elastic8IndexStrategy.IndexDefinition:
+            return self.index_strategy.current_index_defs()[self.subname]
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_get_status(self) -> IndexStatus:
@@ -368,13 +381,14 @@ class Elastic8IndexStrategy(IndexStrategy):
                 .exists(index=index_to_create)
             )
             if not index_exists:
-                logger.warning('Creating index %s', index_to_create)
+                logger.info('Creating index %s', index_to_create)
+                _index_def = self.index_def
                 (
                     self.index_strategy.es8_client.indices
                     .create(
                         index=index_to_create,
-                        settings=self.index_strategy.index_settings(),
-                        mappings=self.index_strategy.index_mappings(),
+                        settings=_index_def.settings,
+                        mappings=_index_def.mappings,
                     )
                 )
                 self.pls_refresh()

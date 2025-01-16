@@ -14,7 +14,7 @@ def raise_if_invalid_indexname_part(indexname_part: str) -> None:
 
 
 def combine_indexname_parts(*indexname_parts: str) -> str:
-    return INDEXNAME_DELIM.join(indexname_parts)
+    return INDEXNAME_DELIM.join(filter(bool, indexname_parts))
 
 
 def parse_indexname_parts(name: str) -> list[str]:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+import functools
 import json
 import logging
 
@@ -35,10 +37,11 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
     # perpetuated optimizations from times long past
     MAX_CHUNK_BYTES = 10 * 1024 ** 2  # 10 megs
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @classmethod
+    @functools.cache
+    def _get_elastic5_client(cls) -> elasticsearch5.Elasticsearch:
         should_sniff = settings.ELASTICSEARCH['SNIFF']
-        self.es5_client = elasticsearch5.Elasticsearch(
+        return elasticsearch5.Elasticsearch(
             settings.ELASTICSEARCH5_URL,
             retry_on_timeout=True,
             timeout=settings.ELASTICSEARCH['TIMEOUT'],
@@ -49,6 +52,19 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             # and also every 60 seconds
             sniffer_timeout=60 if should_sniff else None,
         )
+
+    @property
+    def es5_client(self):
+        return self._get_elastic5_client()  # cached classmethod for shared client
+
+    @property
+    def single_index(self) -> IndexStrategy.SpecificIndex:
+        return self.get_index(self.STATIC_INDEXNAME)
+
+    # abstract method from IndexStrategy
+    @classmethod
+    def each_index_subname(self):
+        yield self.STATIC_INDEXNAME
 
     # override IndexStrategy
     @property
@@ -65,11 +81,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
     def indexname_prefix(self):
         return self.STATIC_INDEXNAME
 
-    # override IndexStrategy
-    @property
-    def current_indexname(self):
-        return self.STATIC_INDEXNAME
-
     # abstract method from IndexStrategy
     def compute_strategy_checksum(self):
         return ChecksumIri.digest_json(
@@ -83,17 +94,22 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         )
 
     # abstract method from IndexStrategy
-    def pls_make_default_for_searching(self, specific_index):
-        assert specific_index.index_strategy is self
-        assert specific_index.indexname == self.STATIC_INDEXNAME
+    def pls_make_default_for_searching(self):
+        pass  # the one index is the only one
 
     # abstract method from IndexStrategy
     def pls_get_default_for_searching(self):
-        return self.parse_full_index_name(self.STATIC_INDEXNAME)
+        return self
 
     # abstract method from IndexStrategy
     def each_existing_index(self):
-        yield self.parse_full_index_name(self.STATIC_INDEXNAME)
+        _index = self.single_index
+        if _index.pls_check_exists():
+            yield _index
+
+    # abstract method from IndexStrategy
+    def each_subnamed_index(self):
+        yield self.single_index
 
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
@@ -315,14 +331,21 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             yield action
 
     class SpecificIndex(IndexStrategy.SpecificIndex):
+        index_strategy: Sharev2Elastic5IndexStrategy  # narrow type
+
+        # override IndexStrategy.SpecificIndex
+        @property
+        def full_index_name(self):
+            return self.index_strategy.STATIC_INDEXNAME
+
         # abstract method from IndexStrategy.SpecificIndex
         def pls_create(self):
             # check index exists (if not, create)
-            logger.debug('Ensuring index %s', self.indexname)
+            logger.debug('Ensuring index %s', self.full_index_name)
             indices_api = self.index_strategy.es5_client.indices
-            if not indices_api.exists(index=self.indexname):
+            if not indices_api.exists(index=self.full_index_name):
                 indices_api.create(
-                    self.indexname,
+                    self.full_index_name,
                     body={
                         'settings': self.index_strategy._index_settings(),
                         'mappings': self.index_strategy._index_mappings(),
@@ -334,7 +357,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 self.index_strategy.es5_client.cluster
                 .health(wait_for_status='yellow')
             )
-            logger.info('Finished setting up Elasticsearch index %s', self.indexname)
+            logger.info('Finished setting up Elasticsearch index %s', self.full_index_name)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_start_keeping_live(self):
@@ -344,7 +367,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         def pls_stop_keeping_live(self):
             raise exceptions.IndexStrategyError(
                 f'{self.__class__.__qualname__} is implemented for only one index, '
-                f'"{self.indexname}", which is always kept live (until elasticsearch5 '
+                f'"{self.full_index_name}", which is always kept live (until elasticsearch5 '
                 'support is dropped)'
             )
 
@@ -352,23 +375,23 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         def pls_refresh(self):
             (
                 self.index_strategy.es5_client.indices
-                .refresh(index=self.indexname)
+                .refresh(index=self.full_index_name)
             )
-            logger.info('Refreshed index %s', self.indexname)
+            logger.info('Refreshed index %s', self.full_index_name)
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_delete(self):
-            logger.warning(f'{self.__class__.__name__}: deleting index {self.indexname}')
+            logger.warning(f'{self.__class__.__name__}: deleting index {self.full_index_name}')
             (
                 self.index_strategy.es5_client.indices
-                .delete(index=self.indexname, ignore=[400, 404])
+                .delete(index=self.full_index_name, ignore=[400, 404])
             )
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_check_exists(self):
             return bool(
                 self.index_strategy.es5_client.indices
-                .exists(index=self.indexname)
+                .exists(index=self.full_index_name)
             )
 
         # abstract method from IndexStrategy.SpecificIndex
@@ -376,27 +399,27 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             try:
                 stats = (
                     self.index_strategy.es5_client.indices
-                    .stats(index=self.indexname, metric='docs')
+                    .stats(index=self.full_index_name, metric='docs')
                 )
                 existing_indexes = (
                     self.index_strategy.es5_client.indices
-                    .get_settings(index=self.indexname, name='index.creation_date')
+                    .get_settings(index=self.full_index_name, name='index.creation_date')
                 )
-                index_settings = existing_indexes[self.indexname]
-                index_stats = stats['indices'][self.indexname]
+                index_settings = existing_indexes[self.full_index_name]
+                index_stats = stats['indices'][self.full_index_name]
             except (KeyError, elasticsearch5.exceptions.NotFoundError):
                 # not yet created
                 return IndexStatus(
-                    index_strategy_name=self.index_strategy.name,
-                    specific_indexname=self.indexname,
+                    index_strategy_name=self.index_strategy.strategy_name,
+                    specific_indexname=self.full_index_name,
                     is_kept_live=False,
                     is_default_for_searching=False,
-                    creation_date=None,
+                    creation_date='',
                     doc_count=0,
                 )
             return IndexStatus(
-                index_strategy_name=self.index_strategy.name,
-                specific_indexname=self.indexname,
+                index_strategy_name=self.index_strategy.strategy_name,
+                specific_indexname=self.full_index_name,
                 is_kept_live=True,
                 is_default_for_searching=True,
                 creation_date=timestamp_to_readable_datetime(
@@ -411,7 +434,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             '''
             try:
                 return self.index_strategy.es5_client.search(
-                    index=self.indexname,
+                    index=self.full_index_name,
                     body=request_body or {},
                     params=request_queryparams or {},
                 )

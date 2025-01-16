@@ -52,10 +52,14 @@ class IndexStrategy(abc.ABC):
             self.strategy_check = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
         indexnames.raise_if_invalid_indexname_part(self.strategy_check)
 
-    @functools.cache
     @classmethod
+    @functools.cache
     def index_subname_set(cls) -> frozenset[str]:
         return frozenset(cls.each_index_subname())
+
+    def each_subnamed_index(self) -> typing.Iterator[SpecificIndex]:
+        for _subname in self.index_subname_set():
+            yield self.get_index(_subname)
 
     @property
     def nonurgent_messagequeue_name(self) -> str:
@@ -100,23 +104,29 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     )
 ```''')
 
-    def get_index_by_subname(self, subname: str) -> IndexStrategy.SpecificIndex:
+    def get_index(self, subname: str) -> SpecificIndex:
         return self.SpecificIndex(self, subname)  # type: ignore[abstract]
 
-    def pls_setup(self, *, skip_backfill=False):
-        assert self.is_current, 'cannot setup a non-current strategy'
-        _preexisting_index_count = sum(
-            _index.pls_check_exists()
-            for _index in self.each_existing_index()
-        )
-        self.pls_create()
-        self.pls_start_keeping_live()
+    def parse_full_index_name(self, index_name: str) -> SpecificIndex:
+        (_strategy_name, _strategy_check, *_etc) = indexnames.parse_indexname_parts(index_name)
+        if _strategy_name != self.strategy_name:
+            raise IndexStrategyError(f'this index belongs to another strategy (expected strategy name "{self.strategy_name}"; got "{_strategy_name}" from index name {index_name})')
+        _strategy = self.with_strategy_check(_strategy_check)
+        return _strategy.get_index(_etc[0] if _etc else '')
+
+    def with_strategy_check(self, strategy_check: str) -> IndexStrategy:
+        return dataclasses.replace(self, strategy_check=strategy_check)
+
+    def pls_setup(self, *, skip_backfill=False) -> None:
+        if not self.is_current:
+            raise IndexStrategyError('cannot setup a non-current strategy')
+        for _index in self.each_subnamed_index():
+            _index.pls_create()
+            _index.pls_start_keeping_live()
         if skip_backfill:
-            _backfill = self.index_strategy.get_or_create_backfill()
+            _backfill = self.get_or_create_backfill()
             _backfill.backfill_status = _backfill.COMPLETE
             _backfill.save()
-        if not _preexisting_index_count:  # first index for a strategy is automatic default
-            self.index_strategy.pls_make_default_for_searching(self)
 
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(
@@ -196,7 +206,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             if self.subname not in self.index_strategy.index_subname_set():
                 raise IndexStrategyError(
                     f'invalid subname "{self.subname}"!'
-                    f' (expected one of {self.index_strategy.index_subname_set}")'
+                    f' (expected one of {self.index_strategy.index_subname_set()}")'
                 )
 
         @property
@@ -206,7 +216,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         @property
         def full_index_name(self) -> str:
             return indexnames.combine_indexname_parts(
-                self.index_strategy.indexname_prefix,
+                *self.index_strategy.indexname_prefix_parts,
                 self.subname,
             )
 

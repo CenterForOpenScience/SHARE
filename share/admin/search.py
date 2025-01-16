@@ -9,7 +9,10 @@ from share.models.index_backfill import IndexBackfill
 from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import (
     IndexStrategy,
+    all_strategy_names,
+    each_strategy,
     parse_strategy_name,
+    parse_specific_index_name,
 )
 
 
@@ -38,7 +41,7 @@ def search_indexes_view(request):
 
 
 def search_index_mappings_view(request, index_name):
-    _specific_index = get_specific_index(index_name)
+    _specific_index = parse_specific_index_name(index_name)
     _mappings = _specific_index.pls_get_mappings()
     return JsonResponse(_mappings)
 
@@ -62,7 +65,7 @@ def _index_status_by_strategy():
     }
     status_by_strategy = {}
     _messenger = IndexMessenger()
-    for _index_strategy in all_index_strategies().values():
+    for _index_strategy in each_strategy():
         _current_backfill = _backfill_by_checksum.get(
             str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
         )
@@ -70,7 +73,7 @@ def _index_status_by_strategy():
             'current': {
                 'status': [
                     _index.pls_get_status()
-                    for _index in _index_strategy.each_named_index()
+                    for _index in _index_strategy.each_subnamed_index()
                 ],
                 'backfill': _serialize_backfill(_index_strategy, _current_backfill),
             },

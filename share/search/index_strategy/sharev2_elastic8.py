@@ -43,7 +43,17 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return messages.MessageType.BACKFILL_SUID
 
     # abstract method from Elastic8IndexStrategy
-    def index_settings(self):
+    @classmethod
+    def define_current_indexes(cls):
+        return {  # empty index subname, for backcompat
+            '': cls.IndexDefinition(
+                mappings=cls.index_mappings(),
+                settings=cls.index_settings(),
+            ),
+        }
+
+    @classmethod
+    def index_settings(cls):
         return {
             'analysis': {
                 'analyzer': {
@@ -78,8 +88,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             }
         }
 
-    # abstract method from Elastic8IndexStrategy
-    def index_mappings(self):
+    @classmethod
+    def index_mappings(cls):
         exact_field = {
             'exact': {
                 'type': 'keyword',
