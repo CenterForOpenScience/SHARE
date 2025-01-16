@@ -411,6 +411,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 # not yet created
                 return IndexStatus(
                     index_strategy_name=self.index_strategy.strategy_name,
+                    index_subname=self.subname,
                     specific_indexname=self.full_index_name,
                     is_kept_live=False,
                     is_default_for_searching=False,
@@ -419,6 +420,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 )
             return IndexStatus(
                 index_strategy_name=self.index_strategy.strategy_name,
+                index_subname=self.subname,
                 specific_indexname=self.full_index_name,
                 is_kept_live=True,
                 is_default_for_searching=True,

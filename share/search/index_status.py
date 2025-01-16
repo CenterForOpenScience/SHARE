@@ -5,6 +5,7 @@ import dataclasses
 class IndexStatus:
     creation_date: str
     index_strategy_name: str
+    index_subname: str
     specific_indexname: str
     is_kept_live: bool = False
     is_default_for_searching: bool = False

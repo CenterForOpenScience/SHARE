@@ -56,30 +56,31 @@ class TestSharev2Elastic5(RealElasticTestCase):
     # (single index that will not be updated again before being deleted)
     def _assert_happypath_until_ingest(self):
         # initial
-        assert not self.current_index.pls_check_exists()
-        index_status = self.current_index.pls_get_status()
+        _index = next(self.index_strategy.each_subnamed_index())
+        assert not _index.pls_check_exists()
+        index_status = _index.pls_get_status()
         assert not index_status.creation_date
         assert not index_status.is_kept_live
         assert not index_status.is_default_for_searching
         assert not index_status.doc_count
         # create index
-        self.current_index.pls_create()
-        assert self.current_index.pls_check_exists()
-        index_status = self.current_index.pls_get_status()
+        _index.pls_create()
+        assert _index.pls_check_exists()
+        index_status = _index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live  # change from base class
         assert index_status.is_default_for_searching  # change from base class
         assert not index_status.doc_count
         # keep index live (with ingested updates)
-        self.current_index.pls_start_keeping_live()  # now a no-op
-        index_status = self.current_index.pls_get_status()
+        _index.pls_start_keeping_live()  # now a no-op
+        index_status = _index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live
         assert index_status.is_default_for_searching  # change from base class
         assert not index_status.doc_count
         # default index for searching
-        self.index_strategy.pls_make_default_for_searching(self.current_index)  # now a no-op
-        index_status = self.current_index.pls_get_status()
+        self.index_strategy.pls_make_default_for_searching()  # now a no-op
+        index_status = _index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live
         assert index_status.is_default_for_searching

@@ -32,7 +32,8 @@ section, table {
       </table>
     </section>
     <section>
-      <h3 id="{{indexes.current.status.specific_indexname}}">current index: <i>{{indexes.current.status.specific_indexname}}</i></h3>
+      {% for current_index_status in indexes.current.status %}
+      <h3 id="{{current_index_status.specific_indexname}}">current index: <i>{{current_index_status.specific_indexname}}</i></h3>
       <table>
         <tr>
           <th>{% trans "created" %}</th>
@@ -43,44 +44,44 @@ section, table {
           <th>{% trans "links" %}</th>
         </tr>
         <tr>
-          <td>{{ indexes.current.status.creation_date|default:"--" }}</td>
-          <td>{% if indexes.current.status.is_kept_live %}✓{% endif %}</td>
-          <td>{% if indexes.current.status.is_default_for_searching %}✓{% endif %}</td>
-          <td><a href="{{search_url_prefix}}{{indexes.current.status.specific_indexname}}" target="_blank">{{ indexes.current.status.doc_count }}</a></td>
+          <td>{{ current_index_status.creation_date|default:"--" }}</td>
+          <td>{% if current_index_status.is_kept_live %}✓{% endif %}</td>
+          <td>{% if current_index_status.is_default_for_searching %}✓{% endif %}</td>
+          <td><a href="{{search_url_prefix}}{{current_index_status.specific_indexname}}" target="_blank">{{ current_index_status.doc_count }}</a></td>
           <td>
-            {% if not indexes.current.status.creation_date %}
+            {% if not current_index_status.creation_date %}
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
+              <input type="hidden" name="specific_indexname" value="{{current_index_status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="setup" />
               <input type="submit" value="{% trans "setup" %}" />
             </form>
-            {% elif not indexes.current.status.is_kept_live %}
+            {% elif not current_index_status.is_kept_live %}
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
+              <input type="hidden" name="specific_indexname" value="{{current_index_status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="start_keeping_live" />
               <input type="submit" value="{% trans "start keeping live" %}" />
             </form>
             {% elif indexes.current.backfill.can_start_backfill %}
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
+              <input type="hidden" name="specific_indexname" value="{{current_index_status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="start_backfill" />
               <input type="submit" value="{% trans "start backfill" %}" />
             </form>
             {% elif indexes.current.backfill.can_mark_backfill_complete %}
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
+              <input type="hidden" name="specific_indexname" value="{{current_index_status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="mark_backfill_complete" />
               <input type="submit" value="{% trans "mark backfill complete" %}" />
             </form>
             {% endif %}
-            {% if indexes.current.status.creation_date and not indexes.current.status.is_default_for_searching %}
+            {% if current_index_status.creation_date and not current_index_status.is_default_for_searching %}
             <form method="post">
               {% csrf_token %}
-              <input type="hidden" name="specific_indexname" value="{{indexes.current.status.specific_indexname}}" />
+              <input type="hidden" name="specific_indexname" value="{{current_index_status.specific_indexname}}" />
               <input type="hidden" name="pls_do" value="make_default_for_searching" />
               <input type="submit" value="{% trans "make default for searching" %}" />
             </form>
@@ -92,13 +93,14 @@ section, table {
                   {% trans "backfill" %}:{{ indexes.current.backfill.backfill_status }}
               </a></p>
             {% endif %}
-            {% if indexes.current.status.creation_date %}
-              <p><a href="{{mappings_url_prefix}}{{indexes.current.status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
+            {% if current_index_status.creation_date %}
+              <p><a href="{{mappings_url_prefix}}{{current_index_status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
             {% endif %}
           </td>
         </tr>
       </table>
     </section>
+    {% endfor %}
     {% if indexes.prior %}
       <section>
         <h3>prior indexes</h3>

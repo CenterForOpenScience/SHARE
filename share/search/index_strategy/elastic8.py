@@ -94,13 +94,16 @@ class Elastic8IndexStrategy(IndexStrategy):
     # abstract method from IndexStrategy
     @classmethod
     def compute_strategy_checksum(cls):
+        _current_json = {
+            _subname: dataclasses.asdict(_def)
+            for _subname, _def in cls.current_index_defs().items()
+        }
+        if set(_current_json.keys()) == {''}:
+            _current_json = _current_json['']
         return ChecksumIri.digest_json(
             checksumalgorithm_name='sha-256',
             salt=cls.__name__,
-            raw_json={
-                _subname: dataclasses.asdict(_def)
-                for _subname, _def in cls.current_index_defs().items()
-            }
+            raw_json=_current_json,
         )
 
     # abstract method from IndexStrategy
@@ -226,6 +229,17 @@ class Elastic8IndexStrategy(IndexStrategy):
         assert _strategyname == self.strategy_name
         return self.with_strategy_check(_strategycheck)
 
+    # abstract method from IndexStrategy
+    def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+        return self.es8_client.search(
+            index=self.indexname_wildcard,
+            body={
+                **(request_body or {}),
+                'track_total_hits': True,
+            },
+            params=(request_queryparams or {}),
+        )
+
     # override from IndexStrategy
     def pls_mark_backfill_complete(self):
         super().pls_mark_backfill_complete()
@@ -324,6 +338,7 @@ class Elastic8IndexStrategy(IndexStrategy):
             if not self.pls_check_exists():
                 return IndexStatus(
                     index_strategy_name=self.index_strategy.strategy_name,
+                    index_subname=self.subname,
                     specific_indexname=self.full_index_name,
                     is_kept_live=False,
                     is_default_for_searching=False,
@@ -346,6 +361,7 @@ class Elastic8IndexStrategy(IndexStrategy):
             )
             return IndexStatus(
                 index_strategy_name=self.index_strategy.strategy_name,
+                index_subname=self.subname,
                 specific_indexname=self.full_index_name,
                 is_kept_live=(
                     self.index_strategy._alias_for_keeping_live

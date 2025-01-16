@@ -2,6 +2,7 @@ from __future__ import annotations
 from collections import abc, defaultdict
 import dataclasses
 import functools
+import itertools
 import json
 import logging
 import re
@@ -18,6 +19,7 @@ from primitive_metadata import primitive_rdf as rdf
 
 from share.search import exceptions
 from share.search import messages
+from share.search.index_strategy._base import IndexStrategy
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
@@ -52,16 +54,27 @@ from . import _trovesearch_util as ts
 logger = logging.getLogger(__name__)
 
 
+_PRIOR_UNSPLIT_STRATEGY_CHECKSUM = ChecksumIri(
+    checksumalgorithm_name='sha-256',
+    salt='TrovesearchDenormIndexStrategy',
+    hexdigest='8a87bb51d46af9794496e798f033e8ba1ea0251fa7a8ffa5d037e90fb0c602c8',
+)
+
+
+def _is_unsplit_strat(strategy: TrovesearchDenormIndexStrategy) -> bool:
+    return (strategy.strategy_check == _PRIOR_UNSPLIT_STRATEGY_CHECKSUM.hexdigest)
+
+
 class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='8a87bb51d46af9794496e798f033e8ba1ea0251fa7a8ffa5d037e90fb0c602c8',
+        hexdigest='e8fce41147e8436bbfacebf669567a3e941a152261130e7331b36845d5a20952',
     )
 
     # abstract method from Elastic8IndexStrategy
     @classmethod
-    def define_current_indexes(cls) -> dict[str, Elastic8IndexStrategy.IndexDefiniton]:
+    def define_current_indexes(cls) -> dict[str, Elastic8IndexStrategy.IndexDefinition]:
         return {
             'cardsearch': cls.IndexDefinition(
                 settings=cls._index_settings(),
@@ -179,6 +192,9 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             'int_by_propertypath': {'type': 'object', 'dynamic': True},
         }
 
+    ###
+    # receiving and acting on chunks of messages
+
     # override method from Elastic8IndexStrategy
     def after_chunk(self, messages_chunk: messages.MessagesChunk, affected_indexnames: Iterable[str]):
         task__delete_iri_value_scraps.apply_async(
@@ -199,92 +215,96 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             _docbuilder = self._SourcedocBuilder(_indexcard_rdf, messages_chunk.timestamp)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
                 _indexcard_pk = _indexcard_rdf.indexcard_id
-                yield _indexcard_pk, (
-                    self.build_index_action(
-                        doc_id=_doc_id,
-                        doc_source=_doc,
-                    )
-                    for _doc_id, _doc in _docbuilder.build_docs()
+                _cardsearch_actions = (
+                    self.build_index_action(_doc_id, _doc)
+                    for _doc_id, _doc in _docbuilder.build_cardsearch_docs()
                 )
+                _valuesearch_actions = (
+                    self.build_index_action(_doc_id, _doc)
+                    for _doc_id, _doc in _docbuilder.build_valuesearch_docs()
+                )
+                if _is_unsplit_strat(self):
+                    _actions_by_index: dict[str, Iterable[dict]] = {
+                        # single combined index
+                        '': itertools.chain(_cardsearch_actions, _valuesearch_actions),
+                    }
+                else:
+                    _actions_by_index = {
+                        'cardsearch': _cardsearch_actions,
+                        'valuesearch': _valuesearch_actions,
+                    }
+                yield self.MessageActionSet(_indexcard_pk, _actions_by_index)
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
             yield _indexcard_pk, self.build_delete_action(_indexcard_pk)
 
     ###
-    # implement abstract IndexStrategy.SpecificIndex
+    # handling searches
 
-    class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
-        index_strategy: TrovesearchDenormIndexStrategy
+    def cardsearch_index(self) -> IndexStrategy.SpecificIndex:
+        return self.get_index('' if _is_unsplit_strat(self) else 'cardsearch')
 
-        # abstract method from IndexStrategy.SpecificIndex
-        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            return self.index_strategy.es8_client.search(
-                index=self.indexname,
-                body={
-                    **(request_body or {}),
-                    'track_total_hits': True,
+    def valuesearch_index(self) -> IndexStrategy.SpecificIndex:
+        return self.get_index('' if _is_unsplit_strat(self) else 'valuesearch')
+
+    # abstract method from IndexStrategy
+    def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
+        # cases to handle:
+        # - sort by field value (streamable)
+        # - sort by relevance to text (non-streamable)
+        # - random sort (...non-streamable?)
+        #   - first page (full random)
+        #   - subsequent page (reproducibly randomm)
+        # (for streaming pages, skip aggs and such on subsequents)
+        # maybe start with a "header" request (no hits, minimal aggs)
+        _querybuilder = _CardsearchQueryBuilder(cardsearch_params)
+        _search_kwargs = _querybuilder.build()
+        if settings.DEBUG:
+            logger.info(json.dumps(_search_kwargs, indent=2))
+        try:
+            _es8_response = self.es8_client.search(
+                index=self.cardsearch_index().full_index_name,
+                source=False,  # no need to get _source, identifiers are enough
+                docvalue_fields=['card.card_iri'],
+                highlight={
+                    'require_field_match': False,
+                    'fields': {'card.text_by_propertypath.*': {}},
                 },
-                params=(request_queryparams or {}),
+                **_search_kwargs,
             )
+        except elasticsearch8.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+        return self._cardsearch_handle(
+            cardsearch_params,
+            _es8_response,
+            _querybuilder.response_cursor,
+        )
 
-        # abstract method from IndexStrategy.SpecificIndex
-        def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
-            # cases to handle:
-            # - sort by field value (streamable)
-            # - sort by relevance to text (non-streamable)
-            # - random sort (...non-streamable?)
-            #   - first page (full random)
-            #   - subsequent page (reproducibly randomm)
-            # (for streaming pages, skip aggs and such on subsequents)
-            # maybe start with a "header" request (no hits, minimal aggs)
-            _querybuilder = _CardsearchQueryBuilder(cardsearch_params)
-            _search_kwargs = _querybuilder.build()
-            if settings.DEBUG:
-                logger.info(json.dumps(_search_kwargs, indent=2))
-            try:
-                _es8_response = self.index_strategy.es8_client.search(
-                    index=self.indexname,
-                    source=False,  # no need to get _source, identifiers are enough
-                    docvalue_fields=['card.card_iri'],
-                    highlight={
-                        'require_field_match': False,
-                        'fields': {'card.text_by_propertypath.*': {}},
-                    },
-                    **_search_kwargs,
-                )
-            except elasticsearch8.TransportError as error:
-                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return self.index_strategy._cardsearch_handle(
-                cardsearch_params,
-                _es8_response,
-                _querybuilder.response_cursor,
+    # abstract method from IndexStrategy
+    def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
+        _path = valuesearch_params.valuesearch_propertypath
+        _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
+        _is_date_search = osfmap.is_date_property(_path[-1])
+        _query = (
+            _build_date_valuesearch(valuesearch_params)
+            if _is_date_search
+            else _build_iri_valuesearch(valuesearch_params, _cursor)
+        )
+        if settings.DEBUG:
+            logger.info(json.dumps(_query, indent=2))
+        try:
+            _es8_response = self.es8_client.search(
+                **_query,
+                index=self.valuesearch_index().full_index_name,
             )
-
-        # abstract method from IndexStrategy.SpecificIndex
-        def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
-            _path = valuesearch_params.valuesearch_propertypath
-            _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
-            _is_date_search = osfmap.is_date_property(_path[-1])
-            _query = (
-                _build_date_valuesearch(valuesearch_params)
-                if _is_date_search
-                else _build_iri_valuesearch(valuesearch_params, _cursor)
-            )
-            if settings.DEBUG:
-                logger.info(json.dumps(_query, indent=2))
-            try:
-                _es8_response = self.index_strategy.es8_client.search(
-                    **_query,
-                    index=self.indexname,
-                )
-            except elasticsearch8.TransportError as error:
-                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            return (
-                self.index_strategy._valuesearch_dates_response(valuesearch_params, _es8_response)
-                if _is_date_search
-                else self.index_strategy._valuesearch_iris_response(valuesearch_params, _es8_response, _cursor)
-            )
+        except elasticsearch8.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+        return (
+            self._valuesearch_dates_response(valuesearch_params, _es8_response)
+            if _is_date_search
+            else self._valuesearch_iris_response(valuesearch_params, _es8_response, _cursor)
+        )
 
     ###
     # building sourcedocs
@@ -313,12 +333,13 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 or not any(self.rdfdoc.q(self.focus_iri, osfmap.NAMELIKE_PROPERTIES))
             )
 
-        def build_docs(self) -> Iterator[tuple[str, dict]]:
-            # index once without `iri_value`
+        def build_cardsearch_docs(self) -> Iterator[tuple[str, dict]]:
             yield self._doc_id(), {
                 'card': self._card_subdoc,
                 'chunk_timestamp': self.chunk_timestamp,
             }
+
+        def build_valuesearch_docs(self) -> Iterator[tuple[str, dict]]:
             for _iri in self._fullwalk.paths_by_iri:
                 yield self._doc_id(_iri), {
                     'card': self._card_subdoc,

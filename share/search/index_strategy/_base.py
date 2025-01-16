@@ -128,6 +128,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             _backfill.backfill_status = _backfill.COMPLETE
             _backfill.save()
 
+    def pls_teardown(self) -> None:
+        for _index in self.each_subnamed_index():
+            _index.pls_delete()
+
     def get_or_create_backfill(self):
         (index_backfill, _) = IndexBackfill.objects.get_or_create(
             index_strategy_name=self.strategy_name,
@@ -139,6 +143,16 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
     def pls_mark_backfill_complete(self):
         self.get_or_create_backfill().pls_mark_complete()
+
+    def pls_check_exists(self) -> bool:
+        return all(
+            _index.pls_check_exists()
+            for _index in self.each_subnamed_index()
+        )
+
+    def pls_refresh(self) -> None:
+        for _index in self.each_subnamed_index():
+            _index.pls_refresh()
 
     ###
     # abstract methods (required for concrete subclasses)

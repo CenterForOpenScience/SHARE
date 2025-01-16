@@ -40,6 +40,7 @@ class _AvailableStrategies(enum.Enum):
         sharev2_elastic8 = Sharev2Elastic8IndexStrategy('sharev2_elastic8')
         trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats')
         trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
+        trovesearch_splint = TrovesearchDenormIndexStrategy('trovesearch_splint')
 
 
 ###
@@ -92,14 +93,13 @@ def get_strategy_for_trovesearch(params: search_params.CardsearchParams) -> Inde
     if params.index_strategy_name:  # specific strategy requested
         _strategy = parse_strategy_name(params.index_strategy_name, for_search=True)
     else:
-        _strategy = get_strategy(
-            strategy_name=(
-                _AvailableStrategies.trovesearch_denorm.name
-                if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY)
-                else _AvailableStrategies.trove_indexcard_flats.name
-            ),
-            for_search=True,
-        )
+        if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_SPLINTDEX):
+            _strategy_name = _AvailableStrategies.trovesearch_splint.name
+        elif FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY):
+            _strategy_name = _AvailableStrategies.trovesearch_denorm.name
+        else:  # default (until it's removed)
+            _strategy_name = _AvailableStrategies.trove_indexcard_flats.name
+        _strategy = get_strategy(_strategy_name, for_search=True)
     return _strategy
 
 
