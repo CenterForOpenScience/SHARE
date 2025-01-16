@@ -17,6 +17,15 @@ class FakeElastic8IndexStrategy(Elastic8IndexStrategy):
         hexdigest='5371df2d0e3daaa9f1c344d14384cdbe65000f2b449b1c2f30ae322b0321eb12',
     )
 
+    @classmethod
+    def define_current_indexes(cls):
+        return {
+            '': cls.IndexDefinition(
+                mappings={'my-mappings': 'lol'},
+                settings={'my-settings': 'lol'},
+            ),
+        }
+
     @property
     def supported_message_types(self):
         return {
@@ -27,12 +36,6 @@ class FakeElastic8IndexStrategy(Elastic8IndexStrategy):
     @property
     def backfill_message_type(self):
         return messages.MessageType.BACKFILL_SUID
-
-    def index_settings(self):
-        return {'my-settings': 'lol'}
-
-    def index_mappings(self):
-        return {'my-mappings': 'lol'}
 
     def build_elastic_actions(self, messages_chunk):
         return FAKE_ACTION_ITERATOR
@@ -48,7 +51,7 @@ class TestIndexStrategy:
     @pytest.fixture
     def fake_strategy(self, mock_es_client, settings):
         settings.ELASTICSEARCH8_URL = 'http://nowhere.example:12345/'
-        strat = FakeElastic8IndexStrategy(name='fake_es8')
+        strat = FakeElastic8IndexStrategy('fake_es8')
         strat.assert_strategy_is_current()
         return strat
 

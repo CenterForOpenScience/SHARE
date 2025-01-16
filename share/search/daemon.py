@@ -119,7 +119,7 @@ class KombuMessageConsumer(ConsumerMixin):
         ]
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.name)
+        return '<{}({})>'.format(self.__class__.__name__, self.__index_strategy.strategy_name)
 
     def consume(self, *args, **kwargs):
         # wrap `consume` in `kombu.Connection.ensure`, following guidance from
@@ -191,7 +191,7 @@ class IndexerDaemon:
                 continue
 
     def __repr__(self):
-        return '<{}({})>'.format(self.__class__.__name__, self.index_strategy.name)
+        return '<{}({})>'.format(self.__class__.__name__, self.index_strategy.strategy_name)
 
 
 @dataclasses.dataclass

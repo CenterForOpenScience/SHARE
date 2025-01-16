@@ -17,5 +17,8 @@ def test_admin_search_indexes_view(mock_elastic_clients):
         resp = client.get('/admin/search-indexes')
         for strategy_name in index_strategy.all_strategy_names():
             _index_strategy = index_strategy.get_strategy(strategy_name)
-            expected_header = f'<h3 id="{_index_strategy.current_indexname}">current index: <i>{_index_strategy.current_indexname}</i></h3>'
+            expected_header = f'<h2 id="{_index_strategy.strategy_name}">'
             assert expected_header.encode() in resp.content
+            for _index in _index_strategy.each_subnamed_index():
+                expected_row = f'<tr id="{_index.full_index_name}">'
+                assert expected_row.encode() in resp.content

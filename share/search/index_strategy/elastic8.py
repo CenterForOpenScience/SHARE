@@ -147,11 +147,6 @@ class Elastic8IndexStrategy(IndexStrategy):
         return self._get_elastic8_client()  # cached classmethod for shared client
 
     # abstract method from IndexStrategy
-    def each_subnamed_index(self):
-        for _subname in self.current_index_defs().keys():
-            yield self.get_index(_subname)
-
-    # abstract method from IndexStrategy
     def each_existing_index(self):
         indexname_set = set(
             self.es8_client.indices
@@ -284,9 +279,7 @@ class Elastic8IndexStrategy(IndexStrategy):
     ) -> set[str]:
         if is_backfill_action:
             return {self.get_index(index_subname).full_index_name}
-        # note: using alias directly to reduce bulk-action clutter
-        # -- shortcut around `self._get_indexnames_for_alias(self._alias_for_keeping_live)`
-        return {self._alias_for_keeping_live}
+        return self._get_indexnames_for_alias(self._alias_for_keeping_live)
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:
         try:
@@ -377,11 +370,10 @@ class Elastic8IndexStrategy(IndexStrategy):
 
         # abstract method from IndexStrategy.SpecificIndex
         def pls_check_exists(self):
-            full_index_name = self.full_index_name
-            logger.info(f'{self.__class__.__name__}: checking for index {full_index_name}')
+            logger.info(f'{self.__class__.__name__}: checking for index {self}')
             return bool(
                 self.index_strategy.es8_client.indices
-                .exists(index=full_index_name)
+                .exists(index=self.full_index_name)
             )
 
         # abstract method from IndexStrategy.SpecificIndex

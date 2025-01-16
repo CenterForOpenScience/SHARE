@@ -32,18 +32,26 @@ section, table {
       </table>
     </section>
     <section>
-      {% for current_index_status in indexes.current.status %}
-      <h3 id="{{current_index_status.specific_indexname}}">current index: <i>{{current_index_status.specific_indexname}}</i></h3>
+      <h3>current indexes</h3>
+      {% if indexes.current.backfill.backfill_admin_url %}
+      <p><a href="{{indexes.current.backfill.backfill_admin_url}}">
+          {% trans "backfill" %}:{{ indexes.current.backfill.backfill_status }}
+      </a></p>
+      {% endif %}
       <table>
         <tr>
+          <th>{% trans "subname" %}</th>
           <th>{% trans "created" %}</th>
           <th>{% trans "is kept live" %}</th>
           <th>{% trans "is default for searching" %}</th>
           <th>{% trans "doc count" %}</th>
           <th>{% trans "actions" %}</th>
           <th>{% trans "links" %}</th>
+          <th>{% trans "full name" %}</th>
         </tr>
-        <tr>
+        {% for current_index_status in indexes.current.status %}
+        <tr id="{{current_index_status.specific_indexname}}">
+          <td>{{ current_index_status.index_subname }}</td>
           <td>{{ current_index_status.creation_date|default:"--" }}</td>
           <td>{% if current_index_status.is_kept_live %}✓{% endif %}</td>
           <td>{% if current_index_status.is_default_for_searching %}✓{% endif %}</td>
@@ -88,34 +96,32 @@ section, table {
             {% endif %}
           </td>
           <td>
-            {% if indexes.current.backfill.backfill_admin_url %}
-              <p><a href="{{indexes.current.backfill.backfill_admin_url}}">
-                  {% trans "backfill" %}:{{ indexes.current.backfill.backfill_status }}
-              </a></p>
-            {% endif %}
             {% if current_index_status.creation_date %}
               <p><a href="{{mappings_url_prefix}}{{current_index_status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
             {% endif %}
           </td>
+          <td><i>{{ index_status.specific_indexname }}</i></td>
         </tr>
+        {% endfor %}
       </table>
     </section>
-    {% endfor %}
     {% if indexes.prior %}
       <section>
         <h3>prior indexes</h3>
         <table>
           <tr>
+            <th>{% trans "shortname" %}</th>
             <th>{% trans "created" %}</th>
             <th>{% trans "is kept live" %}</th>
             <th>{% trans "is default for searching" %}</th>
             <th>{% trans "doc count" %}</th>
             <th>{% trans "actions" %}</th>
             <th>{% trans "links" %}</th>
-            <th>{% trans "index name" %}</th>
+            <th>{% trans "full index name" %}</th>
           </tr>
           {% for index_status in indexes.prior %}
           <tr id="{{index_status.specific_indexname}}">
+            <td>{{ index_status.index_subname }}</td>
             <td>{{ index_status.creation_date }}</td>
             <td>{% if index_status.is_kept_live %}✓{% endif %}</td>
             <td>{% if index_status.is_default_for_searching %}✓{% endif %}</td>

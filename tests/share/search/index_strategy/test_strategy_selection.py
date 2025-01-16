@@ -5,13 +5,14 @@ from share.search.exceptions import IndexStrategyError
 from share.search.index_strategy import (
     IndexStrategy,
     each_strategy,
-    all_strategy_names,
     get_strategy,
     sharev2_elastic5,
     sharev2_elastic8,
     trove_indexcard_flats,
     trovesearch_denorm,
+    parse_strategy_name,
 )
+from share.search.index_strategy._indexnames import combine_indexname_parts
 
 
 @pytest.fixture
@@ -46,10 +47,11 @@ class TestBaseIndexStrategy:
         for _strategy in each_strategy():
             good_requests = [
                 _strategy.strategy_name,
-                ''.join((_strategy.indexname_prefix, 'foo')),
+                combine_indexname_parts(_strategy.strategy_name, _strategy.strategy_check),
+                combine_indexname_parts(_strategy.strategy_name, _strategy.strategy_check, 'foo'),
             ]
             for good_request in good_requests:
-                _got_strategy = get_strategy(good_request)
+                _got_strategy = parse_strategy_name(good_request)
                 assert isinstance(_got_strategy, IndexStrategy)
                 assert _got_strategy == _strategy
         with pytest.raises(IndexStrategyError):

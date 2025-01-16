@@ -200,7 +200,11 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         task__delete_iri_value_scraps.apply_async(
             kwargs={
                 'index_strategy_name': self.strategy_name,
-                'indexnames': list(affected_indexnames),
+                'indexnames': [
+                    _indexname
+                    for _indexname in affected_indexnames
+                    if self.parse_full_index_name(_indexname).subname == 'valuesearch'
+                ],
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
             },
@@ -237,7 +241,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
-            yield _indexcard_pk, self.build_delete_action(_indexcard_pk)
+            _subname = ('' if _is_unsplit_strat(self) else 'cardsearch')
+            yield self.MessageActionSet(_indexcard_pk, {
+                _subname: [self.build_delete_action(_indexcard_pk)],
+            })
 
     ###
     # handling searches

@@ -31,7 +31,7 @@ class RealElasticTestCase(TransactionTestCase):
             raise ValueError(f'unknown index strategy in test: {name}')
 
         self.enterContext(mock.patch(
-            'share.search.index_strategy.get_index_strategy',
+            'share.search.index_strategy.get_strategy',
             new=_fake_get_index_strategy,
         ))
         self.index_messenger = IndexMessenger(
@@ -39,6 +39,7 @@ class RealElasticTestCase(TransactionTestCase):
             index_strategys=[self.index_strategy],
         )
         self.index_strategy.pls_teardown()  # in case it already exists
+        self.index_strategy.pls_refresh()
         self._assert_setup_happypath()
 
     def tearDown(self):
