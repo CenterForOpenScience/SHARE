@@ -31,9 +31,7 @@ def search_indexes_view(request):
             },
         )
     if request.method == 'POST':
-        _index_strategy = parse_strategy_name(
-            request.POST['specific_indexname'],  # TODO: rename in form
-        )
+        _index_strategy = parse_strategy_name(request.POST['strategy_name'])
         _pls_doer = PLS_DOERS[request.POST['pls_do']]
         _pls_doer(_index_strategy)
         _redirect_id = _index_strategy.strategy_name
@@ -66,22 +64,13 @@ def _index_status_by_strategy():
     status_by_strategy = {}
     _messenger = IndexMessenger()
     for _index_strategy in each_strategy():
-        _current_backfill = _backfill_by_checksum.get(
-            str(_index_strategy.CURRENT_STRATEGY_CHECKSUM),
+        _current_backfill = (
+            _backfill_by_checksum.get(str(_index_strategy.CURRENT_STRATEGY_CHECKSUM))
+            or _backfill_by_checksum.get(_index_strategy.indexname_prefix)  # backcompat
         )
         status_by_strategy[_index_strategy.strategy_name] = {
-            'current': {
-                'status': [
-                    _index.pls_get_status()
-                    for _index in _index_strategy.each_subnamed_index()
-                ],
-                'backfill': _serialize_backfill(_index_strategy, _current_backfill),
-            },
-            'prior': sorted((
-                specific_index.pls_get_status()
-                for specific_index in _index_strategy.each_existing_index(any_strategy_check=True)
-                if not specific_index.is_current
-            ), reverse=True),
+            'status': _index_strategy.pls_get_strategy_status(),
+            'backfill': _serialize_backfill(_index_strategy, _current_backfill),
             'queues': [
                 {
                     'name': _queue_name,
@@ -143,7 +132,7 @@ def _pls_make_default_for_searching(index_strategy: IndexStrategy):
 
 def _pls_delete(index_strategy: IndexStrategy):
     assert not index_strategy.is_current
-    index_strategy.pls_delete()
+    index_strategy.pls_teardown()
 
 
 PLS_DOERS = {

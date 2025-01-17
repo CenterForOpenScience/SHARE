@@ -70,22 +70,29 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='e8fce41147e8436bbfacebf669567a3e941a152261130e7331b36845d5a20952',
+        hexdigest='4c8784ddd08914ec779b33b8f1945b0b2ff026eea355392ab3c4fe2fe10d71fe',
     )
 
     # abstract method from Elastic8IndexStrategy
     @classmethod
     def define_current_indexes(cls) -> dict[str, Elastic8IndexStrategy.IndexDefinition]:
         return {
-            'cardsearch': cls.IndexDefinition(
+            'cards': cls.IndexDefinition(
                 settings=cls._index_settings(),
-                mappings=cls._cardsearch_index_mappings(),
+                mappings=cls._cards_index_mappings(),
             ),
-            'valuesearch': cls.IndexDefinition(
+            'iri_values': cls.IndexDefinition(
                 settings=cls._index_settings(),
-                mappings=cls._valuesearch_index_mappings(),
+                mappings=cls._iri_values_index_mappings(),
             ),
         }
+
+    # override from IndexStrategy
+    def each_subnamed_index(self):
+        if _is_unsplit_strat(self):
+            yield self.get_index(_UNSPLIT_INDEX_SUBNAME)
+        else:
+            yield from super().each_subnamed_index()
 
     # abstract method from IndexStrategy
     @property
@@ -108,7 +115,18 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         }
 
     @classmethod
-    def _cardsearch_index_mappings(cls):
+    def _cards_index_mappings(cls):
+        return {
+            'dynamic': 'false',
+            'dynamic_templates': cls._dynamic_templates(),
+            'properties': {
+                'card': {'properties': cls._card_mappings()},
+                'chunk_timestamp': {'type': 'unsigned_long'},
+            },
+        }
+
+    @classmethod
+    def _iri_values_index_mappings(cls):
         return {
             'dynamic': 'false',
             'dynamic_templates': cls._dynamic_templates(),
@@ -118,14 +136,6 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 'chunk_timestamp': {'type': 'unsigned_long'},
             },
         }
-
-    @classmethod
-    def _valuesearch_index_mappings(cls):
-        _card_mappings = cls._cardsearch_index_mappings()
-        _card_mappings['properties']['iri_value'] = {
-            'properties': cls._iri_value_mappings(),
-        }
-        return _card_mappings
 
     @classmethod
     def _dynamic_templates(cls):
@@ -224,21 +234,22 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                     self.build_index_action(_doc_id, _doc)
                     for _doc_id, _doc in _docbuilder.build_valuesearch_docs()
                 )
+                _actions_by_index: dict[str, Iterable[dict]]
                 if _is_unsplit_strat(self):
-                    _actions_by_index: dict[str, Iterable[dict]] = {
-                        # single combined index
+                    _actions_by_index = {
+                        # back-compat: single combined index
                         _UNSPLIT_INDEX_SUBNAME: itertools.chain(_cardsearch_actions, _valuesearch_actions),
                     }
                 else:
                     _actions_by_index = {
-                        'cardsearch': _cardsearch_actions,
-                        'valuesearch': _valuesearch_actions,
+                        'cards': _cardsearch_actions,
+                        'iri_values': _valuesearch_actions,
                     }
                 yield self.MessageActionSet(_indexcard_pk, _actions_by_index)
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
-            _subname = (_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cardsearch')
+            _subname = (_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cards')
             yield self.MessageActionSet(_indexcard_pk, {
                 _subname: [self.build_delete_action(_indexcard_pk)],
             })
@@ -247,10 +258,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     # handling searches
 
     def cardsearch_index(self) -> IndexStrategy.SpecificIndex:
-        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cardsearch')
+        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cards')
 
-    def valuesearch_index(self) -> IndexStrategy.SpecificIndex:
-        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'valuesearch')
+    def irivaluesearch_index(self) -> IndexStrategy.SpecificIndex:
+        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'iri_values')
 
     # abstract method from IndexStrategy
     def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:
@@ -290,17 +301,18 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         _path = valuesearch_params.valuesearch_propertypath
         _cursor = OffsetCursor.from_cursor(valuesearch_params.page_cursor)
         _is_date_search = osfmap.is_date_property(_path[-1])
-        _query = (
-            _build_date_valuesearch(valuesearch_params)
-            if _is_date_search
-            else _build_iri_valuesearch(valuesearch_params, _cursor)
-        )
+        if _is_date_search:
+            _index = self.cardsearch_index()
+            _query = _build_date_valuesearch(valuesearch_params)
+        else:
+            _index = self.irivaluesearch_index()
+            _query = _build_iri_valuesearch(valuesearch_params, _cursor)
         if settings.DEBUG:
             logger.info(json.dumps(_query, indent=2))
         try:
             _es8_response = self.es8_client.search(
                 **_query,
-                index=self.valuesearch_index().full_index_name,
+                index=_index.full_index_name,
             )
         except elasticsearch8.TransportError as error:
             raise exceptions.IndexStrategyError() from error  # TODO: error messaging
@@ -897,8 +909,6 @@ def _build_date_valuesearch(params: ValuesearchParams) -> dict:
             relevance_matters=False,
         ).boolparts(),
     )
-    # exclude iri_value docs (possible optimization: separate indexes)
-    _bool.add_boolpart('must_not', {'exists': {'field': 'iri_value'}})
     _field = f'card.date_by_propertypath.{_path_field_name(params.valuesearch_propertypath)}'
     return {
         'query': _bool.as_query(),
@@ -983,10 +993,15 @@ def task__delete_iri_value_scraps(
     '''
     from share.search.index_strategy import get_strategy
     _index_strategy = get_strategy(index_strategy_name)
-    assert isinstance(_index_strategy, Elastic8IndexStrategy)
+    assert isinstance(_index_strategy, TrovesearchDenormIndexStrategy)
+    _irivalue_indexnames = {
+        _index.full_index_name
+        for _index in _index_strategy.each_live_index(any_strategy_check=True)
+        if _index.subname == 'iri_values'
+    }
     # delete any docs that belong to cards in this chunk but weren't touched by indexing
     _delete_resp = _index_strategy.es8_client.delete_by_query(
-        index=indexnames,
+        index=list(_irivalue_indexnames),
         query={'bool': {'must': [
             {'terms': {'card.card_pk': card_pks}},
             {'range': {'chunk_timestamp': {'lt': timestamp}}},

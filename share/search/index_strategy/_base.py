@@ -8,7 +8,10 @@ import typing
 from share.search import messages
 from share.models.index_backfill import IndexBackfill
 from share.search.exceptions import IndexStrategyError
-from share.search.index_status import IndexStatus
+from share.search.index_status import (
+    IndexStatus,
+    StrategyStatus,
+)
 from share.util.checksum_iri import ChecksumIri
 from trove.trovesearch.search_params import (
     CardsearchParams,
@@ -24,7 +27,7 @@ from . import _indexnames as indexnames
 logger = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class IndexStrategy(abc.ABC):
     '''an abstraction for indexes in different places and ways.
 
@@ -49,7 +52,7 @@ class IndexStrategy(abc.ABC):
     def __post_init__(self):
         indexnames.raise_if_invalid_indexname_part(self.strategy_name)
         if not self.strategy_check:
-            self.strategy_check = self.CURRENT_STRATEGY_CHECKSUM.hexdigest
+            object.__setattr__(self, 'strategy_check', self.CURRENT_STRATEGY_CHECKSUM.hexdigest)
         indexnames.raise_if_invalid_indexname_part(self.strategy_check)
 
     @classmethod
@@ -133,7 +136,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
             _backfill.save()
 
     def pls_teardown(self) -> None:
-        for _index in self.each_subnamed_index():
+        for _index in self.each_existing_index():
             _index.pls_delete()
 
     def get_or_create_backfill(self):
@@ -157,6 +160,45 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def pls_refresh(self) -> None:
         for _index in self.each_subnamed_index():
             _index.pls_refresh()
+
+    def pls_start_keeping_live(self):
+        for _index in self.each_subnamed_index():
+            _index.pls_start_keeping_live()
+
+    def pls_stop_keeping_live(self):
+        for _index in self.each_live_index():
+            _index.pls_stop_keeping_live()
+
+    def pls_get_strategy_status(self) -> StrategyStatus:
+        _index_statuses: list[IndexStatus] = []
+        _prior_strategy_statuses: list[StrategyStatus] = []
+        if self.is_current:
+            _index_statuses = [
+                _index.pls_get_status()
+                for _index in self.each_subnamed_index()
+            ]
+            _prior_strategies = {
+                _index.index_strategy
+                for _index in self.each_existing_index(any_strategy_check=True)
+                if not _index.index_strategy.is_current
+            }
+            _prior_strategy_statuses = [
+                _strategy.pls_get_strategy_status()
+                for _strategy in _prior_strategies
+            ]
+        else:
+            _index_statuses = [
+                _index.pls_get_status()
+                for _index in self.each_existing_index()
+            ]
+        return StrategyStatus(
+            strategy_name=self.strategy_name,
+            strategy_check=self.strategy_check,
+            is_set_up=self.pls_check_exists(),
+            is_default_for_searching=(self == self.pls_get_default_for_searching()),
+            index_statuses=_index_statuses,
+            existing_prior_strategies=_prior_strategy_statuses,
+        )
 
     ###
     # abstract methods (required for concrete subclasses)
@@ -187,6 +229,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
     @abc.abstractmethod
     def each_existing_index(self, *, any_strategy_check: bool = False) -> typing.Iterator[SpecificIndex]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def each_live_index(self, *, any_strategy_check: bool = False) -> typing.Iterator[SpecificIndex]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -261,6 +307,10 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
         @abc.abstractmethod
         def pls_stop_keeping_live(self):
+            raise NotImplementedError
+
+        @abc.abstractmethod
+        def is_kept_live(self) -> bool:
             raise NotImplementedError
 
         def pls_get_mappings(self) -> dict:

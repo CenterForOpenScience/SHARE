@@ -109,15 +109,17 @@ class RealElasticTestCase(TransactionTestCase):
             assert not index_status.is_kept_live
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
-            # keep index live (with ingested updates)
-            _index.pls_start_keeping_live()
+        # keep index live (with ingested updates)
+        self.index_strategy.pls_start_keeping_live()
+        for _index in self.index_strategy.each_subnamed_index():
             index_status = _index.pls_get_status()
             assert index_status.creation_date
             assert index_status.is_kept_live
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
-            # default index for searching
-            self.index_strategy.pls_make_default_for_searching()
+        # default index for searching
+        self.index_strategy.pls_make_default_for_searching()
+        for _index in self.index_strategy.each_subnamed_index():
             index_status = _index.pls_get_status()
             assert index_status.creation_date
             assert index_status.is_kept_live

@@ -27,7 +27,6 @@ from ._indexnames import (
 logger = logging.getLogger(__name__)
 
 
-@dataclasses.dataclass
 class Elastic8IndexStrategy(IndexStrategy):
     '''abstract base class for index strategies using elasticsearch 8
     '''
@@ -166,6 +165,12 @@ class Elastic8IndexStrategy(IndexStrategy):
             assert _index.index_strategy.strategy_name == self.strategy_name
             yield _index
 
+    def each_live_index(self, *, any_strategy_check: bool = False):
+        for _indexname in self._get_indexnames_for_alias(self._alias_for_keeping_live):
+            _index = self.parse_full_index_name(_indexname)
+            if any_strategy_check or (_index.index_strategy == self):
+                yield _index
+
     # abstract method from IndexStrategy
     def pls_handle_messages_chunk(self, messages_chunk):
         self.assert_message_type(messages_chunk.message_type)
@@ -230,6 +235,7 @@ class Elastic8IndexStrategy(IndexStrategy):
             return self  # no default set, this one's fine
         (_strategyname, _strategycheck, *_) = parse_indexname_parts(_indexname)
         assert _strategyname == self.strategy_name
+        _strategycheck = _strategycheck.rstrip('*')  # may be a wildcard alias
         return self.with_strategy_check(_strategycheck)
 
     # abstract method from IndexStrategy
@@ -300,7 +306,11 @@ class Elastic8IndexStrategy(IndexStrategy):
     ) -> set[str]:
         if is_backfill_action:
             return {self.get_index(index_subname).full_index_name}
-        return self._get_indexnames_for_alias(self._alias_for_keeping_live)
+        return {
+            _index.full_index_name
+            for _index in self.each_live_index()
+            if _index.subname == index_subname
+        }
 
     def _get_indexnames_for_alias(self, alias_name) -> set[str]:
         try:
@@ -351,7 +361,6 @@ class Elastic8IndexStrategy(IndexStrategy):
         def pls_get_status(self) -> IndexStatus:
             if not self.pls_check_exists():
                 return IndexStatus(
-                    index_strategy_name=self.index_strategy.strategy_name,
                     index_subname=self.subname,
                     specific_indexname=self.full_index_name,
                     is_kept_live=False,
@@ -374,7 +383,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                 ['indices'][self.full_index_name]['primaries']['docs']['count']
             )
             return IndexStatus(
-                index_strategy_name=self.index_strategy.strategy_name,
                 index_subname=self.subname,
                 specific_indexname=self.full_index_name,
                 is_kept_live=(
@@ -461,6 +469,13 @@ class Elastic8IndexStrategy(IndexStrategy):
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
             logger.warning('%r: no longer kept live', self)
+
+        # abstract method from IndexStrategy.SpecificIndex
+        def is_kept_live(self) -> bool:
+            _kept_live = self.index_strategy._get_indexnames_for_alias(
+                self.index_strategy._alias_for_keeping_live,
+            )
+            return (self.full_index_name in _kept_live)
 
         def pls_get_mappings(self):
             return self.index_strategy.es8_client.indices.get_mapping(index=self.full_index_name).body

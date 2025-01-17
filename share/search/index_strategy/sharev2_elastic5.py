@@ -108,6 +108,10 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             yield _index
 
     # abstract method from IndexStrategy
+    def each_live_index(self, *args, **kwargs):
+        yield self.single_index
+
+    # abstract method from IndexStrategy
     def each_subnamed_index(self):
         yield self.single_index
 
@@ -364,6 +368,10 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             pass  # there is just the one index, always kept live
 
         # abstract method from IndexStrategy.SpecificIndex
+        def is_kept_live(self) -> bool:
+            return True  # there is just the one index, always kept live
+
+        # abstract method from IndexStrategy.SpecificIndex
         def pls_stop_keeping_live(self):
             raise exceptions.IndexStrategyError(
                 f'{self.__class__.__qualname__} is implemented for only one index, '
@@ -410,7 +418,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             except (KeyError, elasticsearch5.exceptions.NotFoundError):
                 # not yet created
                 return IndexStatus(
-                    index_strategy_name=self.index_strategy.strategy_name,
                     index_subname=self.subname,
                     specific_indexname=self.full_index_name,
                     is_kept_live=False,
@@ -419,7 +426,6 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     doc_count=0,
                 )
             return IndexStatus(
-                index_strategy_name=self.index_strategy.strategy_name,
                 index_subname=self.subname,
                 specific_indexname=self.full_index_name,
                 is_kept_live=True,

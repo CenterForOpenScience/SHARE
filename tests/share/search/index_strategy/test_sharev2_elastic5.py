@@ -72,7 +72,7 @@ class TestSharev2Elastic5(RealElasticTestCase):
         assert index_status.is_default_for_searching  # change from base class
         assert not index_status.doc_count
         # keep index live (with ingested updates)
-        _index.pls_start_keeping_live()  # now a no-op
+        self.index_strategy.pls_start_keeping_live()  # now a no-op
         index_status = _index.pls_get_status()
         assert index_status.creation_date
         assert index_status.is_kept_live
