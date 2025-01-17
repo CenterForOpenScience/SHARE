@@ -24,6 +24,7 @@ class RealElasticTestCase(TransactionTestCase):
         super().setUp()
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.index_strategy = self.get_index_strategy()
+        self.index_strategy.pls_teardown()  # in case it already exists
 
         def _fake_get_index_strategy(name):
             if self.index_strategy.strategy_name == name:
@@ -38,7 +39,6 @@ class RealElasticTestCase(TransactionTestCase):
             celery_app=celery_app,
             index_strategys=[self.index_strategy],
         )
-        self.index_strategy.pls_teardown()  # in case it already exists
         self._assert_setup_happypath()
 
     def tearDown(self):
@@ -101,8 +101,9 @@ class RealElasticTestCase(TransactionTestCase):
             assert not index_status.is_kept_live
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
-            # create index
+        for _index in self.index_strategy.each_subnamed_index():
             _index.pls_create()
+            # create index
             assert _index.pls_check_exists()
             index_status = _index.pls_get_status()
             assert index_status.creation_date
