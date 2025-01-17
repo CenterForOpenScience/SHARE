@@ -13,38 +13,39 @@ from share.search.index_strategy import (
     parse_strategy_name,
 )
 from share.search.index_strategy._indexnames import combine_indexname_parts
+from tests.share.search import patch_index_strategies
 
 
 @pytest.fixture
-def expected_strategy_classes():
-    return {
-        'sharev2_elastic5': sharev2_elastic5.Sharev2Elastic5IndexStrategy,
-        'sharev2_elastic8': sharev2_elastic8.Sharev2Elastic8IndexStrategy,
-        'trove_indexcard_flats': trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy,
-        'trovesearch_denorm': trovesearch_denorm.TrovesearchDenormIndexStrategy,
-    }
+def patched_strategies(mock_elastic_clients):
+    _strategies = [
+        sharev2_elastic5.Sharev2Elastic5IndexStrategy('sharev2_elastic5'),
+        sharev2_elastic8.Sharev2Elastic8IndexStrategy('sharev2_elastic8'),
+        trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats'),
+        trovesearch_denorm.TrovesearchDenormIndexStrategy('trovesearch_denorm'),
+    ]
+    with patch_index_strategies(_strategies):
+        yield _strategies
 
 
 class TestBaseIndexStrategy:
-    def test_get_index_strategy(self, mock_elastic_clients, expected_strategy_classes):
-        for strategy_name, expected_strategy_class in expected_strategy_classes.items():
-            index_strategy = get_strategy(strategy_name)
-            assert isinstance(index_strategy, expected_strategy_class)
+    def test_get_index_strategy(self, patched_strategies):
+        for expected_strategy in patched_strategies:
+            gotten_strategy = get_strategy(expected_strategy.strategy_name)
+            assert gotten_strategy == expected_strategy
 
-    def test_all_index_strategies(self, mock_elastic_clients, expected_strategy_classes):
+    def test_all_index_strategies(self, patched_strategies):
         all_strategys = tuple(each_strategy())
-        assert len(all_strategys) == len(expected_strategy_classes)
-        strategy_names = {index_strategy.strategy_name for index_strategy in all_strategys}
-        assert strategy_names == set(expected_strategy_classes.keys())
+        assert len(all_strategys) == len(patched_strategies)
+        gotten_names = {index_strategy.strategy_name for index_strategy in all_strategys}
+        assert gotten_names == {strategy.strategy_name for strategy in patched_strategies}
         for index_strategy in all_strategys:
-            strategy_class = expected_strategy_classes[index_strategy.strategy_name]
-            assert isinstance(index_strategy, strategy_class)
             assert issubclass(index_strategy.SpecificIndex, IndexStrategy.SpecificIndex)
             assert index_strategy.SpecificIndex is not IndexStrategy.SpecificIndex
 
     @pytest.mark.django_db
-    def test_get_by_request(self, mock_elastic_clients):
-        for _strategy in each_strategy():
+    def test_get_by_request(self, patched_strategies):
+        for _strategy in patched_strategies:
             good_requests = [
                 _strategy.strategy_name,
                 combine_indexname_parts(_strategy.strategy_name, _strategy.strategy_check),
