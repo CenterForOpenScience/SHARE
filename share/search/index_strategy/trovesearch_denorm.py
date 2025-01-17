@@ -59,6 +59,7 @@ _PRIOR_UNSPLIT_STRATEGY_CHECKSUM = ChecksumIri(
     salt='TrovesearchDenormIndexStrategy',
     hexdigest='8a87bb51d46af9794496e798f033e8ba1ea0251fa7a8ffa5d037e90fb0c602c8',
 )
+_UNSPLIT_INDEX_SUBNAME = ''
 
 
 def _is_unsplit_strat(strategy: TrovesearchDenormIndexStrategy) -> bool:
@@ -200,11 +201,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         task__delete_iri_value_scraps.apply_async(
             kwargs={
                 'index_strategy_name': self.strategy_name,
-                'indexnames': [
-                    _indexname
-                    for _indexname in affected_indexnames
-                    if self.parse_full_index_name(_indexname).subname == 'valuesearch'
-                ],
+                'indexnames': list(affected_indexnames),
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
             },
@@ -230,7 +227,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 if _is_unsplit_strat(self):
                     _actions_by_index: dict[str, Iterable[dict]] = {
                         # single combined index
-                        '': itertools.chain(_cardsearch_actions, _valuesearch_actions),
+                        _UNSPLIT_INDEX_SUBNAME: itertools.chain(_cardsearch_actions, _valuesearch_actions),
                     }
                 else:
                     _actions_by_index = {
@@ -241,7 +238,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
                 _remaining_indexcard_pks.discard(_indexcard_pk)
         # delete any that were skipped for any reason
         for _indexcard_pk in _remaining_indexcard_pks:
-            _subname = ('' if _is_unsplit_strat(self) else 'cardsearch')
+            _subname = (_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cardsearch')
             yield self.MessageActionSet(_indexcard_pk, {
                 _subname: [self.build_delete_action(_indexcard_pk)],
             })
@@ -250,10 +247,10 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     # handling searches
 
     def cardsearch_index(self) -> IndexStrategy.SpecificIndex:
-        return self.get_index('' if _is_unsplit_strat(self) else 'cardsearch')
+        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'cardsearch')
 
     def valuesearch_index(self) -> IndexStrategy.SpecificIndex:
-        return self.get_index('' if _is_unsplit_strat(self) else 'valuesearch')
+        return self.get_index(_UNSPLIT_INDEX_SUBNAME if _is_unsplit_strat(self) else 'valuesearch')
 
     # abstract method from IndexStrategy
     def pls_handle_cardsearch(self, cardsearch_params: CardsearchParams) -> CardsearchHandle:

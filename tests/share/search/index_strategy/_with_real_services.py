@@ -74,7 +74,7 @@ class RealElasticTestCase(TransactionTestCase):
         _ids = {_response.index_message.target_id for _response in _responses}
         assert _ids == set(messages_chunk.target_ids_chunk)
         self.index_strategy.pls_refresh()
-        _search_response = self.index_strategy.pls_handle_search__sharev2_backcompat()
+        _search_response = self.index_strategy.pls_handle_search__passthru()
         _hits = _search_response['hits']['hits']
         assert len(_hits) == expected_doc_count
 
@@ -85,7 +85,7 @@ class RealElasticTestCase(TransactionTestCase):
         for _ in range(23):
             _daemon_control.stop_event.wait(timeout=0.2)
             self.index_strategy.pls_refresh()
-            _search_response = self.index_strategy.pls_handle_search__sharev2_backcompat()
+            _search_response = self.index_strategy.pls_handle_search__passthru()
             _hits = _search_response['hits']['hits']
             if len(_hits) == expected_doc_count:
                 break  # all good

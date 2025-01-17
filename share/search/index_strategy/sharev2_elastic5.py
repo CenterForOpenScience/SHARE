@@ -102,7 +102,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
         return self
 
     # abstract method from IndexStrategy
-    def each_existing_index(self):
+    def each_existing_index(self, *args, **kwargs):
         _index = self.single_index
         if _index.pls_check_exists():
             yield _index
@@ -431,7 +431,7 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             )
 
         # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+        def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
             '''the definitive sharev2-search api: passthru to elasticsearch version 5
             '''
             try:

@@ -64,7 +64,7 @@ class MetadataRecordsRSS(Feed):
 
     def items(self, obj):
         try:
-            json_response = self._search_strategy.pls_handle_search__sharev2_backcompat(
+            json_response = self._search_strategy.pls_handle_search__passthru(
                 request_body=obj,
             )
         except IndexStrategyError:

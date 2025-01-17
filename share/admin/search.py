@@ -79,7 +79,7 @@ def _index_status_by_strategy():
             },
             'prior': sorted((
                 specific_index.pls_get_status()
-                for specific_index in _index_strategy.each_existing_index()
+                for specific_index in _index_strategy.each_existing_index(any_strategy_check=True)
                 if not specific_index.is_current
             ), reverse=True),
             'queues': [

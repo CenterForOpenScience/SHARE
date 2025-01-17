@@ -40,7 +40,6 @@ class _AvailableStrategies(enum.Enum):
         sharev2_elastic8 = Sharev2Elastic8IndexStrategy('sharev2_elastic8')
         trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats')
         trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
-        trovesearch_splint = TrovesearchDenormIndexStrategy('trovesearch_splint')
 
 
 ###
@@ -81,9 +80,9 @@ def get_strategy_for_sharev2_search(requested_name: str | None = None) -> IndexS
         settings.ELASTICSEARCH5_URL
         and not FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
     ):
-        _name = 'sharev2_elastic5'
+        _name = _AvailableStrategies.sharev2_elastic5.name
     elif settings.ELASTICSEARCH8_URL:
-        _name = 'sharev2_elastic8'
+        _name = _AvailableStrategies.sharev2_elastic8.name
     else:
         raise IndexStrategyError('no available index for sharev2 search')
     return parse_strategy_name(_name)

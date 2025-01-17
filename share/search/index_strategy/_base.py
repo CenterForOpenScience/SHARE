@@ -108,7 +108,11 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         return self.SpecificIndex(self, subname)  # type: ignore[abstract]
 
     def parse_full_index_name(self, index_name: str) -> SpecificIndex:
-        (_strategy_name, _strategy_check, *_etc) = indexnames.parse_indexname_parts(index_name)
+        _parts = indexnames.parse_indexname_parts(index_name)
+        try:
+            (_strategy_name, _strategy_check, *_etc) = _parts
+        except ValueError:
+            raise IndexStrategyError(f'expected "strategyname__strategycheck", at least (got "{index_name}")')
         if _strategy_name != self.strategy_name:
             raise IndexStrategyError(f'this index belongs to another strategy (expected strategy name "{self.strategy_name}"; got "{_strategy_name}" from index name {index_name})')
         _strategy = self.with_strategy_check(_strategy_check)
@@ -182,7 +186,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         raise NotImplementedError
 
     @abc.abstractmethod
-    def each_existing_index(self) -> typing.Iterator[SpecificIndex]:
+    def each_existing_index(self, *, any_strategy_check: bool = False) -> typing.Iterator[SpecificIndex]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -206,8 +210,8 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
     def pls_handle_valuesearch(self, valuesearch_params: ValuesearchParams) -> ValuesearchHandle:
         raise NotImplementedError
 
-    def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-        raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__sharev2_backcompat (either implement it or don\'t use this strategy for backcompat)')
+    def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
+        raise NotImplementedError(f'{self.__class__.__name__} does not implement pls_handle_search__passthru (either implement it or don\'t use this strategy for that)')
 
     # IndexStrategy.SpecificIndex must be implemented by subclasses
     # in their own `class SpecificIndex(IndexStrategy.SpecificIndex)`
@@ -216,16 +220,13 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         index_strategy: IndexStrategy
         subname: str  # unique per index_strategy
 
-        def __post_init__(self):
-            if self.subname not in self.index_strategy.index_subname_set():
-                raise IndexStrategyError(
-                    f'invalid subname "{self.subname}"!'
-                    f' (expected one of {self.index_strategy.index_subname_set()}")'
-                )
-
         @property
         def is_current(self) -> bool:
             return self.index_strategy.is_current
+
+        @property
+        def has_valid_subname(self) -> bool:
+            return self.subname in self.index_strategy.index_subname_set()
 
         @property
         def full_index_name(self) -> str:

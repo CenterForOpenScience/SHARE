@@ -18,7 +18,10 @@ from share.search.index_status import IndexStatus
 from share.search import messages
 from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util.checksum_iri import ChecksumIri
-from ._indexnames import parse_indexname_parts
+from ._indexnames import (
+    parse_indexname_parts,
+    combine_indexname_parts,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -147,15 +150,20 @@ class Elastic8IndexStrategy(IndexStrategy):
         return self._get_elastic8_client()  # cached classmethod for shared client
 
     # abstract method from IndexStrategy
-    def each_existing_index(self):
+    def each_existing_index(self, *, any_strategy_check: bool = False):
+        _index_wildcard = (
+            combine_indexname_parts(self.strategy_name, '*')
+            if any_strategy_check
+            else self.indexname_wildcard
+        )
         indexname_set = set(
             self.es8_client.indices
-            .get(index=self.indexname_wildcard, features=',')
+            .get(index=_index_wildcard, features=',')
             .keys()
         )
         for indexname in indexname_set:
             _index = self.parse_full_index_name(indexname)
-            assert _index.index_strategy == self
+            assert _index.index_strategy.strategy_name == self.strategy_name
             yield _index
 
     # abstract method from IndexStrategy
@@ -225,9 +233,16 @@ class Elastic8IndexStrategy(IndexStrategy):
         return self.with_strategy_check(_strategycheck)
 
     # abstract method from IndexStrategy
-    def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
+    def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
+        _queryparams = request_queryparams or {}
+        _requested_strategy = _queryparams.pop('indexStrategy', '')
+        _indexname = self.indexname_wildcard
+        if _requested_strategy and _requested_strategy.startswith(self.indexname_prefix):
+            _index = self.parse_full_index_name(_requested_strategy)
+            if _index.has_valid_subname:
+                _indexname = _index.full_index_name
         return self.es8_client.search(
-            index=self.indexname_wildcard,
+            index=_indexname,
             body={
                 **(request_body or {}),
                 'track_total_hits': True,
@@ -250,11 +265,11 @@ class Elastic8IndexStrategy(IndexStrategy):
 
     @property
     def _alias_for_searching(self):
-        return f'{self.indexname_prefix}__search'
+        return combine_indexname_parts(self.strategy_name, 'search')
 
     @property
     def _alias_for_keeping_live(self):
-        return f'{self.indexname_prefix}__live'
+        return combine_indexname_parts(self.strategy_name, 'live')
 
     def _elastic_actions_with_index(
         self,

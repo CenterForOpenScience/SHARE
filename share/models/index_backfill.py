@@ -76,7 +76,7 @@ class IndexBackfill(models.Model):
 
     def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
-            assert locked_self.index_strategy_name == index_strategy.name
+            assert locked_self.index_strategy_name == index_strategy.strategy_name
             _current_checksum = str(index_strategy.CURRENT_STRATEGY_CHECKSUM)
             if locked_self.strategy_checksum == _current_checksum:
                 # what is "current" has not changed -- should be INITIAL

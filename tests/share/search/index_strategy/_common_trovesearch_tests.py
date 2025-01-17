@@ -122,7 +122,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _result_iris: set[str] = set()
         _page_count = 0
         while True:
-            _cardsearch_handle = self.current_index.pls_handle_cardsearch(
+            _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(
                 CardsearchParams.from_querystring(_querystring),
             )
             _page_iris = {
@@ -151,7 +151,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             ),
         ):
             _cardsearch_params = CardsearchParams.from_querystring('')
-            _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+            _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
             self.assertEqual(_cardsearch_handle.related_propertypath_results, [
                 PropertypathUsage((DCTERMS.creator,), 3),
                 PropertypathUsage((DCTERMS.references,), 2),
@@ -212,7 +212,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _querystring = urlencode(queryparams)
         _cardsearch_params = CardsearchParams.from_querystring(_querystring)
         assert isinstance(_cardsearch_params, CardsearchParams)
-        _cardsearch_handle = self.current_index.pls_handle_cardsearch(_cardsearch_params)
+        _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
         # assumes all results fit on one page
         _actual_result_iris: set[str] | list[str] = [
             self._indexcard_focus_by_uuid[_result.card_uuid]
@@ -227,7 +227,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
         _querystring = urlencode(queryparams)
         _valuesearch_params = ValuesearchParams.from_querystring(_querystring)
         assert isinstance(_valuesearch_params, ValuesearchParams)
-        _valuesearch_handle = self.current_index.pls_handle_valuesearch(_valuesearch_params)
+        _valuesearch_handle = self.index_strategy.pls_handle_valuesearch(_valuesearch_params)
         # assumes all results fit on one page
         _actual_values = {
             _result.value_iri or _result.value_value
@@ -615,7 +615,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
             _response.is_done
             for _response in self.index_strategy.pls_handle_messages_chunk(_messages_chunk)
         ))
-        self.current_index.pls_refresh()
+        self.index_strategy.pls_refresh()
 
     def _delete_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
         for _indexcard in indexcards:
