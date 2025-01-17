@@ -8,6 +8,7 @@ from project.celery import app as celery_app
 from share.search.daemon import IndexerDaemonControl
 from share.search.index_messenger import IndexMessenger
 from share.search import index_strategy
+from tests.share.search import patch_index_strategies
 
 
 # base class for testing IndexStrategy subclasses with actual elasticsearch.
@@ -25,16 +26,7 @@ class RealElasticTestCase(TransactionTestCase):
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.index_strategy = self.get_index_strategy()
         self.index_strategy.pls_teardown()  # in case it already exists
-
-        def _fake_get_index_strategy(name):
-            if self.index_strategy.strategy_name == name:
-                return self.index_strategy
-            raise ValueError(f'unknown index strategy in test: {name}')
-
-        self.enterContext(mock.patch(
-            'share.search.index_strategy.get_strategy',
-            new=_fake_get_index_strategy,
-        ))
+        self.enterContext(patch_index_strategies([self.index_strategy]))
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
             index_strategys=[self.index_strategy],
