@@ -26,11 +26,11 @@ def search(args, argv):
 @search.subcommand('Drop the Elasticsearch index')
 def purge(args, argv):
     """
-    Usage: {0} search purge <index_names>...
+    Usage: {0} search purge <strategy_names>...
     """
-    for index_name in args['<index_names>']:
-        specific_index = index_strategy.get_specific_index(index_name)
-        specific_index.pls_delete()
+    for _strategy_name in args['<strategy_names>']:
+        _strategy = index_strategy.parse_strategy_name(_strategy_name)
+        _strategy.pls_teardown()
 
 
 @search.subcommand('Create indicies and apply mappings')

@@ -10,14 +10,14 @@ class TestIndexBackfillMethods:
     @pytest.fixture
     def fake_strategy(self):
         fake_strategy = mock.Mock()
-        fake_strategy.name = 'foo'
+        fake_strategy.strategy_name = 'foo'
         fake_strategy.CURRENT_STRATEGY_CHECKSUM = 'foo_bar'
         return fake_strategy
 
     @pytest.fixture
     def index_backfill(self, fake_strategy):
         return IndexBackfill.objects.create(
-            index_strategy_name=fake_strategy.name,
+            index_strategy_name=fake_strategy.strategy_name,
         )
 
     def test_happypath(self, index_backfill: IndexBackfill, fake_strategy):

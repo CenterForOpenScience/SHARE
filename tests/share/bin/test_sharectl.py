@@ -59,15 +59,13 @@ class TestSharectlSearch:
         with patch_index_strategies(_mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
         for mock_index_strategy in _mock_index_strategys:
-            mock_specific_index = mock_index_strategy.for_current_index.return_value
-            assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
+            assert mock_index_strategy.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
         with mock.patch('share.bin.search.index_strategy.get_strategy', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
-        mock_current_index = mock_index_strategy.for_current_index.return_value
-        assert mock_current_index.pls_setup.mock_calls == [mock.call(skip_backfill=False)]
+        assert mock_index_strategy.pls_setup.mock_calls == [mock.call(skip_backfill=False)]
 
     def test_daemon(self, settings):
         with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon_control:

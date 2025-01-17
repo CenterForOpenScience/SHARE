@@ -415,7 +415,6 @@ class Elastic8IndexStrategy(IndexStrategy):
         def pls_create(self):
             assert self.is_current, (
                 'cannot create a non-current version of an index!'
-                ' maybe try `index_strategy.for_current_index()`?'
             )
             index_to_create = self.full_index_name
             logger.debug('Ensuring index %s', index_to_create)
