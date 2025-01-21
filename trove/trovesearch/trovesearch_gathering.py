@@ -218,7 +218,7 @@ def gather_cardsearch_filter(focus, **kwargs):
     TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_page(focus: ValuesearchFocus, **kwargs):
+def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
     _result_page = []
     _value_iris = {
         _result.value_iri
@@ -235,8 +235,7 @@ def gather_valuesearch_page(focus: ValuesearchFocus, **kwargs):
                 ),
                 derived_indexcard_set__deriver_identifier__in=(
                     trove_db.ResourceIdentifier.objects
-                    .queryset_for_iri(TROVE['derive/osfmap_json'])
-                    # TODO: choose deriver by queryparam/gatherer-kwarg
+                    .queryset_for_iri(deriver_iri)
                 ),
             )
             .prefetch_related('focus_identifier_set')
@@ -306,7 +305,8 @@ def gather_card_modified(focus: IndexcardFocus, **kwargs):
 
 
 @trovesearch_by_indexstrategy.gatherer(
-    (FOAF.primaryTopic, TROVE.focusIdentifier),
+    FOAF.primaryTopic,
+    TROVE.focusIdentifier,
     focustype_iris={TROVE.Indexcard},
 )
 def gather_primary_topic(focus: IndexcardFocus, **kwargs):
