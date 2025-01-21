@@ -23,6 +23,7 @@ from trove.render import (
     DEFAULT_RENDERER_TYPE,
     get_renderer_type,
 )
+from ._gather_ask import ask_gathering_from_params
 from ._responder import (
     make_http_error_response,
     make_http_response,
@@ -59,7 +60,7 @@ class _BaseTrovesearchView(View, abc.ABC):
                 search_handle=self.get_search_handle(_strategy, _search_params),
             )
             if _renderer_type.PASSIVE_RENDER:
-                self._fill_gathering(_search_gathering, _search_params, _focus)
+                ask_gathering_from_params(_search_gathering, _search_params, _focus)
             # take gathered data into a response
             _renderer = _renderer_type(_focus, _search_gathering)
             return make_http_response(
@@ -82,19 +83,6 @@ class _BaseTrovesearchView(View, abc.ABC):
         return trovesearch_by_indexstrategy.new_gathering({
             'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
         })
-
-    def _fill_gathering(self, search_gathering, search_params, start_focus):
-        # fill the gathering's cache with included related resources...
-        search_gathering.ask(search_params.included_relations, focus=start_focus)
-        # ...and add requested attributes on the focus and related resources
-        for _focus in search_gathering.cache.focus_set:
-            for _focustype in _focus.type_iris:
-                try:
-                    _attrpaths = search_params.attrpaths_by_type[_focustype]
-                except KeyError:
-                    pass  # no attribute fields for this type
-                else:
-                    search_gathering.ask(_attrpaths, focus=_focus)
 
     def get_search_handle(self, strategy, search_params) -> BasicSearchHandle:
         return self._get_wrapped_handler(strategy)(search_params)
