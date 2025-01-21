@@ -27,6 +27,7 @@ from trove.trovesearch.search_handle import (
     ValuesearchHandle,
     ValuesearchResult,
 )
+from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -77,8 +78,9 @@ class _TypedFocus(gather.Focus):
     ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = ()  # (optional on subclasses)
 
     @classmethod
-    def new(cls, *, type_iris=(), **kwargs):
+    def new(cls, *args, type_iris=(), **kwargs):
         return super().new(
+            *args,
             # add type_iri to new Focus instance
             type_iris={
                 cls.TYPE_IRI,
@@ -241,19 +243,23 @@ def gather_valuesearch_page(focus: ValuesearchFocus, **kwargs):
         )
     else:
         _value_indexcards = []
+    _cards_by_suffuniq_iri = {
+        _identifier.sufficiently_unique_iri: _indexcard
+        for _indexcard in _value_indexcards
+        for _identifier in _indexcard.focus_identifier_set.all()
+    }
     for _result in focus.search_handle.search_result_page or ():
-        _indexcard_obj: Any = None
-        if _result.value_iri in _value_iris:
-            for _indexcard in _value_indexcards:
-                if any(
-                    _identifier.equivalent_to_iri(_result.value_iri)
-                    for _identifier in _indexcard.focus_identifier_set.all()
-                ):
-                    _indexcard_obj = IndexcardFocus.new(
-                        iris=_indexcard.get_iri(),
-                        indexcard=_indexcard,
-                    )
-                    break  # found the indexcard
+        _indexcard_obj = None
+        if _result.value_iri is not None:
+            _indexcard = _cards_by_suffuniq_iri.get(
+                get_sufficiently_unique_iri(_result.value_iri),
+            )
+            if _indexcard is not None:
+                _indexcard_obj = _indexcard.get_iri()
+                # hack around (current) limitations of primitive_metadata.gather:
+                # yield a redundant triple to make this IndexcardFocus gatherable
+                _card_focus = IndexcardFocus.new(_indexcard_obj, indexcard=_indexcard)
+                yield (_card_focus, RDF.type, IndexcardFocus.TYPE_IRI)
         if _indexcard_obj is None:
             # no actual indexcard; put what we know in a blanknode-indexcard
             _indexcard_obj = _valuesearch_result_as_indexcard_blanknode(_result)
