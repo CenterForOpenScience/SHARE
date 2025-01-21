@@ -28,46 +28,44 @@ def test_sharectl_version():
 
 
 class TestSharectlSearch:
-    @pytest.mark.parametrize('indexnames', [
+    @pytest.mark.parametrize('strategynames', [
         ['one'],
         ['another', 'makes', 'two'],
     ])
-    def test_purge(self, indexnames):
-        mock_specific_indexes = {
-            indexname: mock.Mock()
-            for indexname in indexnames
+    def test_purge(self, strategynames):
+        mock_strategies = {
+            strategyname: mock.Mock()
+            for strategyname in strategynames
         }
 
-        def _get_specific_index(indexname):
-            return mock_specific_indexes[indexname]
+        def _fake_parse_strategy_name(strategyname):
+            return mock_strategies[strategyname]
 
-        with mock.patch('share.bin.search.index_strategy.get_specific_index', wraps=_get_specific_index) as mock_get_specific:
-            run_sharectl('search', 'purge', *indexnames)
-        assert mock_get_specific.mock_calls == [
-            mock.call(indexname)
-            for indexname in mock_specific_indexes.keys()
+        with mock.patch('share.bin.search.index_strategy.parse_strategy_name', wraps=_fake_parse_strategy_name) as mock_get_strategy:
+            run_sharectl('search', 'purge', *strategynames)
+        assert mock_get_strategy.mock_calls == [
+            mock.call(strategyname)
+            for strategyname in mock_strategies.keys()
         ]
-        for mock_specific_index in mock_specific_indexes.values():
-            mock_specific_index.pls_delete.assert_called_once_with()
+        for mock_strategy in mock_strategies.values():
+            mock_strategy.pls_teardown.assert_called_once_with()
 
     def test_setup_initial(self, settings):
         _expected_indexes = ['baz', 'bar', 'foo']
-        _mock_index_strategys = {
-            _name: mock.Mock()
+        _mock_index_strategys = [
+            mock.Mock(strategy_name=_name)
             for _name in _expected_indexes
-        }
+        ]
         with patch_index_strategies(_mock_index_strategys):
             run_sharectl('search', 'setup', '--initial')
-        for mock_index_strategy in _mock_index_strategys.values():
-            mock_specific_index = mock_index_strategy.for_current_index.return_value
-            assert mock_specific_index.pls_setup.mock_calls == [mock.call(skip_backfill=True)]
+        for mock_index_strategy in _mock_index_strategys:
+            assert mock_index_strategy.pls_setup.mock_calls == [mock.call()]
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
-        with mock.patch('share.bin.search.index_strategy.get_index_strategy', return_value=mock_index_strategy):
+        with mock.patch('share.bin.search.index_strategy.get_strategy', return_value=mock_index_strategy):
             run_sharectl('search', 'setup', 'foo')
-        mock_current_index = mock_index_strategy.for_current_index.return_value
-        assert mock_current_index.pls_setup.mock_calls == [mock.call(skip_backfill=False)]
+        assert mock_index_strategy.pls_setup.mock_calls == [mock.call()]
 
     def test_daemon(self, settings):
         with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon_control:

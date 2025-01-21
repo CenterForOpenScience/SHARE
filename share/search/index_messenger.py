@@ -32,7 +32,7 @@ class IndexMessenger:
             if celery_app is None
             else celery_app
         )
-        self.index_strategys = index_strategys or tuple(index_strategy.all_index_strategies().values())
+        self.index_strategys = index_strategys or tuple(index_strategy.each_strategy())
 
     def notify_indexcard_update(self, indexcards, *, urgent=False):
         self.send_messages_chunk(

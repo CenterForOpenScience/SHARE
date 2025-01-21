@@ -43,7 +43,17 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return messages.MessageType.BACKFILL_SUID
 
     # abstract method from Elastic8IndexStrategy
-    def index_settings(self):
+    @classmethod
+    def define_current_indexes(cls):
+        return {  # empty index subname, for backcompat
+            '': cls.IndexDefinition(
+                mappings=cls.index_mappings(),
+                settings=cls.index_settings(),
+            ),
+        }
+
+    @classmethod
+    def index_settings(cls):
         return {
             'analysis': {
                 'analyzer': {
@@ -78,8 +88,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             }
         }
 
-    # abstract method from Elastic8IndexStrategy
-    def index_mappings(self):
+    @classmethod
+    def index_mappings(cls):
         exact_field = {
             'exact': {
                 'type': 'keyword',
@@ -129,15 +139,19 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
+        def _make_actionset(suid_id, *actions):
+            return self.MessageActionSet(suid_id, {'': actions})
+
         _suid_ids = set(messages_chunk.target_ids_chunk)
         for _suid_id, _serialized_doc in self._load_docs(_suid_ids):
             _source_doc = json.loads(_serialized_doc)
             _doc_id = _source_doc['id']
             _suid_ids.discard(_suid_id)
-            if _source_doc.pop('is_deleted', False):
-                yield _suid_id, self.build_delete_action(_doc_id)
-            else:
-                yield _suid_id, self.build_index_action(_doc_id, _source_doc)
+            yield _make_actionset(_suid_id, (
+                self.build_delete_action(_doc_id)
+                if _source_doc.pop('is_deleted', False)
+                else self.build_index_action(_doc_id, _source_doc)
+            ))
         # delete any leftovers
         for _leftover_suid in SourceUniqueIdentifier.objects.filter(id__in=_suid_ids):
             _suid_ids.discard(_leftover_suid.id)
@@ -145,10 +159,14 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
                 _leftover_suid_id = _leftover_suid.get_backcompat_sharev2_suid().id
             except SourceUniqueIdentifier.DoesNotExist:
                 _leftover_suid_id = _leftover_suid.id
-            yield _leftover_suid.id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
+            yield _make_actionset(_leftover_suid_id, self.build_delete_action(
+                self._get_doc_id(_leftover_suid_id),
+            ))
         # these ones don't even exist!
         for _leftover_suid_id in _suid_ids:
-            yield _leftover_suid_id, self.build_delete_action(self._get_doc_id(_leftover_suid_id))
+            yield _make_actionset(_leftover_suid_id, self.build_delete_action(
+                self._get_doc_id(_leftover_suid_id),
+            ))
 
     def _get_doc_id(self, suid_id: int):
         return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
@@ -171,22 +189,21 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
             for _record in _record_qs:
                 yield (_record.suid_id, _record.formatted_metadata)
 
-    class SpecificIndex(Elastic8IndexStrategy.SpecificIndex):
-        # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_search__sharev2_backcompat(self, request_body=None, request_queryparams=None) -> dict:
-            try:
-                json_response = self.index_strategy.es8_client.search(
-                    index=self.indexname,
-                    body=(request_body or {}),
-                    params=(request_queryparams or {}),
-                    track_total_hits=True,
-                )
-            except elasticsearch8.TransportError as error:
-                raise exceptions.IndexStrategyError() from error  # TODO: error messaging
-            try:  # mangle response for some limited backcompat with elasticsearch5
-                es8_total = json_response['hits']['total']
-                json_response['hits']['total'] = es8_total['value']
-                json_response['hits']['_total'] = es8_total
-            except KeyError:
-                pass
-            return json_response
+    # optional method from IndexStrategy
+    def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
+        try:
+            json_response = self.es8_client.search(
+                index=self.get_index('').full_index_name,
+                body=(request_body or {}),
+                params=(request_queryparams or {}),
+                track_total_hits=True,
+            )
+        except elasticsearch8.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+        try:  # mangle response for some limited backcompat with elasticsearch5
+            es8_total = json_response['hits']['total']
+            json_response['hits']['total'] = es8_total['value']
+            json_response['hits']['_total'] = es8_total
+        except KeyError:
+            pass
+        return json_response

@@ -10,24 +10,24 @@ class TestIndexBackfillMethods:
     @pytest.fixture
     def fake_strategy(self):
         fake_strategy = mock.Mock()
-        fake_strategy.name = 'foo'
-        fake_strategy.for_current_index.return_value.indexname = 'foo_bar'
+        fake_strategy.strategy_name = 'foo'
+        fake_strategy.CURRENT_STRATEGY_CHECKSUM = 'foo_bar'
         return fake_strategy
 
     @pytest.fixture
     def index_backfill(self, fake_strategy):
         return IndexBackfill.objects.create(
-            index_strategy_name=fake_strategy.name,
+            index_strategy_name=fake_strategy.strategy_name,
         )
 
-    def test_happypath(self, index_backfill, fake_strategy):
+    def test_happypath(self, index_backfill: IndexBackfill, fake_strategy):
         assert index_backfill.backfill_status == IndexBackfill.INITIAL
-        assert index_backfill.specific_indexname == ''
+        assert index_backfill.strategy_checksum == ''
         with mock.patch('share.tasks.schedule_index_backfill') as mock_task:
             index_backfill.pls_start(fake_strategy)
             mock_task.apply_async.assert_called_once_with((index_backfill.pk,))
         assert index_backfill.backfill_status == IndexBackfill.WAITING
-        assert index_backfill.specific_indexname == 'foo_bar'
+        assert index_backfill.strategy_checksum == 'foo_bar'
         index_backfill.pls_note_scheduling_has_begun()
         assert index_backfill.backfill_status == IndexBackfill.SCHEDULING
         index_backfill.pls_note_scheduling_has_finished()

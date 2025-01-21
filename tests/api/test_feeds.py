@@ -52,9 +52,9 @@ class TestFeed:
             json.loads(formatted_item)
             for formatted_item in formatted_items
         ]
-        with mock.patch('api.views.feeds.index_strategy.get_index_for_sharev2_search') as mock_get_for_searching:
+        with mock.patch('api.views.feeds.index_strategy.get_strategy_for_sharev2_search') as mock_get_for_searching:
             mock_strategy = mock_get_for_searching.return_value
-            mock_strategy.pls_handle_search__sharev2_backcompat.return_value = {
+            mock_strategy.pls_handle_search__passthru.return_value = {
                 'hits': {
                     'hits': [
                         {'_source': item, '_id': item['id']}

@@ -62,6 +62,7 @@ ONE_GLOB_PROPERTYPATH: Propertypath = (GLOB_PATHSTEP,)
 DEFAULT_PROPERTYPATH_SET: PropertypathSet = frozenset([ONE_GLOB_PROPERTYPATH])
 
 DEFAULT_INCLUDES_BY_TYPE: collections.abc.Mapping[str, frozenset[Propertypath]] = freeze({
+    TROVE.Indexcard: set(),
     TROVE.Cardsearch: {
         (TROVE.searchResultPage,),
         (TROVE.relatedPropertyList,),
@@ -179,7 +180,7 @@ class BaseTroveParams:
                 _parse_propertypath_set(_include_value)
                 for _, _include_value in _include_params
             ))
-        return DEFAULT_INCLUDES_BY_TYPE[cls.static_focus_type]
+        return DEFAULT_INCLUDES_BY_TYPE.get(cls.static_focus_type, frozenset())
 
     @classmethod
     def _gather_attrpaths(cls, queryparams: QueryparamDict) -> collections.abc.Mapping[
@@ -534,6 +535,11 @@ class SortParam:
         _pathkey = propertypath_key(self.propertypath)
         _value = (f'-{_pathkey}' if self.descending else _pathkey)
         return (_name, _value)
+
+
+@dataclasses.dataclass(frozen=True)
+class IndexcardParams(BaseTroveParams):
+    static_focus_type = TROVE.Indexcard
 
 
 @dataclasses.dataclass(frozen=True)

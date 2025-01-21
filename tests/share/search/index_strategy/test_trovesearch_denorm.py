@@ -14,6 +14,7 @@ class TestTrovesearchDenorm(_common_trovesearch_tests.CommonTrovesearchTests):
 
         # make the followup delete task eager
         def _fake_apply_async(*args, **kwargs):
+            self.index_strategy.pls_refresh()
             kwargs['countdown'] = 0  # don't wait
             task__delete_iri_value_scraps.apply(*args, **kwargs)
         self.enterContext(

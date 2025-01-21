@@ -31,10 +31,10 @@ class TroveVocabView(View):
         except trove_exceptions.CannotRenderMediatype as _error:
             return make_http_error_response(
                 error=_error,
-                renderer=DEFAULT_RENDERER_TYPE(_iri),
+                renderer_type=DEFAULT_RENDERER_TYPE,
             )
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
-                renderer=_renderer_type(_iri),
+                renderer_type=_renderer_type,
             )

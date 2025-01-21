@@ -36,7 +36,7 @@ def wait_for(event: threading.Event):
 
 class FakeIndexStrategyForSetupOnly:
     # for tests that don't need any message-handling
-    name = 'fakefake'
+    strategy_name = 'fakefake'
     supported_message_types = {
         messages.MessageType.INDEX_SUID,
     }
@@ -45,7 +45,7 @@ class FakeIndexStrategyForSetupOnly:
 
 
 class FakeIndexStrategyWithBlockingEvents:
-    name = 'fakefake-with-events'
+    strategy_name = 'fakefake-with-events'
     supported_message_types = {
         messages.MessageType.INDEX_SUID,
     }
@@ -118,7 +118,7 @@ class TestIndexerDaemon:
             pass
 
         class FakeIndexStrategyWithUnexpectedError:
-            name = 'fakefake_with_error'
+            strategy_name = 'fakefake_with_error'
             supported_message_types = {messages.MessageType.INDEX_SUID}
             nonurgent_messagequeue_name = 'fake.nonurgent'
             urgent_messagequeue_name = 'fake.urgent'
@@ -142,15 +142,15 @@ class TestIndexerDaemon:
 
     def test_noncurrent_backfill(self):
         class FakeIndexStrategyWithNoncurrentBackfill:
-            name = 'fakefake-with-backfill'
-            current_indexname = 'not-what-you-expected'
+            CURRENT_STRATEGY_CHECKSUM = 'not-what-you-expected'
+            strategy_name = 'fakefake-with-backfill'
             supported_message_types = {messages.MessageType.BACKFILL_SUID}
             nonurgent_messagequeue_name = 'fake.nonurgent'
             urgent_messagequeue_name = 'fake.urgent'
 
             def get_or_create_backfill(self):
                 class FakeIndexBackfill:
-                    specific_indexname = 'what-you-expected'
+                    strategy_checksum = 'what-you-expected'
                 return FakeIndexBackfill()
 
         with _daemon_running(
@@ -165,7 +165,7 @@ class TestIndexerDaemon:
 
     def test_message_error(self):
         class FakeIndexStrategyWithMessageError:
-            name = 'fakefake_with_msg_error'
+            strategy_name = 'fakefake_with_msg_error'
             supported_message_types = {messages.MessageType.INDEX_SUID}
             nonurgent_messagequeue_name = 'fake.nonurgent'
             urgent_messagequeue_name = 'fake.urgent'
@@ -197,7 +197,7 @@ class TestIndexerDaemon:
     @mock.patch('share.search.daemon._backoff_wait', wraps=_backoff_wait)
     def test_backoff(self, mock_backoff_wait):
         class FakeIndexStrategyWith429:
-            name = 'fakefake_with_429'
+            strategy_name = 'fakefake_with_429'
             supported_message_types = {messages.MessageType.INDEX_SUID}
             nonurgent_messagequeue_name = 'fake.nonurgent'
             urgent_messagequeue_name = 'fake.urgent'

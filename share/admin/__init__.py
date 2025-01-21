@@ -318,15 +318,15 @@ class FormattedMetadataRecordAdmin(admin.ModelAdmin):
 class IndexBackfillAdmin(admin.ModelAdmin):
     readonly_fields = (
         'index_strategy_name',
-        'specific_indexname',
+        'strategy_checksum',
         'error_type',
         'error_message',
         'error_context',
     )
     paginator = TimeLimitedPaginator
-    list_display = ('index_strategy_name', 'backfill_status', 'created', 'modified', 'specific_indexname')
+    list_display = ('index_strategy_name', 'backfill_status', 'created', 'modified', 'strategy_checksum')
     show_full_result_count = False
-    search_fields = ('index_strategy_name', 'specific_indexname',)
+    search_fields = ('index_strategy_name', 'strategy_checksum',)
     actions = ('reset_to_initial',)
 
     def reset_to_initial(self, request, queryset):

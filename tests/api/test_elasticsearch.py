@@ -55,9 +55,9 @@ class TestElasticSearchProxy:
         with mock.patch('api.search.views.index_strategy') as _mock_index_strategy_module:
             mock_handle_search = (
                 _mock_index_strategy_module
-                .get_index_for_sharev2_search
+                .get_strategy_for_sharev2_search
                 .return_value
-                .pls_handle_search__sharev2_backcompat
+                .pls_handle_search__passthru
             )
             mock_handle_search.return_value = {'clop': 'clip'}
             for url in urls:
