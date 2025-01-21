@@ -47,7 +47,7 @@ class IndexBackfill(models.Model):
     )
     backfill_status = models.TextField(choices=BACKFILL_STATUS_CHOICES, default=INITIAL)
     index_strategy_name = models.TextField(unique=True)
-    strategy_checksum = models.TextField()
+    specific_indexname = models.TextField()
     error_type = models.TextField(blank=True)
     error_message = models.TextField(blank=True)
     error_context = models.TextField(blank=True)
@@ -67,6 +67,16 @@ class IndexBackfill(models.Model):
 
     def __str__(self):
         return repr(self)
+
+    @property
+    def strategy_checksum(self):
+        # back-compat alias for specific_indexname (may be removed if that's renamed via migration)
+        return self.specific_indexname  # for backcompat
+
+    @strategy_checksum.setter
+    def strategy_checksum(self, value):
+        # back-compat alias for specific_indexname (may be removed if that's renamed via migration)
+        self.specific_indexname = value
 
     @contextlib.contextmanager
     def mutex(self):
