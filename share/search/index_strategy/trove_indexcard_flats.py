@@ -294,7 +294,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
 
     def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
         return self.es8_client.search(
-            index=self.get_index('').full_index_name,
+            index=self.__index.full_index_name,
             body={
                 **(request_body or {}),
                 'track_total_hits': True,
@@ -356,7 +356,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
             logger.info(json.dumps(_search_kwargs, indent=2))
         try:
             _es8_response = self.es8_client.search(
-                index=self.get_index('').full_index_name,
+                index=self.__index.full_index_name,
                 **_search_kwargs,
             )
         except elasticsearch8.TransportError as error:
