@@ -42,6 +42,11 @@ class _AvailableStrategies(enum.Enum):
         trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
 
 
+if __debug__:
+    for _strategy_enum in _AvailableStrategies:
+        assert _strategy_enum.name == _strategy_enum.value.strategy_name, 'expected _AvailableStrategies enum name to match strategy name'
+
+
 ###
 # module public interface
 

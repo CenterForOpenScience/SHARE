@@ -150,6 +150,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
     def pls_mark_backfill_complete(self):
         self.get_or_create_backfill().pls_mark_complete()
+        self.pls_refresh()  # explicit refresh after backfill
 
     def pls_check_exists(self) -> bool:
         return all(
@@ -307,10 +308,6 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
 
         @abc.abstractmethod
         def pls_stop_keeping_live(self):
-            raise NotImplementedError
-
-        @abc.abstractmethod
-        def is_kept_live(self) -> bool:
             raise NotImplementedError
 
         def pls_get_mappings(self) -> dict:

@@ -257,13 +257,6 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
 
     # override from IndexStrategy
-    def pls_mark_backfill_complete(self):
-        super().pls_mark_backfill_complete()
-        # explicit refresh after bulk operation
-        for _index in self.each_subnamed_index():
-            _index.pls_refresh()
-
-    # override from IndexStrategy
     def pls_refresh(self):
         super().pls_refresh()  # refreshes each index
         logger.debug('%s: Waiting for yellow status', self.strategy_name)
@@ -468,13 +461,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                 alias_name=self.index_strategy._alias_for_keeping_live,
             )
             logger.warning('%r: no longer kept live', self)
-
-        # abstract method from IndexStrategy.SpecificIndex
-        def is_kept_live(self) -> bool:
-            _kept_live = self.index_strategy._get_indexnames_for_alias(
-                self.index_strategy._alias_for_keeping_live,
-            )
-            return (self.full_index_name in _kept_live)
 
         def pls_get_mappings(self):
             return self.index_strategy.es8_client.indices.get_mapping(index=self.full_index_name).body

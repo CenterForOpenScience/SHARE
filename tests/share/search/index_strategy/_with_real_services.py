@@ -85,7 +85,7 @@ class RealElasticTestCase(TransactionTestCase):
             assert False, 'checked and waited but the daemon did not do the thing'
 
     def _assert_setup_happypath(self):
-        # initial
+        # initial (no indexes exist)
         for _index in self.index_strategy.each_subnamed_index():
             assert not _index.pls_check_exists()
             index_status = _index.pls_get_status()
@@ -93,28 +93,28 @@ class RealElasticTestCase(TransactionTestCase):
             assert not index_status.is_kept_live
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
+        # create each index
         for _index in self.index_strategy.each_subnamed_index():
             _index.pls_create()
-            # create index
-            assert _index.pls_check_exists()
+            assert _index.pls_check_exists()  # new!
             index_status = _index.pls_get_status()
-            assert index_status.creation_date
+            assert index_status.creation_date  # new!
             assert not index_status.is_kept_live
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
-        # keep index live (with ingested updates)
+        # start keeping each index live (with ingested updates)
         self.index_strategy.pls_start_keeping_live()
         for _index in self.index_strategy.each_subnamed_index():
             index_status = _index.pls_get_status()
             assert index_status.creation_date
-            assert index_status.is_kept_live
+            assert index_status.is_kept_live  # new!
             assert not index_status.is_default_for_searching
             assert not index_status.doc_count
-        # default index for searching
+        # make this version of the strategy the default for searching
         self.index_strategy.pls_make_default_for_searching()
         for _index in self.index_strategy.each_subnamed_index():
             index_status = _index.pls_get_status()
             assert index_status.creation_date
             assert index_status.is_kept_live
-            assert index_status.is_default_for_searching
-            assert not index_status.doc_count
+            assert index_status.is_default_for_searching  # new!
+            assert not index_status.doc_count  # (still empty)
