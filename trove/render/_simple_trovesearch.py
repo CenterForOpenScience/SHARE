@@ -92,7 +92,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             _card_content = (
                 next(self.response_gathering.ask(TROVE.resourceMetadata, focus=card))
                 if graph is None
-                else next(graph.q(card, TROVE.resourceMetadata))
+                else next(graph.q(card, TROVE.resourceMetadata), None)
             )
         elif isinstance(card, frozenset):
             _card_content = next(

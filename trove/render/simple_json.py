@@ -41,7 +41,7 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
             for _card_iri, _osfmap_json in _page.items():
                 if _datum_prefix is not None:
                     yield _datum_prefix
-                yield json.dumps(self._render_card_content(_card_iri, _osfmap_json))
+                yield json.dumps(self._render_card_content(_card_iri, _osfmap_json), indent=2)
                 _datum_prefix = ','
         _nondata = json.dumps({
             'meta': self._render_meta(),

@@ -63,6 +63,8 @@ class CardsearchHandle(BasicSearchHandle):
         return _page
 
     def get_next_streaming_handle(self) -> typing.Self | None:
+        if self.cursor.is_complete_page:
+            return None
         _next_cursor = self.cursor.next_cursor()
         if (_next_cursor is not None) and (self.handler is not None):
             assert isinstance(self.search_params, CardsearchParams)

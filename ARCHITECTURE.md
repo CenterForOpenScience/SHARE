@@ -103,6 +103,11 @@ Multiple records which describe the same item/object are grouped by a
 the source repository. In most outward-facing views, default to showing only
 the most recent record for each suid.
 
+### Conventions
+(an incomplete list)
+
+- functions prefixed `pls_` ("please") are a request for something to happen
+
 ## Why this?
 inspired by [this writeup](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html)
 and [this example architecture document](https://github.com/rust-analyzer/rust-analyzer/blob/d7c99931d05e3723d878bea5dc26766791fa4e69/docs/dev/architecture.md)

@@ -68,6 +68,16 @@ class IndexBackfill(models.Model):
     def __str__(self):
         return repr(self)
 
+    @property
+    def strategy_checksum(self):
+        # back-compat alias for specific_indexname (may be removed if that's renamed via migration)
+        return self.specific_indexname  # for backcompat
+
+    @strategy_checksum.setter
+    def strategy_checksum(self, value):
+        # back-compat alias for specific_indexname (may be removed if that's renamed via migration)
+        self.specific_indexname = value
+
     @contextlib.contextmanager
     def mutex(self):
         with IndexBackfill.objects.get_with_mutex(pk=self.pk) as index_backfill:
@@ -76,14 +86,14 @@ class IndexBackfill(models.Model):
 
     def pls_start(self, index_strategy):
         with self.mutex() as locked_self:
-            assert locked_self.index_strategy_name == index_strategy.name
-            current_index = index_strategy.for_current_index()
-            if locked_self.specific_indexname == current_index.indexname:
+            assert locked_self.index_strategy_name == index_strategy.strategy_name
+            _current_checksum = str(index_strategy.CURRENT_STRATEGY_CHECKSUM)
+            if locked_self.strategy_checksum == _current_checksum:
                 # what is "current" has not changed -- should be INITIAL
                 assert locked_self.backfill_status == IndexBackfill.INITIAL
             else:
                 # what is "current" has changed! disregard backfill_status
-                locked_self.specific_indexname = current_index.indexname
+                locked_self.strategy_checksum = _current_checksum
                 locked_self.backfill_status = IndexBackfill.INITIAL
             locked_self.__update_error(None)
             try:

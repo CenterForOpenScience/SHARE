@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 import urllib.parse
-from typing import ClassVar
+from typing import ClassVar, Any, Iterator, Iterable
 
 from primitive_metadata.primitive_rdf import (
     Literal,
@@ -27,6 +27,7 @@ from trove.trovesearch.search_handle import (
     ValuesearchHandle,
     ValuesearchResult,
 )
+from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
@@ -77,8 +78,9 @@ class _TypedFocus(gather.Focus):
     ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = ()  # (optional on subclasses)
 
     @classmethod
-    def new(cls, *, type_iris=(), **kwargs):
+    def new(cls, *args, type_iris=(), **kwargs):
         return super().new(
+            *args,
             # add type_iri to new Focus instance
             type_iris={
                 cls.TYPE_IRI,
@@ -107,9 +109,14 @@ class ValuesearchFocus(_TypedFocus):
     search_handle: ValuesearchHandle = dataclasses.field(compare=False)
 
 
+@dataclasses.dataclass(frozen=True)
 class IndexcardFocus(_TypedFocus):
     TYPE_IRI = TROVE.Indexcard
     ADDITIONAL_TYPE_IRIS = (DCAT.CatalogRecord,)
+
+    # additional dataclass fields
+    indexcard: trove_db.Indexcard = dataclasses.field(compare=False)
+    resourceMetadata: Any = dataclasses.field(compare=False, default=None, repr=False)
 
 
 # TODO: per-field text search in rdf
@@ -149,7 +156,10 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
     _current_handle: CardsearchHandle | None = focus.search_handle
     while _current_handle is not None:
         _result_page = []
-        _card_descriptions_by_iri = _load_card_descriptions(_current_handle.search_result_page, deriver_iri)
+        _card_foci = _load_cards_and_contents(
+            card_iris=(_result.card_iri for _result in _current_handle.search_result_page),
+            deriver_iri=deriver_iri,
+        )
         for _result in _current_handle.search_result_page or ():
             _text_evidence_twoples = (
                 (TROVE.matchEvidence, frozenset((
@@ -165,12 +175,19 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
                 (TROVE.indexCard, _result.card_iri),
                 *_text_evidence_twoples,
             )))
-            try:
-                _card_description = _card_descriptions_by_iri[_result.card_iri]
-            except KeyError:
-                pass
-            else:
-                yield from rdf.iter_tripleset(_card_description.tripledict)
+            # hack around (current) limitations of primitive_metadata.gather
+            # (what with all these intermediate blank nodes and sequences):
+            # yield trove:resourceMetadata here (instead of another gatherer)
+            _card_focus = _card_foci[_result.card_iri]
+            _card_twoples = _minimal_indexcard_twoples(
+                focus_identifiers=[
+                    _identifier.as_iri()
+                    for _identifier in _card_focus.indexcard.focus_identifier_set.all()
+                ],
+                resource_metadata=_card_focus.resourceMetadata,
+            )
+            for _pred, _obj in _card_twoples:
+                yield (_result.card_iri, _pred, _obj)
         yield (TROVE.searchResultPage, sequence(_result_page))
         _current_handle = _current_handle.get_next_streaming_handle()
 
@@ -210,7 +227,7 @@ def gather_cardsearch_filter(focus, **kwargs):
     TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_page(focus: ValuesearchFocus, **kwargs):
+def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
     _result_page = []
     _value_iris = {
         _result.value_iri
@@ -218,35 +235,34 @@ def gather_valuesearch_page(focus: ValuesearchFocus, **kwargs):
         if _result.value_iri
     }
     if _value_iris:
-        _value_indexcards = (
-            trove_db.Indexcard.objects
-            .filter(
-                focus_identifier_set__in=(
-                    trove_db.ResourceIdentifier.objects
-                    .queryset_for_iris(_value_iris)
-                ),
-                derived_indexcard_set__deriver_identifier__in=(
-                    trove_db.ResourceIdentifier.objects
-                    .queryset_for_iri(TROVE['derive/osfmap_json'])
-                    # TODO: choose deriver by queryparam/gatherer-kwarg
-                ),
-            )
-            .prefetch_related('focus_identifier_set')
-        )
+        _card_foci = _load_cards_and_contents(value_iris=_value_iris, deriver_iri=deriver_iri)
     else:
-        _value_indexcards = []
+        _card_foci = {}
+    _card_foci_by_suffuniq_iri: dict[str, IndexcardFocus] = {
+        _identifier.sufficiently_unique_iri: _focus
+        for _focus in _card_foci.values()
+        for _identifier in _focus.indexcard.focus_identifier_set.all()
+    }
     for _result in focus.search_handle.search_result_page or ():
         _indexcard_obj = None
-        if _result.value_iri in _value_iris:
-            for _indexcard in _value_indexcards:
-                if any(
-                    _identifier.equivalent_to_iri(_result.value_iri)
-                    for _identifier in _indexcard.focus_identifier_set.all()
-                ):
-                    _indexcard_obj = _indexcard.get_iri()
-                    yield (_indexcard_obj, RDF.type, TROVE.Indexcard)  # so gather_card runs
-                    # TODO: batch-load cards instead
-                    break  # found the indexcard
+        if _result.value_iri is not None:
+            _card_focus = _card_foci_by_suffuniq_iri.get(
+                get_sufficiently_unique_iri(_result.value_iri),
+            )
+            if _card_focus is not None:
+                _indexcard_obj = _card_focus.indexcard.get_iri()
+                # hack around (current) limitations of primitive_metadata.gather
+                # (what with all these intermediate blank nodes and sequences):
+                # yield trove:resourceMetadata here (instead of another gatherer)
+                _card_twoples = _minimal_indexcard_twoples(
+                    focus_identifiers=[
+                        _identifier.as_iri()
+                        for _identifier in _card_focus.indexcard.focus_identifier_set.all()
+                    ],
+                    resource_metadata=_card_focus.resourceMetadata,
+                )
+                for _pred, _obj in _card_twoples:
+                    yield (_indexcard_obj, _pred, _obj)
         if _indexcard_obj is None:
             # no actual indexcard; put what we know in a blanknode-indexcard
             _indexcard_obj = _valuesearch_result_as_indexcard_blanknode(_result)
@@ -282,51 +298,92 @@ def gather_valuesearch_count(focus, **kwargs):
 #         raise trove_exceptions.IriMismatch(f'could not find indexcard iri in {focus.iris} (looking for {_indexcard_namespace})')
 
 
-def _load_card_descriptions(search_result_page, deriver_iri) -> dict[str, rdf.RdfGraph]:
-    _card_iris = {_result.card_iri for _result in search_result_page}
+@trovesearch_by_indexstrategy.gatherer(DCTERMS.issued, focustype_iris={TROVE.Indexcard})
+def gather_card_issued(focus: IndexcardFocus, **kwargs):
+    yield (DCTERMS.issued, focus.indexcard.created.date())
+
+
+@trovesearch_by_indexstrategy.gatherer(DCTERMS.modified, focustype_iris={TROVE.Indexcard})
+def gather_card_modified(focus: IndexcardFocus, **kwargs):
+    yield (DCTERMS.modified, focus.indexcard.modified.date())
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    FOAF.primaryTopic,
+    TROVE.focusIdentifier,
+    focustype_iris={TROVE.Indexcard},
+)
+def gather_primary_topic(focus: IndexcardFocus, **kwargs):
+    for _identifier in focus.indexcard.focus_identifier_set.all():
+        _iri = _identifier.as_iri()
+        yield (FOAF.primaryTopic, _iri)
+        yield (TROVE.focusIdentifier, literal(_iri))
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    TROVE.resourceMetadata,
+    focustype_iris={TROVE.Indexcard},
+)
+def gather_card_contents(focus: IndexcardFocus, *, deriver_iri, **kwargs):
+    if focus.resourceMetadata is not None:
+        yield (TROVE.resourceMetadata, focus.resourceMetadata)
+    else:
+        _iri = focus.single_iri()
+        _loaded_foci = _load_cards_and_contents(card_iris=[_iri], deriver_iri=deriver_iri)
+        _loaded_metadata = _loaded_foci[_iri].resourceMetadata
+        yield (TROVE.resourceMetadata, _loaded_metadata)
+
+
+def _load_cards_and_contents(*, card_iris=None, value_iris=None, deriver_iri) -> dict[str, IndexcardFocus]:
     return (
-        _load_card_descriptions_nonderived(_card_iris)
+        _load_cards_and_extracted_rdf_contents(card_iris, value_iris)
         if deriver_iri is None
-        else _load_card_descriptions_derived(_card_iris, deriver_iri)
+        else _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri)
     )
 
 
-def _load_card_descriptions_nonderived(card_iris) -> dict[str, rdf.RdfGraph]:
+def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> dict[str, IndexcardFocus]:
     _card_namespace = trove_indexcard_namespace()
-    _indexcard_uuids = {
-        iri_minus_namespace(_card_iri, namespace=_card_namespace)
-        for _card_iri in card_iris
-    }
     _indexcard_rdf_qs = (
         trove_db.LatestIndexcardRdf.objects
-        .filter(indexcard__uuid__in=_indexcard_uuids)
         .select_related('indexcard')
         .prefetch_related('indexcard__focus_identifier_set')
     )
-    _by_card_iri = {}
+    if card_iris is not None:
+        _indexcard_uuids = {
+            iri_minus_namespace(_card_iri, namespace=_card_namespace)
+            for _card_iri in card_iris
+        }
+        _indexcard_rdf_qs = _indexcard_rdf_qs.filter(indexcard__uuid__in=_indexcard_uuids)
+    if value_iris is not None:
+        _indexcard_rdf_qs = _indexcard_rdf_qs.filter(
+            indexcard__focus_identifier_set__in=(
+                trove_db.ResourceIdentifier.objects
+                .queryset_for_iris(value_iris)
+            ),
+        )
+    _card_foci: dict[str, IndexcardFocus] = {}
     for _indexcard_rdf in _indexcard_rdf_qs:
-        _indexcard_iri = _indexcard_rdf.indexcard.get_iri()
+        _card = _indexcard_rdf.indexcard
+        _card_iri = _card.get_iri()
         _quoted_graph = _indexcard_rdf.as_quoted_graph()
         _quoted_graph.add(
-            (_quoted_graph.focus_iri, FOAF.primaryTopicOf, _indexcard_iri),
+            (_quoted_graph.focus_iri, FOAF.primaryTopicOf, _card_iri),
         )
-        _by_card_iri[_indexcard_iri] = _describe_indexcard_nonderived(
-            _indexcard_iri, _indexcard_rdf
+        _card_foci[_card_iri] = IndexcardFocus.new(
+            iris=_card_iri,
+            indexcard=_card,
+            resourceMetadata=_quoted_graph,
         )
-    return _by_card_iri
+    return _card_foci
 
 
-def _load_card_descriptions_derived(card_iris, deriver_iri: str) -> dict[str, rdf.RdfGraph]:
+def _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri: str) -> dict[str, IndexcardFocus]:
     _card_namespace = trove_indexcard_namespace()
-    _indexcard_uuids = {
-        iri_minus_namespace(_card_iri, namespace=_card_namespace)
-        for _card_iri in card_iris
-    }
     # include pre-formatted data from a DerivedIndexcard
     _derived_indexcard_qs = (
         trove_db.DerivedIndexcard.objects
         .filter(
-            upriver_indexcard__uuid__in=_indexcard_uuids,
             deriver_identifier__in=(
                 trove_db.ResourceIdentifier.objects
                 .queryset_for_iri(deriver_iri)
@@ -335,49 +392,30 @@ def _load_card_descriptions_derived(card_iris, deriver_iri: str) -> dict[str, rd
         .select_related('upriver_indexcard')
         .prefetch_related('upriver_indexcard__focus_identifier_set')
     )
-    _by_card_iri = {}
+    if card_iris is not None:
+        _indexcard_uuids = {
+            iri_minus_namespace(_card_iri, namespace=_card_namespace)
+            for _card_iri in card_iris
+        }
+        _derived_indexcard_qs = _derived_indexcard_qs.filter(
+            upriver_indexcard__uuid__in=_indexcard_uuids,
+        )
+    if value_iris is not None:
+        _derived_indexcard_qs = _derived_indexcard_qs.filter(
+            upriver_indexcard__focus_identifier_set__in=(
+                trove_db.ResourceIdentifier.objects
+                .queryset_for_iris(value_iris)
+            ),
+        )
+    _card_foci: dict[str, IndexcardFocus] = {}
     for _derived in _derived_indexcard_qs:
-        _indexcard_iri = _derived.upriver_indexcard.get_iri()
-        _by_card_iri[_indexcard_iri] = _describe_indexcard_derived(_indexcard_iri, _derived)
-    return _by_card_iri
-
-
-def _describe_indexcard_nonderived(
-    indexcard_iri: str,
-    indexcard_rdf: trove_db.IndexcardRdf,
-) -> rdf.RdfGraph:
-    _card_description = rdf.RdfGraph({
-        indexcard_iri: {
-            RDF.type: {TROVE.Indexcard, DCAT.CatalogRecord},
-            TROVE.resourceMetadata: {indexcard_rdf.as_quoted_graph()},
-            DCTERMS.issued: {indexcard_rdf.indexcard.created.date()},
-            DCTERMS.modified: {indexcard_rdf.modified.date()},
-        },
-    })
-    for _identifier in indexcard_rdf.indexcard.focus_identifier_set.all():
-        _iri = _identifier.as_iri()
-        _card_description.add((indexcard_iri, FOAF.primaryTopic, _iri))
-        _card_description.add((indexcard_iri, TROVE.focusIdentifier, literal(_iri)))
-    return _card_description
-
-
-def _describe_indexcard_derived(
-    indexcard_iri: str,
-    derived_indexcard: trove_db.DerivedIndexcard,
-) -> rdf.RdfGraph:
-    _card_description = rdf.RdfGraph({
-        indexcard_iri: {
-            RDF.type: {TROVE.Indexcard, DCAT.CatalogRecord},
-            TROVE.resourceMetadata: {derived_indexcard.as_rdf_literal()},
-            DCTERMS.issued: {derived_indexcard.upriver_indexcard.created.date()},
-            DCTERMS.modified: {derived_indexcard.modified.date()},
-        },
-    })
-    for _identifier in derived_indexcard.upriver_indexcard.focus_identifier_set.all():
-        _iri = _identifier.as_iri()
-        _card_description.add((indexcard_iri, FOAF.primaryTopic, _iri))
-        _card_description.add((indexcard_iri, TROVE.focusIdentifier, literal(_iri)))
-    return _card_description
+        _card_iri = _derived.upriver_indexcard.get_iri()
+        _card_foci[_card_iri] = IndexcardFocus.new(
+            iris=_card_iri,
+            indexcard=_derived.upriver_indexcard,
+            resourceMetadata=_derived.as_rdf_literal(),
+        )
+    return _card_foci
 
 
 ###
@@ -421,12 +459,25 @@ def _valuesearch_result_as_json(result: ValuesearchResult) -> Literal:
     )
 
 
+def _minimal_indexcard_twoples(
+    focus_identifiers: Iterable[str],
+    resource_metadata: rdf.Literal,
+) -> Iterator[rdf.RdfTwople]:
+    yield (RDF.type, TROVE.Indexcard)
+    for _identifier in focus_identifiers:
+        yield (TROVE.focusIdentifier, (
+            _identifier
+            if isinstance(_identifier, rdf.Literal)
+            else literal(_identifier)
+        ))
+    yield (TROVE.resourceMetadata, resource_metadata)
+
+
 def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
-    return blanknode({
-        RDF.type: {TROVE.Indexcard},
-        TROVE.focusIdentifier: {literal(result.value_iri or result.value_value)},
-        TROVE.resourceMetadata: {_valuesearch_result_as_json(result)},
-    })
+    return frozenset(_minimal_indexcard_twoples(
+        focus_identifiers=[literal(result.value_iri or result.value_value)],
+        resource_metadata=_valuesearch_result_as_json(result),
+    ))
 
 
 def _osfmap_json(tripledict, focus_iri):

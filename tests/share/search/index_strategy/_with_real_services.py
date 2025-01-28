@@ -8,6 +8,7 @@ from project.celery import app as celery_app
 from share.search.daemon import IndexerDaemonControl
 from share.search.index_messenger import IndexMessenger
 from share.search import index_strategy
+from tests.share.search import patch_index_strategies
 
 
 # base class for testing IndexStrategy subclasses with actual elasticsearch.
@@ -24,27 +25,17 @@ class RealElasticTestCase(TransactionTestCase):
         super().setUp()
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.index_strategy = self.get_index_strategy()
-
-        def _fake_get_index_strategy(name):
-            if self.index_strategy.name == name:
-                return self.index_strategy
-            raise ValueError(f'unknown index strategy in test: {name}')
-
-        self.enterContext(mock.patch(
-            'share.search.index_strategy.get_index_strategy',
-            new=_fake_get_index_strategy,
-        ))
+        self.index_strategy.pls_teardown()  # in case it already exists
+        self.enterContext(patch_index_strategies([self.index_strategy]))
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
             index_strategys=[self.index_strategy],
         )
-        self.current_index = self.index_strategy.for_current_index()
-        self.current_index.pls_delete()  # in case it already exists
         self._assert_setup_happypath()
 
     def tearDown(self):
         super().tearDown()
-        self.current_index.pls_delete()
+        self.index_strategy.pls_teardown()
         # HACK: copied from TransactionTestCase._fixture_setup; restores db
         # to the state from before TransactionTestCase clobbered it (relies
         # on how django 3.2 implements `serialized_rollback = True`, above)
@@ -74,8 +65,8 @@ class RealElasticTestCase(TransactionTestCase):
         assert all(_response.is_done for _response in _responses)
         _ids = {_response.index_message.target_id for _response in _responses}
         assert _ids == set(messages_chunk.target_ids_chunk)
-        self.current_index.pls_refresh()
-        _search_response = self.current_index.pls_handle_search__sharev2_backcompat()
+        self.index_strategy.pls_refresh()
+        _search_response = self.index_strategy.pls_handle_search__passthru()
         _hits = _search_response['hits']['hits']
         assert len(_hits) == expected_doc_count
 
@@ -85,8 +76,8 @@ class RealElasticTestCase(TransactionTestCase):
         self.index_messenger.send_messages_chunk(messages_chunk)
         for _ in range(23):
             _daemon_control.stop_event.wait(timeout=0.2)
-            self.current_index.pls_refresh()
-            _search_response = self.current_index.pls_handle_search__sharev2_backcompat()
+            self.index_strategy.pls_refresh()
+            _search_response = self.index_strategy.pls_handle_search__passthru()
             _hits = _search_response['hits']['hits']
             if len(_hits) == expected_doc_count:
                 break  # all good
@@ -94,32 +85,36 @@ class RealElasticTestCase(TransactionTestCase):
             assert False, 'checked and waited but the daemon did not do the thing'
 
     def _assert_setup_happypath(self):
-        # initial
-        assert not self.current_index.pls_check_exists()
-        index_status = self.current_index.pls_get_status()
-        assert not index_status.creation_date
-        assert not index_status.is_kept_live
-        assert not index_status.is_default_for_searching
-        assert not index_status.doc_count
-        # create index
-        self.current_index.pls_create()
-        assert self.current_index.pls_check_exists()
-        index_status = self.current_index.pls_get_status()
-        assert index_status.creation_date
-        assert not index_status.is_kept_live
-        assert not index_status.is_default_for_searching
-        assert not index_status.doc_count
-        # keep index live (with ingested updates)
-        self.current_index.pls_start_keeping_live()
-        index_status = self.current_index.pls_get_status()
-        assert index_status.creation_date
-        assert index_status.is_kept_live
-        assert not index_status.is_default_for_searching
-        assert not index_status.doc_count
-        # default index for searching
-        self.index_strategy.pls_make_default_for_searching(self.current_index)
-        index_status = self.current_index.pls_get_status()
-        assert index_status.creation_date
-        assert index_status.is_kept_live
-        assert index_status.is_default_for_searching
-        assert not index_status.doc_count
+        # initial (no indexes exist)
+        for _index in self.index_strategy.each_subnamed_index():
+            assert not _index.pls_check_exists()
+            index_status = _index.pls_get_status()
+            assert not index_status.creation_date
+            assert not index_status.is_kept_live
+            assert not index_status.is_default_for_searching
+            assert not index_status.doc_count
+        # create each index
+        for _index in self.index_strategy.each_subnamed_index():
+            _index.pls_create()
+            assert _index.pls_check_exists()  # new!
+            index_status = _index.pls_get_status()
+            assert index_status.creation_date  # new!
+            assert not index_status.is_kept_live
+            assert not index_status.is_default_for_searching
+            assert not index_status.doc_count
+        # start keeping each index live (with ingested updates)
+        self.index_strategy.pls_start_keeping_live()
+        for _index in self.index_strategy.each_subnamed_index():
+            index_status = _index.pls_get_status()
+            assert index_status.creation_date
+            assert index_status.is_kept_live  # new!
+            assert not index_status.is_default_for_searching
+            assert not index_status.doc_count
+        # make this version of the strategy the default for searching
+        self.index_strategy.pls_make_default_for_searching()
+        for _index in self.index_strategy.each_subnamed_index():
+            index_status = _index.pls_get_status()
+            assert index_status.creation_date
+            assert index_status.is_kept_live
+            assert index_status.is_default_for_searching  # new!
+            assert not index_status.doc_count  # (still empty)
