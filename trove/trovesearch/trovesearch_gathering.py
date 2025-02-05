@@ -389,7 +389,7 @@ def _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri: str) ->
                 .queryset_for_iri(deriver_iri)
             ),
         )
-        .select_related('upriver_indexcard')
+        .select_related('upriver_indexcard', 'deriver_identifier')
         .prefetch_related('upriver_indexcard__focus_identifier_set')
     )
     if card_iris is not None:
