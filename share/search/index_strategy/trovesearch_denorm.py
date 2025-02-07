@@ -70,7 +70,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='4c8784ddd08914ec779b33b8f1945b0b2ff026eea355392ab3c4fe2fe10d71fe',
+        hexdigest='ef44d5bc272589754b3b0753e5ee61719349fd96284b62ecafab1d0cb043bde9',
     )
 
     # abstract method from Elastic8IndexStrategy
@@ -111,7 +111,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     def _index_settings(cls):
         return {
             'number_of_shards': 5,
-            'number_of_replicas': 2,
+            'number_of_replicas': 1,
         }
 
     @classmethod
@@ -451,7 +451,9 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         def _texts_by_depth(self, walk: ts.GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
             for _path, _text_set in walk.text_values.items():
-                _by_depth[len(_path)].update(_text.unicode_value for _text in _text_set)
+                _depth = len(_path)
+                if _depth <= ts.TEXT_PATH_DEPTH_MAX:
+                    _by_depth[_depth].update(_text.unicode_value for _text in _text_set)
             return {
                 _depth_field_name(_depth): list(_value_set)
                 for _depth, _value_set in _by_depth.items()

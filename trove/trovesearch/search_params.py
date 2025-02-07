@@ -240,6 +240,13 @@ class Textsegment:
             if param_name.bracketed_names
             else None
         )
+        if _propertypath_set:
+            if any((is_globpath(_path) and len(_path) > 1) for _path in _propertypath_set):
+                raise trove_exceptions.InvalidQueryParamName(
+                    str(param_name),
+                    'may not use glob-paths longer than "*" with search-text parameters',
+                )
+
         for _textsegment in cls.iter_from_text(param_value):
             if _propertypath_set:
                 yield dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)

@@ -1,0 +1,20 @@
+
+ok so
+
+trovesearch_denorm has perhaps tooo many indexed fields
+(especially text fields and especially longer property paths)
+
+## possible mitigations:
+
+DONE:
+- skip indexing nested "identifier" text (saves 107 fields)
+- allow wild-card properties only to depth 1 (disallow `cardSearchText[*.*]`)
+- stop hashing so much rendering valuesearch responses (get unique ids other ways)
+
+could still do:
+- skip making iri-value docs for common values?
+    - are there common values that will definitely not be value-searched?
+- revisit text indexing/querying
+    - less fuzz? less slop? different analyzers?
+- shorter dynamic field names -- hash? make reversible with additional sub-index
+- more splitting! split iri-values index (maybe by hash-prefix? or card resource type?)
