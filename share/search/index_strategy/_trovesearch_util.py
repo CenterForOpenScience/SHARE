@@ -19,6 +19,7 @@ from trove.trovesearch.search_params import (
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.namespaces import (
+    DCTERMS,
     OWL,
     RDF,
     TROVE,
@@ -91,6 +92,15 @@ def iris_synonyms(iris: typing.Iterable[str], rdfdoc: rdf.RdfGraph) -> set[str]:
         for _iri in iris
         for _synonym in iri_synonyms(_iri, rdfdoc)
     }
+
+
+def should_skip_path(path: Propertypath) -> bool:
+    _last = path[-1]
+    if _last in SKIPPABLE_PROPERTIES:
+        return True
+    if len(path) > 1 and _last == DCTERMS.identifier:
+        return True
+    return False
 
 
 def propertypath_as_keyword(path: Propertypath) -> str:
@@ -185,9 +195,10 @@ class GraphWalk:
             _twoples = self.rdfdoc.tripledict.get(iri, {})
             for _next_steps, _obj in walk_twoples(_twoples):
                 _path = (*path_so_far, *_next_steps)
-                yield (_path, _obj)
-                if isinstance(_obj, str):  # step further for iri
-                    yield from self._walk_from_subject(_obj, path_so_far=_path)
+                if not should_skip_path(_path):
+                    yield (_path, _obj)
+                    if isinstance(_obj, str):  # step further for iri
+                        yield from self._walk_from_subject(_obj, path_so_far=_path)
 
     @functools.cached_property
     def paths_by_iri(self) -> defaultdict[str, set[Propertypath]]:
@@ -209,16 +220,11 @@ def walk_twoples(
     twoples: rdf.RdfTwopleDictionary | rdf.Blanknode,
 ) -> typing.Iterator[tuple[Propertypath, rdf.RdfObject]]:
     if isinstance(twoples, frozenset):
-        _iter_twoples = (
-            (_pred, _obj)
-            for _pred, _obj in twoples
-            if _pred not in SKIPPABLE_PROPERTIES
-        )
+        _iter_twoples = iter(twoples)
     else:
         _iter_twoples = (
             (_pred, _obj)
             for _pred, _obj_set in twoples.items()
-            if _pred not in SKIPPABLE_PROPERTIES
             for _obj in _obj_set
         )
     for _pred, _obj in _iter_twoples:
