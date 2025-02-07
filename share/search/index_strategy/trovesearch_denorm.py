@@ -70,7 +70,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     CURRENT_STRATEGY_CHECKSUM = ChecksumIri(
         checksumalgorithm_name='sha-256',
         salt='TrovesearchDenormIndexStrategy',
-        hexdigest='4c8784ddd08914ec779b33b8f1945b0b2ff026eea355392ab3c4fe2fe10d71fe',
+        hexdigest='ef44d5bc272589754b3b0753e5ee61719349fd96284b62ecafab1d0cb043bde9',
     )
 
     # abstract method from Elastic8IndexStrategy
@@ -111,7 +111,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     def _index_settings(cls):
         return {
             'number_of_shards': 5,
-            'number_of_replicas': 2,
+            'number_of_replicas': 1,
         }
 
     @classmethod
