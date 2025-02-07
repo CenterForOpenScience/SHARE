@@ -43,6 +43,12 @@ class BasicInputOutputTestCase(TestCase):
             pprint.pformat(_actual_output),
         )))
 
+    def enterContext(self, context_manager):
+        # TestCase.enterContext added in python3.11 -- implementing here until then
+        result = context_manager.__enter__()
+        self.addCleanup(lambda: context_manager.__exit__(None, None, None))
+        return result
+
     ###
     # private details
 

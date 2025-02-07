@@ -1,9 +1,12 @@
+import base64
+from collections import defaultdict
 import contextlib
 import dataclasses
 import datetime
-import hashlib
+import itertools
 import json
-from typing import Iterable, Union, Any
+import time
+from typing import Iterable, Union
 
 from primitive_metadata import primitive_rdf
 
@@ -33,6 +36,19 @@ from ._base import BaseRenderer
 _IriOrBlanknode = Union[str, frozenset]
 
 
+def _resource_ids_defaultdict():
+    _prefix = str(time.time_ns())
+    _ints = itertools.count()
+
+    def _iter_ids():
+        while True:
+            _id = next(_ints)
+            yield f'{_prefix}-{_id}'
+
+    _ids = _iter_ids()
+    return defaultdict(lambda: next(_ids))
+
+
 @dataclasses.dataclass
 class RdfJsonapiRenderer(BaseRenderer):
     '''render rdf data into jsonapi resources, guided by a given rdf vocabulary
@@ -58,6 +74,10 @@ class RdfJsonapiRenderer(BaseRenderer):
     _identifier_object_cache: dict = dataclasses.field(default_factory=dict)
     _id_namespace_set: Iterable[primitive_rdf.IriNamespace] = (trove_indexcard_namespace(),)
     __to_include: set[primitive_rdf.RdfObject] | None = None
+    __assigned_blanknode_resource_ids: defaultdict[frozenset, str] = dataclasses.field(
+        default_factory=_resource_ids_defaultdict,
+        repr=False,
+    )
 
     def simple_render_document(self) -> str:
         return json.dumps(
@@ -151,27 +171,14 @@ class RdfJsonapiRenderer(BaseRenderer):
         return self.iri_shorthand.compact_iri(iri)
 
     def _resource_id_for_blanknode(self, blanknode: frozenset, /):
-        # content-addressed blanknode id
-        _serializable_twoples = []
-        for _pred, _obj in blanknode:
-            _serializable_obj: Any
-            if isinstance(_obj, primitive_rdf.Literal):
-                _serializable_obj = [_obj.unicode_value, *sorted(_obj.datatype_iris)]
-            elif isinstance(_obj, (str, int, float)):
-                _serializable_obj = _obj
-            elif isinstance(_obj, frozenset):
-                _serializable_obj = self._resource_id_for_blanknode(_obj)
-            else:
-                raise ValueError(_obj)
-            _serializable_twoples.append((_pred, _serializable_obj))
-        return hashlib.sha256(json.dumps(sorted(_serializable_twoples)).encode()).hexdigest()
+        return self.__assigned_blanknode_resource_ids[blanknode]
 
     def _resource_id_for_iri(self, iri: str):
         for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
                 return primitive_rdf.iri_minus_namespace(iri, namespace=_iri_namespace)
-        # as fallback, hash the iri for a valid jsonapi member name
-        return hashlib.sha256(iri.encode()).hexdigest()
+        # as fallback, encode the iri into a valid jsonapi member name
+        return base64.urlsafe_b64encode(iri.encode()).decode()
 
     def _render_field(self, predicate_iri, object_set, *, into: dict):
         _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self.thesaurus
