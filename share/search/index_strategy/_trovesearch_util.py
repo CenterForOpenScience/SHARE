@@ -45,13 +45,7 @@ TEXT_MAPPING = {
     'type': 'text',
     'index_options': 'offsets',  # for highlighting
 }
-IRI_KEYWORD_MAPPING = {
-    'type': 'object',
-    'properties': {  # for indexing iri values two ways:
-        'exact': KEYWORD_MAPPING,  # the exact iri value (e.g. "https://foo.example/bar/")
-        'suffuniq': KEYWORD_MAPPING,  # "sufficiently unique" (e.g. "://foo.example/bar")
-    },
-}
+TEXT_PATH_DEPTH_MAX = 1
 
 
 ###
