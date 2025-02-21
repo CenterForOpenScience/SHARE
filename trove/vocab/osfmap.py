@@ -145,7 +145,12 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('affiliation', language='en'),
         },
         DCTERMS.description: {
-            literal('Please select an institution to apply to your search. Only OSF Institutions member affiliations are discoverable. Learn more about OSF Institutions.', language='en')
+            literal(
+                'Please select an institution to apply to your search. Only OSF Institutions member affiliations are discoverable.',
+                language='en')
+        },
+        OSFMAP.link_text: {
+            literal('Learn more about OSF Institutions.', language='en')
         },
         OSFMAP.link: {
             literal('https://www.cos.io/products/osf-institutions', language='en')
@@ -614,6 +619,12 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
         },
         JSONAPI_MEMBERNAME: {
             literal('shortFormLabel', language='en'),
+        },
+    },
+    OSFMAP.link_text: {
+        RDF.type: {RDF.Property},
+        JSONAPI_MEMBERNAME: {
+            literal('link_text', language='en'),
         },
     },
     OSFMAP.link: {
