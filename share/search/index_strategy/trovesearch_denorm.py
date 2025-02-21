@@ -564,7 +564,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             _results.append(CardsearchResult(
                 card_iri=_card_iri,
                 card_pk=_es8_hit['_id'],
-                text_match_evidence=list(self._gather_textmatch_evidence(_card_iri, _es8_hit)),
+                text_match_evidence=list(self._gather_textmatch_evidence(_card_iri, _es8_hit, cardsearch_params)),
             ))
         _relatedproperty_list: list[PropertypathUsage] = []
         if cardsearch_params.related_property_paths:
@@ -585,16 +585,20 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
             search_params=cardsearch_params,
         )
 
-    def _gather_textmatch_evidence(self, card_iri, es8_hit) -> Iterator[TextMatchEvidence]:
+    def _gather_textmatch_evidence(self, card_iri, es8_hit, cardsearch_params) -> Iterator[TextMatchEvidence]:
         for _field, _snippets in es8_hit.get('highlight', {}).items():
             (_, _, _encoded_path) = _field.rpartition('.')
             _property_path = _parse_path_field_name(_encoded_path)
-            for _snippet in _snippets:
-                yield TextMatchEvidence(
-                    property_path=_property_path,
-                    matching_highlight=rdf.literal(_snippet),
-                    card_iri=card_iri,
-                )
+            if (  # skip highlights on non-requested text fields
+                _property_path in cardsearch_params.cardsearch_text_paths
+                or len(_property_path) in cardsearch_params.cardsearch_text_glob_depths
+            ):
+                for _snippet in _snippets:
+                    yield TextMatchEvidence(
+                        property_path=_property_path,
+                        matching_highlight=rdf.literal(_snippet),
+                        card_iri=card_iri,
+                    )
 
 
 ###

@@ -584,6 +584,21 @@ class CardsearchParams(BaseTroveParams):
             if _filter.is_type_filter():
                 yield from _filter.value_set
 
+    @functools.cached_property
+    def cardsearch_text_paths(self) -> PropertypathSet:
+        return frozenset().union(*(
+            _textsegment.propertypath_set
+            for _textsegment in self.cardsearch_textsegment_set
+        ))
+
+    @functools.cached_property
+    def cardsearch_text_glob_depths(self) -> frozenset[int]:
+        return frozenset(
+            len(_path)
+            for _path in self.cardsearch_text_paths
+            if is_globpath(_path)
+        )
+
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
         for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('cardSearchText', self.cardsearch_textsegment_set):
