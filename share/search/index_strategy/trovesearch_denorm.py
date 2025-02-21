@@ -208,10 +208,14 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     # override method from Elastic8IndexStrategy
     def after_chunk(self, messages_chunk: messages.MessagesChunk, affected_indexnames: Iterable[str]):
+        _strategy_checks = {
+            self.parse_full_index_name(_indexname).index_strategy.strategy_check
+            for _indexname in affected_indexnames
+        }
         task__delete_iri_value_scraps.apply_async(
             kwargs={
                 'index_strategy_name': self.strategy_name,
-                'indexnames': list(affected_indexnames),
+                'index_strategy_checks': list(_strategy_checks),
                 'card_pks': messages_chunk.target_ids_chunk,
                 'timestamp': messages_chunk.timestamp,
             },
@@ -980,8 +984,8 @@ def _any_query(queries: abc.Collection[dict]):
 def task__delete_iri_value_scraps(
     task: celery.Task,
     index_strategy_name: str,
+    index_strategy_checks: list[str],
     card_pks: list[int],
-    indexnames: list[str],
     timestamp: int,
 ):
     '''followup task to delete value-docs no longer present
@@ -996,11 +1000,10 @@ def task__delete_iri_value_scraps(
     from share.search.index_strategy import get_strategy
     _index_strategy = get_strategy(index_strategy_name)
     assert isinstance(_index_strategy, TrovesearchDenormIndexStrategy)
-    _irivalue_indexnames = {
-        _index.full_index_name
-        for _index in _index_strategy.each_live_index(any_strategy_check=True)
-        if _index.subname == 'iri_values'
-    }
+    _irivalue_indexnames = [
+        _index_strategy.with_strategy_check(_check).irivaluesearch_index().full_index_name
+        for _check in index_strategy_checks
+    ]
     # delete any docs that belong to cards in this chunk but weren't touched by indexing
     _delete_resp = _index_strategy.es8_client.delete_by_query(
         index=list(_irivalue_indexnames),

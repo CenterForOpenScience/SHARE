@@ -121,7 +121,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         _strategy = self.with_strategy_check(_strategy_check)
         return _strategy.get_index(_etc[0] if _etc else '')
 
-    def with_strategy_check(self, strategy_check: str) -> IndexStrategy:
+    def with_strategy_check(self, strategy_check: str) -> typing.Self:
         return dataclasses.replace(self, strategy_check=strategy_check)
 
     def pls_setup(self, *, skip_backfill=False) -> None:
