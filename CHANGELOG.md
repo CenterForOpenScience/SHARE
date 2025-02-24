@@ -1,6 +1,15 @@
 # Change Log
 
-# [25.0.0] - 2024-12-27
+# [25.1.0] - 2025-02-24
+- update `IndexStrategy` to allow multiple indexes within a strategy
+- `trovesearch_denorm` index strategy updates:
+    - multiple indexes: one for card-search, one for value-search on iri values
+    - skip indexing some text fields (e.g. `*.identifier`, glob-paths of depth > 1)
+- reduce wasteful computing (fewer queries, less hashing)
+- add to metadata for `osfmap:affiliation`
+- improve local setup, perhaps
+
+# [25.0.0] - 2025-01-06
 - update calendar version to `25`, reset semantic versions to `0`
 - trove-search api:
   - support jsonapi `fields[TYPE]` query params; see https://jsonapi.org/format/#fetching-sparse-fieldsets
