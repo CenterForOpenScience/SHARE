@@ -149,7 +149,7 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
                 'Please select an institution to apply to your search. Only OSF Institutions member affiliations are discoverable.',
                 language='en')
         },
-        OSFMAP.link_text: {
+        OSFMAP.linkText: {
             literal('Learn more about OSF Institutions.', language='en')
         },
         OSFMAP.link: {
@@ -621,10 +621,10 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('shortFormLabel', language='en'),
         },
     },
-    OSFMAP.link_text: {
+    OSFMAP.linkText: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
-            literal('link_text', language='en'),
+            literal('linkText', language='en'),
         },
     },
     OSFMAP.link: {
