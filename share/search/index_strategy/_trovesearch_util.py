@@ -19,16 +19,12 @@ from trove.trovesearch.search_params import (
 )
 from trove.util.iris import get_sufficiently_unique_iri, is_worthwhile_iri
 from trove.vocab.namespaces import (
-    DCTERMS,
     OWL,
     RDF,
     TROVE,
     XSD,
 )
-from trove.vocab.osfmap import (
-    is_date_property,
-    SKIPPABLE_PROPERTIES,
-)
+from trove.vocab import osfmap
 
 
 _logger = logging.getLogger(__name__)
@@ -45,7 +41,6 @@ TEXT_MAPPING = {
     'type': 'text',
     'index_options': 'offsets',  # for highlighting
 }
-TEXT_PATH_DEPTH_MAX = 1
 
 
 ###
@@ -88,15 +83,6 @@ def iris_synonyms(iris: typing.Iterable[str], rdfdoc: rdf.RdfGraph) -> set[str]:
     }
 
 
-def should_skip_path(path: Propertypath) -> bool:
-    _last = path[-1]
-    if _last in SKIPPABLE_PROPERTIES:
-        return True
-    if len(path) > 1 and _last == DCTERMS.identifier:
-        return True
-    return False
-
-
 def propertypath_as_keyword(path: Propertypath) -> str:
     assert not is_globpath(path)
     return json.dumps(path)
@@ -124,6 +110,18 @@ def _dict_of_sets():
 
 @dataclasses.dataclass
 class GraphWalk:
+    '''GraphWalk: a recorded traversal of an RDF graph from a focus resource
+
+    (note: traversal performed greedily in `__post_init__`, filling values and paths fields
+    -- don't instantiate early or keep it around longer than needed)
+
+    auto-filled fields:
+    - `paths_walked` contains all (unique, acyclic) predicate-paths followed from the focus
+    - `iri_values` contains all IRIs encountered as objects along those paths
+    - `text_values`, `date_values`, and `integer_values` contain literal values encountered
+      "close to" the focus (meaning no IRI-identified resources along the path), with special
+      exception to include more distant paths from osfmap.EXTRA_INDEXED_LITERAL_PATHS
+    '''
     rdfdoc: rdf.RdfGraph
     focus_iri: str
     already_visiting: set[str] = dataclasses.field(default_factory=set)
@@ -144,19 +142,10 @@ class GraphWalk:
     def __post_init__(self):
         for _walk_path, _walk_obj in self._walk_from_subject(self.focus_iri):
             self.paths_walked.add(_walk_path)
-            if isinstance(_walk_obj, str):
-                self.iri_values[_walk_path].add(_walk_obj)
-            elif isinstance(_walk_obj, datetime.date):
+            if isinstance(_walk_obj, datetime.date):
                 self.date_values[_walk_path].add(_walk_obj)
-            elif isinstance(_walk_obj, int):
-                self.integer_values[_walk_path].add(_walk_obj)
-            elif isinstance(_walk_obj, rdf.Literal):
-                if XSD.integer in _walk_obj.datatype_iris:
-                    self.integer_values[_walk_path].add(int(_walk_obj.unicode_value))
-                if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
-                    self.text_values[_walk_path].add(_walk_obj)
-            # try for date in a date property, regardless of the above
-            if is_date_property(_walk_path[-1]) and isinstance(_walk_obj, (str, rdf.Literal)):
+            elif osfmap.is_date_property(_walk_path[-1]):  # note: osfmap-specific
+                # index date properties only as dates
                 _date_str = (
                     _walk_obj.unicode_value
                     if isinstance(_walk_obj, rdf.Literal)
@@ -168,13 +157,45 @@ class GraphWalk:
                     _logger.debug('skipping malformatted date "%s"', _date_str)
                 else:
                     self.date_values[_walk_path].add(_parsed_date)
+            elif isinstance(_walk_obj, str):
+                self.iri_values[_walk_path].add(_walk_obj)
+            elif isinstance(_walk_obj, int):
+                self.integer_values[_walk_path].add(_walk_obj)
+            elif isinstance(_walk_obj, rdf.Literal):
+                if XSD.integer in _walk_obj.datatype_iris:
+                    self.integer_values[_walk_path].add(int(_walk_obj.unicode_value))
+                if {RDF.string, RDF.langString}.intersection(_walk_obj.datatype_iris):
+                    self.text_values[_walk_path].add(_walk_obj)
 
     def shortwalk_from(self, from_iri: str) -> GraphWalk:
         return GraphWalk(
             self.rdfdoc,
             from_iri,
-            already_visiting={self.focus_iri},
+            already_visiting={*self.already_visiting, self.focus_iri},
         )
+
+    def _should_keep_literal(
+        self,
+        path: Propertypath,
+        obj: rdf.Literal,
+        *,
+        close_to_focus: bool = True,
+    ) -> bool:
+        assert path
+        if path in osfmap.EXTRA_INDEXED_LITERAL_PATHS:  # note: osfmap-specific
+            return True
+        return (
+            close_to_focus
+            and path[-1] not in osfmap.SKIPPABLE_PROPERTIES  # note: osfmap-specific
+        )
+
+    def _should_keep_related_resource(
+        self,
+        path: Propertypath,
+        obj: rdf.RdfObject,
+    ) -> bool:
+        assert path
+        return (path[-1] not in osfmap.SKIPPABLE_PROPERTIES)  # note: osfmap-specific
 
     def _walk_from_subject(
         self,
@@ -182,6 +203,9 @@ class GraphWalk:
         path_so_far: tuple[str, ...] = (),
     ) -> typing.Iterator[tuple[Propertypath, rdf.RdfObject]]:
         '''walk the graph from the given subject, yielding (pathkey, obj) for every reachable object
+
+        if `path_so_far` is non-empty then only IRIs will be yielded, not literal values
+        (recommend value-search to find the IRIs you need)
         '''
         if iri in self.already_visiting:
             return
@@ -189,17 +213,20 @@ class GraphWalk:
             _twoples = self.rdfdoc.tripledict.get(iri, {})
             for _next_steps, _obj in walk_twoples(_twoples):
                 _path = (*path_so_far, *_next_steps)
-                if not should_skip_path(_path):
-                    yield (_path, _obj)
-                    if isinstance(_obj, str):  # step further for iri
+                if isinstance(_obj, str):  # IRI
+                    if self._should_keep_related_resource(_path, _obj):
+                        yield (_path, _obj)
                         yield from self._walk_from_subject(_obj, path_so_far=_path)
+                elif self._should_keep_literal(_path, _obj, close_to_focus=(not path_so_far)):
+                    yield (_path, _obj)
 
     @functools.cached_property
-    def paths_by_iri(self) -> defaultdict[str, set[Propertypath]]:
+    def paths_by_iri(self) -> dict[str, set[Propertypath]]:
         _paths_by_iri: defaultdict[str, set[Propertypath]] = defaultdict(set)
         for _path, _iris in self.iri_values.items():
             for _iri in _iris:
                 _paths_by_iri[_iri].add(_path)
+        _paths_by_iri.default_factory = None  # now behave as a normal dictionary
         return _paths_by_iri
 
     @contextlib.contextmanager

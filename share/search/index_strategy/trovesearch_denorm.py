@@ -455,9 +455,7 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
         def _texts_by_depth(self, walk: ts.GraphWalk):
             _by_depth: dict[int, set[str]] = defaultdict(set)
             for _path, _text_set in walk.text_values.items():
-                _depth = len(_path)
-                if _depth <= ts.TEXT_PATH_DEPTH_MAX:
-                    _by_depth[_depth].update(_text.unicode_value for _text in _text_set)
+                _by_depth[len(_path)].update(_text.unicode_value for _text in _text_set)
             return {
                 _depth_field_name(_depth): list(_value_set)
                 for _depth, _value_set in _by_depth.items()
