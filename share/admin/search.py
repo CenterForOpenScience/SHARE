@@ -131,7 +131,7 @@ def _pls_make_default_for_searching(index_strategy: IndexStrategy, request_kwarg
 
 
 def _pls_delete(index_strategy: IndexStrategy, request_kwargs):
-    if request_kwargs.get('really') == 'really':
+    if request_kwargs.get('really') == 'really really':
         index_strategy.pls_teardown()
 
 
