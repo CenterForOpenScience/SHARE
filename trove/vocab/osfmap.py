@@ -926,6 +926,9 @@ NAME_PROPERTIES = (FOAF.name, OSFMAP.fileName)
 LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
+EXTRA_INDEXED_LITERAL_PATHS = frozenset((
+    (DCTERMS.creator, FOAF.name),
+))
 
 DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
     (OWL.sameAs,),  # includes DOI
