@@ -33,7 +33,7 @@ def search_indexes_view(request):
     if request.method == 'POST':
         _index_strategy = parse_strategy_name(request.POST['strategy_name'])
         _pls_doer = PLS_DOERS[request.POST['pls_do']]
-        _pls_doer(_index_strategy)
+        _pls_doer(_index_strategy, request.POST)
         _redirect_id = _index_strategy.strategy_name
         return HttpResponseRedirect('#'.join((request.path, _redirect_id)))
 
@@ -104,35 +104,35 @@ def _serialize_backfill(
     }
 
 
-def _pls_setup(index_strategy: IndexStrategy):
+def _pls_setup(index_strategy: IndexStrategy, request_kwargs):
     assert index_strategy.is_current
     index_strategy.pls_setup()
 
 
-def _pls_start_keeping_live(index_strategy: IndexStrategy):
+def _pls_start_keeping_live(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_start_keeping_live()
 
 
-def _pls_stop_keeping_live(index_strategy: IndexStrategy):
+def _pls_stop_keeping_live(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_stop_keeping_live()
 
 
-def _pls_start_backfill(index_strategy: IndexStrategy):
+def _pls_start_backfill(index_strategy: IndexStrategy, request_kwargs):
     assert index_strategy.is_current
     index_strategy.pls_start_backfill()
 
 
-def _pls_mark_backfill_complete(index_strategy: IndexStrategy):
+def _pls_mark_backfill_complete(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_mark_backfill_complete()
 
 
-def _pls_make_default_for_searching(index_strategy: IndexStrategy):
+def _pls_make_default_for_searching(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_make_default_for_searching()
 
 
-def _pls_delete(index_strategy: IndexStrategy):
-    assert not index_strategy.is_current
-    index_strategy.pls_teardown()
+def _pls_delete(index_strategy: IndexStrategy, request_kwargs):
+    if request_kwargs.get('really') == 'really':
+        index_strategy.pls_teardown()
 
 
 PLS_DOERS = {
