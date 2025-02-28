@@ -81,6 +81,15 @@ nav {
             {% trans "backfill" %}:{{ strategy_info.backfill.backfill_status }}
         </a></p>
         {% endif %}
+        {% if strategy_info.status.is_set_up %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
+          <input type="hidden" name="pls_do" value="delete" />
+          <input type="submit" value="{% trans "delete" %}" />
+          <label>{% trans "really?" %}<input type="checkbox" name="really" value="really"/></label>
+        </form>
+        {% endif %}
       </nav>
       <table>
         <tr>
@@ -139,8 +148,8 @@ nav {
             {% csrf_token %}
             <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
             <input type="hidden" name="pls_do" value="delete" />
-            <!-- TODO: confirm destructive action -->
             <input type="submit" value="{% trans "delete" %}" />
+            <label>{% trans "really?" %}<input type="checkbox" name="really" value="really"/></label>
           </form>
           {% endif %}
         </nav>
