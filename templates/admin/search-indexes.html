@@ -87,7 +87,7 @@ nav {
           <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
           <input type="hidden" name="pls_do" value="delete" />
           <input type="submit" value="{% trans "delete" %}" />
-          <label>{% trans "really?" %}<input type="checkbox" name="really" value="really"/></label>
+          <label>{% trans "really? (you have to type 'really really')" %}<input type="text" name="really"/></label>
         </form>
         {% endif %}
       </nav>
@@ -149,7 +149,7 @@ nav {
             <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
             <input type="hidden" name="pls_do" value="delete" />
             <input type="submit" value="{% trans "delete" %}" />
-            <label>{% trans "really?" %}<input type="checkbox" name="really" value="really"/></label>
+            <label>{% trans "really? (you have to type 'really really')" %}<input type="text" name="really"/></label>
           </form>
           {% endif %}
         </nav>
