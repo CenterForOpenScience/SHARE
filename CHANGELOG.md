@@ -1,5 +1,12 @@
 # Change Log
 
+# [25.1.1] - 2025-03-04
+- reduce wasteful text-field indexing (better this time)
+- on the share-admin search-indexes page:
+    - require typed confirmation when deleting indexes
+    - allow deleting way more indexes
+- (for osf search ui) update link description in osfmap
+
 # [25.1.0] - 2025-02-24
 - update `IndexStrategy` to allow multiple indexes within a strategy
 - `trovesearch_denorm` index strategy updates:
