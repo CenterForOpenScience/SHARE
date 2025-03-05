@@ -5,11 +5,7 @@ import typing
 from django.db.models import F
 import elasticsearch8
 
-from share.models import (
-    FeatureFlag,
-    FormattedMetadataRecord,
-    SourceUniqueIdentifier,
-)
+from share.models import SourceUniqueIdentifier
 from share.search import exceptions
 from share.search import messages
 from share.search.index_strategy.elastic8 import Elastic8IndexStrategy
@@ -172,22 +168,14 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
         return IDObfuscator.encode_id(suid_id, SourceUniqueIdentifier)
 
     def _load_docs(self, suid_ids) -> typing.Iterable[tuple[int, str]]:
-        if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
-            _card_qs = (
-                DerivedIndexcard.objects
-                .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
-                .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
-                .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
-            )
-            for _card in _card_qs:
-                yield (_card.suid_id, _card.derived_text)
-        else:  # legacy path: pull from FormattedMetadataRecord
-            _record_qs = FormattedMetadataRecord.objects.filter(
-                suid_id__in=suid_ids,
-                record_format='sharev2_elastic',
-            )
-            for _record in _record_qs:
-                yield (_record.suid_id, _record.formatted_metadata)
+        _card_qs = (
+            DerivedIndexcard.objects
+            .filter(upriver_indexcard__source_record_suid_id__in=suid_ids)
+            .filter(deriver_identifier__in=ResourceIdentifier.objects.queryset_for_iri(SHAREv2.sharev2_elastic))
+            .annotate(suid_id=F('upriver_indexcard__source_record_suid_id'))
+        )
+        for _card in _card_qs:
+            yield (_card.suid_id, _card.derived_text)
 
     # optional method from IndexStrategy
     def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
