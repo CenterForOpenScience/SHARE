@@ -488,10 +488,6 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
-# TODO why are these in different locations and formats??
-SUBJECTS_YAML = 'share/subjects.yaml'
-SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
-
 HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
 
 # Regulator pipeline, names of setuptools entry points
