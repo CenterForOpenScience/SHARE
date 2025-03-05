@@ -6,7 +6,6 @@ from tests import factories
 # TODO these tests belong somewhere else
 @pytest.mark.django_db
 @pytest.mark.parametrize('endpoint, factory', [
-    ('normalizeddata', factories.NormalizedDataFactory),
     ('rawdata', factories.RawDatumFactory),
 ])
 class TestPagination:

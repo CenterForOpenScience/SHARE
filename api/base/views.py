@@ -45,12 +45,9 @@ class ShareViewSet(viewsets.ViewSet):
 class RootView(views.APIView):
     def get(self, request):
         links = {
-            'normalizeddata': 'api:normalizeddata-list',
             'rawdata': 'api:rawdatum-list',
-            'sourceregistrations': 'api:sourceregistration-list',
             'sources': 'api:source-list',
             'users': 'api:user-list',
-            'schema': 'api:schema',
             'status': 'api:status',
             'rss': 'api:rss',
             'atom': 'api:atom',
