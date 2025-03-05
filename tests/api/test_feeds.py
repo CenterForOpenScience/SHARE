@@ -7,7 +7,7 @@ from lxml import etree
 
 from share.metadata_formats.sharev2_elastic import ShareV2ElasticFormatter
 
-from tests.factories import NormalizedDataFactory, RawDatumFactory
+from tests.factories import RawDatumFactory
 from tests.share.normalize import factories as f
 
 
@@ -22,7 +22,7 @@ NAMESPACES = {'atom': 'http://www.w3.org/2005/Atom'}
 class TestFeed:
 
     @pytest.fixture()
-    def fake_items(self, Graph):
+    def fake_items(self):
         records = [
             Graph(f.CreativeWork(
                 title=f'my fabulous work {i}',
