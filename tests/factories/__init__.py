@@ -1,10 +1,5 @@
-import datetime
 import hashlib
 import uuid
-from unittest import mock
-
-import pkg_resources
-import stevedore
 
 import factory
 from factory import fuzzy
@@ -13,9 +8,6 @@ import faker
 
 from project import celery_app
 
-from share.harvest import BaseHarvester
-from share.harvest.serialization import StringLikeSerializer
-from share.util.extensions import Extensions
 from share import models as share_db
 from trove import models as trove_db
 
@@ -29,26 +21,6 @@ class ShareUserFactory(DjangoModelFactory):
 
     class Meta:
         model = share_db.ShareUser
-
-
-class NormalizedDataFactory(DjangoModelFactory):
-    data = {}
-    source = factory.SubFactory(ShareUserFactory)
-
-    class Meta:
-        model = share_db.NormalizedData
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        normalized_datum = super()._generate(create, attrs)
-
-        # HACK: allow overriding auto_now_add on created_at
-        created_at = attrs.pop('created_at', None)
-        if created_at is not None:
-            normalized_datum.created_at = created_at
-            normalized_datum.save()
-
-        return normalized_datum
 
 
 class SourceFactory(DjangoModelFactory):
@@ -70,40 +42,16 @@ class ListGenerator(list):
         return (x for x in self)
 
 
-UNSET = object()  # to distinguish unset value
-
-
 class SourceConfigFactory(DjangoModelFactory):
     label = factory.Faker('sentence')
     base_url = factory.Faker('url')
     harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
-    harvester_key = UNSET
+    harvester_key = None
     transformer_key = None
 
     class Meta:
         model = share_db.SourceConfig
-
-    @factory.post_generation
-    def make_harvester(self, create, extracted, **kwargs):
-        if self.harvester_key is UNSET:
-            self.harvester_key = fake.word()
-            stevedore.ExtensionManager('share.harvesters')  # Force extensions to load
-
-            class MockHarvester(BaseHarvester):
-                KEY = self.harvester_key
-                VERSION = 1
-                SERIALIZER_CLASS = StringLikeSerializer
-
-                _do_fetch = ListGenerator()
-
-            mock_entry = mock.create_autospec(pkg_resources.EntryPoint, instance=True)
-            mock_entry.name = self.harvester_key
-            mock_entry.module_name = self.harvester_key
-            mock_entry.resolve.return_value = MockHarvester
-
-            stevedore.ExtensionManager.ENTRY_POINT_CACHE['share.harvesters'].append(mock_entry)
-            Extensions._load_namespace('share.harvesters')
 
 
 class SourceUniqueIdentifierFactory(DjangoModelFactory):
@@ -135,18 +83,6 @@ class RawDatumFactory(DjangoModelFactory):
         return raw_datum
 
 
-class HarvestJobFactory(DjangoModelFactory):
-    source_config = factory.SubFactory(SourceConfigFactory)
-    start_date = factory.Faker('date_object')
-    end_date = factory.LazyAttribute(lambda job: job.start_date + datetime.timedelta(days=1))
-
-    source_config_version = factory.SelfAttribute('source_config.version')
-    harvester_version = 1
-
-    class Meta:
-        model = share_db.HarvestJob
-
-
 class CeleryTaskResultFactory(DjangoModelFactory):
     task_id = factory.Sequence(lambda x: uuid.uuid4())
     task_name = fuzzy.FuzzyChoice(list(celery_app.tasks.keys()))
@@ -154,13 +90,6 @@ class CeleryTaskResultFactory(DjangoModelFactory):
 
     class Meta:
         model = share_db.CeleryTaskResult
-
-
-class FormattedMetadataRecordFactory(DjangoModelFactory):
-    suid = factory.SubFactory(SourceUniqueIdentifierFactory)
-
-    class Meta:
-        model = share_db.FormattedMetadataRecord
 
 
 ###
