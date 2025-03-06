@@ -342,6 +342,21 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             }
             yield action
 
+    # optional method from IndexStrategy
+    def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
+        '''the definitive sharev2-search api: passthru to elasticsearch version 5
+        '''
+        if request_queryparams:
+            request_queryparams.pop('indexStrategy', None)
+        try:
+            return self.es5_client.search(
+                index=self.STATIC_INDEXNAME,
+                body=request_body or {},
+                params=request_queryparams or {},
+            )
+        except elasticsearch5.TransportError as error:
+            raise exceptions.IndexStrategyError() from error  # TODO: error messaging
+
     class SpecificIndex(IndexStrategy.SpecificIndex):
         index_strategy: Sharev2Elastic5IndexStrategy  # narrow type
 
@@ -439,16 +454,3 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                 ),
                 doc_count=index_stats['primaries']['docs']['count'],
             )
-
-        # optional method from IndexStrategy.SpecificIndex
-        def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
-            '''the definitive sharev2-search api: passthru to elasticsearch version 5
-            '''
-            try:
-                return self.index_strategy.es5_client.search(
-                    index=self.full_index_name,
-                    body=request_body or {},
-                    params=request_queryparams or {},
-                )
-            except elasticsearch5.TransportError as error:
-                raise exceptions.IndexStrategyError() from error  # TODO: error messaging

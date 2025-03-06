@@ -179,6 +179,8 @@ class Sharev2Elastic8IndexStrategy(Elastic8IndexStrategy):
 
     # optional method from IndexStrategy
     def pls_handle_search__passthru(self, request_body=None, request_queryparams=None) -> dict:
+        if request_queryparams:
+            request_queryparams.pop('indexStrategy', None)
         try:
             json_response = self.es8_client.search(
                 index=self.get_index('').full_index_name,
