@@ -4,8 +4,6 @@ import re
 
 from primitive_metadata import primitive_rdf
 
-from share.schema import ShareV2Schema
-from share.schema.exceptions import SchemaKeyError
 from share.util import IDObfuscator
 from share import models as share_db
 from trove.vocab.namespaces import (
@@ -21,8 +19,38 @@ from trove.vocab.namespaces import (
 from ._base import IndexcardDeriver
 
 
+# the sharev2 type hierarchy is limited but nested
+_SHAREv2_TYPES_BY_SPECIFICITY = (
+    {  # most specific
+        SHAREv2.Article,
+        SHAREv2.Book,
+        SHAREv2.ConferencePaper,
+        SHAREv2.Dissertation,
+        SHAREv2.Preprint,
+        SHAREv2.Project,
+        SHAREv2.Registration,
+        SHAREv2.Report,
+        SHAREv2.Thesis,
+        SHAREv2.WorkingPaper,
+    },
+    {  # middling specific
+        SHAREv2.DataSet,
+        SHAREv2.Patent,
+        SHAREv2.Poster,
+        SHAREv2.Publication,
+        SHAREv2.Presentation,
+        SHAREv2.Repository,
+        SHAREv2.Retraction,
+        SHAREv2.Software,
+    },
+    {  # least specific
+        SHAREv2.CreativeWork,
+    },
+)
+
+
 # values that, for the purpose of indexing in elasticsearch, are equivalent to absence
-EMPTY_VALUES = (None, '', [])
+EMPTY_VALUES = (None, '', [])  # type: ignore[var-annotated]
 
 
 def strip_empty_values(thing):
@@ -216,38 +244,35 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             # TODO 'order_cited':
         }
 
-    def _sharev2_type(self, type_iri):
-        try:
-            return ShareV2Schema().get_type(_typename)
-        except SchemaKeyError:
-            return None
-
-    def _single_type(self, focus_iri):
-        _type_iris = set(self.data.q(focus_iri, RDF.type))
-        _sharev2_types = set(
-            _type_iri
-            for _type_iri in _type_iris
-            if _type_iri in SHAREv2
-        )
-        if _sharev2_types:
-            _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=SHAREv2)
-        elif type_iri in OSFMAP:
-            _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=OSFMAP)
+    def _single_type_iri(self, type_iris) -> str | None:
+        # try SHAREv2 types
+        _sharev2_type_iris = set(filter(SHAREv2.__contains__, type_iris))
+        if _sharev2_type_iris:
+            for _sharev2_typeset in _SHAREv2_TYPES_BY_SPECIFICITY:
+                _matching_type_iris = _sharev2_type_iris.intersection(_sharev2_typeset)
+                if _matching_type_iris:
+                    return _matching_type_iris.pop()  # take any one
+        # try for an OSFMAP type
+        _osfmap_type_iri = next(filter(OSFMAP.__contains__, type_iris), None)
+        if _osfmap_type_iri:
+            _typename = primitive_rdf.iri_minus_namespace(_osfmap_type_iri, namespace=OSFMAP)
+            # sharev2 backcompat: components are not a separate type
             if _typename == 'RegistrationComponent':
                 _typename = 'Registration'
             elif _typename == 'ProjectComponent':
                 _typename = 'Project'
-        else:
-            return None
-        def _type_sortkey(sharev2_type):
-            return sharev2_type.distance_from_concrete_type
-        _types = filter(None, (
-            self._sharev2_type(_type_iri)
-        ))
-        _sorted_types = sorted(_types, key=_type_sortkey, reverse=True)
-        if not _sorted_types:
-            return None
-        return self._format_typename(_sorted_types[0].name)
+            # try for a matching type in SHAREv2, but fall back to CreativeWork
+            return self._single_type_iri([SHAREv2[_typename], SHAREv2.CreativeWork])
+        return None
+
+    def _single_type(self, focus_iri):
+        _type_iris = set(self.data.q(focus_iri, RDF.type))
+        _type_iri = self._single_type_iri(_type_iris)
+        return (
+            self._format_type_iri(_type_iri)
+            if _type_iri
+            else None
+        )
 
     def _type_list(self, focus_iri):
         return sorted(
