@@ -217,7 +217,19 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         }
 
     def _sharev2_type(self, type_iri):
-        if type_iri in SHAREv2:
+        try:
+            return ShareV2Schema().get_type(_typename)
+        except SchemaKeyError:
+            return None
+
+    def _single_type(self, focus_iri):
+        _type_iris = set(self.data.q(focus_iri, RDF.type))
+        _sharev2_types = set(
+            _type_iri
+            for _type_iri in _type_iris
+            if _type_iri in SHAREv2
+        )
+        if _sharev2_types:
             _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=SHAREv2)
         elif type_iri in OSFMAP:
             _typename = primitive_rdf.iri_minus_namespace(type_iri, namespace=OSFMAP)
@@ -227,20 +239,10 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                 _typename = 'Project'
         else:
             return None
-        try:
-            return ShareV2Schema().get_type(_typename)
-        except SchemaKeyError:
-            return None
-
-    def _single_type(self, focus_iri):
         def _type_sortkey(sharev2_type):
             return sharev2_type.distance_from_concrete_type
         _types = filter(None, (
             self._sharev2_type(_type_iri)
-            for _type_iri in self.data.q(
-                focus_iri,
-                RDF.type,
-            )
         ))
         _sorted_types = sorted(_types, key=_type_sortkey, reverse=True)
         if not _sorted_types:
