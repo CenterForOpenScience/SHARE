@@ -132,6 +132,7 @@ class SourceConfig(models.Model):
 
     source = models.ForeignKey('Source', on_delete=models.CASCADE, related_name='source_configs')
     base_url = models.URLField(null=True)
+    transformer_key = models.TextField(null=True)
 
     disabled = models.BooleanField(default=False)
 

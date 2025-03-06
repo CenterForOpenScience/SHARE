@@ -46,6 +46,7 @@ class SourceConfigFactory(DjangoModelFactory):
     label = factory.Faker('sentence')
     base_url = factory.Faker('url')
     source = factory.SubFactory(SourceFactory)
+    transformer_key = None
 
     class Meta:
         model = share_db.SourceConfig

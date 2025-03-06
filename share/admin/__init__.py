@@ -58,7 +58,6 @@ class RawDatumAdmin(admin.ModelAdmin):
     list_display = ('id', 'identifier', 'source_config_label', 'datestamp', 'date_created', 'date_modified', )
     readonly_fields = ('datum__pre', 'sha256')
     exclude = ('datum',)
-    raw_id_fields = ('jobs',)
     paginator = TimeLimitedPaginator
 
     def identifier(self, obj):
