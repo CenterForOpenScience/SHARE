@@ -6,12 +6,17 @@ from unittest import mock
 
 from primitive_metadata import primitive_rdf as rdf
 
-from tests import factories
 from share.search import messages
 from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
 from trove.trovesearch.search_handle import PropertypathUsage
-from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF, DCAT
+from trove.vocab.namespaces import RDFS, RDF, DCTERMS, OWL, FOAF, DCAT, TROVE
+from tests.share.search._util import (
+    create_indexcard,
+    update_indexcard_content,
+    create_supplement,
+)
+
 from ._with_real_services import RealElasticTestCase
 
 
@@ -214,7 +219,6 @@ class CommonTrovesearchTests(RealElasticTestCase):
         assert isinstance(_cardsearch_params, CardsearchParams)
         _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
         # assumes all results fit on one page
-        breakpoint()  # TODO: _indexcard_focus_by_uuid
         _actual_result_iris: set[str] | list[str] = [
             self._indexcard_focus_by_uuid[_result.card_uuid]
             for _result in _cardsearch_handle.search_result_page
@@ -300,7 +304,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 FOAF.name: {rdf.literal('some one else')},
             },
         })
-        self._create_supplement(_card_a, BLARG.a, {
+        create_supplement(_card_a, BLARG.a, {
             BLARG.a: {
                 DCTERMS.replaces: {BLARG.a_past},
                 DCAT.servesDataset: {
@@ -308,7 +312,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 },
             },
         })
-        self._create_supplement(_card_b, BLARG.b, {
+        create_supplement(_card_b, BLARG.b, {
             BLARG.b: {
                 DCTERMS.replaces: {BLARG.b_past},
                 DCAT.servesDataset: {
@@ -316,7 +320,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 },
             },
         })
-        self._create_supplement(_card_c, BLARG.c, {
+        create_supplement(_card_c, BLARG.c, {
             BLARG.c: {
                 DCTERMS.replaces: {BLARG.c_past},
                 DCAT.servesDataset: {
@@ -606,6 +610,20 @@ class CommonTrovesearchTests(RealElasticTestCase):
             },
             {BLARG.subj_ac, BLARG.subj_a, BLARG.subj_c, BLARG.subj_bc},
         )
+
+    def _create_indexcard(self, focus_iri: str, rdf_tripledict: rdf.RdfTripleDictionary) -> trove_db.Indexcard:
+        _indexcard = create_indexcard(focus_iri, rdf_tripledict, (TROVE['derive/osfmap_json'],))
+        self._indexcard_focus_by_uuid[str(_indexcard.uuid)] = focus_iri
+        return _indexcard
+
+    def _update_indexcard_content(
+        self,
+        indexcard: trove_db.Indexcard,
+        focus_iri: str,
+        rdf_tripledict: rdf.RdfTripleDictionary,
+    ) -> None:
+        update_indexcard_content(indexcard, focus_iri, rdf_tripledict)
+        self._indexcard_focus_by_uuid[str(indexcard.uuid)] = focus_iri
 
     def _index_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
         _messages_chunk = messages.MessagesChunk(

@@ -1,20 +1,23 @@
+import typing
+
 from tests import factories
 
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import models as trove_db
-from trove.vocab.namespaces import RDFS, TROVE, RDF, DCTERMS, OWL, FOAF, DCAT
+from trove import digestive_tract
 
 
-def create_indexcard(focus_iri: str, rdf_tripledict: rdf.RdfTripleDictionary) -> trove_db.Indexcard:
+def create_indexcard(
+    focus_iri: str,
+    rdf_tripledict: rdf.RdfTripleDictionary,
+    deriver_iris: typing.Collection[str] = (),
+) -> trove_db.Indexcard:
     _suid = factories.SourceUniqueIdentifierFactory()
     _indexcard = trove_db.Indexcard.objects.create(source_record_suid=_suid)
     update_indexcard_content(_indexcard, focus_iri, rdf_tripledict)
-    # an osfmap_json card is required for indexing, but not used in these tests
-    trove_db.DerivedIndexcard.objects.get_or_create(
-        upriver_indexcard=_indexcard,
-        deriver_identifier=trove_db.ResourceIdentifier.objects.get_or_create_for_iri(TROVE['derive/osfmap_json']),
-    )
+    if deriver_iris:
+        digestive_tract.derive(_indexcard, deriver_iris)
     return _indexcard
 
 
@@ -33,7 +36,6 @@ def update_indexcard_content(
             'turtle_checksum_iri': 'foo',  # not enforced
         },
     )
-    self._indexcard_focus_by_uuid[str(indexcard.uuid)] = focus_iri
 
 
 def create_supplement(
