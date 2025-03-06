@@ -11,7 +11,6 @@ __all__ = ('swallow', 'extract', 'derive')
 import copy
 import datetime
 import logging
-import typing
 
 import celery
 from django.db import transaction
@@ -21,7 +20,11 @@ from share import models as share_db
 from share.search import IndexMessenger
 from share.util.checksum_iri import ChecksumIri
 from trove import models as trove_db
-from trove.exceptions import DigestiveError, CannotDigestExpiredDatum
+from trove.exceptions import (
+    CannotDigestExpiredDatum,
+    DigestiveError,
+    MissingMediatype,
+)
 from trove.extract import get_rdf_extractor_class
 from trove.derive import get_deriver_classes
 from trove.vocab.namespaces import RDFS, RDF, OWL
@@ -76,34 +79,6 @@ def swallow(
         mediatype=record_mediatype,
         datestamp=(datestamp or datetime.datetime.now(tz=datetime.timezone.utc)),
         expiration_date=expiration_date,
-    )
-    _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
-    return _task.id
-
-
-@transaction.atomic
-def swallow__sharev2_legacy(
-    *,  # all keyword-args
-    from_user: share_db.ShareUser,
-    record: str,
-    record_identifier: str,
-    transformer_key: str,
-    datestamp=None,  # default "now"
-    urgent=False,
-):
-    _source_config = (
-        share_db.SourceConfig.objects
-        .get_or_create_push_config(from_user, transformer_key)
-    )
-    _suid, _suid_created = share_db.SourceUniqueIdentifier.objects.get_or_create(
-        source_config=_source_config,
-        identifier=record_identifier,
-    )
-    _raw = share_db.RawDatum.objects.store_datum_for_suid(
-        suid=_suid,
-        datum=record,
-        mediatype=None,  # indicate sharev2-legacy flow
-        datestamp=(datestamp or datetime.datetime.now(tz=datetime.timezone.utc)),
     )
     _task = task__extract_and_derive.delay(_raw.id, urgent=urgent)
     return _task.id
@@ -253,15 +228,14 @@ def task__extract_and_derive(task: celery.Task, raw_id: int, urgent=False):
     if _source_config.disabled or _source_config.source.is_deleted:
         expel_suid(_raw.suid)
     else:
-        if _raw.mediatype:
-            _indexcards = extract(_raw, undelete_indexcards=urgent)
-            if _raw.is_latest():
-                _messenger = IndexMessenger(celery_app=task.app)
-                for _indexcard in _indexcards:
-                    derive(_indexcard)
-                _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
-        else:  # no mediatype => legacy flow
-            _sharev2_legacy_ingest(_raw, urgent=urgent)
+        if not _raw.mediatype:
+            raise MissingMediatype(_raw)
+        _indexcards = extract(_raw, undelete_indexcards=urgent)
+        if _raw.is_latest():
+            _messenger = IndexMessenger(celery_app=task.app)
+            for _indexcard in _indexcards:
+                derive(_indexcard)
+            _messenger.notify_indexcard_update(_indexcards, urgent=urgent)
 
 
 @celery.shared_task(acks_late=True, bind=True)
@@ -311,24 +285,3 @@ def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
 @celery.shared_task(acks_late=True)
 def task__expel_expired_data():
     expel_expired_data(datetime.date.today())
-
-
-# TODO: remove legacy ingest
-def _sharev2_legacy_ingest(raw, urgent: bool):
-    assert raw.mediatype is None, 'raw datum has a mediatype -- did you mean to call non-legacy extract?'
-    _extractor = get_rdf_extractor_class(None)(raw.suid.source_config)
-    if typing.TYPE_CHECKING:
-        from trove.extract.legacy_sharev2 import LegacySharev2Extractor
-        assert isinstance(_extractor, LegacySharev2Extractor)
-    _sharev2graph = _extractor.extract_sharev2_graph(raw.datum)
-    _centralnode = _sharev2graph.get_central_node(guess=True)
-    _normd = share_db.NormalizedData.objects.create(
-        data=_centralnode.graph.to_jsonld(),
-        source=raw.suid.source_config.source.user,
-        raw=raw,
-    )
-    share_db.FormattedMetadataRecord.objects.save_formatted_records(
-        raw.suid,
-        normalized_datum=_normd,
-    )
-    IndexMessenger().notify_suid_update([raw.suid_id], urgent=urgent)
