@@ -45,10 +45,7 @@ class ListGenerator(list):
 class SourceConfigFactory(DjangoModelFactory):
     label = factory.Faker('sentence')
     base_url = factory.Faker('url')
-    harvest_after = '00:00'
     source = factory.SubFactory(SourceFactory)
-    harvester_key = None
-    transformer_key = None
 
     class Meta:
         model = share_db.SourceConfig
