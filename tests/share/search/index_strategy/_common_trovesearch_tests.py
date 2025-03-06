@@ -214,6 +214,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
         assert isinstance(_cardsearch_params, CardsearchParams)
         _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
         # assumes all results fit on one page
+        breakpoint()  # TODO: _indexcard_focus_by_uuid
         _actual_result_iris: set[str] | list[str] = [
             self._indexcard_focus_by_uuid[_result.card_uuid]
             for _result in _cardsearch_handle.search_result_page
@@ -621,49 +622,3 @@ class CommonTrovesearchTests(RealElasticTestCase):
         for _indexcard in indexcards:
             _indexcard.pls_delete(notify_indexes=False)  # notify by hand to know when done
         self._index_indexcards(indexcards)
-
-    def _create_indexcard(self, focus_iri: str, rdf_tripledict: rdf.RdfTripleDictionary) -> trove_db.Indexcard:
-        _suid = factories.SourceUniqueIdentifierFactory()
-        _indexcard = trove_db.Indexcard.objects.create(source_record_suid=_suid)
-        self._update_indexcard_content(_indexcard, focus_iri, rdf_tripledict)
-        # an osfmap_json card is required for indexing, but not used in these tests
-        trove_db.DerivedIndexcard.objects.get_or_create(
-            upriver_indexcard=_indexcard,
-            deriver_identifier=trove_db.ResourceIdentifier.objects.get_or_create_for_iri(TROVE['derive/osfmap_json']),
-        )
-        return _indexcard
-
-    def _update_indexcard_content(
-        self,
-        indexcard: trove_db.Indexcard,
-        focus_iri: str,
-        rdf_tripledict: rdf.RdfTripleDictionary,
-    ) -> None:
-        _raw = factories.RawDatumFactory(suid=indexcard.source_record_suid)
-        trove_db.LatestIndexcardRdf.objects.update_or_create(
-            indexcard=indexcard,
-            defaults={
-                'from_raw_datum': _raw,
-                'focus_iri': focus_iri,
-                'rdf_as_turtle': rdf.turtle_from_tripledict(rdf_tripledict),
-                'turtle_checksum_iri': 'foo',  # not enforced
-            },
-        )
-        self._indexcard_focus_by_uuid[str(indexcard.uuid)] = focus_iri
-
-    def _create_supplement(
-        self,
-        indexcard: trove_db.Indexcard,
-        focus_iri: str,
-        rdf_tripledict: rdf.RdfTripleDictionary,
-    ) -> trove_db.SupplementaryIndexcardRdf:
-        _supp_suid = factories.SourceUniqueIdentifierFactory()
-        _supp_raw = factories.RawDatumFactory(suid=_supp_suid)
-        return trove_db.SupplementaryIndexcardRdf.objects.create(
-            from_raw_datum=_supp_raw,
-            indexcard=indexcard,
-            supplementary_suid=_supp_suid,
-            focus_iri=focus_iri,
-            rdf_as_turtle=rdf.turtle_from_tripledict(rdf_tripledict),
-            turtle_checksum_iri='sup',  # not enforced
-        )

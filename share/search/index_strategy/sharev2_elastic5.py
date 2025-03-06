@@ -7,13 +7,15 @@ from django.conf import settings
 import elasticsearch5
 import elasticsearch5.helpers
 
-from share.models import FormattedMetadataRecord, SourceUniqueIdentifier
+from share.models import SourceUniqueIdentifier
 from share.search import exceptions, messages
 from share.search.index_status import IndexStatus
 from share.search.index_strategy._base import IndexStrategy
 from share.search.index_strategy._util import timestamp_to_readable_datetime
 from share.util import IDObfuscator
 from share.util.checksum_iri import ChecksumIri
+from trove import models as trove_db
+from trove.vocab.namespaces import SHAREv2
 
 
 logger = logging.getLogger(__name__)
@@ -300,14 +302,20 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
             '_type': 'creativeworks',
         }
         suid_ids = set(messages_chunk.target_ids_chunk)
-        record_qs = FormattedMetadataRecord.objects.filter(
-            suid_id__in=suid_ids,
-            record_format='sharev2_elastic',  # TODO specify in config? or don't
+        _derived_qs = (
+            trove_db.DerivedIndexcard.objects
+            .filter(upriver_indexcard__source_record_suid_id=suid_ids)
+            .filter(deriver_identifier__in=(
+                trove_db.ResourceIdentifier.objects
+                .queryset_for_iri(SHAREv2.sharev2_elastic)
+            ))
+            .select_related('upriver_indexcard')
         )
-        for record in record_qs:
-            doc_id = get_doc_id(record.suid_id)
-            suid_ids.remove(record.suid_id)
-            source_doc = json.loads(record.formatted_metadata)
+        for _derived_card in _derived_qs:
+            _suid_id = _derived_card.upriver_indexcard.source_record_suid_id
+            doc_id = get_doc_id(_suid_id)
+            suid_ids.remove(_suid_id)
+            source_doc = json.loads(_derived_card.derived_text)
             assert source_doc['id'] == doc_id
             if source_doc.pop('is_deleted', False):
                 action = {
@@ -322,9 +330,9 @@ class Sharev2Elastic5IndexStrategy(IndexStrategy):
                     '_op_type': 'index',
                     '_source': source_doc,
                 }
-            logger.debug('built action for suid_id=%s: %s', record.suid_id, action)
+            logger.debug('built action for suid_id=%s: %s', _suid_id, action)
             yield action
-        # delete any that don't have the expected FormattedMetadataRecord
+        # delete any that don't have the expected DerivedIndexcard
         for leftover_suid_id in suid_ids:
             logger.debug('deleting suid_id=%s', leftover_suid_id)
             action = {

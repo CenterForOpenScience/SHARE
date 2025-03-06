@@ -12,8 +12,8 @@ import django.utils.timezone
 import share.models.core
 import share.models.fields
 import share.models.ingest
-import share.models.jobs
 import share.models.validators
+import share.version
 
 
 class Migration(migrations.Migration):
@@ -150,7 +150,7 @@ class Migration(migrations.Migration):
                 ('date_started', models.DateTimeField(blank=True, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('share_version', models.TextField(default=share.models.jobs.get_share_version, editable=False)),
+                ('share_version', models.TextField(default=share.version.get_share_version, editable=False)),
                 ('source_config_version', models.PositiveIntegerField()),
                 ('end_date', models.DateTimeField(db_index=True)),
                 ('start_date', models.DateTimeField(db_index=True)),
@@ -323,7 +323,7 @@ class Migration(migrations.Migration):
                 ('traceback', models.TextField(blank=True, editable=False, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('share_version', models.TextField(default=share.models.jobs.get_share_version, editable=False)),
+                ('share_version', models.TextField(default=share.version.get_share_version, editable=False)),
             ],
             options={
                 'verbose_name': 'Celery Task Result',
@@ -440,7 +440,7 @@ class Migration(migrations.Migration):
                 ('date_started', models.DateTimeField(blank=True, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True, db_index=True)),
-                ('share_version', models.TextField(default=share.models.jobs.get_share_version, editable=False)),
+                ('share_version', models.TextField(default=share.version.get_share_version, editable=False)),
                 ('source_config_version', models.PositiveIntegerField()),
                 ('transformer_version', models.PositiveIntegerField()),
                 ('regulator_version', models.PositiveIntegerField()),
