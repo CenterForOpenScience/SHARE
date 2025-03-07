@@ -49,12 +49,18 @@ OSFMAP = rdf.IriNamespace('https://osf.io/vocab/2022/')
 # for identifying jsonapi concepts with linked anchors on the jsonapi spec (probably fine)
 JSONAPI = rdf.IriNamespace('https://jsonapi.org/format/1.1/#')
 
-
-NAMESPACES_SHORTHAND = DEFAULT_SHORTHAND.with_update({
+_NAMESPACES_BY_PREFIX = {
     'trove': TROVE,
     'sharev2': SHAREv2,
     'osf': OSFMAP,
     'jsonapi': JSONAPI,
     'oai': OAI,
     'oai_dc': OAI_DC,
-})
+}
+
+if __debug__:  # blarg: a nothing namespace for examples and testing
+    BLARG = rdf.IriNamespace('http://blarg.example/vocab/')
+    _NAMESPACES_BY_PREFIX['blarg'] = BLARG
+
+
+NAMESPACES_SHORTHAND = DEFAULT_SHORTHAND.with_update(_NAMESPACES_BY_PREFIX)

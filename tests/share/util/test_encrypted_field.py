@@ -3,6 +3,7 @@ import pytest
 from share.models.fields import EncryptedJSONField
 
 
+# TODO: remove after migrations have been fully squashed
 class TestEncryptedJsonField:
 
     @pytest.fixture

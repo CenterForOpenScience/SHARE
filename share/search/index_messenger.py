@@ -10,7 +10,6 @@ import kombu.simple
 import requests
 import sentry_sdk
 
-from share.models import FeatureFlag
 from share.search.messages import MessagesChunk, MessageType
 from share.search import index_strategy
 

@@ -1,12 +1,12 @@
-import json
 import unittest
 
 from django.conf import settings
+from primitive_metadata import primitive_rdf as rdf
 
-from tests import factories
 from share.search import messages
 from share.search.index_strategy.sharev2_elastic5 import Sharev2Elastic5IndexStrategy
-from share.util import IDObfuscator
+from tests.share.search._util import create_indexcard
+from trove.vocab.namespaces import DCTERMS, SHAREv2, RDF, BLARG
 from ._with_real_services import RealElasticTestCase
 
 
@@ -18,6 +18,19 @@ class TestSharev2Elastic5(RealElasticTestCase):
         if not index_strategy.STATIC_INDEXNAME.startswith('test_'):
             index_strategy.STATIC_INDEXNAME = f'test_{index_strategy.STATIC_INDEXNAME}'
         return index_strategy
+
+    def setUp(self):
+        super().setUp()
+        self.__indexcard = create_indexcard(
+            BLARG.hello,
+            {
+                BLARG.hello: {
+                    RDF.type: {SHAREv2.CreativeWork},
+                    DCTERMS.title: {rdf.literal('hello', language='en')},
+                },
+            },
+            deriver_iris=[SHAREv2.sharev2_elastic],
+        )
 
     def test_without_daemon(self):
         _formatted_record = self._get_formatted_record()
@@ -39,17 +52,6 @@ class TestSharev2Elastic5(RealElasticTestCase):
         self._assert_happypath_with_daemon(
             _messages_chunk,
             expected_doc_count=1,
-        )
-
-    def _get_formatted_record(self):
-        suid = factories.SourceUniqueIdentifierFactory()
-        return factories.FormattedMetadataRecordFactory(
-            suid=suid,
-            record_format='sharev2_elastic',
-            formatted_metadata=json.dumps({
-                'id': IDObfuscator.encode(suid),
-                'title': 'hello',
-            })
         )
 
     # override RealElasticTestCase to match hacks done with assumptions

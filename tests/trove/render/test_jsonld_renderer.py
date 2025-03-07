@@ -13,7 +13,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
         'simple_card': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": BLARG.aCard,
+                "@id": "blarg:aCard",
                 "dcterms:issued": [
                     {
                         "@type": "xsd:date",
@@ -27,7 +27,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                     }
                 ],
                 "foaf:primaryTopic": [
-                    BLARG.anItem
+                    "blarg:anItem"
                 ],
                 "rdf:type": [
                     "trove:Indexcard",
@@ -47,40 +47,40 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
         'various_types': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": BLARG.aSubject,
-                BLARG.hasDateLiteral: [
+                "@id": "blarg:aSubject",
+                "blarg:hasDateLiteral": [
                     {
                         "@type": "xsd:date",
                         "@value": "2024-01-01"
                     }
                 ],
-                BLARG.hasIntegerLiteral: [
+                "blarg:hasIntegerLiteral": [
                     {
                         "@type": "xsd:integer",
                         "@value": "17"
                     }
                 ],
-                BLARG.hasIri: [
-                    BLARG.anIri
+                "blarg:hasIri": [
+                    "blarg:anIri"
                 ],
-                BLARG.hasRdfLangStringLiteral: [
+                "blarg:hasRdfLangStringLiteral": [
                     {
                         "@language": "en",
                         "@value": "a rdf:langString literal"
                     }
                 ],
-                BLARG.hasRdfStringLiteral: [
+                "blarg:hasRdfStringLiteral": [
                     {
                         "@value": "an rdf:string literal"
                     }
                 ],
-                BLARG.hasStrangeLiteral: [
+                "blarg:hasStrangeLiteral": [
                     {
-                        "@type": BLARG.aStrangeDatatype,
+                        "@type": "blarg:aStrangeDatatype",
                         "@value": "a literal of strange datatype"
                     }
                 ],
-                "rdf:type": [BLARG.aType],
+                "rdf:type": ["blarg:aType"],
             }),
         ),
     }
@@ -93,7 +93,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
         'no_results': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": BLARG.aSearch,
+                "@id": "blarg:aSearch",
                 "rdf:type": [
                     "trove:Cardsearch"
                 ],
@@ -106,7 +106,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
         'few_results': SimpleRendering(
             mediatype='application/ld+json',
             rendered_content=json.dumps({
-                "@id": BLARG.aSearchFew,
+                "@id": "blarg:aSearchFew",
                 "rdf:type": [
                     "trove:Cardsearch"
                 ],
@@ -122,7 +122,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": BLARG.aCard,
+                                    "@id": "blarg:aCard",
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -136,7 +136,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        BLARG.anItem
+                                        "blarg:anItem"
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",
@@ -158,7 +158,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": BLARG.aCardd,
+                                    "@id": "blarg:aCardd",
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -172,7 +172,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        BLARG.anItemm
+                                        "blarg:anItemm"
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",
@@ -194,7 +194,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     "trove:SearchResult"
                                 ],
                                 "trove:indexCard": {
-                                    "@id": BLARG.aCarddd,
+                                    "@id": "blarg:aCarddd",
                                     "dcterms:issued": [
                                         {
                                             "@type": "xsd:date",
@@ -208,7 +208,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        BLARG.anItemmm
+                                        "blarg:anItemmm"
                                     ],
                                     "rdf:type": [
                                         "trove:Indexcard",

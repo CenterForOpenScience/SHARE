@@ -2,12 +2,9 @@ from primitive_metadata import primitive_rdf as rdf
 
 from share.search import messages
 from share.search.index_strategy.sharev2_elastic8 import Sharev2Elastic8IndexStrategy
-from trove.vocab.namespaces import DCTERMS, SHAREv2
+from trove.vocab.namespaces import DCTERMS, SHAREv2, RDF, BLARG
 from tests.share.search._util import create_indexcard
 from ._with_real_services import RealElasticTestCase
-
-
-BLARG = rdf.IriNamespace('http://blarg.example/')
 
 
 class TestSharev2Elastic8(RealElasticTestCase):
@@ -21,7 +18,8 @@ class TestSharev2Elastic8(RealElasticTestCase):
             BLARG.hello,
             {
                 BLARG.hello: {
-                    DCTERMS.title: {rdf.Literal('hello', language='en')},
+                    RDF.type: {SHAREv2.CreativeWork},
+                    DCTERMS.title: {rdf.literal('hello', language='en')},
                 },
             },
             deriver_iris=[SHAREv2.sharev2_elastic],

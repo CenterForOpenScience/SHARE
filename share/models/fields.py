@@ -58,11 +58,6 @@ class DateTimeAwareJSONField(models.JSONField):
         )
 
 
-# stub left just for migrations
-class TypedManyToManyField(models.ManyToManyField):
-    pass
-
-
 class ShareURLField(models.TextField):
     default_validators = [validators.URLValidator()]
     description = _("URL")
@@ -87,6 +82,7 @@ class ShareURLField(models.TextField):
         return super(ShareURLField, self).formfield(**defaults)
 
 
+# TODO: remove after migrations have been fully squashed
 class EncryptedJSONField(models.BinaryField):
     """
     This field transparently encrypts data in the database. It should probably only be used with PG unless

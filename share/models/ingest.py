@@ -3,13 +3,9 @@ import hashlib
 import logging
 
 from django.core import validators
-from django.core.files.base import ContentFile
-from django.core.files.storage import Storage
 from django.db import connection
 from django.db import models
 from django.db.models.functions import Coalesce
-from django.urls import reverse
-from django.utils.deconstruct import deconstructible
 import sentry_sdk
 
 from share.models.core import ShareUser
@@ -22,34 +18,12 @@ logger = logging.getLogger(__name__)
 __all__ = ('Source', 'SourceConfig', 'RawDatum', )
 
 
-class SourceIcon(models.Model):
-    source_name = models.TextField(unique=True)
-    image = models.BinaryField()
+def icon_name():
+    ...  # removed; stub for past migrations only
 
 
-@deconstructible
-class SourceIconStorage(Storage):
-    def _open(self, name, mode='rb'):
-        assert mode == 'rb'
-        icon = SourceIcon.objects.get(source_name=name)
-        return ContentFile(icon.image)
-
-    def _save(self, name, content):
-        SourceIcon.objects.update_or_create(source_name=name, defaults={'image': content.read()})
-        return name
-
-    def delete(self, name):
-        SourceIcon.objects.get(source_name=name).delete()
-
-    def get_available_name(self, name, max_length=None):
-        return name
-
-    def url(self, name):
-        return reverse('source_icon', kwargs={'source_name': name})
-
-
-def icon_name(instance, filename):
-    return instance.name
+def SourceIconStorage():
+    ...  # removed; stub for past migrations only
 
 
 class NaturalKeyManager(models.Manager):
@@ -67,7 +41,6 @@ class Source(models.Model):
     name = models.TextField(unique=True)
     long_title = models.TextField(unique=True)
     home_page = models.URLField(null=True, blank=True)
-    icon = models.ImageField(upload_to=icon_name, storage=SourceIconStorage(), blank=True)
     is_deleted = models.BooleanField(default=False)
 
     # Whether or not this SourceConfig collects original content
@@ -203,7 +176,7 @@ class RawDatumManager(FuzzyCountManager):
             # keep the latest datestamp
             if (not _raw.datestamp) or (datestamp > _raw.datestamp):
                 _raw.datestamp = datestamp
-            _raw.save(update_fields=('mediatype', 'datestamp', 'expiration_date'))
+            _raw.save(update_fields=('mediatype', 'datestamp', 'expiration_date', 'date_modified'))
         return _raw
 
     def latest_by_suid_id(self, suid_id) -> models.QuerySet:
@@ -257,10 +230,6 @@ class RawDatum(models.Model):
     ))
 
     objects = RawDatumManager()
-
-    @property
-    def created(self):
-        return self.date_modified == self.date_created
 
     def is_latest(self):
         return (

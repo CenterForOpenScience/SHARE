@@ -1,4 +1,4 @@
-import typing
+from collections.abc import Collection
 
 from tests import factories
 
@@ -11,7 +11,7 @@ from trove import digestive_tract
 def create_indexcard(
     focus_iri: str,
     rdf_tripledict: rdf.RdfTripleDictionary,
-    deriver_iris: typing.Collection[str] = (),
+    deriver_iris: Collection[str] = (),
 ) -> trove_db.Indexcard:
     _suid = factories.SourceUniqueIdentifierFactory()
     _indexcard = trove_db.Indexcard.objects.create(source_record_suid=_suid)

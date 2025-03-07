@@ -10,7 +10,7 @@ from share.search import messages
 from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
 from trove.trovesearch.search_handle import PropertypathUsage
-from trove.vocab.namespaces import RDFS, RDF, DCTERMS, OWL, FOAF, DCAT, TROVE
+from trove.vocab.namespaces import RDFS, RDF, DCTERMS, OWL, FOAF, DCAT, TROVE, BLARG
 from tests.share.search._util import (
     create_indexcard,
     update_indexcard_content,
@@ -18,9 +18,6 @@ from tests.share.search._util import (
 )
 
 from ._with_real_services import RealElasticTestCase
-
-
-BLARG = rdf.IriNamespace('https://blarg.example/blarg/')
 
 
 class CommonTrovesearchTests(RealElasticTestCase):

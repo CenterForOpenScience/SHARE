@@ -51,6 +51,10 @@ class Migration(migrations.Migration):
             name='job',
         ),
         migrations.RemoveField(
+            model_name='source',
+            name='icon',
+        ),
+        migrations.RemoveField(
             model_name='sourcestat',
             name='config',
         ),
@@ -128,6 +132,9 @@ class Migration(migrations.Migration):
         ),
         migrations.DeleteModel(
             name='RawDatumJob',
+        ),
+        migrations.DeleteModel(
+            name='SourceIcon',
         ),
         migrations.DeleteModel(
             name='SourceStat',
