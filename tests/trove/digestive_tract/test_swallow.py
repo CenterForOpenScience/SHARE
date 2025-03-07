@@ -12,7 +12,7 @@ class TestDigestiveTractSwallow(TestCase):
     def setUpTestData(cls):
         cls.user = factories.ShareUserFactory()
         cls.turtle = '''
-@prefix blarg: <https://blarg.example/> .
+@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this
     a blarg:Thing ;
     blarg:like blarg:that .
@@ -28,14 +28,14 @@ blarg:this
                 record=self.turtle,
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
-                focus_iri='https://blarg.example/this',
+                focus_iri='http://blarg.example/vocab/this',
             )
         (_raw,) = share_db.RawDatum.objects.all()
         self.assertEqual(_raw.datum, self.turtle)
         self.assertEqual(_raw.mediatype, 'text/turtle')
         self.assertIsNone(_raw.expiration_date)
         self.assertEqual(_raw.suid.identifier, 'blarg')
-        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/this')
+        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/vocab/this')
         self.assertEqual(_raw.suid.source_config.source.user_id, self.user.id)
         self.assertFalse(_raw.suid.is_supplementary)
         _mock_task.delay.assert_called_once_with(_raw.id, urgent=False)
@@ -47,7 +47,7 @@ blarg:this
                 record=self.turtle,
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
-                focus_iri='https://blarg.example/this',
+                focus_iri='http://blarg.example/vocab/this',
                 urgent=True
             )
         (_raw,) = share_db.RawDatum.objects.all()
@@ -55,7 +55,7 @@ blarg:this
         self.assertEqual(_raw.mediatype, 'text/turtle')
         self.assertIsNone(_raw.expiration_date)
         self.assertEqual(_raw.suid.identifier, 'blarg')
-        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/this')
+        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/vocab/this')
         self.assertEqual(_raw.suid.source_config.source.user_id, self.user.id)
         self.assertFalse(_raw.suid.is_supplementary)
         _mock_task.delay.assert_called_once_with(_raw.id, urgent=True)
@@ -67,7 +67,7 @@ blarg:this
                 record=self.turtle,
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
-                focus_iri='https://blarg.example/this',
+                focus_iri='http://blarg.example/vocab/this',
                 is_supplementary=True,
             )
         (_raw,) = share_db.RawDatum.objects.all()
@@ -75,7 +75,7 @@ blarg:this
         self.assertEqual(_raw.mediatype, 'text/turtle')
         self.assertIsNone(_raw.expiration_date)
         self.assertEqual(_raw.suid.identifier, 'blarg')
-        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/this')
+        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/vocab/this')
         self.assertEqual(_raw.suid.source_config.source.user_id, self.user.id)
         self.assertTrue(_raw.suid.is_supplementary)
         _mock_task.delay.assert_called_once_with(_raw.id, urgent=False)
@@ -87,7 +87,7 @@ blarg:this
                 record=self.turtle,
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
-                focus_iri='https://blarg.example/this',
+                focus_iri='http://blarg.example/vocab/this',
                 expiration_date=datetime.date(2048, 1, 3),
             )
         (_raw,) = share_db.RawDatum.objects.all()
@@ -95,7 +95,7 @@ blarg:this
         self.assertEqual(_raw.mediatype, 'text/turtle')
         self.assertEqual(_raw.expiration_date, datetime.date(2048, 1, 3))
         self.assertEqual(_raw.suid.identifier, 'blarg')
-        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/this')
+        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/vocab/this')
         self.assertEqual(_raw.suid.source_config.source.user_id, self.user.id)
         self.assertFalse(_raw.suid.is_supplementary)
         _mock_task.delay.assert_called_once_with(_raw.id, urgent=False)
@@ -107,7 +107,7 @@ blarg:this
                 record=self.turtle,
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
-                focus_iri='https://blarg.example/this',
+                focus_iri='http://blarg.example/vocab/this',
                 is_supplementary=True,
                 expiration_date=datetime.date(2047, 1, 3),
             )
@@ -116,7 +116,7 @@ blarg:this
         self.assertEqual(_raw.mediatype, 'text/turtle')
         self.assertEqual(_raw.expiration_date, datetime.date(2047, 1, 3))
         self.assertEqual(_raw.suid.identifier, 'blarg')
-        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/this')
+        self.assertEqual(_raw.suid.focus_identifier.sufficiently_unique_iri, '://blarg.example/vocab/this')
         self.assertEqual(_raw.suid.source_config.source.user_id, self.user.id)
         self.assertTrue(_raw.suid.is_supplementary)
         _mock_task.delay.assert_called_once_with(_raw.id, urgent=False)

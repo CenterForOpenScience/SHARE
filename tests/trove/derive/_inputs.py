@@ -12,10 +12,8 @@ from trove.vocab.namespaces import (
     OWL,
     PROV,
     SHAREv2,
+    BLARG,
 )
-
-
-BLARG = rdf.IriNamespace('http://blarg.example/vocab/')
 
 
 @dataclasses.dataclass

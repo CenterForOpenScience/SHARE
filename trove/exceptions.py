@@ -19,6 +19,10 @@ class DigestiveError(TroveError):
     pass
 
 
+class MissingMediatype(DigestiveError):
+    pass
+
+
 class CannotDigestMediatype(DigestiveError):
     pass
 

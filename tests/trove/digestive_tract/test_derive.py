@@ -1,16 +1,12 @@
 import json
 
 from django.test import TestCase
-from primitive_metadata import primitive_rdf as rdf
 
 from tests import factories
 from trove import digestive_tract
 from trove import models as trove_db
-from trove.vocab.namespaces import TROVE
+from trove.vocab.namespaces import TROVE, BLARG as _BLARG
 from trove.util.iris import get_sufficiently_unique_iri
-
-
-_BLARG = rdf.IriNamespace('https://blarg.example/')
 
 
 class TestDigestiveTractDerive(TestCase):
@@ -25,7 +21,7 @@ class TestDigestiveTractDerive(TestCase):
             indexcard=cls.indexcard,
             from_raw_datum=_raw,
             focus_iri=cls.focus_iri,
-            rdf_as_turtle='''@prefix blarg: <https://blarg.example/> .
+            rdf_as_turtle='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this
     a blarg:Thing ;
     blarg:like blarg:that .
@@ -37,9 +33,9 @@ blarg:this
         self.assertEqual(_derived.upriver_indexcard_id, self.indexcard.id)
         self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json']))
         self.assertEqual(json.loads(_derived.derived_text), {
-            '@id': _BLARG.this,
-            'resourceType': [{'@id': _BLARG.Thing}],
-            _BLARG.like: [{'@id': _BLARG.that}],
+            '@id': 'blarg:this',
+            'resourceType': [{'@id': 'blarg:Thing'}],
+            'blarg:like': [{'@id': 'blarg:that'}],
         })
 
     def test_derive_with_supplementary(self):
@@ -51,7 +47,7 @@ blarg:this
             from_raw_datum=_supp_raw,
             supplementary_suid=_supp_raw.suid,
             focus_iri=self.focus_iri,
-            rdf_as_turtle='''@prefix blarg: <https://blarg.example/> .
+            rdf_as_turtle='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this blarg:unlike blarg:nonthing .
 ''',
         )
@@ -59,8 +55,8 @@ blarg:this blarg:unlike blarg:nonthing .
         self.assertEqual(_derived.upriver_indexcard_id, self.indexcard.id)
         self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json']))
         self.assertEqual(json.loads(_derived.derived_text), {
-            '@id': _BLARG.this,
-            'resourceType': [{'@id': _BLARG.Thing}],
-            _BLARG.like: [{'@id': _BLARG.that}],
-            _BLARG.unlike: [{'@id': _BLARG.nonthing}],
+            '@id': 'blarg:this',
+            'resourceType': [{'@id': 'blarg:Thing'}],
+            'blarg:like': [{'@id': 'blarg:that'}],
+            'blarg:unlike': [{'@id': 'blarg:nonthing'}],
         })

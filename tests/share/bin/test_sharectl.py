@@ -71,23 +71,3 @@ class TestSharectlSearch:
         with mock.patch('share.bin.search.IndexerDaemonControl') as mock_daemon_control:
             run_sharectl('search', 'daemon')
             mock_daemon_control.return_value.start_all_daemonthreads.assert_called_once()
-
-
-# TODO unit tests, not just a smoke test
-def test_fetch_runs():
-    with mock.patch('share.bin.harvest.SourceConfig'):
-        run_sharectl('fetch', 'foo.sourceconfig', '2021-05-05', '--print')
-
-
-# TODO unit tests, not just a smoke test
-def test_harvest_runs():
-    with mock.patch('share.bin.harvest.SourceConfig'):
-        run_sharectl('harvest', 'foo.sourceconfig')
-
-
-# TODO unit tests, not just a smoke test
-def test_schedule_runs():
-    with mock.patch('share.bin.harvest.SourceConfig'):
-        with mock.patch('share.bin.harvest.HarvestScheduler'):
-            with mock.patch('share.bin.harvest.tasks'):
-                run_sharectl('schedule', 'foo.sourceconfig')

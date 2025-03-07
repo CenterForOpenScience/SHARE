@@ -285,10 +285,12 @@ class Elastic8IndexStrategy(IndexStrategy):
                     _docid = _elastic_action['_id']
                     for _indexname in _indexnames:
                         action_tracker.add_action(_actionset.message_target_id, _indexname, _docid)
-                        yield {
+                        _elastic_action_with_index = {
                             **_elastic_action,
                             '_index': _indexname,
                         }
+                        logger.debug('%s: elastic action: %r', self, _elastic_action_with_index)
+                        yield _elastic_action_with_index
             action_tracker.done_scheduling(_actionset.message_target_id)
 
     def _get_indexnames_for_action(

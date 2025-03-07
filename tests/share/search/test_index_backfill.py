@@ -23,7 +23,7 @@ class TestIndexBackfillMethods:
     def test_happypath(self, index_backfill: IndexBackfill, fake_strategy):
         assert index_backfill.backfill_status == IndexBackfill.INITIAL
         assert index_backfill.strategy_checksum == ''
-        with mock.patch('share.tasks.schedule_index_backfill') as mock_task:
+        with mock.patch('share.models.index_backfill.task__schedule_index_backfill') as mock_task:
             index_backfill.pls_start(fake_strategy)
             mock_task.apply_async.assert_called_once_with((index_backfill.pk,))
         assert index_backfill.backfill_status == IndexBackfill.WAITING

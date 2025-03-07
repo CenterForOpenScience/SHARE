@@ -2,6 +2,7 @@ import json
 
 from trove.render.simple_json import TrovesearchSimpleJsonRenderer
 from trove.render._rendering import SimpleRendering
+from trove.vocab.namespaces import BLARG
 from . import _base
 
 
@@ -25,29 +26,29 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
             rendered_content=json.dumps({
                 "data": [
                     {
-                        "@id": "http://blarg.example/vocab/anItem",
+                        "@id": BLARG.anItem,
                         "title": "an item, yes",
                         "foaf:primaryTopicOf": [
                             {
-                                "@id": "http://blarg.example/vocab/aCard"
+                                "@id": BLARG.aCard
                             }
                         ]
                     },
                     {
-                        "@id": "http://blarg.example/vocab/anItemm",
+                        "@id": BLARG.anItemm,
                         "title": "an itemm, yes",
                         "foaf:primaryTopicOf": [
                             {
-                                "@id": "http://blarg.example/vocab/aCardd"
+                                "@id": BLARG.aCardd
                             }
                         ]
                     },
                     {
-                        "@id": "http://blarg.example/vocab/anItemmm",
+                        "@id": BLARG.anItemmm,
                         "title": "an itemmm, yes",
                         "foaf:primaryTopicOf": [
                             {
-                                "@id": "http://blarg.example/vocab/aCarddd"
+                                "@id": BLARG.aCarddd
                             }
                         ]
                     }

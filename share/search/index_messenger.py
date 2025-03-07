@@ -10,7 +10,6 @@ import kombu.simple
 import requests
 import sentry_sdk
 
-from share.models import FeatureFlag
 from share.search.messages import MessagesChunk, MessageType
 from share.search import index_strategy
 
@@ -45,15 +44,14 @@ class IndexMessenger:
             ),
             urgent=urgent,
         )
-        if FeatureFlag.objects.flag_is_up(FeatureFlag.IGNORE_SHAREV2_INGEST):
-            # for back-compat:
-            self.notify_suid_update(
-                [
-                    _indexcard.source_record_suid_id
-                    for _indexcard in indexcards
-                ],
-                urgent=urgent,
-            )
+        # send "suid"-based messages for indexes that use `MessageType.INDEX_SUID`
+        self.notify_suid_update(
+            [
+                _indexcard.source_record_suid_id
+                for _indexcard in indexcards
+            ],
+            urgent=urgent,
+        )
 
     def notify_suid_update(self, suid_ids, *, urgent=False):
         self.send_messages_chunk(

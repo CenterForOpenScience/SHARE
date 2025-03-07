@@ -1,9 +1,9 @@
-import json
+from primitive_metadata import primitive_rdf as rdf
 
-from tests import factories
 from share.search import messages
 from share.search.index_strategy.sharev2_elastic8 import Sharev2Elastic8IndexStrategy
-from share.util import IDObfuscator
+from trove.vocab.namespaces import DCTERMS, SHAREv2, RDF, BLARG
+from tests.trove.factories import create_indexcard
 from ._with_real_services import RealElasticTestCase
 
 
@@ -14,20 +14,21 @@ class TestSharev2Elastic8(RealElasticTestCase):
 
     def setUp(self):
         super().setUp()
-        self.__suid = factories.SourceUniqueIdentifierFactory()
-        self.__fmr = factories.FormattedMetadataRecordFactory(
-            suid=self.__suid,
-            record_format='sharev2_elastic',
-            formatted_metadata=json.dumps({
-                'id': IDObfuscator.encode(self.__suid),
-                'title': 'hello',
-            })
+        self.__indexcard = create_indexcard(
+            BLARG.hello,
+            {
+                BLARG.hello: {
+                    RDF.type: {SHAREv2.CreativeWork},
+                    DCTERMS.title: {rdf.literal('hello', language='en')},
+                },
+            },
+            deriver_iris=[SHAREv2.sharev2_elastic],
         )
 
     def test_without_daemon(self):
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.INDEX_SUID,
-            [self.__suid.id],
+            [self.__indexcard.source_record_suid_id],
         )
         self._assert_happypath_without_daemon(
             _messages_chunk,
@@ -37,7 +38,7 @@ class TestSharev2Elastic8(RealElasticTestCase):
     def test_with_daemon(self):
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.INDEX_SUID,
-            [self.__suid.id],
+            [self.__indexcard.source_record_suid_id],
         )
         self._assert_happypath_with_daemon(
             _messages_chunk,

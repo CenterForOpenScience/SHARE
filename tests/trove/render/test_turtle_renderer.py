@@ -17,6 +17,7 @@ class TestTurtleRenderer(_BaseTurtleRendererTest):
         'simple_card': SimpleRendering(
             mediatype='text/turtle',
             rendered_content='''
+@prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -24,10 +25,10 @@ class TestTurtleRenderer(_BaseTurtleRendererTest):
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://blarg.example/vocab/aCard> a dcat:CatalogRecord, trove:Indexcard ;
+blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-01-01"^^xsd:date ;
     dcterms:modified "2024-01-01"^^xsd:date ;
-    foaf:primaryTopic <http://blarg.example/vocab/anItem> ;
+    foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
 ''',
@@ -56,16 +57,18 @@ class TestTurtleTrovesearchRenderer(_BaseTurtleRendererTest, _base.TrovesearchRe
         'no_results': SimpleRendering(
             mediatype='text/turtle',
             rendered_content='''
+@prefix blarg: <http://blarg.example/vocab/> .
 @prefix trove: <https://share.osf.io/vocab/2023/trove/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://blarg.example/vocab/aSearch> a trove:Cardsearch ;
+blarg:aSearch a trove:Cardsearch ;
     trove:totalResultCount 0 .
 ''',
         ),
         'few_results': SimpleRendering(
             mediatype='text/turtle',
             rendered_content='''
+@prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
@@ -73,42 +76,42 @@ class TestTurtleTrovesearchRenderer(_BaseTurtleRendererTest, _base.TrovesearchRe
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://blarg.example/vocab/aSearchFew> a trove:Cardsearch ;
+blarg:aSearchFew a trove:Cardsearch ;
     trove:searchResultPage [
         a rdf:Seq ;
         rdf:_1 [
             a trove:SearchResult ;
-            trove:indexCard <http://blarg.example/vocab/aCard>
+            trove:indexCard blarg:aCard
         ] ;
         rdf:_2 [
             a trove:SearchResult ;
-            trove:indexCard <http://blarg.example/vocab/aCardd>
+            trove:indexCard blarg:aCardd
         ] ;
         rdf:_3 [
             a trove:SearchResult ;
-            trove:indexCard <http://blarg.example/vocab/aCarddd>
+            trove:indexCard blarg:aCarddd
         ]
     ] ;
     trove:totalResultCount 3 .
 
-<http://blarg.example/vocab/aCard> a dcat:CatalogRecord, trove:Indexcard ;
+blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-01-01"^^xsd:date ;
     dcterms:modified "2024-01-01"^^xsd:date ;
-    foaf:primaryTopic <http://blarg.example/vocab/anItem> ;
+    foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
 
-<http://blarg.example/vocab/aCardd> a dcat:CatalogRecord, trove:Indexcard ;
+blarg:aCardd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-02-02"^^xsd:date ;
     dcterms:modified "2024-02-02"^^xsd:date ;
-    foaf:primaryTopic <http://blarg.example/vocab/anItemm> ;
+    foaf:primaryTopic blarg:anItemm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemm"^^rdf:string ;
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemm\\", \\"title\\": \\"an itemm, yes\\"}"^^rdf:JSON .
 
-<http://blarg.example/vocab/aCarddd> a dcat:CatalogRecord, trove:Indexcard ;
+blarg:aCarddd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-03-03"^^xsd:date ;
     dcterms:modified "2024-03-03"^^xsd:date ;
-    foaf:primaryTopic <http://blarg.example/vocab/anItemmm> ;
+    foaf:primaryTopic blarg:anItemmm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemmm"^^rdf:string ;
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemmm\\", \\"title\\": \\"an itemmm, yes\\"}"^^rdf:JSON .
 ''',
