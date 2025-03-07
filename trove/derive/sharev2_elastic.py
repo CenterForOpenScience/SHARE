@@ -18,10 +18,16 @@ from trove.vocab.namespaces import (
 
 from ._base import IndexcardDeriver
 
-
-# the sharev2 type hierarchy is limited but nested
+# sharev2 types, grouped from most- to least-specific
+# (for back-compat, forced to choose only one type)
 _SHAREv2_TYPES_BY_SPECIFICITY = (
     {  # most specific
+        # AgentWorkRelation subtypes
+        SHAREv2.PrincipalInvestigator,
+        SHAREv2.PrincipalInvestigatorContact,
+    },
+    {
+        # CreativeWork subtypes
         SHAREv2.Article,
         SHAREv2.Book,
         SHAREv2.ConferencePaper,
@@ -32,8 +38,15 @@ _SHAREv2_TYPES_BY_SPECIFICITY = (
         SHAREv2.Report,
         SHAREv2.Thesis,
         SHAREv2.WorkingPaper,
+        # Agent subtypes
+        SHAREv2.Consortium,
+        SHAREv2.Department,
+        SHAREv2.Institution,
+        # AgentWorkRelation subtypes
+        SHAREv2.Creator,
     },
-    {  # middling specific
+    {
+        # CreativeWork subtypes
         SHAREv2.DataSet,
         SHAREv2.Patent,
         SHAREv2.Poster,
@@ -42,9 +55,41 @@ _SHAREv2_TYPES_BY_SPECIFICITY = (
         SHAREv2.Repository,
         SHAREv2.Retraction,
         SHAREv2.Software,
+        # Agent subtypes
+        SHAREv2.Organization,
+        SHAREv2.Person,
+        # AgentWorkRelation subtypes
+        SHAREv2.Contributor,
+        SHAREv2.Funder,
+        SHAREv2.Host,
+        SHAREv2.Publisher,
+        # AgentRelation subtypes
+        SHAREv2.IsAffiliatedWith,
+        SHAREv2.IsEmployedBy,
+        SHAREv2.IsMemberOf,
+        # WorkRelation subtypes
+        SHAREv2.Cites,
+        SHAREv2.Compiles,
+        SHAREv2.Corrects,
+        SHAREv2.Discusses,
+        SHAREv2.Disputes,
+        SHAREv2.Documents,
+        SHAREv2.Extends,
+        SHAREv2.IsDerivedFrom,
+        SHAREv2.IsPartOf,
+        SHAREv2.IsSupplementTo,
+        SHAREv2.References,
+        SHAREv2.RepliesTo,
+        SHAREv2.Retracts,
+        SHAREv2.Reviews,
+        SHAREv2.UsesDataFrom,
     },
     {  # least specific
         SHAREv2.CreativeWork,
+        SHAREv2.Agent,
+        SHAREv2.AgentWorkRelation,
+        SHAREv2.AgentRelation,
+        SHAREv2.WorkRelation,
     },
 )
 

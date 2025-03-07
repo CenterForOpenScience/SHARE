@@ -26,20 +26,11 @@ class ShareUserFactory(DjangoModelFactory):
 class SourceFactory(DjangoModelFactory):
     name = factory.Sequence(lambda x: '{}{}'.format(fake.name(), x))
     long_title = factory.Sequence(lambda x: '{}{}'.format(fake.sentence(), x))
-    icon = factory.SelfAttribute('name')
 
     user = factory.SubFactory(ShareUserFactory, source=None)
 
     class Meta:
         model = share_db.Source
-
-
-class ListGenerator(list):
-
-    def __call__(self, *args, **kwargs):
-        if hasattr(self, 'side_effect'):
-            raise self.side_effect
-        return (x for x in self)
 
 
 class SourceConfigFactory(DjangoModelFactory):

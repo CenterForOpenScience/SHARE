@@ -39,10 +39,10 @@ def swallow(
     from_user: share_db.ShareUser,
     record: str,
     record_identifier: str,
-    record_mediatype: str | None,  # passing None indicates sharev2 backcompat
+    record_mediatype: str,
     focus_iri: str,
     datestamp: datetime.datetime | None = None,  # default "now"
-    expiration_date: datetime.date | None = None,
+    expiration_date: datetime.date | None = None,  # default "never"
     urgent: bool = False,
     is_supplementary: bool = False,
 ):

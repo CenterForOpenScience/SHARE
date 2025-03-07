@@ -6,7 +6,10 @@ from django.core import exceptions
 from django.db.utils import IntegrityError
 
 from share.models import RawDatum
-from share.harvest.base import FetchResult
+
+
+def get_now():
+    return datetime.datetime.now(tz=datetime.timezone.utc)
 
 
 @pytest.mark.django_db
@@ -35,37 +38,48 @@ class TestRawDatum:
 
         assert 'null value in column "suid_id"' in e.value.args[0]
 
-    def test_store_data(self, source_config):
-        rd = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
+    def test_store_data_by_suid(self, suid):
+        _now = get_now()
+        rd = RawDatum.objects.store_datum_for_suid(
+            suid=suid,
+            datum='mydatums',
+            mediatype='text/plain',
+            datestamp=_now,
+        )
 
         assert rd.date_modified is not None
         assert rd.date_created is not None
 
         assert rd.datum == 'mydatums'
-        assert rd.suid.identifier == 'unique'
-        assert rd.suid.source_config == source_config
+        assert rd.datestamp == _now
+        assert rd.suid_id == suid.id
         assert rd.sha256 == hashlib.sha256(b'mydatums').hexdigest()
 
-    def test_store_data_dedups_simple(self, source_config):
-        rd1 = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
-        rd2 = RawDatum.objects.store_data(source_config, FetchResult('unique', 'mydatums'))
+    def test_store_data_dedups_simple(self, suid):
+        rd1 = RawDatum.objects.store_datum_for_suid(
+            suid=suid,
+            datum='mydatums',
+            mediatype='text/plain',
+            datestamp=get_now(),
+        )
+        rd2 = RawDatum.objects.store_datum_for_suid(
+            suid=suid,
+            datum='mydatums',
+            mediatype='text/plain',
+            datestamp=get_now(),
+        )
+        rd3 = RawDatum.objects.store_datum_for_suid(
+            suid=suid,
+            datum='mydatums',
+            mediatype='text/plain',
+            datestamp=get_now(),
+        )
 
-        assert rd1.pk == rd2.pk
-        assert rd1.created is True
-        assert rd2.created is False
-        assert rd1.date_created == rd2.date_created
-        assert rd1.date_modified < rd2.date_modified
-
-    def test_store_data_dedups_complex(self, source_config):
-        data = '{"providerUpdatedDateTime":"2016-08-25T11:37:40Z","uris":{"canonicalUri":"https://provider.domain/files/7d2792031","providerUris":["https://provider.domain/files/7d2792031"]},"contributors":[{"name":"Person1","email":"one@provider.domain"},{"name":"Person2","email":"two@provider.domain"},{"name":"Person3","email":"three@provider.domain"},{"name":"Person4","email":"dxm6@psu.edu"}],"title":"ReducingMorbiditiesinNeonatesUndergoingMRIScannig"}'
-        rd1 = RawDatum.objects.store_data(source_config, FetchResult('unique', data))
-        rd2 = RawDatum.objects.store_data(source_config, FetchResult('unique', data))
-
-        assert rd1.pk == rd2.pk
-        assert rd1.created is True
-        assert rd2.created is False
-        assert rd1.date_modified < rd2.date_modified
-        assert rd1.date_created == rd2.date_created
+        assert rd1.pk == rd2.pk == rd3.pk
+        assert rd1.sha256 == rd2.sha256 == rd3.sha256
+        assert rd1.datestamp < rd2.datestamp < rd3.datestamp < get_now()
+        assert rd1.date_created == rd2.date_created == rd3.date_created
+        assert rd1.date_modified < rd2.date_modified < rd3.date_modified
 
     def test_is_expired(self):
         rd = RawDatum()

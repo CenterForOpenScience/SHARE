@@ -10,9 +10,8 @@ from trove.vocab.namespaces import (
     FOAF,
     RDF,
     TROVE,
+    BLARG,
 )
-
-BLARG = rdf.IriNamespace('http://blarg.example/vocab/')
 
 
 @dataclasses.dataclass
