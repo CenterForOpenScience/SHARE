@@ -11,7 +11,7 @@ from trove import models as trove_db
 from trove.trovesearch.search_params import CardsearchParams, ValuesearchParams
 from trove.trovesearch.search_handle import PropertypathUsage
 from trove.vocab.namespaces import RDFS, RDF, DCTERMS, OWL, FOAF, DCAT, TROVE, BLARG
-from tests.share.search._util import (
+from tests.trove.factories import (
     create_indexcard,
     update_indexcard_content,
     create_supplement,
