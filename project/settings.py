@@ -81,7 +81,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'revproxy',
-    'prettyjson',
 
     'allauth',
     'allauth.account',
