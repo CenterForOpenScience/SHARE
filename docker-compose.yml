@@ -171,17 +171,6 @@ services:
     networks:
       - share_network
 
-  frontend:
-    image: quay.io/centerforopenscience/share-web:develop-local
-    command: yarn start
-    ports:
-      - 4204:4200
-    volumes:
-      - share_dist_vol:/code/dist
-    stdin_open: true
-    networks:
-      - share_network
-
   worker:
     image: quay.io/centerforopenscience/share:develop
     command:
@@ -214,7 +203,6 @@ services:
       - postgres
       - rabbitmq
       - elastic8
-      - frontend
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/usr/local/lib/python3.10
