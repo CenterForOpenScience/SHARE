@@ -85,8 +85,14 @@ class MetadataRecordsRSS(Feed):
         return prepare_string(item.get('description', 'No description provided.'))
 
     def item_link(self, item):
-        # Link to SHARE curate page
-        return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
+        def _sort_key(identifier: str):
+            # choose the shortest by length, breaking ties with unicode sort order
+            return (len(identifier), identifier)
+        return min(
+            item.get('identifiers', ()),
+            default='',
+            key=_sort_key,
+        )
 
     def item_author_name(self, item):
         contributor_list = item.get('lists', []).get('contributors', [])

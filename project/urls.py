@@ -4,7 +4,6 @@ from django.urls import include, path, re_path as url
 from django.conf import settings
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
-from revproxy.views import ProxyView
 
 from osf_oauth2_adapter import views as osf_oauth2_adapter_views
 
@@ -28,7 +27,6 @@ urlpatterns = [
     url(r'^accounts/social/login/cancelled/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/social/login/error/', osf_oauth2_adapter_views.login_errored_cancelled),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^$', RedirectView.as_view(url='{}/'.format(settings.EMBER_SHARE_PREFIX))),
     url(r'^favicon.ico$', RedirectView.as_view(
         url=staticfiles_storage.url('favicon.ico'),
         permanent=False
@@ -37,10 +35,6 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += [
-        url(r'^(?P<path>{}/.*)$'.format(settings.EMBER_SHARE_PREFIX), ProxyView.as_view(upstream=settings.EMBER_SHARE_URL)),
-    ]
-
     if 'debug_toolbar' in settings.INSTALLED_APPS:
         import debug_toolbar
         urlpatterns += [
