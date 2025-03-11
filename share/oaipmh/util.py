@@ -1,4 +1,4 @@
-from dateutil import parser
+import datetime
 
 from lxml import etree
 from primitive_metadata import primitive_rdf
@@ -12,7 +12,7 @@ def format_datetime(dt):
     if isinstance(dt, primitive_rdf.Literal):
         dt = dt.unicode_value
     if isinstance(dt, str):
-        dt = parser.isoparse(dt)
+        dt = datetime.datetime.fromisoformat(dt)
     return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 

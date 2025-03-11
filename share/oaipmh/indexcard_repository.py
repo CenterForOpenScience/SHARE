@@ -1,6 +1,6 @@
+import datetime
 import uuid
 
-import dateutil
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import OuterRef, Subquery, F
 
@@ -205,7 +205,7 @@ class OaiPmhRepository:
         )
         if 'from' in kwargs:
             try:
-                _from = dateutil.parser.parse(kwargs['from'])
+                _from = datetime.datetime.fromisoformat(kwargs['from'])
             except ValueError:
                 if not catch:
                     raise
@@ -216,7 +216,7 @@ class OaiPmhRepository:
                 )
         if 'until' in kwargs:
             try:
-                _until = dateutil.parser.parse(kwargs['until'])
+                _until = datetime.datetime.fromisoformat(kwargs['until'])
             except ValueError:
                 if not catch:
                     raise
@@ -290,12 +290,12 @@ class OaiPmhRepository:
         _until = None
         if 'from' in kwargs:
             try:
-                _from = dateutil.parser.parse(kwargs['from'])
+                _from = datetime.datetime.fromisoformat(kwargs['from'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
-                _until = dateutil.parser.parse(kwargs['until'])
+                _until = datetime.datetime.fromisoformat(kwargs['until'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         _set_spec = kwargs.get('set', '')

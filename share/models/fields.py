@@ -1,8 +1,7 @@
-import datetime as dt
+import datetime
 import json
 from decimal import Decimal
 
-from dateutil import parser
 import jwe
 
 from django import forms
@@ -15,11 +14,11 @@ from django.utils.translation import gettext_lazy as _
 
 class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
     def default(self, o):
-        if isinstance(o, dt.datetime):
+        if isinstance(o, datetime.datetime):
             return dict(type='encoded_datetime', value=o.isoformat())
-        elif isinstance(o, dt.date):
+        elif isinstance(o, datetime.date):
             return dict(type='encoded_date', value=o.isoformat())
-        elif isinstance(o, dt.time):
+        elif isinstance(o, datetime.time):
             return dict(type='encoded_time', value=o.isoformat())
         elif isinstance(o, Decimal):
             return dict(type='encoded_decimal', value=str(o))
@@ -29,11 +28,11 @@ class DateTimeAwareJSONEncoder(DjangoJSONEncoder):
 def decode_datetime_object(json_object):
     if set(json_object.keys()) == {'type', 'value'}:
         if json_object['type'] == 'encoded_datetime':
-            return parser.parse(json_object['value'])
+            return datetime.datetime.fromisoformat(json_object['value'])
         if json_object['type'] == 'encoded_date':
-            return parser.parse(json_object['value']).date()
+            return datetime.datetime.fromisoformat(json_object['value']).date()
         if json_object['type'] == 'encoded_time':
-            return parser.parse(json_object['value']).time()
+            return datetime.datetime.fromisoformat(json_object['value']).time()
         if json_object['type'] == 'encoded_decimal':
             return Decimal(json_object['value'])
     return json_object
