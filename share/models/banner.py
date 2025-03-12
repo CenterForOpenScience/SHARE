@@ -6,12 +6,13 @@ from share import util
 
 
 class SiteBanner(models.Model):
-    COLOR = [
+    COLOR_CHOICES = [
         (0, _('success')),
         (1, _('info')),
         (2, _('warning')),
         (3, _('danger'))
     ]
+    COLOR = dict(COLOR_CHOICES)
 
     class JSONAPIMeta(util.BaseJSONAPIMeta):
         pass
@@ -20,7 +21,7 @@ class SiteBanner(models.Model):
 
     title = models.CharField(max_length=300)
     description = models.TextField(blank=True)
-    color = models.IntegerField(choices=COLOR, default=1)
+    color = models.IntegerField(choices=COLOR_CHOICES, default=1)
     icon = models.CharField(blank=True, max_length=31, default='exclamation')
 
     created_at = models.DateTimeField(auto_now_add=True)

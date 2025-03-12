@@ -45,10 +45,8 @@ class TestFeed:
         assert actual_titles == expected_titles
         assert len(actual_titles) == 11
 
-    def test_gone(self, client, fake_items):
+    def test_status(self, client, fake_items):
         for feed_url, expected_status in (
-            ('/api/v2/atom/', 410),
-            ('/api/v2/rss/', 410),
             ('/api/v2/feeds/atom/', 200),
             ('/api/v2/feeds/rss/', 200),
         ):

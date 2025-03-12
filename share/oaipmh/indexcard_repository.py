@@ -1,4 +1,3 @@
-import datetime
 import uuid
 
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -8,6 +7,7 @@ from share.oaipmh import errors as oai_errors
 from share.oaipmh.verbs import OAIVerb
 from share.oaipmh.response_renderer import OAIRenderer
 from share.oaipmh.util import format_datetime
+from share.util.fromisoformat import fromisoformat
 from share import models as share_db
 from trove import models as trove_db
 from trove.vocab.namespaces import OAI_DC
@@ -162,6 +162,7 @@ class OaiPmhRepository:
         )
         if self.errors:
             return
+        assert _indexcard is not None
         if _indexcard.oai_metadata is None or _indexcard.oai_datestamp is None:
             self.errors.append(oai_errors.BadFormatForRecord(kwargs['metadataPrefix']))
         if self.errors:
@@ -205,7 +206,7 @@ class OaiPmhRepository:
         )
         if 'from' in kwargs:
             try:
-                _from = datetime.datetime.fromisoformat(kwargs['from'])
+                _from = fromisoformat(kwargs['from'])
             except ValueError:
                 if not catch:
                     raise
@@ -216,7 +217,7 @@ class OaiPmhRepository:
                 )
         if 'until' in kwargs:
             try:
-                _until = datetime.datetime.fromisoformat(kwargs['until'])
+                _until = fromisoformat(kwargs['until'])
             except ValueError:
                 if not catch:
                     raise
@@ -290,12 +291,12 @@ class OaiPmhRepository:
         _until = None
         if 'from' in kwargs:
             try:
-                _from = datetime.datetime.fromisoformat(kwargs['from'])
+                _from = fromisoformat(kwargs['from'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
-                _until = datetime.datetime.fromisoformat(kwargs['until'])
+                _until = fromisoformat(kwargs['until'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         _set_spec = kwargs.get('set', '')

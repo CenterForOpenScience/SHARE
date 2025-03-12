@@ -16,11 +16,7 @@ urlpatterns = [
     url('^', include('api.users.urls')),
 
     url('^search/', include('api.search.urls'), name='search'),
-
     url(r'^status/?', views.ServerStatusView.as_view(), name='status'),
-    url(r'^rss/?', views.LegacyCreativeWorksRSS(), name='rss'),
-    url(r'^atom/?', views.LegacyCreativeWorksAtom(), name='atom'),
-
     url(r'^feeds/rss/?', views.MetadataRecordsRSS(), name='feeds.rss'),
     url(r'^feeds/atom/?', views.MetadataRecordsAtom(), name='feeds.atom'),
 ]
