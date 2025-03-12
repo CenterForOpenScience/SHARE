@@ -15,9 +15,9 @@ kombu==5.3.7  # BSD 3 Clause
 markdown2==2.4.10  # MIT
 newrelic==8.4.0  # newrelic APM agent, Custom License
 psycopg2==2.9.5  # LGPL with exceptions or ZPL
-rdflib==7.0.0
+rdflib==7.0.0  # BSD 3 Clause
 requests==2.25.1  # Apache 2.0
-primitive_metadata==0.2025.0
+primitive_metadata==0.2025.1  # MIT
 
 # relevant only in deployment:
 sentry-sdk[django]==1.22.2  # MIT

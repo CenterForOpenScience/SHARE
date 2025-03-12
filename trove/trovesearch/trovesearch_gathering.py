@@ -58,6 +58,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
         TROVE.Cardsearch,
         TROVE.Valuesearch,
     },
+    param_iris={TROVE.deriverIRI},
     thesaurus=TROVE_API_THESAURUS,
 )
 
@@ -67,9 +68,7 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_params={
-        'deriver_iri': TROVE.deriverIRI,
-    },
+    gatherer_params={'deriver_iri': TROVE.deriverIRI},
 )
 
 
