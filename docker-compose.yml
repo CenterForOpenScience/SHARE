@@ -230,7 +230,7 @@ services:
 
   indexer:
     image: quay.io/centerforopenscience/share:develop
-    command: sharectl search daemon
+    command: python manage.py shtrove_indexer_run
     depends_on:
       - postgres
       - rabbitmq

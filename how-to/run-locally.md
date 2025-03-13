@@ -46,8 +46,7 @@ a shell running within SHARE's environment in docker:
 docker-compose run --rm --no-deps worker bash
 ```
 this will open a bash prompt within a temporary `worker` container -- from here we can
-run commands within SHARE's environment, including django's `manage.py` and SHARE's own
-`sharectl` utility (defined in `share/bin/`)
+run commands within SHARE's environment, including django's `manage.py`
 
 from within that worker shell, use django's `migrate` command to set up tables in postgres:
 ```
@@ -55,7 +54,7 @@ python manage.py migrate
 ```
 ...and use `sharectl` to set up indexes in elasticsearch:
 ```
-sharectl search setup --initial
+python manage.py shtrove_search_setup --initial
 ```
 
 ### 3. start 'em up
@@ -93,7 +92,7 @@ docker-compose up -d worker
 
 ### start a shell in a container
 there are several ways to open a shell with SHARE's environment (which has
-django's `manage.py` and SHARE's own `sharectl` utility, defined in `share/bin/`)
+django's `manage.py` and management commands defined in `management/commands/`
 
 if `worker` is already up, can open a shell within that container:
 ```
