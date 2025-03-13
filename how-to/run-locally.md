@@ -52,7 +52,10 @@ from within that worker shell, use django's `migrate` command to set up tables i
 ```
 python manage.py migrate
 ```
-
+...and use `sharectl` to set up indexes in elasticsearch:
+```
+python manage.py shtrove_search_setup --initial
+```
 
 ### 3. start 'em up
 all other services can now be started from the host machine (upping `worker` ups all)

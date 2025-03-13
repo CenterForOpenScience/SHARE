@@ -227,3 +227,24 @@ services:
     stdin_open: true
     networks:
       - share_network
+
+  indexer:
+    image: quay.io/centerforopenscience/share:develop
+    command: python manage.py shtrove_indexer_run
+    depends_on:
+      - postgres
+      - rabbitmq
+      - elastic8
+    volumes:
+      - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.10
+      - elastic8_cert_vol:/elastic8_certs
+    env_file:
+      - .docker-compose.env
+    environment:
+      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
+      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
+    restart: unless-stopped
+    stdin_open: true
+    networks:
+      - share_network
