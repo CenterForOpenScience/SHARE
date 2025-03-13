@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from share.search import index_strategy
 
+
 class Command(BaseCommand):
     help = "Drop Elasticsearch indices"
 

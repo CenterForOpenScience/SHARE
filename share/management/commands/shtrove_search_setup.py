@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from share.search import index_strategy
 from share.search.exceptions import IndexStrategyError
 
+
 class Command(BaseCommand):
     help = "Create Elasticsearch indices and apply mappings"
 

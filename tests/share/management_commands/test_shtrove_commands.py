@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from django.core.management import call_command
 
+
 def run_command(*args):
     """Run a Django management command, assert that it returned as expected, and return its stdout"""
     fake_stdout = io.StringIO()
@@ -11,6 +12,7 @@ def run_command(*args):
     except SystemExit:
         pass  # success!
     return fake_stdout.getvalue()
+
 
 class TestCommandSearch:
     @pytest.mark.parametrize('strategy_names', [
@@ -31,16 +33,16 @@ class TestCommandSearch:
             mock_strategy.pls_teardown.assert_called_once_with()
 
     def test_setup_initial(self):
-        _expected_indexes = ['baz', 'bar', 'foo']
-        _mock_index_strategys = [mock.Mock(strategy_name=_name) for _name in _expected_indexes]
-        with mock.patch('share.search.index_strategy.each_strategy', return_value=mock_strategies):
+        expected_indexes = ['baz', 'bar', 'foo']
+        mock_index_strategys = [mock.Mock(strategy_name=_name) for _name in expected_indexes]
+        with mock.patch('share.search.index_strategy.each_strategy', return_value=mock_index_strategys):
             run_command('shtrove_search_setup', '--initial')
-        for mock_index_strategy in _mock_index_strategys:
+        for mock_index_strategy in mock_index_strategys:
             mock_index_strategy.pls_setup.assert_called_once_with()
 
     def test_setup_index(self):
         mock_index_strategy = mock.Mock()
-        with mock.patch('share.search.index_strategy.get_strategy', return_value=mock_strategy):
+        with mock.patch('share.search.index_strategy.get_strategy', return_value=mock_index_strategy):
             run_command('shtrove_search_setup', 'foo')
         mock_index_strategy.pls_setup.assert_called_once_with()
 
