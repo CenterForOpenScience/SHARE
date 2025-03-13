@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from share.search.daemon import IndexerDaemonControl
 from project.celery import app as celery_app
 
+
 class Command(BaseCommand):
     help = "Start the search indexing daemon"
 
