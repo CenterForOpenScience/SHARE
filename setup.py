@@ -10,9 +10,6 @@ setup(
         'share.harvesters'
     ],
     entry_points={
-        'console_scripts': [
-            'sharectl = share.bin.__main__:main',
-        ],
         'share.transformers': [
             'ca.lwbin = share.transformers.ca_lwbin:LWBINTransformer',
             'com.biomedcentral = share.transformers.com_biomedcentral:BioMedCentralTransformer',

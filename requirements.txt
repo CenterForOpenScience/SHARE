@@ -25,7 +25,6 @@ gevent==22.10.2  # MIT
 psycogreen==1.0.2  # BSD
 
 # to be removed in future work:
-docopt==0.6.2  # MIT
 elasticsearch5==5.5.6  # Apache 2.0
 PyJWE==1.0.0 # Apache 2.0
 
