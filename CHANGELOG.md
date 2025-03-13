@@ -298,6 +298,12 @@
 
 # [21.0.0] - 2021-03-09
 - new model: `FormattedMetadataRecord`
+- new sharectl commands:
+    - `sharectl search purge`
+    - `sharectl search setup <index_name>`
+    - `sharectl search setup --initial`
+    - `sharectl search set_primary <index_name>`
+    - `sharectl search reindex_all_suids <index_name>`
 - new management commands:
     - `format_metadata_records`
     - `populate_osf_suids`
@@ -444,11 +450,13 @@
 * Fix bug in indexer daemon, stop all threads when one dies
 
 # [2.16.2] - 2018-04-30
+* Fix typo in `sharectl ingest` that prevented bulk reingestion
 
 # [2.16.1] - 2018-04-30
 * Fix date range filtering in com.figshare.v2 harvester
 
 # [2.16.0] - 2018-04-26
+* Bulk reingestion with `IngestScheduler.bulk_reingest()` and `sharectl ingest`
 * Admin interface updates
 * More stable and reliable indexer daemon
 * "Urgent" queues for ingestion and indexing, allowing pushed data to jump
@@ -600,6 +608,7 @@
 
 # [2.9.0] - 2017-06-15
 ## Added
+* sharectl command line tool
 * Profiling middleware for local development
 * Janitor tasks to find and process unprocessed data
 * Timestamp field to RawData
