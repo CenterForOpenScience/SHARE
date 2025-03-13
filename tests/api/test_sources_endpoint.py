@@ -1,13 +1,12 @@
 import json
 import pytest
 
-import httpretty
-
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
 from share.models import Source, ShareUser
 from share.util import IDObfuscator
+from tests.factories import SourceFactory
 
 
 PROPER_ICON_URL = 'https://staging-cdn.osf.io/preprints-assets/bitss/square_color_no_transparent.png'
@@ -46,44 +45,12 @@ def source_add_change_user():
     return user
 
 
-@pytest.fixture
-def mock_icon_urls():
-    httpretty.enable()
-    httpretty.HTTPretty.allow_net_connect = False
-
-    # smallest valid png, from https://github.com/mathiasbynens/small/blob/master/png-transparent.png
-    httpretty.register_uri(
-        httpretty.GET,
-        PROPER_ICON_URL,
-        body=b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82',
-        content_type='image/png'
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        IMPROPER_ICON_URL,
-        body=b'\n\n\n\n\n\n<!DOCTYPE html>\n<html lang="en">\n  <head>\n',
-        content_type='text/html'
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        INVALID_URL
-    )
-    httpretty.register_uri(
-        httpretty.GET,
-        TIMEOUT_URL,
-        body=exceptionCallback
-    )
-    yield
-    httpretty.disable()
-
-
-def get_post_body(icon=PROPER_ICON_URL, id=None, **kwargs):
+def get_post_body(id=None, **kwargs):
     body = {
         'data': {
             'type': 'Source',
             'attributes': {
                 'long_title': 'Test User',
-                'icon_url': icon,
                 **kwargs
             }
         }
@@ -131,17 +98,25 @@ def fetch_all_pages(client, url, results=None):
 class TestSourcesGet:
     endpoint = '/api/v2/sources/'
 
-    def test_count(self, client):
-        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
+    @pytest.fixture
+    def sources(self):
+        return [
+            SourceFactory(),
+            SourceFactory(),
+            SourceFactory(),
+        ]
+
+    def test_count(self, client, sources):
+        sources_qs = Source.objects.exclude(is_deleted=True)
         source_count = sources_qs.count()
 
         results = fetch_all_pages(client, self.endpoint)
 
-        assert source_count > 0
+        assert source_count == len(sources) + 1  # auto-created "SHARE System" source
         assert len(results) == source_count
 
-    def test_is_deleted(self, client):
-        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
+    def test_is_deleted(self, client, sources):
+        sources_qs = Source.objects.exclude(is_deleted=True)
         source_count = sources_qs.count()
 
         sources_before = fetch_all_pages(client, self.endpoint)
@@ -149,7 +124,7 @@ class TestSourcesGet:
 
         assert len(sources_before) == source_count
 
-        deleted_source = sources_qs.first()
+        deleted_source = sources_qs.last()
         deleted_source.is_deleted = True
         deleted_source.save()
 
@@ -160,28 +135,8 @@ class TestSourcesGet:
         missing_ids = source_ids_before - source_ids_after
         assert missing_ids == {IDObfuscator.encode(deleted_source)}
 
-    def test_no_icon(self, client):
-        sources_qs = Source.objects.exclude(icon='').exclude(is_deleted=True)
-        source_count = sources_qs.count()
-
-        sources_before = fetch_all_pages(client, self.endpoint)
-        source_ids_before = {s['id'] for s in sources_before}
-
-        assert len(sources_before) == source_count
-
-        iconless_source = sources_qs.first()
-        iconless_source.icon = None
-        iconless_source.save()
-
-        sources_after = fetch_all_pages(client, self.endpoint)
-        source_ids_after = {s['id'] for s in sources_after}
-
-        assert len(sources_after) == len(sources_before) - 1
-        missing_ids = source_ids_before - source_ids_after
-        assert missing_ids == {IDObfuscator.encode(iconless_source)}
-
-    def test_by_id(self, client):
-        source = Source.objects.exclude(icon='').exclude(is_deleted=True).last()
+    def test_by_id(self, client, sources):
+        source = Source.objects.exclude(is_deleted=True).last()
         resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
 
         assert resp.status_code == 200
@@ -189,7 +144,6 @@ class TestSourcesGet:
         assert resp.json()['data']['type'] == 'Source'
         assert resp.json()['data']['attributes'] == {
             'name': source.name,
-            'icon': 'http://testserver{}'.format(source.icon.url),
             'homePage': source.home_page,
             'longTitle': source.long_title,
         }
@@ -206,7 +160,7 @@ class TestSourcesPost:
             content_type='application/vnd.api+json'
         ).status_code == 401
 
-    def test_improper_scope_post(self, client, share_user, mock_icon_urls):
+    def test_improper_scope_post(self, client, share_user):
         assert client.post(
             self.endpoint,
             json.dumps(get_post_body()),
@@ -214,7 +168,7 @@ class TestSourcesPost:
             HTTP_AUTHORIZATION=share_user.authorization(),
         ).status_code == 403
 
-    def test_successful_post_no_home_page(self, client, source_add_user, mock_icon_urls):
+    def test_successful_post_no_home_page(self, client, source_add_user):
         test_data = get_post_body()
         resp = client.post(
             self.endpoint,
@@ -235,7 +189,7 @@ class TestSourcesPost:
         assert data['user']['token'] == created_user.oauth2_provider_accesstoken.first().token
         assert created_user.is_trusted is True
 
-    def test_successful_post_home_page(self, client, source_add_user, mock_icon_urls):
+    def test_successful_post_home_page(self, client, source_add_user):
         test_data = get_post_body(home_page='http://test.homepage.net')
         resp = client.post(
             self.endpoint,
@@ -250,7 +204,7 @@ class TestSourcesPost:
         assert data['source']['homePage'] == test_data['data']['attributes']['home_page']
         assert data['source']['canonical']
 
-    def test_successful_repost_home_page(self, client, source_add_user, mock_icon_urls):
+    def test_successful_repost_home_page(self, client, source_add_user):
         test_data = get_post_body(home_page='http://test.homepage.net')
         resp_one = client.post(
             self.endpoint,
@@ -275,7 +229,7 @@ class TestSourcesPost:
 
         assert data_one == data_two
 
-    def test_successful_post_put_home_page(self, client, source_add_change_user, mock_icon_urls):
+    def test_successful_post_put_home_page(self, client, source_add_change_user):
         test_data = get_post_body(home_page='http://test.homepage.net')
         resp_one = client.post(
             self.endpoint,
@@ -306,7 +260,7 @@ class TestSourcesPost:
         assert data_two['source']['homePage'] == new_home_page
         assert data_one != data_two
 
-    def test_successful_post_patch_home_page(self, client, source_add_change_user, mock_icon_urls):
+    def test_successful_post_patch_home_page(self, client, source_add_change_user):
         test_data = get_post_body(home_page='http://test.homepage.net')
         resp_one = client.post(
             self.endpoint,
@@ -336,39 +290,7 @@ class TestSourcesPost:
         assert data_two['source']['homePage'] == new_home_page
         assert data_one != data_two
 
-    def test_bad_image_url(self, client, source_add_user, mock_icon_urls):
-        resp = client.post(
-            self.endpoint,
-            json.dumps(get_post_body(icon=IMPROPER_ICON_URL)),
-            content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION=source_add_user.authorization(),
-        )
-
-        assert resp.status_code == 400
-        assert resp.data[0]['detail'] == 'Could not download/process image.'
-
-    def test_invalid_url(self, client, source_add_user, mock_icon_urls):
-        resp = client.post(
-            self.endpoint,
-            json.dumps(get_post_body(icon=INVALID_URL)),
-            content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION=source_add_user.authorization(),
-        )
-
-        assert resp.status_code == 400
-        assert resp.data[0]['detail'] == 'Enter a valid URL.'
-
-    def test_timeout_url(self, client, source_add_user, mock_icon_urls):
-        resp = client.post(
-            self.endpoint,
-            json.dumps(get_post_body(icon=TIMEOUT_URL)),
-            content_type='application/vnd.api+json',
-            HTTP_AUTHORIZATION=source_add_user.authorization(),
-        )
-
-        assert resp.data[0]['detail'] == 'Could not download/process image.'
-
-    def test_canonical_source(self, client, source_add_change_user, mock_icon_urls):
+    def test_canonical_source(self, client, source_add_change_user):
         # add a canonical source
         test_data = get_post_body(canonical=True)
         resp = client.post(

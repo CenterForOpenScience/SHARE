@@ -6,9 +6,7 @@ from tests import factories
 from trove import digestive_tract
 from trove import exceptions as trove_exceptions
 from trove import models as trove_db
-
-
-_BLARG = rdf.IriNamespace('https://blarg.example/')
+from trove.vocab.namespaces import BLARG as _BLARG
 
 
 class TestDigestiveTractExtract(TestCase):
@@ -17,7 +15,7 @@ class TestDigestiveTractExtract(TestCase):
         _focus_ident = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_BLARG.this)
         cls.raw = factories.RawDatumFactory(
             mediatype='text/turtle',
-            datum='''@prefix blarg: <https://blarg.example/> .
+            datum='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this
     a blarg:Thing ;
     blarg:like blarg:that .
@@ -26,7 +24,7 @@ blarg:this
         )
         cls.supplementary_raw = factories.RawDatumFactory(
             mediatype='text/turtle',
-            datum='''@prefix blarg: <https://blarg.example/> .
+            datum='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this blarg:like blarg:another ;
     blarg:unlike blarg:nonthing .
 ''',
@@ -49,11 +47,11 @@ blarg:this blarg:like blarg:another ;
         _focus_idents = list(
             _indexcard.focus_identifier_set.values_list('sufficiently_unique_iri', flat=True),
         )
-        self.assertEqual(_focus_idents, ['://blarg.example/this'])
+        self.assertEqual(_focus_idents, ['://blarg.example/vocab/this'])
         _focustype_idents = list(
             _indexcard.focustype_identifier_set.values_list('sufficiently_unique_iri', flat=True),
         )
-        self.assertEqual(_focustype_idents, ['://blarg.example/Thing'])
+        self.assertEqual(_focustype_idents, ['://blarg.example/vocab/Thing'])
         self.assertEqual(list(_indexcard.supplementary_rdf_set.all()), [])
         _latest_rdf = _indexcard.latest_rdf
         self.assertEqual(_latest_rdf.from_raw_datum_id, self.raw.id)
