@@ -24,10 +24,8 @@ class TestSharev2Elastic5(RealElasticTestCase):
         self.__indexcard = create_indexcard(
             BLARG.hello,
             {
-                BLARG.hello: {
-                    RDF.type: {SHAREv2.CreativeWork},
-                    DCTERMS.title: {rdf.literal('hello', language='en')},
-                },
+                RDF.type: {SHAREv2.CreativeWork},
+                DCTERMS.title: {rdf.literal('hello', language='en')},
             },
             deriver_iris=[SHAREv2.sharev2_elastic],
         )
