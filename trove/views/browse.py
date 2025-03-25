@@ -1,3 +1,5 @@
+import dataclasses
+
 from django import http
 from django.shortcuts import redirect
 from django.views import View
@@ -7,11 +9,21 @@ from trove import models as trove_db
 from trove.render import get_renderer_type
 from trove.util.iris import unquote_iri, get_sufficiently_unique_iri
 from trove.vocab import namespaces as ns
-from trove.vocab import static_vocab
+from trove.trovebrowse_gathering import trovebrowse
+from trove.trovesearch.search_params import BaseTroveParams
+from ._base import BaseTroveView
 from ._responder import make_http_response
 
 
-class BrowseIriView(View):
+@dataclasses.dataclass(frozen=True)
+class BrowseParams(BaseTroveParams):
+    iri: str
+
+
+class BrowseIriView(BaseTroveView):
+    organizer = trovebrowse
+    params_type = BrowseParams
+
     def get(self, request, **kwargs):
         _iri_param = kwargs.get('iri') or request.GET.get('iri')
         if not _iri_param:
@@ -35,32 +47,6 @@ class BrowseIriView(View):
             http_headers=[('Content-Disposition', 'inline')],
             http_request=request,
         )
-
-
-def _get_latest_cardf(iri: str):
-    _combined_rdf = primitive_rdf.RdfGraph({})
-    try:
-        _identifier = trove_db.ResourceIdentifier.objects.get_for_iri(iri)
-    except trove_db.ResourceIdentifier.DoesNotExist:
-        return iri, _combined_rdf
-    else:
-        _rdf_qs = (
-            trove_db.LatestIndexcardRdf.objects
-            .filter(indexcard__focus_identifier_set=_identifier)
-            .select_related('indexcard')
-        )
-        _focus_iri = None
-        for _indexcard_rdf in _rdf_qs:
-            if _focus_iri is None:
-                _focus_iri = _indexcard_rdf.focus_iri
-            _combined_rdf.add((_focus_iri, ns.FOAF.primaryTopicOf, _indexcard_rdf.indexcard.get_iri()))
-            for (_subj, _pred, _obj) in primitive_rdf.iter_tripleset(_indexcard_rdf.as_rdf_tripledict()):
-                _combined_rdf.add(
-                    (_focus_iri, _pred, _obj)
-                    if _subj == _indexcard_rdf.focus_iri
-                    else (_subj, _pred, _obj)
-                )
-        return (_focus_iri or iri), _combined_rdf
 
 
 def _recognize_trove_term(suffuniq_iri: str):

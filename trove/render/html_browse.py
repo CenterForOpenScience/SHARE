@@ -133,11 +133,11 @@ class _HtmlBuilder:
     def __twoples(self, twopledict: primitive_rdf.RdfTwopleDictionary):
         with self.__nest('ul', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in shuffled(twopledict.items()):
-                with self.__nest('li', {'class': 'Browse__twople'}, visible=True):
+                with self.__nest('li', {'class': 'Browse__twople'}):
                     self.__leaf_link(_pred)
                     with self.__nest('ul', {'class': 'Browse__objectset'}):
                         for _obj in shuffled(_obj_set):
-                            with self.__nest('li', {'class': 'Browse__object'}, visible=True):
+                            with self.__nest('li', {'class': 'Browse__object'}):
                                 self.__obj(_obj)
 
     def __obj(self, obj: primitive_rdf.RdfObject):
@@ -186,7 +186,7 @@ class _HtmlBuilder:
             self.__leaf('summary', text=str(len(_obj_in_order)))
             with self.__nest('ol'):  # TODO: style?
                 for _seq_obj in _obj_in_order:
-                    with self.__nest('li', visible=True):
+                    with self.__nest('li'):  # , visible=True):
                         self.__obj(_seq_obj)
 
     def __quoted_graph(self, quoted_graph: primitive_rdf.QuotedGraph):
