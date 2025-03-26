@@ -63,8 +63,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      - name: install depondencies
-        run: poetry install --with dev
+      - name: install despondencies
+        run: poetry install --no-root --with dev
 
       - name: flake it
         run: flake8 .
