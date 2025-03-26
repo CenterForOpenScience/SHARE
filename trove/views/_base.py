@@ -1,6 +1,7 @@
 __all__ = ('BaseTroveView',)
 
 import abc
+from collections.abc import Container
 from typing import ClassVar
 
 from django import http as djhttp
@@ -24,9 +25,9 @@ from ._responder import (
 
 class BaseTroveView(View, abc.ABC):
     # ClassVars expected on inheritors:
-    organizer: ClassVar[gather.GatheringOrganizer]
+    gathering_organizer: ClassVar[gather.GatheringOrganizer]
     params_type: ClassVar[type[BaseTroveParams]] = BaseTroveParams
-    focus_type: ClassVar[type[gather.Focus]] = gather.Focus
+    focus_type_iris: ClassVar[Container[str]] = (RDFS.Resource,)
 
     def get(self, request):
         try:
@@ -39,7 +40,7 @@ class BaseTroveView(View, abc.ABC):
         try:
             _url = request.build_absolute_uri()
             _params = self._parse_params(request)
-            _renderer = self._gather_to_renderer(_url, _params, renderer_type=_renderer_type)
+            _renderer = self._gather_to_renderer(_url, _params, _renderer_type)
             return make_http_response(
                 content_rendering=_renderer.render_document(),
                 http_request=request,
@@ -50,20 +51,23 @@ class BaseTroveView(View, abc.ABC):
                 renderer_type=_renderer_type,
             )
 
-    def _parse_params(self, request: djhttp.HttpRequest):
-        return self.params_type.from_querystring(request.META['QUERY_STRING'])
-
     def _gather_to_renderer(self, url, params, renderer_type: type[BaseRenderer]) -> BaseRenderer:
         _focus = self._build_focus(url, params)
-        _gathering = self.organizer.new_gathering(
-            **self._get_gatherer_kwargs(params, renderer_type),
-        )
+        _gathering = self._build_gathering(params, renderer_type)
         if renderer_type.PASSIVE_RENDER:
             ask_gathering_from_params(_gathering, params, _focus)
         return renderer_type(_focus, _gathering)
 
+    def _parse_params(self, request: djhttp.HttpRequest):
+        return self.params_type.from_querystring(request.META['QUERY_STRING'])
+
     def _build_focus(self, url, params):
-        return self.focus_type.new(url, RDFS.Resource)
+        return gather.Focus(url, self.focus_type_iri)
+
+    def _build_gathering(self, params, renderer_type: type[BaseRenderer]) -> gather.Gathering:
+        return self.gathering_organizer.new_gathering(
+            self._get_gatherer_kwargs(params, renderer_type),
+        )
 
     def _get_gatherer_kwargs(self, params, renderer_type):
         _kwargs = {}

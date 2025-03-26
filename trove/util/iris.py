@@ -29,21 +29,63 @@ UNQUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{COLON}|{COLON_SLASH
 
 
 def get_sufficiently_unique_iri(iri: str) -> str:
+    '''
+    >>> get_sufficiently_unique_iri('flipl://iri.example/blarg/?#')
+    '://iri.example/blarg'
+    >>> get_sufficiently_unique_iri('namly:urn.example:blerg')
+    'namly:urn.example:blerg'
+    '''
     (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(iri)
     return _suffuniq_iri
 
 
 def get_iri_scheme(iri: str) -> str:
+    '''
+    >>> get_iri_scheme('flipl://iri.example/blarg/?#')
+    'flipl'
+    >>> get_iri_scheme('namly:urn.example:blerg')
+    'namly'
+    '''
     (_, _iri_scheme) = get_sufficiently_unique_iri_and_scheme(iri)
     return _iri_scheme
 
 
 def iris_sufficiently_equal(*iris) -> bool:
+    '''
+    >>> iris_sufficiently_equal(
+    ...  'flipl://iri.example/blarg/blerg/?#',
+    ...  'http://iri.example/blarg/blerg',
+    ...  'https://iri.example/blarg/blerg',
+    ...  'git://iri.example/blarg/blerg',
+    ... )
+    True
+    >>> iris_sufficiently_equal(
+    ...  'flipl://iri.example/blarg/blerg',
+    ...  'namly:iri.example/blarg/blerg',
+    ... )
+    False
+    >>> iris_sufficiently_equal(
+    ...  'namly:urn.example:blerg',
+    ...  'namly:urn.example:blerg',
+    ... )
+    True
+    >>> iris_sufficiently_equal(
+    ...  'namly:urn.example:blerg',
+    ...  'nimly:urn.example:blerg',
+    ... )
+    False
+    '''
     _suffuniq_iris = set(map(get_sufficiently_unique_iri, iris))
     return len(_suffuniq_iris) == 1
 
 
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
+    '''
+    >>> get_sufficiently_unique_iri_and_scheme('flipl://iri.example/blarg/?#')
+    ('://iri.example/blarg', 'flipl')
+    >>> get_sufficiently_unique_iri_and_scheme('namly:urn.example:blerg')
+    ('namly:urn.example:blerg', 'namly')
+    '''
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if _scheme_match:
         _scheme = _scheme_match.group().lower()
@@ -69,6 +111,14 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
 
 
 def is_worthwhile_iri(iri: str):
+    '''
+    >>> is_worthwhile_iri('flipl://iri.example/blarg/?#')
+    True
+    >>> is_worthwhile_iri('namly:urn.example:blerg')
+    True
+    >>> is_worthwhile_iri('_:1234')
+    False
+    '''
     return (
         isinstance(iri, str)
         and not iri.startswith('_')  # skip artefacts of sharev2 shenanigans
@@ -90,6 +140,10 @@ def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) ->
 
 
 def unquote_iri(iri: str) -> str:
+    '''
+    >>> unquote_iri('flipl://iri.example/blarg/?#')
+    >>> unquote_iri('namly:urn.example:blerg')
+    '''
     _unquoted_iri = iri
     while QUOTED_IRI_REGEX.match(_unquoted_iri):
         _unquoted_iri = unquote(_unquoted_iri)

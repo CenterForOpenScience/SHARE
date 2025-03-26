@@ -20,7 +20,6 @@ from trove.util.propertypath import (
     ONE_GLOB_PROPERTYPATH,
     PropertypathSet,
     Propertypath,
-    PropertypathParser,
     is_globpath,
 )
 from trove.util.queryparams import (
@@ -32,12 +31,7 @@ from trove.util.queryparams import (
     get_single_value,
     parse_propertypaths,
 )
-from trove.vocab.osfmap import (
-    osfmap_shorthand,
-    is_date_property,
-    suggested_property_paths,
-    OSFMAP_THESAURUS,
-)
+from trove.vocab import osfmap
 from trove.vocab.trove import trove_shorthand
 from trove.vocab.namespaces import RDF, TROVE, OWL, FOAF, DCTERMS
 
@@ -124,7 +118,7 @@ class BaseTrovesearchParams(BaseTroveParams):
 
     @classmethod
     def _default_shorthand(cls):
-        return osfmap_shorthand()
+        return osfmap.osfmap_shorthand()
 
     @classmethod
     def _default_include(cls):
@@ -162,7 +156,7 @@ class Textsegment:
     @classmethod
     def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
         _propertypath_set = (
-            frozenset(parse_propertypaths(param_name.bracketed_names[0], osfmap_shorthand()))
+            frozenset(parse_propertypaths(param_name.bracketed_names[0], osfmap.osfmap_shorthand()))
             if param_name.bracketed_names
             else None
         )
@@ -442,7 +436,7 @@ class SortParam:
                 ))
         _descending = param_value.startswith(DESCENDING_SORT_PREFIX)
         _rawpath = param_value.lstrip(DESCENDING_SORT_PREFIX)
-        _path = PropertypathParser(osfmap_shorthand(), allow_globs=False).parse_propertypath(_rawpath)
+        _path = osfmap.parse_osfmap_propertypath(_rawpath)
         return cls(
             value_type=_value_type,
             propertypath=_path,
@@ -562,13 +556,13 @@ class ValuesearchParams(CardsearchParams):
             raise trove_exceptions.MissingRequiredQueryParam('valueSearchPropertyPath')
         return {
             **super().parse_queryparams(queryparams),
-            'valuesearch_propertypath': PropertypathParser(osfmap_shorthand(), allow_globs=False).parse_propertypath(_raw_propertypath),
+            'valuesearch_propertypath': osfmap.parse_osfmap_propertypath(_raw_propertypath),
             'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
     def __post_init__(self):
-        if is_date_property(self.valuesearch_propertypath[-1]):
+        if osfmap.is_date_property(self.valuesearch_propertypath[-1]):
             # date-value limitations
             if self.valuesearch_textsegment_set:
                 raise trove_exceptions.InvalidQueryParams(
@@ -604,19 +598,7 @@ class ValuesearchParams(CardsearchParams):
 # helper functions
 
 def is_date_path(path: Propertypath) -> bool:
-    return bool(path) and is_date_property(path[-1])
-
-
-def osfmap_propertypath_key(propertypath: Propertypath) -> str:
-    return PropertypathParser(osfmap_shorthand()).propertypath_key(propertypath)
-
-
-def osfmap_propertypath_set_key(propertypath_set: PropertypathSet) -> str:
-    _parser = PropertypathParser(osfmap_shorthand())
-    return join_queryparam_value(
-        _parser.propertypath_key(_propertypath)
-        for _propertypath in propertypath_set
-    )
+    return bool(path) and osfmap.is_date_property(path[-1])
 
 
 def _get_text_queryparam(queryparams: QueryparamDict, queryparam_family: str) -> str:
@@ -636,14 +618,14 @@ def _get_related_property_paths(filter_set) -> tuple[Propertypath, ...]:
     for _filter in filter_set:
         if _filter.is_type_filter():
             _type_iris.update(_filter.value_set)
-    return suggested_property_paths(_type_iris)
+    return osfmap.suggested_property_paths(_type_iris)
 
 
 def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
     for _filter in filter_set:
         if _filter.operator.is_iri_operator():
             for _iri in _filter.value_set:
-                if _iri not in OSFMAP_THESAURUS:
+                if _iri not in osfmap.OSFMAP_THESAURUS:
                     yield _iri
 
 

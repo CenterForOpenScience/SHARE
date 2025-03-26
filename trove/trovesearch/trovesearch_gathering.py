@@ -19,8 +19,6 @@ from trove.trovesearch.page_cursor import PageCursor
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
-    propertypath_key,
-    propertypath_set_key,
 )
 from trove.trovesearch.search_handle import (
     CardsearchHandle,
@@ -28,6 +26,10 @@ from trove.trovesearch.search_handle import (
     ValuesearchResult,
 )
 from trove.util.iris import get_sufficiently_unique_iri
+from trove.util.propertypath import (
+    propertypath_key,
+    propertypath_set_key,
+)
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,

@@ -1,4 +1,7 @@
+import typing
 import functools
+if typing.TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from primitive_metadata.primitive_rdf import (
     literal,
@@ -8,6 +11,14 @@ from primitive_metadata.primitive_rdf import (
 from primitive_metadata import gather
 
 from share.models.feature_flag import FeatureFlag
+from trove.util.propertypath import (
+    Propertypath,
+    PropertypathSet,
+)
+from trove.util.queryparams import (
+    join_queryparam_value,
+    split_queryparam_value,
+)
 from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import (
@@ -814,17 +825,6 @@ OSFMAP_NORMS = gather.GatheringNorms.new(
 )
 
 
-@functools.cache
-def osfmap_shorthand() -> IriShorthand:
-    '''build iri shorthand that includes unprefixed osfmap terms
-    '''
-    return build_shorthand_from_thesaurus(
-        thesaurus=OSFMAP_THESAURUS,
-        label_predicate=JSONAPI_MEMBERNAME,
-        base_shorthand=NAMESPACES_SHORTHAND,
-    )
-
-
 ALL_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.created,),
     (OSFMAP.funder,),
@@ -940,6 +940,49 @@ DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
     (DCTERMS.modified,),
     (DCTERMS.rights,),
 )
+
+# end constants
+###
+
+
+###
+# functions
+
+@functools.cache  # built once
+def osfmap_shorthand() -> IriShorthand:
+    '''build iri shorthand that includes unprefixed osfmap terms
+    '''
+    return build_shorthand_from_thesaurus(
+        thesaurus=OSFMAP_THESAURUS,
+        label_predicate=JSONAPI_MEMBERNAME,
+        base_shorthand=NAMESPACES_SHORTHAND,
+    )
+
+
+def parse_osfmap_propertypath(serialized_path: str, *, allow_globs=False) -> Propertypath:
+    return propertypaths.parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
+
+
+def parse_osfmap_propertypath_set(serialized_path_set: str) -> Iterator[Propertypath]:
+    _parser = PropertypathParser(osfmap_shorthand())
+    for _path in split_queryparam_value(serialized_path_set):
+        yield _parser.parse_propertypath(_path)
+    return propertypaths.parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
+
+
+def osfmap_propertypath_key(propertypath: Propertypath) -> str:
+    return (
+        PropertypathParser(osfmap_shorthand())
+        .propertypath_key(propertypath)
+    )
+
+
+def osfmap_propertypath_set_key(propertypath_set: PropertypathSet) -> str:
+    _parser = PropertypathParser(osfmap_shorthand())
+    return join_queryparam_value(
+        _parser.propertypath_key(_propertypath)
+        for _propertypath in propertypath_set
+    )
 
 
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]:

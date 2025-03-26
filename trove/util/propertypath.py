@@ -30,34 +30,38 @@ def make_globpath(length: int) -> Propertypath:
     return ONE_GLOB_PROPERTYPATH * length
 
 
-@dataclasses.dataclass
-class PropertypathParser:
-    shorthand: rdf.IriShorthand
-    allow_globs: bool = True
+def parse_propertypath(
+    serialized_path: str,
+    shorthand: rdf.IriShorthand,
+    allow_globs: bool = False,
+) -> Propertypath:
+    _path = tuple(
+        shorthand.expand_iri(_pathstep)
+        for _pathstep in serialized_path.split(PROPERTYPATH_DELIMITER)
+    )
+    if GLOB_PATHSTEP in _path:
+        if not allow_globs:
+            raise trove_exceptions.InvalidPropertyPath(serialized_path, 'no * allowed')
+        if any(_pathstep != GLOB_PATHSTEP for _pathstep in _path):
+            raise trove_exceptions.InvalidPropertyPath(
+                serialized_path,
+                f'path must be all * or no * (got {serialized_path})',
+            )
+    return _path
 
-    def parse_propertypath(self, serialized_path: str) -> Propertypath:
-        _path = tuple(
-            self.shorthand.expand_iri(_pathstep)
-            for _pathstep in serialized_path.split(PROPERTYPATH_DELIMITER)
-        )
-        if GLOB_PATHSTEP in _path:
-            if not self.allow_globs:
-                raise trove_exceptions.InvalidPropertyPath(serialized_path, 'no * allowed')
-            if any(_pathstep != GLOB_PATHSTEP for _pathstep in _path):
-                raise trove_exceptions.InvalidPropertyPath(
-                    serialized_path,
-                    f'path must be all * or no * (got {serialized_path})',
-                )
-        return _path
 
-    def propertypathstep_key(self, pathstep: str) -> str:
-        if pathstep == GLOB_PATHSTEP:
-            return pathstep
-        # assume iri
-        return urllib.parse.quote(self.shorthand.compact_iri(pathstep))
+def propertypathstep_key(
+    pathstep: str,
+    shorthand: rdf.IriShorthand,
+) -> str:
+    if pathstep == GLOB_PATHSTEP:
+        return pathstep
+    # assume iri
+    return urllib.parse.quote(shorthand.compact_iri(pathstep))
 
-    def propertypath_key(self, property_path: Propertypath) -> str:
-        return PROPERTYPATH_DELIMITER.join(
-            self.propertypathstep_key(_pathstep)
-            for _pathstep in property_path
-        )
+
+def propertypath_key(self, property_path: Propertypath) -> str:
+    return PROPERTYPATH_DELIMITER.join(
+        self.propertypathstep_key(_pathstep)
+        for _pathstep in property_path
+    )
