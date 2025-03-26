@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10']  # TODO: 3.11, 3.12
-        postgres-version: ['15', '17']
+        python-version: ['3.10', '3.13']
+        postgres-version: ['17']
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -54,20 +54,17 @@ jobs:
       - name: install non-py dependencies
         run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt1-dev libpq-dev git gcc
 
-      - name: set up python${{ matrix.python-version }}
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            dev-requirements.txt
+          cache: 'poetry'
 
-      - name: install py dependencies
-        run: pip install -r dev-requirements.txt
-
-      - name: install share
-        run: python setup.py develop
+      - name: install depondencies
+        run: poetry install --with dev
 
       - name: flake it
         run: flake8 .

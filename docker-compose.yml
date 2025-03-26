@@ -151,12 +151,10 @@ services:
       - -c
       - apt-get update &&
         apt-get install -y gcc &&
-        pip install -r requirements.txt -r dev-requirements.txt &&
-        (python3 -m compileall /usr/local/lib/python3.13 || true) &&
+        $POETRY_HOME/bin/poetry install --no-root --compile --with dev &&
         rm -Rf /python3.13/* &&
         apt-get remove -y gcc &&
-        cp -Rf -p /usr/local/lib/python3.13 / &&
-        python3 setup.py develop
+        cp -Rf -p /usr/local/lib/python3.13 /
     restart: 'no'
     volumes:
       - ./:/code:cached
