@@ -36,13 +36,16 @@ RUN python -m venv $POETRY_HOME
 
 RUN $POETRY_HOME/bin/pip install poetry==2.1.1
 
-COPY ./ /code/
+COPY pyproject.toml .
+COPY poetry.lock .
 
 RUN $POETRY_HOME/bin/poetry install --no-root --compile
 
 RUN apt-get remove -y \
     gcc \
     zlib1g-dev
+
+COPY ./ /code/
 
 RUN python manage.py collectstatic --noinput
 
