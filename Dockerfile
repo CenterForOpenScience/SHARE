@@ -25,19 +25,24 @@ RUN update-ca-certificates
 RUN mkdir -p /code
 WORKDIR /code
 
-RUN pip install -U pip
-RUN pip install uwsgi==2.0.27
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_OPTIONS_ALWAYS_COPY=1 \
+    POETRY_VIRTUALENVS_CREATE=0 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_CACHE_DIR=/tmp/poetry-cache \
+    POETRY_HOME=/tmp/poetry
 
-COPY ./requirements.txt /code/requirements.txt
-COPY ./constraints.txt /code/constraints.txt
+RUN python -m venv $POETRY_HOME
 
-RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt
+RUN $POETRY_HOME/bin/pip install poetry==2.1.1
+
+COPY ./ /code/
+
+RUN $POETRY_HOME/bin/poetry install --no-root --compile
 
 RUN apt-get remove -y \
     gcc \
     zlib1g-dev
-
-COPY ./ /code/
 
 RUN python manage.py collectstatic --noinput
 
@@ -53,7 +58,9 @@ CMD ["python", "manage.py", "--help"]
 ### Dist
 FROM app AS dist
 
+RUN $POETRY_HOME/bin/poetry install --no-root --compile --only dist
+
 ### Dev
 FROM app AS dev
 
-RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/dev-requirements.txt
+RUN $POETRY_HOME/bin/poetry install --no-root --compile --only dev 
