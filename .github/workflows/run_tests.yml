@@ -67,12 +67,12 @@ jobs:
         run: poetry install --no-root --with dev
 
       - name: flake it
-        run: flake8 .
+        run: poetry run flake8 .
 
       - name: run tests
         run: |
-          coverage run -m pytest --create-db -x
-          coverage xml -o _shtrove_coverage.xml
+          poetry run coverage run -m pytest --create-db -x
+          poetry run coverage xml -o _shtrove_coverage.xml
         env:
           DATABASE_PASSWORD: postgres
           ELASTICSEARCH8_URL: http://localhost:9208/
