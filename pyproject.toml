@@ -26,11 +26,7 @@ dependencies = [
     "rdflib==7.1.3",  # BSD 3 Clause
     "requests==2.32.3",  # Apache 2.0
     "primitive_metadata==0.2025.1",  # MIT
-
-    # relevant only in deployment:
     "sentry-sdk[django]==2.24.1",  # MIT
-    "gevent==24.11.2",  # MIT
-    "psycogreen==1.0.2",  # BSD
 
     # to be removed in future work:
     "djangorestframework==3.16.0",  # BSD
@@ -39,12 +35,17 @@ dependencies = [
     "PyJWE==1.0.0", # Apache 2.0
 ]
 
+# "dist" dependency group relevant only in deployment:
 [tool.poetry.group.dist]
 optional = true
 [tool.poetry.group.dist.dependencies]
 uwsgi = "2.0.28"
 newrelic = "10.7.0"  # newrelic APM agent, Custom License
+gevent = "24.11.2"  # MIT
+psycogreen = "1.0.2"  # BSD
 
+
+# "dev" dependency group relevant only for local dev:
 [tool.poetry.group.dev]
 optional = true
 [tool.poetry.group.dev.dependencies]
@@ -56,6 +57,9 @@ flake8 = "7.2.0"
 pytest-benchmark = "5.1.0"
 pytest = "8.3.5"
 pytest-django = "4.11.1"
+
+###
+# other stuff
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
