@@ -7,6 +7,7 @@ docker-compose.yml
 .gitignore
 celerybeat.pid
 /static/
+.venv/
 
 /au.*/
 /be.*/
