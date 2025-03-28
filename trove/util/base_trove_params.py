@@ -18,7 +18,7 @@ from trove.util.propertypath import (
     parse_propertypath,
 )
 from trove.util import queryparams as _qp
-from trove.vocab import osfmap
+from trove.vocab.trove import shtrove_shorthand
 
 
 @dataclasses.dataclass(frozen=True)
@@ -52,7 +52,7 @@ class BaseTroveParams:
 
     @classmethod
     def _default_shorthand(cls) -> rdf.IriShorthand:
-        return osfmap.osfmap_shorthand()  # NOTE: osfmap entanglement
+        return shtrove_shorthand()
 
     @classmethod
     def _default_include(cls) -> PropertypathSet:
@@ -80,6 +80,7 @@ class BaseTroveParams:
     @classmethod
     def _gather_included_relations(cls, queryparams: _qp.QueryparamDict, shorthand: rdf.IriShorthand) -> PropertypathSet:
         _include_params = queryparams.get('include', [])
+        breakpoint()
         if _include_params:
             return frozenset((
                 parse_propertypath(_path_value, shorthand)

@@ -18,11 +18,7 @@ from trove.vocab.jsonapi import (
     JSONAPI_ATTRIBUTE,
     JSONAPI_RELATIONSHIP,
 )
-from trove.vocab.osfmap import (
-    DATE_PROPERTIES,
-    OSFMAP_LINK,
-    osfmap_shorthand,
-)
+from trove.vocab import osfmap
 from trove.vocab.namespaces import (
     DCTERMS,
     OWL,
@@ -105,7 +101,7 @@ contains a json object that has:
 
 * `@id` with the focus iri
 * `@type` with the focus resource's `rdf:type`
-* property keys from [OSFMAP]({OSFMAP_LINK}) shorthand (each corresponding to an iri)
+* property keys from [OSFMAP]({osfmap.OSFMAP_LINK}) shorthand (each corresponding to an iri)
 * property values as lists of objects:
   * literal text as `{{"@value": "..."}}`
   * iri references as `{{"@id": "..."}}`
@@ -676,7 +672,7 @@ a query param to control ordering of search results based on values of a specifi
 
 to sort by date values, use `sort` (or `sort[date-value]`) with a **property-path** that ends with
 one of the following supported date properties:
-{", ".join(f"`{osfmap_shorthand().compact_iri(_date_iri)}`" for _date_iri in DATE_PROPERTIES)}
+{", ".join(f"`{osfmap.osfmap_shorthand().compact_iri(_date_iri)}`" for _date_iri in osfmap.DATE_PROPERTIES)}
 
 to sort by integer values, use `sort[integer-value]` with a **property-path** to the integers of interest.
 
@@ -723,7 +719,7 @@ may not be used with `page[cursor]`.
         DCTERMS.description: {_literal_markdown(f'''a **property-path** is
 a dot-separated path of short-hand IRIs, used in several api parameters
 
-currently the only supported shorthand is defined by [OSFMAP]({OSFMAP_LINK})
+currently the only supported shorthand is defined by [OSFMAP]({osfmap.OSFMAP_LINK})
 
 for example, `creator.name` is parsed as a two-step path that follows
 `creator` (aka `dcterms:creator`, `<http://purl.org/dc/terms/creator>`) and then `name` (aka `foaf:name`, `<http://xmlns.com/foaf/0.1/name>`)
@@ -848,6 +844,13 @@ def trove_shorthand() -> IriShorthand:
         label_predicate=JSONAPI_MEMBERNAME,
         base_shorthand=NAMESPACES_SHORTHAND,
     )
+
+
+@functools.cache
+def shtrove_shorthand() -> IriShorthand:
+    '''build iri shorthand that includes unprefixed terms (as defined in TROVE_API_THESAURUS)
+    '''
+    return trove_shorthand().with_update(osfmap.osfmap_shorthand().prefix_map)
 
 
 @functools.cache

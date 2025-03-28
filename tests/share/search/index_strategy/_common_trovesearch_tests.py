@@ -145,14 +145,14 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_cardsearch_related_properties(self):
         self._fill_test_data_for_querying()
         with mock.patch(
-            'trove.trovesearch.search_params.suggested_property_paths',
+            'trove.vocab.osfmap.suggested_property_paths',
             return_value=(
                 (DCTERMS.creator,),
                 (DCTERMS.references,),
                 (BLARG.nada,),
             ),
         ):
-            _cardsearch_params = CardsearchParams.from_querystring('')
+            _cardsearch_params = CardsearchParams.from_querystring('include=relatedProperties')
             _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
             self.assertEqual(_cardsearch_handle.related_propertypath_results, [
                 PropertypathUsage((DCTERMS.creator,), 3),

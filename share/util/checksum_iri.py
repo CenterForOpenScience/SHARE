@@ -72,7 +72,3 @@ class ChecksumIri:
             salt=salt,
             hexdigest=hexdigest,
         )
-
-    @classmethod
-    def from_dataclass_instance(cls, dataclass_instance):
-        return cls.digest_json(dataclasses.asdict(dataclass_instance))

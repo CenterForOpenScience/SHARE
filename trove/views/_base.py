@@ -10,7 +10,7 @@ from primitive_metadata import gather
 
 from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import RDFS, TROVE
-from trove.util.queryparams import BaseTroveParams
+from trove.util.base_trove_params import BaseTroveParams
 from trove.render import (
     BaseRenderer,
     DEFAULT_RENDERER_TYPE,

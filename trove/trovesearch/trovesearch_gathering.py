@@ -26,20 +26,12 @@ from trove.trovesearch.search_handle import (
     ValuesearchResult,
 )
 from trove.util.iris import get_sufficiently_unique_iri
-from trove.util.propertypath import (
-    propertypath_key,
-    propertypath_set_key,
-)
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
-from trove.vocab.osfmap import (
-    osfmap_shorthand,
-    OSFMAP_THESAURUS,
-    suggested_filter_operator,
-)
+from trove.vocab import osfmap
 from trove.vocab.trove import (
     TROVE_API_THESAURUS,
     trove_indexcard_namespace,
@@ -441,7 +433,7 @@ def _filter_as_blanknode(search_filter) -> frozenset:
 
 def _osfmap_or_unknown_iri_as_json(iri: str):
     try:
-        _twopledict = OSFMAP_THESAURUS[iri]
+        _twopledict = osfmap.OSFMAP_THESAURUS[iri]
     except KeyError:
         return rdf.literal_json({'@id': iri})
     else:
@@ -497,19 +489,19 @@ def _osfmap_twople_json(twopledict):
 
 def _osfmap_path(property_path):
     return rdf.literal_json([
-        osfmap_shorthand().compact_iri(_iri)
+        osfmap.osfmap_shorthand().compact_iri(_iri)
         for _iri in property_path
     ])
 
 
 def _single_propertypath_twoples(property_path: tuple[str, ...]):
-    yield (TROVE.propertyPathKey, literal(propertypath_key(property_path)))
+    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
 
 
 def _multi_propertypath_twoples(propertypath_set):
-    yield (TROVE.propertyPathKey, literal(propertypath_set_key(propertypath_set)))
+    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_set_key(propertypath_set)))
     for _path in propertypath_set:
         yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
 
@@ -518,7 +510,7 @@ def _propertypath_sequence(property_path: tuple[str, ...]):
     _propertypath_metadata = []
     for _property_iri in property_path:
         try:
-            _property_twopledict = OSFMAP_THESAURUS[_property_iri]
+            _property_twopledict = osfmap.OSFMAP_THESAURUS[_property_iri]
         except KeyError:
             _property_twopledict = {RDF.type: {RDF.Property}}  # giving benefit of the doubt
         _propertypath_metadata.append(_osfmap_json(
@@ -533,7 +525,7 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
         (TROVE.suggestedFilterOperator, literal(trove_shorthand().compact_iri(
-            suggested_filter_operator(property_path[-1]),
+            osfmap.suggested_filter_operator(property_path[-1]),
         ))),
         *_single_propertypath_twoples(property_path),
     ))

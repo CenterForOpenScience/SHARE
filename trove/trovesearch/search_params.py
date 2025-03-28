@@ -155,7 +155,7 @@ class Textsegment:
     @classmethod
     def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
         _propertypath_set = (
-            frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0]))
+            frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0], allow_globs=True))
             if param_name.bracketed_names
             else None
         )
@@ -492,6 +492,7 @@ class CardsearchParams(BaseTroveParams):
 
     @functools.cached_property
     def related_property_paths(self) -> tuple[Propertypath, ...]:
+        breakpoint()
         return (
             _get_related_property_paths(self.cardsearch_filter_set)
             if (TROVE.relatedPropertyList,) in self.included_relations
