@@ -1,4 +1,3 @@
-import dataclasses
 import urllib
 
 from primitive_metadata import primitive_rdf as rdf
@@ -23,10 +22,28 @@ ONE_GLOB_PROPERTYPATH: Propertypath = (GLOB_PATHSTEP,)
 
 
 def is_globpath(path: Propertypath) -> bool:
+    '''
+    >>> is_globpath(('*',))
+    True
+    >>> is_globpath(('*', '*'))
+    True
+    >>> is_globpath(('*', 'url:url'))
+    False
+    >>> is_globpath(())
+    False
+    '''
     return all(_pathstep == GLOB_PATHSTEP for _pathstep in path)
 
 
 def make_globpath(length: int) -> Propertypath:
+    '''
+    >>> make_globpath(1)
+    ('*',)
+    >>> make_globpath(2)
+    ('*', '*')
+    >>> make_globpath(5)
+    ('*', '*', '*', '*', '*')
+    '''
     return ONE_GLOB_PROPERTYPATH * length
 
 
@@ -60,8 +77,11 @@ def propertypathstep_key(
     return urllib.parse.quote(shorthand.compact_iri(pathstep))
 
 
-def propertypath_key(self, property_path: Propertypath) -> str:
+def propertypath_key(
+    path: Propertypath,
+    shorthand: rdf.IriShorthand,
+) -> str:
     return PROPERTYPATH_DELIMITER.join(
-        self.propertypathstep_key(_pathstep)
-        for _pathstep in property_path
+        propertypathstep_key(_pathstep, shorthand)
+        for _pathstep in path
     )

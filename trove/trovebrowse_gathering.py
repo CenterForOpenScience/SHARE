@@ -39,14 +39,14 @@ def gather_thesaurus_entry(focus):
             yield from rdf.iter_twoples(_thesaurus_entry)
 
 
-@trovebrowse.gatherer(ns.DCTERMS.isReferencedBy)
-def gather_cards_referencing(focus):
-    ...  # TODO via elasticsearch aggregation
-
-
 @trovebrowse.gatherer(ns.FOAF.primaryTopicOf)
 def gather_cards_focused_on(focus):
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _indexcard_qs = trove_db.Indexcard.objects.filter(focus_identifier_set__in=_identifier_qs)
     for _indexcard in _indexcard_qs:
         yield (ns.FOAF.primaryTopicOf, _indexcard.get_iri())
+
+
+@trovebrowse.gatherer(ns.TROVE.usedAtPath)
+def gather_paths_used_at(focus):
+    ...  # TODO via elasticsearch aggregation

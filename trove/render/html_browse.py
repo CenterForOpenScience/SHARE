@@ -102,7 +102,7 @@ class _HtmlBuilder:
         if mediatype in STABLE_MEDIATYPES:
             with self.__nest('aside') as _aside:
                 _aside.text = '(stable for '
-                with self.__nest('a', attrs={'href': reverse('trovetrove:docs')}) as _link:
+                with self.__nest('a', attrs={'href': reverse('trove:docs')}) as _link:
                     _link.text = 'documented use'
                     _link.tail = ')'
 

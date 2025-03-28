@@ -1,7 +1,6 @@
 from __future__ import annotations
 from collections import defaultdict
 import dataclasses
-import itertools
 import typing
 if typing.TYPE_CHECKING:
     from collections.abc import Mapping
@@ -16,9 +15,9 @@ from trove.util.frozen import freeze
 from trove.util.propertypath import (
     PropertypathSet,
     Propertypath,
+    parse_propertypath,
 )
 from trove.util import queryparams as _qp
-from trove.vocab.namespaces import NAMESPACES_SHORTHAND
 from trove.vocab import osfmap
 
 
@@ -53,7 +52,7 @@ class BaseTroveParams:
 
     @classmethod
     def _default_shorthand(cls) -> rdf.IriShorthand:
-        return NAMESPACES_SHORTHAND
+        return osfmap.osfmap_shorthand()  # NOTE: osfmap entanglement
 
     @classmethod
     def _default_include(cls) -> PropertypathSet:
@@ -82,9 +81,10 @@ class BaseTroveParams:
     def _gather_included_relations(cls, queryparams: _qp.QueryparamDict, shorthand: rdf.IriShorthand) -> PropertypathSet:
         _include_params = queryparams.get('include', [])
         if _include_params:
-            return frozenset(itertools.chain.from_iterable(
-                parse_propertypaths(_include_value, shorthand)
+            return frozenset((
+                parse_propertypath(_path_value, shorthand)
                 for _, _include_value in _include_params
+                for _path_value in _qp.split_queryparam_value(_include_value)
             ))
         return cls._default_include()
 
@@ -108,7 +108,10 @@ class BaseTroveParams:
                 else:
                     for _type in _qp.split_queryparam_value(_typenames):
                         _type_iri = shorthand.expand_iri(_type)
-                        _requested[_type_iri].extend(parse_propertypaths(_param_value, shorthand))
+                        _requested[_type_iri].extend(
+                            parse_propertypath(_path_value, shorthand)
+                            for _path_value in _qp.split_queryparam_value(_param_value)
+                        )
             _attrpaths = _attrpaths.with_new(freeze(_requested))
         return _attrpaths
 

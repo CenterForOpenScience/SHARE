@@ -17,8 +17,8 @@ from trove.views.vocab import TroveVocabView
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/v3/', include('trove.urls', namespace='trove')),  # same as 'trove/' but more subtle
-    path('trove/', include('trove.urls', namespace='trovetrove')),
+    path('api/v3/', include('trove.urls', namespace='apiv3')),  # same as 'trove/' but more subtle
+    path('trove/', include('trove.urls', namespace='trove')),
     path('vocab/2023/trove/<path:vocab_term>', view=TroveVocabView.as_view(), name='trove-vocab'),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),

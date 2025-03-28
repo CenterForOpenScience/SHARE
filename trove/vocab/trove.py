@@ -48,7 +48,7 @@ def _literal_markdown(text: str, *, language: str):
 
 def trove_browse_link(iri: str):
     return urllib.parse.urljoin(
-        reverse('trovetrove:browse-iri'),
+        reverse('trove:browse-iri'),
         f'?iri={urllib.parse.quote(iri)}',
     )
 

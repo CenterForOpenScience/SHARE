@@ -1,3 +1,4 @@
+from __future__ import annotations
 import typing
 import functools
 if typing.TYPE_CHECKING:
@@ -14,6 +15,8 @@ from share.models.feature_flag import FeatureFlag
 from trove.util.propertypath import (
     Propertypath,
     PropertypathSet,
+    parse_propertypath,
+    propertypath_key,
 )
 from trove.util.queryparams import (
     join_queryparam_value,
@@ -960,27 +963,21 @@ def osfmap_shorthand() -> IriShorthand:
 
 
 def parse_osfmap_propertypath(serialized_path: str, *, allow_globs=False) -> Propertypath:
-    return propertypaths.parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
+    return parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
 
 
-def parse_osfmap_propertypath_set(serialized_path_set: str) -> Iterator[Propertypath]:
-    _parser = PropertypathParser(osfmap_shorthand())
+def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs=False) -> Iterator[Propertypath]:
     for _path in split_queryparam_value(serialized_path_set):
-        yield _parser.parse_propertypath(_path)
-    return propertypaths.parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
+        yield parse_osfmap_propertypath(_path, allow_globs=allow_globs)
 
 
 def osfmap_propertypath_key(propertypath: Propertypath) -> str:
-    return (
-        PropertypathParser(osfmap_shorthand())
-        .propertypath_key(propertypath)
-    )
+    return propertypath_key(propertypath, osfmap_shorthand())
 
 
 def osfmap_propertypath_set_key(propertypath_set: PropertypathSet) -> str:
-    _parser = PropertypathParser(osfmap_shorthand())
     return join_queryparam_value(
-        _parser.propertypath_key(_propertypath)
+        osfmap_propertypath_key(_propertypath)
         for _propertypath in propertypath_set
     )
 

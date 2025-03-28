@@ -38,31 +38,36 @@ class BaseTroveView(View, abc.ABC):
                 renderer_type=DEFAULT_RENDERER_TYPE,
             )
         try:
-            _url = request.build_absolute_uri()
             _params = self._parse_params(request)
-            _renderer = self._gather_to_renderer(_url, _params, _renderer_type)
-            return make_http_response(
-                content_rendering=_renderer.render_document(),
-                http_request=request,
-            )
+            return self._make_response(request, _params, _renderer_type)
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
                 renderer_type=_renderer_type,
             )
 
-    def _gather_to_renderer(self, url, params, renderer_type: type[BaseRenderer]) -> BaseRenderer:
-        _focus = self._build_focus(url, params)
+    def _respond(self, request, params, renderer_type: type[BaseRenderer]):
+        _focus = self._build_focus(request, params)
+        _renderer = self._gather_to_renderer(_focus, params, renderer_type)
+        return make_http_response(
+            content_rendering=_renderer.render_document(),
+            http_request=request,
+        )
+
+    def _gather_to_renderer(self, focus, params, renderer_type: type[BaseRenderer]) -> BaseRenderer:
         _gathering = self._build_gathering(params, renderer_type)
         if renderer_type.PASSIVE_RENDER:
-            ask_gathering_from_params(_gathering, params, _focus)
-        return renderer_type(_focus, _gathering)
+            ask_gathering_from_params(_gathering, params, focus)
+        return renderer_type(focus, _gathering)
 
     def _parse_params(self, request: djhttp.HttpRequest):
         return self.params_type.from_querystring(request.META['QUERY_STRING'])
 
-    def _build_focus(self, url, params):
-        return gather.Focus(url, self.focus_type_iri)
+    def _get_focus_iri(self, request, params):
+        return request.build_absolute_uri()
+
+    def _build_focus(self, request, params):
+        return gather.Focus(self._get_focus_iri(request, params), self.focus_type_iri)
 
     def _build_gathering(self, params, renderer_type: type[BaseRenderer]) -> gather.Gathering:
         return self.gathering_organizer.new_gathering(

@@ -22,14 +22,13 @@ from trove.util.propertypath import (
     Propertypath,
     is_globpath,
 )
+from trove.util.base_trove_params import BaseTroveParams
 from trove.util.queryparams import (
-    BaseTroveParams,
     QueryparamDict,
     QueryparamName,
     split_queryparam_value,
     join_queryparam_value,
     get_single_value,
-    parse_propertypaths,
 )
 from trove.vocab import osfmap
 from trove.vocab.trove import trove_shorthand
@@ -156,7 +155,7 @@ class Textsegment:
     @classmethod
     def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
         _propertypath_set = (
-            frozenset(parse_propertypaths(param_name.bracketed_names[0], osfmap.osfmap_shorthand()))
+            frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0]))
             if param_name.bracketed_names
             else None
         )
@@ -261,7 +260,7 @@ class Textsegment:
         for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
-                (osfmap_propertypath_set_key(_propertypath_set),),
+                (osfmap.osfmap_propertypath_set_key(_propertypath_set),),
             )
             _qp_value = ' '.join(
                 _textsegment.as_searchtext()
@@ -341,9 +340,9 @@ class SearchFilter:
                         str(param_name),
                         f'unknown filter operator "{_operator_value}"',
                     )
-        _propertypath_set = frozenset(parse_propertypaths(_serialized_path_set, osfmap_shorthand()))
+        _propertypath_set = frozenset(osfmap.parse_osfmap_propertypath_set(_serialized_path_set))
         _is_date_filter = all(
-            is_date_property(_path[-1])
+            osfmap.is_date_property(_path[-1])
             for _path in _propertypath_set
         )
         if _operator is None:  # default operator
@@ -363,7 +362,7 @@ class SearchFilter:
                 if _is_date_filter:
                     _value_list.append(_value)  # TODO: vali-date
                 else:
-                    _value_list.append(osfmap_shorthand().expand_iri(_value))
+                    _value_list.append(osfmap.osfmap_shorthand().expand_iri(_value))
         return cls(
             value_set=frozenset(_value_list),
             operator=_operator,
@@ -388,11 +387,11 @@ class SearchFilter:
 
     def as_queryparam(self, queryparam_family: str):
         _qp_name = QueryparamName(queryparam_family, (
-            osfmap_propertypath_set_key(self.propertypath_set),
+            osfmap.osfmap_propertypath_set_key(self.propertypath_set),
             self.operator.to_shortname(),
         ))
         _qp_value = join_queryparam_value(
-            osfmap_shorthand().compact_iri(_value)
+            osfmap.osfmap_shorthand().compact_iri(_value)
             for _value in self.value_set
         )
         return str(_qp_name), _qp_value
@@ -459,7 +458,7 @@ class SortParam:
             if (self.value_type == ValueType.DATE)
             else f'sort[{self.value_type.to_shortname()}]'
         )
-        _pathkey = osfmap_propertypath_key(self.propertypath)
+        _pathkey = osfmap.osfmap_propertypath_key(self.propertypath)
         _value = (f'-{_pathkey}' if self.descending else _pathkey)
         return (_name, _value)
 
@@ -575,7 +574,7 @@ class ValuesearchParams(CardsearchParams):
 
     def to_querydict(self):
         _querydict = super().to_querydict()
-        _querydict['valueSearchPropertyPath'] = osfmap_propertypath_key(self.valuesearch_propertypath)
+        _querydict['valueSearchPropertyPath'] = osfmap.osfmap_propertypath_key(self.valuesearch_propertypath)
         for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:
