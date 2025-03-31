@@ -3,6 +3,10 @@ import doctest
 import trove.util.chainmap
 import trove.util.iris
 
+_DOCTEST_OPTIONFLAGS = (
+    doctest.ELLIPSIS
+    | doctest.NORMALIZE_WHITESPACE
+)
 
 _MODULES_WITH_DOCTESTS = (
     trove.util.iris,
@@ -25,5 +29,5 @@ for _module in _MODULES_WITH_DOCTESTS:
     # HACK: allow running with pytest
     globals().update({
         f'test_doctest_{_module.__name__}_{_i}': _make_test_fn(_test_case)
-        for _i, _test_case in enumerate(doctest.DocTestSuite(_module))
+        for _i, _test_case in enumerate(doctest.DocTestSuite(_module, optionflags=_DOCTEST_OPTIONFLAGS))
     })

@@ -492,7 +492,6 @@ class CardsearchParams(BaseTroveParams):
 
     @functools.cached_property
     def related_property_paths(self) -> tuple[Propertypath, ...]:
-        breakpoint()
         return (
             _get_related_property_paths(self.cardsearch_filter_set)
             if (TROVE.relatedPropertyList,) in self.included_relations

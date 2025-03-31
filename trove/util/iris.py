@@ -126,10 +126,16 @@ def is_worthwhile_iri(iri: str):
 
 
 def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) -> str:
-    assert isinstance(iris, (list, tuple)) and all(
-        isinstance(_pathstep, str)
-        for _pathstep in iris
-    ), f'expected list or tuple of str, got {iris}'
+    '''return a string-serialized list of iris
+
+    meant for storing in an elasticsearch "keyword" field (happens to use json)
+    >>> iri_path_as_keyword(['flipl://iri.example/blarg', 'namly:urn.example:blerg'])
+    '["flipl://iri.example/blarg", "namly:urn.example:blerg"]'
+    >>> iri_path_as_keyword(
+    ...     ['flipl://iri.example/blarg', 'namly:urn.example:blerg'],
+    ...     suffuniq=True)
+    '["://iri.example/blarg", "namly:urn.example:blerg"]'
+    '''
     _list = iris
     if suffuniq:
         _list = [
@@ -142,7 +148,13 @@ def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) ->
 def unquote_iri(iri: str) -> str:
     '''
     >>> unquote_iri('flipl://iri.example/blarg/?#')
+    'flipl://iri.example/blarg/?#'
+    >>> unquote_iri('flipl%3A//iri.example/blarg/%3F%23')
+    'flipl://iri.example/blarg/?#'
     >>> unquote_iri('namly:urn.example:blerg')
+    'namly:urn.example:blerg'
+    >>> unquote_iri('namly%3Aurn.example%3Ablerg')
+    'namly:urn.example:blerg'
     '''
     _unquoted_iri = iri
     while QUOTED_IRI_REGEX.match(_unquoted_iri):
