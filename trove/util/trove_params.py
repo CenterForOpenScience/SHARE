@@ -22,7 +22,7 @@ from trove.vocab.trove import shtrove_shorthand
 
 
 @dataclasses.dataclass(frozen=True)
-class BaseTroveParams:
+class BasicTroveParams:
     iri_shorthand: rdf.IriShorthand = dataclasses.field(repr=False)
     accept_mediatype: str | None
     included_relations: PropertypathSet = dataclasses.field(repr=False, compare=False)
@@ -47,7 +47,7 @@ class BaseTroveParams:
             'iri_shorthand': _shorthand,
             'included_relations': cls._gather_included_relations(queryparams, _shorthand),
             'attrpaths_by_type': cls._gather_attrpaths(queryparams, _shorthand),
-            'accept_mediatype': _qp.get_single_value(queryparams, _qp.QueryparamName('acceptMediatype')),
+            'accept_mediatype': _qp.get_single_value(queryparams, 'acceptMediatype'),
         }
 
     @classmethod

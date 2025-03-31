@@ -1,9 +1,3 @@
-.VisibleNest {
-    padding: 0.191rem 0.382rem;
-    filter: hue-rotate(0.192turn);
-    backdrop-filter: hue-rotate(0.192turn);
-}
-
 .BrowseWrapper {
     display: flex;
     flex-direction: row;

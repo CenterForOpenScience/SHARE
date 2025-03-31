@@ -10,7 +10,7 @@ from primitive_metadata import gather
 
 from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import RDFS, TROVE
-from trove.util.base_trove_params import BaseTroveParams
+from trove.util.trove_params import BasicTroveParams
 from trove.render import (
     BaseRenderer,
     DEFAULT_RENDERER_TYPE,
@@ -26,7 +26,7 @@ from ._responder import (
 class BaseTroveView(View, abc.ABC):
     # ClassVars expected on inheritors:
     gathering_organizer: ClassVar[gather.GatheringOrganizer]
-    params_type: ClassVar[type[BaseTroveParams]] = BaseTroveParams
+    params_type: ClassVar[type[BasicTroveParams]] = BasicTroveParams
     focus_type_iris: ClassVar[Container[str]] = (RDFS.Resource,)
 
     def get(self, request):
@@ -39,7 +39,7 @@ class BaseTroveView(View, abc.ABC):
             )
         try:
             _params = self._parse_params(request)
-            return self._make_response(request, _params, _renderer_type)
+            return self._respond(request, _params, _renderer_type)
         except trove_exceptions.TroveError as _error:
             return make_http_error_response(
                 error=_error,
@@ -67,7 +67,7 @@ class BaseTroveView(View, abc.ABC):
         return request.build_absolute_uri()
 
     def _build_focus(self, request, params):
-        return gather.Focus(self._get_focus_iri(request, params), self.focus_type_iri)
+        return gather.Focus.new(self._get_focus_iri(request, params), self.focus_type_iris)
 
     def _build_gathering(self, params, renderer_type: type[BaseRenderer]) -> gather.Gathering:
         return self.gathering_organizer.new_gathering(
@@ -76,7 +76,7 @@ class BaseTroveView(View, abc.ABC):
 
     def _get_gatherer_kwargs(self, params, renderer_type):
         _kwargs = {}
-        _deriver_kw = _get_param_keyword(TROVE.deriverIRI, self.organizer)
+        _deriver_kw = _get_param_keyword(TROVE.deriverIRI, self.gathering_organizer)
         if _deriver_kw:
             _kwargs[_deriver_kw] = renderer_type.INDEXCARD_DERIVER_IRI
         return _kwargs

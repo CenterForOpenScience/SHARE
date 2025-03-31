@@ -94,13 +94,18 @@ def join_queryparam_value(values: typing.Iterable[str]):
 
 def get_single_value(
     queryparams: QueryparamDict,
-    queryparam_name: QueryparamName,
+    queryparam_name: QueryparamName | str,
 ):
-    _family_params = queryparams.get(queryparam_name.family, ())
+    if isinstance(queryparam_name, QueryparamName):
+        _family_name = queryparam_name.family
+        _expected_brackets = queryparam_name.bracketed_names
+    else:
+        _family_name = queryparam_name
+        _expected_brackets = ()
     _paramvalues = [
         _paramvalue
-        for _paramname, _paramvalue in _family_params
-        if _paramname.bracketed_names == queryparam_name.bracketed_names
+        for _paramname, _paramvalue in queryparams.get(_family_name, ())
+        if _paramname.bracketed_names == _expected_brackets
     ]
     if not _paramvalues:
         return None

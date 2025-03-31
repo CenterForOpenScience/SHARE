@@ -9,9 +9,9 @@ from trove.trovesearch.page_cursor import (
     ReproduciblyRandomSampleCursor,
 )
 from trove.trovesearch.search_params import (
-    BaseTroveParams,
     CardsearchParams,
 )
+from trove.util.trove_params import BasicTroveParams
 from trove.vocab.namespaces import TROVE
 from trove.vocab.trove import trove_indexcard_namespace
 
@@ -19,8 +19,8 @@ from trove.vocab.trove import trove_indexcard_namespace
 @dataclasses.dataclass
 class BasicSearchHandle:
     cursor: PageCursor
-    search_params: BaseTroveParams
-    handler: typing.Callable[[BaseTroveParams], typing.Self] | None = None
+    search_params: BasicTroveParams
+    handler: typing.Callable[[BasicTroveParams], typing.Self] | None = None
 
     @property
     def total_result_count(self) -> primitive_rdf.Literal:
@@ -134,7 +134,7 @@ class ValuesearchResult:
 ###
 # types
 
-TrovesearchHandler = typing.Callable[[BaseTroveParams], BasicSearchHandle]
+TrovesearchHandler = typing.Callable[[BasicTroveParams], BasicSearchHandle]
 
 
 ###

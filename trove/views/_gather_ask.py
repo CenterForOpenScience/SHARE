@@ -1,11 +1,11 @@
 from primitive_metadata import gather
 
-from trove.trovesearch.search_params import BaseTroveParams
+from trove.util.trove_params import BasicTroveParams
 
 
 def ask_gathering_from_params(
     gathering: gather.Gathering,
-    params: BaseTroveParams,
+    params: BasicTroveParams,
     start_focus: gather.Focus,
 ):
     # fill the gathering's cache with included related resources...

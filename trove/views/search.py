@@ -1,11 +1,12 @@
 import abc
+from collections.abc import Callable
 import logging
-from typing import Callable
+
+from primitive_metadata import gather
 
 from share.search import index_strategy
 from trove.trovesearch.search_handle import BasicSearchHandle
 from trove.trovesearch.search_params import (
-    BaseTroveParams,
     CardsearchParams,
     ValuesearchParams,
 )
@@ -14,17 +15,20 @@ from trove.trovesearch.trovesearch_gathering import (
     CardsearchFocus,
     ValuesearchFocus,
 )
+from trove.util.trove_params import BasicTroveParams
 from ._base import BaseTroveView
 
 
 logger = logging.getLogger(__name__)
 
 
-_TrovesearchHandler = Callable[[BaseTroveParams], BasicSearchHandle]
+_TrovesearchHandler = Callable[[BasicTroveParams], BasicSearchHandle]
 
 
 class _BaseTrovesearchView(BaseTroveView, abc.ABC):
-    organizer = trovesearch_by_indexstrategy
+    focus_type: type[gather.Focus] = gather.Focus  # expected on subclasses
+
+    gathering_organizer = trovesearch_by_indexstrategy  # for BaseTroveView
 
     def _build_focus(self, url, params):  # override BaseTroveView
         _strategy = index_strategy.get_strategy_for_trovesearch(params)

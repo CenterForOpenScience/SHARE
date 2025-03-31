@@ -22,7 +22,7 @@ from trove.util.propertypath import (
     Propertypath,
     is_globpath,
 )
-from trove.util.base_trove_params import BaseTroveParams
+from trove.util.trove_params import BasicTroveParams
 from trove.util.queryparams import (
     QueryparamDict,
     QueryparamName,
@@ -112,7 +112,7 @@ class ValueType(enum.Enum):
 
 
 @dataclasses.dataclass(frozen=True)
-class BaseTrovesearchParams(BaseTroveParams):
+class BasicTrovesearchParams(BasicTroveParams):
     static_focus_type: typing.ClassVar[str]  # expected on subclasses
 
     @classmethod
@@ -464,12 +464,12 @@ class SortParam:
 
 
 @dataclasses.dataclass(frozen=True)
-class IndexcardParams(BaseTroveParams):
+class IndexcardParams(BasicTroveParams):
     static_focus_type = TROVE.Indexcard
 
 
 @dataclasses.dataclass(frozen=True)
-class CardsearchParams(BaseTroveParams):
+class CardsearchParams(BasicTroveParams):
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
@@ -485,7 +485,7 @@ class CardsearchParams(BaseTroveParams):
             **super().parse_queryparams(queryparams),
             'cardsearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'cardSearchText'),
             'cardsearch_filter_set': _filter_set,
-            'index_strategy_name': get_single_value(queryparams, QueryparamName('indexStrategy')),
+            'index_strategy_name': get_single_value(queryparams, 'indexStrategy'),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
             'page_cursor': _get_page_cursor(queryparams),
         }
@@ -550,7 +550,7 @@ class ValuesearchParams(CardsearchParams):
     # override CardsearchParams
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
-        _raw_propertypath = get_single_value(queryparams, QueryparamName('valueSearchPropertyPath'))
+        _raw_propertypath = get_single_value(queryparams, 'valueSearchPropertyPath')
         if not _raw_propertypath:
             raise trove_exceptions.MissingRequiredQueryParam('valueSearchPropertyPath')
         return {
