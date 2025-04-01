@@ -23,6 +23,7 @@ class BrowseParams(BasicTroveParams):
         if not _iri_value:
             raise trove_exceptions.MissingRequiredQueryParam('iri')
         _iri = ns.NAMESPACES_SHORTHAND.expand_iri(unquote_iri(_iri_value))
+        _iri = ns.NAMESPACES_SHORTHAND.expand_iri(unquote_iri(_iri_value))
         return {
             **super().parse_queryparams(queryparams),
             'iri': _iri,

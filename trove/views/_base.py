@@ -9,7 +9,7 @@ from django.views import View
 from primitive_metadata import gather
 
 from trove import exceptions as trove_exceptions
-from trove.vocab.namespaces import RDFS, TROVE
+from trove.vocab.namespaces import TROVE
 from trove.util.trove_params import BasicTroveParams
 from trove.render import (
     BaseRenderer,
@@ -27,7 +27,7 @@ class BaseTroveView(View, abc.ABC):
     # ClassVars expected on inheritors:
     gathering_organizer: ClassVar[gather.GatheringOrganizer]
     params_type: ClassVar[type[BasicTroveParams]] = BasicTroveParams
-    focus_type_iris: ClassVar[Container[str]] = (RDFS.Resource,)
+    focus_type_iris: ClassVar[Container[str]] = ()
 
     def get(self, request):
         try:

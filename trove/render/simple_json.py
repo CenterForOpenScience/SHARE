@@ -55,7 +55,7 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
         )
 
     def _render_card_content(self, card_iri: str, osfmap_json: dict):
-        self._add_twople(osfmap_json, 'foaf:primaryTopicOf', card_iri)
+        self._add_twople(osfmap_json, 'foaf:isPrimaryTopicOf', card_iri)
         return osfmap_json
 
     def _render_meta(self):

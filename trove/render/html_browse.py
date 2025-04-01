@@ -1,7 +1,7 @@
 import contextlib
 import dataclasses
 import datetime
-import markdown2
+import math
 import random
 from urllib.parse import quote, urlsplit, urlunsplit
 from xml.etree.ElementTree import (
@@ -14,6 +14,7 @@ from xml.etree.ElementTree import (
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import QueryDict
 from django.urls import reverse
+import markdown2
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.util.iris import get_sufficiently_unique_iri
@@ -42,6 +43,12 @@ _LINK_TEXT_PREDICATES = (
     DC.title,
     FOAF.name,
 )
+_IMPLICIT_DATATYPES = frozenset((
+    RDF.string,
+    RDF.langString,
+))
+
+_PHI = (math.sqrt(5) + 1) / 2
 
 
 @dataclasses.dataclass
@@ -71,6 +78,7 @@ class _HtmlBuilder:
     __current_element: Element = dataclasses.field(init=False)
     __visiting_iris: set[str] = dataclasses.field(init=False)
     __heading_depth: int = 0
+    __last_hue_turn: float = dataclasses.field(default_factory=random.random)
 
     def __post_init__(self):
         # TODO: lang (according to request -- also translate)
@@ -84,7 +92,7 @@ class _HtmlBuilder:
             })
         _body_attrs = {
             'class': 'BrowseWrapper',
-            'style': self._random_turn_style(),
+            'style': self._hue_turn_css(),
         }
         with self.__nest('body', attrs=_body_attrs):
             self.__render_subj(self.focus_iri),
@@ -122,48 +130,63 @@ class _HtmlBuilder:
                     _link.text = 'documented use'
                     _link.tail = ')'
 
-    def __render_subj(self, subj_iri: str, start_collapsed=False):
+    def __render_subj(self, subj_iri: str, *, start_collapsed=True):
         _twopledict = self.__current_data.get(subj_iri, {})
         with self.__visiting(subj_iri):
-            with self.__h_tag() as _h_tag:
-                with self.__nest_card('details'):
-                    with self.__nest('summary'):
-                        with self.__nest(_h_tag, attrs={'class': 'Browse__heading'}):
-                            for _label in self.__link_texts_for_iri(subj_iri):
-                                with self.__nest_link(subj_iri):
-                                    self.__leaf('dfn', text=_label, attrs={'id': quote(subj_iri)})
-                        _compact_focus = self.iri_shorthand.compact_iri(subj_iri)
-                        if _compact_focus != _label:
-                            self.__leaf('code', text=_compact_focus)
-                        if _compact_focus != subj_iri:
-                            self.__leaf('code', text=subj_iri)
-                    self.__twoples(_twopledict)
+            with self.__nest_card('article'):
+                with self.__nest('header'):
+                    _compact = self.iri_shorthand.compact_iri(subj_iri)
+                    _suffuniq = get_sufficiently_unique_iri(subj_iri)
+                    _h_text = (_compact if (_compact != subj_iri) else _suffuniq)
+                    with self.__nest_h_tag():
+                        self.__leaf('dfn', text=_h_text, attrs={'id': quote(subj_iri)})
+                    if _compact not in (subj_iri, _h_text):
+                        self.__leaf('code', text=_compact)
+                    if _suffuniq != _h_text:
+                        self.__leaf('code', text=_suffuniq)
+                    for _label in self.__labels_for_iri(subj_iri):
+                        self.__literal(_label)
+                if _twopledict:
+                    with self.__nest_card('details') as _details:
+                        if not start_collapsed:
+                            _details['open'] = ''
+                        self.__leaf('summary', text='details...')
+                        self.__twoples(_twopledict)
 
     def __twoples(self, twopledict: rdf.RdfTwopleDictionary):
-        with self.__nest('ul', {'class': 'Browse__twopleset'}):
+        with self.__nest('dl', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in shuffled(twopledict.items()):
-                with self.__nest('li', {'class': 'Browse__twople'}):
-                    self.__leaf_link(_pred)
-                    with self.__nest('ul', {'class': 'Browse__objectset'}):
-                        for _obj in shuffled(_obj_set):
-                            with self.__nest('li', {'class': 'Browse__object'}):
-                                self.__obj(_obj)
+                with self.__nest('dt'):
+                    self.__compact_link(_pred)
+                    for _text in self.__labels_for_iri(_pred):
+                        self.__literal(_text)
+                with self.__nest('dd'):
+                    for _obj in shuffled(_obj_set):
+                        self.__obj(_obj)
+        # with self.__nest('ul', {'class': 'Browse__twopleset'}):
+        #     for _pred, _obj_set in shuffled(twopledict.items()):
+        #         with self.__nest('li', {'class': 'Browse__twople'}):
+        #             self.__leaf_link(_pred)
+        #             with self.__nest('ul', {'class': 'Browse__objectset'}):
+        #                 for _obj in shuffled(_obj_set):
+        #                     with self.__nest('li', {'class': 'Browse__object'}):
+        #                         self.__obj(_obj)
 
     def __obj(self, obj: rdf.RdfObject):
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
             if obj in self.__current_data:
                 if obj in self.__visiting_iris:
-                    self.__leaf_link(obj)  # TODO: consider
+                    self.__iri_link_and_labels(obj)  # TODO: consider
                 else:
                     self.__render_subj(obj)
             else:
-                self.__leaf_link(obj)
+                self.__iri_link_and_labels(obj)
         elif isinstance(obj, frozenset):  # blanknode
             if (RDF.type, RDF.Seq) in obj:
                 self.__sequence(obj)
             else:
-                self.__twoples(rdf.twopledict_from_twopleset(obj))
+                self.__blanknode(obj)
         elif isinstance(obj, rdf.Literal):
             self.__literal(obj)
         elif isinstance(obj, (float, int, datetime.date)):
@@ -171,28 +194,28 @@ class _HtmlBuilder:
         elif isinstance(obj, rdf.QuotedGraph):
             self.__quoted_graph(obj)
 
-    def __literal(self, literal: rdf.Literal):
-        # TODO language tag, datatypes
+    def __literal(self, literal: rdf.Literal | str):
+        _lit = (literal if isinstance(literal, rdf.Literal) else rdf.literal(literal))
         _markdown_iri = rdf.iri_from_mediatype('text/markdown')
         _is_markdown = any(
             _datatype.startswith(_markdown_iri)
-            for _datatype in literal.datatype_iris
+            for _datatype in _lit.datatype_iris
         )
         # TODO: checksum_iri, literal_iri
         with self.__nest('article', attrs={'class': 'Browse__literal'}):
             if _is_markdown:
                 # TODO: tests for safe_mode
-                _html = markdown2.markdown(literal.unicode_value, safe_mode='escape')
+                _html = markdown2.markdown(_lit.unicode_value, safe_mode='escape')
                 self.__current_element.append(etree_fromstring(f'<q>{_html}</q>'))
             else:
-                self.__leaf('q', text=literal)
-            for _datatype_iri in literal.datatype_iris:
-                self.__leaf_link(_datatype_iri)
+                self.__leaf('q', text=_lit)
+            for _datatype_iri in _lit.datatype_iris.difference(_IMPLICIT_DATATYPES):
+                self.__compact_link(_datatype_iri)
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(rdf.sequence_objects_in_order(sequence_twoples))
         with self.__nest('details', attrs={'open': ''}):
-            self.__leaf('summary', text=str(len(_obj_in_order)))
+            self.__leaf('summary', text=f'sequence of {len(_obj_in_order)}')
             with self.__nest('ol'):  # TODO: style?
                 for _seq_obj in _obj_in_order:
                     with self.__nest('li'):  # , visible=True):
@@ -201,6 +224,15 @@ class _HtmlBuilder:
     def __quoted_graph(self, quoted_graph: rdf.QuotedGraph):
         with self.__quoted_data(quoted_graph.tripledict):
             self.__render_subj(quoted_graph.focus_iri, start_collapsed=True)
+
+    def __blanknode(self, blanknode: rdf.RdfTwopleDictionary | frozenset):
+        _twopledict = (
+            blanknode
+            if isinstance(blanknode, dict)
+            else rdf.twopledict_from_twopleset(blanknode)
+        )
+        with self.__nest('article', attrs={'class': 'Browse__blanknode'}):
+            self.__twoples(_twopledict)
 
     ###
     # private html-building helpers
@@ -215,16 +247,18 @@ class _HtmlBuilder:
             self.__visiting_iris.remove(iri)
 
     @contextlib.contextmanager
-    def __h_tag(self):
+    def __nest_h_tag(self, **kwargs):
         _outer_heading_depth = self.__heading_depth
         if not _outer_heading_depth:
             self.__heading_depth = 1
         elif _outer_heading_depth < 6:  # h6 deepest
             self.__heading_depth += 1
-        try:
-            yield f'h{self.__heading_depth}'
-        finally:
-            self.__heading_depth = _outer_heading_depth
+        _h_tag = f'h{self.__heading_depth}'
+        with self.__nest(_h_tag, **kwargs) as _nested:
+            try:
+                yield _nested
+            finally:
+                self.__heading_depth = _outer_heading_depth
 
     @contextlib.contextmanager
     def __quoted_data(self, quoted_data: dict):
@@ -256,50 +290,44 @@ class _HtmlBuilder:
         elif text is not None:
             _leaf_element.text = text
 
-    def __nest_link(self, iri: str, *, attrs=None):
+    def __browse_link(self, iri: str, *, attrs=None):
         return self.__nest('a', attrs={
             **(attrs or {}),
             'href': trove_browse_link(iri),
         })
 
-    def __leaf_link(self, iri: str, *, attrs=None):
-        for _text in self.__link_texts_for_iri(iri):
-            with self.__nest_link(iri, attrs=attrs) as _link:
-                # TODO: lang
-                _link.text = (
-                    _text.unicode_value
-                    if isinstance(_text, rdf.Literal)
-                    else _text
-                )
+    def __iri_link_and_labels(self, iri: str):
+        self.__compact_link(iri)
+        for _text in self.__labels_for_iri(iri):
+            self.__literal(_text)
 
-    def __nest_card(self, tag: str = 'nav', start_collapsed=False):
+    def __compact_link(self, iri: str):
+        _compact = self.iri_shorthand.compact_iri(iri)
+        with self.__browse_link(iri) as _link:
+            _link.text = _compact
+
+    def __nest_card(self, tag: str = 'nav'):
         return self.__nest(
             tag,
             attrs={
                 'class': 'Browse__card',
-                'style': self._random_turn_style(),
-                **({} if start_collapsed else {'open': ''}),
+                'style': self._hue_turn_css(),
             },
         )
 
-    def __link_texts_for_iri(self, iri: str):
+    def __labels_for_iri(self, iri: str):
         # TODO: consider requested language
         _suffuniq = get_sufficiently_unique_iri(iri)
         _thesaurus_entry = combined_thesaurus__suffuniq().get(_suffuniq)
         if _thesaurus_entry:
             for _pred in _LINK_TEXT_PREDICATES:
-                _objects = _thesaurus_entry.get(_pred)
-                if _objects:
-                    return _objects
-        _shorthand = self.iri_shorthand.compact_iri(iri)
-        return (
-            [_suffuniq]
-            if _shorthand == iri
-            else [_shorthand]
-        )
+                yield from shuffled(_thesaurus_entry.get(_pred, ()))
 
-    def _random_turn_style(self):
-        return f'--random-turn: {random.random()}turn;'
+    def _hue_turn_css(self):
+        # return f'--hue-turn: {random.random()}turn;'
+        _hue_turn = self.__last_hue_turn + (_PHI / 13)
+        self.__last_hue_turn = _hue_turn
+        return f'--hue-turn: {_hue_turn}turn;'
 
     def _queryparam_href(self, param_name: str, param_value: str | None):
         (_scheme, _netloc, _path, _query, _fragment) = urlsplit(self.focus_iri)

@@ -363,7 +363,7 @@ def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> d
         _card_iri = _card.get_iri()
         _quoted_graph = _indexcard_rdf.as_quoted_graph()
         _quoted_graph.add(
-            (_quoted_graph.focus_iri, FOAF.primaryTopicOf, _card_iri),
+            (_quoted_graph.focus_iri, FOAF.isPrimaryTopicOf, _card_iri),
         )
         _card_foci[_card_iri] = IndexcardFocus.new(
             iris=_card_iri,
