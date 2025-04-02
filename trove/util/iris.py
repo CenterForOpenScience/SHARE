@@ -155,10 +155,17 @@ def unquote_iri(iri: str) -> str:
     'namly:urn.example:blerg'
     >>> unquote_iri('namly%3Aurn.example%3Ablerg')
     'namly:urn.example:blerg'
+    >>> unquote_iri('werbleWord')
+    'werbleWord'
+    >>> quote(quote('flipl://iri.example/blarg/?' + urlencode({'iri': '://blarg///' + quote('://bl@rg?'))))
+    >>> unquote_iri(_)
+    >>> quote('namly:urn.example:' + quote('flipl://iri.example/blarg/?'))
+    >>> unquote_iri(_)
     '''
     _unquoted_iri = iri
-    while QUOTED_IRI_REGEX.match(_unquoted_iri):
-        _unquoted_iri = unquote(_unquoted_iri)
-    if not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
-        raise trove_exceptions.InvalidQuotedIri(f'does not look like a quoted iri: {iri}')
+    while not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
+        _next_unquoted_iri = unquote(_unquoted_iri)
+        if _unquoted_iri == _next_unquoted_iri:
+            break
+        _unquoted_iri = _next_unquoted_iri
     return _unquoted_iri

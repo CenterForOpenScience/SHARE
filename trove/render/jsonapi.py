@@ -22,12 +22,13 @@ from trove.vocab.namespaces import (
     OSFMAP,
     OWL,
     RDF,
+    RDFS,
     TROVE,
     XSD,
-    NAMESPACES_SHORTHAND,
 )
 from trove.vocab.trove import (
     trove_indexcard_namespace,
+    trove_shorthand,
 )
 from ._base import BaseRenderer
 
@@ -150,7 +151,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     def _single_typename(self, type_iris: list[str]):
         if not type_iris:
-            raise trove_exceptions.MissingRdfType
+            return self._membername_for_iri(RDFS.Resource)
         if len(type_iris) == 1:
             return self._membername_for_iri(type_iris[0])
         # choose one predictably, preferring osfmap and trove
@@ -302,7 +303,7 @@ class RdfJsonapiRenderer(BaseRenderer):
             try:  # maybe it's a jsonapi resource
                 return self.render_identifier_object(rdfobject)
             except Exception:
-                return NAMESPACES_SHORTHAND.compact_iri(rdfobject)
+                return trove_shorthand().compact_iri(rdfobject)
         elif isinstance(rdfobject, (float, int)):
             return rdfobject
         elif isinstance(rdfobject, datetime.date):

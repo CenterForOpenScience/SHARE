@@ -11,9 +11,11 @@ from xml.etree.ElementTree import (
     fromstring as etree_fromstring,
 )
 
+from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import QueryDict
 from django.urls import reverse
+from django.utils.translation import gettext as _
 import markdown2
 from primitive_metadata import primitive_rdf as rdf
 
@@ -60,6 +62,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             all_data=self.response_tripledict,
             focus_iri=self.response_focus.single_iri(),
             iri_shorthand=self.iri_shorthand,
+            is_data_blended=self.response_gathering.gatherer_kwargs.get('blend_cards'),
         )
         _html_str = etree_tostring(_html_builder.html_element, encoding='unicode', method='html')
         return ''.join((
@@ -73,6 +76,7 @@ class _HtmlBuilder:
     all_data: rdf.RdfTripleDictionary
     focus_iri: str
     iri_shorthand: rdf.IriShorthand
+    is_data_blended: bool | None = None
     html_element: Element = dataclasses.field(init=False)
     __current_data: rdf.RdfTripleDictionary = dataclasses.field(init=False)
     __current_element: Element = dataclasses.field(init=False)
@@ -96,126 +100,126 @@ class _HtmlBuilder:
         }
         with self.__nest('body', attrs=_body_attrs):
             self.__render_subj(self.focus_iri),
-            self.__render_mediatype_links()
-            self.__render_amalgamation_switch()
+            self.__alternate_mediatypes_card()
+            if self.is_data_blended is not None:
+                self.__blender_toggle_card()
             # TODO: <details> with unvisited triples in self.data (unreachable from focus_iri)
 
-    def __render_mediatype_links(self):
-        with self.__nest_card():
-            self.__leaf('header', text='alternate mediatypes')
-            with self.__nest('ul', attrs={'class': 'Browse__twopleset'}):
-                for _mediatype in shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
-                    with self.__nest('li', attrs={'class': 'Browse__twople'}):
-                        self.__mediatype_link(_mediatype)
+    def __alternate_mediatypes_card(self):
+        with self.__nest_card('nav'):
+            self.__leaf('header', text=_('alternate mediatypes'))
+            for _mediatype in shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
+                with self.__nest('span', attrs={'class': 'Browse__literal'}):
+                    self.__mediatype_link(_mediatype)
 
-    def __render_amalgamation_switch(self):
-        ...  # TODO
-        # with self.__nest_card():
-        #     _text = ('ON' if ... else 'OFF')
-        #     self.__leaf('header', text=f'amalgamation {_text}')
-        #     self.__leaf('a', text=..., attrs={
-        #         'href': self._queryparam_href('withAmalgamation', ('' if ... else None)),
-        #     })
+    def __blender_toggle_card(self):
+        with self.__nest_card('nav'):
+            if self.is_data_blended:
+                _header_text = _('card-blending ON')
+                _link_text = _('disable card-blending')
+                _link_blend = '0'  # blendCards=0
+            else:
+                _header_text = _('card-blending OFF')
+                _link_text = _('enable card-blending')
+                _link_blend = None  # remove blendCards param (defaults true)
+            self.__leaf('header', text=_header_text)
+            self.__leaf('a', text=_link_text, attrs={
+                'href': self._queryparam_href('blendCards', _link_blend),
+            })
 
     def __mediatype_link(self, mediatype: str):
         self.__leaf('a', text=mediatype, attrs={
             'href': self._queryparam_href('acceptMediatype', mediatype),
         })
         if mediatype in UNSTABLE_MEDIATYPES:
-            self.__leaf('aside', text='(unstable)')
+            self.__leaf('aside', text=_('(unstable)'))
         if mediatype in STABLE_MEDIATYPES:
-            with self.__nest('aside') as _aside:
-                _aside.text = '(stable for '
+            with self.__nest('aside'):
                 with self.__nest('a', attrs={'href': reverse('trove:docs')}) as _link:
-                    _link.text = 'documented use'
-                    _link.tail = ')'
+                    _link.text = _('(stable for documented use)')
 
-    def __render_subj(self, subj_iri: str, *, start_collapsed=True):
+    def __render_subj(self, subj_iri: str, *, start_collapsed=False):
         _twopledict = self.__current_data.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__nest_card('article'):
                 with self.__nest('header'):
-                    _compact = self.iri_shorthand.compact_iri(subj_iri)
-                    _suffuniq = get_sufficiently_unique_iri(subj_iri)
-                    _h_text = (_compact if (_compact != subj_iri) else _suffuniq)
+                    _h_text, _also_texts = self.__iri_display_texts(subj_iri)
                     with self.__nest_h_tag():
                         self.__leaf('dfn', text=_h_text, attrs={'id': quote(subj_iri)})
-                    if _compact not in (subj_iri, _h_text):
-                        self.__leaf('code', text=_compact)
-                    if _suffuniq != _h_text:
-                        self.__leaf('code', text=_suffuniq)
-                    for _label in self.__labels_for_iri(subj_iri):
+                    for _also_text in _also_texts:
+                        self.__leaf('code', text=_also_text)
+                    for _label in self.__iri_thesaurus_labels(subj_iri):
                         self.__literal(_label)
                 if _twopledict:
-                    with self.__nest_card('details') as _details:
+                    with self.__nest('details') as _details:
                         if not start_collapsed:
-                            _details['open'] = ''
-                        self.__leaf('summary', text='details...')
+                            _details.set('open', '')
+                        self.__leaf('summary', text=_('details...'))
                         self.__twoples(_twopledict)
 
     def __twoples(self, twopledict: rdf.RdfTwopleDictionary):
         with self.__nest('dl', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in shuffled(twopledict.items()):
                 with self.__nest('dt'):
-                    self.__compact_link(_pred)
-                    for _text in self.__labels_for_iri(_pred):
+                    _pred_link = self.__compact_link(_pred)
+                    _append_class(_pred_link, 'Browse__predicate')
+                    for _text in self.__iri_thesaurus_labels(_pred):
                         self.__literal(_text)
                 with self.__nest('dd'):
                     for _obj in shuffled(_obj_set):
                         self.__obj(_obj)
-        # with self.__nest('ul', {'class': 'Browse__twopleset'}):
-        #     for _pred, _obj_set in shuffled(twopledict.items()):
-        #         with self.__nest('li', {'class': 'Browse__twople'}):
-        #             self.__leaf_link(_pred)
-        #             with self.__nest('ul', {'class': 'Browse__objectset'}):
-        #                 for _obj in shuffled(_obj_set):
-        #                     with self.__nest('li', {'class': 'Browse__object'}):
-        #                         self.__obj(_obj)
 
     def __obj(self, obj: rdf.RdfObject):
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
-            if obj in self.__current_data:
-                if obj in self.__visiting_iris:
-                    self.__iri_link_and_labels(obj)  # TODO: consider
-                else:
-                    self.__render_subj(obj)
+            if (obj in self.__current_data) and (obj not in self.__visiting_iris):
+                self.__render_subj(obj)
             else:
-                self.__iri_link_and_labels(obj)
+                with self.__nest('article', attrs={'class': 'Browse__object'}):
+                    self.__iri_link_and_labels(obj)
         elif isinstance(obj, frozenset):  # blanknode
             if (RDF.type, RDF.Seq) in obj:
                 self.__sequence(obj)
             else:
                 self.__blanknode(obj)
         elif isinstance(obj, rdf.Literal):
-            self.__literal(obj)
+            self.__literal(obj, is_rdf_object=True)
         elif isinstance(obj, (float, int, datetime.date)):
-            self.__literal(rdf.literal(obj))
+            self.__literal(rdf.literal(obj), is_rdf_object=True)
         elif isinstance(obj, rdf.QuotedGraph):
             self.__quoted_graph(obj)
 
-    def __literal(self, literal: rdf.Literal | str):
+    def __literal(
+        self,
+        literal: rdf.Literal | str,
+        *,
+        is_rdf_object: bool = False,
+    ):
         _lit = (literal if isinstance(literal, rdf.Literal) else rdf.literal(literal))
         _markdown_iri = rdf.iri_from_mediatype('text/markdown')
         _is_markdown = any(
             _datatype.startswith(_markdown_iri)
             for _datatype in _lit.datatype_iris
         )
+        _element_classes = ['Browse__literal']
+        if is_rdf_object:
+            _element_classes.append('Browse__object')
         # TODO: checksum_iri, literal_iri
-        with self.__nest('article', attrs={'class': 'Browse__literal'}):
+        with self.__nest('article', attrs={'class': ' '.join(_element_classes)}):
+            for _datatype_iri in _lit.datatype_iris.difference(_IMPLICIT_DATATYPES):
+                self.__compact_link(_datatype_iri)
             if _is_markdown:
                 # TODO: tests for safe_mode
                 _html = markdown2.markdown(_lit.unicode_value, safe_mode='escape')
                 self.__current_element.append(etree_fromstring(f'<q>{_html}</q>'))
             else:
                 self.__leaf('q', text=_lit)
-            for _datatype_iri in _lit.datatype_iris.difference(_IMPLICIT_DATATYPES):
-                self.__compact_link(_datatype_iri)
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(rdf.sequence_objects_in_order(sequence_twoples))
         with self.__nest('details', attrs={'open': ''}):
-            self.__leaf('summary', text=f'sequence of {len(_obj_in_order)}')
+            _text = _('sequence of %(count)') % {'count': len(_obj_in_order)}
+            self.__leaf('summary', text=_text)
             with self.__nest('ol'):  # TODO: style?
                 for _seq_obj in _obj_in_order:
                     with self.__nest('li'):  # , visible=True):
@@ -223,7 +227,7 @@ class _HtmlBuilder:
 
     def __quoted_graph(self, quoted_graph: rdf.QuotedGraph):
         with self.__quoted_data(quoted_graph.tripledict):
-            self.__render_subj(quoted_graph.focus_iri, start_collapsed=True)
+            self.__render_subj(quoted_graph.focus_iri)  # , start_collapsed=True)
 
     def __blanknode(self, blanknode: rdf.RdfTwopleDictionary | frozenset):
         _twopledict = (
@@ -231,7 +235,10 @@ class _HtmlBuilder:
             if isinstance(blanknode, dict)
             else rdf.twopledict_from_twopleset(blanknode)
         )
-        with self.__nest('article', attrs={'class': 'Browse__blanknode'}):
+        with self.__nest('article', attrs={
+            'class': 'Browse__blanknode Browse__object',
+            'style': self._hue_turn_css(),
+        }):
             self.__twoples(_twopledict)
 
     ###
@@ -290,23 +297,17 @@ class _HtmlBuilder:
         elif text is not None:
             _leaf_element.text = text
 
-    def __browse_link(self, iri: str, *, attrs=None):
-        return self.__nest('a', attrs={
-            **(attrs or {}),
-            'href': trove_browse_link(iri),
-        })
-
     def __iri_link_and_labels(self, iri: str):
         self.__compact_link(iri)
-        for _text in self.__labels_for_iri(iri):
+        for _text in self.__iri_thesaurus_labels(iri):
             self.__literal(_text)
 
     def __compact_link(self, iri: str):
-        _compact = self.iri_shorthand.compact_iri(iri)
-        with self.__browse_link(iri) as _link:
-            _link.text = _compact
+        with self.__nest('a', attrs={'href': trove_browse_link(iri)}) as _a:
+            _a.text = self.iri_shorthand.compact_iri(iri)
+        return _a
 
-    def __nest_card(self, tag: str = 'nav'):
+    def __nest_card(self, tag: str):
         return self.__nest(
             tag,
             attrs={
@@ -315,7 +316,7 @@ class _HtmlBuilder:
             },
         )
 
-    def __labels_for_iri(self, iri: str):
+    def __iri_thesaurus_labels(self, iri: str):
         # TODO: consider requested language
         _suffuniq = get_sufficiently_unique_iri(iri)
         _thesaurus_entry = combined_thesaurus__suffuniq().get(_suffuniq)
@@ -325,15 +326,21 @@ class _HtmlBuilder:
 
     def _hue_turn_css(self):
         # return f'--hue-turn: {random.random()}turn;'
-        _hue_turn = self.__last_hue_turn + (_PHI / 13)
+        _hue_turn = (self.__last_hue_turn + _PHI) % 1.0
         self.__last_hue_turn = _hue_turn
         return f'--hue-turn: {_hue_turn}turn;'
 
     def _queryparam_href(self, param_name: str, param_value: str | None):
-        (_scheme, _netloc, _path, _query, _fragment) = urlsplit(self.focus_iri)
+        _base_url = self.focus_iri
+        if not _base_url.startswith(settings.SHARE_WEB_URL):
+            _base_url = trove_browse_link(_base_url)
+        (_scheme, _netloc, _path, _query, _fragment) = urlsplit(_base_url)
         _qparams = QueryDict(_query, mutable=True)
         if param_value is None:
-            del _qparams[param_name]
+            try:
+                del _qparams[param_name]
+            except KeyError:
+                pass
         else:
             _qparams[param_name] = param_value
         return urlunsplit((
@@ -343,3 +350,21 @@ class _HtmlBuilder:
             _qparams.urlencode(),
             _fragment,
         ))
+
+    def __iri_display_texts(self, iri: str) -> tuple[str, set[str]]:
+        _compact = self.iri_shorthand.compact_iri(iri)
+        _suffuniq = get_sufficiently_unique_iri(iri)
+        _main_display = (
+            _compact
+            if (_compact != iri)
+            else _suffuniq
+        )
+        _also_display = {iri, _compact} - {_main_display}
+        return (_main_display, _also_display)
+
+
+def _append_class(el: Element, element_class: str):
+    el.set(
+        'class',
+        ' '.join(filter(None, (element_class, el.get('class')))),
+    )

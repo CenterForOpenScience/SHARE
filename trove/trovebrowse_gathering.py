@@ -16,7 +16,7 @@ TROVEBROWSE_NORMS = gather.GatheringNorms.new(
         rdf.literal('browse a trove of IRI-linked metadata', language='en'),
     ),
     focustype_iris={},
-    param_iris={ns.TROVE.withAmalgamation},
+    param_iris={ns.TROVE.blendCards},
     thesaurus=TROVE_API_THESAURUS,
 
 )
@@ -27,28 +27,28 @@ trovebrowse = gather.GatheringOrganizer(
         rdf.literal('trovebrowse organizer', language='en'),
     ),
     norms=TROVEBROWSE_NORMS,
-    gatherer_params={'with_amalgamation': ns.TROVE.withAmalgamation},
+    gatherer_params={'blend_cards': ns.TROVE.blendCards},
 )
 
 
 @trovebrowse.gatherer()
-def gather_thesaurus_entry(focus, *, with_amalgamation: bool):
+def gather_thesaurus_entry(focus, *, blend_cards: bool):
     _thesaurus = static_vocab.combined_thesaurus__suffuniq()
     for _iri in focus.iris:
         _suffuniq_iri = get_sufficiently_unique_iri(_iri)
         _thesaurus_entry = _thesaurus.get(_suffuniq_iri, None)
         if _thesaurus_entry:
-            if with_amalgamation:
+            if blend_cards:
                 yield from rdf.iter_twoples(_thesaurus_entry)
             else:
                 yield (ns.FOAF.isPrimaryTopicOf, rdf.QuotedGraph({_iri: _thesaurus_entry}, focus_iri=_iri))
 
 
 @trovebrowse.gatherer(ns.FOAF.isPrimaryTopicOf)
-def gather_cards_focused_on(focus, *, with_amalgamation: bool):
+def gather_cards_focused_on(focus, *, blend_cards: bool):
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _indexcard_qs = trove_db.Indexcard.objects.filter(focus_identifier_set__in=_identifier_qs)
-    if with_amalgamation:
+    if blend_cards:
         for _latest_rdf in trove_db.LatestIndexcardRdf.objects.filter(indexcard__in=_indexcard_qs):
             yield from rdf.iter_tripleset(_latest_rdf.as_rdf_tripledict())
     else:

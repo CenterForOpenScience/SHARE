@@ -15,7 +15,7 @@ class TroveVocabView(View):
         if _iri not in TROVE_API_THESAURUS:
             raise http.Http404
         _browse_url = '?'.join((
-            reverse('trove-browse'),
+            reverse('trove:browse-iri'),
             urlencode({'iri': _iri}),
         ))
         return redirect(_browse_url)

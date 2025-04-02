@@ -26,6 +26,9 @@ QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
 # value to be split on commas, used as a list or set
 QUERYPARAM_VALUES_DELIM = ','
 
+TRUTHY_VALUES = frozenset(('t', 'true', '1', 'y', 'yes'))
+FALSY_VALUES = frozenset(('f', 'false', '0', 'n', 'no'))
+
 
 @dataclasses.dataclass(frozen=True)
 class QueryparamName:
@@ -95,7 +98,7 @@ def join_queryparam_value(values: typing.Iterable[str]):
 def get_single_value(
     queryparams: QueryparamDict,
     queryparam_name: QueryparamName | str,
-):
+) -> str | None:
     if isinstance(queryparam_name, QueryparamName):
         _family_name = queryparam_name.family
         _expected_brackets = queryparam_name.bracketed_names
@@ -115,3 +118,27 @@ def get_single_value(
         raise trove_exceptions.InvalidRepeatedQueryParam(str(queryparam_name))
     else:
         return _singlevalue
+
+
+def get_bool_value(
+    queryparams: QueryparamDict,
+    queryparam_name: QueryparamName | str,
+    *,
+    if_absent: bool = False,  # by default, param absence is falsy
+    if_empty: bool = True,  # by default, presence (with empty value) is truthy
+) -> bool:
+    _value = get_single_value(queryparams, queryparam_name)
+    if _value is None:
+        return if_absent
+    if _value == '':
+        return if_empty
+    return parse_booly_str(_value)
+
+
+def parse_booly_str(value: str):
+    _lowered = value.lower()
+    if _lowered in TRUTHY_VALUES:
+        return True
+    if _lowered in FALSY_VALUES:
+        return False
+    raise ValueError(f'unboolable string: "{value}"')

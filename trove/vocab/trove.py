@@ -43,9 +43,10 @@ def _literal_markdown(text: str, *, language: str):
 
 
 def trove_browse_link(iri: str):
+    _compact = trove_shorthand().compact_iri(iri)
     return urllib.parse.urljoin(
         reverse('trove:browse-iri'),
-        f'?iri={urllib.parse.quote(iri)}',
+        f'?iri={urllib.parse.quote(_compact)}',
     )
 
 
@@ -159,9 +160,8 @@ a way to find resources based on this metadata trove
 search index-cards that match a fuzzy text search for the word "word" in the title (aka `dcterms:title`, `<http://purl.org/dc/terms/title>`)
 
 uses query parameter:
-```
-cardSearchText[title]=word
-```
+
+* `cardSearchText[title]=word`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-card-search?cardSearchText[title]=word&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -172,9 +172,8 @@ cardSearchText[title]=word
 search index-cards that have at least one creator affiliated with [COS](https://cos.io)
 
 uses query parameter:
-```
-cardSearchFilter[creator.affiliation]=https://cos.io
-```
+
+* `cardSearchFilter[creator.affiliation]=https://cos.io`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-card-search?cardSearchFilter[creator.affiliation]=https://cos.io&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -186,9 +185,8 @@ searches index-cards with `dateCreated` (aka `dcterms:created`, `<http://purl.or
 values after 2022
 
 uses query parameter:
-```
-cardSearchFilter[dateCreated][after]=2022
-```
+
+* `cardSearchFilter[dateCreated][after]=2022`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-card-search?cardSearchFilter[dateCreated][after]=2022&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -199,9 +197,8 @@ cardSearchFilter[dateCreated][after]=2022
 searches index-cards with a specific iri value at any property
 
 uses query parameter:
-```
-cardSearchFilter[*]=https://osf.io
-```
+
+* `cardSearchFilter[*]=https://osf.io`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-card-search?cardSearchFilter[*]=https://osf.io&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -212,10 +209,9 @@ cardSearchFilter[*]=https://osf.io
 searches for index-cards that have a `funder` and do not have an `affiliation`
 
 uses query parameters:
-```
-cardSearchFilter[funder][is-present]
-cardSearchFilter[affiliation][is-absent]
-```
+
+* `cardSearchFilter[funder][is-present]`
+* `cardSearchFilter[affiliation][is-absent]`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-card-search?cardSearchFilter[funder][is-present]&cardSearchFilter[affiliation][is-absent]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -249,10 +245,9 @@ a way to find iri values that could be used in a cardSearchFilter
 search for iri values for the property `creator` (aka `dcterms:creator`,
 `<http://purl.org/dc/terms/creator>`)
 
-uses query parameter:
-```
-valueSearchPropertyPath=creator
-```
+uses query parameters:
+
+* `valueSearchPropertyPath=creator`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -263,11 +258,10 @@ valueSearchPropertyPath=creator
 search for iri values for the property `creator` within the context of a card-search
 
 uses query parameter:
-```
-valueSearchPropertyPath=creator
-cardSearchText=sciency
-cardSearchFilter[subject][is-present]
-```
+
+* `valueSearchPropertyPath=creator`
+* `cardSearchText=sciency`
+* `cardSearchFilter[subject][is-present]`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -277,11 +271,10 @@ cardSearchFilter[subject][is-present]
                 DCTERMS.description: {_literal_markdown('''
 search for a specific iri value in the property `creator`
 
-uses query parameter:
-```
-valueSearchPropertyPath=creator
-valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104
-```
+uses query parameters:
+
+* `valueSearchPropertyPath=creator`
+* `valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -291,11 +284,10 @@ valueSearchFilter[sameAs]=https://orcid.org/0000-0002-6155-6104
                 DCTERMS.description: {_literal_markdown('''
 search for iri values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
 
-uses query parameter:
-```
-valueSearchPropertyPath=creator
-valueSearchFilter[resourceType]=Person
-```
+uses query parameters:
+
+* `valueSearchPropertyPath=creator`
+* `valueSearchFilter[resourceType]=Person`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -306,11 +298,10 @@ valueSearchFilter[resourceType]=Person
 search for iri values used as `license` that have "cc" in their label
 (`rdfs:label`, `dcterms:title`, or `foaf:name`)
 
-uses query parameter:
-```
-valueSearchPropertyPath=license
-valueSearchText=cc
-```
+uses query parameters:
+
+* `valueSearchPropertyPath=license`
+* `valueSearchText=cc`
 ''', language='en')},
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=license&valueSearchText=cc&acceptMediatype=application/vnd.api%2Bjson')},
             }),
@@ -848,7 +839,7 @@ def trove_shorthand() -> IriShorthand:
 
 @functools.cache
 def shtrove_shorthand() -> IriShorthand:
-    '''build iri shorthand that includes unprefixed terms (as defined in TROVE_API_THESAURUS)
+    '''build iri shorthand that includes osfmap shorthands...
     '''
     return trove_shorthand().with_update(osfmap.osfmap_shorthand().prefix_map)
 
