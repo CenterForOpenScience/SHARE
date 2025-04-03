@@ -218,7 +218,7 @@ class _HtmlBuilder:
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(rdf.sequence_objects_in_order(sequence_twoples))
         with self.__nest('details', attrs={'open': ''}):
-            _text = _('sequence of %(count)') % {'count': len(_obj_in_order)}
+            _text = _('sequence of %(count)s') % {'count': len(_obj_in_order)}
             self.__leaf('summary', text=_text)
             with self.__nest('ol'):  # TODO: style?
                 for _seq_obj in _obj_in_order:
@@ -303,7 +303,12 @@ class _HtmlBuilder:
             self.__literal(_text)
 
     def __compact_link(self, iri: str):
-        with self.__nest('a', attrs={'href': trove_browse_link(iri)}) as _a:
+        _href = (
+            iri
+            if iri.startswith(settings.SHARE_WEB_URL)
+            else trove_browse_link(iri)
+        )
+        with self.__nest('a', attrs={'href': _href}) as _a:
             _a.text = self.iri_shorthand.compact_iri(iri)
         return _a
 
