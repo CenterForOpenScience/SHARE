@@ -1,6 +1,6 @@
 import json
 import re
-from urllib.parse import urlsplit, urlunsplit, quote, unquote
+import urllib.parse as _urp
 
 from trove import exceptions as trove_exceptions
 
@@ -15,8 +15,8 @@ IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNO
 COLON = ':'
 COLON_SLASH_SLASH = '://'
 QUOTED_IRI_REGEX = re.compile(
-    f'{IRI_SCHEME_REGEX.pattern}{re.escape(quote(COLON))}'
-    f'|{re.escape(quote(COLON_SLASH_SLASH))}'
+    f'{IRI_SCHEME_REGEX.pattern}{re.escape(_urp.quote(COLON))}'
+    f'|{re.escape(_urp.quote(COLON_SLASH_SLASH))}'
 )
 UNQUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{COLON}|{COLON_SLASH_SLASH}')
 
@@ -99,8 +99,8 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
         _scheme = ''
         _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
-    _split_remainder = urlsplit(_remainder)
-    _cleaned_remainder = urlunsplit((
+    _split_remainder = _urp.urlsplit(_remainder)
+    _cleaned_remainder = _urp.urlunsplit((
         '',  # scheme already split
         _split_remainder.netloc,
         _split_remainder.path.rstrip('/'),  # remove trailing slashes
@@ -147,6 +147,9 @@ def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) ->
 
 def unquote_iri(iri: str) -> str:
     '''
+    like `urllib.parse.unquote` but recognizes multiply-quoted IRIs
+    (unquoting until starting "foo:" or "://", leaving further quoted characters intact)
+
     >>> unquote_iri('flipl://iri.example/blarg/?#')
     'flipl://iri.example/blarg/?#'
     >>> unquote_iri('flipl%3A//iri.example/blarg/%3F%23')
@@ -157,14 +160,21 @@ def unquote_iri(iri: str) -> str:
     'namly:urn.example:blerg'
     >>> unquote_iri('werbleWord')
     'werbleWord'
-    >>> quote(quote('flipl://iri.example/blarg/?' + urlencode({'iri': '://blarg///' + quote('://bl@rg?'))))
-    >>> unquote_iri(_)
-    >>> quote('namly:urn.example:' + quote('flipl://iri.example/blarg/?'))
-    >>> unquote_iri(_)
+
+    >>> import urllib.parse as _urp
+    >>> _unquoted = 'flipl://iri.example/blarg/?' + _urp.urlencode({'param': '://bl@rg?'})
+    >>> unquote_iri(_unquoted)
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_unquoted))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_urp.quote(_unquoted)))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_urp.quote(_urp.quote(_unquoted))))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
     '''
     _unquoted_iri = iri
     while not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
-        _next_unquoted_iri = unquote(_unquoted_iri)
+        _next_unquoted_iri = _urp.unquote(_unquoted_iri)
         if _unquoted_iri == _next_unquoted_iri:
             break
         _unquoted_iri = _next_unquoted_iri

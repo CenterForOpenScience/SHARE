@@ -35,7 +35,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
             mediatype='application/vnd.api+json',
             rendered_content=json.dumps({
                 "data": {
-                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmQ=",
+                    "id": "blarg:aCard",
                     "type": "index-card",
                     "attributes": {
                         "resourceIdentifier": [
@@ -51,7 +51,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                     },
                     "meta": {
                         "foaf:primaryTopic": [
-                            "blarg:anItem"
+                            {"id": "blarg:anItem"},
                         ],
                         "dcterms:issued": [
                             "2024-01-01"
@@ -67,10 +67,10 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
             mediatype='application/vnd.api+json',
             rendered_content=json.dumps({
                 "data": {
-                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYVN1YmplY3Q=",
+                    "id": "blarg:aSubject",
                     "type": "blarg:aType",
                     "meta": {
-                        "blarg:hasIri": ["blarg:anIri"],
+                        "blarg:hasIri": [{"id": "blarg:anIri"}],
                         "blarg:hasRdfStringLiteral": ["an rdf:string literal"],
                         "blarg:hasRdfLangStringLiteral": ['a rdf:langString literal'],
                         "blarg:hasIntegerLiteral": [17],
@@ -90,7 +90,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
             mediatype='application/vnd.api+json',
             rendered_content=json.dumps({
                 "data": {
-                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYVNlYXJjaA==",
+                    "id": "blarg:aSearch",
                     "type": "index-card-search",
                     "attributes": {
                         "totalResultCount": 0,
@@ -105,7 +105,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
             mediatype='application/vnd.api+json',
             rendered_content=json.dumps({
                 "data": {
-                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYVNlYXJjaEZldw==",
+                    "id": "blarg:aSearchFew",
                     "type": "index-card-search",
                     "attributes": {
                         "totalResultCount": 3
@@ -139,7 +139,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "relationships": {
                             "indexCard": {
                                 "data": {
-                                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmQ=",
+                                    "id": "blarg:aCard",
                                     "type": "index-card"
                                 }
                             }
@@ -151,7 +151,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "relationships": {
                             "indexCard": {
                                 "data": {
-                                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmRk",
+                                    "id": "blarg:aCardd",
                                     "type": "index-card"
                                 }
                             }
@@ -163,18 +163,18 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "relationships": {
                             "indexCard": {
                                 "data": {
-                                    "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmRkZA==",
+                                    "id": "blarg:aCarddd",
                                     "type": "index-card"
                                 }
                             }
                         }
                     },
                     {
-                        "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmQ=",
+                        "id": "blarg:aCard",
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "blarg:anItem"
+                                {"id": "blarg:anItem"},
                             ],
                             "dcterms:issued": [
                                 "2024-01-01"
@@ -197,11 +197,11 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         }
                     },
                     {
-                        "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmRkZA==",
+                        "id": "blarg:aCarddd",
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "blarg:anItemmm"
+                                {"id": "blarg:anItemmm"},
                             ],
                             "dcterms:issued": [
                                 "2024-03-03"
@@ -224,11 +224,11 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         }
                     },
                     {
-                        "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYUNhcmRk",
+                        "id": "blarg:aCardd",
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                "blarg:anItemm"
+                                {"id": "blarg:anItemm"},
                             ],
                             "dcterms:issued": [
                                 "2024-02-02"

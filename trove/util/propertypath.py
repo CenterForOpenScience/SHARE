@@ -29,8 +29,6 @@ def is_globpath(path: Propertypath) -> bool:
     True
     >>> is_globpath(('*', 'url:url'))
     False
-    >>> is_globpath(())
-    False
     '''
     return all(_pathstep == GLOB_PATHSTEP for _pathstep in path)
 

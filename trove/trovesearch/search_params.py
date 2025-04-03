@@ -112,7 +112,7 @@ class ValueType(enum.Enum):
 
 
 @dataclasses.dataclass(frozen=True)
-class BasicTrovesearchParams(BasicTroveParams):
+class TrovesearchParams(BasicTroveParams):
     static_focus_type: typing.ClassVar[str]  # expected on subclasses
 
     @classmethod
@@ -464,12 +464,12 @@ class SortParam:
 
 
 @dataclasses.dataclass(frozen=True)
-class IndexcardParams(BasicTroveParams):
+class IndexcardParams(TrovesearchParams):
     static_focus_type = TROVE.Indexcard
 
 
 @dataclasses.dataclass(frozen=True)
-class CardsearchParams(BasicTroveParams):
+class CardsearchParams(TrovesearchParams):
     cardsearch_textsegment_set: frozenset[Textsegment]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None

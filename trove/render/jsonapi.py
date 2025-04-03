@@ -22,7 +22,6 @@ from trove.vocab.namespaces import (
     OSFMAP,
     OWL,
     RDF,
-    RDFS,
     TROVE,
     XSD,
 )
@@ -129,8 +128,9 @@ class RdfJsonapiRenderer(BaseRenderer):
                 _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
                 _id_obj = {
                     'id': self._resource_id_for_iri(iri_or_blanknode),
-                    'type': self._single_typename(_type_iris),
                 }
+                if _type_iris:
+                    _id_obj['type'] = self._single_typename(_type_iris)
             elif isinstance(iri_or_blanknode, frozenset):
                 _type_iris = [
                     _obj
@@ -148,7 +148,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     def _single_typename(self, type_iris: list[str]):
         if not type_iris:
-            return self._membername_for_iri(RDFS.Resource)
+            return ''
         if len(type_iris) == 1:
             return self._membername_for_iri(type_iris[0])
         # choose one predictably, preferring osfmap and trove
@@ -176,6 +176,10 @@ class RdfJsonapiRenderer(BaseRenderer):
         for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
                 return primitive_rdf.iri_minus_namespace(iri, namespace=_iri_namespace)
+        # check for a shorthand
+        _compact = self.iri_shorthand.compact_iri(iri)
+        if _compact != iri:
+            return _compact
         # as fallback, encode the iri into a valid jsonapi member name
         return base64.urlsafe_b64encode(iri.encode()).decode()
 
@@ -297,10 +301,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 return int(rdfobject.unicode_value)
             return rdfobject.unicode_value  # TODO: decide how to represent language
         elif isinstance(rdfobject, str):
-            try:  # maybe it's a jsonapi resource
-                return self.render_identifier_object(rdfobject)
-            except Exception:
-                return self.iri_shorthand.compact_iri(rdfobject)
+            return self.render_identifier_object(rdfobject)
         elif isinstance(rdfobject, (float, int)):
             return rdfobject
         elif isinstance(rdfobject, datetime.date):

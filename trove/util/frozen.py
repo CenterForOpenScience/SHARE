@@ -5,7 +5,6 @@ import types
 _FROZEN_TYPES = (
     tuple,
     frozenset,
-    types.MappingProxyType,
     str,
     int,
     float,
@@ -13,12 +12,26 @@ _FROZEN_TYPES = (
 
 
 def freeze(obj):
+    '''
+    >>> freeze([1, 1, 2])
+    (1, 1, 2)
+    >>> freeze({3})
+    frozenset({3})
+    >>> freeze('five')
+    'five'
+    >>> freeze({8: [13, 21, {34}]})
+    mappingproxy({8: (13, 21, frozenset({34}))})
+    >>> freeze(object())
+    Traceback (most recent call last):
+      ...
+    ValueError: how freeze <object object at 0x...>?
+    '''
+    if isinstance(obj, set):
+        return frozenset(obj)  # use hashability to approximate immutability
+    if isinstance(obj, (list, tuple)):
+        return tuple(map(freeze, obj))
     if isinstance(obj, dict):
         return freeze_mapping(obj)
-    if isinstance(obj, set):
-        return frozenset(obj)
-    if isinstance(obj, list):
-        return tuple(obj)
     if isinstance(obj, _FROZEN_TYPES):
         return obj
     raise ValueError(f'how freeze {obj!r}?')

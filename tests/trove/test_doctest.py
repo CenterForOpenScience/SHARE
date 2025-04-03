@@ -1,7 +1,9 @@
 import doctest
 
 import trove.util.chainmap
+import trove.util.frozen
 import trove.util.iris
+import trove.util.propertypath
 
 _DOCTEST_OPTIONFLAGS = (
     doctest.ELLIPSIS
@@ -9,8 +11,10 @@ _DOCTEST_OPTIONFLAGS = (
 )
 
 _MODULES_WITH_DOCTESTS = (
-    trove.util.iris,
     trove.util.chainmap,
+    trove.util.frozen,
+    trove.util.iris,
+    trove.util.propertypath,
 )
 
 

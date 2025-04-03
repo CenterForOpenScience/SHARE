@@ -152,7 +152,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
                 (BLARG.nada,),
             ),
         ):
-            _cardsearch_params = CardsearchParams.from_querystring('include=relatedProperties')
+            _cardsearch_params = CardsearchParams.from_querystring('')
             _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(_cardsearch_params)
             self.assertEqual(_cardsearch_handle.related_propertypath_results, [
                 PropertypathUsage((DCTERMS.creator,), 3),
