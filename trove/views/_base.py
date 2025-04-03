@@ -64,7 +64,10 @@ class BaseTroveView(View, abc.ABC):
         return self.params_type.from_querystring(request.META['QUERY_STRING'])
 
     def _get_focus_iri(self, request, params):
-        return request.build_absolute_uri()
+        _iri = request.build_absolute_uri()
+        if not _iri:
+            breakpoint()
+        return _iri
 
     def _build_focus(self, request, params):
         return gather.Focus.new(self._get_focus_iri(request, params), self.focus_type_iris)

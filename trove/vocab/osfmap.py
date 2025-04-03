@@ -36,7 +36,7 @@ from trove.vocab.namespaces import (
     RDFS,
     SKOS,
     TROVE,
-    NAMESPACES_SHORTHAND,
+    namespaces_shorthand,
 )
 
 OSFMAP_LINK = 'https://osf.io/8yczr'
@@ -952,18 +952,18 @@ DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
 # functions
 
 @functools.cache  # built once
-def osfmap_shorthand() -> IriShorthand:
+def osfmap_json_shorthand() -> IriShorthand:
     '''build iri shorthand that includes unprefixed osfmap terms
     '''
     return build_shorthand_from_thesaurus(
         thesaurus=OSFMAP_THESAURUS,
         label_predicate=JSONAPI_MEMBERNAME,
-        base_shorthand=NAMESPACES_SHORTHAND,
+        base_shorthand=namespaces_shorthand(),
     )
 
 
 def parse_osfmap_propertypath(serialized_path: str, *, allow_globs=False) -> Propertypath:
-    return parse_propertypath(serialized_path, osfmap_shorthand(), allow_globs=allow_globs)
+    return parse_propertypath(serialized_path, osfmap_json_shorthand(), allow_globs=allow_globs)
 
 
 def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs=False) -> Iterator[Propertypath]:
@@ -972,7 +972,7 @@ def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs=False
 
 
 def osfmap_propertypath_key(propertypath: Propertypath) -> str:
-    return propertypath_key(propertypath, osfmap_shorthand())
+    return propertypath_key(propertypath, osfmap_json_shorthand())
 
 
 def osfmap_propertypath_set_key(propertypath_set: PropertypathSet) -> str:

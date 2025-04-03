@@ -18,7 +18,7 @@ from trove.util.propertypath import (
     parse_propertypath,
 )
 from trove.util import queryparams as _qp
-from trove.vocab.trove import trove_shorthand
+from trove.vocab.namespaces import namespaces_shorthand
 
 
 @dataclasses.dataclass(frozen=True)
@@ -52,7 +52,7 @@ class BasicTroveParams:
 
     @classmethod
     def _default_shorthand(cls) -> rdf.IriShorthand:
-        return trove_shorthand()
+        return namespaces_shorthand()
 
     @classmethod
     def _default_include(cls) -> PropertypathSet:

@@ -1,7 +1,6 @@
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.vocab.namespaces import TROVE
-from trove.vocab.trove import trove_shorthand
 from ._base import BaseRenderer
 
 
@@ -14,5 +13,5 @@ class RdfTurtleRenderer(BaseRenderer):
         return rdf.turtle_from_tripledict(
             self.response_data.tripledict,
             focus=self.response_focus.single_iri(),
-            shorthand=trove_shorthand,
+            shorthand=self.iri_shorthand,
         )

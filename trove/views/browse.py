@@ -2,8 +2,9 @@ import dataclasses
 
 from trove import exceptions as trove_exceptions
 from trove.util.iris import unquote_iri
-from trove.vocab.osfmap import osfmap_shorthand
-from trove.vocab.trove import trove_shorthand
+from trove.vocab import namespaces as _ns
+from trove.vocab.osfmap import osfmap_json_shorthand
+from trove.vocab.trove import trove_json_shorthand
 from trove.trovebrowse_gathering import trovebrowse
 from trove.util.trove_params import BasicTroveParams
 from trove.util.queryparams import (
@@ -34,10 +35,20 @@ class BrowseParams(BasicTroveParams):
     def _parse_iri(cls, iri_value: str):
         _iri = unquote_iri(iri_value)
         if ':' in _iri:
-            _iri = trove_shorthand().expand_iri(_iri)
-        else:  # NOTE: special osfmap
-            _iri = osfmap_shorthand().expand_iri(_iri)
-        return _iri
+            return _ns.namespaces_shorthand().expand_iri(_iri)
+        for _shorthand_factory in (osfmap_json_shorthand, trove_json_shorthand):
+            _expanded = _shorthand_factory().expand_iri(_iri)
+            if _expanded != _iri:
+                return _expanded
+        raise trove_exceptions.IriInvalid(_iri)
+
+    @classmethod
+    def _default_include(cls):
+        return frozenset((
+            _ns.TROVE.thesaurusEntry,
+            _ns.FOAF.isPrimaryTopicOf,
+            _ns.TROVE.usedAtPath,
+        ))
 
 
 class BrowseIriView(BaseTroveView):

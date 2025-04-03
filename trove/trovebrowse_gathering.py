@@ -31,19 +31,6 @@ trovebrowse = gather.GatheringOrganizer(
 )
 
 
-@trovebrowse.gatherer()
-def gather_thesaurus_entry(focus, *, blend_cards: bool):
-    _thesaurus = static_vocab.combined_thesaurus__suffuniq()
-    for _iri in focus.iris:
-        _suffuniq_iri = get_sufficiently_unique_iri(_iri)
-        _thesaurus_entry = _thesaurus.get(_suffuniq_iri, None)
-        if _thesaurus_entry:
-            if blend_cards:
-                yield from rdf.iter_twoples(_thesaurus_entry)
-            else:
-                yield (ns.FOAF.isPrimaryTopicOf, rdf.QuotedGraph({_iri: _thesaurus_entry}, focus_iri=_iri))
-
-
 @trovebrowse.gatherer(ns.FOAF.isPrimaryTopicOf)
 def gather_cards_focused_on(focus, *, blend_cards: bool):
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
@@ -58,6 +45,19 @@ def gather_cards_focused_on(focus, *, blend_cards: bool):
             yield (_card_iri, ns.RDF.type, ns.TROVE.Indexcard)
 
 
+@trovebrowse.gatherer(ns.TROVE.thesaurusEntry)
+def gather_thesaurus_entry(focus, *, blend_cards: bool):
+    _thesaurus = static_vocab.combined_thesaurus__suffuniq()
+    for _iri in focus.iris:
+        _suffuniq_iri = get_sufficiently_unique_iri(_iri)
+        _thesaurus_entry = _thesaurus.get(_suffuniq_iri, None)
+        if _thesaurus_entry:
+            if blend_cards:
+                yield from rdf.iter_twoples(_thesaurus_entry)
+            else:
+                yield (ns.TROVE.thesaurusEntry, rdf.QuotedGraph({_iri: _thesaurus_entry}, focus_iri=_iri))
+
+
 @trovebrowse.gatherer(ns.TROVE.usedAtPath)
-def gather_paths_used_at(focus):
-    ...  # TODO via elasticsearch aggregation
+def gather_paths_used_at(focus, **kwargs):
+    yield from ()  # TODO via elasticsearch aggregation

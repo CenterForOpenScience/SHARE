@@ -31,7 +31,7 @@ from trove.util.queryparams import (
     get_single_value,
 )
 from trove.vocab import osfmap
-from trove.vocab.trove import trove_shorthand
+from trove.vocab.trove import trove_json_shorthand
 from trove.vocab.namespaces import RDF, TROVE, OWL, FOAF, DCTERMS
 
 
@@ -95,7 +95,7 @@ class ValueType(enum.Enum):
 
     @classmethod
     def from_shortname(cls, shortname):
-        _iri = trove_shorthand().expand_iri(shortname)
+        _iri = trove_json_shorthand().expand_iri(shortname)
         return cls(_iri)
 
     @classmethod
@@ -104,7 +104,7 @@ class ValueType(enum.Enum):
             yield _value_type.to_shortname()
 
     def to_shortname(self) -> str:
-        return trove_shorthand().compact_iri(self.value)
+        return trove_json_shorthand().compact_iri(self.value)
 
 
 ###
@@ -116,8 +116,8 @@ class BasicTrovesearchParams(BasicTroveParams):
     static_focus_type: typing.ClassVar[str]  # expected on subclasses
 
     @classmethod
-    def _default_shorthand(cls):
-        return osfmap.osfmap_shorthand()
+    def _default_shorthand(cls):  # NOTE: osfmap special
+        return osfmap.osfmap_json_shorthand()
 
     @classmethod
     def _default_include(cls):
@@ -291,11 +291,11 @@ class SearchFilter:
 
         @classmethod
         def from_shortname(cls, shortname):
-            _iri = trove_shorthand().expand_iri(shortname)
+            _iri = trove_json_shorthand().expand_iri(shortname)
             return cls(_iri)
 
         def to_shortname(self) -> str:
-            return trove_shorthand().compact_iri(self.value)
+            return trove_json_shorthand().compact_iri(self.value)
 
         def is_date_operator(self):
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
@@ -362,7 +362,7 @@ class SearchFilter:
                 if _is_date_filter:
                     _value_list.append(_value)  # TODO: vali-date
                 else:
-                    _value_list.append(osfmap.osfmap_shorthand().expand_iri(_value))
+                    _value_list.append(osfmap.osfmap_json_shorthand().expand_iri(_value))
         return cls(
             value_set=frozenset(_value_list),
             operator=_operator,
@@ -391,7 +391,7 @@ class SearchFilter:
             self.operator.to_shortname(),
         ))
         _qp_value = join_queryparam_value(
-            osfmap.osfmap_shorthand().compact_iri(_value)
+            osfmap.osfmap_json_shorthand().compact_iri(_value)
             for _value in self.value_set
         )
         return str(_qp_name), _qp_value

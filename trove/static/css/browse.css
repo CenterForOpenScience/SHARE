@@ -27,11 +27,11 @@
 .Browse__card {
     display: flex;
     flex-direction: column;
-    padding: var(--gap-3) var(--gap-2);
+    padding: var(--gap-2) var(--gap-3);
     background-color: hsl(var(--hue-turn), var(--saturation), var(--luminosity));
     --border-luminosity: calc(var(--luminosity) * 0.618);
     border-color: hsl(var(--hue-turn), var(--saturation), var(--border-luminosity));
-    border-style: outset;
+    border-style: inset;
     /*
     border-block-start-width: 0;
     border-block-end-width: var(--gap-3);
@@ -40,12 +40,20 @@
     border-start-start-radius: 1rem;
     border-end-end-radius: 1rem;
     */
+    /*
     border-block-start-width: 1px;
     border-inline-start-width: var(--gap-3);
     border-block-end-width: var(--gap-4);
     border-inline-end-width: 1px;
     border-start-start-radius: 1rem;
     border-end-end-radius: 1rem;
+    */
+    border-inline-start-width: var(--gap-3);
+    border-block-start-width: var(--gap-4);
+    border-inline-end-width: 1px;
+    border-block-end-width: 1px;
+    border-start-end-radius: 1rem;
+    border-end-start-radius: 1rem;
 }
 
 .BrowseWrapper details > summary::before {
@@ -122,7 +130,7 @@ dl.Browse__twopleset > dd {
     /*margin-top: var(--gap-4);*/
     padding: var(--gap-4);
     /*border: dotted var(--gap-4) rgba(0,0,0,0.382);*/
-    border: outset var(--gap-4) rgba(0,0,0,0.382);
+    border: inset var(--gap-4) rgba(0,0,0,0.382);
 }
 
 .Browse__literal {

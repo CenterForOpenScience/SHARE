@@ -127,7 +127,7 @@ class TabularDoc:
 
 
 def _osfmap_jsonpath(iri_path: Iterable[str]) -> Jsonpath:
-    _shorthand = osfmap.osfmap_shorthand()
+    _shorthand = osfmap.osfmap_json_shorthand()
     return tuple(
         _shorthand.compact_iri(_pathstep)
         for _pathstep in iri_path

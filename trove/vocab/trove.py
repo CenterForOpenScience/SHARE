@@ -26,7 +26,7 @@ from trove.vocab.namespaces import (
     RDFS,
     SKOS,
     TROVE,
-    NAMESPACES_SHORTHAND,
+    namespaces_shorthand,
 )
 
 
@@ -43,7 +43,7 @@ def _literal_markdown(text: str, *, language: str):
 
 
 def trove_browse_link(iri: str):
-    _compact = trove_shorthand().compact_iri(iri)
+    _compact = namespaces_shorthand().compact_iri(iri)
     return urllib.parse.urljoin(
         reverse('trove:browse-iri'),
         f'?iri={urllib.parse.quote(_compact)}',
@@ -663,7 +663,7 @@ a query param to control ordering of search results based on values of a specifi
 
 to sort by date values, use `sort` (or `sort[date-value]`) with a **property-path** that ends with
 one of the following supported date properties:
-{", ".join(f"`{osfmap.osfmap_shorthand().compact_iri(_date_iri)}`" for _date_iri in osfmap.DATE_PROPERTIES)}
+{", ".join(f"`{osfmap.osfmap_json_shorthand().compact_iri(_date_iri)}`" for _date_iri in osfmap.DATE_PROPERTIES)}
 
 to sort by integer values, use `sort[integer-value]` with a **property-path** to the integers of interest.
 
@@ -827,21 +827,14 @@ the special path segment `*` matches any property
 
 
 @functools.cache
-def trove_shorthand() -> IriShorthand:
+def trove_json_shorthand() -> IriShorthand:
     '''build iri shorthand that includes unprefixed terms (as defined in TROVE_API_THESAURUS)
     '''
     return build_shorthand_from_thesaurus(
         thesaurus=TROVE_API_THESAURUS,
         label_predicate=JSONAPI_MEMBERNAME,
-        base_shorthand=NAMESPACES_SHORTHAND,
+        base_shorthand=namespaces_shorthand(),
     )
-
-
-@functools.cache
-def shtrove_shorthand() -> IriShorthand:
-    '''build iri shorthand that includes osfmap shorthands...
-    '''
-    return trove_shorthand().with_update(osfmap.osfmap_shorthand().prefix_map)
 
 
 @functools.cache

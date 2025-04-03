@@ -35,7 +35,6 @@ from trove.vocab import osfmap
 from trove.vocab.trove import (
     TROVE_API_THESAURUS,
     trove_indexcard_namespace,
-    trove_shorthand,
 )
 
 
@@ -489,7 +488,7 @@ def _osfmap_twople_json(twopledict):
 
 def _osfmap_path(property_path):
     return rdf.literal_json([
-        osfmap.osfmap_shorthand().compact_iri(_iri)
+        osfmap.osfmap_json_shorthand().compact_iri(_iri)
         for _iri in property_path
     ])
 
@@ -524,7 +523,7 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
     return frozenset((
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
-        (TROVE.suggestedFilterOperator, literal(trove_shorthand().compact_iri(
+        (TROVE.suggestedFilterOperator, literal(osfmap.osfmap_json_shorthand().compact_iri(
             osfmap.suggested_filter_operator(property_path[-1]),
         ))),
         *_single_propertypath_twoples(property_path),
