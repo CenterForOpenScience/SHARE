@@ -1,5 +1,4 @@
 from django.urls import path, re_path
-from django.views.generic.base import RedirectView
 
 from .views.browse import BrowseIriView
 from .views.ingest import RdfIngestView
@@ -24,5 +23,5 @@ urlpatterns = [
     path('ingest', view=RdfIngestView.as_view(), name='ingest-rdf'),
     path('docs/openapi.json', view=OpenapiJsonView.as_view(), name='docs.openapi-json'),
     path('docs/openapi.html', view=OpenapiHtmlView.as_view(), name='docs.openapi-html'),
-    re_path(r'docs/?', view=RedirectView.as_view(pattern_name='trove:docs.openapi-html'), name='docs'),
+    re_path(r'docs/?', view=OpenapiHtmlView.as_view(), name='docs'),
 ]
