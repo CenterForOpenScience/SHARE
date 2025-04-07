@@ -1,7 +1,6 @@
 import pytest
 
 from share.models import SiteBanner
-from share.util import IDObfuscator
 from tests.factories import ShareUserFactory
 
 
@@ -31,7 +30,7 @@ class TestSiteBanners:
         assert resp.status_code == 200
         assert resp.json() == {
             'data': [{
-                'id': IDObfuscator.encode(banner),
+                'id': str(banner.id),
                 'type': 'SiteBanner',
                 'attributes': {
                     'color': 'info',
@@ -45,12 +44,3 @@ class TestSiteBanners:
                 'prev': None,
             },
         }
-
-    # def test_get_item(self, client):
-    #     resp = client.get('/api/v2/site_banners/')
-    #     assert resp.status_code == 200
-    #     assert resp.json() == {
-    #         'data': [],
-    #         'meta': {
-    #         }
-    #     }
