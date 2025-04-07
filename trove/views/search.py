@@ -16,7 +16,7 @@ from trove.trovesearch.trovesearch_gathering import (
     ValuesearchFocus,
 )
 from trove.util.trove_params import BasicTroveParams
-from ._base import BaseTroveView
+from ._base import GatheredTroveView
 
 
 logger = logging.getLogger(__name__)
@@ -25,12 +25,12 @@ logger = logging.getLogger(__name__)
 _TrovesearchHandler = Callable[[BasicTroveParams], BasicSearchHandle]
 
 
-class _BaseTrovesearchView(BaseTroveView, abc.ABC):
+class _BaseTrovesearchView(GatheredTroveView, abc.ABC):
     focus_type: type[gather.Focus] = gather.Focus  # expected on subclasses
 
-    gathering_organizer = trovesearch_by_indexstrategy  # for BaseTroveView
+    gathering_organizer = trovesearch_by_indexstrategy  # for GatheredTroveView
 
-    def _build_focus(self, request, params):  # override BaseTroveView
+    def _build_focus(self, request, params):  # override GatheredTroveView
         _strategy = index_strategy.get_strategy_for_trovesearch(params)
         return self.focus_type.new(
             iris=self._get_focus_iri(request, params),

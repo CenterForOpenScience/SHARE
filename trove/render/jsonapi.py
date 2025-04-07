@@ -125,12 +125,15 @@ class RdfJsonapiRenderer(BaseRenderer):
             return self._identifier_object_cache[iri_or_blanknode]
         except KeyError:
             if isinstance(iri_or_blanknode, str):
-                _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
                 _id_obj = {
-                    'id': self._resource_id_for_iri(iri_or_blanknode),
+                    '@id': self.iri_shorthand.compact_iri(iri_or_blanknode),
                 }
+                _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
                 if _type_iris:
-                    _id_obj['type'] = self._single_typename(_type_iris)
+                    _id_obj = {
+                        'id': self._resource_id_for_iri(iri_or_blanknode),
+                        'type': self._single_typename(_type_iris),
+                    }
             elif isinstance(iri_or_blanknode, frozenset):
                 _type_iris = [
                     _obj

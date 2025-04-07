@@ -83,6 +83,7 @@ class _HtmlBuilder:
     __visiting_iris: set[str] = dataclasses.field(init=False)
     __heading_depth: int = 0
     __last_hue_turn: float = dataclasses.field(default_factory=random.random)
+    __nested_tags: list[str] = dataclasses.field(default_factory=list)
 
     def __post_init__(self):
         # TODO: lang (according to request -- also translate)
@@ -138,7 +139,7 @@ class _HtmlBuilder:
                 with self.__nest('a', attrs={'href': reverse('trove:docs')}) as _link:
                     _link.text = _('(stable for documented use)')
 
-    def __render_subj(self, subj_iri: str, *, start_collapsed=False):
+    def __render_subj(self, subj_iri: str, *, start_collapsed=None):
         _twopledict = self.__current_data.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__nest_card('article'):
@@ -152,7 +153,13 @@ class _HtmlBuilder:
                         self.__literal(_label)
                 if _twopledict:
                     with self.__nest('details') as _details:
-                        if not start_collapsed:
+                        _detail_depth = sum((_tag == 'details') for _tag in self.__nested_tags)
+                        _should_open = (
+                            _detail_depth < 4
+                            if start_collapsed is None
+                            else not start_collapsed
+                        )
+                        if _should_open:
                             _details.set('open', '')
                         self.__leaf('summary', text=_('details...'))
                         self.__twoples(_twopledict)
@@ -284,9 +291,11 @@ class _HtmlBuilder:
         _attrs = {**attrs} if attrs else {}
         _parent_element = self.__current_element
         self.__current_element = SubElement(_parent_element, tag_name, _attrs)
+        self.__nested_tags.append(tag_name)
         try:
             yield self.__current_element
         finally:
+            self.__nested_tags.pop()
             self.__current_element = _parent_element
 
     def __leaf(self, tag_name, *, text=None, attrs=None):
@@ -328,12 +337,16 @@ class _HtmlBuilder:
         if _thesaurus_entry:
             for _pred in _LINK_TEXT_PREDICATES:
                 yield from shuffled(_thesaurus_entry.get(_pred, ()))
+        _twoples = self.__current_data.get(iri)
+        if _twoples:
+            for _pred in _LINK_TEXT_PREDICATES:
+                yield from shuffled(_twoples.get(_pred, ()))
 
     def _hue_turn_css(self):
-        # return f'--hue-turn: {random.random()}turn;'
+        # return f'--hue: {random.random()}turn;'
         _hue_turn = (self.__last_hue_turn + _PHI) % 1.0
         self.__last_hue_turn = _hue_turn
-        return f'--hue-turn: {_hue_turn}turn;'
+        return f'--bg-hue-turn: {_hue_turn}turn;'
 
     def _queryparam_href(self, param_name: str, param_value: str | None):
         _base_url = self.focus_iri

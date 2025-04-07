@@ -12,7 +12,7 @@ from trove.util.queryparams import (
     get_single_value,
     get_bool_value,
 )
-from ._base import BaseTroveView
+from ._base import GatheredTroveView
 
 
 @dataclasses.dataclass(frozen=True)
@@ -51,14 +51,14 @@ class BrowseParams(BasicTroveParams):
         ))
 
 
-class BrowseIriView(BaseTroveView):
+class BrowseIriView(GatheredTroveView):
     gathering_organizer = trovebrowse
     params_type = BrowseParams
 
-    def _get_focus_iri(self, request, params: BrowseParams):  # override BaseTroveView
+    def _get_focus_iri(self, request, params: BrowseParams):  # override GatheredTroveView
         return params.iri
 
-    def _get_gatherer_kwargs(self, params, renderer_type):  # override BaseTroveView
+    def _get_gatherer_kwargs(self, params, renderer_type):  # override GatheredTroveView
         return {
             **super()._get_gatherer_kwargs(params, renderer_type),
             'blend_cards': params.blend_cards,

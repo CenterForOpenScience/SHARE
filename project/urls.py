@@ -12,6 +12,7 @@ from api.views import APIVersionRedirectView, source_icon_view
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
 from trove.views.vocab import TroveVocabView
+from trove.views.shtrove_root import ShtroveRootView
 
 
 urlpatterns = [
@@ -32,6 +33,7 @@ urlpatterns = [
         permanent=False
     ), name='favicon'),
     url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
+    path('', ShtroveRootView.as_view()),
 ]
 
 if settings.DEBUG:
