@@ -229,7 +229,8 @@ class TestSourcesPost:
             data_two = flatten_write_response(resp_two)
             assert data_one == data_two
         else:
-            assert "errors" in resp_two_json
+            if "errors" in resp_two_json:
+                assert resp_two_json['errors']['errors'][0]['detail'] == 'That resource already exists.'
 
     def test_successful_post_put_home_page(self, client, source_add_change_user):
         test_data = get_post_body(home_page='http://test.homepage.net')
