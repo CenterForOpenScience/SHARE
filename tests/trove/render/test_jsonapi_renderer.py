@@ -51,7 +51,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                     },
                     "meta": {
                         "foaf:primaryTopic": [
-                            {"id": "blarg:anItem"},
+                            {"@id": "blarg:anItem"},
                         ],
                         "dcterms:issued": [
                             "2024-01-01"
@@ -70,7 +70,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                     "id": "blarg:aSubject",
                     "type": "blarg:aType",
                     "meta": {
-                        "blarg:hasIri": [{"id": "blarg:anIri"}],
+                        "blarg:hasIri": [{"@id": "blarg:anIri"}],
                         "blarg:hasRdfStringLiteral": ["an rdf:string literal"],
                         "blarg:hasRdfLangStringLiteral": ['a rdf:langString literal'],
                         "blarg:hasIntegerLiteral": [17],
@@ -174,7 +174,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                {"id": "blarg:anItem"},
+                                {"@id": "blarg:anItem"},
                             ],
                             "dcterms:issued": [
                                 "2024-01-01"
@@ -201,7 +201,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                {"id": "blarg:anItemmm"},
+                                {"@id": "blarg:anItemmm"},
                             ],
                             "dcterms:issued": [
                                 "2024-03-03"
@@ -228,7 +228,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                {"id": "blarg:anItemm"},
+                                {"@id": "blarg:anItemm"},
                             ],
                             "dcterms:issued": [
                                 "2024-02-02"
