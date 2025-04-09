@@ -64,7 +64,7 @@ jobs:
           cache: 'poetry'
 
       - name: install despondencies
-        run: poetry install --no-root --with dev
+        run: poetry install --with dev
 
       - name: flake it
         run: poetry run flake8 .
@@ -76,7 +76,6 @@ jobs:
         env:
           DATABASE_PASSWORD: postgres
           ELASTICSEARCH8_URL: http://localhost:9208/
-          # ELASTICSEARCH5_URL: http://localhost:9205/
 
       - name: coveralls
         uses: coverallsapp/github-action@v2
