@@ -5,7 +5,6 @@ from typing import Iterator
 from django.conf import settings
 
 from share.search.exceptions import IndexStrategyError
-from share.models import FeatureFlag
 from trove.trovesearch import search_params
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trovesearch_denorm import TrovesearchDenormIndexStrategy
