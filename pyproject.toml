@@ -18,7 +18,7 @@ dependencies = [
     "django-extensions==3.2.3",  # MIT
     "django-filter==25.1",  # BSD
     "django-oauth-toolkit==3.0.1",  # BSD
-    "django==5.2",  # BSD 3 Clause
+    "django==5.1.*",  # BSD 3 Clause
     "elasticsearch8==8.17.2",  # Apache 2.0
     "lxml==5.3.0",  # BSD
     "kombu==5.5.0",  # BSD 3 Clause
@@ -42,7 +42,7 @@ optional = true
 [tool.poetry.group.dist.dependencies]
 uwsgi = "2.0.28"
 newrelic = "10.7.0"  # newrelic APM agent, Custom License
-gevent = "24.11.2"  # MIT
+gevent = "24.11.1"  # MIT
 psycogreen = "1.0.2"  # BSD
 
 
