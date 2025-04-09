@@ -22,7 +22,17 @@ the rest of this guide assumes your working directory is the SHARE repository ro
 cd ./share
 ```
 
-### 1. structured data
+### 1. download several bits
+download docker images (depending on your internet connection, this may take a beat):
+```
+docker-compose pull
+```
+install python dependencies (in a shared docker volume):
+```
+docker-compose up requirements
+```
+
+### 2. structured data
 there are two services that store more-or-less persistent data: `postgres` and `elastic8`
 
 let's start them from the host machine:
@@ -42,12 +52,12 @@ from within that worker shell, use django's `migrate` command to set up tables i
 ```
 python manage.py migrate
 ```
-...and us the `shtrove_search_setup` management command to set up indexes in elasticsearch:
+...and use `sharectl` to set up indexes in elasticsearch:
 ```
 python manage.py shtrove_search_setup --initial
 ```
 
-### 2. start 'em up
+### 3. start 'em up
 all other services can now be started from the host machine (upping `worker` ups all)
 ```
 docker-compose up -d worker
