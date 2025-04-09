@@ -7,7 +7,6 @@ from django.conf import settings
 from share.search.exceptions import IndexStrategyError
 from share.models import FeatureFlag
 from trove.trovesearch import search_params
-from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
 from .trovesearch_denorm import TrovesearchDenormIndexStrategy
 from ._base import IndexStrategy
@@ -31,10 +30,6 @@ class _AvailableStrategies(enum.Enum):
 
     (don't import this enum directly -- access via the other functions in this module)
     '''
-
-    if settings.ELASTICSEARCH5_URL:
-        sharev2_elastic5 = Sharev2Elastic5IndexStrategy('sharev2_elastic5')
-
     if settings.ELASTICSEARCH8_URL:
         sharev2_elastic8 = Sharev2Elastic8IndexStrategy('sharev2_elastic8')
         trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
@@ -79,11 +74,6 @@ def get_strategy(
 def get_strategy_for_sharev2_search(requested_name: str | None = None) -> IndexStrategy:
     if requested_name:
         _name = requested_name
-    elif (
-        settings.ELASTICSEARCH5_URL
-        and not FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
-    ):
-        _name = _AvailableStrategies.sharev2_elastic5.name
     elif settings.ELASTICSEARCH8_URL:
         _name = _AvailableStrategies.sharev2_elastic8.name
     else:
