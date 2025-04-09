@@ -151,7 +151,7 @@ services:
       - -c
       - apt-get update &&
         apt-get install -y gcc &&
-        $POETRY_HOME/bin/poetry install --no-root --compile --with dev &&
+        $$POETRY_HOME/bin/poetry install --compile --with dev &&
         rm -Rf /python3.13/* &&
         apt-get remove -y gcc &&
         cp -Rf -p /usr/local/lib/python3.13 /
