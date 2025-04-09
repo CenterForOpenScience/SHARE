@@ -39,7 +39,7 @@ RUN $POETRY_HOME/bin/pip install poetry==2.1.1
 COPY pyproject.toml .
 COPY poetry.lock .
 
-RUN $POETRY_HOME/bin/poetry install --no-root --compile
+RUN $POETRY_HOME/bin/poetry install --compile
 
 RUN apt-get remove -y \
     gcc \
@@ -59,9 +59,9 @@ CMD ["python", "manage.py", "--help"]
 ### Dist
 FROM app AS dist
 
-RUN $POETRY_HOME/bin/poetry install --no-root --compile --only dist
+RUN $POETRY_HOME/bin/poetry install --compile --only dist
 
 ### Dev
 FROM app AS dev
 
-RUN $POETRY_HOME/bin/poetry install --no-root --compile --only dev 
+RUN $POETRY_HOME/bin/poetry install --compile --only dev
