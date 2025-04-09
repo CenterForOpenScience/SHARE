@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye as app
+FROM python:3.13-slim-bullseye as app
 
 RUN apt-get update \
     && apt-get install -y \
@@ -26,7 +26,7 @@ RUN mkdir -p /code
 WORKDIR /code
 
 RUN pip install -U pip
-RUN pip install uwsgi==2.0.21
+RUN pip install uwsgi==2.0.27
 
 COPY ./requirements.txt /code/requirements.txt
 COPY ./constraints.txt /code/constraints.txt

@@ -32,7 +32,7 @@ services:
   ####################
 
   elastic8_setup:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     volumes:
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs
     user: "0"
@@ -89,7 +89,7 @@ services:
     depends_on:
       elastic8_setup:
         condition: service_healthy
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     ports:
       - 9208:9200
     volumes:
@@ -126,21 +126,12 @@ services:
       - share_network
 
   postgres:
-    image: postgres:10
-    command:
-      - /bin/bash
-      - -c
-      - echo "$$POSTGRES_INITDB" > /docker-entrypoint-initdb.d/commands.sh &&
-        chmod +x /docker-entrypoint-initdb.d/commands.sh &&
-        /docker-entrypoint.sh postgres
+    image: postgres:15.4
     ports:
       - 5433:5432
     environment:
       POSTGRES_DB: share
       POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_INITDB: |
-        sed -i -e 's/max_connections.*/max_connections = 5000/' /var/lib/postgresql/data/postgresql.conf
-        sed -i -e 's/#log_min_duration_statement = .*/log_min_duration_statement = 0/' /var/lib/postgresql/data/postgresql.conf
     volumes:
       - "${POSTGRES_DATA_VOL:-postgres_data_vol}:/var/lib/postgresql/data/"
     stdin_open: true
@@ -152,27 +143,31 @@ services:
   ##################
 
   requirements:
-    image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
+      dockerfile: Dockerfile
     command:
       - /bin/bash
       - -c
       - apt-get update &&
         apt-get install -y gcc &&
         pip install -r requirements.txt -r dev-requirements.txt &&
-        (python3 -m compileall /usr/local/lib/python3.10 || true) &&
-        rm -Rf /python3.10/* &&
+        (python3 -m compileall /usr/local/lib/python3.13 || true) &&
+        rm -Rf /python3.13/* &&
         apt-get remove -y gcc &&
-        cp -Rf -p /usr/local/lib/python3.10 / &&
+        cp -Rf -p /usr/local/lib/python3.13 / &&
         python3 setup.py develop
     restart: 'no'
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/python3.10
+      - share_requirements_vol:/python3.13
     networks:
       - share_network
 
   worker:
-    image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
+      dockerfile: Dockerfile
     command:
       /bin/bash -c 'cp -r /elastic8_certs /elastic_certs && chown -R daemon:daemon /elastic_certs/ && /usr/local/bin/celery --app project worker --uid daemon -l INFO'
     depends_on:
@@ -183,7 +178,7 @@ services:
       - indexer
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.10
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -195,7 +190,9 @@ services:
       - share_network
 
   web:
-    image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8003:8000
@@ -205,7 +202,7 @@ services:
       - elastic8
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.10
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -217,7 +214,9 @@ services:
       - share_network
 
   indexer:
-    image: quay.io/centerforopenscience/share:develop
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python manage.py shtrove_indexer_run
     depends_on:
       - postgres
@@ -225,7 +224,7 @@ services:
       - elastic8
     volumes:
       - ./:/code:cached
-      - share_requirements_vol:/usr/local/lib/python3.10
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
