@@ -17,6 +17,8 @@ volumes:
     external: false
   share_dist_vol:
     external: false
+  share_requirements_vol:
+    external: false
 
 networks:
   share_network:
@@ -140,6 +142,26 @@ services:
   # SHARE software #
   ##################
 
+  requirements:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - /bin/bash
+      - -c
+      - apt-get update &&
+        apt-get install -y gcc &&
+        $POETRY_HOME/bin/poetry install --no-root --compile --with dev &&
+        rm -Rf /python3.13/* &&
+        apt-get remove -y gcc &&
+        cp -Rf -p /usr/local/lib/python3.13 /
+    restart: 'no'
+    volumes:
+      - ./:/code:cached
+      - share_requirements_vol:/python3.13
+    networks:
+      - share_network
+
   worker:
     build:
       context: .
@@ -154,6 +176,7 @@ services:
       - indexer
     volumes:
       - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -177,6 +200,7 @@ services:
       - elastic8
     volumes:
       - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
@@ -198,6 +222,7 @@ services:
       - elastic8
     volumes:
       - ./:/code:cached
+      - share_requirements_vol:/usr/local/lib/python3.13
       - elastic8_cert_vol:/elastic8_certs
     env_file:
       - .docker-compose.env
