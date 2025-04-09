@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.13']
+        python-version: ['3.13']
         postgres-version: ['17']
     runs-on: ubuntu-latest
     services:
