@@ -37,12 +37,6 @@ jobs:
           cluster.initial_master_nodes: singlenode
         ports:
           - 9208:9200
-      elasticsearch5:
-        image: elasticsearch:5.4
-        env:
-          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-        ports:
-          - 9205:9200
       rabbitmq:
         image: rabbitmq:management
         ports:
