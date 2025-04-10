@@ -25,12 +25,17 @@ RUN update-ca-certificates
 RUN mkdir -p /code
 WORKDIR /code
 
+###
+# python dependencies
+
+# note: installs dependencies on the system, roundabouts `/usr/local/lib/python3.13/site-packages/`
+
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_OPTIONS_ALWAYS_COPY=1 \
     POETRY_VIRTUALENVS_CREATE=0 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=0 \
     POETRY_CACHE_DIR=/tmp/poetry-cache \
-    POETRY_HOME=/tmp/poetry
+    POETRY_HOME=/tmp/poetry-venv
 
 RUN python -m venv $POETRY_HOME
 
@@ -43,7 +48,8 @@ RUN $POETRY_HOME/bin/poetry install --compile
 
 RUN apt-get remove -y \
     gcc \
-    zlib1g-dev
+    zlib1g-dev \
+    && apt-get autoremove -y
 
 COPY ./ /code/
 
@@ -59,7 +65,7 @@ CMD ["python", "manage.py", "--help"]
 ### Dist
 FROM app AS dist
 
-RUN $POETRY_HOME/bin/poetry install --compile --only dist
+RUN $POETRY_HOME/bin/poetry install --compile --only deploy
 
 ### Dev
 FROM app AS dev
