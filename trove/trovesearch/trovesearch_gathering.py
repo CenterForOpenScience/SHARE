@@ -160,6 +160,9 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
             deriver_iri=deriver_iri,
         )
         for _result in _current_handle.search_result_page or ():
+            _card_focus = _card_foci.get(_result.card_iri)
+            if _card_focus is None:
+                continue  # skip (deleted card still indexed?)
             _text_evidence_twoples = (
                 (TROVE.matchEvidence, frozenset((
                     (RDF.type, TROVE.TextMatchEvidence),
@@ -177,7 +180,6 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
             # hack around (current) limitations of primitive_metadata.gather
             # (what with all these intermediate blank nodes and sequences):
             # yield trove:resourceMetadata here (instead of another gatherer)
-            _card_focus = _card_foci[_result.card_iri]
             _card_twoples = _minimal_indexcard_twoples(
                 focus_identifiers=[
                     _identifier.as_iri()
