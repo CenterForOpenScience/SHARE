@@ -237,7 +237,7 @@ if os.environ.get('USE_SENTRY'):
             else VERSION
         ),
         send_default_pii=False,
-        request_bodies='never',
+        max_request_body_size='never',
         debug=DEBUG,
         integrations=[
             DjangoIntegration(
