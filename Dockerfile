@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye as app
+FROM python:3.13-slim-bullseye AS app
 
 RUN apt-get update \
     && apt-get install -y \
@@ -57,8 +57,8 @@ RUN python manage.py collectstatic --noinput
 
 ARG GIT_TAG=
 ARG GIT_COMMIT=
-ENV VERSION ${GIT_TAG}
-ENV GIT_COMMIT ${GIT_COMMIT}
+ENV VERSION=${GIT_TAG}
+ENV GIT_COMMIT=${GIT_COMMIT}
 
 CMD ["python", "manage.py", "--help"]
 
