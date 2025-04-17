@@ -52,6 +52,7 @@ psycogreen = "1.0.2"  # BSD
 optional = true
 [tool.poetry.group.dev.dependencies]
 coveralls = "3.3.1"
+toml = "0.10.2"  # until coveralls/coverage update to tomllib
 django-debug-toolbar = "5.1.0"
 factory-boy = "3.3.3"
 faker = "37.1.0"
