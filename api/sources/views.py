@@ -39,7 +39,7 @@ class SourceViewSet(ShareViewSet, viewsets.ModelViewSet):
         return UpdateSourceSerializer
 
     def get_queryset(self):
-        return Source.objects.exclude(icon='').exclude(is_deleted=True)
+        return Source.objects.exclude(is_deleted=True)
 
     def create(self, request, *args, **kwargs):
         try:

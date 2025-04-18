@@ -3,7 +3,7 @@ from celery import states
 from django.db import models
 
 from share.models.fields import DateTimeAwareJSONField
-from share.models.jobs import get_share_version
+from share.version import get_share_version
 
 
 ALL_STATES = sorted(states.ALL_STATES)

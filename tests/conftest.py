@@ -12,12 +12,11 @@ from django.utils import timezone
 
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import NormalizedData, RawDatum
+from share.models import RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 
 from tests import factories
-from tests.share.normalize.factories import GraphBuilder
 
 
 logger = logging.getLogger(__name__)
@@ -107,30 +106,6 @@ def raw_data(suid):
 @pytest.fixture
 def raw_data_id(raw_data):
     return raw_data.id
-
-
-@pytest.fixture
-def normalized_data(share_user):
-    normalized_data = NormalizedData(source=share_user, data={})
-    normalized_data.save()
-    return normalized_data
-
-
-@pytest.fixture
-def normalized_data_id(normalized_data):
-    return normalized_data.id
-
-
-@pytest.fixture
-def Graph():
-    return GraphBuilder()
-
-
-@pytest.fixture
-def ExpectedGraph(Graph):
-    def expected_graph(*args, **kwargs):
-        return Graph(*args, **kwargs, normalize_fields=True)
-    return expected_graph
 
 
 @contextlib.contextmanager

@@ -5,11 +5,8 @@ from typing import Iterator
 from django.conf import settings
 
 from share.search.exceptions import IndexStrategyError
-from share.models import FeatureFlag
 from trove.trovesearch import search_params
-from .sharev2_elastic5 import Sharev2Elastic5IndexStrategy
 from .sharev2_elastic8 import Sharev2Elastic8IndexStrategy
-from .trove_indexcard_flats import TroveIndexcardFlatsIndexStrategy
 from .trovesearch_denorm import TrovesearchDenormIndexStrategy
 from ._base import IndexStrategy
 from ._indexnames import parse_indexname_parts
@@ -32,13 +29,8 @@ class _AvailableStrategies(enum.Enum):
 
     (don't import this enum directly -- access via the other functions in this module)
     '''
-
-    if settings.ELASTICSEARCH5_URL:
-        sharev2_elastic5 = Sharev2Elastic5IndexStrategy('sharev2_elastic5')
-
     if settings.ELASTICSEARCH8_URL:
         sharev2_elastic8 = Sharev2Elastic8IndexStrategy('sharev2_elastic8')
-        trove_indexcard_flats = TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats')
         trovesearch_denorm = TrovesearchDenormIndexStrategy('trovesearch_denorm')
 
 
@@ -81,11 +73,6 @@ def get_strategy(
 def get_strategy_for_sharev2_search(requested_name: str | None = None) -> IndexStrategy:
     if requested_name:
         _name = requested_name
-    elif (
-        settings.ELASTICSEARCH5_URL
-        and not FeatureFlag.objects.flag_is_up(FeatureFlag.ELASTIC_EIGHT_DEFAULT)
-    ):
-        _name = _AvailableStrategies.sharev2_elastic5.name
     elif settings.ELASTICSEARCH8_URL:
         _name = _AvailableStrategies.sharev2_elastic8.name
     else:
@@ -96,12 +83,8 @@ def get_strategy_for_sharev2_search(requested_name: str | None = None) -> IndexS
 def get_strategy_for_trovesearch(params: search_params.CardsearchParams) -> IndexStrategy:
     if params.index_strategy_name:  # specific strategy requested
         _strategy = parse_strategy_name(params.index_strategy_name, for_search=True)
-    else:
-        _strategy_name = (
-            _AvailableStrategies.trovesearch_denorm.name
-            if FeatureFlag.objects.flag_is_up(FeatureFlag.TROVESEARCH_DENORMILY)
-            else _AvailableStrategies.trove_indexcard_flats.name
-        )
+    else:  # static default:
+        _strategy_name = _AvailableStrategies.trovesearch_denorm.name
         _strategy = get_strategy(_strategy_name, for_search=True)
     return _strategy
 

@@ -24,6 +24,7 @@ from trove.vocab.namespaces import (
     RDF,
     TROVE,
     XSD,
+    NAMESPACES_SHORTHAND,
 )
 from trove.vocab.trove import (
     trove_indexcard_namespace,
@@ -301,7 +302,7 @@ class RdfJsonapiRenderer(BaseRenderer):
             try:  # maybe it's a jsonapi resource
                 return self.render_identifier_object(rdfobject)
             except Exception:
-                return rdfobject
+                return NAMESPACES_SHORTHAND.compact_iri(rdfobject)
         elif isinstance(rdfobject, (float, int)):
             return rdfobject
         elif isinstance(rdfobject, datetime.date):

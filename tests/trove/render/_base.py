@@ -13,7 +13,7 @@ from tests.trove._input_output_tests import BasicInputOutputTestCase
 from ._inputs import UNRENDERED_RDF, UNRENDERED_SEARCH_RDF, RdfCase
 
 
-class FakeGatherCache(gather.GatherCache):
+class FakeGatherCache(gather._GatherCache):
     def already_gathered(self, *args, **kwargs):
         return True  # prevent gathering
 
@@ -27,13 +27,15 @@ class FakeGathering(gather.Gathering):
 
 def _make_fake_gathering(tripledict, renderer_type):
     _organizer = trovesearch_by_indexstrategy
+    _fakecache = FakeGatherCache()
+    _fakecache.gathered = rdf.RdfGraph(tripledict)
     return FakeGathering(
         norms=_organizer.norms,
         organizer=_organizer,
         gatherer_kwargs={
             'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
         },
-        cache=FakeGatherCache(gathered=rdf.RdfGraph(tripledict))
+        cache=_fakecache,
     )
 
 

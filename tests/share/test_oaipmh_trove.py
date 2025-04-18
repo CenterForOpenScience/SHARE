@@ -1,10 +1,10 @@
+import datetime
 import math
 import random
 import uuid
 
 from django.test.client import Client
 from lxml import etree
-import pendulum
 import pytest
 
 from share import models as share_db
@@ -192,12 +192,15 @@ class TestOAILists:
             self._test_filter_set(oai_indexcards, request_method, verb, page_size)
 
     def _test_filter_date(self, oai_indexcards, request_method, verb, page_size):
+        _today = datetime.datetime.now()
+        _yesterday = _today - datetime.timedelta(days=1)
+        _tomorrow = _today + datetime.timedelta(days=1)
         for from_date, to_date, expected_count in [
-            (pendulum.now().subtract(days=1), None, 17),
-            (None, pendulum.now().subtract(days=1), 0),
-            (pendulum.now().add(days=1), None, 0),
-            (None, pendulum.now().add(days=1), 17),
-            (pendulum.now().subtract(days=1), pendulum.now().add(days=1), 17),
+            (_yesterday, None, 17),
+            (None, _yesterday, 0),
+            (_tomorrow, None, 0),
+            (None, _tomorrow, 17),
+            (_yesterday, _tomorrow, 17),
         ]:
             params = {}
             if from_date:

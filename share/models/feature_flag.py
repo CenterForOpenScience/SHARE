@@ -28,7 +28,6 @@ class FeatureFlagManager(models.Manager):
 class FeatureFlag(models.Model):
     # flag name constants
     ELASTIC_EIGHT_DEFAULT = 'elastic_eight_default'
-    IGNORE_SHAREV2_INGEST = 'ignore_sharev2_ingest'
     SUGGEST_CREATOR_FACET = 'suggest_creator_facet'
     FORBID_UNTRUSTED_FEED = 'forbid_untrusted_feed'
     TROVESEARCH_DENORMILY = 'trovesearch_denormily'

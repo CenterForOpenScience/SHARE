@@ -80,8 +80,6 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'rest_framework',
     'corsheaders',
-    'revproxy',
-    'prettyjson',
 
     'allauth',
     'allauth.account',
@@ -247,7 +245,7 @@ if os.environ.get('USE_SENTRY'):
             else VERSION
         ),
         send_default_pii=False,
-        request_bodies='never',
+        max_request_body_size='never',
         debug=DEBUG,
         integrations=[
             DjangoIntegration(
@@ -278,9 +276,7 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.SHA1PasswordHasher',
     'django.contrib.auth.hashers.MD5PasswordHasher',
-    'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
 
@@ -316,10 +312,6 @@ ELASTICSEARCH = {
     'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
     'POST_INDEX_DELAY': int(os.environ.get('ELASTICSEARCH_POST_INDEX_DELAY', 3)),
 }
-ELASTICSEARCH5_URL = (
-    os.environ.get('ELASTICSEARCH5_URL')
-    or os.environ.get('ELASTICSEARCH_URL')  # backcompat
-)
 ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
 ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
@@ -344,30 +336,11 @@ CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
-    # Every 2 minutes
-    'Harvest Task': {
-        'task': 'share.tasks.harvest',
-        'schedule': 120,
-    },
     'Expel expired data': {
         'task': 'trove.digestive_tract.task__expel_expired_data',
         'schedule': crontab(hour=0, minute=0),  # every day at midnight UTC
     },
 }
-
-if not DEBUG:
-    CELERY_BEAT_SCHEDULE = {
-        **CELERY_BEAT_SCHEDULE,
-        'Schedule Harvests': {
-            'task': 'share.tasks.schedule_harvests',
-            'schedule': crontab(minute=0)  # hourly
-        },
-        'Source Stats': {
-            'task': 'share.tasks.source_stats',
-            'schedule': crontab(minute=0, hour='3,9,15,21'),  # every 6 hours
-            'args': (),
-        },
-    }
 
 CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
 CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
@@ -403,14 +376,12 @@ def route_urgent_task(name, args, kwargs, options, task=None, **kw):
 CELERY_TASK_ROUTES = [
     route_urgent_task,
     {
-        'share.tasks.harvest': {'queue': 'harvest'},
         'trove.digestive_tract.*': {'queue': 'digestive_tract'},
     },
 ]
 CELERY_TASK_QUEUES = {
     'share_default': {},
     'elasticsearch': {},
-    'harvest': {},
     'digestive_tract': {},
     'digestive_tract.urgent': {},
 }
@@ -468,8 +439,6 @@ SHELL_PLUS_POST_IMPORTS = (
 SITE_ID = 1
 PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
-EMBER_SHARE_PREFIX = os.environ.get('EMBER_SHARE_PREFIX', 'share' if DEBUG else '')
-EMBER_SHARE_URL = os.environ.get('EMBER_SHARE_URL', 'http://localhost:4200').rstrip('/') + '/'
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', 'http://localhost:8003').rstrip('/') + '/'
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 
@@ -488,46 +457,7 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
-# TODO why are these in different locations and formats??
-SUBJECTS_YAML = 'share/subjects.yaml'
-SUBJECT_SYNONYMS_JSON = 'share/models/synonyms.json'
-
 HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
-
-# Regulator pipeline, names of setuptools entry points
-SHARE_REGULATOR_CONFIG = {
-    'NODE_STEPS': [
-        'tokenize_tags',
-        'whitespace',
-        'normalize_agent_names',
-        'cited_as',
-        ('normalize_iris', {
-            'node_types': ['workidentifier'],
-            'blocked_schemes': ['mailto'],
-            'blocked_authorities': ['issn', 'orcid.org'],
-        }),
-        ('normalize_iris', {
-            'node_types': ['agentidentifier'],
-            'blocked_schemes': ['mailto'],
-            'blocked_authorities': ['secure.gravatar.com'],
-        }),
-        ('trim_cycles', {
-            'node_types': ['abstractworkrelation', 'abstractagentrelation'],
-            'relation_fields': ['subject', 'related'],
-        }),
-        ('trim_cycles', {
-            'node_types': ['subject'],
-            'relation_fields': ['central_synonym'],
-            'delete_node': False,
-        }),
-    ],
-    'GRAPH_STEPS': [
-        'deduplicate',
-    ],
-    'VALIDATE_STEPS': [
-        'jsonld_validator',
-    ],
-}
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

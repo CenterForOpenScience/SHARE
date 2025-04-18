@@ -12,31 +12,31 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
 
     expected_outputs = {
         'blarg-item': {
-            "@id": "http://blarg.example/vocab/my_item",
-            "resourceType": [{"@id": "http://blarg.example/vocab/Item"}],
+            "@id": "blarg:my_item",
+            "resourceType": [{"@id": "blarg:Item"}],
             "title": [{
                 "@value": "title",
                 "@language": "en"
             }],
             "creator": [{
-                "@id": "http://blarg.example/vocab/me",
+                "@id": "blarg:me",
                 "resourceType": [{"@id": "Person"}],
                 "name": [{"@value": "me me"}]
             }],
             "dateCreated": [{"@value": "2024-02-14"}],
         },
         'blarg-project': {
-            "@id": "http://blarg.example/vocab/my_project",
+            "@id": "blarg:my_project",
             "resourceType": [
                 {"@id": "Project"},
-                {"@id": "http://blarg.example/vocab/Item"},
+                {"@id": "blarg:Item"},
             ],
             "title": [{
                 "@value": "title",
                 "@language": "en",
             }],
             "creator": [{
-                "@id": "http://blarg.example/vocab/me",
+                "@id": "blarg:me",
                 "resourceType": [{"@id": "Person"}],
                 "name": [{"@value": "me me"}]
             }],
