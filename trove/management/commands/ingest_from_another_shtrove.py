@@ -2,7 +2,6 @@ import functools
 from itertools import islice
 import re
 from urllib.parse import urlunsplit
-import uuid
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -37,27 +36,31 @@ class Command(BaseCommand):
     def _iter_datums(self, host: str):
         _url = urlunsplit(('https', host, '/api/v2/rawdata/', '', ''))
         while _url:
+            self.stdout.write('fetching a page...')
             _json = requests.get(_url, headers={'Accept': mediatypes.JSONAPI}).json()
             for _item in _json['data']:
                 yield _item['attributes']['datum']
             _url = _json['links'].get('next')
 
     def _ingest(self, datum: str) -> bool:
-        _first_subject_match = re.search(
-            r'^<([^>\s]+)>',  # HACK: depends on specific serialization
-            datum,
-            re.MULTILINE,
-        )
-        if _first_subject_match:
-            _subject_iri = _first_subject_match.group(1)
-            digestive_tract.swallow(
-                from_user=self._application_user,
-                record=datum,
-                record_identifier=uuid.uuid4(),
-                record_mediatype=mediatypes.TURTLE,
-                focus_iri=_subject_iri,
+        # HACK: get only turtle files by checking it starts with a prefix (unreliable, generally, but good enough for this)
+        _smells_like_turtle = datum.startswith('@prefix ') or datum.startswith('PREFIX ')
+        if _smells_like_turtle:
+            _first_subject_match = re.search(
+                r'^<([^>\s]+)>',  # HACK: depends on specific serialization
+                datum,
+                re.MULTILINE,
             )
-            return True
+            if _first_subject_match:
+                _subject_iri = _first_subject_match.group(1)
+                digestive_tract.swallow(
+                    from_user=self._application_user,
+                    record=datum,
+                    record_identifier=_subject_iri,
+                    record_mediatype=mediatypes.TURTLE,
+                    focus_iri=_subject_iri,
+                )
+                return True
         return False
 
     @functools.cached_property
