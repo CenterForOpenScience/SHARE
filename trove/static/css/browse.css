@@ -1,12 +1,13 @@
 :root {
     --phi: 1.618;
-    /* rotating colorspace */
+    /* rotating colorspace (using lch with luminance and chroma held constant) */
     --hue-turn: var(--phi)turn; /* initial */
-    --bg-chroma: 71%;
-    --bg-chroma-2: calc(var(--bg-chroma) + ((100% - var(--bg-chroma)) / 3));
+    /* background colors */
     --bg-luminance: 83%;
     --bg-luminance-2: calc(var(--bg-luminance) + ((100% - var(--bg-luminance)) / 3));
     --bg-luminance-3: calc(var(--bg-luminance-2) + ((100% - var(--bg-luminance-2)) / 3));
+    --bg-chroma: 71%;
+    --bg-chroma-2: calc(var(--bg-chroma) + ((100% - var(--bg-chroma)) / 3));
     --bg-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
     --bg-color-2: lch(var(--bg-luminance-2) var(--bg-chroma) var(--hue-turn));
     --bg-color-3: lch(var(--bg-luminance-3) var(--bg-chroma) var(--hue-turn));
@@ -47,8 +48,10 @@
     border-block-start-width: var(--gutter-4);
     border-inline-end-width: 1px;
     border-block-end-width: 1px;
+    /*
     border-start-end-radius: 1rem;
     border-end-start-radius: 1rem;
+    */
 }
 
 .BrowseWrapper details > summary::before {

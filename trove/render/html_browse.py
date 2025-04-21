@@ -346,7 +346,7 @@ class _HtmlBuilder:
         # return f'--hue: {random.random()}turn;'
         _hue_turn = (self.__last_hue_turn + _PHI) % 1.0
         self.__last_hue_turn = _hue_turn
-        return f'--bg-hue-turn: {_hue_turn}turn;'
+        return f'--hue-turn: {_hue_turn}turn;'
 
     def _queryparam_href(self, param_name: str, param_value: str | None):
         _base_url = self.focus_iri
