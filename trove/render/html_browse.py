@@ -1,8 +1,10 @@
+from collections.abc import Iterator
 import contextlib
 import dataclasses
 import datetime
 import math
 import random
+import re
 from urllib.parse import quote, urlsplit, urlunsplit
 from xml.etree.ElementTree import (
     Element,
@@ -49,6 +51,8 @@ _IMPLICIT_DATATYPES = frozenset((
     RDF.string,
     RDF.langString,
 ))
+
+_QUERYPARAM_SPLIT_RE = re.compile(r'(?=[?&])')
 
 _PHI = (math.sqrt(5) + 1) / 2
 
@@ -144,18 +148,16 @@ class _HtmlBuilder:
         with self.__visiting(subj_iri):
             with self.__nest_card('article'):
                 with self.__nest('header'):
-                    _h_text, _also_texts = self.__iri_display_texts(subj_iri)
-                    with self.__nest_h_tag():
-                        self.__leaf('dfn', text=_h_text, attrs={'id': quote(subj_iri)})
-                    for _also_text in _also_texts:
-                        self.__leaf('code', text=_also_text)
-                    for _label in self.__iri_thesaurus_labels(subj_iri):
-                        self.__literal(_label)
+                    _compact = self.iri_shorthand.compact_iri(subj_iri)
+                    if (_compact != subj_iri):
+                        with self.__nest_h_tag(attrs={'id': quote(subj_iri)}) as _h:
+                            _h.text = _compact
+                    self.__iri_display(subj_iri)
                 if _twopledict:
                     with self.__nest('details') as _details:
                         _detail_depth = sum((_tag == 'details') for _tag in self.__nested_tags)
                         _should_open = (
-                            _detail_depth < 4
+                            _detail_depth < 5
                             if start_collapsed is None
                             else not start_collapsed
                         )
@@ -167,9 +169,8 @@ class _HtmlBuilder:
     def __twoples(self, twopledict: rdf.RdfTwopleDictionary):
         with self.__nest('dl', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in shuffled(twopledict.items()):
-                with self.__nest('dt'):
-                    _pred_link = self.__compact_link(_pred)
-                    _append_class(_pred_link, 'Browse__predicate')
+                with self.__nest('dt', attrs={'class': 'Browse__predicate'}):
+                    self.__compact_link(_pred)
                     for _text in self.__iri_thesaurus_labels(_pred):
                         self.__literal(_text)
                 with self.__nest('dd'):
@@ -224,7 +225,7 @@ class _HtmlBuilder:
 
     def __sequence(self, sequence_twoples: frozenset):
         _obj_in_order = list(rdf.sequence_objects_in_order(sequence_twoples))
-        with self.__nest('details', attrs={'open': ''}):
+        with self.__nest('details', attrs={'open': '', 'class': 'Browse__blanknode Browse__object'}):
             _text = _('sequence of %(count)s') % {'count': len(_obj_in_order)}
             self.__leaf('summary', text=_text)
             with self.__nest('ol'):  # TODO: style?
@@ -242,10 +243,12 @@ class _HtmlBuilder:
             if isinstance(blanknode, dict)
             else rdf.twopledict_from_twopleset(blanknode)
         )
-        with self.__nest('article', attrs={
+        with self.__nest('details', attrs={
+            'open': '',
             'class': 'Browse__blanknode Browse__object',
             'style': self._hue_turn_css(),
         }):
+            self.__leaf('summary', text='(blank node)')
             self.__twoples(_twopledict)
 
     ###
@@ -332,15 +335,17 @@ class _HtmlBuilder:
 
     def __iri_thesaurus_labels(self, iri: str):
         # TODO: consider requested language
+        _labels: set[rdf.RdfObject] = set()
         _suffuniq = get_sufficiently_unique_iri(iri)
         _thesaurus_entry = combined_thesaurus__suffuniq().get(_suffuniq)
         if _thesaurus_entry:
             for _pred in _LINK_TEXT_PREDICATES:
-                yield from shuffled(_thesaurus_entry.get(_pred, ()))
+                _labels.update(_thesaurus_entry.get(_pred, ()))
         _twoples = self.__current_data.get(iri)
         if _twoples:
             for _pred in _LINK_TEXT_PREDICATES:
-                yield from shuffled(_twoples.get(_pred, ()))
+                _labels.update(_twoples.get(_pred, ()))
+        yield from shuffled(_labels)
 
     def _hue_turn_css(self):
         # return f'--hue: {random.random()}turn;'
@@ -369,16 +374,24 @@ class _HtmlBuilder:
             _fragment,
         ))
 
-    def __iri_display_texts(self, iri: str) -> tuple[str, set[str]]:
-        _compact = self.iri_shorthand.compact_iri(iri)
-        _suffuniq = get_sufficiently_unique_iri(iri)
-        _main_display = (
-            _compact
-            if (_compact != iri)
-            else _suffuniq
+    def __iri_display(self, iri: str) -> None:
+        self.__leaf('pre', text='\n'.join(self.__iri_lines(iri)))
+        for _label in self.__iri_thesaurus_labels(iri):
+            self.__literal(_label)
+        for _type_iri in self.__current_data.get(iri, {}).get(RDF.type, ()):
+            self.__compact_link(_type_iri)
+
+    def __iri_lines(self, iri: str) -> Iterator[str]:
+        (_scheme, _netloc, _path, _query, _fragment) = urlsplit(iri)
+        yield (
+            f'://{_netloc}{_path}'
+            if _netloc
+            else f'{_scheme}:{_path}'
         )
-        _also_display = {iri, _compact} - {_main_display}
-        return (_main_display, _also_display)
+        if _query:
+            yield from filter(bool, _QUERYPARAM_SPLIT_RE.split(f'?{_query}'))
+        if _fragment:
+            yield f'#{_fragment}'
 
 
 def _append_class(el: Element, element_class: str):

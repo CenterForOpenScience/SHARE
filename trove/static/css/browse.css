@@ -1,22 +1,16 @@
 :root {
     --phi: 1.618;
-    /* rotating colorspace (using lch with luminance and chroma held constant) */
-    --hue-turn: var(--phi)turn; /* initial */
-    /* background colors */
+    /* rotating colorspace (using `lch` with luminance and chroma held locally constant) */
+    --hue-turn: 0; /* initial */
     --bg-luminance: 83%;
-    --bg-luminance-2: calc(var(--bg-luminance) + ((100% - var(--bg-luminance)) / 3));
-    --bg-luminance-3: calc(var(--bg-luminance-2) + ((100% - var(--bg-luminance-2)) / 3));
-    --bg-chroma: 71%;
-    --bg-chroma-2: calc(var(--bg-chroma) + ((100% - var(--bg-chroma)) / 3));
-    --bg-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
-    --bg-color-2: lch(var(--bg-luminance-2) var(--bg-chroma) var(--hue-turn));
-    --bg-color-3: lch(var(--bg-luminance-3) var(--bg-chroma) var(--hue-turn));
+    --bg-chroma: 19%;
+    --bg-color-initial: lch(83% 19% 1.618turn);
     /* gutter spaces (gaps, paddings, margins...) */
-    --gutter-1: var(--phi)rem;
-    --gutter-2: calc(var(--phi)rem - 1);
-    --gutter-3: calc(var(--gutter-2) / 2);
-    --gutter-4: calc(var(--gutter-3) / 2);
-    --gutter-5: calc(var(--gutter-4) / 2);
+    --gutter-1: 1.618rem;
+    --gutter-2: 0.618rem;
+    --gutter-3: 0.309rem;
+    --gutter-4: 0.155rem;
+    --gutter-5: 0.077rem;
 }
 
 .BrowseWrapper {
@@ -28,26 +22,29 @@
     margin: 0;
     padding: 1rem;
     min-height: 100vh;
-    background-color: var(--bg-color);
+    background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
 }
 
 .BrowseWrapper dfn {
     font-weight: bold;
 }
 
+.BrowseWrapper pre {
+    margin: 0;
+    background-color: lch(91% var(--bg-chroma) var(--hue-turn));
+}
+
 .Browse__card {
     display: flex;
     flex-direction: column;
     padding: var(--gutter-2) var(--gutter-3);
-    background-color: var(--bg-color);
-    border-color: lch(from var(--bg-color) h s
-        calc(var(--bg-luminosity) * 0.618)
-    );
-    border-style: inset;
+    background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
+    border-color: lch(59% var(--bg-chroma) var(--hue-turn));
+    border-style: solid;
     border-inline-start-width: var(--gutter-3);
     border-block-start-width: var(--gutter-4);
-    border-inline-end-width: 1px;
-    border-block-end-width: 1px;
+    border-inline-end-width: 0;
+    border-block-end-width: 0;
     /*
     border-start-end-radius: 1rem;
     border-end-start-radius: 1rem;
@@ -63,7 +60,7 @@
 }
 
 .BrowseWrapper details[open] > summary::before {
-    rotate: var(--bg-turn);
+    rotate: var(--hue-turn);
 }
 
 .Browse__card > header {
@@ -118,7 +115,12 @@ dl.Browse__twopleset > dd {
 
 .Browse__blanknode {
     padding: var(--gutter-4);
-    border: inset var(--gutter-4) rgba(0,0,0,0.382);
+    border-color: rgba(0,0,0,0.382);
+    border-style: solid;
+    border-inline-start-width: var(--gutter-3);
+    border-block-start-width: var(--gutter-4);
+    border-inline-end-width: 0;
+    border-block-end-width: 0;
 }
 
 .Browse__literal {
@@ -137,11 +139,11 @@ dl.Browse__twopleset > dd {
 }
 
 .Browse__predicate {
-    background-color: var(--bg-color-2);
+    background-color: lch(from var(--bg-color-initial) 89% c var(--hue-turn));
     padding: var(--gutter-4);
 }
 
 .Browse__object {
-    background-color: var(--bg-color-3);
+    background-color: lch(from var(--bg-color-initial) 93% c var(--hue-turn));
     padding: var(--gutter-4);
 }
