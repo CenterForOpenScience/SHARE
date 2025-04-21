@@ -146,7 +146,7 @@ def gather_count(focus: CardsearchFocus, **kwargs):
     focustype_iris={TROVE.Cardsearch},
     cache_bound=1,  # only the first page gets cached
 )
-def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
+def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, blend_cards, **kwargs):
     # each searchResultPage a sequence of search results
     _current_handle: CardsearchHandle | None = focus.search_handle
     while _current_handle is not None:
@@ -159,34 +159,63 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
             _card_focus = _card_foci.get(_result.card_iri)
             if _card_focus is None:
                 continue  # skip (deleted card still indexed?)
-            _text_evidence_twoples = (
-                (TROVE.matchEvidence, frozenset((
-                    (RDF.type, TROVE.TextMatchEvidence),
-                    (TROVE.matchingHighlight, _evidence.matching_highlight),
-                    (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
-                    *_single_propertypath_twoples(_evidence.property_path),
-                )))
-                for _evidence in _result.text_match_evidence
+            _result_obj, _triples = (
+                _blended_card(_card_focus)
+                if blend_cards
+                else _unblended_card(_result, _card_focus)
             )
-            _result_page.append(frozenset((
-                (RDF.type, TROVE.SearchResult),
-                (TROVE.indexCard, _result.card_iri),
-                *_text_evidence_twoples,
-            )))
-            # hack around (current) limitations of primitive_metadata.gather
-            # (what with all these intermediate blank nodes and sequences):
-            # yield trove:resourceMetadata here (instead of another gatherer)
-            _card_twoples = _minimal_indexcard_twoples(
-                focus_identifiers=[
-                    _identifier.as_iri()
-                    for _identifier in _card_focus.indexcard.focus_identifier_set.all()
-                ],
-                resource_metadata=_card_focus.resourceMetadata,
-            )
-            for _pred, _obj in _card_twoples:
-                yield (_result.card_iri, _pred, _obj)
+            _result_page.append(_result_obj)
+            yield from _triples
         yield (TROVE.searchResultPage, sequence(_result_page))
         _current_handle = _current_handle.get_next_streaming_handle()
+
+
+def _blended_card(card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+    _metadata = card_focus.resourceMetadata
+    if isinstance(_metadata, rdf.Literal):
+        return (_metadata, ())
+    if isinstance(_metadata, rdf.QuotedGraph):
+        return (_metadata.focus_iri, rdf.iter_tripleset(_metadata.tripledict))
+    return (card_focus.single_iri(), ())  # oh well
+
+
+def _unblended_card(_result, _card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+    return (
+        _unblended_cardsearch_result(_result),
+        _unblended_card_triples(_result, _card_focus),
+    )
+
+
+def _unblended_cardsearch_result(_result) -> rdf.RdfBlanknode:
+    _text_evidence_twoples = (
+        (TROVE.matchEvidence, frozenset((
+            (RDF.type, TROVE.TextMatchEvidence),
+            (TROVE.matchingHighlight, _evidence.matching_highlight),
+            (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
+            *_single_propertypath_twoples(_evidence.property_path),
+        )))
+        for _evidence in _result.text_match_evidence
+    )
+    return frozenset((
+        (RDF.type, TROVE.SearchResult),
+        (TROVE.indexCard, _result.card_iri),
+        *_text_evidence_twoples,
+    ))
+
+
+def _unblended_card_triples(_result, _card_focus) -> Iterator[rdf.RdfTriple]:
+    # hack around (current) limitations of primitive_metadata.gather
+    # (what with all these intermediate blank nodes and sequences):
+    # yield trove:resourceMetadata here (instead of another gatherer)
+    _card_twoples = _unblended_indexcard_twoples(
+        focus_identifiers=[
+            _identifier.as_iri()
+            for _identifier in _card_focus.indexcard.focus_identifier_set.all()
+        ],
+        resource_metadata=_card_focus.resourceMetadata,
+    )
+    for _pred, _obj in _card_twoples:
+        yield (_result.card_iri, _pred, _obj)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.searchResultPage)
@@ -251,7 +280,7 @@ def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
                 # hack around (current) limitations of primitive_metadata.gather
                 # (what with all these intermediate blank nodes and sequences):
                 # yield trove:resourceMetadata here (instead of another gatherer)
-                _card_twoples = _minimal_indexcard_twoples(
+                _card_twoples = _unblended_indexcard_twoples(
                     focus_identifiers=[
                         _identifier.as_iri()
                         for _identifier in _card_focus.indexcard.focus_identifier_set.all()
@@ -456,7 +485,7 @@ def _valuesearch_result_as_json(result: ValuesearchResult) -> Literal:
     )
 
 
-def _minimal_indexcard_twoples(
+def _unblended_indexcard_twoples(
     focus_identifiers: Iterable[str],
     resource_metadata: rdf.Literal,
 ) -> Iterator[rdf.RdfTwople]:
@@ -471,7 +500,7 @@ def _minimal_indexcard_twoples(
 
 
 def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
-    return frozenset(_minimal_indexcard_twoples(
+    return frozenset(_unblended_indexcard_twoples(
         focus_identifiers=[literal(result.value_iri or result.value_value)],
         resource_metadata=_valuesearch_result_as_json(result),
     ))

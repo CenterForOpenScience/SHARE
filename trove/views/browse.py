@@ -18,7 +18,6 @@ from ._base import GatheredTroveView
 @dataclasses.dataclass(frozen=True)
 class BrowseParams(BasicTroveParams):
     iri: str
-    blend_cards: bool
 
     @classmethod
     def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
@@ -28,7 +27,6 @@ class BrowseParams(BasicTroveParams):
         return {
             **super().parse_queryparams(queryparams),
             'iri': cls._parse_iri(_iri_value),
-            'blend_cards': get_bool_value(queryparams, 'blendCards', if_absent=True),
         }
 
     @classmethod
@@ -57,9 +55,3 @@ class BrowseIriView(GatheredTroveView):
 
     def _get_focus_iri(self, request, params: BrowseParams):  # override GatheredTroveView
         return params.iri
-
-    def _get_gatherer_kwargs(self, params, renderer_type):  # override GatheredTroveView
-        return {
-            **super()._get_gatherer_kwargs(params, renderer_type),
-            'blend_cards': params.blend_cards,
-        }

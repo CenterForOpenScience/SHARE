@@ -34,6 +34,11 @@ class BaseRenderer(abc.ABC):
     iri_shorthand: rdf.IriShorthand = dataclasses.field(default_factory=namespaces_shorthand)
     thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
+    @classmethod
+    def get_deriver_iri(cls, card_blending: bool):
+        # override if needed
+        return cls.INDEXCARD_DERIVER_IRI
+
     @functools.cached_property
     def thesaurus(self):
         return rdf.RdfGraph(self.thesaurus_tripledict)

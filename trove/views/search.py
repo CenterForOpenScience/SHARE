@@ -30,7 +30,7 @@ class _BaseTrovesearchView(GatheredTroveView, abc.ABC):
 
     gathering_organizer = trovesearch_by_indexstrategy  # for GatheredTroveView
 
-    def _build_focus(self, request, params):  # override GatheredTroveView
+    def _build_focus(self, request, params, url_kwargs):  # override GatheredTroveView
         _strategy = index_strategy.get_strategy_for_trovesearch(params)
         return self.focus_type.new(
             iris=self._get_focus_iri(request, params),

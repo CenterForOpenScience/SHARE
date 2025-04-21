@@ -27,6 +27,7 @@ class BasicTroveParams:
     accept_mediatype: str | None
     included_relations: PropertypathSet = dataclasses.field(repr=False, compare=False)
     attrpaths_by_type: Mapping[str, PropertypathSet] = dataclasses.field(repr=False, compare=False)
+    blend_cards: bool
 
     ###
     # class methods
@@ -48,6 +49,7 @@ class BasicTroveParams:
             'included_relations': cls._gather_included_relations(queryparams, _shorthand),
             'attrpaths_by_type': cls._gather_attrpaths(queryparams, _shorthand),
             'accept_mediatype': _qp.get_single_value(queryparams, 'acceptMediatype'),
+            'blend_cards': _qp.get_bool_value(queryparams, 'blendCards'),
         }
 
     @classmethod
@@ -126,5 +128,7 @@ class BasicTroveParams:
         _querydict = QueryDict(mutable=True)
         if self.accept_mediatype:
             _querydict['acceptMediatype'] = self.accept_mediatype
+        if self.blend_cards:
+            _querydict['blendCards'] = ''
         # TODO: iriShorthand, include, fields[...]
         return _querydict

@@ -122,11 +122,11 @@ class _HtmlBuilder:
             if self.is_data_blended:
                 _header_text = _('card-blending ON')
                 _link_text = _('disable card-blending')
-                _link_blend = '0'  # blendCards=0
+                _link_blend: str | None = None  # remove blendCards param (defaults false)
             else:
                 _header_text = _('card-blending OFF')
                 _link_text = _('enable card-blending')
-                _link_blend = None  # remove blendCards param (defaults true)
+                _link_blend = '1'  # blendCards=1
             self.__leaf('header', text=_header_text)
             self.__leaf('a', text=_link_text, attrs={
                 'href': self._queryparam_href('blendCards', _link_blend),
@@ -149,21 +149,26 @@ class _HtmlBuilder:
             with self.__nest_card('article'):
                 with self.__nest('header'):
                     _compact = self.iri_shorthand.compact_iri(subj_iri)
-                    if (_compact != subj_iri):
-                        with self.__nest_h_tag(attrs={'id': quote(subj_iri)}) as _h:
+                    _is_compactable = (_compact != subj_iri)
+                    with self.__nest_h_tag(attrs={'id': quote(subj_iri)}) as _h:
+                        if _is_compactable:
                             _h.text = _compact
-                    self.__iri_display(subj_iri)
+                        else:
+                            self.__leaf('pre', text='\n'.join(self.__iri_lines(subj_iri)))
+                    if _is_compactable:
+                        self.__leaf('pre', text='\n'.join(self.__iri_lines(subj_iri)))
+                    self.__iri_subheaders(subj_iri)
                 if _twopledict:
                     with self.__nest('details') as _details:
                         _detail_depth = sum((_tag == 'details') for _tag in self.__nested_tags)
                         _should_open = (
-                            _detail_depth < 5
+                            _detail_depth < 3
                             if start_collapsed is None
                             else not start_collapsed
                         )
                         if _should_open:
                             _details.set('open', '')
-                        self.__leaf('summary', text=_('details...'))
+                        self.__leaf('summary', text=_('more details...'))
                         self.__twoples(_twopledict)
 
     def __twoples(self, twopledict: rdf.RdfTwopleDictionary):
@@ -374,8 +379,7 @@ class _HtmlBuilder:
             _fragment,
         ))
 
-    def __iri_display(self, iri: str) -> None:
-        self.__leaf('pre', text='\n'.join(self.__iri_lines(iri)))
+    def __iri_subheaders(self, iri: str) -> None:
         for _label in self.__iri_thesaurus_labels(iri):
             self.__literal(_label)
         for _type_iri in self.__current_data.get(iri, {}).get(RDF.type, ()):

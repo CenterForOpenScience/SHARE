@@ -77,6 +77,11 @@ class RdfJsonapiRenderer(BaseRenderer):
         repr=False,
     )
 
+    # override BaseRenderer
+    @classmethod
+    def get_deriver_iri(cls, card_blending: bool):
+        return (None if card_blending else super().get_deriver_iri(card_blending))
+
     def simple_render_document(self) -> str:
         return json.dumps(
             self.render_dict(self.response_focus.single_iri()),

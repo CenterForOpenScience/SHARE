@@ -34,10 +34,10 @@ class BaseTroveView(View, abc.ABC):
     params_type: ClassVar[type[BasicTroveParams]] = BasicTroveParams
 
     @abc.abstractmethod
-    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer]) -> ProtoRendering:
+    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs) -> ProtoRendering:
         raise NotImplementedError
 
-    def get(self, request):
+    def get(self, request, **kwargs):
         try:
             _renderer_type = get_renderer_type(request)
         except trove_exceptions.CannotRenderMediatype as _error:
@@ -48,7 +48,7 @@ class BaseTroveView(View, abc.ABC):
         try:
             _params = self._parse_params(request)
             return make_http_response(
-                content_rendering=self._render_response_content(request, _params, _renderer_type),
+                content_rendering=self._render_response_content(request, _params, _renderer_type, kwargs),
                 http_request=request,
             )
         except trove_exceptions.TroveError as _error:
@@ -67,8 +67,8 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
     # optional ClassVars:
     focus_type_iris: ClassVar[Container[str]] = ()
 
-    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer]):
-        _focus = self._build_focus(request, params)
+    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs):
+        _focus = self._build_focus(request, params, url_kwargs)
         _renderer = self._gather_to_renderer(_focus, params, renderer_type)
         return _renderer.render_document()
 
@@ -81,7 +81,7 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
     def _get_focus_iri(self, request, params):
         return request.build_absolute_uri()
 
-    def _build_focus(self, request, params):
+    def _build_focus(self, request, params, url_kwargs):
         return gather.Focus.new(self._get_focus_iri(request, params), self.focus_type_iris)
 
     def _build_gathering(self, params, renderer_type: type[BaseRenderer]) -> gather.Gathering:
@@ -93,7 +93,10 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
         _kwargs = {}
         _deriver_kw = _get_param_keyword(TROVE.deriverIRI, self.gathering_organizer)
         if _deriver_kw:
-            _kwargs[_deriver_kw] = renderer_type.INDEXCARD_DERIVER_IRI
+            _kwargs[_deriver_kw] = renderer_type.get_deriver_iri(params.blend_cards)
+        _blend_kw = _get_param_keyword(TROVE.blendCards, self.gathering_organizer)
+        if _blend_kw:
+            _kwargs[_blend_kw] = params.blend_cards
         return _kwargs
 
 
@@ -111,7 +114,7 @@ class StaticTroveView(BaseTroveView, abc.ABC):
     def get_focus_iri(cls) -> str:
         raise NotImplementedError(f'implement get_focus_iri on {cls}')
 
-    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer]):
+    def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs):
         _focus_iri = self.get_focus_iri()
         _triples = self.get_static_triples(_focus_iri)
         _focus = gather.Focus.new(
