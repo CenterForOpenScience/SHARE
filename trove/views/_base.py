@@ -102,21 +102,23 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
 
 class StaticTroveView(BaseTroveView, abc.ABC):
     @classmethod
-    def get_static_twoples(cls) -> rdf.RdfTripleDictionary:
-        raise NotImplementedError(f'implement either get_static_triples or get_static_twoples on {cls}')
+    @abc.abstractmethod
+    def get_focus_iri(cls) -> str:
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def get_static_triples(cls, focus_iri: str) -> rdf.RdfTripleDictionary:
+        raise NotImplementedError
 
     @classmethod
     @functools.cache
-    def get_static_triples(cls, focus_iri: str) -> rdf.RdfTripleDictionary:
-        return {focus_iri: cls.get_static_twoples()}
-
-    @classmethod
-    def get_focus_iri(cls) -> str:
-        raise NotImplementedError(f'implement get_focus_iri on {cls}')
+    def cached_static_triples(cls, focus_iri):
+        return cls.get_static_triples(focus_iri)
 
     def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs):
         _focus_iri = self.get_focus_iri()
-        _triples = self.get_static_triples(_focus_iri)
+        _triples = self.cached_static_triples(_focus_iri)
         _focus = gather.Focus.new(
             _focus_iri,
             type_iris=_triples.get(_focus_iri, {}).get(RDF.type, ()),

@@ -31,7 +31,6 @@
 
 .BrowseWrapper pre {
     margin: 0;
-    background-color: lch(91% var(--bg-chroma) var(--hue-turn));
 }
 
 .Browse__card {
@@ -65,13 +64,14 @@
 
 .Browse__card > header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    gap: var(--gutter-2);
+    align-items: baseline;
     border-bottom: solid 1px rgba(0,0,0,0.382);
     margin-bottom: var(--gutter-3);
 }
 
 .Browse__card > header > :first-child {
-    align-self: stretch;
     margin: 0;
 }
 

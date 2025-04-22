@@ -13,15 +13,23 @@ class ShtroveRootView(StaticTroveView):
     @classmethod
     def get_static_triples(cls, focus_iri: str) -> rdf.RdfTripleDictionary:
         _here = rdf.IriNamespace(focus_iri)
+        _docs = _here['trove/docs']
+        _browse = _here['trove/browse']
+        _cardsearch = _here['trove/index-card-search']
         return {
             focus_iri: {
                 ns.DCTERMS.description: {
                     rdf.literal('a trove of metadata meant to be shared', language='en'),
                 },
-                ns.RDFS.seeAlso: {
-                    _here['trove/docs'],
-                    _here['trove/browse'],
-                    _here['trove/index-card-search'],
-                },
+                ns.RDFS.seeAlso: {_docs, _browse, _cardsearch},
+            },
+            _docs: {
+                ns.DCTERMS.title: {rdf.literal('trove search-api docs', language='en')},
+            },
+            _browse: {
+                ns.DCTERMS.title: {rdf.literal('trove browse', language='en')},
+            },
+            _cardsearch: {
+                ns.DCTERMS.title: {rdf.literal('trove index-card-search', language='en')},
             },
         }
