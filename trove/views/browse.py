@@ -10,7 +10,6 @@ from trove.util.trove_params import BasicTroveParams
 from trove.util.queryparams import (
     QueryparamDict,
     get_single_value,
-    get_bool_value,
 )
 from ._base import GatheredTroveView
 

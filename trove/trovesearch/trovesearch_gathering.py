@@ -253,7 +253,7 @@ def gather_cardsearch_filter(focus, **kwargs):
     TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
+def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, blend_cards, **kwargs):
     _result_page = []
     _value_iris = {
         _result.value_iri
