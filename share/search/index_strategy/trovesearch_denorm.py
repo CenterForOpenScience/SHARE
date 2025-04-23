@@ -654,14 +654,7 @@ class _QueryHelper:
     def text_boolparts(self) -> Iterator[tuple[str, dict]]:
         # text-based queries
         for _textsegment in self.textsegment_set:
-            if _textsegment.is_negated:
-                yield 'must_not', self._exact_text_query(_textsegment)
-            elif not _textsegment.is_fuzzy:
-                yield 'must', self._exact_text_query(_textsegment)
-            else:
-                yield 'must', self._fuzzy_text_must_query(_textsegment)
-                if self.relevance_matters:
-                    yield 'should', self._fuzzy_text_should_query(_textsegment)
+            yield 'must', self._exact_text_query(_textsegment)
 
     def _presence_query(self, search_filter) -> dict:
         return _any_query([
@@ -724,29 +717,6 @@ class _QueryHelper:
             {'match_phrase': {self._text_field_name(_path): {'query': textsegment.text}}}
             for _path in textsegment.propertypath_set
         ])
-
-    def _fuzzy_text_must_query(self, textsegment: SearchText) -> dict:
-        # TODO: textsegment.is_openended (prefix query)
-        return _any_query([
-            {'match': {
-                self._text_field_name(_path): {
-                    'query': textsegment.text,
-                    'fuzziness': 'AUTO',
-                    # TODO: consider 'operator': 'and' (by query param FilterOperator, `cardSearchText[*][every-word]=...`)
-                },
-            }}
-            for _path in textsegment.propertypath_set
-        ])
-
-    def _fuzzy_text_should_query(self, textsegment: SearchText):
-        _slop = len(textsegment.text.split())
-        return _any_query([
-            {'match_phrase': {
-                self._text_field_name(_path): {'query': textsegment.text, 'slop': _slop},
-            }}
-            for _path in textsegment.propertypath_set
-        ])
-
 
 @dataclasses.dataclass
 class _CardsearchQueryBuilder:
