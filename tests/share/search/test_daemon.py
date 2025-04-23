@@ -252,7 +252,7 @@ class TestIndexerDaemon:
                     assert MINIMUM_BACKOFF_FACTOR <= _backoff_factor <= MAXIMUM_BACKOFF_FACTOR
             # but now the 429 errors stop
             index_strategy._pls_429 = False
-            assert index_strategy.finished_chunk.wait(timeout=10), (
+            assert index_strategy.finished_chunk.wait(timeout=_backoff_timeouts[-1]), (
                 'should have finished a chunk by now'
             )
             for message in message_list:

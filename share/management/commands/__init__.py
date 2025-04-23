@@ -23,7 +23,7 @@ class BaseShareCommand(BaseCommand):
         except Rollback:
             pass
 
-    def input_confirm(self, prompt, default=None):
+    def input_confirm(self, prompt, default=None) -> bool:
         result = input(prompt)
         if not result and default is not None:
             return default

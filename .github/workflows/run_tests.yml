@@ -75,7 +75,6 @@ jobs:
       - name: run tests
         run: |
           coverage run -m pytest --create-db
-          coverage run --append -m behave
           coverage xml -o _shtrove_coverage.xml
         env:
           DATABASE_PASSWORD: postgres

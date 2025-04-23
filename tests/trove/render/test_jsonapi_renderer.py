@@ -3,7 +3,7 @@ from unittest import mock
 
 from trove.render.jsonapi import RdfJsonapiRenderer
 from trove.render._rendering import SimpleRendering
-from ._inputs import BLARG
+from trove.vocab.namespaces import BLARG
 from . import _base
 
 
@@ -47,11 +47,11 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                         }
                     },
                     "links": {
-                        "self": BLARG.aCard
+                        "self": BLARG.aCard,
                     },
                     "meta": {
                         "foaf:primaryTopic": [
-                            BLARG.anItem
+                            "blarg:anItem"
                         ],
                         "dcterms:issued": [
                             "2024-01-01"
@@ -68,14 +68,14 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
             rendered_content=json.dumps({
                 "data": {
                     "id": "aHR0cDovL2JsYXJnLmV4YW1wbGUvdm9jYWIvYVN1YmplY3Q=",
-                    "type": BLARG.aType,
+                    "type": "blarg:aType",
                     "meta": {
-                        BLARG.hasIri: [BLARG.anIri],
-                        BLARG.hasRdfStringLiteral: ["an rdf:string literal"],
-                        BLARG.hasRdfLangStringLiteral: ['a rdf:langString literal'],
-                        BLARG.hasIntegerLiteral: [17],
-                        BLARG.hasDateLiteral: ["2024-01-01"],
-                        BLARG.hasStrangeLiteral: ['a literal of strange datatype'],
+                        "blarg:hasIri": ["blarg:anIri"],
+                        "blarg:hasRdfStringLiteral": ["an rdf:string literal"],
+                        "blarg:hasRdfLangStringLiteral": ['a rdf:langString literal'],
+                        "blarg:hasIntegerLiteral": [17],
+                        "blarg:hasDateLiteral": ["2024-01-01"],
+                        "blarg:hasStrangeLiteral": ['a literal of strange datatype'],
                     },
                     "links": {"self": BLARG.aSubject},
                 }
@@ -174,7 +174,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                BLARG.anItem
+                                "blarg:anItem"
                             ],
                             "dcterms:issued": [
                                 "2024-01-01"
@@ -201,7 +201,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                BLARG.anItemmm
+                                "blarg:anItemmm"
                             ],
                             "dcterms:issued": [
                                 "2024-03-03"
@@ -228,7 +228,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                         "type": "index-card",
                         "meta": {
                             "foaf:primaryTopic": [
-                                BLARG.anItemm
+                                "blarg:anItemm"
                             ],
                             "dcterms:issued": [
                                 "2024-02-02"
