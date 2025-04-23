@@ -1,70 +1,43 @@
 from django.test import SimpleTestCase
 
 from trove.trovesearch.search_params import (
-    Textsegment,
-    SearchFilter,
+    SearchText,
+    SearchFilter, DEFAULT_PROPERTYPATH_SET,
 )
 from trove.util.queryparams import QueryparamName
 from trove.vocab.namespaces import OSFMAP, RDF, DCTERMS
 
 
-class TestTextsegment(SimpleTestCase):
-    def test_empty(self):
-        for _empty_input in ('', '""', '*', '-', '-""'):
-            _empty = set(Textsegment.iter_from_text(_empty_input))
-            self.assertFalse(_empty)
+from django.test import SimpleTestCase
+from trove.trovesearch.search_params import SearchText
 
-    def test_fuzz(self):
-        _fuzzword = set(Textsegment.iter_from_text('woord'))
-        self.assertEqual(_fuzzword, frozenset((
-            Textsegment('woord', is_fuzzy=True, is_negated=False, is_openended=True),
-        )))
-        _fuzzphrase = set(Textsegment.iter_from_text('wibbleplop worble polp elbbiw'))
-        self.assertEqual(_fuzzphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=True, is_negated=False, is_openended=True),
-        )))
+class TestSearchText(SimpleTestCase):
+    def test_empty_text_list(self):
+        inputs = []
+        results = [SearchText(text) for text in inputs]
+        self.assertEqual(results, [])
 
-    def test_exact(self):
-        _exactword = set(Textsegment.iter_from_text('"woord"'))
-        self.assertEqual(_exactword, frozenset((
-            Textsegment('woord', is_fuzzy=False, is_negated=False, is_openended=False),
-        )))
-        _exactphrase = set(Textsegment.iter_from_text('"wibbleplop worble polp elbbiw"'))
-        self.assertEqual(_exactphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=False, is_negated=False, is_openended=False),
-        )))
-        _openphrase = set(Textsegment.iter_from_text('"wibbleplop worble polp elbbiw'))
-        self.assertEqual(_openphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=False, is_negated=False, is_openended=True),
-        )))
+    def test_single_word(self):
+        st = SearchText("word")
+        self.assertEqual(st.text, "word")
+        self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
-    def test_minus(self):
-        _minusword = set(Textsegment.iter_from_text('-woord'))
-        self.assertEqual(_minusword, frozenset((
-            Textsegment('woord', is_fuzzy=False, is_negated=True, is_openended=False),
-        )))
-        _minusexactword = set(Textsegment.iter_from_text('-"woord droow"'))
-        self.assertEqual(_minusexactword, frozenset((
-            Textsegment('woord droow', is_fuzzy=False, is_negated=True, is_openended=False),
-        )))
-        _minustwo = set(Textsegment.iter_from_text('abc -def -g hi there'))
-        self.assertEqual(_minustwo, frozenset((
-            Textsegment('def', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('g', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('hi there', is_fuzzy=True, is_negated=False, is_openended=True),
-            Textsegment('abc', is_fuzzy=True, is_negated=False, is_openended=False),
-        )))
+    def test_multiple_words(self):
+        words = ["apple", "banana", "cherry"]
+        results = [SearchText(word) for word in words]
+        self.assertEqual(len(results), 3)
+        self.assertIn(SearchText("banana"), results)
 
-    def test_combo(self):
-        _combo = set(Textsegment.iter_from_text('wibbleplop -"worble polp" elbbiw -but "exactly'))
-        self.assertEqual(_combo, frozenset((
-            Textsegment('worble polp', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('elbbiw', is_fuzzy=True, is_negated=False, is_openended=False),
-            Textsegment('wibbleplop', is_fuzzy=True, is_negated=False, is_openended=False),
-            Textsegment('but', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('exactly', is_fuzzy=False, is_negated=False, is_openended=True),
-        )))
+    def test_text_with_spaces(self):
+        phrase = "multi word phrase"
+        st = SearchText(phrase)
+        self.assertEqual(st.text, phrase)
+        self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
+    def test_custom_propertypath_set(self):
+        custom_set = frozenset(["some:path"])
+        st = SearchText("hello", propertypath_set=custom_set)
+        self.assertEqual(st.propertypath_set, custom_set)
 
 class TestSearchFilterPath(SimpleTestCase):
     def test_from_param(self):

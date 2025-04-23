@@ -33,7 +33,7 @@ from trove.trovesearch.search_params import (
     CardsearchParams,
     Propertypath,
     SearchFilter,
-    Textsegment,
+    SearchText,
     ValueType,
     ValuesearchParams,
     is_globpath,
@@ -627,7 +627,7 @@ class _BoolBuilder:
 @dataclasses.dataclass
 class _QueryHelper:
     base_field: Literal['card', 'iri_value']
-    textsegment_set: frozenset[Textsegment]
+    textsegment_set: frozenset[SearchText]
     filter_set: frozenset[SearchFilter]
     relevance_matters: bool
 
@@ -718,14 +718,14 @@ class _QueryHelper:
             else f'{self.base_field}.text_by_propertypath.{_path_field_name(propertypath)}'
         )
 
-    def _exact_text_query(self, textsegment: Textsegment) -> dict:
+    def _exact_text_query(self, textsegment: SearchText) -> dict:
         # TODO: textsegment.is_openended (prefix query)
         return _any_query([
             {'match_phrase': {self._text_field_name(_path): {'query': textsegment.text}}}
             for _path in textsegment.propertypath_set
         ])
 
-    def _fuzzy_text_must_query(self, textsegment: Textsegment) -> dict:
+    def _fuzzy_text_must_query(self, textsegment: SearchText) -> dict:
         # TODO: textsegment.is_openended (prefix query)
         return _any_query([
             {'match': {
@@ -738,7 +738,7 @@ class _QueryHelper:
             for _path in textsegment.propertypath_set
         ])
 
-    def _fuzzy_text_should_query(self, textsegment: Textsegment):
+    def _fuzzy_text_should_query(self, textsegment: SearchText):
         _slop = len(textsegment.text.split())
         return _any_query([
             {'match_phrase': {
