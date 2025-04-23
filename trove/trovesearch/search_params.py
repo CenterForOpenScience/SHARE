@@ -182,6 +182,7 @@ class SearchText:
             )
             yield str(_qp_name), _qp_value
 
+
 @dataclasses.dataclass(frozen=True)
 class SearchFilter:
     class FilterOperator(enum.Enum):

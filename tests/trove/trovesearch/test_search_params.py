@@ -7,10 +7,6 @@ from trove.trovesearch.search_params import (
 from trove.util.queryparams import QueryparamName
 from trove.vocab.namespaces import OSFMAP, RDF, DCTERMS
 
-
-from django.test import SimpleTestCase
-from trove.trovesearch.search_params import SearchText
-
 class TestSearchText(SimpleTestCase):
     def test_empty_text_list(self):
         inputs = []
