@@ -295,7 +295,7 @@ class IndexcardRdf(models.Model):
     # required:
     from_raw_datum = models.ForeignKey(
         share_db.RawDatum,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,  # allows faster bulk-deletion of unused RawDatum (but errors deleting used RawDatum)
         related_name='+',
     )
     indexcard = models.ForeignKey(
