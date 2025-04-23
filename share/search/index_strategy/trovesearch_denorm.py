@@ -718,6 +718,7 @@ class _QueryHelper:
             for _path in textsegment.propertypath_set
         ])
 
+
 @dataclasses.dataclass
 class _CardsearchQueryBuilder:
     params: CardsearchParams
