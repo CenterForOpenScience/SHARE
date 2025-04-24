@@ -307,7 +307,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         _sort = self._cardsearch_sort(cardsearch_params.sort_list)
         _query = self._cardsearch_query(
             cardsearch_params.cardsearch_filter_set,
-            cardsearch_params.cardsearch_textsegment_set,
+            cardsearch_params.cardsearch_searchtext,
             cardsearch_cursor=_cursor,
         )
         _from_offset = (
@@ -340,7 +340,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         _search_kwargs = dict(
             query=self._cardsearch_query(
                 valuesearch_params.cardsearch_filter_set,
-                valuesearch_params.cardsearch_textsegment_set,
+                valuesearch_params.cardsearch_searchtext,
                 additional_filters=[{'term': {'iri_paths_present': iri_path_as_keyword(
                     valuesearch_params.valuesearch_propertypath,
                 )}}],
@@ -371,14 +371,14 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         if (
             _request_cursor.is_basic()
             and not cardsearch_params.sort_list
-            and not cardsearch_params.cardsearch_textsegment_set
+            and not cardsearch_params.cardsearch_searchtext
         ):
             return ReproduciblyRandomSampleCursor.from_cursor(_request_cursor)
         return OffsetCursor.from_cursor(_request_cursor)
 
     def _cardsearch_query(
         self,
-        filter_set, textsegment_set, *,
+        filter_set, searchtext, *,
         additional_filters=None,
         cardsearch_cursor: PageCursor | None = None,
     ) -> dict:
@@ -404,7 +404,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
         _textq_builder = self._NestedTextQueryBuilder(
             relevance_matters=not isinstance(cardsearch_cursor, ReproduciblyRandomSampleCursor),
         )
-        for _textsegment in textsegment_set:
+        for _textsegment in searchtext:
             for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
                 _bool_query[_boolkey].extend(_textqueries)
         if not isinstance(cardsearch_cursor, ReproduciblyRandomSampleCursor):
@@ -478,7 +478,7 @@ class TroveIndexcardFlatsIndexStrategy(Elastic8IndexStrategy):
                 'nested_iri.value_type_iri': _type_iris,
             }})
         _textq_builder = self._SimpleTextQueryBuilder('nested_iri.value_namelike_text')
-        for _textsegment in valuesearch_params.valuesearch_textsegment_set:
+        for _textsegment in valuesearch_params.valuesearch_searchtext:
             for _boolkey, _textqueries in _textq_builder.textsegment_boolparts(_textsegment).items():
                 _nested_iri_bool[_boolkey].extend(_textqueries)
         return {

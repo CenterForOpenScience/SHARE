@@ -1,40 +1,50 @@
+import urllib
+
 from django.test import SimpleTestCase
 
 from trove.trovesearch.search_params import (
     SearchText,
     SearchFilter, DEFAULT_PROPERTYPATH_SET,
 )
-from trove.util.queryparams import QueryparamName
+from trove.util.queryparams import QueryparamName, queryparams_from_querystring
 from trove.vocab.namespaces import OSFMAP, RDF, DCTERMS
 
 
 class TestSearchText(SimpleTestCase):
-    def test_empty_text_list(self):
-        inputs = []
-        results = [SearchText(text) for text in inputs]
-        self.assertEqual(results, [])
+    def test_from_queryparam_family_with_empty_value(self):
+        _qp = queryparams_from_querystring('myBlargText[foo]=')
+        result = SearchText.from_queryparam_family(_qp, 'myBlargText')
+        self.assertEqual(result, frozenset())
 
     def test_single_word(self):
-        st = SearchText("word")
+        qp = queryparams_from_querystring('myBlargText=word')
+        (st,) = SearchText.from_queryparam_family(qp, 'myBlargText')
         self.assertEqual(st.text, "word")
         self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
     def test_multiple_words(self):
-        words = ["apple", "banana", "cherry"]
-        results = [SearchText(word) for word in words]
-        self.assertEqual(len(results), 3)
-        self.assertIn(SearchText("banana"), results)
+        qp = queryparams_from_querystring('myBlargText=apple&myBlargText=banana&myBlargText=cherry&anotherText=no')
+        result = SearchText.from_queryparam_family(qp, 'myBlargText')
+        self.assertEqual(result, {SearchText('apple'), SearchText('banana'), SearchText('cherry')})
 
     def test_text_with_spaces(self):
-        phrase = "multi word phrase"
-        st = SearchText(phrase)
-        self.assertEqual(st.text, phrase)
-        self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
+        phrases = [
+            "multi word phrase",
+            'phrase with "double quotes"',
+            '~phrase~ with +special.characters AND \'mismatched quotes"'
+        ]
+        for phrase in phrases:
+            qp = queryparams_from_querystring(urllib.parse.urlencode({'myBlargText': phrase}))
+            (st,) = SearchText.from_queryparam_family(qp, 'myBlargText')
+            self.assertEqual(st.text, phrase)
+            self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
     def test_custom_propertypath_set(self):
-        custom_set = frozenset(["some:path"])
-        st = SearchText("hello", propertypath_set=custom_set)
-        self.assertEqual(st.propertypath_set, custom_set)
+        qp = queryparams_from_querystring('myBlargText[title]=foo')
+        result = SearchText.from_queryparam_family(qp, 'myBlargText')
+        self.assertEqual(result, {
+            SearchText('foo', frozenset({(DCTERMS.title,)}))
+        })
 
 
 class TestSearchFilterPath(SimpleTestCase):

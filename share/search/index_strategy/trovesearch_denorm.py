@@ -627,7 +627,7 @@ class _BoolBuilder:
 @dataclasses.dataclass
 class _QueryHelper:
     base_field: Literal['card', 'iri_value']
-    textsegment_set: frozenset[SearchText]
+    searchtext: frozenset[SearchText]
     filter_set: frozenset[SearchFilter]
     relevance_matters: bool
 
@@ -653,7 +653,7 @@ class _QueryHelper:
 
     def text_boolparts(self) -> Iterator[tuple[str, dict]]:
         # text-based queries
-        for _textsegment in self.textsegment_set:
+        for _textsegment in self.searchtext:
             yield 'must', self._exact_text_query(_textsegment)
 
     def _presence_query(self, search_filter) -> dict:
@@ -738,7 +738,7 @@ class _CardsearchQueryBuilder:
         if (
             _request_cursor.is_basic()
             and not self.params.sort_list
-            and not self.params.cardsearch_textsegment_set
+            and not self.params.cardsearch_searchtext
         ):
             return ReproduciblyRandomSampleCursor.from_cursor(_request_cursor)
         return OffsetCursor.from_cursor(_request_cursor)
@@ -756,7 +756,7 @@ class _CardsearchQueryBuilder:
         _bool.add_boolparts(
             _QueryHelper(
                 base_field='card',
-                textsegment_set=self.params.cardsearch_textsegment_set,
+                searchtext=self.params.cardsearch_searchtext,
                 filter_set=self.params.cardsearch_filter_set,
                 relevance_matters=(not self.params.sort_list),
             ).boolparts(),
@@ -840,7 +840,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
     _bool.add_boolparts(
         _QueryHelper(
             base_field='card',
-            textsegment_set=params.cardsearch_textsegment_set,
+            searchtext=params.cardsearch_searchtext,
             filter_set=params.cardsearch_filter_set,
             relevance_matters=False,
         ).boolparts(),
@@ -848,7 +848,7 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
     _bool.add_boolparts(
         _QueryHelper(
             base_field='iri_value',
-            textsegment_set=params.valuesearch_textsegment_set,
+            searchtext=params.valuesearch_searchtext,
             filter_set=params.valuesearch_filter_set,
             relevance_matters=False,
         ).boolparts()
@@ -877,13 +877,13 @@ def _build_iri_valuesearch(params: ValuesearchParams, cursor: OffsetCursor) -> d
 
 
 def _build_date_valuesearch(params: ValuesearchParams) -> dict:
-    assert not params.valuesearch_textsegment_set
+    assert not params.valuesearch_searchtext
     assert not params.valuesearch_filter_set
     _bool = _BoolBuilder()
     _bool.add_boolparts(
         _QueryHelper(
             base_field='card',
-            textsegment_set=params.cardsearch_textsegment_set,
+            searchtext=params.cardsearch_searchtext,
             filter_set=params.cardsearch_filter_set,
             relevance_matters=False,
         ).boolparts(),

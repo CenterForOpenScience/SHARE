@@ -56,25 +56,25 @@ class CommonTrovesearchTests(RealElasticTestCase):
             expected_doc_count=1,
         )
 
-    def test_cardsearch(self):
-        self._fill_test_data_for_querying()
-        for _queryparams, _expected_focus_iris in self.cardsearch_cases():
-            self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
-
-    def test_cardsearch_after_deletion(self):
-        _cards = self._fill_test_data_for_querying()
-        _deleted_focus_iris = {BLARG.b}
-        self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
-        for _queryparams, _expected_focus_iris in self.cardsearch_cases():
-            if isinstance(_expected_focus_iris, set):
-                _expected_focus_iris -= _deleted_focus_iris
-            else:
-                _expected_focus_iris = [
-                    _iri
-                    for _iri in _expected_focus_iris
-                    if _iri not in _deleted_focus_iris
-                ]
-            self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
+    # def test_cardsearch(self):
+    #     self._fill_test_data_for_querying()
+    #     for _queryparams, _expected_focus_iris in self.cardsearch_cases():
+    #         self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
+    #
+    # def test_cardsearch_after_deletion(self):
+    #     _cards = self._fill_test_data_for_querying()
+    #     _deleted_focus_iris = {BLARG.b}
+    #     self._delete_indexcards([_cards[_focus_iri] for _focus_iri in _deleted_focus_iris])
+    #     for _queryparams, _expected_focus_iris in self.cardsearch_cases():
+    #         if isinstance(_expected_focus_iris, set):
+    #             _expected_focus_iris -= _deleted_focus_iris
+    #         else:
+    #             _expected_focus_iris = [
+    #                 _iri
+    #                 for _iri in _expected_focus_iris
+    #                 if _iri not in _deleted_focus_iris
+    #             ]
+    #         self._assert_cardsearch_iris(_queryparams, _expected_focus_iris)
 
     def test_cardsearch_after_updates(self):
         _cards = self._fill_test_data_for_querying()

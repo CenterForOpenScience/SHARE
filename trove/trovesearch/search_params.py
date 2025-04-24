@@ -3,7 +3,6 @@ import collections
 import dataclasses
 import enum
 import functools
-import itertools
 import logging
 import types
 import typing
@@ -133,9 +132,6 @@ class SearchText:
     text: str
     propertypath_set: PropertypathSet = DEFAULT_PROPERTYPATH_SET
 
-    def words(self):
-        return self.text.split()
-
     @classmethod
     def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
         return frozenset(cls.iter_from_queryparam_family(queryparams, queryparam_family))
@@ -143,10 +139,11 @@ class SearchText:
     @classmethod
     def iter_from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
         for (_param_name, _param_value) in queryparams.get(queryparam_family, ()):
-            yield from cls.iter_from_searchtext_param(_param_name, _param_value)
+            if _param_value:
+                yield cls.from_searchtext_param_or_none(_param_name, _param_value)
 
     @classmethod
-    def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
+    def from_searchtext_param_or_none(cls, param_name: QueryparamName, param_value: str) -> SearchText | None:
         _propertypath_set = (
             frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0], allow_globs=True))
             if param_name.bracketed_names
@@ -158,13 +155,10 @@ class SearchText:
                     str(param_name),
                     'may not use glob-paths longer than "*" with search-text parameters',
                 )
-
-        if param_value:
-            _textsegment = cls(text=param_value)
-            if _propertypath_set:
-                yield dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)
-            else:
-                yield _textsegment
+        _textsegment = cls(text=param_value)
+        if _propertypath_set:
+            _textsegment = dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)
+        return _textsegment
 
     @classmethod
     def queryparams_from_textsegments(self, queryparam_family: str, textsegments):
@@ -376,7 +370,7 @@ class IndexcardParams(TrovesearchParams):
 
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams(TrovesearchParams):
-    cardsearch_textsegment_set: frozenset[SearchText]
+    cardsearch_searchtext: frozenset[SearchText]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
     sort_list: tuple[SortParam, ...]
@@ -389,7 +383,7 @@ class CardsearchParams(TrovesearchParams):
         _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
         return {
             **super().parse_queryparams(queryparams),
-            'cardsearch_textsegment_set': SearchText.from_queryparam_family(queryparams, 'cardSearchText'),
+            'cardsearch_searchtext': SearchText.from_queryparam_family(queryparams, 'cardSearchText'),
             'cardsearch_filter_set': _filter_set,
             'index_strategy_name': get_single_value(queryparams, 'indexStrategy'),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
@@ -413,7 +407,7 @@ class CardsearchParams(TrovesearchParams):
     def cardsearch_text_paths(self) -> PropertypathSet:
         return frozenset().union(*(
             _textsegment.propertypath_set
-            for _textsegment in self.cardsearch_textsegment_set
+            for _textsegment in self.cardsearch_searchtext
         ))
 
     @functools.cached_property
@@ -426,7 +420,7 @@ class CardsearchParams(TrovesearchParams):
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
-        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('cardSearchText', self.cardsearch_textsegment_set):
+        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('cardSearchText', self.cardsearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _sort in self.sort_list:
             _qp_name, _qp_value = _sort.as_queryparam()
@@ -448,7 +442,7 @@ class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
     valuesearch_propertypath: Propertypath
-    valuesearch_textsegment_set: frozenset[SearchText]
+    valuesearch_searchtext: frozenset[SearchText]
     valuesearch_filter_set: frozenset[SearchFilter]
 
     static_focus_type = TROVE.Valuesearch
@@ -462,14 +456,14 @@ class ValuesearchParams(CardsearchParams):
         return {
             **super().parse_queryparams(queryparams),
             'valuesearch_propertypath': osfmap.parse_osfmap_propertypath(_raw_propertypath),
-            'valuesearch_textsegment_set': SearchText.from_queryparam_family(queryparams, 'valueSearchText'),
+            'valuesearch_searchtext': SearchText.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
     def __post_init__(self):
         if osfmap.is_date_property(self.valuesearch_propertypath[-1]):
             # date-value limitations
-            if self.valuesearch_textsegment_set:
+            if self.valuesearch_searchtext:
                 raise trove_exceptions.InvalidQueryParams(
                     'valueSearchText may not be used with valueSearchPropertyPath leading to a "date" property',
                 )
@@ -481,7 +475,7 @@ class ValuesearchParams(CardsearchParams):
     def to_querydict(self):
         _querydict = super().to_querydict()
         _querydict['valueSearchPropertyPath'] = osfmap.osfmap_propertypath_key(self.valuesearch_propertypath)
-        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
+        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('valueSearchText', self.valuesearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:
             _qp_name, _qp_value = _filter.as_queryparam('valueSearchFilter')
