@@ -24,13 +24,13 @@ from trove.trovesearch.page_cursor import (
     PageCursor,
     ReproduciblyRandomSampleCursor,
 )
+from trove.util.propertypath import GLOB_PATHSTEP
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
     SearchFilter,
     Textsegment,
     SortParam,
-    GLOB_PATHSTEP,
 )
 from trove.trovesearch.search_handle import (
     CardsearchHandle,

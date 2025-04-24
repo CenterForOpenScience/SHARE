@@ -12,13 +12,14 @@ from api.views import APIVersionRedirectView, source_icon_view
 from share.admin import admin_site
 from share.oaipmh.views import OAIPMHView
 from trove.views.vocab import TroveVocabView
+from trove.views.shtrove_root import ShtroveRootView
 
 
 urlpatterns = [
     url(r'^admin/', admin_site.urls),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/v3/', include('trove.urls', namespace='trove')),  # same as 'trove/' but more subtle
-    path('trove/', include('trove.urls', namespace='trovetrove')),
+    path('api/v3/', include('trove.urls', namespace='apiv3')),  # same as 'trove/' but more subtle
+    path('trove/', include('trove.urls', namespace='trove')),
     path('vocab/2023/trove/<path:vocab_term>', view=TroveVocabView.as_view(), name='trove-vocab'),
     url(r'^api/v2/', include('api.urls', namespace='api')),
     url(r'^api/(?P<path>(?!v\d+).*)', APIVersionRedirectView.as_view()),
@@ -32,6 +33,7 @@ urlpatterns = [
         permanent=False
     ), name='favicon'),
     url(r'^icons/(?P<source_name>[^/]+).ico$', source_icon_view, name='source_icon'),
+    path('', ShtroveRootView.as_view()),
 ]
 
 if settings.DEBUG:

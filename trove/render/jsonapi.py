@@ -24,11 +24,8 @@ from trove.vocab.namespaces import (
     RDF,
     TROVE,
     XSD,
-    NAMESPACES_SHORTHAND,
 )
-from trove.vocab.trove import (
-    trove_indexcard_namespace,
-)
+from trove.vocab.trove import trove_indexcard_namespace
 from ._base import BaseRenderer
 
 
@@ -80,6 +77,11 @@ class RdfJsonapiRenderer(BaseRenderer):
         repr=False,
     )
 
+    # override BaseRenderer
+    @classmethod
+    def get_deriver_iri(cls, card_blending: bool):
+        return (None if card_blending else super().get_deriver_iri(card_blending))
+
     def simple_render_document(self) -> str:
         return json.dumps(
             self.render_dict(self.response_focus.single_iri()),
@@ -128,11 +130,15 @@ class RdfJsonapiRenderer(BaseRenderer):
             return self._identifier_object_cache[iri_or_blanknode]
         except KeyError:
             if isinstance(iri_or_blanknode, str):
-                _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
                 _id_obj = {
-                    'id': self._resource_id_for_iri(iri_or_blanknode),
-                    'type': self._single_typename(_type_iris),
+                    '@id': self.iri_shorthand.compact_iri(iri_or_blanknode),
                 }
+                _type_iris = list(self.response_data.q(iri_or_blanknode, RDF.type))
+                if _type_iris:
+                    _id_obj = {
+                        'id': self._resource_id_for_iri(iri_or_blanknode),
+                        'type': self._single_typename(_type_iris),
+                    }
             elif isinstance(iri_or_blanknode, frozenset):
                 _type_iris = [
                     _obj
@@ -150,7 +156,7 @@ class RdfJsonapiRenderer(BaseRenderer):
 
     def _single_typename(self, type_iris: list[str]):
         if not type_iris:
-            raise trove_exceptions.MissingRdfType
+            return ''
         if len(type_iris) == 1:
             return self._membername_for_iri(type_iris[0])
         # choose one predictably, preferring osfmap and trove
@@ -178,6 +184,10 @@ class RdfJsonapiRenderer(BaseRenderer):
         for _iri_namespace in self._id_namespace_set:
             if iri in _iri_namespace:
                 return primitive_rdf.iri_minus_namespace(iri, namespace=_iri_namespace)
+        # check for a shorthand
+        _compact = self.iri_shorthand.compact_iri(iri)
+        if _compact != iri:
+            return _compact
         # as fallback, encode the iri into a valid jsonapi member name
         return base64.urlsafe_b64encode(iri.encode()).decode()
 
@@ -299,10 +309,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 return int(rdfobject.unicode_value)
             return rdfobject.unicode_value  # TODO: decide how to represent language
         elif isinstance(rdfobject, str):
-            try:  # maybe it's a jsonapi resource
-                return self.render_identifier_object(rdfobject)
-            except Exception:
-                return NAMESPACES_SHORTHAND.compact_iri(rdfobject)
+            return self.render_identifier_object(rdfobject)
         elif isinstance(rdfobject, (float, int)):
             return rdfobject
         elif isinstance(rdfobject, datetime.date):

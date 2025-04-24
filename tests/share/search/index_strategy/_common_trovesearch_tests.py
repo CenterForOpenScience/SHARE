@@ -15,6 +15,7 @@ from tests.trove.factories import (
     create_indexcard,
     update_indexcard_content,
     create_supplement,
+    index_indexcards,
 )
 
 from ._with_real_services import RealElasticTestCase
@@ -30,7 +31,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_for_smoke_without_daemon(self):
         _indexcard = self._create_indexcard(
             focus_iri=BLARG.hello,
-            rdf_tripledict={BLARG.hello: {RDFS.label: {rdf.literal('hello')}}},
+            rdf_twopledict={RDFS.label: {rdf.literal('hello')}},
         )
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.UPDATE_INDEXCARD,
@@ -44,7 +45,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_for_smoke_with_daemon(self):
         _indexcard = self._create_indexcard(
             focus_iri=BLARG.hello,
-            rdf_tripledict={BLARG.hello: {RDFS.label: {rdf.literal('hello')}}},
+            rdf_twopledict={RDFS.label: {rdf.literal('hello')}},
         )
         _messages_chunk = messages.MessagesChunk(
             messages.MessageType.UPDATE_INDEXCARD,
@@ -78,11 +79,9 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_cardsearch_after_updates(self):
         _cards = self._fill_test_data_for_querying()
         self._update_indexcard_content(_cards[BLARG.c], BLARG.c, {
-            BLARG.c: {
-                RDF.type: {BLARG.Thing},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c},  # subj_bc removed; subj_c added
-                DCTERMS.title: {rdf.literal('cccc')},
-            },
+            RDF.type: {BLARG.Thing},
+            DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c},  # subj_bc removed; subj_c added
+            DCTERMS.title: {rdf.literal('cccc')},
         })
         self._index_indexcards([_cards[BLARG.c]])
         _cases = [
@@ -112,11 +111,9 @@ class CommonTrovesearchTests(RealElasticTestCase):
             _focus_iri = BLARG[f'i{_i}']
             _expected_iris.add(_focus_iri)
             _cards.append(self._create_indexcard(_focus_iri, {
-                _focus_iri: {
-                    RDF.type: {BLARG.Thing},
-                    DCTERMS.title: {rdf.literal(f'card #{_i}')},
-                    DCTERMS.created: {rdf.literal(_start_date + timedelta(weeks=_i, days=_i))},
-                },
+                RDF.type: {BLARG.Thing},
+                DCTERMS.title: {rdf.literal(f'card #{_i}')},
+                DCTERMS.created: {rdf.literal(_start_date + timedelta(weeks=_i, days=_i))},
             }))
         self._index_indexcards(_cards)
         # gather all pages results:
@@ -145,7 +142,7 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_cardsearch_related_properties(self):
         self._fill_test_data_for_querying()
         with mock.patch(
-            'trove.trovesearch.search_params.suggested_property_paths',
+            'trove.vocab.osfmap.suggested_property_paths',
             return_value=(
                 (DCTERMS.creator,),
                 (DCTERMS.references,),
@@ -187,12 +184,10 @@ class CommonTrovesearchTests(RealElasticTestCase):
     def test_valuesearch_after_updates(self):
         _cards = self._fill_test_data_for_querying()
         self._update_indexcard_content(_cards[BLARG.c], BLARG.c, {
-            BLARG.c: {
-                RDF.type: {BLARG.Thing},
-                DCTERMS.creator: {BLARG.someone_new},  # someone_else removed; someone_new added
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c, BLARG.subj_new},  # subj_bc removed; subj_new added
-                DCTERMS.title: {rdf.literal('cccc')},
-            },
+            RDF.type: {BLARG.Thing},
+            DCTERMS.creator: {BLARG.someone_new},  # someone_else removed; someone_new added
+            DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_c, BLARG.subj_new},  # subj_bc removed; subj_new added
+            DCTERMS.title: {rdf.literal('cccc')},
         })
         self._index_indexcards([_cards[BLARG.c]])
         _cases = [
@@ -239,16 +234,15 @@ class CommonTrovesearchTests(RealElasticTestCase):
 
     def _fill_test_data_for_querying(self):
         _card_a = self._create_indexcard(BLARG.a, {
-            BLARG.a: {
-                RDF.type: {BLARG.Thing},
-                OWL.sameAs: {BLARG.a_same, BLARG.a_same2},
-                DCTERMS.created: {rdf.literal(date(1999, 12, 31))},
-                DCTERMS.creator: {BLARG.someone},
-                DCTERMS.title: {rdf.literal('aaaa')},
-                DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_a},
-                DCTERMS.references: {BLARG.b, BLARG.c},
-                DCTERMS.description: {rdf.literal('This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.', language='en')},
-            },
+            RDF.type: {BLARG.Thing},
+            OWL.sameAs: {BLARG.a_same, BLARG.a_same2},
+            DCTERMS.created: {rdf.literal(date(1999, 12, 31))},
+            DCTERMS.creator: {BLARG.someone},
+            DCTERMS.title: {rdf.literal('aaaa')},
+            DCTERMS.subject: {BLARG.subj_ac, BLARG.subj_a},
+            DCTERMS.references: {BLARG.b, BLARG.c},
+            DCTERMS.description: {rdf.literal('This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.', language='en')},
+        }, rdf_tripledict={
             BLARG.someone: {
                 FOAF.name: {rdf.literal('some one')},
             },
@@ -265,16 +259,15 @@ class CommonTrovesearchTests(RealElasticTestCase):
             },
         })
         _card_b = self._create_indexcard(BLARG.b, {
-            BLARG.b: {
-                RDF.type: {BLARG.Thing},
-                OWL.sameAs: {BLARG.b_same},
-                DCTERMS.created: {rdf.literal(date(2012, 12, 31))},
-                DCTERMS.creator: {BLARG.someone},
-                DCTERMS.title: {rdf.literal('bbbb')},
-                DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
-                DCTERMS.references: {BLARG.c},
-                DCTERMS.description: {rdf.literal('What is here was dangerous and repulsive to us. This message is a warning about danger. ', language='en')},
-            },
+            RDF.type: {BLARG.Thing},
+            OWL.sameAs: {BLARG.b_same},
+            DCTERMS.created: {rdf.literal(date(2012, 12, 31))},
+            DCTERMS.creator: {BLARG.someone},
+            DCTERMS.title: {rdf.literal('bbbb')},
+            DCTERMS.subject: {BLARG.subj_b, BLARG.subj_bc},
+            DCTERMS.references: {BLARG.c},
+            DCTERMS.description: {rdf.literal('What is here was dangerous and repulsive to us. This message is a warning about danger. ', language='en')},
+        }, rdf_tripledict={
             BLARG.someone: {
                 FOAF.name: {rdf.literal('some one')},
             },
@@ -285,44 +278,37 @@ class CommonTrovesearchTests(RealElasticTestCase):
             },
         })
         _card_c = self._create_indexcard(BLARG.c, {
-            BLARG.c: {
-                RDF.type: {BLARG.Thing},
-                DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
-                DCTERMS.creator: {BLARG.someone_else},
-                DCTERMS.title: {rdf.literal('cccc')},
-                DCTERMS.subject: {
-                    BLARG['subj_ac/'],  # this one has an extra trailing slash
-                    BLARG.subj_bc,
-                    BLARG.subj_c,
-                },
-                DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
+            RDF.type: {BLARG.Thing},
+            DCTERMS.created: {rdf.literal(date(2024, 12, 31))},
+            DCTERMS.creator: {BLARG.someone_else},
+            DCTERMS.title: {rdf.literal('cccc')},
+            DCTERMS.subject: {
+                BLARG['subj_ac/'],  # this one has an extra trailing slash
+                BLARG.subj_bc,
+                BLARG.subj_c,
             },
+            DCTERMS.description: {rdf.literal('The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.', language='en')},
+        }, rdf_tripledict={
             BLARG.someone_else: {
                 FOAF.name: {rdf.literal('some one else')},
             },
         })
         create_supplement(_card_a, BLARG.a, {
-            BLARG.a: {
-                DCTERMS.replaces: {BLARG.a_past},
-                DCAT.servesDataset: {
-                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(10)}}),
-                },
+            DCTERMS.replaces: {BLARG.a_past},
+            DCAT.servesDataset: {
+                rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(10)}}),
             },
         })
         create_supplement(_card_b, BLARG.b, {
-            BLARG.b: {
-                DCTERMS.replaces: {BLARG.b_past},
-                DCAT.servesDataset: {
-                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(7)}}),
-                },
+            DCTERMS.replaces: {BLARG.b_past},
+            DCAT.servesDataset: {
+                rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(7)}}),
             },
         })
         create_supplement(_card_c, BLARG.c, {
-            BLARG.c: {
-                DCTERMS.replaces: {BLARG.c_past},
-                DCAT.servesDataset: {
-                    rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(333)}}),
-                },
+            DCTERMS.replaces: {BLARG.c_past},
+            DCAT.servesDataset: {
+                rdf.blanknode({DCAT.spatialResolutionInMeters: {rdf.literal(333)}}),
             },
         })
         _cards = {
@@ -608,8 +594,13 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {BLARG.subj_ac, BLARG.subj_a, BLARG.subj_c, BLARG.subj_bc},
         )
 
-    def _create_indexcard(self, focus_iri: str, rdf_tripledict: rdf.RdfTripleDictionary) -> trove_db.Indexcard:
-        _indexcard = create_indexcard(focus_iri, rdf_tripledict, (TROVE['derive/osfmap_json'],))
+    def _create_indexcard(
+        self,
+        focus_iri: str,
+        rdf_twopledict: rdf.RdfTwopleDictionary | None = None,
+        rdf_tripledict: rdf.RdfTripleDictionary | None = None,
+    ) -> trove_db.Indexcard:
+        _indexcard = create_indexcard(focus_iri, rdf_twopledict, rdf_tripledict, (TROVE['derive/osfmap_json'],))
         self._indexcard_focus_by_uuid[str(_indexcard.uuid)] = focus_iri
         return _indexcard
 
@@ -617,21 +608,14 @@ class CommonTrovesearchTests(RealElasticTestCase):
         self,
         indexcard: trove_db.Indexcard,
         focus_iri: str,
-        rdf_tripledict: rdf.RdfTripleDictionary,
+        rdf_twopledict: rdf.RdfTwopleDictionary | None = None,
+        rdf_tripledict: rdf.RdfTripleDictionary | None = None,
     ) -> None:
-        update_indexcard_content(indexcard, focus_iri, rdf_tripledict)
+        update_indexcard_content(indexcard, focus_iri, rdf_twopledict, rdf_tripledict)
         self._indexcard_focus_by_uuid[str(indexcard.uuid)] = focus_iri
 
     def _index_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
-        _messages_chunk = messages.MessagesChunk(
-            messages.MessageType.UPDATE_INDEXCARD,
-            [_indexcard.id for _indexcard in indexcards],
-        )
-        self.assertTrue(all(
-            _response.is_done
-            for _response in self.index_strategy.pls_handle_messages_chunk(_messages_chunk)
-        ))
-        self.index_strategy.pls_refresh()
+        index_indexcards(self.index_strategy, indexcards)
 
     def _delete_indexcards(self, indexcards: Iterable[trove_db.Indexcard]):
         for _indexcard in indexcards:

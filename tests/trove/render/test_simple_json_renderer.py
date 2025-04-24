@@ -28,7 +28,7 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
                     {
                         "@id": BLARG.anItem,
                         "title": "an item, yes",
-                        "foaf:primaryTopicOf": [
+                        "foaf:isPrimaryTopicOf": [
                             {
                                 "@id": BLARG.aCard
                             }
@@ -37,7 +37,7 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
                     {
                         "@id": BLARG.anItemm,
                         "title": "an itemm, yes",
-                        "foaf:primaryTopicOf": [
+                        "foaf:isPrimaryTopicOf": [
                             {
                                 "@id": BLARG.aCardd
                             }
@@ -46,7 +46,7 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
                     {
                         "@id": BLARG.anItemmm,
                         "title": "an itemmm, yes",
-                        "foaf:primaryTopicOf": [
+                        "foaf:isPrimaryTopicOf": [
                             {
                                 "@id": BLARG.aCarddd
                             }

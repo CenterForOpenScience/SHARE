@@ -1,6 +1,6 @@
 import json
 import re
-from urllib.parse import urlsplit, urlunsplit, quote, unquote
+import urllib.parse as _urp
 
 from trove import exceptions as trove_exceptions
 
@@ -15,8 +15,8 @@ IRI_SCHEME_REGEX_IGNORECASE = re.compile(IRI_SCHEME_REGEX.pattern, flags=re.IGNO
 COLON = ':'
 COLON_SLASH_SLASH = '://'
 QUOTED_IRI_REGEX = re.compile(
-    f'{IRI_SCHEME_REGEX.pattern}{re.escape(quote(COLON))}'
-    f'|{re.escape(quote(COLON_SLASH_SLASH))}'
+    f'{IRI_SCHEME_REGEX.pattern}{re.escape(_urp.quote(COLON))}'
+    f'|{re.escape(_urp.quote(COLON_SLASH_SLASH))}'
 )
 UNQUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{COLON}|{COLON_SLASH_SLASH}')
 
@@ -29,21 +29,63 @@ UNQUOTED_IRI_REGEX = re.compile(f'{IRI_SCHEME_REGEX.pattern}{COLON}|{COLON_SLASH
 
 
 def get_sufficiently_unique_iri(iri: str) -> str:
+    '''
+    >>> get_sufficiently_unique_iri('flipl://iri.example/blarg/?#')
+    '://iri.example/blarg'
+    >>> get_sufficiently_unique_iri('namly:urn.example:blerg')
+    'namly:urn.example:blerg'
+    '''
     (_suffuniq_iri, _) = get_sufficiently_unique_iri_and_scheme(iri)
     return _suffuniq_iri
 
 
 def get_iri_scheme(iri: str) -> str:
+    '''
+    >>> get_iri_scheme('flipl://iri.example/blarg/?#')
+    'flipl'
+    >>> get_iri_scheme('namly:urn.example:blerg')
+    'namly'
+    '''
     (_, _iri_scheme) = get_sufficiently_unique_iri_and_scheme(iri)
     return _iri_scheme
 
 
 def iris_sufficiently_equal(*iris) -> bool:
+    '''
+    >>> iris_sufficiently_equal(
+    ...  'flipl://iri.example/blarg/blerg/?#',
+    ...  'http://iri.example/blarg/blerg',
+    ...  'https://iri.example/blarg/blerg',
+    ...  'git://iri.example/blarg/blerg',
+    ... )
+    True
+    >>> iris_sufficiently_equal(
+    ...  'flipl://iri.example/blarg/blerg',
+    ...  'namly:iri.example/blarg/blerg',
+    ... )
+    False
+    >>> iris_sufficiently_equal(
+    ...  'namly:urn.example:blerg',
+    ...  'namly:urn.example:blerg',
+    ... )
+    True
+    >>> iris_sufficiently_equal(
+    ...  'namly:urn.example:blerg',
+    ...  'nimly:urn.example:blerg',
+    ... )
+    False
+    '''
     _suffuniq_iris = set(map(get_sufficiently_unique_iri, iris))
     return len(_suffuniq_iris) == 1
 
 
 def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
+    '''
+    >>> get_sufficiently_unique_iri_and_scheme('flipl://iri.example/blarg/?#')
+    ('://iri.example/blarg', 'flipl')
+    >>> get_sufficiently_unique_iri_and_scheme('namly:urn.example:blerg')
+    ('namly:urn.example:blerg', 'namly')
+    '''
     _scheme_match = IRI_SCHEME_REGEX_IGNORECASE.match(iri)
     if _scheme_match:
         _scheme = _scheme_match.group().lower()
@@ -57,8 +99,8 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
         _scheme = ''
         _remainder = iri
     # for an iri with '://', is "safe enough" to normalize a little:
-    _split_remainder = urlsplit(_remainder)
-    _cleaned_remainder = urlunsplit((
+    _split_remainder = _urp.urlsplit(_remainder)
+    _cleaned_remainder = _urp.urlunsplit((
         '',  # scheme already split
         _split_remainder.netloc,
         _split_remainder.path.rstrip('/'),  # remove trailing slashes
@@ -69,6 +111,14 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
 
 
 def is_worthwhile_iri(iri: str):
+    '''
+    >>> is_worthwhile_iri('flipl://iri.example/blarg/?#')
+    True
+    >>> is_worthwhile_iri('namly:urn.example:blerg')
+    True
+    >>> is_worthwhile_iri('_:1234')
+    False
+    '''
     return (
         isinstance(iri, str)
         and not iri.startswith('_')  # skip artefacts of sharev2 shenanigans
@@ -76,10 +126,16 @@ def is_worthwhile_iri(iri: str):
 
 
 def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) -> str:
-    assert isinstance(iris, (list, tuple)) and all(
-        isinstance(_pathstep, str)
-        for _pathstep in iris
-    ), f'expected list or tuple of str, got {iris}'
+    '''return a string-serialized list of iris
+
+    meant for storing in an elasticsearch "keyword" field (happens to use json)
+    >>> iri_path_as_keyword(['flipl://iri.example/blarg', 'namly:urn.example:blerg'])
+    '["flipl://iri.example/blarg", "namly:urn.example:blerg"]'
+    >>> iri_path_as_keyword(
+    ...     ['flipl://iri.example/blarg', 'namly:urn.example:blerg'],
+    ...     suffuniq=True)
+    '["://iri.example/blarg", "namly:urn.example:blerg"]'
+    '''
     _list = iris
     if suffuniq:
         _list = [
@@ -90,9 +146,36 @@ def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) ->
 
 
 def unquote_iri(iri: str) -> str:
+    '''
+    like `urllib.parse.unquote` but recognizes multiply-quoted IRIs
+    (unquoting until starting "foo:" or "://", leaving further quoted characters intact)
+
+    >>> unquote_iri('flipl://iri.example/blarg/?#')
+    'flipl://iri.example/blarg/?#'
+    >>> unquote_iri('flipl%3A//iri.example/blarg/%3F%23')
+    'flipl://iri.example/blarg/?#'
+    >>> unquote_iri('namly:urn.example:blerg')
+    'namly:urn.example:blerg'
+    >>> unquote_iri('namly%3Aurn.example%3Ablerg')
+    'namly:urn.example:blerg'
+    >>> unquote_iri('werbleWord')
+    'werbleWord'
+
+    >>> import urllib.parse as _urp
+    >>> _unquoted = 'flipl://iri.example/blarg/?' + _urp.urlencode({'param': '://bl@rg?'})
+    >>> unquote_iri(_unquoted)
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_unquoted))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_urp.quote(_unquoted)))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    >>> unquote_iri(_urp.quote(_urp.quote(_urp.quote(_unquoted))))
+    'flipl://iri.example/blarg/?param=%3A%2F%2Fbl%40rg%3F'
+    '''
     _unquoted_iri = iri
-    while QUOTED_IRI_REGEX.match(_unquoted_iri):
-        _unquoted_iri = unquote(_unquoted_iri)
-    if not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
-        raise trove_exceptions.InvalidQuotedIri(f'does not look like a quoted iri: {iri}')
+    while not UNQUOTED_IRI_REGEX.match(_unquoted_iri):
+        _next_unquoted_iri = _urp.unquote(_unquoted_iri)
+        if _unquoted_iri == _next_unquoted_iri:
+            break
+        _unquoted_iri = _next_unquoted_iri
     return _unquoted_iri

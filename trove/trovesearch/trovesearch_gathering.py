@@ -19,8 +19,6 @@ from trove.trovesearch.page_cursor import PageCursor
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
-    propertypath_key,
-    propertypath_set_key,
 )
 from trove.trovesearch.search_handle import (
     CardsearchHandle,
@@ -33,15 +31,10 @@ from trove.vocab.jsonapi import (
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
-from trove.vocab.osfmap import (
-    osfmap_shorthand,
-    OSFMAP_THESAURUS,
-    suggested_filter_operator,
-)
+from trove.vocab import osfmap
 from trove.vocab.trove import (
     TROVE_API_THESAURUS,
     trove_indexcard_namespace,
-    trove_shorthand,
 )
 
 
@@ -58,7 +51,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
         TROVE.Cardsearch,
         TROVE.Valuesearch,
     },
-    param_iris={TROVE.deriverIRI},
+    param_iris={TROVE.deriverIRI, TROVE.blendCards},
     thesaurus=TROVE_API_THESAURUS,
 )
 
@@ -68,7 +61,10 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
         literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
-    gatherer_params={'deriver_iri': TROVE.deriverIRI},
+    gatherer_params={
+        'deriver_iri': TROVE.deriverIRI,
+        'blend_cards': TROVE.blendCards,
+    },
 )
 
 
@@ -150,7 +146,7 @@ def gather_count(focus: CardsearchFocus, **kwargs):
     focustype_iris={TROVE.Cardsearch},
     cache_bound=1,  # only the first page gets cached
 )
-def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
+def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, blend_cards, **kwargs):
     # each searchResultPage a sequence of search results
     _current_handle: CardsearchHandle | None = focus.search_handle
     while _current_handle is not None:
@@ -163,34 +159,63 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, **kwargs):
             _card_focus = _card_foci.get(_result.card_iri)
             if _card_focus is None:
                 continue  # skip (deleted card still indexed?)
-            _text_evidence_twoples = (
-                (TROVE.matchEvidence, frozenset((
-                    (RDF.type, TROVE.TextMatchEvidence),
-                    (TROVE.matchingHighlight, _evidence.matching_highlight),
-                    (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
-                    *_single_propertypath_twoples(_evidence.property_path),
-                )))
-                for _evidence in _result.text_match_evidence
+            _result_obj, _triples = (
+                _blended_card(_card_focus)
+                if blend_cards
+                else _unblended_card(_result, _card_focus)
             )
-            _result_page.append(frozenset((
-                (RDF.type, TROVE.SearchResult),
-                (TROVE.indexCard, _result.card_iri),
-                *_text_evidence_twoples,
-            )))
-            # hack around (current) limitations of primitive_metadata.gather
-            # (what with all these intermediate blank nodes and sequences):
-            # yield trove:resourceMetadata here (instead of another gatherer)
-            _card_twoples = _minimal_indexcard_twoples(
-                focus_identifiers=[
-                    _identifier.as_iri()
-                    for _identifier in _card_focus.indexcard.focus_identifier_set.all()
-                ],
-                resource_metadata=_card_focus.resourceMetadata,
-            )
-            for _pred, _obj in _card_twoples:
-                yield (_result.card_iri, _pred, _obj)
+            _result_page.append(_result_obj)
+            yield from _triples
         yield (TROVE.searchResultPage, sequence(_result_page))
         _current_handle = _current_handle.get_next_streaming_handle()
+
+
+def _blended_card(card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+    _metadata = card_focus.resourceMetadata
+    if isinstance(_metadata, rdf.Literal):
+        return (_metadata, ())
+    if isinstance(_metadata, rdf.QuotedGraph):
+        return (_metadata.focus_iri, rdf.iter_tripleset(_metadata.tripledict))
+    return (card_focus.single_iri(), ())  # oh well
+
+
+def _unblended_card(_result, _card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+    return (
+        _unblended_cardsearch_result(_result),
+        _unblended_card_triples(_result, _card_focus),
+    )
+
+
+def _unblended_cardsearch_result(_result) -> rdf.RdfBlanknode:
+    _text_evidence_twoples = (
+        (TROVE.matchEvidence, frozenset((
+            (RDF.type, TROVE.TextMatchEvidence),
+            (TROVE.matchingHighlight, _evidence.matching_highlight),
+            (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
+            *_single_propertypath_twoples(_evidence.property_path),
+        )))
+        for _evidence in _result.text_match_evidence
+    )
+    return frozenset((
+        (RDF.type, TROVE.SearchResult),
+        (TROVE.indexCard, _result.card_iri),
+        *_text_evidence_twoples,
+    ))
+
+
+def _unblended_card_triples(_result, _card_focus) -> Iterator[rdf.RdfTriple]:
+    # hack around (current) limitations of primitive_metadata.gather
+    # (what with all these intermediate blank nodes and sequences):
+    # yield trove:resourceMetadata here (instead of another gatherer)
+    _card_twoples = _unblended_indexcard_twoples(
+        focus_identifiers=[
+            _identifier.as_iri()
+            for _identifier in _card_focus.indexcard.focus_identifier_set.all()
+        ],
+        resource_metadata=_card_focus.resourceMetadata,
+    )
+    for _pred, _obj in _card_twoples:
+        yield (_result.card_iri, _pred, _obj)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.searchResultPage)
@@ -228,7 +253,7 @@ def gather_cardsearch_filter(focus, **kwargs):
     TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
+def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, blend_cards, **kwargs):
     _result_page = []
     _value_iris = {
         _result.value_iri
@@ -255,7 +280,7 @@ def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, **kwargs):
                 # hack around (current) limitations of primitive_metadata.gather
                 # (what with all these intermediate blank nodes and sequences):
                 # yield trove:resourceMetadata here (instead of another gatherer)
-                _card_twoples = _minimal_indexcard_twoples(
+                _card_twoples = _unblended_indexcard_twoples(
                     focus_identifiers=[
                         _identifier.as_iri()
                         for _identifier in _card_focus.indexcard.focus_identifier_set.all()
@@ -369,7 +394,7 @@ def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> d
         _card_iri = _card.get_iri()
         _quoted_graph = _indexcard_rdf.as_quoted_graph()
         _quoted_graph.add(
-            (_quoted_graph.focus_iri, FOAF.primaryTopicOf, _card_iri),
+            (_quoted_graph.focus_iri, FOAF.isPrimaryTopicOf, _card_iri),
         )
         _card_foci[_card_iri] = IndexcardFocus.new(
             iris=_card_iri,
@@ -439,7 +464,7 @@ def _filter_as_blanknode(search_filter) -> frozenset:
 
 def _osfmap_or_unknown_iri_as_json(iri: str):
     try:
-        _twopledict = OSFMAP_THESAURUS[iri]
+        _twopledict = osfmap.OSFMAP_THESAURUS[iri]
     except KeyError:
         return rdf.literal_json({'@id': iri})
     else:
@@ -460,7 +485,7 @@ def _valuesearch_result_as_json(result: ValuesearchResult) -> Literal:
     )
 
 
-def _minimal_indexcard_twoples(
+def _unblended_indexcard_twoples(
     focus_identifiers: Iterable[str],
     resource_metadata: rdf.Literal,
 ) -> Iterator[rdf.RdfTwople]:
@@ -475,7 +500,7 @@ def _minimal_indexcard_twoples(
 
 
 def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
-    return frozenset(_minimal_indexcard_twoples(
+    return frozenset(_unblended_indexcard_twoples(
         focus_identifiers=[literal(result.value_iri or result.value_value)],
         resource_metadata=_valuesearch_result_as_json(result),
     ))
@@ -495,19 +520,19 @@ def _osfmap_twople_json(twopledict):
 
 def _osfmap_path(property_path):
     return rdf.literal_json([
-        osfmap_shorthand().compact_iri(_iri)
+        osfmap.osfmap_json_shorthand().compact_iri(_iri)
         for _iri in property_path
     ])
 
 
 def _single_propertypath_twoples(property_path: tuple[str, ...]):
-    yield (TROVE.propertyPathKey, literal(propertypath_key(property_path)))
+    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
 
 
 def _multi_propertypath_twoples(propertypath_set):
-    yield (TROVE.propertyPathKey, literal(propertypath_set_key(propertypath_set)))
+    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_set_key(propertypath_set)))
     for _path in propertypath_set:
         yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
 
@@ -516,7 +541,7 @@ def _propertypath_sequence(property_path: tuple[str, ...]):
     _propertypath_metadata = []
     for _property_iri in property_path:
         try:
-            _property_twopledict = OSFMAP_THESAURUS[_property_iri]
+            _property_twopledict = osfmap.OSFMAP_THESAURUS[_property_iri]
         except KeyError:
             _property_twopledict = {RDF.type: {RDF.Property}}  # giving benefit of the doubt
         _propertypath_metadata.append(_osfmap_json(
@@ -530,8 +555,8 @@ def _related_property_result(property_path: tuple[str, ...], count: int):
     return frozenset((
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
-        (TROVE.suggestedFilterOperator, literal(trove_shorthand().compact_iri(
-            suggested_filter_operator(property_path[-1]),
+        (TROVE.suggestedFilterOperator, literal(osfmap.osfmap_json_shorthand().compact_iri(
+            osfmap.suggested_filter_operator(property_path[-1]),
         ))),
         *_single_propertypath_twoples(property_path),
     ))
