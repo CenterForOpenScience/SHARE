@@ -8,7 +8,6 @@ from share.search.index_strategy import (
     get_strategy,
     sharev2_elastic5,
     sharev2_elastic8,
-    trove_indexcard_flats,
     trovesearch_denorm,
     parse_strategy_name,
 )
@@ -21,7 +20,6 @@ def patched_strategies(mock_elastic_clients):
     _strategies = [
         sharev2_elastic5.Sharev2Elastic5IndexStrategy('sharev2_elastic5'),
         sharev2_elastic8.Sharev2Elastic8IndexStrategy('sharev2_elastic8'),
-        trove_indexcard_flats.TroveIndexcardFlatsIndexStrategy('trove_indexcard_flats'),
         trovesearch_denorm.TrovesearchDenormIndexStrategy('trovesearch_denorm'),
     ]
     with patch_index_strategies(_strategies):
