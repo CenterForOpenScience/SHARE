@@ -653,8 +653,8 @@ class _QueryHelper:
 
     def text_boolparts(self) -> Iterator[tuple[str, dict]]:
         # text-based queries
-        for _textsegment in self.searchtext:
-            yield 'must', self._exact_text_query(_textsegment)
+        for _text in self.searchtext:
+            yield 'must', self._exact_text_query(_text)
 
     def _presence_query(self, search_filter) -> dict:
         return _any_query([

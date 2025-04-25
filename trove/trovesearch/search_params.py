@@ -155,26 +155,22 @@ class SearchText:
                     str(param_name),
                     'may not use glob-paths longer than "*" with search-text parameters',
                 )
-        _textsegment = cls(text=param_value)
+        _searchtext = cls(text=param_value)
         if _propertypath_set:
-            _textsegment = dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)
-        return _textsegment
+            _searchtext = dataclasses.replace(_searchtext, propertypath_set=_propertypath_set)
+        return _searchtext
 
     @classmethod
-    def queryparams_from_textsegments(self, queryparam_family: str, textsegments):
+    def queryparams_from_searchtext(self, queryparam_family: str, cardsearch_searchtext):
         _by_propertypath_set = collections.defaultdict(set)
-        for _textsegment in textsegments:
-            _by_propertypath_set[_textsegment.propertypath_set].add(_textsegment)
+        for searchtext in cardsearch_searchtext:
+            _by_propertypath_set[searchtext.propertypath_set].add(searchtext)
         for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
                 (osfmap.osfmap_propertypath_set_key(_propertypath_set),),
             )
-            _qp_value = ' '.join(
-                _textsegment.text
-                for _textsegment in _combinable_segments
-            )
-            yield str(_qp_name), _qp_value
+            yield str(_qp_name), _combinable_segments
 
 
 @dataclasses.dataclass(frozen=True)
@@ -406,8 +402,8 @@ class CardsearchParams(TrovesearchParams):
     @functools.cached_property
     def cardsearch_text_paths(self) -> PropertypathSet:
         return frozenset().union(*(
-            _textsegment.propertypath_set
-            for _textsegment in self.cardsearch_searchtext
+            searchtext.propertypath_set
+            for searchtext in self.cardsearch_searchtext
         ))
 
     @functools.cached_property
@@ -420,7 +416,7 @@ class CardsearchParams(TrovesearchParams):
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
-        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('cardSearchText', self.cardsearch_searchtext):
+        for _qp_name, _qp_value in SearchText.queryparams_from_searchtext('cardSearchText', self.cardsearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _sort in self.sort_list:
             _qp_name, _qp_value = _sort.as_queryparam()
@@ -475,7 +471,7 @@ class ValuesearchParams(CardsearchParams):
     def to_querydict(self):
         _querydict = super().to_querydict()
         _querydict['valueSearchPropertyPath'] = osfmap.osfmap_propertypath_key(self.valuesearch_propertypath)
-        for _qp_name, _qp_value in SearchText.queryparams_from_textsegments('valueSearchText', self.valuesearch_searchtext):
+        for _qp_name, _qp_value in SearchText.queryparams_from_searchtext('valueSearchText', self.valuesearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:
             _qp_name, _qp_value = _filter.as_queryparam('valueSearchFilter')
