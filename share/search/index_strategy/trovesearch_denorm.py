@@ -712,11 +712,13 @@ class _QueryHelper:
         )
 
     def _exact_text_query(self, textsegment: SearchText) -> dict:
-        # TODO: textsegment.is_openended (prefix query)
-        return _any_query([
-            {'match_phrase': {self._text_field_name(_path): {'query': textsegment.text}}}
-            for _path in textsegment.propertypath_set
-        ])
+        return {
+            "simple_query_string": {
+                "query": textsegment.text,
+                "fields": [self._text_field_name(_path) for _path in textsegment.propertypath_set],
+                "default_operator": "AND"
+            }
+        }
 
 
 @dataclasses.dataclass
