@@ -455,24 +455,8 @@ class CommonTrovesearchTests(RealElasticTestCase):
             {BLARG.b},
         )
         yield (
-            {'cardSearchText': '-bbbb'},
-            {BLARG.a, BLARG.c},
-        )
-        yield (
             {'cardSearchText': 'danger'},
             {BLARG.b, BLARG.c},
-        )
-        yield (
-            {'cardSearchText': 'dangre'},
-            {BLARG.b, BLARG.c},
-        )
-        yield (
-            {'cardSearchText': '"dangre"'},
-            set(),
-        )
-        yield (
-            {'cardSearchText': 'danger -repulsive'},
-            {BLARG.c},
         )
         yield (
             {'cardSearchText': '"nothing valued is here"'},

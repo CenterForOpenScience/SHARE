@@ -3,7 +3,6 @@ import collections
 import dataclasses
 import enum
 import functools
-import itertools
 import logging
 import types
 import typing
@@ -129,19 +128,9 @@ class TrovesearchParams(BasicTroveParams):
 
 
 @dataclasses.dataclass(frozen=True)
-class Textsegment:
+class SearchText:
     text: str
-    is_fuzzy: bool = True
-    is_negated: bool = False
-    is_openended: bool = False
     propertypath_set: PropertypathSet = DEFAULT_PROPERTYPATH_SET
-
-    def __post_init__(self):
-        if self.is_negated and self.is_fuzzy:
-            raise trove_exceptions.InvalidSearchText(self.text, "search cannot be both negated and fuzzy")
-
-    def words(self):
-        return self.text.split()
 
     @classmethod
     def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
@@ -150,10 +139,11 @@ class Textsegment:
     @classmethod
     def iter_from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
         for (_param_name, _param_value) in queryparams.get(queryparam_family, ()):
-            yield from cls.iter_from_searchtext_param(_param_name, _param_value)
+            if _param_value:
+                yield cls.from_searchtext_param_or_none(_param_name, _param_value)
 
     @classmethod
-    def iter_from_searchtext_param(cls, param_name: QueryparamName, param_value: str):
+    def from_searchtext_param_or_none(cls, param_name: QueryparamName, param_value: str) -> SearchText | None:
         _propertypath_set = (
             frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0], allow_globs=True))
             if param_name.bracketed_names
@@ -165,116 +155,22 @@ class Textsegment:
                     str(param_name),
                     'may not use glob-paths longer than "*" with search-text parameters',
                 )
-
-        for _textsegment in cls.iter_from_text(param_value):
-            if _propertypath_set:
-                yield dataclasses.replace(_textsegment, propertypath_set=_propertypath_set)
-            else:
-                yield _textsegment
+        _searchtext = cls(text=param_value)
+        if _propertypath_set:
+            _searchtext = dataclasses.replace(_searchtext, propertypath_set=_propertypath_set)
+        return _searchtext
 
     @classmethod
-    def iter_from_text(cls, text: str) -> typing.Iterable['Textsegment']:
-        '''parse search text into words and quoted phrases
-        '''
-        _in_quotes = False
-        _last_quote_prefix = None
-        _text_remaining = text
-        while _text_remaining:
-            (  # split on the next "
-                _text_chunk,
-                _quote_mark,
-                _text_remaining,
-            ) = _text_remaining.partition(DOUBLE_QUOTATION_MARK)
-            _text_chunk = _text_chunk.strip()
-            if _text_chunk:
-                _is_openended = not (_quote_mark or _text_remaining)
-                if _in_quotes:
-                    yield cls(
-                        text=_text_chunk,
-                        is_fuzzy=False,
-                        is_negated=(_last_quote_prefix == NEGATE_WORD_OR_PHRASE),
-                        is_openended=_is_openended,
-                    )
-                else:
-                    yield from cls._from_fuzzy_text(
-                        _text_chunk,
-                        is_openended=_is_openended,
-                    )
-            if _quote_mark:
-                if _in_quotes:  # end quote
-                    _in_quotes = False
-                    _last_quote_prefix = None
-                else:  # begin quote
-                    _in_quotes = True
-                    _last_quote_prefix = _text_chunk[-1:]
-
-    @classmethod
-    def _from_fuzzy_text(cls, text_chunk: str, is_openended: bool):
-        if text_chunk == '*':
-            return  # special case for COS employees used to the old search page
-        _all_wordgroups = (
-            (_each_word_negated, list(_words))
-            for (_each_word_negated, _words) in itertools.groupby(
-                text_chunk.split(),
-                key=lambda word: word.startswith(NEGATE_WORD_OR_PHRASE),
-            )
-        )
-        (*_wordgroups, (_lastgroup_negated, _lastgroup_words)) = _all_wordgroups
-        for _each_word_negated, _words in _wordgroups:
-            yield from cls._from_fuzzy_wordgroup(
-                _each_word_negated,
-                _words,
-                is_openended=False,
-            )
-        yield from cls._from_fuzzy_wordgroup(
-            _lastgroup_negated,
-            _lastgroup_words,
-            is_openended=is_openended,
-        )
-
-    @classmethod
-    def _from_fuzzy_wordgroup(cls, each_word_negated: bool, words: typing.Iterable[str], *, is_openended=False):
-        if each_word_negated:
-            for _word in words:
-                _word_without_prefix = _word[len(NEGATE_WORD_OR_PHRASE):]
-                if _word_without_prefix:
-                    yield cls(
-                        text=_word_without_prefix,
-                        is_fuzzy=False,
-                        is_negated=True,
-                        is_openended=False,
-                    )
-        else:  # nothing negated; keep the phrase in one fuzzy segment
-            yield cls(
-                text=' '.join(words),
-                is_fuzzy=True,
-                is_negated=False,
-                is_openended=is_openended,
-            )
-
-    @classmethod
-    def queryparams_from_textsegments(self, queryparam_family: str, textsegments):
+    def queryparams_from_searchtext(self, queryparam_family: str, cardsearch_searchtext):
         _by_propertypath_set = collections.defaultdict(set)
-        for _textsegment in textsegments:
-            _by_propertypath_set[_textsegment.propertypath_set].add(_textsegment)
+        for searchtext in cardsearch_searchtext:
+            _by_propertypath_set[searchtext.propertypath_set].add(searchtext)
         for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
                 (osfmap.osfmap_propertypath_set_key(_propertypath_set),),
             )
-            _qp_value = ' '.join(
-                _textsegment.as_searchtext()
-                for _textsegment in _combinable_segments
-            )
-            yield str(_qp_name), _qp_value
-
-    def as_searchtext(self) -> str:
-        _text = self.text
-        if not self.is_fuzzy:
-            _text = f'"{_text}"'
-        if self.is_negated:
-            _text = f'-{_text}'
-        return _text
+            yield str(_qp_name), _combinable_segments
 
 
 @dataclasses.dataclass(frozen=True)
@@ -470,7 +366,7 @@ class IndexcardParams(TrovesearchParams):
 
 @dataclasses.dataclass(frozen=True)
 class CardsearchParams(TrovesearchParams):
-    cardsearch_textsegment_set: frozenset[Textsegment]
+    cardsearch_searchtext: frozenset[SearchText]
     cardsearch_filter_set: frozenset[SearchFilter]
     index_strategy_name: str | None
     sort_list: tuple[SortParam, ...]
@@ -483,7 +379,7 @@ class CardsearchParams(TrovesearchParams):
         _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
         return {
             **super().parse_queryparams(queryparams),
-            'cardsearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'cardSearchText'),
+            'cardsearch_searchtext': SearchText.from_queryparam_family(queryparams, 'cardSearchText'),
             'cardsearch_filter_set': _filter_set,
             'index_strategy_name': get_single_value(queryparams, 'indexStrategy'),
             'sort_list': SortParam.from_sort_queryparams(queryparams),
@@ -506,8 +402,8 @@ class CardsearchParams(TrovesearchParams):
     @functools.cached_property
     def cardsearch_text_paths(self) -> PropertypathSet:
         return frozenset().union(*(
-            _textsegment.propertypath_set
-            for _textsegment in self.cardsearch_textsegment_set
+            searchtext.propertypath_set
+            for searchtext in self.cardsearch_searchtext
         ))
 
     @functools.cached_property
@@ -520,7 +416,7 @@ class CardsearchParams(TrovesearchParams):
 
     def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
-        for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('cardSearchText', self.cardsearch_textsegment_set):
+        for _qp_name, _qp_value in SearchText.queryparams_from_searchtext('cardSearchText', self.cardsearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _sort in self.sort_list:
             _qp_name, _qp_value = _sort.as_queryparam()
@@ -542,7 +438,7 @@ class ValuesearchParams(CardsearchParams):
     # includes fields from CardsearchParams, because a
     # valuesearch is always in context of a cardsearch
     valuesearch_propertypath: Propertypath
-    valuesearch_textsegment_set: frozenset[Textsegment]
+    valuesearch_searchtext: frozenset[SearchText]
     valuesearch_filter_set: frozenset[SearchFilter]
 
     static_focus_type = TROVE.Valuesearch
@@ -556,14 +452,14 @@ class ValuesearchParams(CardsearchParams):
         return {
             **super().parse_queryparams(queryparams),
             'valuesearch_propertypath': osfmap.parse_osfmap_propertypath(_raw_propertypath),
-            'valuesearch_textsegment_set': Textsegment.from_queryparam_family(queryparams, 'valueSearchText'),
+            'valuesearch_searchtext': SearchText.from_queryparam_family(queryparams, 'valueSearchText'),
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
     def __post_init__(self):
         if osfmap.is_date_property(self.valuesearch_propertypath[-1]):
             # date-value limitations
-            if self.valuesearch_textsegment_set:
+            if self.valuesearch_searchtext:
                 raise trove_exceptions.InvalidQueryParams(
                     'valueSearchText may not be used with valueSearchPropertyPath leading to a "date" property',
                 )
@@ -575,7 +471,7 @@ class ValuesearchParams(CardsearchParams):
     def to_querydict(self):
         _querydict = super().to_querydict()
         _querydict['valueSearchPropertyPath'] = osfmap.osfmap_propertypath_key(self.valuesearch_propertypath)
-        for _qp_name, _qp_value in Textsegment.queryparams_from_textsegments('valueSearchText', self.valuesearch_textsegment_set):
+        for _qp_name, _qp_value in SearchText.queryparams_from_searchtext('valueSearchText', self.valuesearch_searchtext):
             _querydict[_qp_name] = _qp_value
         for _filter in self.valuesearch_filter_set:
             _qp_name, _qp_value = _filter.as_queryparam('valueSearchFilter')
