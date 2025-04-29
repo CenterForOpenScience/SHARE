@@ -654,7 +654,16 @@ class _QueryHelper:
     def text_boolparts(self) -> Iterator[tuple[str, dict]]:
         # text-based queries
         for _text in self.searchtext:
-            yield 'must', self._exact_text_query(_text)
+            yield (
+                'must',
+                {
+                    "simple_query_string": {
+                        "query": _text.text,
+                        "fields": [self._text_field_name(_path) for _path in _text.propertypath_set],
+                        "default_operator": "AND"
+                    }
+                }
+            )
 
     def _presence_query(self, search_filter) -> dict:
         return _any_query([
@@ -710,16 +719,6 @@ class _QueryHelper:
             if is_globpath(propertypath)
             else f'{self.base_field}.text_by_propertypath.{_path_field_name(propertypath)}'
         )
-
-    def _exact_text_query(self, textsegment: SearchText) -> dict:
-        return {
-            "simple_query_string": {
-                "query": textsegment.text,
-                "fields": [self._text_field_name(_path) for _path in textsegment.propertypath_set],
-                "default_operator": "AND"
-            }
-        }
-
 
 @dataclasses.dataclass
 class _CardsearchQueryBuilder:
