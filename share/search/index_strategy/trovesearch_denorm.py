@@ -720,6 +720,7 @@ class _QueryHelper:
             else f'{self.base_field}.text_by_propertypath.{_path_field_name(propertypath)}'
         )
 
+
 @dataclasses.dataclass
 class _CardsearchQueryBuilder:
     params: CardsearchParams
