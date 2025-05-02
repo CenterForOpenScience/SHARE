@@ -519,17 +519,23 @@ with a filename based on the query param value, current date, and response conte
         RDFS.comment: {literal('free-text search query', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown('''**cardSearchText** is
-a query parameter for free-text search, e.g. `cardSearchText=foo`
+a query parameter for free-text search within an index-card.
 
-special characters in search text:
+accepts comma-separated property-paths in an optional bracketed parameter,
+e.g. `cardSearchText[title,description]=foo`
+(without brackets equivalent to `cardSearchText[*]`, matching any property-path of length one from the index-card focus).
 
-* `"` (double quotes): use on both sides of a word or phrase to require exact text match
-  -- without quotes, text search is fuzzier and more approximate
-* `-` (hyphen): use before a word or quoted phrase (before the leading `"`) to require
-  that the exact word or phrase be absent
+different index-strategies may parse and process search text differently
+-- the current default index-strategy supports these special characters:
+* `+` signifies AND operation (default)
+* `|` signifies OR operation
+* `-` negates a single token
+* `"` wraps a number of tokens to signify a phrase for searching
+* `*` at the end of a term signifies a prefix query
+* `(` and `)` signify precedence
+* `~N` (where N is an integer) after a word signifies edit distance (fuzziness)
+* `~N` (where N is an integer) after a phrase signifies slop amount
 
-accepts comma-separated property-paths in an optional bracketed parameter (default
-`*]`, matches any one property), e.g. `cardSearchText[title,description]=foo`
 ''', language='en')},
     },
     TROVE.cardSearchFilter: {
@@ -589,10 +595,10 @@ note: multiple property paths are not supported
         RDFS.comment: {literal('free-text search (within a title, name, or label associated with an IRI)', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown('''**valueSearchText** is
-a query parameter that matches text closely associated with each value
-(specifically `dcterms:title`, `foaf:name`, and `rdfs:label`)
+a query parameter to narrow an index-value-search by free-text search.
 
-note: does not accept any bracketed parameters
+behaves like `cardSearchText` except that paths are interpreted relative to
+(non-focus) IRI values within each index-card.
 ''', language='en')},
     },
     TROVE.indexCardId: {
