@@ -10,7 +10,8 @@ class Command(BaseShareCommand):
         parser.add_argument('--really-really', action='store_true', help='skip final confirmation prompt before really deleting')
 
     def handle(self, *args, really_really: bool, **kwargs):
-        _pretrove_configs = _db.SourceConfig.objects.exclude(transformer_key='rdf')
+        # note: `share.transform` deleted; `transformer_key` always null for trove-ingested rdf
+        _pretrove_configs = _db.SourceConfig.objects.filter(transformer_key__isnull=False)
         _pretrove_configs_with_rawdata = (
             _pretrove_configs
             .annotate(has_rawdata=Exists(
