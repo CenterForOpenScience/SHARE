@@ -723,15 +723,15 @@ for example, `creator.name` is parsed as a two-step path that follows
 
 most places that allow one property-path also accept a comma-separated set of paths,
 like `title,description` (which is parsed as two paths: `title` and `description`)
-or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: `creator.name`,
-`affiliation.name`, and `funder.name`)
+or `affiliation,creator.affiliation,funder` (which is parsed as three paths: `affiliation`,
+`creator.affiliation`, and `funder`)
 
 the special path segment `*` matches any property
 
-* `*`: match text values one step away from the focus
-* `*.*`: match text values exactly two steps away
-* `*,*.*`: match text values one OR two steps away
-* `*,creator.name`: match text values one step away OR at the specific path `creator.name`
+* `*`: match values one step away from the focus
+* `*.*`: match values exactly two steps away
+* `*,*.*`: match values one OR two steps away
+* `*,creator`: match values one step away OR at the specific path `creator`
 
 (currently, if a path contains `*`, then every step must be `*`
 -- mixed paths like `*.affiliation` are not supported)
