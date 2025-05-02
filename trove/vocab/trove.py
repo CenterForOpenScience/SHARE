@@ -81,12 +81,12 @@ but both are open for anyone to use.
         DCTERMS.description: {_literal_markdown(f'''an **index-card** is
 a metadata record about a specific thing.
 
-that thing is called the "focus" of the index-card and is identified by a "focus iri"
+that thing is called the "focus" of the index-card and is identified by a "focus IRI"
 -- any thing may be identified by multiple iris, but choose one within an index-card
 (and perhaps include the others with `owl:sameAs`)
 
 the metadata about the thing is a quoted [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model)
-in which every triple is reachable from the card's focus iri
+in which every triple is reachable from the card's focus IRI
 following predicates as directed edges from subject to object.
 
 there is not (yet) any size limit for an index-card's metadata,
@@ -100,12 +100,12 @@ of the rest of the response.
 when represented as `application/vnd.api+json` (jsonapi), the `resourceMetadata` attribute
 contains a json object that has:
 
-* `@id` with the focus iri
+* `@id` with the focus IRI
 * `@type` with the focus resource's `rdf:type`
-* property keys from [OSFMAP]({osfmap.OSFMAP_LINK}) shorthand (each corresponding to an iri)
+* property keys from [OSFMAP]({osfmap.OSFMAP_LINK}) shorthand (each corresponding to an IRI)
 * property values as lists of objects:
   * literal text as `{{"@value": "..."}}`
-  * iri references as `{{"@id": "..."}}`
+  * IRI references as `{{"@id": "..."}}`
 ''', language='en')},
 
     },
@@ -194,7 +194,7 @@ uses query parameter:
                 RDFS.label: {literal('card-search-with-star-path', language='en')},
                 RDFS.comment: {literal('card-search with star path', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-searches index-cards with a specific iri value at any property
+searches index-cards with a specific IRI value at any property
 
 uses query parameter:
 
@@ -233,16 +233,16 @@ uses query parameters:
             # TROVE.include,
         },
         RDFS.label: {literal('index-value-search', language='en')},
-        RDFS.comment: {literal('search for iri values based on how they are used', language='en')},
+        RDFS.comment: {literal('search for IRI values based on how they are used', language='en')},
         DCTERMS.description: {_literal_markdown('''**index-value-search** is
-a way to find iri values that could be used in a cardSearchFilter
+a way to find IRI values that could be used in a cardSearchFilter
 ''', language='en')},
         TROVE.example: {
             blanknode({
                 RDFS.label: {literal('value-search without card-search', language='en')},
                 RDFS.comment: {literal('value-search without card-search', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values for the property `creator` (aka `dcterms:creator`,
+search for IRI values for the property `creator` (aka `dcterms:creator`,
 `<http://purl.org/dc/terms/creator>`)
 
 uses query parameters:
@@ -255,7 +255,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search with card-search', language='en')},
                 RDFS.comment: {literal('value-search with card-search', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values for the property `creator` within the context of a card-search
+search for IRI values for the property `creator` within the context of a card-search
 
 uses query parameter:
 
@@ -266,10 +266,10 @@ uses query parameter:
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
-                RDFS.label: {literal('value-search specific iri', language='en')},
-                RDFS.comment: {literal('value-search specific iri', language='en')},
+                RDFS.label: {literal('value-search specific IRI', language='en')},
+                RDFS.comment: {literal('value-search specific IRI', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for a specific iri value in the property `creator`
+search for a specific IRI value in the property `creator`
 
 uses query parameters:
 
@@ -282,7 +282,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search by value type', language='en')},
                 RDFS.comment: {literal('value-search by value type', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
+search for IRI values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
 
 uses query parameters:
 
@@ -295,7 +295,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search with text', language='en')},
                 RDFS.comment: {literal('value-search with text', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values used as `license` that have "cc" in their label
+search for IRI values used as `license` that have "cc" in their label
 (`rdfs:label`, `dcterms:title`, or `foaf:name`)
 
 uses query parameters:
@@ -553,11 +553,11 @@ each cardSearchFilter has one or two bracketed parameters:
 
 * `propertypath_set`: comma-separated **property-path** set
 * `filter_operator`: any one of the operators defined below
-* `value_iris`: comma-separated iri set
+* `value_iris`: comma-separated IRI set
 
 ### filter operators
 
-operators on iri values:
+operators on IRI values:
 
 * `any-of` (default): at least one of the value iris
 * `none-of`: none of the value iris
@@ -622,7 +622,7 @@ a query parameter for narrowing an index-value-search
 
 it may be used only two ways:
 
-* `valueSearchFilter[sameAs]=<iri>` to request a specific value by IRI
+* `valueSearchFilter[sameAs]=<IRI>` to request a specific value by IRI
 * `valueSearchFilter[resourceType]=<type_iri>` to request values used with `rdf:type <type_iri>`
 ''', language='en')},
     },
