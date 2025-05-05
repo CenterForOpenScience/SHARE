@@ -526,7 +526,7 @@ e.g. `cardSearchText[title,description]=foo`
 (without brackets equivalent to `cardSearchText[*]`, matching any property-path of length one from the index-card focus).
 
 different index-strategies may parse and process search text differently
--- the current default index-strategy supports these special characters:
+-- the current default index-strategy supports these special characters (to use them literally, precede with backslash (`\\`))
 * `+` signifies AND operation (default)
 * `|` signifies OR operation
 * `-` negates a single token
@@ -535,6 +535,7 @@ different index-strategies may parse and process search text differently
 * `(` and `)` signify precedence
 * `~N` (where N is an integer) after a word signifies edit distance (fuzziness)
 * `~N` (where N is an integer) after a phrase signifies slop amount
+
 
 ''', language='en')},
     },
