@@ -1,5 +1,4 @@
 bcrypt==3.2.0  # Apache 2.0
-beautifulsoup4==4.9.3  # MIT
 celery==5.4.0  # BSD 3 Clause
 colorlog==5.0.1  # MIT
 django-allauth==0.63.6  # MIT
@@ -7,40 +6,29 @@ django-celery-beat==2.6.0  # BSD 3 Clause
 django-cors-headers==3.7.0  # MIT
 django-extensions==3.1.3  # MIT
 django-filter==2.4.0  # BSD
-django-model-utils==4.1.1  # BSD
 django-oauth-toolkit==1.7.1  # BSD
-django-prettyjson==0.4.1  # BSD 3 Clause
-django-revproxy==0.10.0  # MPL 2.0
 django==3.2.25  # BSD 3 Clause
 djangorestframework==3.12.4  # BSD
-docopt==0.6.2  # MIT
-elasticsearch5==5.5.6  # Apache 2.0
 elasticsearch8==8.5.2  # Apache 2.0
-furl==2.1.2  # None
-gevent==22.10.2  # MIT
-jsonschema==3.2.0  # MIT
 lxml==4.9.1  # BSD
 kombu==5.3.7  # BSD 3 Clause
 markdown2==2.4.10  # MIT
-nameparser==1.0.6  # LGPL
-networkx==2.5.1  # BSD
 newrelic==8.4.0  # newrelic APM agent, Custom License
-pendulum==2.1.2  # MIT
-pillow==9.3.0  # PIL Software License
-psycogreen==1.0.2  # BSD
 psycopg2==2.9.5  # LGPL with exceptions or ZPL
-python-dateutil==2.9.0  # Apache 2.0
-PyJWE==1.0.0 # Apache 2.0
-rdflib==7.0.0
-pyyaml==6.0  # MIT
+rdflib==7.0.0  # BSD 3 Clause
 requests==2.25.1  # Apache 2.0
-sentry-sdk[django]==1.22.2  # MIT
-stevedore==3.3.0  # Apache 2.0
-xmltodict==0.12.0  # MIT
+primitive_metadata==0.2025.1  # MIT
 
+# relevant only in deployment:
+sentry-sdk[django]==1.22.2  # MIT
+gevent==22.10.2  # MIT
+psycogreen==1.0.2  # BSD
+
+# to be removed in future work:
+docopt==0.6.2  # MIT
+elasticsearch5==5.5.6  # Apache 2.0
+PyJWE==1.0.0 # Apache 2.0
 
 # djangorestframework-jsonapi==4.2.1  # MIT
 # Allows custom-rendered IDs, hiding null values, and including data in error responses
 git+https://github.com/cos-forks/django-rest-framework-json-api.git@v4.2.1+cos0
-
-git+https://github.com/aaxelb/primitive_metadata.git@0.2024.14

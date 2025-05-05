@@ -2,22 +2,19 @@ import datetime
 from unittest import mock
 
 from django.test import TestCase
-from primitive_metadata import primitive_rdf as rdf
 
 from share import models as share_db
 from tests import factories
 from trove import digestive_tract
 from trove import models as trove_db
-
-
-_BLARG = rdf.IriNamespace('https://blarg.example/')
+from trove.vocab.namespaces import BLARG
 
 
 class TestDigestiveTractExpel(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.focus_1 = _BLARG.this1
-        cls.focus_2 = _BLARG.this2
+        cls.focus_1 = BLARG.this1
+        cls.focus_2 = BLARG.this2
         cls.raw_1, cls.indexcard_1 = _setup_ingested(cls.focus_1)
         cls.raw_2, cls.indexcard_2 = _setup_ingested(cls.focus_2)
         cls.raw_supp = _setup_supplementary(cls.focus_1, cls.raw_1.suid, cls.indexcard_1)
@@ -179,7 +176,7 @@ def _setup_ingested(focus_iri: str):
         focus_iri=focus_iri,
         rdf_as_turtle=_latest_rdf.rdf_as_turtle,
     )
-    _deriver_iri = _BLARG.deriver
+    _deriver_iri = BLARG.deriver
     _deriver_ident = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(_deriver_iri)
     trove_db.DerivedIndexcard.objects.create(
         upriver_indexcard=_indexcard,

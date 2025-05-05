@@ -3,16 +3,14 @@ import json
 import logging
 
 from django.contrib.syndication.views import Feed
-from django.http import HttpResponseGone
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
-from furl import furl
-import pendulum
 import sentry_sdk
 
 from share.search import index_strategy
 from share.search.exceptions import IndexStrategyError
 from share.util.xml import strip_illegal_xml_chars
+from share.util.fromisoformat import fromisoformat
 
 
 logger = logging.getLogger(__name__)
@@ -85,8 +83,14 @@ class MetadataRecordsRSS(Feed):
         return prepare_string(item.get('description', 'No description provided.'))
 
     def item_link(self, item):
-        # Link to SHARE curate page
-        return '{}{}/{}'.format(settings.SHARE_WEB_URL, item.get('type').replace(' ', ''), item.get('id'))
+        def _sort_key(identifier: str):
+            # choose the shortest by length, breaking ties with unicode sort order
+            return (len(identifier), identifier)
+        return min(
+            item.get('identifiers', ()),
+            default='',
+            key=_sort_key,
+        )
 
     def item_author_name(self, item):
         contributor_list = item.get('lists', []).get('contributors', [])
@@ -104,10 +108,10 @@ class MetadataRecordsRSS(Feed):
         return prepare_string('{}{}'.format(author_name, ' et al.' if len(authors) > 1 else ''))
 
     def item_pubdate(self, item):
-        return pendulum.parse(item.get('date_published') or item.get('date_created'))
+        return fromisoformat(item.get('date_published') or item.get('date_created'))
 
     def item_updateddate(self, item):
-        return pendulum.parse(item.get(self._order))
+        return fromisoformat(item.get(self._order))
 
     def item_categories(self, item):
         categories = item.get('subjects', [])
@@ -119,23 +123,3 @@ class MetadataRecordsAtom(MetadataRecordsRSS):
     feed_type = Atom1Feed
     subtitle = MetadataRecordsRSS.description
     link = '{}api/v2/feeds/atom/'.format(settings.SHARE_WEB_URL)
-
-
-class LegacyCreativeWorksRSS(MetadataRecordsRSS):
-    link = '{}api/v2/rss/'.format(settings.SHARE_WEB_URL)
-
-    def __call__(self, request, *args, **kwargs):
-        correct_url = furl(MetadataRecordsRSS.link).set(query_params=request.GET)
-        return HttpResponseGone(
-            f'This feed has been removed -- please update to use {correct_url}'
-        )
-
-
-class LegacyCreativeWorksAtom(MetadataRecordsAtom):
-    link = '{}api/v2/atom/'.format(settings.SHARE_WEB_URL)
-
-    def __call__(self, request, *args, **kwargs):
-        correct_url = furl(MetadataRecordsAtom.link).set(query_params=request.GET)
-        return HttpResponseGone(
-            f'This feed has been removed -- please update to use {correct_url}'
-        )

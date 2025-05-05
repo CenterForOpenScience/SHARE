@@ -37,8 +37,8 @@ services:
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs
     user: "0"
     environment:
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-secretsecret}
-      KIBANA_PASSWORD: ${KIBANA_PASSWORD:-kibanakibana}
+      - ELASTIC_PASSWORD=secretsecret
+      - KIBANA_PASSWORD=${KIBANA_PASSWORD:-kibanakibana}
     command: >
       bash -c '
         if [ x$${ELASTIC_PASSWORD} == x ]; then
@@ -96,7 +96,7 @@ services:
       - elastic8_data_vol:/usr/share/elasticsearch/data
       - elastic8_cert_vol:/usr/share/elasticsearch/config/certs/
     environment:
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-secretsecret}
+      - ELASTIC_PASSWORD=secretsecret
       - node.name=singlenode
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m  # raise memory limits a lil bit
@@ -171,17 +171,6 @@ services:
     networks:
       - share_network
 
-  frontend:
-    image: quay.io/centerforopenscience/share-web:develop-local
-    command: yarn start
-    ports:
-      - 4204:4200
-    volumes:
-      - share_dist_vol:/code/dist
-    stdin_open: true
-    networks:
-      - share_network
-
   worker:
     image: quay.io/centerforopenscience/share:develop
     command:
@@ -199,8 +188,8 @@ services:
     env_file:
       - .docker-compose.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
-      ELASTICSEARCH8_CERT_PATH: /elastic_certs/ca/ca.crt
+      - ELASTICSEARCH8_SECRET=secretsecret
+      - ELASTICSEARCH8_CERT_PATH=/elastic_certs/ca/ca.crt
     stdin_open: true
     networks:
       - share_network
@@ -214,7 +203,6 @@ services:
       - postgres
       - rabbitmq
       - elastic8
-      - frontend
     volumes:
       - ./:/code:cached
       - share_requirements_vol:/usr/local/lib/python3.10
@@ -222,15 +210,15 @@ services:
     env_file:
       - .docker-compose.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
-      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
+      - ELASTICSEARCH8_SECRET=secretsecret
+      - ELASTICSEARCH8_CERT_PATH=/elastic8_certs/ca/ca.crt
     stdin_open: true
     networks:
       - share_network
 
   indexer:
     image: quay.io/centerforopenscience/share:develop
-    command: sharectl search daemon
+    command: python manage.py shtrove_indexer_run
     depends_on:
       - postgres
       - rabbitmq
@@ -242,8 +230,8 @@ services:
     env_file:
       - .docker-compose.env
     environment:
-      ELASTICSEARCH8_SECRET: ${ELASTIC_PASSWORD:-secretsecret}
-      ELASTICSEARCH8_CERT_PATH: /elastic8_certs/ca/ca.crt
+      - ELASTICSEARCH8_SECRET=secretsecret
+      - ELASTICSEARCH8_CERT_PATH=/elastic8_certs/ca/ca.crt
     restart: unless-stopped
     stdin_open: true
     networks:
