@@ -1,5 +1,42 @@
 # Change Log
 
+# [25.2.0] - 2025-05-05
+- further move on from SHAREv2...
+- delete sharev2 ingestion pipeline
+    - share/harvest/*
+    - share/harvesters/*
+    - share/metadata_formats/*
+    - share/regulate/*
+    - share/schema/*
+    - share/sources/*
+    - share/tasks/*
+        - except `schedule_index_backfill` -- moved to `share.models.index_backfill` for now
+    - share/transform/*
+    - share/transformers/*
+    - anything deactivated by the `ignore_sharev2_ingest` feature flag
+- delete (some) sharev2 db models/tables from share/models/...
+    - core.py: NormalizedData, FormattedMetadataRecord
+    - jobs.py: HarvestJob
+    - registration.py: ProviderRegistration
+    - sources.py: SourceStat
+- delete (some) sharev2 api
+    - /api/v2/formattedmetadatarecords/...
+    - /api/v2/normalizeddata/...
+        - note: sharev2 “push” is a POST to this endpoint -- replaced by /trove/ingest
+    - /api/v2/sourceregistrations/...
+    - /api/v2/schemas/...
+    - /api/v1/share/data
+- delete `sharectl` (share/bin/*)
+    - prefer django management commands, for now
+- add management commands
+    - shtrove_indexer_run (replaces `sharectl search daemon`)
+    - shtrove_search_setup (replaces `sharectl search setup`)
+    - shtrove_search_teardown (replaces `sharectl search purge`)
+    - delete_pretrove_data (for letting go of some past)
+- remove special ember-share handling (for local dev)
+- remove all dead code and requirements easily removed
+- update github actions flow (with more accurate code coverage)
+
 # [25.1.1] - 2025-03-04
 - reduce wasteful text-field indexing (better this time)
 - on the share-admin search-indexes page:
