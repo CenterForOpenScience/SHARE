@@ -930,7 +930,9 @@ LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
 EXTRA_INDEXED_LITERAL_PATHS = frozenset((
+    # indirect text-search paths used by osf-search
     (DCTERMS.creator, FOAF.name),
+    (OSFMAP.isContainedBy, DCTERMS.creator, FOAF.name),
 ))
 
 DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (

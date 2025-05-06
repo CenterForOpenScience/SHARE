@@ -81,12 +81,12 @@ but both are open for anyone to use.
         DCTERMS.description: {_literal_markdown(f'''an **index-card** is
 a metadata record about a specific thing.
 
-that thing is called the "focus" of the index-card and is identified by a "focus iri"
+that thing is called the "focus" of the index-card and is identified by a "focus IRI"
 -- any thing may be identified by multiple iris, but choose one within an index-card
 (and perhaps include the others with `owl:sameAs`)
 
 the metadata about the thing is a quoted [rdf graph](https://www.w3.org/TR/rdf11-concepts/#data-model)
-in which every triple is reachable from the card's focus iri
+in which every triple is reachable from the card's focus IRI
 following predicates as directed edges from subject to object.
 
 there is not (yet) any size limit for an index-card's metadata,
@@ -100,12 +100,12 @@ of the rest of the response.
 when represented as `application/vnd.api+json` (jsonapi), the `resourceMetadata` attribute
 contains a json object that has:
 
-* `@id` with the focus iri
+* `@id` with the focus IRI
 * `@type` with the focus resource's `rdf:type`
-* property keys from [OSFMAP]({osfmap.OSFMAP_LINK}) shorthand (each corresponding to an iri)
+* property keys from [OSFMAP]({osfmap.OSFMAP_LINK}) shorthand (each corresponding to an IRI)
 * property values as lists of objects:
   * literal text as `{{"@value": "..."}}`
-  * iri references as `{{"@id": "..."}}`
+  * IRI references as `{{"@id": "..."}}`
 ''', language='en')},
 
     },
@@ -194,7 +194,7 @@ uses query parameter:
                 RDFS.label: {literal('card-search-with-star-path', language='en')},
                 RDFS.comment: {literal('card-search with star path', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-searches index-cards with a specific iri value at any property
+searches index-cards with a specific IRI value at any property
 
 uses query parameter:
 
@@ -233,16 +233,16 @@ uses query parameters:
             # TROVE.include,
         },
         RDFS.label: {literal('index-value-search', language='en')},
-        RDFS.comment: {literal('search for iri values based on how they are used', language='en')},
+        RDFS.comment: {literal('search for IRI values based on how they are used', language='en')},
         DCTERMS.description: {_literal_markdown('''**index-value-search** is
-a way to find iri values that could be used in a cardSearchFilter
+a way to find IRI values that could be used in a cardSearchFilter
 ''', language='en')},
         TROVE.example: {
             blanknode({
                 RDFS.label: {literal('value-search without card-search', language='en')},
                 RDFS.comment: {literal('value-search without card-search', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values for the property `creator` (aka `dcterms:creator`,
+search for IRI values for the property `creator` (aka `dcterms:creator`,
 `<http://purl.org/dc/terms/creator>`)
 
 uses query parameters:
@@ -255,7 +255,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search with card-search', language='en')},
                 RDFS.comment: {literal('value-search with card-search', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values for the property `creator` within the context of a card-search
+search for IRI values for the property `creator` within the context of a card-search
 
 uses query parameter:
 
@@ -266,10 +266,10 @@ uses query parameter:
                 RDF.value: {literal('/trove/index-value-search?valueSearchPropertyPath=creator&cardSearchText=sciency&cardSearchFilter[subject][is-present]&acceptMediatype=application/vnd.api%2Bjson')},
             }),
             blanknode({
-                RDFS.label: {literal('value-search specific iri', language='en')},
-                RDFS.comment: {literal('value-search specific iri', language='en')},
+                RDFS.label: {literal('value-search specific IRI', language='en')},
+                RDFS.comment: {literal('value-search specific IRI', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for a specific iri value in the property `creator`
+search for a specific IRI value in the property `creator`
 
 uses query parameters:
 
@@ -282,7 +282,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search by value type', language='en')},
                 RDFS.comment: {literal('value-search by value type', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
+search for IRI values that are used as `creator` and have `rdf:type` `Person` (aka `foaf:Person`)
 
 uses query parameters:
 
@@ -295,7 +295,7 @@ uses query parameters:
                 RDFS.label: {literal('value-search with text', language='en')},
                 RDFS.comment: {literal('value-search with text', language='en')},
                 DCTERMS.description: {_literal_markdown('''
-search for iri values used as `license` that have "cc" in their label
+search for IRI values used as `license` that have "cc" in their label
 (`rdfs:label`, `dcterms:title`, or `foaf:name`)
 
 uses query parameters:
@@ -519,17 +519,24 @@ with a filename based on the query param value, current date, and response conte
         RDFS.comment: {literal('free-text search query', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown('''**cardSearchText** is
-a query parameter for free-text search, e.g. `cardSearchText=foo`
+a query parameter for free-text search within an index-card.
 
-special characters in search text:
+accepts comma-separated property-paths in an optional bracketed parameter,
+e.g. `cardSearchText[title,description]=foo`
+(without brackets equivalent to `cardSearchText[*]`, matching any property-path of length one from the index-card focus).
 
-* `"` (double quotes): use on both sides of a word or phrase to require exact text match
-  -- without quotes, text search is fuzzier and more approximate
-* `-` (hyphen): use before a word or quoted phrase (before the leading `"`) to require
-  that the exact word or phrase be absent
+different index-strategies may parse and process search text differently
+-- the current default index-strategy supports these special characters (to use them literally, precede with backslash (`\\`))
+* `+` signifies AND operation (default)
+* `|` signifies OR operation
+* `-` negates a single token
+* `"` wraps a number of tokens to signify a phrase for searching
+* `*` at the end of a term signifies a prefix query
+* `(` and `)` signify precedence
+* `~N` (where N is an integer) after a word signifies edit distance (fuzziness)
+* `~N` (where N is an integer) after a phrase signifies slop amount
 
-accepts comma-separated property-paths in an optional bracketed parameter (default
-`*]`, matches any one property), e.g. `cardSearchText[title,description]=foo`
+
 ''', language='en')},
     },
     TROVE.cardSearchFilter: {
@@ -547,11 +554,11 @@ each cardSearchFilter has one or two bracketed parameters:
 
 * `propertypath_set`: comma-separated **property-path** set
 * `filter_operator`: any one of the operators defined below
-* `value_iris`: comma-separated iri set
+* `value_iris`: comma-separated IRI set
 
 ### filter operators
 
-operators on iri values:
+operators on IRI values:
 
 * `any-of` (default): at least one of the value iris
 * `none-of`: none of the value iris
@@ -589,10 +596,10 @@ note: multiple property paths are not supported
         RDFS.comment: {literal('free-text search (within a title, name, or label associated with an IRI)', language='en')},
         TROVE.jsonSchema: {literal_json({'type': 'string'})},
         DCTERMS.description: {_literal_markdown('''**valueSearchText** is
-a query parameter that matches text closely associated with each value
-(specifically `dcterms:title`, `foaf:name`, and `rdfs:label`)
+a query parameter to narrow an index-value-search by free-text search.
 
-note: does not accept any bracketed parameters
+behaves like `cardSearchText` except that paths are interpreted relative to
+(non-focus) IRI values within each index-card.
 ''', language='en')},
     },
     TROVE.indexCardId: {
@@ -616,7 +623,7 @@ a query parameter for narrowing an index-value-search
 
 it may be used only two ways:
 
-* `valueSearchFilter[sameAs]=<iri>` to request a specific value by IRI
+* `valueSearchFilter[sameAs]=<IRI>` to request a specific value by IRI
 * `valueSearchFilter[resourceType]=<type_iri>` to request values used with `rdf:type <type_iri>`
 ''', language='en')},
     },
@@ -717,15 +724,15 @@ for example, `creator.name` is parsed as a two-step path that follows
 
 most places that allow one property-path also accept a comma-separated set of paths,
 like `title,description` (which is parsed as two paths: `title` and `description`)
-or `creator.name,affiliation.name,funder.name` (which is parsed as three paths: `creator.name`,
-`affiliation.name`, and `funder.name`)
+or `affiliation,creator.affiliation,funder` (which is parsed as three paths: `affiliation`,
+`creator.affiliation`, and `funder`)
 
 the special path segment `*` matches any property
 
-* `*`: match text values one step away from the focus
-* `*.*`: match text values exactly two steps away
-* `*,*.*`: match text values one OR two steps away
-* `*,creator.name`: match text values one step away OR at the specific path `creator.name`
+* `*`: match values one step away from the focus
+* `*.*`: match values exactly two steps away
+* `*,*.*`: match values one OR two steps away
+* `*,creator`: match values one step away OR at the specific path `creator`
 
 (currently, if a path contains `*`, then every step must be `*`
 -- mixed paths like `*.affiliation` are not supported)
