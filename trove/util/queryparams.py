@@ -1,6 +1,7 @@
+from __future__ import annotations
 import dataclasses
 import re
-from typing import Iterable
+import typing
 
 # TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
@@ -24,6 +25,9 @@ QUERYPARAM_FAMILYMEMBER_REGEX = re.compile(
 # is common (but not required) for a query parameter
 # value to be split on commas, used as a list or set
 QUERYPARAM_VALUES_DELIM = ','
+
+TRUTHY_VALUES = frozenset(('t', 'true', '1', 'y', 'yes'))
+FALSY_VALUES = frozenset(('f', 'false', '0', 'n', 'no'))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -87,5 +91,54 @@ def split_queryparam_value(value: str):
     return value.split(QUERYPARAM_VALUES_DELIM)
 
 
-def join_queryparam_value(values: Iterable[str]):
+def join_queryparam_value(values: typing.Iterable[str]):
     return QUERYPARAM_VALUES_DELIM.join(values)
+
+
+def get_single_value(
+    queryparams: QueryparamDict,
+    queryparam_name: QueryparamName | str,
+) -> str | None:
+    if isinstance(queryparam_name, QueryparamName):
+        _family_name = queryparam_name.family
+        _expected_brackets = queryparam_name.bracketed_names
+    else:
+        _family_name = queryparam_name
+        _expected_brackets = ()
+    _paramvalues = [
+        _paramvalue
+        for _paramname, _paramvalue in queryparams.get(_family_name, ())
+        if _paramname.bracketed_names == _expected_brackets
+    ]
+    if not _paramvalues:
+        return None
+    try:
+        (_singlevalue,) = _paramvalues
+    except ValueError:
+        raise trove_exceptions.InvalidRepeatedQueryParam(str(queryparam_name))
+    else:
+        return _singlevalue
+
+
+def get_bool_value(
+    queryparams: QueryparamDict,
+    queryparam_name: QueryparamName | str,
+    *,
+    if_absent: bool = False,  # by default, param absence is falsy
+    if_empty: bool = True,  # by default, presence (with empty value) is truthy
+) -> bool:
+    _value = get_single_value(queryparams, queryparam_name)
+    if _value is None:
+        return if_absent
+    if _value == '':
+        return if_empty
+    return parse_booly_str(_value)
+
+
+def parse_booly_str(value: str):
+    _lowered = value.lower()
+    if _lowered in TRUTHY_VALUES:
+        return True
+    if _lowered in FALSY_VALUES:
+        return False
+    raise ValueError(f'unboolable string: "{value}"')

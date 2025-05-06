@@ -1,69 +1,50 @@
+import urllib
+
 from django.test import SimpleTestCase
 
 from trove.trovesearch.search_params import (
-    Textsegment,
-    SearchFilter,
+    SearchText,
+    SearchFilter, DEFAULT_PROPERTYPATH_SET,
 )
-from trove.util.queryparams import QueryparamName
+from trove.util.queryparams import QueryparamName, queryparams_from_querystring
 from trove.vocab.namespaces import OSFMAP, RDF, DCTERMS
 
 
-class TestTextsegment(SimpleTestCase):
-    def test_empty(self):
-        for _empty_input in ('', '""', '*', '-', '-""'):
-            _empty = set(Textsegment.iter_from_text(_empty_input))
-            self.assertFalse(_empty)
+class TestSearchText(SimpleTestCase):
+    def test_from_queryparam_family_with_empty_value(self):
+        _qp = queryparams_from_querystring('myBlargText[foo]=')
+        result = SearchText.from_queryparam_family(_qp, 'myBlargText')
+        self.assertEqual(result, frozenset())
 
-    def test_fuzz(self):
-        _fuzzword = set(Textsegment.iter_from_text('woord'))
-        self.assertEqual(_fuzzword, frozenset((
-            Textsegment('woord', is_fuzzy=True, is_negated=False, is_openended=True),
-        )))
-        _fuzzphrase = set(Textsegment.iter_from_text('wibbleplop worble polp elbbiw'))
-        self.assertEqual(_fuzzphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=True, is_negated=False, is_openended=True),
-        )))
+    def test_single_word(self):
+        qp = queryparams_from_querystring('myBlargText=word')
+        (st,) = SearchText.from_queryparam_family(qp, 'myBlargText')
+        self.assertEqual(st.text, "word")
+        self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
-    def test_exact(self):
-        _exactword = set(Textsegment.iter_from_text('"woord"'))
-        self.assertEqual(_exactword, frozenset((
-            Textsegment('woord', is_fuzzy=False, is_negated=False, is_openended=False),
-        )))
-        _exactphrase = set(Textsegment.iter_from_text('"wibbleplop worble polp elbbiw"'))
-        self.assertEqual(_exactphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=False, is_negated=False, is_openended=False),
-        )))
-        _openphrase = set(Textsegment.iter_from_text('"wibbleplop worble polp elbbiw'))
-        self.assertEqual(_openphrase, frozenset((
-            Textsegment('wibbleplop worble polp elbbiw', is_fuzzy=False, is_negated=False, is_openended=True),
-        )))
+    def test_multiple_words(self):
+        qp = queryparams_from_querystring('myBlargText=apple&myBlargText=banana&myBlargText=cherry&anotherText=no')
+        result = SearchText.from_queryparam_family(qp, 'myBlargText')
+        self.assertEqual(result, {SearchText('apple'), SearchText('banana'), SearchText('cherry')})
 
-    def test_minus(self):
-        _minusword = set(Textsegment.iter_from_text('-woord'))
-        self.assertEqual(_minusword, frozenset((
-            Textsegment('woord', is_fuzzy=False, is_negated=True, is_openended=False),
-        )))
-        _minusexactword = set(Textsegment.iter_from_text('-"woord droow"'))
-        self.assertEqual(_minusexactword, frozenset((
-            Textsegment('woord droow', is_fuzzy=False, is_negated=True, is_openended=False),
-        )))
-        _minustwo = set(Textsegment.iter_from_text('abc -def -g hi there'))
-        self.assertEqual(_minustwo, frozenset((
-            Textsegment('def', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('g', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('hi there', is_fuzzy=True, is_negated=False, is_openended=True),
-            Textsegment('abc', is_fuzzy=True, is_negated=False, is_openended=False),
-        )))
+    def test_text_with_spaces(self):
+        phrases = [
+            "multi word phrase",
+            'phrase with "double quotes"',
+            '~phrase~ with +special.characters AND \'mismatched quotes"'
+        ]
+        for phrase in phrases:
+            qp = queryparams_from_querystring(urllib.parse.urlencode({'myBlargText': phrase}))
+            (st,) = SearchText.from_queryparam_family(qp, 'myBlargText')
+            self.assertEqual(st.text, phrase)
+            self.assertEqual(st.propertypath_set, DEFAULT_PROPERTYPATH_SET)
 
-    def test_combo(self):
-        _combo = set(Textsegment.iter_from_text('wibbleplop -"worble polp" elbbiw -but "exactly'))
-        self.assertEqual(_combo, frozenset((
-            Textsegment('worble polp', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('elbbiw', is_fuzzy=True, is_negated=False, is_openended=False),
-            Textsegment('wibbleplop', is_fuzzy=True, is_negated=False, is_openended=False),
-            Textsegment('but', is_fuzzy=False, is_negated=True, is_openended=False),
-            Textsegment('exactly', is_fuzzy=False, is_negated=False, is_openended=True),
-        )))
+    def test_custom_propertypath_set(self):
+        qp = queryparams_from_querystring('myBlargText[title]=foo')
+        result = SearchText.from_queryparam_family(qp, 'myBlargText')
+        self.assertEqual(result, {
+            SearchText('foo', frozenset({(DCTERMS.title,)}))
+        })
 
 
 class TestSearchFilterPath(SimpleTestCase):

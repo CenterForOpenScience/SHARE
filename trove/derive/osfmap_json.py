@@ -7,7 +7,7 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import TROVE, RDF, OWL
 from trove.vocab.osfmap import (
     OSFMAP_THESAURUS,
-    osfmap_shorthand,
+    osfmap_json_shorthand,
 )
 from ._base import IndexcardDeriver
 
@@ -64,7 +64,7 @@ class _RdfOsfmapJsonldRenderer:
             # datatype iri (or non-standard language iri)
             _datatype_iris = sorted(
                 (
-                    osfmap_shorthand().compact_iri(_datatype_iri)
+                    osfmap_json_shorthand().compact_iri(_datatype_iri)
                     for _datatype_iri in rdfobject.datatype_iris
                 ),
                 key=len,
@@ -74,7 +74,7 @@ class _RdfOsfmapJsonldRenderer:
                 '@type': (_datatype_iris if (len(_datatype_iris) > 1) else _datatype_iris[0]),
             }
         elif isinstance(rdfobject, str):
-            return {'@id': osfmap_shorthand().compact_iri(rdfobject)}
+            return {'@id': osfmap_json_shorthand().compact_iri(rdfobject)}
         elif isinstance(rdfobject, (float, int)):
             return {'@value': rdfobject}
         elif isinstance(rdfobject, datetime.date):
@@ -91,7 +91,7 @@ class _RdfOsfmapJsonldRenderer:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
             if _objectset:
-                _key = osfmap_shorthand().compact_iri(_pred)
+                _key = osfmap_json_shorthand().compact_iri(_pred)
                 _jsonld[_key] = self._list_or_single_value(_pred, [
                     self.rdfobject_as_jsonld(_obj)
                     for _obj in _objectset
@@ -114,10 +114,10 @@ class _RdfOsfmapJsonldRenderer:
         _nested_obj = (
             {}
             if rdfobject.startswith('_:')  # HACK: non-blank blank nodes (stop that)
-            else {'@id': osfmap_shorthand().compact_iri(rdfobject)}
+            else {'@id': osfmap_json_shorthand().compact_iri(rdfobject)}
         )
         for _pred, _objectset in tripledict[rdfobject].items():
-            _label = osfmap_shorthand().compact_iri(_pred)
+            _label = osfmap_json_shorthand().compact_iri(_pred)
             if _objectset:
                 _nested_obj[_label] = self._list_or_single_value(
                     _pred,

@@ -16,15 +16,7 @@ from celery.schedules import crontab
 import jwe
 
 from share import __version__
-
-
-def strtobool(s: str) -> bool:
-    s = s.lower()
-    if s in ('t', 'true', '1'):
-        return True
-    if s in ('f', 'false', '0'):
-        return False
-    raise ValueError(f'unboolable string: "{s}"')
+from trove.util.queryparams import parse_booly_str
 
 
 def split(string, delim):
@@ -463,7 +455,7 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
-HIDE_DEPRECATED_VIEWS = strtobool(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
+HIDE_DEPRECATED_VIEWS = parse_booly_str(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
 
 # Regulator pipeline, names of setuptools entry points
 SHARE_REGULATOR_CONFIG = {

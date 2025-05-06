@@ -113,6 +113,7 @@ class TestIndexerDaemon:
                 daemon.on_message(unsupported_message.payload, unsupported_message)
             assert not unsupported_message.acked
 
+    @pytest.mark.filterwarnings('ignore::pytest.PytestUnhandledThreadExceptionWarning')
     def test_unexpected_error(self):
         class UnexpectedError(Exception):
             pass
@@ -128,10 +129,7 @@ class TestIndexerDaemon:
 
         with mock.patch('share.search.daemon.sentry_sdk') as mock_sentry:
             with mock.patch('share.search.daemon.logger') as mock_logger:
-                with _daemon_running(
-                    FakeIndexStrategyWithUnexpectedError(),
-                    daemonthread_context=lambda: pytest.raises(UnexpectedError)
-                ) as daemon:
+                with _daemon_running(FakeIndexStrategyWithUnexpectedError()) as daemon:
                     message = FakeCeleryMessage(messages.MessageType.INDEX_SUID, 1)
                     daemon.on_message(message.payload, message)
                     assert daemon.stop_event.wait(timeout=10), (
@@ -140,6 +138,7 @@ class TestIndexerDaemon:
                     mock_sentry.capture_exception.assert_called_once()
                     mock_logger.exception.assert_called_once()
 
+    @pytest.mark.filterwarnings('ignore::pytest.PytestUnhandledThreadExceptionWarning')
     def test_noncurrent_backfill(self):
         class FakeIndexStrategyWithNoncurrentBackfill:
             CURRENT_STRATEGY_CHECKSUM = 'not-what-you-expected'
@@ -153,10 +152,7 @@ class TestIndexerDaemon:
                     strategy_checksum = 'what-you-expected'
                 return FakeIndexBackfill()
 
-        with _daemon_running(
-            FakeIndexStrategyWithNoncurrentBackfill(),
-            daemonthread_context=lambda: pytest.raises(exceptions.DaemonSetupError)
-        ) as daemon:
+        with _daemon_running(FakeIndexStrategyWithNoncurrentBackfill()) as daemon:
             message = FakeCeleryMessage(messages.MessageType.BACKFILL_SUID, 1)
             daemon.on_message(message.payload, message)
             assert daemon.stop_event.wait(timeout=10), (

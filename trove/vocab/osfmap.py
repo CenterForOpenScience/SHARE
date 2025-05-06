@@ -1,4 +1,8 @@
+from __future__ import annotations
+import typing
 import functools
+if typing.TYPE_CHECKING:
+    from collections.abc import Iterator
 
 from primitive_metadata.primitive_rdf import (
     literal,
@@ -8,6 +12,16 @@ from primitive_metadata.primitive_rdf import (
 from primitive_metadata import gather
 
 from share.models.feature_flag import FeatureFlag
+from trove.util.propertypath import (
+    Propertypath,
+    PropertypathSet,
+    parse_propertypath,
+    propertypath_key,
+)
+from trove.util.queryparams import (
+    join_queryparam_value,
+    split_queryparam_value,
+)
 from trove.util.shorthand import build_shorthand_from_thesaurus
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
 from trove.vocab.namespaces import (
@@ -22,7 +36,7 @@ from trove.vocab.namespaces import (
     RDFS,
     SKOS,
     TROVE,
-    NAMESPACES_SHORTHAND,
+    namespaces_shorthand,
 )
 
 OSFMAP_LINK = 'https://osf.io/8yczr'
@@ -814,17 +828,6 @@ OSFMAP_NORMS = gather.GatheringNorms.new(
 )
 
 
-@functools.cache
-def osfmap_shorthand() -> IriShorthand:
-    '''build iri shorthand that includes unprefixed osfmap terms
-    '''
-    return build_shorthand_from_thesaurus(
-        thesaurus=OSFMAP_THESAURUS,
-        label_predicate=JSONAPI_MEMBERNAME,
-        base_shorthand=NAMESPACES_SHORTHAND,
-    )
-
-
 ALL_SUGGESTED_PROPERTY_PATHS = (
     (DCTERMS.created,),
     (OSFMAP.funder,),
@@ -927,7 +930,9 @@ LABEL_PROPERTIES = (RDFS.label, SKOS.prefLabel, SKOS.altLabel)
 NAMELIKE_PROPERTIES = (*TITLE_PROPERTIES, *NAME_PROPERTIES, *LABEL_PROPERTIES)
 SKIPPABLE_PROPERTIES = (OSFMAP.contains, OWL.sameAs)
 EXTRA_INDEXED_LITERAL_PATHS = frozenset((
+    # indirect text-search paths used by osf-search
     (DCTERMS.creator, FOAF.name),
+    (OSFMAP.isContainedBy, DCTERMS.creator, FOAF.name),
 ))
 
 DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
@@ -940,6 +945,43 @@ DEFAULT_TABULAR_SEARCH_COLUMN_PATHS: tuple[tuple[str, ...], ...] = (
     (DCTERMS.modified,),
     (DCTERMS.rights,),
 )
+
+# end constants
+###
+
+
+###
+# functions
+
+@functools.cache  # built once
+def osfmap_json_shorthand() -> IriShorthand:
+    '''build iri shorthand that includes unprefixed osfmap terms
+    '''
+    return build_shorthand_from_thesaurus(
+        thesaurus=OSFMAP_THESAURUS,
+        label_predicate=JSONAPI_MEMBERNAME,
+        base_shorthand=namespaces_shorthand(),
+    )
+
+
+def parse_osfmap_propertypath(serialized_path: str, *, allow_globs=False) -> Propertypath:
+    return parse_propertypath(serialized_path, osfmap_json_shorthand(), allow_globs=allow_globs)
+
+
+def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs=False) -> Iterator[Propertypath]:
+    for _path in split_queryparam_value(serialized_path_set):
+        yield parse_osfmap_propertypath(_path, allow_globs=allow_globs)
+
+
+def osfmap_propertypath_key(propertypath: Propertypath) -> str:
+    return propertypath_key(propertypath, osfmap_json_shorthand())
+
+
+def osfmap_propertypath_set_key(propertypath_set: PropertypathSet) -> str:
+    return join_queryparam_value(
+        osfmap_propertypath_key(_propertypath)
+        for _propertypath in propertypath_set
+    )
 
 
 def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]:

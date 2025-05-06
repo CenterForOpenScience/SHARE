@@ -11,7 +11,7 @@ from .simple_json import TrovesearchSimpleJsonRenderer
 from .simple_tsv import TrovesearchSimpleTsvRenderer
 
 
-__all__ = ('get_renderer_type',)
+__all__ = ('get_renderer_type', 'BaseRenderer')
 
 RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfHtmlBrowseRenderer,
