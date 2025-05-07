@@ -1,5 +1,14 @@
 # Change Log
 
+# [25.3.0] - 2025-05-07
+- remove search-text parsing from base trovesearch params (syntax may now vary by index strategy)
+- add search-text syntax to `trovesearch_denorm` index strategy (using elasticsearch `simple_query_string`)
+- add `osf:verifiedLinks` entry to osfmap thesaurus
+- remove `trove_indexcard_flats` index strategy, a cautionary tale of elasticsearch `nested` (which is already cautioned against by its own docs, yes)
+- fix `/trove/browse?iri=...` and `/trove/index-card/...`
+- updo html rendering of `/trove/` responses
+- add landing page of static data (links to docs, etc) rendered same way as `/trove/` responses
+
 # [25.2.0] - 2025-05-05
 - further move on from SHAREv2...
 - delete sharev2 ingestion pipeline
