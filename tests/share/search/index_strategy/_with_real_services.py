@@ -1,3 +1,4 @@
+import abc
 import contextlib
 from unittest import mock
 
@@ -8,17 +9,21 @@ from project.celery import app as celery_app
 from share.search.daemon import IndexerDaemonControl
 from share.search.index_messenger import IndexMessenger
 from share.search import index_strategy
-from tests.share.search import patch_index_strategies
+from tests.share.search import patch_index_strategy
 
 
 # base class for testing IndexStrategy subclasses with actual elasticsearch.
 # (using TransactionTestCase so there's NOT a transaction wrapping each test
 # and IndexerDaemon can use a separate db connection from a separate thread)
-class RealElasticTestCase(TransactionTestCase):
+class RealElasticTestCase(TransactionTestCase, abc.ABC):
     serialized_rollback = True  # for TransactionTestCase; restore db after
 
-    # required for subclasses
+    @abc.abstractmethod
     def get_index_strategy(self) -> index_strategy.IndexStrategy:
+        '''return an IndexStrategy instance that will be tested
+
+        override in subclasses to reuse these tests
+        '''
         raise NotImplementedError(f'{self.__class__} must implement `get_index_strategy`')
 
     def setUp(self):
@@ -26,7 +31,7 @@ class RealElasticTestCase(TransactionTestCase):
         self.enterContext(mock.patch('share.models.core._setup_user_token_and_groups'))
         self.index_strategy = self.get_index_strategy()
         self.index_strategy.pls_teardown()  # in case it already exists
-        self.enterContext(patch_index_strategies([self.index_strategy]))
+        self.enterContext(patch_index_strategy(self.index_strategy))
         self.index_messenger = IndexMessenger(
             celery_app=celery_app,
             index_strategys=[self.index_strategy],

@@ -1,4 +1,8 @@
 from __future__ import annotations
+from collections.abc import (
+    Iterable,
+    Iterator,
+)
 import csv
 import functools
 import itertools
@@ -6,19 +10,20 @@ import dataclasses
 import typing
 
 from trove.trovesearch.search_params import (
-    Propertypath,
-    BaseTroveParams,
     CardsearchParams,
     ValuesearchParams,
 )
+from trove.util.propertypath import Propertypath
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
 from trove.vocab.namespaces import TROVE
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 from ._rendering import StreamableRendering
+if typing.TYPE_CHECKING:
+    from trove.util.trove_params import BasicTroveParams
 
 
-Jsonpath = typing.Iterable[str]  # path of json keys
+Jsonpath = Iterable[str]  # path of json keys
 
 _MULTIVALUE_DELIMITER = ' ; '  # possible improvement: smarter in-value delimiting?
 _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
@@ -33,7 +38,7 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
     def unicard_rendering(self, card_iri: str, osfmap_json: dict):
         self.multicard_rendering(card_pages=iter([{card_iri: osfmap_json}]))
 
-    def multicard_rendering(self, card_pages: typing.Iterator[dict[str, dict]]):
+    def multicard_rendering(self, card_pages: Iterator[dict[str, dict]]):
         _doc = TabularDoc(
             card_pages,
             trove_params=getattr(self.response_focus, 'search_params', None),
@@ -44,7 +49,7 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
         )
 
 
-def csv_stream(csv_dialect, header: list, rows: typing.Iterator[list]) -> typing.Iterator[str]:
+def csv_stream(csv_dialect, header: list, rows: Iterator[list]) -> Iterator[str]:
     _writer = csv.writer(_Echo(), dialect=csv_dialect)
     yield _writer.writerow(header)
     for _row in rows:
@@ -53,8 +58,8 @@ def csv_stream(csv_dialect, header: list, rows: typing.Iterator[list]) -> typing
 
 @dataclasses.dataclass
 class TabularDoc:
-    card_pages: typing.Iterator[dict[str, dict]]
-    trove_params: BaseTroveParams | None = None
+    card_pages: Iterator[dict[str, dict]]
+    trove_params: BasicTroveParams | None = None
     _started: bool = False
 
     @functools.cached_property
@@ -69,8 +74,8 @@ class TabularDoc:
     def first_page(self) -> dict[str, dict]:
         return next(self.card_pages, {})
 
-    def _column_paths(self) -> typing.Iterator[Propertypath]:
-        _pathlists: list[typing.Iterable[Propertypath]] = []
+    def _column_paths(self) -> Iterator[Propertypath]:
+        _pathlists: list[Iterable[Propertypath]] = []
         if self.trove_params is not None:  # hacks
             if isinstance(self.trove_params, ValuesearchParams):
                 _expected_card_types = set(self.trove_params.valuesearch_type_iris())
@@ -99,7 +104,7 @@ class TabularDoc:
     def header(self) -> list[str]:
         return ['.'.join(_path) for _path in self.column_jsonpaths]
 
-    def rows(self) -> typing.Iterator[list[str]]:
+    def rows(self) -> Iterator[list[str]]:
         for _page in self._iter_card_pages():
             for _card_iri, _osfmap_json in _page.items():
                 yield self._row_values(_osfmap_json)
@@ -121,8 +126,8 @@ class TabularDoc:
         return _MULTIVALUE_DELIMITER.join(map(str, _rendered_values))
 
 
-def _osfmap_jsonpath(iri_path: typing.Iterable[str]) -> Jsonpath:
-    _shorthand = osfmap.osfmap_shorthand()
+def _osfmap_jsonpath(iri_path: Iterable[str]) -> Jsonpath:
+    _shorthand = osfmap.osfmap_json_shorthand()
     return tuple(
         _shorthand.compact_iri(_pathstep)
         for _pathstep in iri_path
@@ -138,7 +143,7 @@ def _has_value(osfmap_json: dict, path: Jsonpath) -> bool:
         return True
 
 
-def _iter_values(osfmap_json: dict, path: Jsonpath) -> typing.Iterator:
+def _iter_values(osfmap_json: dict, path: Jsonpath) -> Iterator:
     assert path
     (_step, *_rest) = path
     _val = osfmap_json.get(_step)

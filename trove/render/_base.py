@@ -11,8 +11,8 @@ from primitive_metadata import (
 
 from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
-from trove.vocab.namespaces import NAMESPACES_SHORTHAND
 from trove.vocab.trove import TROVE_API_THESAURUS
+from trove.vocab.namespaces import namespaces_shorthand
 from ._rendering import ProtoRendering, SimpleRendering
 
 
@@ -31,8 +31,13 @@ class BaseRenderer(abc.ABC):
     # instance fields
     response_focus: gather.Focus
     response_gathering: gather.Gathering
-    iri_shorthand: rdf.IriShorthand = NAMESPACES_SHORTHAND
+    iri_shorthand: rdf.IriShorthand = dataclasses.field(default_factory=namespaces_shorthand)
     thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
+
+    @classmethod
+    def get_deriver_iri(cls, card_blending: bool):
+        # override if needed
+        return cls.INDEXCARD_DERIVER_IRI
 
     @functools.cached_property
     def thesaurus(self):

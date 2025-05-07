@@ -1,5 +1,23 @@
 # Change Log
 
+# [25.3.0] - 2025-05-07
+- remove search-text parsing from base trovesearch params (syntax may now vary by index strategy)
+- add search-text syntax to `trovesearch_denorm` index strategy (using elasticsearch `simple_query_string`)
+- add `osf:verifiedLinks` entry to osfmap thesaurus
+- remove `trove_indexcard_flats` index strategy, a cautionary tale of elasticsearch `nested` (which is already cautioned against by its own docs, yes)
+- add `SimpleChainMap` util, alternative to `collections.ChainMap` that doesn't do updates (uses more permissive `Mapping` type over `MutableMapping`
+- add `BasicTroveParams` (shared params for all trove endpoints)
+- add/use base `trove.views`:
+    - `BaseTroveView`: parses `BaseTroveParams`, renders rdf data (response content) accordingly
+    - `StaticTroveView`: responds with same static rdf data every time
+    - `GatheredTroveView`: gathers rdf data via given `primitive_metadata.gather.GatheringOrganizer`
+- fix `/trove/browse?iri=...` and `/trove/index-card/...`
+- updo html rendering of `/trove/` responses
+- add landing page of static data (links to docs, etc) rendered same way as `/trove/` responses
+- easier editing feature flags via `/admin/` (list-view checkboxes)
+- remove no-longer-used feature flag `TROVESEARCH_DENORMILY`
+- add better "end to end" search-api tests
+
 # [25.2.0] - 2025-05-05
 - further move on from SHAREv2...
 - delete sharev2 ingestion pipeline

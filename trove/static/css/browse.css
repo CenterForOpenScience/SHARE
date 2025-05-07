@@ -1,7 +1,16 @@
-.VisibleNest {
-    padding: 0.191rem 0.382rem;
-    filter: hue-rotate(0.192turn);
-    backdrop-filter: hue-rotate(0.192turn);
+:root {
+    --phi: 1.618;
+    /* rotating colorspace (using `lch` with luminance and chroma held locally constant) */
+    --hue-turn: 0; /* initial */
+    --bg-luminance: 83%;
+    --bg-chroma: 19%;
+    --bg-color-initial: lch(83% 19% 1.618turn);
+    /* gutter spaces (gaps, paddings, margins...) */
+    --gutter-1: 1.618rem;
+    --gutter-2: 0.618rem;
+    --gutter-3: 0.309rem;
+    --gutter-4: 0.155rem;
+    --gutter-5: 0.077rem;
 }
 
 .BrowseWrapper {
@@ -9,111 +18,132 @@
     flex-direction: row;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 0.618rem;
+    gap: var(--gutter-1);
     margin: 0;
-    padding: 0;
+    padding: 1rem;
     min-height: 100vh;
-    background-color: #fedbae;
-    backdrop-filter: hue-rotate(var(--random-turn));
+    background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
 }
 
 .BrowseWrapper dfn {
     font-weight: bold;
 }
 
+.BrowseWrapper pre {
+    margin: 0;
+}
+
 .Browse__card {
     display: flex;
     flex-direction: column;
-
-    /*max-width: 31rem;*/
-    border: solid 0.382rem rgba(0,0,0,0.191);
+    padding: var(--gutter-2) var(--gutter-3);
+    background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
+    border-color: lch(59% var(--bg-chroma) var(--hue-turn));
+    border-style: solid;
+    border-inline-start-width: var(--gutter-3);
+    border-block-start-width: var(--gutter-4);
+    border-inline-end-width: 0;
+    border-block-end-width: 0;
+    /*
+    border-start-end-radius: 1rem;
+    border-end-start-radius: 1rem;
+    */
 }
 
-details.Browse__card > summary::before {
+.BrowseWrapper details > summary::before {
     content: '‽';
     display: inline-block;
     transition-property: rotate;
-    transition-duration: 1s;
+    transition-duration: 0.618s;
+    margin-right: var(--gutter-2);
 }
 
-details.Browse__card[open] > summary::before {
-    rotate: var(--random-turn);
-}
-
-.BrowseWrapper > .Browse__card {
-    margin: 1em;
+.BrowseWrapper details[open] > summary::before {
+    rotate: var(--hue-turn);
 }
 
 .Browse__card > header {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.618rem;
-    padding: 0.618rem;
+    flex-direction: row;
+    gap: var(--gutter-2);
+    align-items: baseline;
+    border-bottom: solid 1px rgba(0,0,0,0.382);
+    margin-bottom: var(--gutter-3);
 }
 
-.Browse__heading {
+.Browse__card > header > :first-child {
     margin: 0;
 }
 
 .Browse__card > footer {
-    padding: 0.618rem;
+    padding: var(--gutter-2);
 }
 
-.Browse__twopleset {
-    display: flex;
-    flex-direction: column;
-
+dl.Browse__twopleset {
+    display: grid;
+    grid-template-columns:
+        [twople-pred] auto
+        [twople-obj] 1fr
+    ;
+    grid-auto-flow: row;
+    row-gap: var(--gutter-2);
     margin: 0;
     padding: 0;
+}
+
+dl.Browse__twopleset > dt {
+    grid-column: twople-pred;
+    display: flex;
+    flex-direction: column;
+}
+
+dl.Browse__twopleset > dd {
+    grid-column: twople-obj;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gutter-5);
 }
 
 .Browse__twople {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    gap: 0.382rem;
+    gap: var(--gutter-3);
     margin: 0;
-    border: solid 1px rgba(0,0,0,0.382);
 }
 
-.Browse__twople:not(:first-child) {
-    border-top: 0;
-}
-
-.Browse__objectset {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-
-    margin: 0;
-    padding: 0;
-    gap: 0.382rem;
-}
-
-.Browse__object {
-    display: flex;
-    flex-direction: row;
-    margin: 0;
-    /*border: 1px dotted #000;*/
-    border: dotted 1px;
-    gap: 0.382rem;
+.Browse__blanknode {
+    padding: var(--gutter-4);
+    border-color: rgba(0,0,0,0.382);
+    border-style: solid;
+    border-inline-start-width: var(--gutter-3);
+    border-block-start-width: var(--gutter-4);
+    border-inline-end-width: 0;
+    border-block-end-width: 0;
 }
 
 .Browse__literal {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.382rem;
+    gap: var(--gutter-3);
+    padding: var(--gutter-4);
 }
 
-/*
-.Browse :focus-within {
-    backdrop-filter: hue-rotate(var(--hue-rotate-step));
+.Browse__literal > q {
+    flex-basis: 100%;
+    font-style: italic;
+}
+.Browse__literal > q > p {
+    margin: 0;
 }
 
-.Browse :focus {
-    border: 5px dotted #e28;
+.Browse__predicate {
+    background-color: lch(from var(--bg-color-initial) 89% c var(--hue-turn));
+    padding: var(--gutter-4);
 }
-*/
+
+.Browse__object {
+    background-color: lch(from var(--bg-color-initial) 93% c var(--hue-turn));
+    padding: var(--gutter-4);
+}

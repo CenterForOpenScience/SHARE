@@ -1,16 +1,12 @@
 import abc
+from collections.abc import Callable
 import logging
-from typing import Callable
 
-from django import http
-from django.views import View
 from primitive_metadata import gather
 
 from share.search import index_strategy
-from trove import exceptions as trove_exceptions
 from trove.trovesearch.search_handle import BasicSearchHandle
 from trove.trovesearch.search_params import (
-    BaseTroveParams,
     CardsearchParams,
     ValuesearchParams,
 )
@@ -19,70 +15,28 @@ from trove.trovesearch.trovesearch_gathering import (
     CardsearchFocus,
     ValuesearchFocus,
 )
-from trove.render import (
-    DEFAULT_RENDERER_TYPE,
-    get_renderer_type,
-)
-from ._gather_ask import ask_gathering_from_params
-from ._responder import (
-    make_http_error_response,
-    make_http_response,
-)
+from trove.util.trove_params import BasicTroveParams
+from ._base import GatheredTroveView
 
 
 logger = logging.getLogger(__name__)
 
 
-_TrovesearchHandler = Callable[[BaseTroveParams], BasicSearchHandle]
+_TrovesearchHandler = Callable[[BasicTroveParams], BasicSearchHandle]
 
 
-class _BaseTrovesearchView(View, abc.ABC):
-    # expected on inheritors
-    focus_type: type[gather.Focus]
-    params_dataclass: type[CardsearchParams]
+class _BaseTrovesearchView(GatheredTroveView, abc.ABC):
+    focus_type: type[gather.Focus] = gather.Focus  # expected on subclasses
 
-    def get(self, request):
-        try:
-            _renderer_type = get_renderer_type(request)
-        except trove_exceptions.CannotRenderMediatype as _error:
-            return make_http_error_response(
-                error=_error,
-                renderer_type=DEFAULT_RENDERER_TYPE,
-            )
-        try:
-            _url = request.build_absolute_uri()
-            _search_gathering = self._start_gathering(renderer_type=_renderer_type)
-            _search_params = self._parse_search_params(request)
-            _strategy = index_strategy.get_strategy_for_trovesearch(_search_params)
-            _focus = self.focus_type.new(
-                iris=_url,
-                search_params=_search_params,
-                search_handle=self.get_search_handle(_strategy, _search_params),
-            )
-            if _renderer_type.PASSIVE_RENDER:
-                ask_gathering_from_params(_search_gathering, _search_params, _focus)
-            # take gathered data into a response
-            _renderer = _renderer_type(_focus, _search_gathering)
-            return make_http_response(
-                content_rendering=_renderer.render_document(),
-                http_request=request,
-            )
-        except trove_exceptions.TroveError as _error:
-            return make_http_error_response(
-                error=_error,
-                renderer_type=_renderer_type,
-            )
+    gathering_organizer = trovesearch_by_indexstrategy  # for GatheredTroveView
 
-    def _parse_search_params(self, request: http.HttpRequest) -> CardsearchParams:
-        return self.params_dataclass.from_querystring(
-            request.META['QUERY_STRING'],
+    def _build_focus(self, request, params, url_kwargs):  # override GatheredTroveView
+        _strategy = index_strategy.get_strategy_for_trovesearch(params)
+        return self.focus_type.new(
+            iris=self._get_focus_iri(request, params),
+            search_params=params,
+            search_handle=self.get_search_handle(_strategy, params),
         )
-
-    def _start_gathering(self, renderer_type) -> gather.Gathering:
-        # TODO: 404 for unknown strategy
-        return trovesearch_by_indexstrategy.new_gathering({
-            'deriver_iri': renderer_type.INDEXCARD_DERIVER_IRI,
-        })
 
     def get_search_handle(self, strategy, search_params) -> BasicSearchHandle:
         return self._get_wrapped_handler(strategy)(search_params)
@@ -105,7 +59,7 @@ class _BaseTrovesearchView(View, abc.ABC):
 
 class CardsearchView(_BaseTrovesearchView):
     focus_type = CardsearchFocus
-    params_dataclass = CardsearchParams
+    params_type = CardsearchParams
 
     def get_search_handler(self, strategy):
         return strategy.pls_handle_cardsearch
@@ -113,7 +67,7 @@ class CardsearchView(_BaseTrovesearchView):
 
 class ValuesearchView(_BaseTrovesearchView):
     focus_type = ValuesearchFocus
-    params_dataclass = ValuesearchParams
+    params_type = ValuesearchParams
 
     def get_search_handler(self, strategy):
         return strategy.pls_handle_valuesearch

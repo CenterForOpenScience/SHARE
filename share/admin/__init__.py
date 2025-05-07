@@ -213,6 +213,7 @@ class FeatureFlagAdmin(admin.ModelAdmin):
     readonly_fields = ('name',)
     search_fields = ('name',)
     list_display = ('name', 'is_up', 'is_defined')
+    list_editable = ('is_up',)
 
 
 admin_site.register(AccessToken, AccessTokenAdmin)

@@ -1,3 +1,5 @@
+import functools
+
 from primitive_metadata import primitive_rdf as rdf
 from primitive_metadata.namespaces import (
     RDF,
@@ -32,7 +34,7 @@ __all__ = (
     'SKOS',
     'TROVE',
     'XSD',
-    'NAMESPACES_SHORTHAND',
+    'namespaces_shorthand',
 )
 
 # namespaces used in OAI-PMH
@@ -63,4 +65,6 @@ if __debug__:  # blarg: a nothing namespace for examples and testing
     _NAMESPACES_BY_PREFIX['blarg'] = BLARG
 
 
-NAMESPACES_SHORTHAND = DEFAULT_SHORTHAND.with_update(_NAMESPACES_BY_PREFIX)
+@functools.cache
+def namespaces_shorthand() -> rdf.IriShorthand:
+    return DEFAULT_SHORTHAND.with_update(_NAMESPACES_BY_PREFIX)
