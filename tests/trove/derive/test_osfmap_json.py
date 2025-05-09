@@ -542,9 +542,11 @@ expected_outputs = {
     },
 }
 
+
 class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
     deriver_class = OsfmapJsonDeriver
     expected_outputs = expected_outputs
+
     def assert_outputs_equal(self, expected, actual):
         self.assertEqual(expected, json.loads(actual))
 
@@ -552,6 +554,6 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
 class TestIndexcardJsonDeriver(BaseIndexcardDeriverTest):
     deriver_class = IndexcardJsonDeriver
     expected_outputs = expected_outputs
+
     def assert_outputs_equal(self, expected, actual):
         self.assertEqual(expected, json.loads(actual))
-
