@@ -99,6 +99,7 @@ class BasicTroveParams:
         _fields_params = queryparams.get('fields', [])
         if _fields_params:
             _requested: dict[str, list[Propertypath]] = defaultdict(list)
+            wildcard_paths: list[Propertypath] = []
             for _param_name, _param_value in _fields_params:
                 try:
                     (_typenames,) = filter(bool, _param_name.bracketed_names)
@@ -107,6 +108,11 @@ class BasicTroveParams:
                         f'expected "fields[TYPE]" (with exactly one non-empty bracketed segment)'
                         f' (got "{_param_name}")'
                     )
+                if _typenames == '*':
+                    wildcard_paths.extend(
+                        parse_propertypath(_path_value, shorthand)
+                        for _path_value in _qp.split_queryparam_value(_param_value)
+                    )
                 else:
                     for _type in _qp.split_queryparam_value(_typenames):
                         _type_iri = shorthand.expand_iri(_type)
@@ -114,6 +120,8 @@ class BasicTroveParams:
                             parse_propertypath(_path_value, shorthand)
                             for _path_value in _qp.split_queryparam_value(_param_value)
                         )
+            if wildcard_paths:
+                _requested['*'].extend(wildcard_paths)
             _attrpaths = _attrpaths.with_new(freeze(_requested))
         return _attrpaths
 

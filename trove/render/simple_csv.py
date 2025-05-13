@@ -83,6 +83,8 @@ class TabularDoc:
                 _expected_card_types = set(self.trove_params.cardsearch_type_iris())
             else:
                 _expected_card_types = set()
+            if '*' in self.trove_params.attrpaths_by_type:
+                _pathlists.append(self.trove_params.attrpaths_by_type['*'])
             for _type_iri in sorted(_expected_card_types, key=len):
                 try:
                     _pathlist = self.trove_params.attrpaths_by_type[_type_iri]
