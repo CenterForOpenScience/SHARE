@@ -821,6 +821,26 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('no-conflict-of-interest', language='en'),
         },
     },
+    # filter-operator values from `trove.vocab.trove.TROVE_API_THESAURUS`
+    # duplicated here so `osfmap_json_shorthand` does not prefix "trove:"
+    TROVE['any-of']: {
+        JSONAPI_MEMBERNAME: {literal('any-of', language='en')},
+    },
+    TROVE['none-of']: {
+        JSONAPI_MEMBERNAME: {literal('none-of', language='en')},
+    },
+    TROVE['is-absent']: {
+        JSONAPI_MEMBERNAME: {literal('is-absent', language='en')},
+    },
+    TROVE['is-present']: {
+        JSONAPI_MEMBERNAME: {literal('is-present', language='en')},
+    },
+    TROVE.before: {
+        JSONAPI_MEMBERNAME: {literal('before', language='en')},
+    },
+    TROVE.after: {
+        JSONAPI_MEMBERNAME: {literal('after', language='en')},
+    },
 }
 
 
