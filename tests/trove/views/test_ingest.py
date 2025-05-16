@@ -27,15 +27,16 @@ class TestIngest(TestCase):
                 HTTP_AUTHORIZATION=self.user.authorization(),
             )
             self.assertEqual(_resp.status_code, HTTPStatus.CREATED)
-            _mock_tract.swallow.assert_called_once_with(
+            _mock_tract.ingest.assert_called_once_with(
                 from_user=self.user,
-                record='turtleturtleturtle',
+                raw_record='turtleturtleturtle',
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
                 focus_iri='https://foo.example/blarg',
                 urgent=True,
                 is_supplementary=False,
                 expiration_date=None,
+                restore_deleted=True,
             )
 
     def test_post_nonurgent(self):
@@ -51,15 +52,16 @@ class TestIngest(TestCase):
                 HTTP_AUTHORIZATION=self.user.authorization(),
             )
             self.assertEqual(_resp.status_code, HTTPStatus.CREATED)
-            _mock_tract.swallow.assert_called_once_with(
+            _mock_tract.ingest.assert_called_once_with(
                 from_user=self.user,
-                record='turtleturtleturtle',
+                raw_record='turtleturtleturtle',
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
                 focus_iri='https://foo.example/blarg',
                 urgent=False,
                 is_supplementary=False,
                 expiration_date=None,
+                restore_deleted=True,
             )
 
     def test_post_supplementary(self):
@@ -75,15 +77,16 @@ class TestIngest(TestCase):
                 HTTP_AUTHORIZATION=self.user.authorization(),
             )
             self.assertEqual(_resp.status_code, HTTPStatus.CREATED)
-            _mock_tract.swallow.assert_called_once_with(
+            _mock_tract.ingest.assert_called_once_with(
                 from_user=self.user,
-                record='turtleturtleturtle',
+                raw_record='turtleturtleturtle',
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
                 focus_iri='https://foo.example/blarg',
                 urgent=True,
                 is_supplementary=True,
                 expiration_date=None,
+                restore_deleted=True,
             )
 
     def test_post_with_expiration(self):
@@ -100,15 +103,16 @@ class TestIngest(TestCase):
                 HTTP_AUTHORIZATION=self.user.authorization(),
             )
             self.assertEqual(_resp.status_code, HTTPStatus.CREATED)
-            _mock_tract.swallow.assert_called_once_with(
+            _mock_tract.ingest.assert_called_once_with(
                 from_user=self.user,
-                record='turtleturtleturtle',
+                raw_record='turtleturtleturtle',
                 record_identifier='blarg',
                 record_mediatype='text/turtle',
                 focus_iri='https://foo.example/blarg',
                 urgent=True,
                 is_supplementary=True,
                 expiration_date=datetime.date(2055, 5, 5),
+                restore_deleted=True,
             )
 
     def test_delete(self):
@@ -135,7 +139,7 @@ class TestIngest(TestCase):
                 data='turtleturtleturtle',
             )
         self.assertEqual(_resp.status_code, HTTPStatus.UNAUTHORIZED)
-        self.assertFalse(_mock_tract.swallow.called)
+        self.assertFalse(_mock_tract.ingest.called)
 
     def test_nontrusted_post(self):
         with patch_feature_flag(FeatureFlag.FORBID_UNTRUSTED_FEED):
@@ -152,7 +156,7 @@ class TestIngest(TestCase):
                     HTTP_AUTHORIZATION=_nontrusted_user.authorization(),
                 )
             self.assertEqual(_resp.status_code, HTTPStatus.FORBIDDEN)
-            self.assertFalse(_mock_tract.swallow.called)
+            self.assertFalse(_mock_tract.ingest.called)
 
     def test_anonymous_delete(self):
         with mock.patch('trove.views.ingest.digestive_tract') as _mock_tract:
@@ -185,4 +189,4 @@ class TestIngest(TestCase):
                 HTTP_AUTHORIZATION=self.user.authorization(),
             )
         self.assertEqual(_resp.status_code, HTTPStatus.BAD_REQUEST)
-        self.assertFalse(_mock_tract.swallow.called)
+        self.assertFalse(_mock_tract.ingest.called)

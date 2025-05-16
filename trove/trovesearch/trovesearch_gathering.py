@@ -370,8 +370,8 @@ def _load_cards_and_contents(*, card_iris=None, value_iris=None, deriver_iri) ->
 
 def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> dict[str, IndexcardFocus]:
     _card_namespace = trove_indexcard_namespace()
-    _indexcard_rdf_qs = (
-        trove_db.LatestIndexcardRdf.objects
+    _resource_description_qs = (
+        trove_db.LatestResourceDescription.objects
         .select_related('indexcard')
         .prefetch_related('indexcard__focus_identifier_set')
     )
@@ -380,19 +380,19 @@ def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> d
             iri_minus_namespace(_card_iri, namespace=_card_namespace)
             for _card_iri in card_iris
         }
-        _indexcard_rdf_qs = _indexcard_rdf_qs.filter(indexcard__uuid__in=_indexcard_uuids)
+        _resource_description_qs = _resource_description_qs.filter(indexcard__uuid__in=_indexcard_uuids)
     if value_iris is not None:
-        _indexcard_rdf_qs = _indexcard_rdf_qs.filter(
+        _resource_description_qs = _resource_description_qs.filter(
             indexcard__focus_identifier_set__in=(
                 trove_db.ResourceIdentifier.objects
                 .queryset_for_iris(value_iris)
             ),
         )
     _card_foci: dict[str, IndexcardFocus] = {}
-    for _indexcard_rdf in _indexcard_rdf_qs:
-        _card = _indexcard_rdf.indexcard
+    for _resource_description in _resource_description_qs:
+        _card = _resource_description.indexcard
         _card_iri = _card.get_iri()
-        _quoted_graph = _indexcard_rdf.as_quoted_graph()
+        _quoted_graph = _resource_description.as_quoted_graph()
         _quoted_graph.add(
             (_quoted_graph.focus_iri, FOAF.isPrimaryTopicOf, _card_iri),
         )

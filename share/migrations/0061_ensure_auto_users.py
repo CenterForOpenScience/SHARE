@@ -27,15 +27,15 @@ def ensure_share_system_user(apps, schema_editor):
 
 
 def ensure_share_admin_user(apps, schema_editor):
-    import os
     ShareUser = apps.get_model('share', 'ShareUser')
-
-    admin_username = 'admin'
-    admin_user_exists = ShareUser.objects.filter(username=admin_username).exists()
-    if not admin_user_exists:
+    if (
+        settings.SHARE_ADMIN_USERNAME
+        and settings.SHARE_ADMIN_PASSWORD
+        and not ShareUser.objects.filter(username=settings.SHARE_ADMIN_USERNAME).exists()
+    ):
         ShareUser.objects.create_superuser(
-            admin_username,
-            os.environ.get('SHARE_ADMIN_PASSWORD', 'password')
+            settings.SHARE_ADMIN_USERNAME,
+            settings.SHARE_ADMIN_PASSWORD,
         )
 
 
@@ -48,8 +48,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(
             code=ensure_share_system_user,
+            reverse_code=migrations.RunPython.noop,
         ),
         migrations.RunPython(
             code=ensure_share_admin_user,
+            reverse_code=migrations.RunPython.noop,
         ),
     ]

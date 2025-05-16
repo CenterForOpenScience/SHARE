@@ -127,15 +127,23 @@ def get_bool_value(
     if_absent: bool = False,  # by default, param absence is falsy
     if_empty: bool = True,  # by default, presence (with empty value) is truthy
 ) -> bool:
-    _value = get_single_value(queryparams, queryparam_name)
-    if _value is None:
+    return parse_booly_str(
+        get_single_value(queryparams, queryparam_name),
+        if_absent=if_absent,
+        if_empty=if_empty,
+    )
+
+
+def parse_booly_str(
+    value: str | None,
+    *,
+    if_absent: bool = False,  # by default, param absence is falsy
+    if_empty: bool = True,  # by default, presence (with empty value) is truthy
+) -> bool:
+    if value is None:
         return if_absent
-    if _value == '':
+    if value == '':
         return if_empty
-    return parse_booly_str(_value)
-
-
-def parse_booly_str(value: str):
     _lowered = value.lower()
     if _lowered in TRUTHY_VALUES:
         return True

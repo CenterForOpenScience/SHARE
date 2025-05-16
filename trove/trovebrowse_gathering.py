@@ -36,8 +36,8 @@ def gather_cards_focused_on(focus, *, blend_cards: bool):
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _indexcard_qs = trove_db.Indexcard.objects.filter(focus_identifier_set__in=_identifier_qs)
     if blend_cards:
-        for _latest_rdf in trove_db.LatestIndexcardRdf.objects.filter(indexcard__in=_indexcard_qs):
-            yield from rdf.iter_tripleset(_latest_rdf.as_rdf_tripledict())
+        for _latest_resource_description in trove_db.LatestResourceDescription.objects.filter(indexcard__in=_indexcard_qs):
+            yield from rdf.iter_tripleset(_latest_resource_description.as_rdf_tripledict())
     else:
         for _indexcard in _indexcard_qs:
             _card_iri = _indexcard.get_iri()

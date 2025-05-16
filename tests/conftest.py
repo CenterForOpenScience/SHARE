@@ -12,7 +12,6 @@ from django.utils import timezone
 
 from oauth2_provider.models import AccessToken, Application
 
-from share.models import RawDatum
 from share.models import ShareUser
 from share.models import SourceUniqueIdentifier
 
@@ -94,18 +93,6 @@ def suid(source_config):
     suid = SourceUniqueIdentifier(identifier='this is a record', source_config=source_config)
     suid.save()
     return suid
-
-
-@pytest.fixture
-def raw_data(suid):
-    raw_data = RawDatum(suid=suid, datum='{}')
-    raw_data.save()
-    return raw_data
-
-
-@pytest.fixture
-def raw_data_id(raw_data):
-    return raw_data.id
 
 
 @contextlib.contextmanager

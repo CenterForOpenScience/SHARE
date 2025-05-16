@@ -44,9 +44,9 @@ def oai_request(data, request_method, expect_errors=False):
 class TestOAIVerbs:
     @pytest.fixture(scope='class')
     def oai_indexcard(self, class_scoped_django_db):
-        _latest_indexcard_rdf = factories.LatestIndexcardRdfFactory()
+        _latest_resource_description = factories.LatestResourceDescriptionFactory()
         return factories.DerivedIndexcardFactory(
-            upriver_indexcard=_latest_indexcard_rdf.indexcard,
+            upriver_indexcard=_latest_resource_description.indexcard,
             deriver_identifier=trove_db.ResourceIdentifier.objects.get_or_create_for_iri(str(OAI_DC)),
             derived_text='<foo></foo>',
         )
@@ -165,17 +165,17 @@ class TestOAILists:
             trove_db.ResourceIdentifier.objects
             .get_or_create_for_iri(str(OAI_DC))
         )
-        _latest_rdfs = [
-            factories.LatestIndexcardRdfFactory()
+        _latest_resource_descriptions = [
+            factories.LatestResourceDescriptionFactory()
             for i in range(17)
         ]
         return [
             factories.DerivedIndexcardFactory(
-                upriver_indexcard=_latest_rdf.indexcard,
+                upriver_indexcard=_latest_resource_description.indexcard,
                 deriver_identifier=_deriver_identifier,
                 derived_text='<foo></foo>',
             )
-            for _latest_rdf in _latest_rdfs
+            for _latest_resource_description in _latest_resource_descriptions
         ]
 
     def test_lists(self, oai_indexcards, monkeypatch):

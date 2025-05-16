@@ -40,12 +40,11 @@ class BaseIndexcardDeriverTest(BasicInputOutputTestCase):
         _mock_suid.source_config.label = '--sourceconfig-label--'
         _mock_suid.source_config.source.long_title = '--source-title--'
 
-        _mock_indexcard_rdf = mock.Mock()
-        _mock_indexcard_rdf.id = '--indexcardf-id--'
-        _mock_indexcard_rdf.modified = datetime.datetime(2345, 2, 2)
-        _mock_indexcard_rdf.as_rdfdoc_with_supplements.return_value = rdf.RdfGraph(input_doc.tripledict)
-        _mock_indexcard_rdf.focus_iri = input_doc.focus_iri
-        _mock_indexcard_rdf.from_raw_datum_id = '--rawdatum-id--'
-        _mock_indexcard_rdf.indexcard.id = '--indexcard-id--'
-        _mock_indexcard_rdf.indexcard.source_record_suid = _mock_suid
-        return self.deriver_class(_mock_indexcard_rdf)
+        _mock_resource_description = mock.Mock()
+        _mock_resource_description.id = '--resdes-id--'
+        _mock_resource_description.modified = datetime.datetime(2345, 2, 2)
+        _mock_resource_description.as_rdfdoc_with_supplements.return_value = rdf.RdfGraph(input_doc.tripledict)
+        _mock_resource_description.focus_iri = input_doc.focus_iri
+        _mock_resource_description.indexcard.id = '--indexcard-id--'
+        _mock_resource_description.indexcard.source_record_suid = _mock_suid
+        return self.deriver_class(_mock_resource_description)

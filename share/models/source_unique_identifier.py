@@ -22,25 +22,15 @@ class SourceUniqueIdentifier(models.Model):
     class Meta:
         unique_together = ('identifier', 'source_config')
 
-    def most_recent_raw_datum(self):
-        """fetch the most recent RawDatum for this suid
-        """
-        return self._most_recent_raw_datum_queryset().first()
-
-    def most_recent_raw_datum_id(self):
-        return self._most_recent_raw_datum_queryset().values_list('id', flat=True).first()
-
-    def _most_recent_raw_datum_queryset(self):
-        from share.models import RawDatum
-        return RawDatum.objects.latest_by_suid_id(self.id)
-
     def get_date_first_seen(self) -> Optional[datetime.datetime]:
-        """when the first RawDatum for this suid was added
+        """when the first datum for this suid was added
         """
+        from trove.models import ArchivedResourceDescription
         return (
-            self.raw_data
-            .order_by('date_created')
-            .values_list('date_created', flat=True)
+            ArchivedResourceDescription.objects
+            .filter(indexcard__source_record_suid=self)
+            .order_by('created')
+            .values_list('created', flat=True)
             .first()
         )
 

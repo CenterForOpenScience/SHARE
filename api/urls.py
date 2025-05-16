@@ -9,7 +9,6 @@ app_name = 'api'
 urlpatterns = [
     url('^$', RootView.as_view()),
     url('^', include('api.banners.urls')),
-    url('^', include('api.rawdata.urls')),
     url('^', include('api.sourceconfigs.urls')),
     url('^', include('api.sources.urls')),
     url('^', include('api.suids.urls')),

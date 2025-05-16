@@ -224,12 +224,12 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
 
     # abstract method from Elastic8IndexStrategy
     def build_elastic_actions(self, messages_chunk: messages.MessagesChunk):
-        _indexcard_rdf_qs = ts.latest_rdf_for_indexcard_pks(messages_chunk.target_ids_chunk)
+        _resource_description_qs = ts.latest_resource_description_for_indexcard_pks(messages_chunk.target_ids_chunk)
         _remaining_indexcard_pks = set(messages_chunk.target_ids_chunk)
-        for _indexcard_rdf in _indexcard_rdf_qs:
-            _docbuilder = self._SourcedocBuilder(_indexcard_rdf, messages_chunk.timestamp)
+        for _resource_description in _resource_description_qs:
+            _docbuilder = self._SourcedocBuilder(_resource_description, messages_chunk.timestamp)
             if not _docbuilder.should_skip():  # if skipped, will be deleted
-                _indexcard_pk = _indexcard_rdf.indexcard_id
+                _indexcard_pk = _resource_description.indexcard_id
                 _cardsearch_actions = (
                     self.build_index_action(_doc_id, _doc)
                     for _doc_id, _doc in _docbuilder.build_cardsearch_docs()
@@ -333,16 +333,16 @@ class TrovesearchDenormIndexStrategy(Elastic8IndexStrategy):
     class _SourcedocBuilder:
         '''build elasticsearch sourcedocs for an rdf document
         '''
-        indexcard_rdf: trove_db.IndexcardRdf
+        resource_description: trove_db.ResourceDescription
         chunk_timestamp: int
         indexcard: trove_db.Indexcard = dataclasses.field(init=False)
         focus_iri: str = dataclasses.field(init=False)
         rdfdoc: rdf.RdfTripleDictionary = dataclasses.field(init=False)
 
         def __post_init__(self) -> None:
-            self.indexcard = self.indexcard_rdf.indexcard
-            self.focus_iri = self.indexcard_rdf.focus_iri
-            self.rdfdoc = self.indexcard_rdf.as_rdfdoc_with_supplements()
+            self.indexcard = self.resource_description.indexcard
+            self.focus_iri = self.resource_description.focus_iri
+            self.rdfdoc = self.resource_description.as_rdfdoc_with_supplements()
 
         def should_skip(self) -> bool:
             _suid = self.indexcard.source_record_suid

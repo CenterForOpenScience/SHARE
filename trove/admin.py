@@ -5,12 +5,12 @@ from share.admin import admin_site
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many
 from share.search.index_messenger import IndexMessenger
 from trove.models import (
-    ArchivedIndexcardRdf,
+    ArchivedResourceDescription,
     DerivedIndexcard,
     Indexcard,
-    LatestIndexcardRdf,
+    LatestResourceDescription,
     ResourceIdentifier,
-    SupplementaryIndexcardRdf,
+    SupplementaryResourceDescription,
 )
 
 
@@ -30,10 +30,10 @@ class ResourceIdentifierAdmin(admin.ModelAdmin):
 
 
 @admin.register(Indexcard, site=admin_site)
-@linked_many('archived_rdf_set', defer=('rdf_as_turtle',))
-@linked_many('supplementary_rdf_set', defer=('rdf_as_turtle',))
+@linked_many('archived_description_set', defer=('rdf_as_turtle',))
+@linked_many('supplementary_description_set', defer=('rdf_as_turtle',))
 @linked_many('derived_indexcard_set', defer=('derived_text',))
-@linked_fk('latest_rdf')
+@linked_fk('latest_resource_description')
 @linked_fk('source_record_suid')
 @linked_many('focustype_identifier_set')
 @linked_many('focus_identifier_set')
@@ -57,10 +57,9 @@ class IndexcardAdmin(admin.ModelAdmin):
     _freshen_index.short_description = 'freshen indexcard in search index'
 
 
-@admin.register(LatestIndexcardRdf, site=admin_site)
-@linked_fk('from_raw_datum')
+@admin.register(LatestResourceDescription, site=admin_site)
 @linked_fk('indexcard')
-class LatestIndexcardRdfAdmin(admin.ModelAdmin):
+class LatestResourceDescriptionAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
@@ -79,10 +78,9 @@ class LatestIndexcardRdfAdmin(admin.ModelAdmin):
     rdf_as_turtle__pre.short_description = 'rdf as turtle'
 
 
-@admin.register(ArchivedIndexcardRdf, site=admin_site)
-@linked_fk('from_raw_datum')
+@admin.register(ArchivedResourceDescription, site=admin_site)
 @linked_fk('indexcard')
-class ArchivedIndexcardRdfAdmin(admin.ModelAdmin):
+class ArchivedResourceDescriptionAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
@@ -92,8 +90,8 @@ class ArchivedIndexcardRdfAdmin(admin.ModelAdmin):
     )
     exclude = ('rdf_as_turtle',)
     paginator = TimeLimitedPaginator
-    list_display = ('id', 'indexcard', 'from_raw_datum', 'created', 'modified')
-    list_select_related = ('indexcard', 'from_raw_datum',)
+    list_display = ('id', 'indexcard', 'created', 'modified')
+    list_select_related = ('indexcard',)
     show_full_result_count = False
 
     def rdf_as_turtle__pre(self, instance):
@@ -101,11 +99,10 @@ class ArchivedIndexcardRdfAdmin(admin.ModelAdmin):
     rdf_as_turtle__pre.short_description = 'rdf as turtle'
 
 
-@admin.register(SupplementaryIndexcardRdf, site=admin_site)
-@linked_fk('from_raw_datum')
+@admin.register(SupplementaryResourceDescription, site=admin_site)
 @linked_fk('indexcard')
 @linked_fk('supplementary_suid')
-class SupplementaryIndexcardRdfAdmin(admin.ModelAdmin):
+class SupplementaryResourceDescriptionAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created',
         'modified',
@@ -115,8 +112,8 @@ class SupplementaryIndexcardRdfAdmin(admin.ModelAdmin):
     )
     exclude = ('rdf_as_turtle',)
     paginator = TimeLimitedPaginator
-    list_display = ('id', 'indexcard', 'from_raw_datum', 'created', 'modified')
-    list_select_related = ('indexcard', 'from_raw_datum',)
+    list_display = ('id', 'indexcard', 'created', 'modified')
+    list_select_related = ('indexcard',)
     show_full_result_count = False
 
     def rdf_as_turtle__pre(self, instance):

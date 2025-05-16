@@ -90,6 +90,8 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     if _scheme_match:
         _scheme = _scheme_match.group().lower()
         _remainder = iri[_scheme_match.end():]
+        if not _remainder.startswith(COLON):
+            raise trove_exceptions.IriInvalid(f'does not look like an iri (got "{iri}")')
         if not _remainder.startswith(COLON_SLASH_SLASH):
             # for an iri without '://', assume nothing!
             return (iri, _scheme)
@@ -179,3 +181,30 @@ def unquote_iri(iri: str) -> str:
             break
         _unquoted_iri = _next_unquoted_iri
     return _unquoted_iri
+
+
+def smells_like_iri(maybe_iri: str) -> bool:
+    '''check a string starts like an IRI (does not fully validate)
+
+    >>> smells_like_iri('https://blarg.example/hello')
+    True
+    >>> smells_like_iri('foo:bar')  # URN
+    True
+
+    >>> smells_like_iri('://blarg.example/hello')
+    False
+    >>> smells_like_iri('foo/bar')
+    False
+    >>> smells_like_iri('foo')
+    False
+    >>> smells_like_iri(7)
+    False
+    '''
+    try:
+        return (
+            isinstance(maybe_iri, str)
+            # nonempty suffuniq-iri and scheme
+            and all(get_sufficiently_unique_iri_and_scheme(maybe_iri))
+        )
+    except trove_exceptions.IriInvalid:
+        return False

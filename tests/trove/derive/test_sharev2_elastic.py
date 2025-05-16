@@ -46,7 +46,6 @@ class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
                 "papers": False,
                 "supplements": False
             },
-            "rawdatum_id": "--rawdatum-id--",
             "retracted": False,
             "source_config": "--sourceconfig-label--",
             "source_unique_id": "--sourceunique-id--",
@@ -123,7 +122,6 @@ class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
                 "papers": False,
                 "supplements": False
             },
-            "rawdatum_id": "--rawdatum-id--",
             "retracted": False,
             "source_config": "--sourceconfig-label--",
             "source_unique_id": "--sourceunique-id--",
@@ -197,7 +195,6 @@ class TestShareV2ElasticDeriver(BaseIndexcardDeriverTest):
             "publishers": [
                 "OSF Registries"
             ],
-            "rawdatum_id": "--rawdatum-id--",
             "retracted": False,
             "source_config": "--sourceconfig-label--",
             "source_unique_id": "--sourceunique-id--",

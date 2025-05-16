@@ -106,7 +106,7 @@ class OaiPmhRepository:
 
     def _do_identify(self, kwargs, renderer):
         _earliest_date = (
-            trove_db.LatestIndexcardRdf.objects
+            trove_db.LatestResourceDescription.objects
             .order_by('modified')
             .values_list('modified', flat=True)
             .first()
@@ -213,7 +213,7 @@ class OaiPmhRepository:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
             else:
                 _indexcard_queryset = _indexcard_queryset.filter(
-                    trove_latestindexcardrdf_set__modified__gte=_from,
+                    trove_latestresourcedescription_set__modified__gte=_from,
                 )
         if 'until' in kwargs:
             try:
@@ -224,7 +224,7 @@ class OaiPmhRepository:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
             else:
                 _indexcard_queryset = _indexcard_queryset.filter(
-                    trove_latestindexcardrdf_set__modified__lte=_until,
+                    trove_latestresourcedescription_set__modified__lte=_until,
                 )
         if 'set' in kwargs:
             _sourceconfig_ids = tuple(
@@ -246,7 +246,7 @@ class OaiPmhRepository:
     def _get_indexcard_queryset_with_annotations(self):
         return self._get_base_indexcard_queryset().annotate(
             oai_datestamp=Subquery(
-                trove_db.LatestIndexcardRdf.objects
+                trove_db.LatestResourceDescription.objects
                 .filter(indexcard_id=OuterRef('id'))
                 .values_list('modified', flat=True)
                 [:1]

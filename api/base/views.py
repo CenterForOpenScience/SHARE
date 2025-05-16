@@ -45,12 +45,11 @@ class ShareViewSet(viewsets.ViewSet):
 class RootView(views.APIView):
     def get(self, request):
         links = {
-            'rawdata': 'api:rawdatum-list',
             'sources': 'api:source-list',
             'users': 'api:user-list',
             'status': 'api:status',
-            'rss': 'api:rss',
-            'atom': 'api:atom',
+            'rss': 'api:feeds.rss',
+            'atom': 'api:feeds.atom',
         }
         ret = {k: request.build_absolute_uri(reverse(v)) for k, v in links.items()}
         return Response(ret)

@@ -146,7 +146,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
 
     # abstract method from IndexcardDeriver
     def derive_card_as_text(self):
-        _suid = self.upriver_rdf.indexcard.source_record_suid
+        _suid = self.upstream_description.indexcard.source_record_suid
         try:  # maintain doc id in the sharev2 index
             _suid = _suid.get_backcompat_sharev2_suid()
         except share_db.SourceUniqueIdentifier.DoesNotExist:
@@ -157,10 +157,9 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             ###
             # metadata about the record/indexcard in this system
             'id': IDObfuscator.encode(_suid),
-            'indexcard_id': self.upriver_rdf.indexcard.id,
-            'rawdatum_id': self.upriver_rdf.from_raw_datum_id,
+            'indexcard_id': self.upstream_description.indexcard.id,
             'date_created': _suid.get_date_first_seen().isoformat(),
-            'date_modified': self.upriver_rdf.modified.isoformat(),
+            'date_modified': self.upstream_description.modified.isoformat(),
             'sources': [_source_name],
             'source_config': _suid.source_config.label,
             'source_unique_id': _suid.identifier,

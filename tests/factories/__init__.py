@@ -1,4 +1,3 @@
-import hashlib
 import uuid
 
 import factory
@@ -51,25 +50,15 @@ class SourceUniqueIdentifierFactory(DjangoModelFactory):
         model = share_db.SourceUniqueIdentifier
 
 
-class RawDatumFactory(DjangoModelFactory):
-    datum = factory.Sequence(lambda n: f'{n}{fake.text()}')
-    suid = factory.SubFactory(SourceUniqueIdentifierFactory)
-    sha256 = factory.LazyAttribute(lambda r: hashlib.sha256(r.datum.encode()).hexdigest())
+class SiteBannerFactory(DjangoModelFactory):
+    title = factory.Faker('word')
+    description = factory.Faker('sentence')
+    color = fuzzy.FuzzyChoice(list(share_db.SiteBanner.COLOR.keys()))
+    created_by = factory.SubFactory(ShareUserFactory)
+    last_modified_by = factory.SubFactory(ShareUserFactory)
 
     class Meta:
-        model = share_db.RawDatum
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        raw_datum = super()._generate(create, attrs)
-
-        # HACK: allow overriding auto_now_add on date_created
-        date_created = attrs.pop('date_created', None)
-        if date_created is not None:
-            raw_datum.date_created = date_created
-            raw_datum.save()
-
-        return raw_datum
+        model = share_db.SiteBanner
 
 
 class CeleryTaskResultFactory(DjangoModelFactory):
@@ -99,15 +88,14 @@ class IndexcardFactory(DjangoModelFactory):
         model = trove_db.Indexcard
 
 
-class LatestIndexcardRdfFactory(DjangoModelFactory):
-    from_raw_datum = factory.SubFactory(RawDatumFactory)
+class LatestResourceDescriptionFactory(DjangoModelFactory):
     indexcard = factory.SubFactory(IndexcardFactory)
     focus_iri = factory.Sequence(lambda x: f'http://test.example/{x}')
     rdf_as_turtle = factory.Sequence(lambda x: f'<http://test.example/{x}> a <http://text.example/Greeting>')
     # turtle_checksum_iri =
 
     class Meta:
-        model = trove_db.LatestIndexcardRdf
+        model = trove_db.LatestResourceDescription
 
 
 class DerivedIndexcardFactory(DjangoModelFactory):
