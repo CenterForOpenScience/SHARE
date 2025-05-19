@@ -13,7 +13,7 @@ from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
-from trove.util.propertypath import Propertypath
+from trove.util.propertypath import Propertypath, GLOB_PATHSTEP
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
 from trove.vocab.namespaces import TROVE
@@ -77,14 +77,14 @@ class TabularDoc:
     def _column_paths(self) -> Iterator[Propertypath]:
         _pathlists: list[Iterable[Propertypath]] = []
         if self.trove_params is not None:  # hacks
+            if GLOB_PATHSTEP in self.trove_params.attrpaths_by_type:
+                _pathlists.append(self.trove_params.attrpaths_by_type['*'])
             if isinstance(self.trove_params, ValuesearchParams):
                 _expected_card_types = set(self.trove_params.valuesearch_type_iris())
             elif isinstance(self.trove_params, CardsearchParams):
                 _expected_card_types = set(self.trove_params.cardsearch_type_iris())
             else:
                 _expected_card_types = set()
-            if '*' in self.trove_params.attrpaths_by_type:
-                _pathlists.append(self.trove_params.attrpaths_by_type['*'])
             for _type_iri in sorted(_expected_card_types, key=len):
                 try:
                     _pathlist = self.trove_params.attrpaths_by_type[_type_iri]
@@ -94,7 +94,15 @@ class TabularDoc:
                     _pathlists.append(_pathlist)
         if not _pathlists:
             _pathlists.append(osfmap.DEFAULT_TABULAR_SEARCH_COLUMN_PATHS)
-        return itertools.chain.from_iterable(_pathlists)
+        return self.iter_unique(itertools.chain.from_iterable(_pathlists))
+
+    @staticmethod
+    def iter_unique(iterable):
+        _seen = set()
+        for _item in iterable:
+            if _item not in _seen:
+                _seen.add(_item)
+                yield _item
 
     def _iter_card_pages(self):
         assert not self._started

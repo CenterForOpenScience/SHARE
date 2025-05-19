@@ -15,7 +15,7 @@ from trove.util.frozen import freeze
 from trove.util.propertypath import (
     PropertypathSet,
     Propertypath,
-    parse_propertypath,
+    parse_propertypath, GLOB_PATHSTEP,
 )
 from trove.util import queryparams as _qp
 from trove.vocab.namespaces import namespaces_shorthand
@@ -108,20 +108,19 @@ class BasicTroveParams:
                         f'expected "fields[TYPE]" (with exactly one non-empty bracketed segment)'
                         f' (got "{_param_name}")'
                     )
-                if _typenames == '*':
-                    wildcard_paths.extend(
-                        parse_propertypath(_path_value, shorthand)
-                        for _path_value in _qp.split_queryparam_value(_param_value)
-                    )
                 else:
                     for _type in _qp.split_queryparam_value(_typenames):
-                        _type_iri = shorthand.expand_iri(_type)
-                        _requested[_type_iri].extend(
-                            parse_propertypath(_path_value, shorthand)
-                            for _path_value in _qp.split_queryparam_value(_param_value)
+                        _type_key = (
+                            GLOB_PATHSTEP
+                            if _type == GLOB_PATHSTEP
+                            else shorthand.expand_iri(_type)
                         )
-            if wildcard_paths:
-                _requested['*'].extend(wildcard_paths)
+                        _requested[_type_key].extend(
+                            (
+                                parse_propertypath(_path_value, shorthand)
+                                for _path_value in _qp.split_queryparam_value(_param_value)
+                            )
+                        )
             _attrpaths = _attrpaths.with_new(freeze(_requested))
         return _attrpaths
 
