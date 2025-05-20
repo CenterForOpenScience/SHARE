@@ -99,7 +99,6 @@ class BasicTroveParams:
         _fields_params = queryparams.get('fields', [])
         if _fields_params:
             _requested: dict[str, list[Propertypath]] = defaultdict(list)
-            wildcard_paths: list[Propertypath] = []
             for _param_name, _param_value in _fields_params:
                 try:
                     (_typenames,) = filter(bool, _param_name.bracketed_names)
