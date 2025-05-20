@@ -1,5 +1,9 @@
 # Change Log
 
+# [25.3.1] - 2025-05-20
+- fix: more consistent `suggestedFilterOperator` values in json api
+- configurable rabbitmq connection heartbeat timeout via `RABBITMQ_HEARTBEAT_TIMEOUT` env var
+
 # [25.3.0] - 2025-05-07
 - remove search-text parsing from base trovesearch params (syntax may now vary by index strategy)
 - add search-text syntax to `trovesearch_denorm` index strategy (using elasticsearch `simple_query_string`)
