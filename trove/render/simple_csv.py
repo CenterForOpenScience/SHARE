@@ -78,7 +78,7 @@ class TabularDoc:
         _pathlists: list[Iterable[Propertypath]] = []
         if self.trove_params is not None:  # hacks
             if GLOB_PATHSTEP in self.trove_params.attrpaths_by_type:
-                _pathlists.append(self.trove_params.attrpaths_by_type['*'])
+                _pathlists.append(self.trove_params.attrpaths_by_type[GLOB_PATHSTEP])
             if isinstance(self.trove_params, ValuesearchParams):
                 _expected_card_types = set(self.trove_params.valuesearch_type_iris())
             elif isinstance(self.trove_params, CardsearchParams):
