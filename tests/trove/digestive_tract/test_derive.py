@@ -29,9 +29,9 @@ blarg:this
         )
 
     def test_derive(self):
-        (_derived,) = digestive_tract.derive(self.indexcard)
+        (_derived,) = digestive_tract.derive(self.indexcard, deriver_iris=[TROVE['derive/osfmap_json_full']])
         self.assertEqual(_derived.upriver_indexcard_id, self.indexcard.id)
-        self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json']))
+        self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json_full']))
         self.assertEqual(json.loads(_derived.derived_text), {
             '@id': 'blarg:this',
             'resourceType': [{'@id': 'blarg:Thing'}],
@@ -51,9 +51,9 @@ blarg:this
 blarg:this blarg:unlike blarg:nonthing .
 ''',
         )
-        (_derived,) = digestive_tract.derive(self.indexcard)
+        (_derived,) = digestive_tract.derive(self.indexcard, deriver_iris=[TROVE['derive/osfmap_json_full']])
         self.assertEqual(_derived.upriver_indexcard_id, self.indexcard.id)
-        self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json']))
+        self.assertEqual(_derived.deriver_identifier.sufficiently_unique_iri, get_sufficiently_unique_iri(TROVE['derive/osfmap_json_full']))
         self.assertEqual(json.loads(_derived.derived_text), {
             '@id': 'blarg:this',
             'resourceType': [{'@id': 'blarg:Thing'}],

@@ -12,7 +12,7 @@ from trove.vocab.osfmap import (
 from ._base import IndexcardDeriver
 
 
-class OsfmapJsonDeriver(IndexcardDeriver):
+class OsfmapJsonFullDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     @staticmethod
     def deriver_iri() -> str:

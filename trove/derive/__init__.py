@@ -1,12 +1,13 @@
 from . import (
     sharev2_elastic,
     osfmap_json_mini,
-    oaidc_xml,
+    oaidc_xml, osfmap_json,
 )
 
 DERIVER_SET = (
     sharev2_elastic.ShareV2ElasticDeriver,
     osfmap_json_mini.IndexcardJsonDeriver,
+    osfmap_json.OsfmapJsonFullDeriver,
     oaidc_xml.OaiDcXmlDeriver,
     # TODO:
     # datacite_xml, (from osf.metadata)
@@ -14,10 +15,16 @@ DERIVER_SET = (
     # property_label?
 )
 
+DEFAULT_DERIVER_SET = (
+    sharev2_elastic.ShareV2ElasticDeriver,
+    osfmap_json_mini.IndexcardJsonDeriver,
+    oaidc_xml.OaiDcXmlDeriver,
+)
+
 
 def get_deriver_classes(deriver_iri_filter=None):
     if deriver_iri_filter is None:
-        return DERIVER_SET
+        return DEFAULT_DERIVER_SET
     return [
         _deriver_class
         for _deriver_class in DERIVER_SET

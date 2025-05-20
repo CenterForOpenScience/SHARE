@@ -1,5 +1,5 @@
 from trove.vocab import namespaces as ns
-from trove.derive.osfmap_json import OsfmapJsonDeriver
+from trove.derive.osfmap_json import OsfmapJsonFullDeriver
 from trove.vocab.namespaces import TROVE
 
 INCLUDED_PREDICATE_SET = frozenset({
@@ -36,7 +36,7 @@ INCLUDED_PREDICATE_SET = frozenset({
 })
 
 
-class IndexcardJsonDeriver(OsfmapJsonDeriver):
+class IndexcardJsonDeriver(OsfmapJsonFullDeriver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convert_tripledict()

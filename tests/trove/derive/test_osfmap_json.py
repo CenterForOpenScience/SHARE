@@ -1,11 +1,11 @@
 import json
-from trove.derive.osfmap_json import OsfmapJsonDeriver
+from trove.derive.osfmap_json import OsfmapJsonFullDeriver
 from trove.derive.osfmap_json_mini import IndexcardJsonDeriver
 from ._base import BaseIndexcardDeriverTest
 
 
 class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
-    deriver_class = OsfmapJsonDeriver
+    deriver_class = OsfmapJsonFullDeriver
     expected_outputs = {
         'blarg-item': {
             "@id": "blarg:my_item",
