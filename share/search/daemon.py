@@ -29,7 +29,6 @@ QUICK_TIMEOUT = 0.1             # seconds
 MINIMUM_BACKOFF_FACTOR = 1.6    # unitless ratio
 MAXIMUM_BACKOFF_FACTOR = 2.0    # unitless ratio
 MAXIMUM_BACKOFF_TIMEOUT = 60    # seconds
-CONNECTION_HEARTBEAT = 20       # seconds (see https://www.rabbitmq.com/docs/heartbeats#false-positives )
 
 
 class TooFastSlowDown(Exception):
@@ -40,7 +39,7 @@ class IndexerDaemonControl:
     def __init__(self, celery_app, *, daemonthread_context=None, stop_event=None):
         self.kombu_connection = kombu.Connection(
             celery_app.conf.broker_url,  # use celery_app.conf for consistent config
-            heartbeat=CONNECTION_HEARTBEAT,
+            heartbeat=settings.RABBITMQ_HEARTBEAT_TIMEOUT,
         )
         self.daemonthread_context = daemonthread_context
         self._daemonthreads = []
