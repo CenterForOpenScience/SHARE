@@ -1,51 +1,61 @@
+from trove.vocab import namespaces as ns
 from trove.derive.osfmap_json import OsfmapJsonDeriver
-from primitive_metadata import primitive_rdf as rdf
+from trove.vocab.namespaces import TROVE
 
-PREDICATE_LIST = [
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-    'http://purl.org/dc/terms/title',
-    'http://purl.org/dc/terms/creator',
-    'http://purl.org/dc/terms/created',
-    'http://xmlns.com/foaf/0.1/name',
-    'http://www.w3.org/2002/07/owl#sameAs',
-    'http://purl.org/dc/terms/conformsTo',
-    'http://purl.org/dc/terms/dateCopyrighted',
-    'http://purl.org/dc/terms/description',
-    'http://purl.org/dc/terms/hasPart',
-    'http://purl.org/dc/terms/isVersionOf',
-    'http://purl.org/dc/terms/modified',
-    'http://purl.org/dc/terms/publisher',
-    'http://purl.org/dc/terms/rights',
-    'http://purl.org/dc/terms/subject',
-    'http://purl.org/dc/terms/isPartOf',
-    'http://purl.org/dc/terms/identifier',
-    'http://www.w3.org/2004/02/skos/core#inScheme',
-    'http://www.w3.org/2004/02/skos/core#prefLabel',
-    'https://osf.io/vocab/2022/affiliation',
-    'https://osf.io/vocab/2022/archivedAt',
-    'https://osf.io/vocab/2022/contains',
-    'https://osf.io/vocab/2022/hostingInstitution',
-    'https://osf.io/vocab/2022/keyword',
-    'http://www.w3.org/ns/prov#qualifiedAttribution',
-    'https://osf.io/vocab/2022/fileName',
-    'https://osf.io/vocab/2022/filePath',
-    'https://osf.io/vocab/2022/isContainedBy',
-    'https://osf.io/vocab/2022/keyword'
-]
-
+INCLUDED_PREDICATE_SET = frozenset({
+    ns.RDF.type,
+    ns.DCTERMS.title,
+    ns.DCTERMS.creator,
+    ns.DCTERMS.date, # new
+    ns.DCTERMS.created,
+    ns.FOAF.name,
+    ns.OWL.sameAs,
+    ns.DCTERMS.conformsTo,
+    ns.DCTERMS.dateCopyrighted,
+    ns.DCTERMS.description,
+    ns.DCTERMS.hasPart,
+    ns.DCTERMS.isVersionOf,
+    ns.DCTERMS.modified,
+    ns.DCTERMS.publisher,
+    ns.DCTERMS.rights,
+    ns.DCTERMS.subject,
+    ns.DCTERMS.isPartOf,
+    ns.DCTERMS.identifier,
+    ns.SKOS.inScheme,
+    ns.SKOS.prefLabel,
+    ns.OSFMAP.affiliation,
+    ns.OSFMAP.archivedAt,
+    ns.DCTERMS.dateAccepted,
+    ns.DCTERMS.dateModified,
+    ns.OSFMAP.hostingInstitution,
+    ns.OSFMAP.keyword,
+    ns.OSFMAP.contains,
+    ns.OSFMAP.fileName,
+    ns.OSFMAP.filePath,
+    ns.OSFMAP.isContainedBy
+})
 
 class IndexcardJsonDeriver(OsfmapJsonDeriver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convert_tripledict()
 
+    @staticmethod
+    def deriver_iri() -> str:
+        return TROVE['derive/osfmap_json']
+
     def convert_tripledict(self):
-        self.data.tripledict = rdf.tripledict_from_tripleset(
-            (_subj, _pred, _obj)
-            for (_subj, _pred, _obj) in rdf.iter_tripleset(self.data.tripledict)
-            if self._should_keep_predicate(_pred)
-        )
+        self.data.tripledict = {
+            _subj: _new_twopledict
+            for _subj, _old_twopledict in self.data.tripledict.items()
+            if (_new_twopledict := {
+                _pred: _obj_set
+                for _pred, _obj_set in _old_twopledict.items()
+                if self._should_keep_predicate(_pred)
+            })
+        }
+
 
     @staticmethod
     def _should_keep_predicate(predicate: str) -> bool:
-        return True if predicate in PREDICATE_LIST else True
+        return True if predicate in INCLUDED_PREDICATE_SET else False

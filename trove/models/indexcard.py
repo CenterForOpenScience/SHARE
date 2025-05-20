@@ -408,7 +408,6 @@ class DerivedIndexcard(models.Model):
     def deriver_cls(self):
         from trove.derive import get_deriver_classes
         (_deriver_cls,) = get_deriver_classes(self.deriver_identifier.raw_iri_list)
-        _deriver_cls(upriver_rdf=self.upriver_indexcard.latest_rdf)
         return _deriver_cls
 
     def as_rdf_literal(self) -> rdf.Literal:

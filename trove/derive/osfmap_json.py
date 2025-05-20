@@ -16,7 +16,7 @@ class OsfmapJsonDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     @staticmethod
     def deriver_iri() -> str:
-        return TROVE['derive/osfmap_json']
+        return TROVE['derive/osfmap_json_full']
 
     # abstract method from IndexcardDeriver
     @staticmethod
