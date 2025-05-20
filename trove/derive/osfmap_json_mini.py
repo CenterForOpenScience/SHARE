@@ -6,7 +6,7 @@ INCLUDED_PREDICATE_SET = frozenset({
     ns.RDF.type,
     ns.DCTERMS.title,
     ns.DCTERMS.creator,
-    ns.DCTERMS.date, # new
+    ns.DCTERMS.date,
     ns.DCTERMS.created,
     ns.FOAF.name,
     ns.OWL.sameAs,
@@ -35,6 +35,7 @@ INCLUDED_PREDICATE_SET = frozenset({
     ns.OSFMAP.isContainedBy
 })
 
+
 class IndexcardJsonDeriver(OsfmapJsonDeriver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,7 +55,6 @@ class IndexcardJsonDeriver(OsfmapJsonDeriver):
                 if self._should_keep_predicate(_pred)
             })
         }
-
 
     @staticmethod
     def _should_keep_predicate(predicate: str) -> bool:

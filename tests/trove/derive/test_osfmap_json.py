@@ -541,7 +541,8 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
                 {"@value": "IMLS"},
                 {"@value": "OSF"}
             ]
-        },}
+        }
+    }
 
     def assert_outputs_equal(self, expected, actual):
         self.assertEqual(expected, json.loads(actual))
