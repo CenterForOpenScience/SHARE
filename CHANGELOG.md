@@ -1,5 +1,8 @@
 # Change Log
 
+# [25.3.2] - 2025-05-21
+- fix: avoid `sharev2_elastic` queue backups by `ack`ing more correctly
+
 # [25.3.1] - 2025-05-20
 - fix: more consistent `suggestedFilterOperator` values in json api
 - configurable rabbitmq connection heartbeat timeout via `RABBITMQ_HEARTBEAT_TIMEOUT` env var

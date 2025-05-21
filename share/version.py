@@ -1,4 +1,4 @@
-__version__ = '25.3.1'
+__version__ = '25.3.2'
 
 
 def get_share_version() -> str:
