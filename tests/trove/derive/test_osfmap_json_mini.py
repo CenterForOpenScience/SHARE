@@ -1,10 +1,10 @@
 import json
-from trove.derive.osfmap_json import OsfmapJsonFullDeriver
+from trove.derive.osfmap_json_mini import OsfmapJsonMiniDeriver
 from ._base import BaseIndexcardDeriverTest
 
 
-class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
-    deriver_class = OsfmapJsonFullDeriver
+class TestOsfmapJsonMiniDeriver(BaseIndexcardDeriverTest):
+    deriver_class = OsfmapJsonMiniDeriver
     expected_outputs = {
         'blarg-item': {
             "@id": "blarg:my_item",
@@ -198,10 +198,6 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
                     ]
                 }
             ],
-            'qualifiedAttribution': [{
-                'agent': [{'@id': 'https://osf.example/bhcjn'}],
-                'hadRole': [{'@id': 'osf:admin-contributor'}],
-            }],
             "dateCopyrighted": [
                 {"@value": "2021"}
             ],
@@ -444,21 +440,6 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
             "sameAs": [
                 {"@id": "https://doi.example/10.17605/OSF.IO/2C4ST"}
             ],
-            "accessService": [
-                {
-                    "@id": "https://osf.example",
-                    "resourceType": [
-                        {"@id": "Agent"},
-                        {"@id": "Organization"}
-                    ],
-                    "identifier": [
-                        {"@value": "https://osf.example"}
-                    ],
-                    "name": [
-                        {"@value": "OSF"}
-                    ]
-                }
-            ],
             "affiliation": [
                 {
                     "@id": "https://ror.example/05d5mza29",
@@ -476,32 +457,6 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
             ],
             "archivedAt": [
                 {"@id": "https://archive.example/details/osf-registrations-2c4st-v1"}
-            ],
-            "osf:contains": [
-                {
-                    "@id": "https://osf.example/2ph9b",
-                    "resourceType": [
-                        {"@id": "File"}
-                    ],
-                    "dateCreated": [
-                        {"@value": "2021-10-18"}
-                    ],
-                    "identifier": [
-                        {"@value": "https://osf.example/2ph9b"}
-                    ],
-                    "dateModified": [
-                        {"@value": "2021-10-18"}
-                    ],
-                    "fileName": [
-                        {"@value": "test_file.txt"}
-                    ],
-                    "filePath": [
-                        {"@value": "/Archive of OSF Storage/test_file.txt"}
-                    ],
-                    "isContainedBy": [
-                        {"@id": "https://osf.example/2c4st"}
-                    ]
-                }
             ],
             "hostingInstitution": [
                 {
@@ -540,7 +495,7 @@ class TestOsfmapJsonDeriver(BaseIndexcardDeriverTest):
                 {"@value": "IMLS"},
                 {"@value": "OSF"}
             ]
-        }
+        },
     }
 
     def assert_outputs_equal(self, expected, actual):

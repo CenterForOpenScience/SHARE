@@ -29,14 +29,13 @@ INCLUDED_PREDICATE_SET = frozenset({
     ns.DCTERMS.dateModified,
     ns.OSFMAP.hostingInstitution,
     ns.OSFMAP.keyword,
-    ns.OSFMAP.contains,
     ns.OSFMAP.fileName,
     ns.OSFMAP.filePath,
     ns.OSFMAP.isContainedBy
 })
 
 
-class IndexcardJsonDeriver(OsfmapJsonFullDeriver):
+class OsfmapJsonMiniDeriver(OsfmapJsonFullDeriver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.convert_tripledict()
@@ -58,4 +57,4 @@ class IndexcardJsonDeriver(OsfmapJsonFullDeriver):
 
     @staticmethod
     def _should_keep_predicate(predicate: str) -> bool:
-        return True if predicate in INCLUDED_PREDICATE_SET else False
+        return predicate in INCLUDED_PREDICATE_SET

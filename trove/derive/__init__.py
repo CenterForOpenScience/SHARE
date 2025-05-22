@@ -6,7 +6,7 @@ from . import (
 
 DERIVER_SET = (
     sharev2_elastic.ShareV2ElasticDeriver,
-    osfmap_json_mini.IndexcardJsonDeriver,
+    osfmap_json_mini.OsfmapJsonMiniDeriver,
     osfmap_json.OsfmapJsonFullDeriver,
     oaidc_xml.OaiDcXmlDeriver,
     # TODO:
@@ -17,7 +17,7 @@ DERIVER_SET = (
 
 DEFAULT_DERIVER_SET = (
     sharev2_elastic.ShareV2ElasticDeriver,
-    osfmap_json_mini.IndexcardJsonDeriver,
+    osfmap_json_mini.OsfmapJsonMiniDeriver,
     oaidc_xml.OaiDcXmlDeriver,
 )
 
