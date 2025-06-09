@@ -197,6 +197,18 @@ class RawDatumManager(FuzzyCountManager):
             .values('latest_rawdatum_id')
         ))
 
+    def latest(self) -> models.QuerySet:
+        # only the latest datum for each described resource
+        _latest_pk_subquery = models.Subquery(
+            self.filter(suid_id=models.OuterRef('suid_id'))
+            .order_by(Coalesce('datestamp', 'date_created').desc(nulls_last=True))
+            .values('pk')
+            [:1]
+        )
+        return self.annotate(
+            latest_same_suid=_latest_pk_subquery,
+        ).filter(pk=models.F('latest_same_suid'))
+
 
 class RawDatum(models.Model):
 
