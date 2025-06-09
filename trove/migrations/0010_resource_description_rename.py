@@ -5,7 +5,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('trove', '0008_no_raw_datum'),
+        ('trove', '0009_no_raw_datum'),
     ]
 
     operations = [

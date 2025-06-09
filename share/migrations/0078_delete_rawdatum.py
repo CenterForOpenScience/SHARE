@@ -7,7 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('share', '0077_big_cleanup_2025'),
-        ('trove', '0008_no_raw_datum'),
+        ('trove', '0009_no_raw_datum'),
     ]
 
     operations = [
