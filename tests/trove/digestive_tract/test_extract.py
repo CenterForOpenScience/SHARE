@@ -57,6 +57,7 @@ blarg:this blarg:like blarg:another ;
         _latest_resource_description = _indexcard.latest_resource_description
         self.assertEqual(_latest_resource_description.indexcard_id, _indexcard.id)
         self.assertEqual(_latest_resource_description.focus_iri, _BLARG.this)
+        self.assertIsNone(_latest_resource_description.expiration_date)
         self.assertEqual(_latest_resource_description.as_rdf_tripledict(), {
             _BLARG.this: {
                 rdf.RDF.type: {_BLARG.Thing},
@@ -91,6 +92,7 @@ blarg:this blarg:like blarg:another ;
         _latest_resource_description = _indexcard.latest_resource_description
         self.assertEqual(_latest_resource_description.indexcard_id, _indexcard.id)
         self.assertEqual(_latest_resource_description.focus_iri, _BLARG.this)
+        self.assertEqual(_latest_resource_description.expiration_date, _expir)
         self.assertEqual(_latest_resource_description.as_rdf_tripledict(), {
             _BLARG.this: {
                 rdf.RDF.type: {_BLARG.Thing},
@@ -103,6 +105,23 @@ blarg:this blarg:like blarg:another ;
                 _BLARG.like: {_BLARG.that},
             },
         })
+
+    def test_extract_supplement_before_expiration(self):
+        (_indexcard,) = digestive_tract.extract(
+            suid=self.suid,
+            record_mediatype=mediatypes.TURTLE,
+            raw_record=self.raw_turtle,
+        )
+        _expir = datetime.date.today() + datetime.timedelta(days=5)
+        (_supped_indexcard,) = digestive_tract.extract(
+            suid=self.supp_suid,
+            record_mediatype=mediatypes.TURTLE,
+            raw_record=self.supp_raw_turtle,
+            expiration_date=_expir,
+        )
+        self.assertEqual(_indexcard, _supped_indexcard)
+        (_supp_rdf,) = _indexcard.supplementary_description_set.all()
+        self.assertEqual(_supp_rdf.expiration_date, _expir)
 
     def test_extract_supplementary_without_prior(self):
         _cards = digestive_tract.extract(
@@ -133,6 +152,7 @@ blarg:this blarg:like blarg:another ;
         (_supp_rdf,) = _indexcard.supplementary_description_set.all()
         self.assertEqual(_supp_rdf.indexcard_id, _indexcard.id)
         self.assertEqual(_supp_rdf.focus_iri, _BLARG.this)
+        self.assertIsNone(_supp_rdf.expiration_date)
         self.assertEqual(_supp_rdf.as_rdf_tripledict(), {
             _BLARG.this: {
                 _BLARG.like: {_BLARG.another},
