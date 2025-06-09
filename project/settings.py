@@ -341,8 +341,17 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-CELERY_RESULT_EXPIRES = 60 * 60 * 24 * 3  # 4 days
 CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
+CELERY_RESULT_EXPIRES = int(os.environ.get(
+    'CELERY_RESULT_EXPIRES',
+    60 * 60 * 24 * 3,  # 3 days
+))
+# only successful tasks get the default expiration (above)
+# -- failed tasks kept longer (see `share.celery`)
+FAILED_CELERY_RESULT_EXPIRES = int(os.environ.get(
+    'FAILED_CELERY_RESULT_EXPIRES',
+    60 * 60 * 24 * 11,  # 11 days
+))
 
 # Don't reject tasks that were present on a worker when it was killed
 CELERY_TASK_REJECT_ON_WORKER_LOST = False

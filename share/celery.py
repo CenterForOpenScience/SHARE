@@ -1,13 +1,15 @@
+import datetime
 import functools
 import logging
-
 
 from celery import states
 from celery.app.task import Context
 from celery.backends.base import BaseDictBackend
 from celery.utils.time import maybe_timedelta
 
+from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 import sentry_sdk
@@ -90,7 +92,10 @@ class CeleryDatabaseBackend(BaseDictBackend):
 
     @die_on_unhandled
     def cleanup(self, expires=None):
-        TaskResultCleaner(expires or self.expires).clean()
+        TaskResultCleaner(
+            success_ttl=(expires or self.expires),
+            nonsuccess_ttl=settings.FAILED_CELERY_RESULT_EXPIRES,
+        ).clean()
 
     @die_on_unhandled
     def _get_task_meta_for(self, task_id):
@@ -111,20 +116,19 @@ class TaskResultCleaner:
 
     TaskModel = CeleryTaskResult
 
-    TASK_TTLS = {
-    }
-
-    NO_ARCHIVE = {
-    }
-
-    def __init__(self, expires, bucket=None, delete=True, chunk_size=5000):
-        self.bucket = bucket
+    def __init__(self, success_ttl, nonsuccess_ttl=None, delete=True, chunk_size=5000):
         self.chunk_size = chunk_size
         self.delete = delete
-        self.expires = expires
+        self.success_ttl = success_ttl
+        self.nonsuccess_ttl = nonsuccess_ttl or success_ttl
 
-    def get_ttl(self, task_name):
-        return timezone.now() - maybe_timedelta(self.TASK_TTLS.get(task_name, self.expires))
+    @property
+    def success_cutoff(self) -> datetime.datetime:
+        return timezone.now() - maybe_timedelta(self.success_ttl)
+
+    @property
+    def nonsuccess_cutoff(self) -> datetime.datetime:
+        return timezone.now() - maybe_timedelta(self.nonsuccess_ttl)
 
     def get_task_names(self):
         qs = self.TaskModel.objects.values('task_name').annotate(name=GroupBy('task_name'))
@@ -137,12 +141,15 @@ class TaskResultCleaner:
 
     def clean(self):
         for name in self.get_task_names():
-            logger.debug('Looking for succeeded %s tasks modified before %s', name, self.get_ttl(name))
-
-            queryset = self.TaskModel.objects.filter(
-                task_name=name,
-                status=states.SUCCESS,
-                date_modified__lt=self.get_ttl(name)
+            success_q = Q(status=states.SUCCESS, date_modified__lt=self.success_cutoff)
+            nonsuccess_q = (
+                ~Q(status=states.SUCCESS)
+                & Q(date_modified__lt=self.nonsuccess_cutoff)
+            )
+            queryset = (
+                self.TaskModel.objects
+                .filter(task_name=name)
+                .filter(success_q | nonsuccess_q)
             )
 
             if not queryset.exists():
