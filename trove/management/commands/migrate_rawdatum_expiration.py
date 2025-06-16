@@ -24,7 +24,7 @@ class Command(BaseShareCommand):
         _before = time.perf_counter()
         _total_updated = 0
         _raw_qs = (
-            share_db.RawDatum.objects.latest()  # only the latest datum for each resource
+            share_db.RawDatum.objects.latest_for_each_suid()
             .filter(expiration_date__gt=today)  # ignore the expired (and the non-expiring)
         )
         if continue_after is not None:

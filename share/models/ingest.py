@@ -197,7 +197,7 @@ class RawDatumManager(FuzzyCountManager):
             .values('latest_rawdatum_id')
         ))
 
-    def latest(self) -> models.QuerySet:
+    def latest_for_each_suid(self) -> models.QuerySet:
         # only the latest datum for each described resource
         _latest_pk_subquery = models.Subquery(
             self.filter(suid_id=models.OuterRef('suid_id'))
