@@ -248,6 +248,7 @@ class Indexcard(models.Model):
             defaults={
                 'rdf_as_turtle': _rdf_as_turtle,
                 'focus_iri': focus_iri,
+                'expiration_date': from_raw_datum.expiration_date,
             },
         )
         if (not _archived_created) and (_archived.rdf_as_turtle != _rdf_as_turtle):
@@ -260,6 +261,7 @@ class Indexcard(models.Model):
                     'turtle_checksum_iri': _turtle_checksum_iri,
                     'rdf_as_turtle': _rdf_as_turtle,
                     'focus_iri': focus_iri,
+                    'expiration_date': from_raw_datum.expiration_date,
                 },
             )
             return _latest_indexcard_rdf
@@ -282,6 +284,7 @@ class Indexcard(models.Model):
                 'turtle_checksum_iri': _turtle_checksum_iri,
                 'rdf_as_turtle': _rdf_as_turtle,
                 'focus_iri': focus_iri,
+                'expiration_date': from_raw_datum.expiration_date,
             },
         )
         return _supplement_rdf
@@ -306,6 +309,13 @@ class IndexcardRdf(models.Model):
     turtle_checksum_iri = models.TextField(db_index=True)
     focus_iri = models.TextField()  # exact iri used in rdf_as_turtle
     rdf_as_turtle = models.TextField()  # TODO: store elsewhere by checksum
+
+    # optional:
+    expiration_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text='An (optional) date when this description will no longer be valid.',
+    )
 
     def as_rdf_tripledict(self) -> rdf.RdfTripleDictionary:
         return rdf.tripledict_from_turtle(self.rdf_as_turtle)
@@ -344,6 +354,7 @@ class LatestIndexcardRdf(IndexcardRdf):
         ]
         indexes = [
             models.Index(fields=('modified',)),  # for OAI-PMH selective harvest
+            models.Index(fields=['expiration_date']),  # for expiring
         ]
 
 
@@ -372,6 +383,9 @@ class SupplementaryIndexcardRdf(IndexcardRdf):
                 fields=('indexcard', 'supplementary_suid'),
                 name='%(app_label)s_%(class)s_uniq_supplement',
             ),
+        ]
+        indexes = [
+            models.Index(fields=['expiration_date']),  # for expiring
         ]
 
 
