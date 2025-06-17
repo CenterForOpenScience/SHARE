@@ -1,5 +1,11 @@
 # Change Log
 
+# [25.3.3] - 2025-06-17
+- smaller `osfmap_json` derived representation (thx bodintsov)
+- prepare for next release dropping `RawDatum` model/table:
+    - mirror `expiration_date` database column from `RawDatum` to `IndexcardRdf`
+    - add management command `migrate_rawdatum_expiration` to copy old values
+
 # [25.3.2] - 2025-05-21
 - fix: avoid `sharev2_elastic` queue backups by `ack`ing more correctly
 
