@@ -2,36 +2,8 @@ from trove.vocab import namespaces as ns
 from trove.derive.osfmap_json import OsfmapJsonFullDeriver
 from trove.vocab.namespaces import TROVE
 
-INCLUDED_PREDICATE_SET = frozenset({
-    ns.RDF.type,
-    ns.DCTERMS.title,
-    ns.DCTERMS.creator,
-    ns.DCTERMS.date,
-    ns.DCTERMS.created,
-    ns.FOAF.name,
-    ns.OWL.sameAs,
-    ns.DCTERMS.conformsTo,
-    ns.DCTERMS.dateCopyrighted,
-    ns.DCTERMS.description,
-    ns.DCTERMS.hasPart,
-    ns.DCTERMS.isVersionOf,
-    ns.DCTERMS.modified,
-    ns.DCTERMS.publisher,
-    ns.DCTERMS.rights,
-    ns.DCTERMS.subject,
-    ns.DCTERMS.isPartOf,
-    ns.DCTERMS.identifier,
-    ns.SKOS.inScheme,
-    ns.SKOS.prefLabel,
-    ns.OSFMAP.affiliation,
-    ns.OSFMAP.archivedAt,
-    ns.DCTERMS.dateAccepted,
-    ns.DCTERMS.dateModified,
-    ns.OSFMAP.hostingInstitution,
-    ns.OSFMAP.keyword,
-    ns.OSFMAP.fileName,
-    ns.OSFMAP.filePath,
-    ns.OSFMAP.isContainedBy
+EXCLUDED_PREDICATE_SET = frozenset({
+    ns.OSFMAP.contains,
 })
 
 
@@ -57,4 +29,4 @@ class OsfmapJsonMiniDeriver(OsfmapJsonFullDeriver):
 
     @staticmethod
     def _should_keep_predicate(predicate: str) -> bool:
-        return predicate in INCLUDED_PREDICATE_SET
+        return predicate not in EXCLUDED_PREDICATE_SET
