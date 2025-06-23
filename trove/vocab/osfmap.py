@@ -356,13 +356,13 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('isSupplementedBy', language='en'),
         },
     },
-    OSFMAP.verifiedLinks: {
+    OSFMAP.verifiedLink: {
         RDF.type: {RDF.Property},
         RDFS.label: {
             literal('Verified Links', language='en'),
         },
         JSONAPI_MEMBERNAME: {
-            literal('verifiedLinks', language='en'),
+            literal('verifiedLink', language='en'),
         },
     },
     OSFMAP.archivedAt: {
