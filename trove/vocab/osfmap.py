@@ -572,10 +572,10 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('accessService', language='en'),
         },
     },
-    DCAT.accessUrl: {
+    DCAT.accessURL: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
-            literal('accessUrl', language='en'),
+            literal('accessURL', language='en'),
         },
     },
     OSFMAP.hostingInstitution: {
