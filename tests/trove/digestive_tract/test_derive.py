@@ -14,12 +14,11 @@ class TestDigestiveTractDerive(TestCase):
     def setUpTestData(cls):
         cls.focus_iri = _BLARG.this
         _focus_ident = trove_db.ResourceIdentifier.objects.get_or_create_for_iri(cls.focus_iri)
-        _raw = factories.RawDatumFactory()
-        cls.indexcard = trove_db.Indexcard.objects.create(source_record_suid=_raw.suid)
+        _suid = factories.SourceUniqueIdentifierFactory()
+        cls.indexcard = trove_db.Indexcard.objects.create(source_record_suid=_suid)
         cls.indexcard.focus_identifier_set.add(_focus_ident)
-        cls.latest_rdf = trove_db.LatestIndexcardRdf.objects.create(
+        cls.latest_resource_description = trove_db.LatestResourceDescription.objects.create(
             indexcard=cls.indexcard,
-            from_raw_datum=_raw,
             focus_iri=cls.focus_iri,
             rdf_as_turtle='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this
@@ -39,13 +38,10 @@ blarg:this
         })
 
     def test_derive_with_supplementary(self):
-        _supp_raw = factories.RawDatumFactory(
-            suid=factories.SourceUniqueIdentifierFactory(is_supplementary=True),
-        )
-        trove_db.SupplementaryIndexcardRdf.objects.create(
+        _supp_suid = factories.SourceUniqueIdentifierFactory(is_supplementary=True)
+        trove_db.SupplementaryResourceDescription.objects.create(
             indexcard=self.indexcard,
-            from_raw_datum=_supp_raw,
-            supplementary_suid=_supp_raw.suid,
+            supplementary_suid=_supp_suid,
             focus_iri=self.focus_iri,
             rdf_as_turtle='''@prefix blarg: <http://blarg.example/vocab/> .
 blarg:this blarg:unlike blarg:nonthing .

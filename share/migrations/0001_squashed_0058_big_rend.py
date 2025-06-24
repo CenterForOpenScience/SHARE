@@ -11,7 +11,9 @@ import django.db.models.deletion
 import django.utils.timezone
 import share.models.core
 import share.models.fields
-import share.models.ingest
+import share.models._old
+import share.models.source
+import share.models.source_config
 import share.models.validators
 import share.version
 
@@ -135,9 +137,6 @@ class Migration(migrations.Migration):
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True)),
             ],
-            managers=[
-                ('objects', share.models.ingest.NaturalKeyManager('key')),
-            ],
         ),
         migrations.CreateModel(
             name='HarvestJob',
@@ -167,10 +166,10 @@ class Migration(migrations.Migration):
                 ('name', models.TextField(unique=True)),
                 ('long_title', models.TextField(unique=True)),
                 ('home_page', models.URLField(null=True)),
-                ('icon', models.ImageField(null=True, storage=share.models.ingest.SourceIconStorage(), upload_to=share.models.ingest.icon_name)),
+                ('icon', models.ImageField(null=True, storage=share.models._old.SourceIconStorage(), upload_to=share.models._old.icon_name)),
             ],
             managers=[
-                ('objects', share.models.ingest.NaturalKeyManager('name')),
+                ('objects', share.models.source.SourceManager()),
             ],
         ),
         migrations.CreateModel(
@@ -190,7 +189,7 @@ class Migration(migrations.Migration):
                 ('source', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='share.Source')),
             ],
             managers=[
-                ('objects', share.models.ingest.NaturalKeyManager('label')),
+                ('objects', share.models.source_config.SourceConfigManager()),
             ],
         ),
         migrations.CreateModel(
@@ -216,9 +215,6 @@ class Migration(migrations.Migration):
                 ('key', models.TextField(unique=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True)),
-            ],
-            managers=[
-                ('objects', share.models.ingest.NaturalKeyManager('key')),
             ],
         ),
         migrations.CreateModel(
@@ -297,7 +293,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='source',
             name='icon',
-            field=models.ImageField(blank=True, default='', storage=share.models.ingest.SourceIconStorage(), upload_to=share.models.ingest.icon_name),
+            field=models.ImageField(blank=True, default='', storage=share.models._old.SourceIconStorage(), upload_to=share.models._old.icon_name),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -460,7 +456,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name='sourceconfig',
             managers=[
-                ('objects', share.models.ingest.SourceConfigManager('label')),
+                ('objects', share.models.source_config.SourceConfigManager()),
             ],
         ),
         migrations.AddField(

@@ -5,57 +5,63 @@ from tests import factories
 
 # TODO these tests belong somewhere else
 @pytest.mark.django_db
-@pytest.mark.parametrize('endpoint, factory', [
-    ('rawdata', factories.RawDatumFactory),
+@pytest.mark.parametrize('endpoint, factory, autocreated_count', [
+    ('site_banners', factories.SiteBannerFactory, 0),
+    ('sourceconfigs', factories.SourceConfigFactory, 0),
+    ('sources', factories.SourceFactory, 1),
 ])
 class TestPagination:
 
-    def test_no_prev(self, client, endpoint, factory):
+    def test_no_prev(self, client, endpoint, factory, autocreated_count):
         resp = client.get('/api/v2/{}/'.format(endpoint))
         assert resp.status_code == 200
-        assert resp.json()['data'] == []
-        assert resp.json()['links']['prev'] is None
-        assert resp.json()['links']['next'] is None
+        _json = resp.json()
+        assert len(_json['data']) == autocreated_count
+        _links = _json.get('links', {})
+        assert _links.get('prev') is None
+        assert _links.get('next') is None
 
-    def test_one(self, client, endpoint, factory):
+    def test_one(self, client, endpoint, factory, autocreated_count):
         factory()
 
         resp = client.get('/api/v2/{}/'.format(endpoint))
         assert resp.status_code == 200
-        assert len(resp.json()['data']) == 1
-        assert resp.json()['links']['prev'] is None
-        assert resp.json()['links']['next'] is None
+        _json = resp.json()
+        assert len(_json['data']) == autocreated_count + 1
+        _links = _json.get('links', {})
+        assert _links.get('prev') is None
+        assert _links.get('next') is None
 
-    def test_full_page(self, client, endpoint, factory):
-        for _ in range(10):
-            factory()
+    def test_full_page(self, client, endpoint, factory, autocreated_count):
+        factory.create_batch(10 - autocreated_count)
+        resp = client.get('/api/v2/{}/'.format(endpoint))
+        assert resp.status_code == 200
+        _json = resp.json()
+        assert len(_json['data']) == 10
+        _links = _json.get('links', {})
+        assert _links.get('prev') is None
+        assert _links.get('next') is None
 
+    def test_next_page(self, client, endpoint, factory, autocreated_count):
+        factory.create_batch(20 - autocreated_count)
         resp = client.get('/api/v2/{}/'.format(endpoint))
         assert resp.status_code == 200
 
-        assert len(resp.json()['data']) == 10
-        assert resp.json()['links']['prev'] is None
-        assert resp.json()['links']['next'] is None
+        _json = resp.json()
+        assert len(_json['data']) == 10
+        _links = _json.get('links', {})
+        assert _links.get('prev') is None
+        assert _links.get('next') is not None
+        assert 'page%5Bcursor%5D' in _links['next']
 
-    def test_next_page(self, client, endpoint, factory):
-        for _ in range(20):
-            factory()
-
-        resp = client.get('/api/v2/{}/'.format(endpoint))
-        assert resp.status_code == 200
-
-        assert len(resp.json()['data']) == 10
-        assert resp.json()['links']['prev'] is None
-        assert resp.json()['links']['next'] is not None
-        assert 'page%5Bcursor%5D' in resp.json()['links']['next']
-
-        resp2 = client.get(resp.json()['links']['next'])
+        resp2 = client.get(_links['next'])
         assert resp2.status_code == 200
-        assert resp2.json()['links']['next'] is None
+        _json2 = resp2.json()
+        assert _json2['links'].get('next') is None
 
-        assert set(x['id'] for x in resp.json()['data']) & set(x['id'] for x in resp2.json()['data']) == set()
+        assert set(x['id'] for x in _json['data']) & set(x['id'] for x in _json2['data']) == set()
 
-    def test_bad_cursor(self, client, endpoint, factory):
+    def test_bad_cursor(self, client, endpoint, factory, autocreated_count):
         resp = client.get(f'/api/v2/{endpoint}/', {'page[cursor]': 1})
         assert resp.status_code == 404
         assert resp.json() == {'errors': [{

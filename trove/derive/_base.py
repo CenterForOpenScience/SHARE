@@ -2,18 +2,18 @@ import abc
 
 from primitive_metadata import primitive_rdf
 
-from trove.models import IndexcardRdf
+from trove.models.resource_description import ResourceDescription
 
 
 class IndexcardDeriver(abc.ABC):
-    upriver_rdf: IndexcardRdf
+    upstream_description: ResourceDescription
     focus_iri: str
     data: primitive_rdf.RdfGraph
 
-    def __init__(self, upriver_rdf: IndexcardRdf):
-        self.upriver_rdf = upriver_rdf
-        self.focus_iri = upriver_rdf.focus_iri
-        self.data = upriver_rdf.as_rdfdoc_with_supplements()
+    def __init__(self, upstream_description: ResourceDescription):
+        self.upstream_description = upstream_description
+        self.focus_iri = upstream_description.focus_iri
+        self.data = upstream_description.as_rdfdoc_with_supplements()
 
     def q(self, pathset):
         # convenience for querying self.data on self.focus_iri

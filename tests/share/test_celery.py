@@ -1,49 +1,72 @@
-import pytest
-import datetime
-
+import contextlib
+from datetime import timedelta
 from unittest import mock
 
+import pytest
 from django.utils import timezone
 
 from share.celery import TaskResultCleaner, CeleryTaskResult
-
 from tests import factories
 
 
-@pytest.mark.usefixtures('nested_django_db')
-class TestResultArchiver:
+@contextlib.contextmanager
+def long_now(new_now=None):
+    _now = new_now or timezone.now()
+    with mock.patch.object(timezone, 'now', return_value=_now):
+        yield _now
 
-    @pytest.fixture(scope='class', autouse=True)
-    def task_result_data(self, class_scoped_django_db):
-        return factories.CeleryTaskResultFactory.create_batch(100)
+
+@pytest.mark.django_db
+class TestResultCleaner:
 
     def test_delete_false(self):
-        trc = TaskResultCleaner(datetime.timedelta(weeks=520), delete=False)
+        factories.CeleryTaskResultFactory.create_batch(10)
+        trc = TaskResultCleaner(timedelta(weeks=520), delete=False)
         assert trc.delete_queryset(CeleryTaskResult.objects.all()) == 0
-        assert CeleryTaskResult.objects.count() != 0
+        assert CeleryTaskResult.objects.count() == 10
 
     def test_delete_queryset(self):
-        trc = TaskResultCleaner(datetime.timedelta(weeks=520))
-        assert trc.delete_queryset(CeleryTaskResult.objects.all()) == 100
+        factories.CeleryTaskResultFactory.create_batch(10)
+        trc = TaskResultCleaner(timedelta(weeks=520))
+        assert trc.delete_queryset(CeleryTaskResult.objects.all()) == 10
         assert CeleryTaskResult.objects.count() == 0
 
-    def test_get_ttl_default(self):
-        trc = TaskResultCleaner(datetime.timedelta(weeks=520))
-        assert ((timezone.now() - datetime.timedelta(weeks=520)) - trc.get_ttl('non-existant-task')) < datetime.timedelta(seconds=2)
+    def test_success_cutoff(self, settings):
+        with long_now() as _now:
+            trc = TaskResultCleaner(timedelta(days=3).total_seconds())
+            _expected = _now - timedelta(days=3)
+            assert trc.success_cutoff == _expected
 
-    def test_get_ttl(self):
-        trc = TaskResultCleaner(datetime.timedelta(weeks=520))
-        trc.TASK_TTLS['existant-task'] = datetime.timedelta(days=1)
-        assert ((timezone.now() - datetime.timedelta(days=1)) - trc.get_ttl('existant-task')) < datetime.timedelta(seconds=2)
+    def test_nonsuccess_cutoff(self, settings):
+        with long_now() as _now:
+            trc = TaskResultCleaner(
+                success_ttl=timedelta(days=3),
+                nonsuccess_ttl=timedelta(days=5),
+            )
+            assert trc.success_cutoff == _now - timedelta(days=3)
+            assert trc.nonsuccess_cutoff == _now - timedelta(days=5)
 
-    def test_clean(self):
-        trc = TaskResultCleaner(0, bucket=mock.Mock())
-        factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
-        trc.clean()
-        assert CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
-
-    def test_clean_chunksize(self):
-        trc = TaskResultCleaner(0, bucket=mock.Mock(), chunk_size=1)
-        factories.CeleryTaskResultFactory.create_batch(100, status='SUCCESS')
-        trc.clean()
-        assert CeleryTaskResult.objects.count() <= 100  # There's an autouse fixture that makes 100
+    @pytest.mark.parametrize('batch_size', [1, 1111])
+    def test_clean(self, batch_size):
+        with long_now() as _now:
+            with long_now(_now - timedelta(days=7)):
+                # all should be deleted:
+                factories.CeleryTaskResultFactory.create_batch(10, status='SUCCESS')
+                factories.CeleryTaskResultFactory.create_batch(7, status='FAILED')
+            with long_now(_now - timedelta(days=4)):
+                # successes should be deleted:
+                factories.CeleryTaskResultFactory.create_batch(10, status='SUCCESS')
+                factories.CeleryTaskResultFactory.create_batch(7, status='FAILED')
+            # none should be deleted:
+            factories.CeleryTaskResultFactory.create_batch(10, status='SUCCESS')
+            factories.CeleryTaskResultFactory.create_batch(7, status='FAILED')
+            # end setup
+            assert CeleryTaskResult.objects.count() == 51
+            trc = TaskResultCleaner(
+                success_ttl=timedelta(days=3),
+                nonsuccess_ttl=timedelta(days=5),
+                chunk_size=batch_size,
+            )
+            trc.clean()
+            assert CeleryTaskResult.objects.filter(status='SUCCESS').count() == 10
+            assert CeleryTaskResult.objects.exclude(status='SUCCESS').count() == 14

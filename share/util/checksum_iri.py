@@ -12,7 +12,7 @@ def _ensure_bytes(bytes_or_something) -> bytes:
 
 
 def _builtin_checksum(hash_constructor):
-    def hexdigest_fn(salt, data) -> str:
+    def hexdigest_fn(salt: str | bytes, data: str | bytes) -> str:
         hasher = hash_constructor()
         hasher.update(_ensure_bytes(salt))
         hasher.update(_ensure_bytes(data))
@@ -37,7 +37,7 @@ class ChecksumIri:
         return f'urn:checksum:{self.checksumalgorithm_name}:{self.salt}:{self.hexdigest}'
 
     @classmethod
-    def digest(cls, checksumalgorithm_name, *, salt, raw_data):
+    def digest(cls, checksumalgorithm_name: str, *, salt: str, data: str):
         try:
             hexdigest_fn = CHECKSUM_ALGORITHMS[checksumalgorithm_name]
         except KeyError:
@@ -48,7 +48,7 @@ class ChecksumIri:
         return cls(
             checksumalgorithm_name=checksumalgorithm_name,
             salt=salt,
-            hexdigest=hexdigest_fn(salt, raw_data),
+            hexdigest=hexdigest_fn(salt, data),
         )
 
     @classmethod
@@ -56,7 +56,7 @@ class ChecksumIri:
         return cls.digest(
             checksumalgorithm_name,
             salt=salt,
-            raw_data=json.dumps(raw_json, sort_keys=True),
+            data=json.dumps(raw_json, sort_keys=True),
         )
 
     @classmethod

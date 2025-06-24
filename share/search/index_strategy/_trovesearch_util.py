@@ -46,9 +46,9 @@ TEXT_MAPPING = {
 ###
 # utilities
 
-def latest_rdf_for_indexcard_pks(indexcard_pks):
+def latest_resource_description_for_indexcard_pks(indexcard_pks):
     return (
-        trove_db.LatestIndexcardRdf.objects
+        trove_db.LatestResourceDescription.objects
         .filter(indexcard_id__in=indexcard_pks)
         .filter(Exists(  # only index items that have an osfmap_json representation
             trove_db.DerivedIndexcard.objects
@@ -61,7 +61,7 @@ def latest_rdf_for_indexcard_pks(indexcard_pks):
         .exclude(indexcard__deleted__isnull=False)
         .select_related('indexcard__source_record_suid__source_config')
         .prefetch_related('indexcard__focus_identifier_set')
-        .prefetch_related('indexcard__supplementary_rdf_set')
+        .prefetch_related('indexcard__supplementary_description_set')
     )
 
 
