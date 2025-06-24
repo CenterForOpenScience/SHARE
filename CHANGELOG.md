@@ -1,5 +1,16 @@
 # Change Log
 
+# [25.4.0] - 2025-06-24
+- delete `RawDatum` model
+    - `trove.digestive_tract.extract` now must succeed before `/trove/ingest` responds
+- rename `IndexcardRdf` (and kids) to `ResourceDescription`
+- move most django models to their own files
+- stop storing `CeleryTaskResult`s forever
+    - new environment variables: `CELERY_RESULT_EXPIRES`, `FAILED_CELERY_RESULT_EXPIRES`
+- fix: `/api/v2/` error generating rss/atom feed links
+- fix: pagination at `/api/v2/sourceconfigs`
+- fix: correct osfmap IRIs (`dcat:accessURL`, `osf:verifiedLink`)
+
 # [25.3.3] - 2025-06-17
 - smaller `osfmap_json` derived representation (thx bodintsov)
 - prepare for next release dropping `RawDatum` model/table:
