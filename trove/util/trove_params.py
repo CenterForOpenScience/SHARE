@@ -100,26 +100,19 @@ class BasicTroveParams:
         if _fields_params:
             _requested: dict[str, list[Propertypath]] = defaultdict(list)
             for _param_name, _param_value in _fields_params:
-                try:
-                    (_typenames,) = filter(bool, _param_name.bracketed_names)
-                except (IndexError, ValueError):
-                    raise trove_exceptions.InvalidQueryParamName(
-                        f'expected "fields[TYPE]" (with exactly one non-empty bracketed segment)'
-                        f' (got "{_param_name}")'
+                if _param_name.bracketed_names:  # e.g. "fields[TYPE1,TYPE2,TYPE3]=..."
+                    _typenames = _qp.split_queryparam_value(_param_name.bracketed_names[0])
+                else:  # omitted brackets equivalent to "fields[*]" (apply to any type)
+                    _typenames = [GLOB_PATHSTEP]
+                for _typename in _typenames:
+                    if _typename != GLOB_PATHSTEP:
+                        _typename = shorthand.expand_iri(_typename)
+                    _requested[_typename].extend(
+                        (  # list of field paths in query param value
+                            parse_propertypath(_path_value, shorthand)
+                            for _path_value in _qp.split_queryparam_value(_param_value)
+                        )
                     )
-                else:
-                    for _type in _qp.split_queryparam_value(_typenames):
-                        _type_key = (
-                            GLOB_PATHSTEP
-                            if _type == GLOB_PATHSTEP
-                            else shorthand.expand_iri(_type)
-                        )
-                        _requested[_type_key].extend(
-                            (
-                                parse_propertypath(_path_value, shorthand)
-                                for _path_value in _qp.split_queryparam_value(_param_value)
-                            )
-                        )
             _attrpaths = _attrpaths.with_new(freeze(_requested))
         return _attrpaths
 

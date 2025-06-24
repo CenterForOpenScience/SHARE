@@ -356,13 +356,13 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('isSupplementedBy', language='en'),
         },
     },
-    OSFMAP.verifiedLinks: {
+    OSFMAP.verifiedLink: {
         RDF.type: {RDF.Property},
         RDFS.label: {
             literal('Verified Links', language='en'),
         },
         JSONAPI_MEMBERNAME: {
-            literal('verifiedLinks', language='en'),
+            literal('verifiedLink', language='en'),
         },
     },
     OSFMAP.archivedAt: {
@@ -572,10 +572,10 @@ OSFMAP_THESAURUS: RdfTripleDictionary = {
             literal('accessService', language='en'),
         },
     },
-    DCAT.accessUrl: {
+    DCAT.accessURL: {
         RDF.type: {RDF.Property},
         JSONAPI_MEMBERNAME: {
-            literal('accessUrl', language='en'),
+            literal('accessURL', language='en'),
         },
     },
     OSFMAP.hostingInstitution: {

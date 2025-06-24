@@ -154,6 +154,12 @@ class TestOsfmapJsonMiniDeriver(BaseIndexcardDeriverTest):
         },
         'osfmap-registration': {
             "@id": "https://osf.example/2c4st",
+            "accessService": [{
+                "@id": "https://osf.example",
+                "identifier": [{"@value": "https://osf.example"}],
+                "name": [{"@value": "OSF"}],
+                "resourceType": [{"@id": "Agent"}, {"@id": "Organization"}],
+            }],
             "resourceType": [
                 {"@id": "Registration"}
             ],
@@ -455,6 +461,10 @@ class TestOsfmapJsonMiniDeriver(BaseIndexcardDeriverTest):
                     ]
                 }
             ],
+            "qualifiedAttribution": [{
+                "agent": [{"@id": "https://osf.example/bhcjn"}],
+                "hadRole": [{"@id": "osf:admin-contributor"}],
+            }],
             "archivedAt": [
                 {"@id": "https://archive.example/details/osf-registrations-2c4st-v1"}
             ],
