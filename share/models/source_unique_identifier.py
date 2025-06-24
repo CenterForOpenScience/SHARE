@@ -1,6 +1,3 @@
-import datetime
-from typing import Optional
-
 from django.db import models
 
 from share.util import BaseJSONAPIMeta
@@ -21,18 +18,6 @@ class SourceUniqueIdentifier(models.Model):
 
     class Meta:
         unique_together = ('identifier', 'source_config')
-
-    def get_date_first_seen(self) -> Optional[datetime.datetime]:
-        """when the first datum for this suid was added
-        """
-        from trove.models import ArchivedResourceDescription
-        return (
-            ArchivedResourceDescription.objects
-            .filter(indexcard__source_record_suid=self)
-            .order_by('created')
-            .values_list('created', flat=True)
-            .first()
-        )
 
     def get_backcompat_sharev2_suid(self):
         '''get an equivalent "v2_push" suid for this suid

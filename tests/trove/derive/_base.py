@@ -34,7 +34,6 @@ class BaseIndexcardDeriverTest(BasicInputOutputTestCase):
     def _get_deriver(self, input_doc: DeriverTestDoc):
         _mock_suid = mock.Mock()
         _mock_suid.id = '--suid_id--'
-        _mock_suid.get_date_first_seen.return_value = datetime.datetime(2345, 1, 1)
         _mock_suid.get_backcompat_sharev2_suid.return_value = _mock_suid
         _mock_suid.identifier = '--sourceunique-id--'
         _mock_suid.source_config.label = '--sourceconfig-label--'
@@ -47,4 +46,5 @@ class BaseIndexcardDeriverTest(BasicInputOutputTestCase):
         _mock_resource_description.focus_iri = input_doc.focus_iri
         _mock_resource_description.indexcard.id = '--indexcard-id--'
         _mock_resource_description.indexcard.source_record_suid = _mock_suid
+        _mock_resource_description.indexcard.created = datetime.datetime(2345, 1, 1)
         return self.deriver_class(_mock_resource_description)

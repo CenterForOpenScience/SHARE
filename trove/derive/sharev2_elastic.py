@@ -158,7 +158,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             # metadata about the record/indexcard in this system
             'id': IDObfuscator.encode(_suid),
             'indexcard_id': self.upstream_description.indexcard.id,
-            'date_created': _suid.get_date_first_seen().isoformat(),
+            'date_created': self.upstream_description.indexcard.created.isoformat(),
             'date_modified': self.upstream_description.modified.isoformat(),
             'sources': [_source_name],
             'source_config': _suid.source_config.label,
