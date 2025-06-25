@@ -1,3 +1,6 @@
+import datetime
+from typing import Any
+
 from lxml import etree
 from primitive_metadata import primitive_rdf
 
@@ -5,7 +8,7 @@ from share.util.fromisoformat import fromisoformat
 from trove.vocab.namespaces import OAI, OAI_DC
 
 
-def format_datetime(dt):
+def format_datetime(dt: datetime.datetime | primitive_rdf.Literal | str) -> str:
     """OAI-PMH has specific time format requirements -- comply.
     """
     if isinstance(dt, primitive_rdf.Literal):
@@ -25,7 +28,7 @@ XML_NAMESPACES = {
 }
 
 
-def ns(namespace_prefix, tag_name):
+def ns(namespace_prefix: str, tag_name: str) -> str:
     """format XML tag/attribute name with full namespace URI
 
     see https://lxml.de/tutorial.html#namespaces
@@ -33,7 +36,7 @@ def ns(namespace_prefix, tag_name):
     return f'{{{XML_NAMESPACES[namespace_prefix]}}}{tag_name}'
 
 
-def nsmap(*namespace_prefixes, default=None):
+def nsmap(*namespace_prefixes: str, default: str | None = None) -> dict[str | None, str]:
     """build a namespace map suitable for lxml
 
     see https://lxml.de/tutorial.html#namespaces
@@ -49,7 +52,7 @@ def nsmap(*namespace_prefixes, default=None):
 
 
 # wrapper for lxml.etree.SubElement, adds `text` kwarg for convenience
-def SubEl(parent, tag_name, text=None, **kwargs):
+def SubEl(parent: etree.Element, tag_name: str, text: str | None = None, **kwargs: Any) -> etree.SubElement:
     element = etree.SubElement(parent, tag_name, **kwargs)
     if isinstance(text, primitive_rdf.Literal):
         _language_tag = text.language

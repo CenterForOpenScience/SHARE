@@ -9,6 +9,29 @@ permissions:
   checks: write  # for coveralls
 
 jobs:
+  lint_and_type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'poetry'
+
+      - name: install despondencies
+        run: poetry install --with dev
+
+      - name: flake it
+        run: poetry run flake8 .
+
+      - name: type-check
+        run: poetry run mypy trove
+
   run_tests:
     strategy:
       fail-fast: false
@@ -59,9 +82,6 @@ jobs:
 
       - name: install despondencies
         run: poetry install --with dev
-
-      - name: flake it
-        run: poetry run flake8 .
 
       - name: run tests
         run: |

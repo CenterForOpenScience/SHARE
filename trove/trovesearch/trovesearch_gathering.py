@@ -1,30 +1,14 @@
+from __future__ import annotations
 import dataclasses
 import logging
 import urllib.parse
-from typing import ClassVar, Any, Iterator, Iterable
+from typing import ClassVar, Any, TYPE_CHECKING
 
-from primitive_metadata.primitive_rdf import (
-    Literal,
-    blanknode,
-    iri_minus_namespace,
-    literal,
-    sequence,
-)
 from primitive_metadata import gather
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import models as trove_db
 from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
-from trove.trovesearch.page_cursor import PageCursor
-from trove.trovesearch.search_params import (
-    CardsearchParams,
-    ValuesearchParams,
-)
-from trove.trovesearch.search_handle import (
-    CardsearchHandle,
-    ValuesearchHandle,
-    ValuesearchResult,
-)
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
@@ -36,15 +20,36 @@ from trove.vocab.trove import (
     TROVE_API_THESAURUS,
     trove_indexcard_namespace,
 )
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Iterable, Generator
+    from trove.trovesearch.page_cursor import PageCursor
+    from trove.trovesearch.search_handle import (
+        CardsearchHandle,
+        CardsearchResult,
+        ValuesearchHandle,
+        ValuesearchResult,
+    )
+    from trove.trovesearch.search_params import (
+        CardsearchParams,
+        SearchFilter,
+        ValuesearchParams,
+    )
+    from trove.util.propertypath import (
+        Propertypath,
+        PropertypathSet,
+    )
 
 
 logger = logging.getLogger(__name__)
 
 
+type GathererGenerator = Generator[rdf.RdfTriple | rdf.RdfTwople]
+
+
 TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
     namestory=(
-        literal('cardsearch', language='en'),
-        literal('search for "index cards" that describe resources', language='en'),
+        rdf.literal('cardsearch', language='en'),
+        rdf.literal('search for "index cards" that describe resources', language='en'),
     ),
     focustype_iris={
         TROVE.Indexcard,
@@ -58,7 +63,7 @@ TROVE_GATHERING_NORMS = gather.GatheringNorms.new(
 
 trovesearch_by_indexstrategy = gather.GatheringOrganizer(
     namestory=(
-        literal('trove search', language='en'),
+        rdf.literal('trove search', language='en'),
     ),
     norms=TROVE_GATHERING_NORMS,
     gatherer_params={
@@ -73,7 +78,7 @@ class _TypedFocus(gather.Focus):
     ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = ()  # (optional on subclasses)
 
     @classmethod
-    def new(cls, *args, type_iris=(), **kwargs):
+    def new(cls, *args: Any, type_iris: Iterable[str] = (), **kwargs: Any) -> Any:
         return super().new(
             *args,
             # add type_iri to new Focus instance
@@ -106,8 +111,8 @@ class ValuesearchFocus(_TypedFocus):
 
 @dataclasses.dataclass(frozen=True)
 class IndexcardFocus(_TypedFocus):
-    TYPE_IRI = TROVE.Indexcard
-    ADDITIONAL_TYPE_IRIS = (DCAT.CatalogRecord,)
+    TYPE_IRI: ClassVar[str] = TROVE.Indexcard
+    ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = (DCAT.CatalogRecord,)
 
     # additional dataclass fields
     indexcard: trove_db.Indexcard = dataclasses.field(compare=False)
@@ -126,19 +131,19 @@ class IndexcardFocus(_TypedFocus):
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.propertyPath, focustype_iris={TROVE.Valuesearch})
-def gather_valuesearch_propertypath(focus: ValuesearchFocus, **kwargs):
+def gather_valuesearch_propertypath(focus: ValuesearchFocus, **kwargs: Any) -> GathererGenerator:
     yield from _single_propertypath_twoples(focus.search_params.valuesearch_propertypath)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.valueSearchFilter)
-def gather_valuesearch_filter(focus, **kwargs):
+def gather_valuesearch_filter(focus: ValuesearchFocus, **kwargs: Any) -> GathererGenerator:
     for _filter in focus.search_params.valuesearch_filter_set:
-        yield (TROVE.valueSearchFilter, _filter_as_blanknode(_filter))
+        yield TROVE.valueSearchFilter, _filter_as_blanknode(_filter)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.totalResultCount)
-def gather_count(focus: CardsearchFocus, **kwargs):
-    yield (TROVE.totalResultCount, focus.search_handle.total_result_count)
+def gather_count(focus: CardsearchFocus, **kwargs: Any) -> GathererGenerator:
+    yield TROVE.totalResultCount, focus.search_handle.total_result_count
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -146,7 +151,7 @@ def gather_count(focus: CardsearchFocus, **kwargs):
     focustype_iris={TROVE.Cardsearch},
     cache_bound=1,  # only the first page gets cached
 )
-def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, blend_cards, **kwargs):
+def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri: str, blend_cards: bool, **kwargs: Any) -> GathererGenerator:
     # each searchResultPage a sequence of search results
     _current_handle: CardsearchHandle | None = focus.search_handle
     while _current_handle is not None:
@@ -166,11 +171,11 @@ def gather_cardsearch_page(focus: CardsearchFocus, *, deriver_iri, blend_cards, 
             )
             _result_page.append(_result_obj)
             yield from _triples
-        yield (TROVE.searchResultPage, sequence(_result_page))
+        yield (TROVE.searchResultPage, rdf.sequence(_result_page))
         _current_handle = _current_handle.get_next_streaming_handle()
 
 
-def _blended_card(card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+def _blended_card(card_focus: IndexcardFocus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
     _metadata = card_focus.resourceMetadata
     if isinstance(_metadata, rdf.Literal):
         return (_metadata, ())
@@ -179,19 +184,19 @@ def _blended_card(card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
     return (card_focus.single_iri(), ())  # oh well
 
 
-def _unblended_card(_result, _card_focus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
+def _unblended_card(_result: CardsearchResult, _card_focus: IndexcardFocus) -> tuple[rdf.RdfObject, Iterable[rdf.RdfTriple]]:
     return (
         _unblended_cardsearch_result(_result),
         _unblended_card_triples(_result, _card_focus),
     )
 
 
-def _unblended_cardsearch_result(_result) -> rdf.RdfBlanknode:
+def _unblended_cardsearch_result(_result: CardsearchResult) -> rdf.RdfBlanknode:
     _text_evidence_twoples = (
         (TROVE.matchEvidence, frozenset((
             (RDF.type, TROVE.TextMatchEvidence),
             (TROVE.matchingHighlight, _evidence.matching_highlight),
-            (TROVE.evidenceCardIdentifier, literal(_evidence.card_iri)),
+            (TROVE.evidenceCardIdentifier, rdf.literal(_evidence.card_iri)),
             *_single_propertypath_twoples(_evidence.property_path),
         )))
         for _evidence in _result.text_match_evidence
@@ -203,7 +208,7 @@ def _unblended_cardsearch_result(_result) -> rdf.RdfBlanknode:
     ))
 
 
-def _unblended_card_triples(_result, _card_focus) -> Iterator[rdf.RdfTriple]:
+def _unblended_card_triples(_result: CardsearchResult, _card_focus: IndexcardFocus) -> Iterator[rdf.RdfTriple]:
     # hack around (current) limitations of primitive_metadata.gather
     # (what with all these intermediate blank nodes and sequences):
     # yield trove:resourceMetadata here (instead of another gatherer)
@@ -219,7 +224,7 @@ def _unblended_card_triples(_result, _card_focus) -> Iterator[rdf.RdfTriple]:
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.searchResultPage)
-def gather_page_links(focus, **kwargs):
+def gather_page_links(focus: CardsearchFocus, **kwargs: Any) -> GathererGenerator:
     # links to more pages of results
     yield from _search_page_links(focus, focus.search_params)
 
@@ -228,34 +233,34 @@ def gather_page_links(focus, **kwargs):
     TROVE.relatedPropertyList,
     focustype_iris={TROVE.Cardsearch},
 )
-def gather_related_properties(focus, **kwargs):
+def gather_related_properties(focus: CardsearchFocus, **kwargs: Any) -> GathererGenerator:
     # info about related properties (for refining/filtering further)
-    _prop_usage_counts = {
+    _prop_usage_counts: dict[tuple[str, ...], int] = {
         _prop_result.property_path: _prop_result.usage_count
         for _prop_result in focus.search_handle.related_propertypath_results
     }
-    _relatedproperty_list = [
+    _relatedproperty_list: list[frozenset[tuple[str, Any]]] = [
         _related_property_result(_propertypath, _prop_usage_counts.get(_propertypath, 0))
         for _propertypath in focus.search_params.related_property_paths
     ]
     if _relatedproperty_list:
-        yield (TROVE.relatedPropertyList, sequence(_relatedproperty_list))
+        yield TROVE.relatedPropertyList, rdf.sequence(_relatedproperty_list)
 
 
 @trovesearch_by_indexstrategy.gatherer(TROVE.cardSearchFilter)
-def gather_cardsearch_filter(focus, **kwargs):
+def gather_cardsearch_filter(focus: CardsearchFocus, **kwargs: Any) -> GathererGenerator:
     # filter-values from search params
     for _filter in focus.search_params.cardsearch_filter_set:
-        yield (TROVE.cardSearchFilter, _filter_as_blanknode(_filter))
+        yield TROVE.cardSearchFilter, _filter_as_blanknode(_filter)
 
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.searchResultPage,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, blend_cards, **kwargs):
-    _result_page = []
-    _value_iris = {
+def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri: str, blend_cards: bool, **kwargs: Any) -> GathererGenerator:
+    _result_page: list[rdf.Blanknode] = []
+    _value_iris: set[str] = {
         _result.value_iri
         for _result in focus.search_handle.search_result_page or ()
         if _result.value_iri
@@ -270,7 +275,7 @@ def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, blend_cards
         for _identifier in _focus.indexcard.focus_identifier_set.all()
     }
     for _result in focus.search_handle.search_result_page or ():
-        _indexcard_obj = None
+        _indexcard_obj: rdf.Blanknode | None = None
         if _result.value_iri is not None:
             _card_focus = _card_foci_by_suffuniq_iri.get(
                 get_sufficiently_unique_iri(_result.value_iri),
@@ -288,23 +293,23 @@ def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri, blend_cards
                     resource_metadata=_card_focus.resourceMetadata,
                 )
                 for _pred, _obj in _card_twoples:
-                    yield (_indexcard_obj, _pred, _obj)
+                    yield _indexcard_obj, _pred, _obj
         if _indexcard_obj is None:
             # no actual indexcard; put what we know in a blanknode-indexcard
             _indexcard_obj = _valuesearch_result_as_indexcard_blanknode(_result)
-        _result_page.append(blanknode({
+        _result_page.append(rdf.blanknode({
             RDF.type: {TROVE.SearchResult},
             TROVE.cardsearchResultCount: {_result.match_count},
             TROVE.indexCard: {_indexcard_obj},
         }))
-    yield (TROVE.searchResultPage, sequence(_result_page))
+    yield TROVE.searchResultPage, rdf.sequence(_result_page)
 
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.totalResultCount,
     focustype_iris={TROVE.Valuesearch},
 )
-def gather_valuesearch_count(focus, **kwargs):
+def gather_valuesearch_count(focus: ValuesearchFocus, **kwargs: Any) -> GathererGenerator:
     yield (TROVE.totalResultCount, focus.search_handle.total_result_count)
 
 
@@ -325,13 +330,13 @@ def gather_valuesearch_count(focus, **kwargs):
 
 
 @trovesearch_by_indexstrategy.gatherer(DCTERMS.issued, focustype_iris={TROVE.Indexcard})
-def gather_card_issued(focus: IndexcardFocus, **kwargs):
-    yield (DCTERMS.issued, focus.indexcard.created.date())
+def gather_card_issued(focus: IndexcardFocus, **kwargs: Any) -> GathererGenerator:
+    yield DCTERMS.issued, focus.indexcard.created.date()
 
 
 @trovesearch_by_indexstrategy.gatherer(DCTERMS.modified, focustype_iris={TROVE.Indexcard})
-def gather_card_modified(focus: IndexcardFocus, **kwargs):
-    yield (DCTERMS.modified, focus.indexcard.modified.date())
+def gather_card_modified(focus: IndexcardFocus, **kwargs: Any) -> GathererGenerator:
+    yield DCTERMS.modified, focus.indexcard.modified.date()
 
 
 @trovesearch_by_indexstrategy.gatherer(
@@ -339,18 +344,18 @@ def gather_card_modified(focus: IndexcardFocus, **kwargs):
     TROVE.focusIdentifier,
     focustype_iris={TROVE.Indexcard},
 )
-def gather_primary_topic(focus: IndexcardFocus, **kwargs):
+def gather_primary_topic(focus: IndexcardFocus, **kwargs: Any) -> GathererGenerator:
     for _identifier in focus.indexcard.focus_identifier_set.all():
         _iri = _identifier.as_iri()
         yield (FOAF.primaryTopic, _iri)
-        yield (TROVE.focusIdentifier, literal(_iri))
+        yield (TROVE.focusIdentifier, rdf.literal(_iri))
 
 
 @trovesearch_by_indexstrategy.gatherer(
     TROVE.resourceMetadata,
     focustype_iris={TROVE.Indexcard},
 )
-def gather_card_contents(focus: IndexcardFocus, *, deriver_iri, **kwargs):
+def gather_card_contents(focus: IndexcardFocus, *, deriver_iri: str, **kwargs: Any) -> GathererGenerator:
     if focus.resourceMetadata is not None:
         yield (TROVE.resourceMetadata, focus.resourceMetadata)
     else:
@@ -360,7 +365,12 @@ def gather_card_contents(focus: IndexcardFocus, *, deriver_iri, **kwargs):
         yield (TROVE.resourceMetadata, _loaded_metadata)
 
 
-def _load_cards_and_contents(*, card_iris=None, value_iris=None, deriver_iri) -> dict[str, IndexcardFocus]:
+def _load_cards_and_contents(
+    *,
+    card_iris: Iterable[str] | None = None,
+    value_iris: Iterable[str] | None = None,
+    deriver_iri: str,
+) -> dict[str, IndexcardFocus]:
     return (
         _load_cards_and_extracted_rdf_contents(card_iris, value_iris)
         if deriver_iri is None
@@ -368,7 +378,10 @@ def _load_cards_and_contents(*, card_iris=None, value_iris=None, deriver_iri) ->
     )
 
 
-def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> dict[str, IndexcardFocus]:
+def _load_cards_and_extracted_rdf_contents(
+    card_iris: Iterable[str] | None = None,
+    value_iris: Iterable[str] | None = None,
+) -> dict[str, IndexcardFocus]:
     _card_namespace = trove_indexcard_namespace()
     _resource_description_qs = (
         trove_db.LatestResourceDescription.objects
@@ -377,7 +390,7 @@ def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> d
     )
     if card_iris is not None:
         _indexcard_uuids = {
-            iri_minus_namespace(_card_iri, namespace=_card_namespace)
+            rdf.iri_minus_namespace(_card_iri, namespace=_card_namespace)
             for _card_iri in card_iris
         }
         _resource_description_qs = _resource_description_qs.filter(indexcard__uuid__in=_indexcard_uuids)
@@ -404,7 +417,11 @@ def _load_cards_and_extracted_rdf_contents(card_iris=None, value_iris=None) -> d
     return _card_foci
 
 
-def _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri: str) -> dict[str, IndexcardFocus]:
+def _load_cards_and_derived_contents(
+    card_iris: Iterable[str] | None,
+    value_iris: Iterable[str] | None,
+    deriver_iri: str,
+) -> dict[str, IndexcardFocus]:
     _card_namespace = trove_indexcard_namespace()
     # include pre-formatted data from a DerivedIndexcard
     _derived_indexcard_qs = (
@@ -420,7 +437,7 @@ def _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri: str) ->
     )
     if card_iris is not None:
         _indexcard_uuids = {
-            iri_minus_namespace(_card_iri, namespace=_card_namespace)
+            rdf.iri_minus_namespace(_card_iri, namespace=_card_namespace)
             for _card_iri in card_iris
         }
         _derived_indexcard_qs = _derived_indexcard_qs.filter(
@@ -447,7 +464,7 @@ def _load_cards_and_derived_contents(card_iris, value_iris, deriver_iri: str) ->
 ###
 # local helpers
 
-def _filter_as_blanknode(search_filter) -> frozenset:
+def _filter_as_blanknode(search_filter: SearchFilter) -> frozenset[rdf.RdfTwople]:
     _filter_twoples = [
         (TROVE.filterType, search_filter.operator.value),
         *_multi_propertypath_twoples(search_filter.propertypath_set),
@@ -462,7 +479,7 @@ def _filter_as_blanknode(search_filter) -> frozenset:
     return frozenset(_filter_twoples)
 
 
-def _osfmap_or_unknown_iri_as_json(iri: str):
+def _osfmap_or_unknown_iri_as_json(iri: str) -> rdf.Literal:
     try:
         _twopledict = osfmap.OSFMAP_THESAURUS[iri]
     except KeyError:
@@ -471,12 +488,12 @@ def _osfmap_or_unknown_iri_as_json(iri: str):
         return _osfmap_json({iri: _twopledict}, focus_iri=iri)
 
 
-def _valuesearch_result_as_json(result: ValuesearchResult) -> Literal:
+def _valuesearch_result_as_json(result: ValuesearchResult) -> rdf.Literal:
     _value_twopledict = {
         RDF.type: set(result.value_type),
-        FOAF.name: set(map(literal, result.name_text)),
-        DCTERMS.title: set(map(literal, result.title_text)),
-        RDFS.label: set(map(literal, result.label_text)),
+        FOAF.name: set(map(rdf.literal, result.name_text)),
+        DCTERMS.title: set(map(rdf.literal, result.title_text)),
+        RDFS.label: set(map(rdf.literal, result.label_text)),
     }
     return (
         _osfmap_json({result.value_iri: _value_twopledict}, result.value_iri)
@@ -489,55 +506,55 @@ def _unblended_indexcard_twoples(
     focus_identifiers: Iterable[str],
     resource_metadata: rdf.Literal,
 ) -> Iterator[rdf.RdfTwople]:
-    yield (RDF.type, TROVE.Indexcard)
+    yield RDF.type, TROVE.Indexcard
     for _identifier in focus_identifiers:
         yield (TROVE.focusIdentifier, (
             _identifier
             if isinstance(_identifier, rdf.Literal)
-            else literal(_identifier)
+            else rdf.literal(_identifier)
         ))
-    yield (TROVE.resourceMetadata, resource_metadata)
+    yield TROVE.resourceMetadata, resource_metadata
 
 
-def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> frozenset:
+def _valuesearch_result_as_indexcard_blanknode(result: ValuesearchResult) -> rdf.Blanknode:
     return frozenset(_unblended_indexcard_twoples(
-        focus_identifiers=[literal(result.value_iri or result.value_value)],
+        focus_identifiers=[rdf.literal(result.value_iri or result.value_value)],
         resource_metadata=_valuesearch_result_as_json(result),
     ))
 
 
-def _osfmap_json(tripledict, focus_iri):
+def _osfmap_json(tripledict: rdf.RdfTripleDictionary, focus_iri: str) -> rdf.Literal:
     return rdf.literal_json(
         _RdfOsfmapJsonldRenderer().tripledict_as_nested_jsonld(tripledict, focus_iri)
     )
 
 
-def _osfmap_twople_json(twopledict):
+def _osfmap_twople_json(twopledict: rdf.RdfTwopleDictionary) -> rdf.Literal:
     return rdf.literal_json(
         _RdfOsfmapJsonldRenderer().twopledict_as_jsonld(twopledict)
     )
 
 
-def _osfmap_path(property_path):
+def _osfmap_path(property_path: Propertypath) -> rdf.Literal:
     return rdf.literal_json([
         osfmap.osfmap_json_shorthand().compact_iri(_iri)
         for _iri in property_path
     ])
 
 
-def _single_propertypath_twoples(property_path: tuple[str, ...]):
-    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_key(property_path)))
+def _single_propertypath_twoples(property_path: Propertypath) -> Generator[rdf.RdfTwople]:
+    yield (TROVE.propertyPathKey, rdf.literal(osfmap.osfmap_propertypath_key(property_path)))
     yield (TROVE.propertyPath, _propertypath_sequence(property_path))
     yield (TROVE.osfmapPropertyPath, _osfmap_path(property_path))
 
 
-def _multi_propertypath_twoples(propertypath_set):
-    yield (TROVE.propertyPathKey, literal(osfmap.osfmap_propertypath_set_key(propertypath_set)))
+def _multi_propertypath_twoples(propertypath_set: PropertypathSet) -> Generator[rdf.RdfTwople]:
+    yield (TROVE.propertyPathKey, rdf.literal(osfmap.osfmap_propertypath_set_key(propertypath_set)))
     for _path in propertypath_set:
-        yield (TROVE.propertyPathSet, _propertypath_sequence(_path))
+        yield TROVE.propertyPathSet, _propertypath_sequence(_path)
 
 
-def _propertypath_sequence(property_path: tuple[str, ...]):
+def _propertypath_sequence(property_path: Propertypath) -> Any:
     _propertypath_metadata = []
     for _property_iri in property_path:
         try:
@@ -548,24 +565,24 @@ def _propertypath_sequence(property_path: tuple[str, ...]):
             {_property_iri: _property_twopledict},
             focus_iri=_property_iri,
         ))
-    return sequence(_propertypath_metadata)
+    return rdf.sequence(_propertypath_metadata)
 
 
-def _related_property_result(property_path: tuple[str, ...], count: int):
+def _related_property_result(property_path: Propertypath, count: int) -> rdf.Blanknode:
     return frozenset((
         (RDF.type, TROVE.RelatedPropertypath),
         (TROVE.cardsearchResultCount, count),
-        (TROVE.suggestedFilterOperator, literal(osfmap.osfmap_json_shorthand().compact_iri(
+        (TROVE.suggestedFilterOperator, rdf.literal(osfmap.osfmap_json_shorthand().compact_iri(
             osfmap.suggested_filter_operator(property_path[-1]),
         ))),
         *_single_propertypath_twoples(property_path),
     ))
 
 
-def _search_page_links(search_focus, search_params):
+def _search_page_links(search_focus: Any, search_params: Any) -> Iterator[rdf.RdfTwople]:
     _search_iri_split = urllib.parse.urlsplit(next(iter(search_focus.iris)))
 
-    def _iri_with_cursor(page_cursor: PageCursor):
+    def _iri_with_cursor(page_cursor: PageCursor) -> Any:
         return urllib.parse.urlunsplit((
             _search_iri_split.scheme,
             _search_iri_split.netloc,
@@ -585,9 +602,9 @@ def _search_page_links(search_focus, search_params):
         yield (TROVE.searchResultPage, _jsonapi_link('first', _iri_with_cursor(_first)))
 
 
-def _jsonapi_link(membername, iri):
+def _jsonapi_link(membername: str, iri: str) -> frozenset[tuple[str, Any]]:
     return frozenset((
         (RDF.type, JSONAPI_LINK_OBJECT),
-        (JSONAPI_MEMBERNAME, literal(membername)),
+        (JSONAPI_MEMBERNAME, rdf.literal(membername)),
         (RDF.value, iri),
     ))

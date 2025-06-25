@@ -1,3 +1,4 @@
+from typing import Any
 from lxml import etree
 from primitive_metadata import primitive_rdf as rdf
 
@@ -63,7 +64,7 @@ class OaiDcXmlDeriver(IndexcardDeriver):
         return _allowed_focustype_iris.isdisjoint(_focustype_iris)
 
     # abstract method from IndexcardDeriver
-    def derive_card_as_text(self):
+    def derive_card_as_text(self) -> Any:
         _dc_element = self._derive_card_as_xml()
         return etree.tostring(_dc_element, encoding='unicode')
 

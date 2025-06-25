@@ -1,8 +1,10 @@
+from __future__ import annotations
 import typing
 
 from django.core.exceptions import ValidationError
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import QuerySet
 from django.db.models.functions import Substr, StrIndex
 from primitive_metadata import primitive_rdf
 
@@ -24,7 +26,7 @@ IRI_SCHEME_PREFERENCE_ORDER = (
 )
 
 
-def validate_iri_scheme(iri_scheme):
+def validate_iri_scheme(iri_scheme: str) -> None:
     '''raise a django ValidationError if not a valid iri scheme
     '''
     if not isinstance(iri_scheme, str):
@@ -33,7 +35,7 @@ def validate_iri_scheme(iri_scheme):
         raise ValidationError('not a valid iri scheme')
 
 
-def validate_sufficiently_unique_iri(suffuniq_iri: str):
+def validate_sufficiently_unique_iri(suffuniq_iri: str) -> None:
     '''raise a django ValidationError if not a valid "sufficiently unique iri"
     '''
     if not isinstance(suffuniq_iri, str):
@@ -51,21 +53,21 @@ def validate_sufficiently_unique_iri(suffuniq_iri: str):
         raise ValidationError('need more iri beyond a scheme')
 
 
-class ResourceIdentifierManager(models.Manager):
-    def queryset_for_iri(self, iri: str):
+class ResourceIdentifierManager(models.Manager["ResourceIdentifier"]):
+    def queryset_for_iri(self, iri: str) -> QuerySet[ResourceIdentifier]:
         return self.queryset_for_iris((iri,))
 
-    def queryset_for_iris(self, iris: typing.Iterable[str]):
+    def queryset_for_iris(self, iris: typing.Iterable[str]) -> QuerySet[ResourceIdentifier]:
         # may raise if invalid
         _suffuniq_iris = set()
         for _iri in iris:
             _suffuniq_iris.add(get_sufficiently_unique_iri(_iri))
         return self.filter(sufficiently_unique_iri__in=_suffuniq_iris)
 
-    def get_for_iri(self, iri: str) -> 'ResourceIdentifier':
+    def get_for_iri(self, iri: str) -> ResourceIdentifier:
         return self.queryset_for_iri(iri).get()  # may raise ResourceIdentifier.DoesNotExist
 
-    def get_or_create_for_iri(self, iri: str) -> 'ResourceIdentifier':
+    def get_or_create_for_iri(self, iri: str) -> ResourceIdentifier:
         # may raise if invalid
         (_suffuniq_iri, _scheme) = get_sufficiently_unique_iri_and_scheme(iri)
         (_identifier, _created) = self.get_or_create(
@@ -146,10 +148,10 @@ class ResourceIdentifier(models.Model):
             ),
         ]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<{self.__class__.__qualname__}({self.id}, "{self.sufficiently_unique_iri}")'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
     def as_iri(self) -> str:
@@ -176,7 +178,7 @@ class ResourceIdentifier(models.Model):
                 _scheme = self.scheme_list[0]
         return _scheme
 
-    def equivalent_to_iri(self, iri: str):
+    def equivalent_to_iri(self, iri: str) -> bool:
         return (self.sufficiently_unique_iri == get_sufficiently_unique_iri(iri))
 
     def find_equivalent_iri(self, tripledict: primitive_rdf.RdfTripleDictionary) -> str:

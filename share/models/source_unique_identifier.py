@@ -19,7 +19,7 @@ class SourceUniqueIdentifier(models.Model):
     class Meta:
         unique_together = ('identifier', 'source_config')
 
-    def get_backcompat_sharev2_suid(self):
+    def get_backcompat_sharev2_suid(self) -> 'SourceUniqueIdentifier':
         '''get an equivalent "v2_push" suid for this suid
 
         for filling the legacy suid-based sharev2 index with consistent doc ids

@@ -12,7 +12,7 @@ import sentry_sdk
 
 from share.search.messages import MessagesChunk, MessageType
 from share.search import index_strategy
-
+from trove.models import Indexcard
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class IndexMessenger:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    def __init__(self, *, celery_app=None, index_strategys=None):
+    def __init__(self, *, celery_app=None, index_strategys=None) -> None:
         self.celery_app = (
             celery.current_app
             if celery_app is None
@@ -33,7 +33,7 @@ class IndexMessenger:
         )
         self.index_strategys = index_strategys or tuple(index_strategy.each_strategy())
 
-    def notify_indexcard_update(self, indexcards, *, urgent=False):
+    def notify_indexcard_update(self, indexcards: list[Indexcard], *, urgent=False) -> None:
         self.send_messages_chunk(
             MessagesChunk(
                 MessageType.UPDATE_INDEXCARD,
@@ -53,7 +53,7 @@ class IndexMessenger:
             urgent=urgent,
         )
 
-    def notify_suid_update(self, suid_ids, *, urgent=False):
+    def notify_suid_update(self, suid_ids, *, urgent=False) -> None:
         self.send_messages_chunk(
             MessagesChunk(MessageType.INDEX_SUID, suid_ids),
             urgent=urgent,

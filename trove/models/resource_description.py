@@ -60,10 +60,10 @@ class ResourceDescription(models.Model):
             _rdfdoc.add_tripledict(_supplement.as_rdf_tripledict())
         return _rdfdoc
 
-    def __repr__(self):
-        return f'<{self.__class__.__qualname__}({self.id}, "{self.focus_iri}")'
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__qualname__}({self.pk}, "{self.focus_iri}")'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 

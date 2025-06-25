@@ -1,6 +1,6 @@
 import itertools
 import json
-from typing import Iterable
+from typing import Iterable, Generator, Any, Tuple
 
 from django.conf import settings
 from primitive_metadata import primitive_rdf
@@ -25,7 +25,7 @@ def get_trove_openapi_json() -> str:
     return json.dumps(get_trove_openapi(), indent=2)
 
 
-def get_trove_openapi() -> dict:
+def get_trove_openapi() -> dict[str, Any]:
     '''generate an openapi description of the trove api
 
     following https://spec.openapis.org/oas/v3.1.0
@@ -65,7 +65,7 @@ def get_trove_openapi() -> dict:
     }
 
 
-def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGraph):
+def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGraph) -> Iterable[tuple[str, Any]]:
     _param_iris = set(itertools.chain(*(
         api_graph.q(_path_iri, TROVE.hasParameter)
         for _path_iri in path_iris
@@ -95,7 +95,7 @@ def _openapi_parameters(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGr
         }
 
 
-def _openapi_examples(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGraph):
+def _openapi_examples(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGraph) -> Iterable[tuple[str, Any]]:
     # assumes examples are blank nodes (frozenset of twoples)
     _examples = set(itertools.chain(*(
         api_graph.q(_path_iri, TROVE.example)
@@ -129,10 +129,10 @@ def _openapi_examples(path_iris: Iterable[str], api_graph: primitive_rdf.RdfGrap
         }
 
 
-def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
+def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph) -> Tuple[str, Any]:
     # TODO: better error message on absence
     try:
-        _path = next(_text(path_iri, TROVE.iriPath, api_graph))
+        _path = next(iter(_text(path_iri, TROVE.iriPath, api_graph)))
     except StopIteration:
         raise ValueError(f'could not find trove:iriPath for {path_iri}')
     _label = ' '.join(_text(path_iri, RDFS.label, api_graph))
@@ -166,7 +166,7 @@ def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph):
     }
 
 
-def _concept_markdown_blocks(concept_iri: str, api_graph: primitive_rdf.RdfGraph):
+def _concept_markdown_blocks(concept_iri: str, api_graph: primitive_rdf.RdfGraph) -> Generator[str, None, None]:
     for _label in api_graph.q(concept_iri, RDFS.label):
         yield f'## {_label.unicode_value}'
     for _comment in api_graph.q(concept_iri, RDFS.comment):
@@ -175,12 +175,12 @@ def _concept_markdown_blocks(concept_iri: str, api_graph: primitive_rdf.RdfGraph
         yield _desc.unicode_value
 
 
-def _text(subj, pred, api_graph):
+def _text(subj: Any, pred: Any, api_graph: primitive_rdf.RdfGraph) -> Iterable[str]:
     for _obj in api_graph.q(subj, pred):
         yield _obj.unicode_value
 
 
-def _markdown_description(subj_iri: str, api_graph: primitive_rdf.RdfGraph):
+def _markdown_description(subj_iri: str, api_graph: primitive_rdf.RdfGraph) -> str:
     return '\n\n'.join((
         *(
             _description.unicode_value

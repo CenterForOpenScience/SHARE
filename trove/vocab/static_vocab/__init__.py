@@ -1,7 +1,6 @@
 import functools
 import pathlib
 import types
-
 from primitive_metadata import primitive_rdf as rdf
 import rdflib
 
@@ -40,7 +39,7 @@ _STATIC_XMLS = (
 
 
 @functools.cache
-def combined_thesaurus():
+def combined_thesaurus():  # type: ignore
     _combined_rdf = rdf.RdfGraph()
     for _thesaurus in _STATIC_THESAURUSES:
         _combined_rdf.add_tripledict(_thesaurus)
@@ -52,7 +51,7 @@ def combined_thesaurus():
 
 
 @functools.cache
-def combined_thesaurus__suffuniq():
+def combined_thesaurus__suffuniq():  # type: ignore
     return types.MappingProxyType({
         get_sufficiently_unique_iri(_subj): _twoples
         for _subj, _twoples in combined_thesaurus().items()

@@ -1,10 +1,12 @@
 from __future__ import annotations
+from collections.abc import Generator
 import contextlib
 import dataclasses
 from xml.etree.ElementTree import (
     Element,
     SubElement,
 )
+from typing import Any
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -19,7 +21,7 @@ class HtmlBuilder:
     _nested_elements: list[Element] = dataclasses.field(default_factory=list)
     _heading_depth: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._nested_elements.append(self.given_root)
 
     @property
@@ -34,7 +36,7 @@ class HtmlBuilder:
     # html-building helper methods
 
     @contextlib.contextmanager
-    def nest_h_tag(self, **kwargs):
+    def nest_h_tag(self, **kwargs: Any) -> Generator[Element]:
         _outer_heading_depth = self._heading_depth
         if not _outer_heading_depth:
             self._heading_depth = 1
@@ -48,7 +50,7 @@ class HtmlBuilder:
                 self._heading_depth = _outer_heading_depth
 
     @contextlib.contextmanager
-    def nest(self, tag_name, attrs=None):
+    def nest(self, tag_name: str, attrs: dict | None = None) -> Generator[Element]:
         _attrs = {**attrs} if attrs else {}
         _nested_element = SubElement(self._current_element, tag_name, _attrs)
         self._nested_elements.append(_nested_element)
@@ -58,7 +60,7 @@ class HtmlBuilder:
             _popped_element = self._nested_elements.pop()
             assert _popped_element is _nested_element
 
-    def leaf(self, tag_name, *, text=None, attrs=None):
+    def leaf(self, tag_name: str, *, text: str | None = None, attrs: dict | None = None) -> None:
         _leaf_element = SubElement(self._current_element, tag_name, attrs or {})
         if isinstance(text, rdf.Literal):
             # TODO: lang

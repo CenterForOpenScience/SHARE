@@ -62,6 +62,8 @@ flake8 = "7.2.0"
 pytest-benchmark = "5.1.0"
 pytest = "8.3.5"
 pytest-django = "4.11.1"
+mypy = "1.16.1"
+django-stubs = "5.2.1"
 
 ###
 # other stuff
