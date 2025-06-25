@@ -12,12 +12,12 @@ dependencies = [
     "celery==5.4.0",  # BSD 3 Clause
     "colorlog==6.9.0",  # MIT
     "django-allauth==65.5.0",  # MIT
-    "django-celery-beat==2.7.0",  # BSD 3 Clause
+    "django-celery-beat==2.8.1",  # BSD 3 Clause
     "django-cors-headers==4.7.0",  # MIT
     "django-extensions==3.2.3",  # MIT
     "django-filter==25.1",  # BSD
     "django-oauth-toolkit==3.0.1",  # BSD
-    "django==5.1.*",  # BSD 3 Clause
+    "django==5.2.*",  # BSD 3 Clause
     "elasticsearch8==8.17.2",  # Apache 2.0
     "lxml==5.3.0",  # BSD
     "kombu==5.5.0",  # BSD 3 Clause
