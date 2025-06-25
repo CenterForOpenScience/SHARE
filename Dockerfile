@@ -39,12 +39,12 @@ ENV POETRY_NO_INTERACTION=1 \
 
 RUN python -m venv $POETRY_HOME
 
-RUN $POETRY_HOME/bin/pip install poetry==2.1.1
+RUN $POETRY_HOME/bin/pip install poetry==2.1.3
 
 COPY pyproject.toml .
 COPY poetry.lock .
 
-RUN $POETRY_HOME/bin/poetry install --compile
+RUN $POETRY_HOME/bin/poetry install --compile --no-root
 
 RUN apt-get remove -y \
     gcc \
@@ -52,6 +52,8 @@ RUN apt-get remove -y \
     && apt-get autoremove -y
 
 COPY ./ /code/
+
+RUN $POETRY_HOME/bin/poetry install --compile --only-root
 
 RUN python manage.py collectstatic --noinput
 

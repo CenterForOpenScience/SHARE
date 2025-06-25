@@ -15,7 +15,7 @@ import os
 from celery.schedules import crontab
 import jwe
 
-from share import __version__
+from share.version import get_shtrove_version
 from trove.util.queryparams import parse_booly_str
 
 
@@ -43,7 +43,7 @@ SENSITIVE_DATA_KEY = jwe.kdf(SECRET_KEY.encode('utf-8'), SALT.encode('utf-8'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-VERSION = __version__
+VERSION = get_shtrove_version()
 GIT_COMMIT = os.environ.get('GIT_COMMIT', None)
 
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]

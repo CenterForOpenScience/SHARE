@@ -5,7 +5,7 @@ from typing import Iterable
 from django.conf import settings
 from primitive_metadata import primitive_rdf
 
-from share.version import __version__
+from share.version import get_shtrove_version
 from trove.util.randomness import shuffled
 from trove.vocab import mediatypes
 from trove.vocab.jsonapi import JSONAPI_MEMBERNAME
@@ -49,7 +49,7 @@ def get_trove_openapi() -> dict:
                 'email': 'share-support@osf.io',
             },
             # 'license':
-            'version': __version__,
+            'version': get_shtrove_version(),
         },
         'servers': [{
             'url': settings.SHARE_WEB_URL,

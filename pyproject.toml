@@ -1,6 +1,6 @@
 [project]
 name = "shtrove"
-version = "25.1.1"  # TODO: get version from share/version.py
+version = "25.4.0"
 description = ""
 authors = [
     {name = "CenterForOpenScience", email = "share-support@cos.io"}
@@ -35,7 +35,9 @@ dependencies = [
 ]
 
 [tool.poetry]
-package-mode = false
+packages = [
+    { include = "trove" },
+]
 
 # "deploy" dependency group relevant only in deployment:
 [tool.poetry.group.deploy]
