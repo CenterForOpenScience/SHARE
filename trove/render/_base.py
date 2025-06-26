@@ -35,16 +35,16 @@ class BaseRenderer(abc.ABC):
     thesaurus_tripledict: rdf.RdfTripleDictionary = dataclasses.field(default_factory=lambda: TROVE_API_THESAURUS)
 
     @classmethod
-    def get_deriver_iri(cls, card_blending: bool):
+    def get_deriver_iri(cls, card_blending: bool) -> str | None:
         # override if needed
         return cls.INDEXCARD_DERIVER_IRI
 
     @functools.cached_property
-    def thesaurus(self):
+    def thesaurus(self) -> 'rdf.RdfGraph':
         return rdf.RdfGraph(self.thesaurus_tripledict)
 
     @functools.cached_property
-    def response_data(self):
+    def response_data(self) -> 'rdf.RdfGraph':
         return rdf.RdfGraph(self.response_tripledict)
 
     @functools.cached_property

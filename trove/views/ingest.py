@@ -3,6 +3,7 @@ from http import HTTPStatus
 import logging
 
 from django import http
+from django.http import HttpRequest, HttpResponse
 from django.views import View
 
 from share.models.feature_flag import FeatureFlag
@@ -15,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 
 class RdfIngestView(View):
-    def get(self, request):
+    def get(self, request: HttpRequest) -> None:
         # TODO: something? maybe show this user's most recently pushed rdf for this pid
         raise http.Http404
 
-    def post(self, request):
+    def post(self, request: HttpRequest) -> HttpResponse:
         # TODO: better error responses (jsonapi? shacl:ValidationReport?)
         # TODO: permissions by focus_iri domain (compare with user's Source)?
         if not request.user.is_authenticated:
@@ -41,6 +42,8 @@ class RdfIngestView(View):
                 return http.HttpResponse('expiration_date queryparam must be in ISO-8601 date format (YYYY-MM-DD)', status=HTTPStatus.BAD_REQUEST)
         _nonurgent = parse_booly_str(request.GET.get('nonurgent'))
         try:
+            if not request.content_type:
+                raise trove_exceptions.DigestiveError('missing content-type')
             digestive_tract.ingest(
                 raw_record=request.body.decode(encoding='utf-8'),
                 record_mediatype=request.content_type,
@@ -59,7 +62,7 @@ class RdfIngestView(View):
             # TODO: include (link to?) extracted card(s)
             return http.HttpResponse(status=HTTPStatus.CREATED)
 
-    def delete(self, request):
+    def delete(self, request: HttpRequest) -> HttpResponse:
         # TODO: cleaner permissions
         if not request.user.is_authenticated:
             return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)

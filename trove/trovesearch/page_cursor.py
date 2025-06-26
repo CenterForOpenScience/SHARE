@@ -7,7 +7,7 @@ import math
 import typing
 
 from trove.exceptions import InvalidPageCursorValue
-
+from typing import Any
 
 __all__ = ('PageCursor', 'OffsetCursor', 'ReproduciblyRandomSampleCursor')
 
@@ -110,17 +110,17 @@ class OffsetCursor(PageCursor):
     def is_first_page(self) -> bool:
         return self.start_offset == 0
 
-    def next_cursor(self):
+    def next_cursor(self) -> OffsetCursor | None:
         _next = dataclasses.replace(self, start_offset=int(self.start_offset + self.bounded_page_size))
-        return (_next if _next.is_valid() else None)
+        return _next if _next.is_valid() else None
 
-    def prev_cursor(self):
+    def prev_cursor(self) -> OffsetCursor | None:
         _prev = dataclasses.replace(self, start_offset=int(self.start_offset - self.bounded_page_size))
-        return (_prev if _prev.is_valid() else None)
+        return _prev if _prev.is_valid() else None
 
-    def first_cursor(self):
+    def first_cursor(self) -> OffsetCursor | None:
         _first = dataclasses.replace(self, start_offset=0)
-        return (_first if _first.is_valid() else None)
+        return _first if _first.is_valid() else None
 
 
 @dataclasses.dataclass
@@ -130,16 +130,16 @@ class ReproduciblyRandomSampleCursor(OffsetCursor):
     # start_offset: int (from OffsetCursor)
     first_page_ids: list[str] = dataclasses.field(default_factory=list)
 
-    def next_cursor(self):
+    def next_cursor(self) -> ReproduciblyRandomSampleCursor | None:
         return (
-            super().next_cursor()
+            super().next_cursor()  # type: ignore
             if self.first_page_ids
             else None
         )
 
-    def prev_cursor(self):
+    def prev_cursor(self) -> ReproduciblyRandomSampleCursor | None:
         return (
-            super().prev_cursor()
+            super().prev_cursor()  # type: ignore
             if self.first_page_ids
             else None
         )
@@ -149,37 +149,37 @@ class ReproduciblyRandomSampleCursor(OffsetCursor):
 class SearchAfterCursor(PageCursor):
     # page_size: int (from PageCursor)
     # total_count: int (from PageCursor)
-    search_after: list | None = None
-    next_search_after: list | None = None
-    prev_search_after: list | None = None
+    search_after: list[Any] | None = None
+    next_search_after: list[Any] | None = None
+    prev_search_after: list[Any] | None = None
 
     def is_first_page(self) -> bool:
         return self.search_after is None
 
-    def next_cursor(self):
+    def next_cursor(self) -> SearchAfterCursor | None:
         _next = dataclasses.replace(
             self,
             search_after=self.next_search_after,
             next_search_after=None,
         )
-        return (_next if _next.is_valid() else None)
+        return _next if _next.is_valid() else None
 
-    def prev_cursor(self):
+    def prev_cursor(self) -> SearchAfterCursor | None:
         _prev = dataclasses.replace(
             self,
             search_after=self.prev_search_after,
             next_search_after=self.search_after,
         )
-        return (_prev if _prev.is_valid() else None)
+        return _prev if _prev.is_valid() else None
 
-    def first_cursor(self):
+    def first_cursor(self) -> SearchAfterCursor | None:
         _first = dataclasses.replace(
             self,
             search_after=None,
             next_search_after=None,
             prev_search_after=None,
         )
-        return (_first if _first.is_valid() else None)
+        return _first if _first.is_valid() else None
 
 
 class _PageCursorTypes(enum.Enum):

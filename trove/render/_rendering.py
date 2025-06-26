@@ -1,6 +1,6 @@
 import abc
 import dataclasses
-from typing import Iterator
+from typing import Iterator, Generator
 
 from trove import exceptions as trove_exceptions
 
@@ -30,7 +30,7 @@ class SimpleRendering:  # implements ProtoRendering
     mediatype: str
     rendered_content: str = ''
 
-    def iter_content(self):
+    def iter_content(self) -> Generator[str]:
         yield self.rendered_content
 
 
@@ -40,7 +40,7 @@ class StreamableRendering:  # implements ProtoRendering
     content_stream: Iterator[str | bytes | memoryview]
     _started_already: bool = False
 
-    def iter_content(self):
+    def iter_content(self) -> Iterator[str | bytes | memoryview]:
         if self._started_already:
             raise trove_exceptions.CannotRenderStreamTwice
         self._started_already = True

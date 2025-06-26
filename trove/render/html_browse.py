@@ -1,4 +1,7 @@
-from collections.abc import Iterator
+from collections.abc import (
+    Iterator,
+    Generator,
+)
 import contextlib
 import dataclasses
 import datetime
@@ -68,7 +71,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     __hb: HtmlBuilder = dataclasses.field(init=False)
     __last_hue_turn: float = dataclasses.field(default_factory=random.random)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # TODO: lang (according to request -- also translate)
         self.__current_data = self.response_tripledict
         self.__visiting_iris = set()
@@ -94,37 +97,37 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             etree_tostring(self.__hb.root_element, encoding='unicode', method='html'),
         ))
 
-    def render_html_head(self):
+    def render_html_head(self) -> None:
         with self.__hb.nest('head'):
             self.__hb.leaf('link', attrs={
                 'rel': 'stylesheet',
                 'href': staticfiles_storage.url('css/browse.css'),
             })
 
-    def render_nav(self):
+    def render_nav(self) -> None:
         with self.__hb.nest('nav'):
             self.__alternate_mediatypes_card()
             if self.is_data_blended is not None:
                 self.__blender_toggle_card()
 
-    def render_main(self):
+    def render_main(self) -> None:
         with self.__hb.nest('main'):
             for _iri in self.response_focus.iris:
                 self.__render_subj(_iri)
             # TODO: show additional unvisited triples?
 
-    def render_footer(self):
+    def render_footer(self) -> None:
         with self.__hb.nest('footer'):
             ...
 
-    def __alternate_mediatypes_card(self):
+    def __alternate_mediatypes_card(self) -> None:
         with self.__nest_card('details'):
             self.__hb.leaf('summary', text=_('alternate mediatypes'))
             for _mediatype in shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
                 with self.__hb.nest('span', attrs={'class': 'Browse__literal'}):
                     self.__mediatype_link(_mediatype)
 
-    def __blender_toggle_card(self):
+    def __blender_toggle_card(self) -> None:
         with self.__nest_card('details'):
             if self.is_data_blended:
                 _header_text = _('card-blending ON')
@@ -139,7 +142,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                 'href': self._queryparam_href('blendCards', _link_blend),
             })
 
-    def __mediatype_link(self, mediatype: str):
+    def __mediatype_link(self, mediatype: str) -> None:
         self.__hb.leaf('a', text=mediatype, attrs={
             'href': self._queryparam_href('acceptMediatype', mediatype),
         })
@@ -150,7 +153,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                 with self.__hb.nest('a', attrs={'href': reverse('trove:docs')}) as _link:
                     _link.text = _('(stable for documented use)')
 
-    def __render_subj(self, subj_iri: str, *, start_collapsed=None):
+    def __render_subj(self, subj_iri: str, *, start_collapsed: bool | None = None) -> None:
         _twopledict = self.__current_data.get(subj_iri, {})
         with self.__visiting(subj_iri):
             with self.__nest_card('article'):
@@ -184,7 +187,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                         self.__hb.leaf('summary', text=_('more details...'))
                         self.__twoples(_twopledict)
 
-    def __twoples(self, twopledict: rdf.RdfTwopleDictionary):
+    def __twoples(self, twopledict: rdf.RdfTwopleDictionary) -> None:
         with self.__hb.nest('dl', {'class': 'Browse__twopleset'}):
             for _pred, _obj_set in shuffled(twopledict.items()):
                 with self.__hb.nest('dt', attrs={'class': 'Browse__predicate'}):
@@ -195,7 +198,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     for _obj in shuffled(_obj_set):
                         self.__obj(_obj)
 
-    def __obj(self, obj: rdf.RdfObject):
+    def __obj(self, obj: rdf.RdfObject) -> None:
         if isinstance(obj, str):  # iri
             # TODO: detect whether indexcard?
             if (obj in self.__current_data) and (obj not in self.__visiting_iris):
@@ -220,7 +223,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         literal: rdf.Literal | str,
         *,
         is_rdf_object: bool = False,
-    ):
+    ) -> None:
         _lit = (literal if isinstance(literal, rdf.Literal) else rdf.literal(literal))
         _markdown_iri = rdf.iri_from_mediatype('text/markdown')
         _is_markdown = any(
@@ -241,7 +244,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             else:
                 self.__hb.leaf('q', text=_lit)
 
-    def __sequence(self, sequence_twoples: frozenset):
+    def __sequence(self, sequence_twoples: frozenset[rdf.RdfTwople]) -> None:
         _obj_in_order = list(rdf.sequence_objects_in_order(sequence_twoples))
         with self.__hb.nest('details', attrs={'open': '', 'class': 'Browse__blanknode Browse__object'}):
             _text = _('sequence of %(count)s') % {'count': len(_obj_in_order)}
@@ -251,11 +254,11 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                     with self.__hb.nest('li'):  # , visible=True):
                         self.__obj(_seq_obj)
 
-    def __quoted_graph(self, quoted_graph: rdf.QuotedGraph):
+    def __quoted_graph(self, quoted_graph: rdf.QuotedGraph) -> None:
         with self.__quoted_data(quoted_graph.tripledict):
             self.__render_subj(quoted_graph.focus_iri)  # , start_collapsed=True)
 
-    def __blanknode(self, blanknode: rdf.RdfTwopleDictionary | frozenset):
+    def __blanknode(self, blanknode: rdf.RdfTwopleDictionary | frozenset) -> None:
         _twopledict = (
             blanknode
             if isinstance(blanknode, dict)
@@ -269,11 +272,11 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.__hb.leaf('summary', text='(blank node)')
             self.__twoples(_twopledict)
 
-    def __split_iri_pre(self, iri: str):
+    def __split_iri_pre(self, iri: str) -> None:
         self.__hb.leaf('pre', text='\n'.join(self.__iri_lines(iri)))
 
     @contextlib.contextmanager
-    def __visiting(self, iri: str):
+    def __visiting(self, iri: str) -> Iterator[None]:
         assert iri not in self.__visiting_iris
         self.__visiting_iris.add(iri)
         try:
@@ -282,7 +285,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.__visiting_iris.remove(iri)
 
     @contextlib.contextmanager
-    def __quoted_data(self, quoted_data: dict):
+    def __quoted_data(self, quoted_data: dict) -> Generator[None]:
         _outer_data = self.__current_data
         _outer_visiting_iris = self.__visiting_iris
         self.__current_data = quoted_data
@@ -293,12 +296,12 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.__current_data = _outer_data
             self.__visiting_iris = _outer_visiting_iris
 
-    def __iri_link_and_labels(self, iri: str):
+    def __iri_link_and_labels(self, iri: str) -> None:
         self.__compact_link(iri)
         for _text in self.__iri_thesaurus_labels(iri):
             self.__literal(_text)
 
-    def __nest_link(self, iri: str):
+    def __nest_link(self, iri: str) -> contextlib.AbstractContextManager[Element]:
         _href = (
             iri
             if _is_local_url(iri)
@@ -306,12 +309,12 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         )
         return self.__hb.nest('a', attrs={'href': _href})
 
-    def __compact_link(self, iri: str):
+    def __compact_link(self, iri: str) -> Element:
         with self.__nest_link(iri) as _a:
             _a.text = self.iri_shorthand.compact_iri(iri)
         return _a
 
-    def __nest_card(self, tag: str):
+    def __nest_card(self, tag: str) -> contextlib.AbstractContextManager[Element]:
         return self.__hb.nest(
             tag,
             attrs={
@@ -320,7 +323,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             },
         )
 
-    def __iri_thesaurus_labels(self, iri: str):
+    def __iri_thesaurus_labels(self, iri: str) -> list[str]:
         # TODO: consider requested language
         _labels: set[rdf.RdfObject] = set()
         _suffuniq = get_sufficiently_unique_iri(iri)
@@ -334,12 +337,12 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                 _labels.update(_twoples.get(_pred, ()))
         return shuffled(_labels)
 
-    def _hue_turn_css(self):
+    def _hue_turn_css(self) -> str:
         _hue_turn = (self.__last_hue_turn + _PHI) % 1.0
         self.__last_hue_turn = _hue_turn
         return f'--hue-turn: {_hue_turn}turn;'
 
-    def _queryparam_href(self, param_name: str, param_value: str | None):
+    def _queryparam_href(self, param_name: str, param_value: str | None) -> str:
         _base_url = self.response_focus.single_iri()
         if not _is_local_url(_base_url):
             _base_url = trove_browse_link(_base_url)
@@ -383,7 +386,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             yield f'#{_fragment}'
 
 
-def _append_class(el: Element, element_class: str):
+def _append_class(el: Element, element_class: str) -> None:
     el.set(
         'class',
         ' '.join(filter(None, (element_class, el.get('class')))),

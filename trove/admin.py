@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Any
 from django.contrib import admin
 from django.utils.html import format_html
 
@@ -52,9 +54,9 @@ class IndexcardAdmin(admin.ModelAdmin):
     list_filter = ('deleted', 'source_record_suid__source_config')
     actions = ('_freshen_index',)
 
-    def _freshen_index(self, request, queryset):
+    def _freshen_index(self, queryset: list[Indexcard]) -> None:
         IndexMessenger().notify_indexcard_update(queryset)
-    _freshen_index.short_description = 'freshen indexcard in search index'
+    _freshen_index.short_description = 'freshen indexcard in search index'  # type: ignore[attr-defined]
 
 
 @admin.register(LatestResourceDescription, site=admin_site)
@@ -73,9 +75,9 @@ class LatestResourceDescriptionAdmin(admin.ModelAdmin):
     list_select_related = ('indexcard',)
     show_full_result_count = False
 
-    def rdf_as_turtle__pre(self, instance):
+    def rdf_as_turtle__pre(self, instance: Any) -> str:
         return format_html('<pre>{}</pre>', instance.rdf_as_turtle)
-    rdf_as_turtle__pre.short_description = 'rdf as turtle'
+    rdf_as_turtle__pre.short_description = 'rdf as turtle'  # type: ignore[attr-defined]
 
 
 @admin.register(ArchivedResourceDescription, site=admin_site)
@@ -94,9 +96,9 @@ class ArchivedResourceDescriptionAdmin(admin.ModelAdmin):
     list_select_related = ('indexcard',)
     show_full_result_count = False
 
-    def rdf_as_turtle__pre(self, instance):
+    def rdf_as_turtle__pre(self, instance: Any) -> str:
         return format_html('<pre>{}</pre>', instance.rdf_as_turtle)
-    rdf_as_turtle__pre.short_description = 'rdf as turtle'
+    rdf_as_turtle__pre.short_description = 'rdf as turtle'  # type: ignore[attr-defined]
 
 
 @admin.register(SupplementaryResourceDescription, site=admin_site)
@@ -116,9 +118,9 @@ class SupplementaryResourceDescriptionAdmin(admin.ModelAdmin):
     list_select_related = ('indexcard',)
     show_full_result_count = False
 
-    def rdf_as_turtle__pre(self, instance):
+    def rdf_as_turtle__pre(self, instance: SupplementaryResourceDescription) -> str:
         return format_html('<pre>{}</pre>', instance.rdf_as_turtle)
-    rdf_as_turtle__pre.short_description = 'rdf as turtle'
+    rdf_as_turtle__pre.short_description = 'rdf as turtle'  # type: ignore[attr-defined]
 
 
 @admin.register(DerivedIndexcard, site=admin_site)

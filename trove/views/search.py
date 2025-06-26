@@ -50,9 +50,9 @@ class _BaseTrovesearchView(GatheredTroveView, abc.ABC):
     def _get_wrapped_handler(self, strategy: index_strategy.IndexStrategy):
         _raw_handler = self.get_search_handler(strategy)
 
-        def _wrapped_handler(search_params):
+        def _wrapped_handler(search_params: CardsearchParams) -> BasicSearchHandle:
             _handle = _raw_handler(search_params)
-            _handle.handler = _wrapped_handler
+            _handle.handler = _wrapped_handler  # type: ignore[assignment]
             return _handle
         return _wrapped_handler
 
@@ -61,7 +61,7 @@ class CardsearchView(_BaseTrovesearchView):
     focus_type = CardsearchFocus
     params_type = CardsearchParams
 
-    def get_search_handler(self, strategy):
+    def get_search_handler(self, strategy: index_strategy.IndexStrategy):
         return strategy.pls_handle_cardsearch
 
 
@@ -69,5 +69,5 @@ class ValuesearchView(_BaseTrovesearchView):
     focus_type = ValuesearchFocus
     params_type = ValuesearchParams
 
-    def get_search_handler(self, strategy):
+    def get_search_handler(self, strategy: index_strategy.IndexStrategy):
         return strategy.pls_handle_valuesearch

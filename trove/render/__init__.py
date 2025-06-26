@@ -1,3 +1,5 @@
+from typing import Type
+
 from django import http
 
 from trove import exceptions as trove_exceptions
@@ -22,6 +24,10 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     TrovesearchSimpleJsonRenderer,
     TrovesearchSimpleTsvRenderer,
 )
+
+RendersType = Type[
+    BaseRenderer | RdfHtmlBrowseRenderer | RdfJsonapiRenderer | RdfTurtleRenderer | RdfJsonldRenderer | TrovesearchSimpleCsvRenderer | TrovesearchSimpleJsonRenderer | TrovesearchSimpleTsvRenderer
+]
 
 RENDERER_BY_MEDIATYPE = {
     _renderer_type.MEDIATYPE: _renderer_type

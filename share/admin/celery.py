@@ -39,8 +39,9 @@ class StatusFilter(admin.SimpleListFilter):
         return sorted((x, x.title()) for x in states.ALL_STATES)
 
     def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(status=self.value().upper())
+        _value = self.value()
+        if _value:
+            return queryset.filter(status=_value.upper())
         return queryset
 
 
@@ -99,15 +100,15 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
             self.STATUS_COLORS.get(obj.status, 'black'),
             obj.status.title()
         )
-    status_.short_description = 'Status'
+    status_.short_description = 'Status'  # type: ignore[attr-defined]
 
     def meta_(self, obj):
         return pprint.pformat(obj.meta)
-    meta_.short_description = 'Meta'
+    meta_.short_description = 'Meta'  # type: ignore[attr-defined]
 
     def source_(self, obj):
         return obj.meta.get('source_config') or obj.meta.get('source')
-    source_.short_description = 'Source'
+    source_.short_description = 'Source'  # type: ignore[attr-defined]
 
     def retry(self, request, queryset):
         for task in queryset:
@@ -116,4 +117,4 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
                 task.meta.get('kwargs', {}),
                 task_id=str(task.task_id)
             )
-    retry.short_description = 'Retry Tasks'
+    retry.short_description = 'Retry Tasks'  # type: ignore[attr-defined]

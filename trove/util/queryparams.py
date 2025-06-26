@@ -1,7 +1,8 @@
 from __future__ import annotations
+from collections.abc import Iterable
 import dataclasses
 import re
-import typing
+from typing import Self
 
 # TODO: remove django dependency (tho it is convenient)
 from django.http import QueryDict
@@ -35,12 +36,8 @@ class QueryparamName:
     family: str
     bracketed_names: tuple[str, ...] = ()
 
-    def __post_init__(self):
-        if not isinstance(self.bracketed_names, tuple):
-            super().__setattr__('bracketed_names', tuple(self.bracketed_names))
-
     @classmethod
-    def from_str(cls, queryparam_name: str) -> 'QueryparamName':
+    def from_str(cls, queryparam_name: str) -> Self:
         family_match = QUERYPARAM_FAMILY_REGEX.match(queryparam_name)
         if not family_match:
             raise trove_exceptions.InvalidQueryParamName(queryparam_name)
@@ -57,7 +54,7 @@ class QueryparamName:
             raise trove_exceptions.InvalidQueryParamName(queryparam_name)
         return cls(family, tuple(bracketed_names))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ''.join((
             self.family,
             *(
@@ -87,11 +84,11 @@ def queryparams_from_querystring(querystring: str) -> QueryparamDict:
     return _queryparams
 
 
-def split_queryparam_value(value: str):
+def split_queryparam_value(value: str) -> list[str]:
     return value.split(QUERYPARAM_VALUES_DELIM)
 
 
-def join_queryparam_value(values: typing.Iterable[str]):
+def join_queryparam_value(values: Iterable[str]) -> str:
     return QUERYPARAM_VALUES_DELIM.join(values)
 
 

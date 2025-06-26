@@ -1,3 +1,6 @@
+from collections.abc import Generator
+from typing import Any
+
 from primitive_metadata import gather
 from primitive_metadata import primitive_rdf as rdf
 
@@ -5,9 +8,10 @@ from trove import models as trove_db
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab import namespaces as ns
 from trove.vocab import static_vocab
-from trove.vocab.trove import (
-    TROVE_API_THESAURUS,
-)
+from trove.vocab.trove import TROVE_API_THESAURUS
+
+
+type GathererGenerator = Generator[rdf.RdfTriple | rdf.RdfTwople]
 
 
 TROVEBROWSE_NORMS = gather.GatheringNorms.new(
@@ -32,7 +36,7 @@ trovebrowse = gather.GatheringOrganizer(
 
 
 @trovebrowse.gatherer(ns.FOAF.isPrimaryTopicOf)
-def gather_cards_focused_on(focus, *, blend_cards: bool):
+def gather_cards_focused_on(focus: gather.Focus, *, blend_cards: bool) -> GathererGenerator:
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _indexcard_qs = trove_db.Indexcard.objects.filter(focus_identifier_set__in=_identifier_qs)
     if blend_cards:
@@ -46,7 +50,7 @@ def gather_cards_focused_on(focus, *, blend_cards: bool):
 
 
 @trovebrowse.gatherer(ns.TROVE.thesaurusEntry)
-def gather_thesaurus_entry(focus, *, blend_cards: bool):
+def gather_thesaurus_entry(focus: gather.Focus, *, blend_cards: bool) -> GathererGenerator:
     _thesaurus = static_vocab.combined_thesaurus__suffuniq()
     for _iri in focus.iris:
         _suffuniq_iri = get_sufficiently_unique_iri(_iri)
@@ -59,5 +63,5 @@ def gather_thesaurus_entry(focus, *, blend_cards: bool):
 
 
 @trovebrowse.gatherer(ns.TROVE.usedAtPath)
-def gather_paths_used_at(focus, **kwargs):
+def gather_paths_used_at(focus: gather.Focus, **kwargs: Any) -> GathererGenerator:
     yield from ()  # TODO via elasticsearch aggregation
