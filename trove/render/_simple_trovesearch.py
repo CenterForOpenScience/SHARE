@@ -1,5 +1,7 @@
+from __future__ import annotations
+from collections.abc import Generator, Iterator
 import json
-from typing import Iterator, Any
+from typing import Any, TYPE_CHECKING
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -8,6 +10,8 @@ from trove.vocab.jsonapi import JSONAPI_LINK_OBJECT
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
 from ._rendering import ProtoRendering, SimpleRendering
+if TYPE_CHECKING:
+    from trove.util.json import JsonObject
 
 
 class SimpleTrovesearchRenderer(BaseRenderer):
@@ -16,22 +20,22 @@ class SimpleTrovesearchRenderer(BaseRenderer):
     (very entangled with trove/trovesearch/trovesearch_gathering.py)
     '''
     PASSIVE_RENDER = False  # knows the properties it cares about
-    _page_links: set
+    _page_links: set[str]
     __already_iterated_cards = False
 
-    def simple_unicard_rendering(self, card_iri: str, osfmap_json: dict) -> str:
+    def simple_unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> str:
         raise NotImplementedError
 
-    def simple_multicard_rendering(self, cards: Iterator[tuple[str, dict]]) -> str:
+    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> str:
         raise NotImplementedError
 
-    def unicard_rendering(self, card_iri: str, osfmap_json: dict) -> ProtoRendering:
+    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
         return SimpleRendering(  # type: ignore[return-value]
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_unicard_rendering(card_iri, osfmap_json),
         )
 
-    def multicard_rendering(self, card_pages: Iterator[dict[str, dict]]) -> ProtoRendering:
+    def multicard_rendering(self, card_pages: Iterator[dict[str, JsonObject]]) -> ProtoRendering:
         _cards = (
             (_card_iri, _card_contents)
             for _page in card_pages
@@ -53,7 +57,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             )
         raise trove_exceptions.UnsupportedRdfType(_focustypes)
 
-    def _iter_card_pages(self) -> Iterator[dict[str, Any]]:
+    def _iter_card_pages(self) -> Generator[dict[str, JsonObject]]:
         assert not self.__already_iterated_cards
         self.__already_iterated_cards = True
         self._page_links = set()
@@ -87,7 +91,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
         self,
         card: str | rdf.RdfBlanknode,
         graph: rdf.RdfGraph | None = None,
-    ) -> dict:
+    ) -> Any:
         if isinstance(card, str):
             _card_content = (
                 next(self.response_gathering.ask(TROVE.resourceMetadata, focus=card))

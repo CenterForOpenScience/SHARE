@@ -1,5 +1,10 @@
 from __future__ import annotations
-import collections
+from collections.abc import (
+    Generator,
+    Mapping,
+    Collection,
+    Iterable,
+)
 import dataclasses
 import enum
 import functools
@@ -32,6 +37,8 @@ from trove.util.queryparams import (
 from trove.vocab import osfmap
 from trove.vocab.trove import trove_json_shorthand
 from trove.vocab.namespaces import RDF, TROVE, OWL, FOAF, DCTERMS
+if typing.TYPE_CHECKING:
+    from primitive_metadata.primitive_rdf import IriShorthand
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +56,7 @@ DESCENDING_SORT_PREFIX = '-'
 
 DEFAULT_PROPERTYPATH_SET: PropertypathSet = frozenset([ONE_GLOB_PROPERTYPATH])
 
-DEFAULT_INCLUDES_BY_TYPE: collections.abc.Mapping[str, frozenset[Propertypath]] = freeze({
+DEFAULT_INCLUDES_BY_TYPE: Mapping[str, frozenset[Propertypath]] = freeze({
     TROVE.Indexcard: set(),
     TROVE.Cardsearch: {
         (TROVE.searchResultPage,),
@@ -63,7 +70,7 @@ DEFAULT_INCLUDES_BY_TYPE: collections.abc.Mapping[str, frozenset[Propertypath]] 
     },
 })
 
-DEFAULT_FIELDS_BY_TYPE: collections.abc.Mapping[str, tuple[Propertypath, ...]] = freeze({
+DEFAULT_FIELDS_BY_TYPE: Mapping[str, tuple[Propertypath, ...]] = freeze({
     TROVE.Indexcard: [
         (TROVE.resourceMetadata,),
         (TROVE.focusIdentifier,),
@@ -93,12 +100,12 @@ class ValueType(enum.Enum):
     INTEGER = TROVE['value-type/integer']
 
     @classmethod
-    def from_shortname(cls, shortname):
+    def from_shortname(cls, shortname: str) -> typing.Self:
         _iri = trove_json_shorthand().expand_iri(shortname)
         return cls(_iri)
 
     @classmethod
-    def shortnames(cls):
+    def shortnames(cls) -> Generator[str]:
         for _value_type in cls:
             yield _value_type.to_shortname()
 
@@ -115,15 +122,15 @@ class TrovesearchParams(BasicTroveParams):
     static_focus_type: typing.ClassVar[str]  # expected on subclasses
 
     @classmethod
-    def _default_shorthand(cls):  # NOTE: osfmap special
+    def _default_shorthand(cls) -> IriShorthand:  # NOTE: osfmap special
         return osfmap.osfmap_json_shorthand()
 
     @classmethod
-    def _default_include(cls):
+    def _default_include(cls) -> PropertypathSet:
         return DEFAULT_INCLUDES_BY_TYPE.get(cls.static_focus_type, frozenset())
 
     @classmethod
-    def _default_attrpaths(cls) -> collections.abc.Mapping[str, tuple[Propertypath, ...]]:
+    def _default_attrpaths(cls) -> Mapping[str, tuple[Propertypath, ...]]:
         return DEFAULT_FIELDS_BY_TYPE
 
 
@@ -133,17 +140,19 @@ class SearchText:
     propertypath_set: PropertypathSet = DEFAULT_PROPERTYPATH_SET
 
     @classmethod
-    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str) -> frozenset[typing.Self]:
         return frozenset(cls.iter_from_queryparam_family(queryparams, queryparam_family))
 
     @classmethod
-    def iter_from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+    def iter_from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str) -> Generator[typing.Self]:
         for (_param_name, _param_value) in queryparams.get(queryparam_family, ()):
             if _param_value:
-                yield cls.from_searchtext_param_or_none(_param_name, _param_value)
+                _searchtext = cls.from_searchtext_param_or_none(_param_name, _param_value)
+                if _searchtext is not None:
+                    yield _searchtext
 
     @classmethod
-    def from_searchtext_param_or_none(cls, param_name: QueryparamName, param_value: str) -> SearchText | None:
+    def from_searchtext_param_or_none(cls, param_name: QueryparamName, param_value: str) -> typing.Self | None:
         _propertypath_set = (
             frozenset(osfmap.parse_osfmap_propertypath_set(param_name.bracketed_names[0], allow_globs=True))
             if param_name.bracketed_names
@@ -161,16 +170,17 @@ class SearchText:
         return _searchtext
 
     @classmethod
-    def queryparams_from_searchtext(self, queryparam_family: str, cardsearch_searchtext):
-        _by_propertypath_set = collections.defaultdict(set)
+    def queryparams_from_searchtext(
+        self,
+        queryparam_family: str,
+        cardsearch_searchtext: Iterable[SearchText],
+    ) -> Generator[tuple[str, str]]:
         for searchtext in cardsearch_searchtext:
-            _by_propertypath_set[searchtext.propertypath_set].add(searchtext)
-        for _propertypath_set, _combinable_segments in _by_propertypath_set.items():
             _qp_name = QueryparamName(
                 queryparam_family,
-                (osfmap.osfmap_propertypath_set_key(_propertypath_set),),
+                (osfmap.osfmap_propertypath_set_key(searchtext.propertypath_set),)
             )
-            yield str(_qp_name), _combinable_segments
+            yield str(_qp_name), searchtext.text
 
 
 @dataclasses.dataclass(frozen=True)
@@ -186,20 +196,20 @@ class SearchFilter:
         AT_DATE = TROVE['at-date']
 
         @classmethod
-        def from_shortname(cls, shortname):
+        def from_shortname(cls, shortname: str) -> typing.Self:
             _iri = trove_json_shorthand().expand_iri(shortname)
             return cls(_iri)
 
         def to_shortname(self) -> str:
             return trove_json_shorthand().compact_iri(self.value)
 
-        def is_date_operator(self):
+        def is_date_operator(self) -> bool:
             return self in (self.BEFORE, self.AFTER, self.AT_DATE)
 
-        def is_iri_operator(self):
+        def is_iri_operator(self) -> bool:
             return self in (self.ANY_OF, self.NONE_OF)
 
-        def is_valueless_operator(self):
+        def is_valueless_operator(self) -> bool:
             return self in (self.IS_PRESENT, self.IS_ABSENT)
 
     operator: FilterOperator
@@ -207,7 +217,7 @@ class SearchFilter:
     propertypath_set: PropertypathSet = DEFAULT_PROPERTYPATH_SET
 
     @classmethod
-    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str):
+    def from_queryparam_family(cls, queryparams: QueryparamDict, queryparam_family: str) -> frozenset[typing.Self]:
         return frozenset(
             cls.from_filter_param(param_name, param_value)
             for (param_name, param_value)
@@ -215,7 +225,7 @@ class SearchFilter:
         )
 
     @classmethod
-    def from_filter_param(cls, param_name: QueryparamName, param_value: str):
+    def from_filter_param(cls, param_name: QueryparamName, param_value: str) -> typing.Self:
         _operator = None
         try:  # "filter[<serialized_path_set>][<operator>]"
             (_serialized_path_set, _operator_value) = param_name.bracketed_names
@@ -281,7 +291,7 @@ class SearchFilter:
             and self.operator == SearchFilter.FilterOperator.ANY_OF
         )
 
-    def as_queryparam(self, queryparam_family: str):
+    def as_queryparam(self, queryparam_family: str) -> tuple[str, str]:
         _qp_name = QueryparamName(queryparam_family, (
             osfmap.osfmap_propertypath_set_key(self.propertypath_set),
             self.operator.to_shortname(),
@@ -338,7 +348,7 @@ class SortParam:
             descending=_descending,
         )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if (
             self.value_type == ValueType.DATE
             and not is_date_path(self.propertypath)
@@ -375,7 +385,7 @@ class CardsearchParams(TrovesearchParams):
     static_focus_type = TROVE.Cardsearch
 
     @classmethod
-    def parse_queryparams(cls, queryparams: QueryparamDict) -> dict:
+    def parse_queryparams(cls, queryparams: QueryparamDict) -> dict[str, typing.Any]:
         _filter_set = SearchFilter.from_queryparam_family(queryparams, 'cardSearchFilter')
         return {
             **super().parse_queryparams(queryparams),
@@ -394,7 +404,7 @@ class CardsearchParams(TrovesearchParams):
             else ()
         )
 
-    def cardsearch_type_iris(self):
+    def cardsearch_type_iris(self) -> Generator[str]:
         for _filter in self.cardsearch_filter_set:
             if _filter.is_type_filter():
                 yield from _filter.value_set
@@ -424,7 +434,7 @@ class CardsearchParams(TrovesearchParams):
         if not self.page_cursor.is_basic():
             _querydict['page[cursor]'] = self.page_cursor.as_queryparam_value()
         elif self.page_cursor.page_size != DEFAULT_PAGE_SIZE:
-            _querydict['page[size]'] = self.page_cursor.page_size
+            _querydict['page[size]'] = str(self.page_cursor.page_size)
         for _filter in self.cardsearch_filter_set:
             _qp_name, _qp_value = _filter.as_queryparam('cardSearchFilter')
             _querydict.appendlist(_qp_name, _qp_value)
@@ -456,7 +466,7 @@ class ValuesearchParams(CardsearchParams):
             'valuesearch_filter_set': SearchFilter.from_queryparam_family(queryparams, 'valueSearchFilter'),
         }
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if osfmap.is_date_property(self.valuesearch_propertypath[-1]):
             # date-value limitations
             if self.valuesearch_searchtext:
@@ -468,7 +478,7 @@ class ValuesearchParams(CardsearchParams):
                     'valueSearchFilter may not be used with valueSearchPropertyPath leading to a "date" property',
                 )
 
-    def to_querydict(self):
+    def to_querydict(self) -> QueryDict:
         _querydict = super().to_querydict()
         _querydict['valueSearchPropertyPath'] = osfmap.osfmap_propertypath_key(self.valuesearch_propertypath)
         for _qp_name, _qp_value in SearchText.queryparams_from_searchtext('valueSearchText', self.valuesearch_searchtext):
@@ -478,12 +488,12 @@ class ValuesearchParams(CardsearchParams):
             _querydict.appendlist(_qp_name, _qp_value)
         return _querydict
 
-    def valuesearch_iris(self):
+    def valuesearch_iris(self) -> Generator[str]:
         for _filter in self.valuesearch_filter_set:
             if _filter.is_sameas_filter():
                 yield from _filter.value_set
 
-    def valuesearch_type_iris(self):
+    def valuesearch_type_iris(self) -> Generator[str]:
         for _filter in self.valuesearch_filter_set:
             if _filter.is_type_filter():
                 yield from _filter.value_set
@@ -506,22 +516,14 @@ def _get_text_queryparam(queryparams: QueryparamDict, queryparam_family: str) ->
     )
 
 
-def _get_related_property_paths(filter_set) -> tuple[Propertypath, ...]:
+def _get_related_property_paths(filter_set: Collection[SearchFilter]) -> tuple[Propertypath, ...]:
     # hard-coded for osf.io search pages, static list per type
     # TODO: replace with some dynamism, maybe a 'significant_terms' aggregation
-    _type_iris = set()
+    _type_iris: set[str] = set()
     for _filter in filter_set:
         if _filter.is_type_filter():
             _type_iris.update(_filter.value_set)
     return osfmap.suggested_property_paths(_type_iris)
-
-
-def _get_unnamed_iri_values(filter_set) -> typing.Iterable[str]:
-    for _filter in filter_set:
-        if _filter.operator.is_iri_operator():
-            for _iri in _filter.value_set:
-                if _iri not in osfmap.OSFMAP_THESAURUS:
-                    yield _iri
 
 
 def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
@@ -538,5 +540,5 @@ def _get_page_cursor(queryparams: QueryparamDict) -> PageCursor:
     return PageCursor(page_size=_size)
 
 
-def _frozen_mapping(**kwargs) -> collections.abc.Mapping:
+def _frozen_mapping(**kwargs: dict[str, typing.Any]) -> Mapping[str, typing.Any]:
     return types.MappingProxyType(kwargs)

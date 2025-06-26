@@ -24,7 +24,7 @@ class IDObfuscator:
     ID_RE = re.compile(r'([0-9A-Fa-f]{2,})([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})')
 
     @classmethod
-    def encode(cls, instance):
+    def encode(cls, instance) -> str:
         return cls.encode_id(instance.id, instance._meta.model)
 
     @classmethod

@@ -1,5 +1,7 @@
+from __future__ import annotations
 import datetime
 import json
+from typing import TYPE_CHECKING
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -10,13 +12,17 @@ from trove.vocab.osfmap import (
     osfmap_json_shorthand,
 )
 from ._base import IndexcardDeriver
+if TYPE_CHECKING:
+    from trove.util.json import JsonValue, JsonObject
 
 
 class OsfmapJsonFullDeriver(IndexcardDeriver):
     # abstract method from IndexcardDeriver
     @staticmethod
     def deriver_iri() -> str:
-        return TROVE['derive/osfmap_json_full']
+        _iri = TROVE['derive/osfmap_json_full']
+        assert isinstance(_iri, str)
+        return _iri
 
     # abstract method from IndexcardDeriver
     @staticmethod
@@ -28,7 +34,7 @@ class OsfmapJsonFullDeriver(IndexcardDeriver):
         return False
 
     # abstract method from IndexcardDeriver
-    def derive_card_as_text(self):
+    def derive_card_as_text(self) -> str:
         return json.dumps(
             _RdfOsfmapJsonldRenderer().tripledict_as_nested_jsonld(
                 self.data.tripledict,
@@ -38,13 +44,13 @@ class OsfmapJsonFullDeriver(IndexcardDeriver):
 
 
 class _RdfOsfmapJsonldRenderer:
-    __nestvisiting_iris: set
+    __nestvisiting_iris: set[str]
 
-    def tripledict_as_nested_jsonld(self, tripledict: rdf.RdfTripleDictionary, focus_iri: str):
+    def tripledict_as_nested_jsonld(self, tripledict: rdf.RdfTripleDictionary, focus_iri: str) -> JsonObject:
         self.__nestvisiting_iris = set()
         return self.__nested_rdfobject_as_jsonld(tripledict, focus_iri)
 
-    def rdfobject_as_jsonld(self, rdfobject: rdf.RdfObject) -> dict:
+    def rdfobject_as_jsonld(self, rdfobject: rdf.RdfObject) -> JsonObject:
         if isinstance(rdfobject, frozenset):
             return self.twopledict_as_jsonld(
                 rdf.twopledict_from_twopleset(rdfobject),
@@ -87,7 +93,7 @@ class _RdfOsfmapJsonldRenderer:
             ]}
         raise trove_exceptions.UnsupportedRdfObject(rdfobject)
 
-    def twopledict_as_jsonld(self, twopledict: rdf.RdfTwopleDictionary) -> dict:
+    def twopledict_as_jsonld(self, twopledict: rdf.RdfTwopleDictionary) -> JsonObject:
         _jsonld = {}
         for _pred, _objectset in twopledict.items():
             if _objectset:
@@ -102,7 +108,7 @@ class _RdfOsfmapJsonldRenderer:
         self,
         tripledict: rdf.RdfTripleDictionary,
         rdfobject: rdf.RdfObject,
-    ):
+    ) -> JsonObject:
         _yes_nest = (
             isinstance(rdfobject, str)
             and (rdfobject not in self.__nestvisiting_iris)
@@ -129,7 +135,7 @@ class _RdfOsfmapJsonldRenderer:
         self.__nestvisiting_iris.discard(rdfobject)
         return _nested_obj
 
-    def _list_or_single_value(self, predicate_iri, json_list: list):
+    def _list_or_single_value(self, predicate_iri: str, json_list: list[JsonValue]) -> JsonValue:
         _only_one_object = OWL.FunctionalProperty in (
             OSFMAP_THESAURUS
             .get(predicate_iri, {})

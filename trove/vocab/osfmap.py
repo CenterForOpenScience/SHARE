@@ -999,11 +999,11 @@ def osfmap_json_shorthand() -> IriShorthand:
     )
 
 
-def parse_osfmap_propertypath(serialized_path: str, *, allow_globs=False) -> Propertypath:
+def parse_osfmap_propertypath(serialized_path: str, *, allow_globs: bool = False) -> Propertypath:
     return parse_propertypath(serialized_path, osfmap_json_shorthand(), allow_globs=allow_globs)
 
 
-def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs=False) -> Iterator[Propertypath]:
+def parse_osfmap_propertypath_set(serialized_path_set: str, *, allow_globs: bool = False) -> Iterator[Propertypath]:
     for _path in split_queryparam_value(serialized_path_set):
         yield parse_osfmap_propertypath(_path, allow_globs=allow_globs)
 
@@ -1044,11 +1044,11 @@ def suggested_property_paths(type_iris: set[str]) -> tuple[tuple[str, ...], ...]
     else:
         _suggested = ALL_SUGGESTED_PROPERTY_PATHS
     if _suggested and FeatureFlag.objects.flag_is_up(FeatureFlag.SUGGEST_CREATOR_FACET):
-        return ((DCTERMS.creator,), *_suggested)
+        return (DCTERMS.creator,), *_suggested
     return _suggested
 
 
-def suggested_filter_operator(property_iri: str):
+def suggested_filter_operator(property_iri: str) -> str:
     # return iri value for the suggested trove-search filter operator
     if is_date_property(property_iri):
         return TROVE['at-date']
@@ -1057,6 +1057,6 @@ def suggested_filter_operator(property_iri: str):
     return TROVE['any-of']
 
 
-def is_date_property(property_iri):
+def is_date_property(property_iri: str) -> bool:
     # TODO: better inference (rdfs:range?)
     return property_iri in DATE_PROPERTIES

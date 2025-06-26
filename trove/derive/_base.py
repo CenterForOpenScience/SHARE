@@ -1,5 +1,5 @@
 import abc
-
+from typing import Any
 from primitive_metadata import primitive_rdf
 
 from trove.models.resource_description import ResourceDescription
@@ -15,7 +15,7 @@ class IndexcardDeriver(abc.ABC):
         self.focus_iri = upstream_description.focus_iri
         self.data = upstream_description.as_rdfdoc_with_supplements()
 
-    def q(self, pathset):
+    def q(self, pathset: Any) -> Any:
         # convenience for querying self.data on self.focus_iri
         return self.data.q(self.focus_iri, pathset)
 

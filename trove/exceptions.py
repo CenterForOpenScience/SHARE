@@ -7,7 +7,7 @@ class TroveError(Exception):
     http_status: int = http.HTTPStatus.INTERNAL_SERVER_ERROR
     error_location: str = ''
 
-    def __init__(self, *args):
+    def __init__(self, *args: object) -> None:
         super().__init__(*args)
         self.error_location = _get_nearest_code_location()
 

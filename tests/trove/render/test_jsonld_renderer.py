@@ -26,12 +26,10 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                         "@value": "2024-01-01"
                     }
                 ],
-                "foaf:primaryTopic": [
-                    "blarg:anItem"
-                ],
+                "foaf:primaryTopic": [{"@id": "blarg:anItem"}],
                 "rdf:type": [
-                    "trove:Indexcard",
-                    "dcat:CatalogRecord"
+                    {"@id": "trove:Indexcard"},
+                    {"@id": "dcat:CatalogRecord"}
                 ],
                 "trove:focusIdentifier": [
                     {
@@ -61,7 +59,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                     }
                 ],
                 "blarg:hasIri": [
-                    "blarg:anIri"
+                    {"@id": "blarg:anIri"}
                 ],
                 "blarg:hasRdfLangStringLiteral": [
                     {
@@ -80,7 +78,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                         "@value": "a literal of strange datatype"
                     }
                 ],
-                "rdf:type": ["blarg:aType"],
+                "rdf:type": [{"@id": "blarg:aType"}],
             }),
         ),
     }
@@ -95,7 +93,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
             rendered_content=json.dumps({
                 "@id": "blarg:aSearch",
                 "rdf:type": [
-                    "trove:Cardsearch"
+                    {"@id": "trove:Cardsearch"}
                 ],
                 "trove:totalResultCount": {
                     "@type": "xsd:integer",
@@ -108,7 +106,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
             rendered_content=json.dumps({
                 "@id": "blarg:aSearchFew",
                 "rdf:type": [
-                    "trove:Cardsearch"
+                    {"@id": "trove:Cardsearch"}
                 ],
                 "trove:totalResultCount": {
                     "@type": "xsd:integer",
@@ -119,7 +117,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                         "@list": [
                             {
                                 "rdf:type": [
-                                    "trove:SearchResult"
+                                    {"@id": "trove:SearchResult"}
                                 ],
                                 "trove:indexCard": {
                                     "@id": "blarg:aCard",
@@ -136,16 +134,14 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "blarg:anItem"
+                                        {"@id": "blarg:anItem"}
                                     ],
                                     "rdf:type": [
-                                        "trove:Indexcard",
-                                        "dcat:CatalogRecord"
+                                        {"@id": "trove:Indexcard"},
+                                        {"@id": "dcat:CatalogRecord"}
                                     ],
                                     "trove:focusIdentifier": [
-                                        {
-                                            "@value": BLARG.anItem
-                                        }
+                                        {"@value": BLARG.anItem}
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItem,
@@ -155,7 +151,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                             },
                             {
                                 "rdf:type": [
-                                    "trove:SearchResult"
+                                    {"@id": "trove:SearchResult"}
                                 ],
                                 "trove:indexCard": {
                                     "@id": "blarg:aCardd",
@@ -172,11 +168,11 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "blarg:anItemm"
+                                        {"@id": "blarg:anItemm"}
                                     ],
                                     "rdf:type": [
-                                        "trove:Indexcard",
-                                        "dcat:CatalogRecord"
+                                        {"@id": "trove:Indexcard"},
+                                        {"@id": "dcat:CatalogRecord"}
                                     ],
                                     "trove:focusIdentifier": [
                                         {
@@ -191,7 +187,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                             },
                             {
                                 "rdf:type": [
-                                    "trove:SearchResult"
+                                    {"@id": "trove:SearchResult"}
                                 ],
                                 "trove:indexCard": {
                                     "@id": "blarg:aCarddd",
@@ -208,16 +204,14 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         }
                                     ],
                                     "foaf:primaryTopic": [
-                                        "blarg:anItemmm"
+                                        {"@id": "blarg:anItemmm"}
                                     ],
                                     "rdf:type": [
-                                        "trove:Indexcard",
-                                        "dcat:CatalogRecord"
+                                        {"@id": "trove:Indexcard"},
+                                        {"@id": "dcat:CatalogRecord"}
                                     ],
                                     "trove:focusIdentifier": [
-                                        {
-                                            "@value": BLARG.anItemmm
-                                        }
+                                        {"@value": BLARG.anItemmm}
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItemmm,

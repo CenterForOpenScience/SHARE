@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye as app
+FROM python:3.13-slim-bullseye AS app
 
 RUN apt-get update \
     && apt-get install -y \
@@ -25,35 +25,51 @@ RUN update-ca-certificates
 RUN mkdir -p /code
 WORKDIR /code
 
-RUN pip install -U pip
-RUN pip install uwsgi==2.0.21
+###
+# python dependencies
 
-COPY ./requirements.txt /code/requirements.txt
-COPY ./constraints.txt /code/constraints.txt
+# note: installs dependencies on the system, roundabouts `/usr/local/lib/python3.13/site-packages/`
 
-RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/requirements.txt
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_OPTIONS_ALWAYS_COPY=1 \
+    POETRY_VIRTUALENVS_CREATE=0 \
+    POETRY_VIRTUALENVS_IN_PROJECT=0 \
+    POETRY_CACHE_DIR=/tmp/poetry-cache \
+    POETRY_HOME=/tmp/poetry-venv
+
+RUN python -m venv $POETRY_HOME
+
+RUN $POETRY_HOME/bin/pip install poetry==2.1.3
+
+COPY pyproject.toml .
+COPY poetry.lock .
+
+RUN $POETRY_HOME/bin/poetry install --compile --no-root
 
 RUN apt-get remove -y \
     gcc \
-    zlib1g-dev
+    zlib1g-dev \
+    && apt-get autoremove -y
 
 COPY ./ /code/
+
+RUN $POETRY_HOME/bin/poetry install --compile --only-root
 
 RUN python manage.py collectstatic --noinput
 
 ARG GIT_TAG=
 ARG GIT_COMMIT=
-ENV VERSION ${GIT_TAG}
-ENV GIT_COMMIT ${GIT_COMMIT}
-
-RUN python setup.py develop
+ENV VERSION=${GIT_TAG}
+ENV GIT_COMMIT=${GIT_COMMIT}
 
 CMD ["python", "manage.py", "--help"]
 
 ### Dist
 FROM app AS dist
 
+RUN $POETRY_HOME/bin/poetry install --compile --only deploy
+
 ### Dev
 FROM app AS dev
 
-RUN pip install --no-cache-dir -c /code/constraints.txt -r /code/dev-requirements.txt
+RUN $POETRY_HOME/bin/poetry install --compile --only dev

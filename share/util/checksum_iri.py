@@ -1,9 +1,18 @@
+from __future__ import annotations
+from collections.abc import Callable
 import dataclasses
 import hashlib
 import json
+from typing import Self, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from trove.util.json import JsonValue
 
 
-def _ensure_bytes(bytes_or_something) -> bytes:
+type HexdigestFn = Callable[[str | bytes, str | bytes], str]
+
+
+def _ensure_bytes(bytes_or_something: bytes | str) -> bytes:
     if isinstance(bytes_or_something, bytes):
         return bytes_or_something
     if isinstance(bytes_or_something, str):
@@ -11,12 +20,12 @@ def _ensure_bytes(bytes_or_something) -> bytes:
     raise NotImplementedError(f'how bytes? ({bytes_or_something})')
 
 
-def _builtin_checksum(hash_constructor):
+def _builtin_checksum(hash_constructor: Any) -> HexdigestFn:
     def hexdigest_fn(salt: str | bytes, data: str | bytes) -> str:
         hasher = hash_constructor()
         hasher.update(_ensure_bytes(salt))
         hasher.update(_ensure_bytes(data))
-        return hasher.hexdigest()
+        return str(hasher.hexdigest())
     return hexdigest_fn
 
 
@@ -33,11 +42,11 @@ class ChecksumIri:
     salt: str
     hexdigest: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'urn:checksum:{self.checksumalgorithm_name}:{self.salt}:{self.hexdigest}'
 
     @classmethod
-    def digest(cls, checksumalgorithm_name: str, *, salt: str, data: str):
+    def digest(cls, checksumalgorithm_name: str, *, salt: str, data: str) -> Self:
         try:
             hexdigest_fn = CHECKSUM_ALGORITHMS[checksumalgorithm_name]
         except KeyError:
@@ -52,7 +61,7 @@ class ChecksumIri:
         )
 
     @classmethod
-    def digest_json(cls, checksumalgorithm_name, *, salt, raw_json):
+    def digest_json(cls, checksumalgorithm_name: str, *, salt: str, raw_json: JsonValue) -> Self:
         return cls.digest(
             checksumalgorithm_name,
             salt=salt,
@@ -60,7 +69,7 @@ class ChecksumIri:
         )
 
     @classmethod
-    def from_iri(cls, checksum_iri: str):
+    def from_iri(cls, checksum_iri: str) -> Self:
         try:
             (urn, checksum, algorithmname, salt, hexdigest) = checksum_iri.split(':')
             assert (urn, checksum) == ('urn', 'checksum')

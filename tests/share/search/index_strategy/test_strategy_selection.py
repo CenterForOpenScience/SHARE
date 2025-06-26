@@ -6,7 +6,6 @@ from share.search.index_strategy import (
     IndexStrategy,
     each_strategy,
     get_strategy,
-    sharev2_elastic5,
     sharev2_elastic8,
     trovesearch_denorm,
     parse_strategy_name,
@@ -18,7 +17,6 @@ from tests.share.search import patch_index_strategies
 @pytest.fixture
 def patched_strategies(mock_elastic_clients):
     _strategies = [
-        sharev2_elastic5.Sharev2Elastic5IndexStrategy('sharev2_elastic5'),
         sharev2_elastic8.Sharev2Elastic8IndexStrategy('sharev2_elastic8'),
         trovesearch_denorm.TrovesearchDenormIndexStrategy('trovesearch_denorm'),
     ]

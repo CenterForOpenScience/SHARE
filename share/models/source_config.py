@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 from django.db import models
 
@@ -9,13 +10,13 @@ from share.util import BaseJSONAPIMeta
 __all__ = ('SourceConfig',)
 
 
-class SourceConfigManager(models.Manager):
+class SourceConfigManager(models.Manager['SourceConfig']):
     use_in_migrations = True
 
-    def get_by_natural_key(self, key):
+    def get_by_natural_key(self, key) -> SourceConfig:
         return self.get(label=key)
 
-    def get_or_create_push_config(self, user, transformer_key=None):
+    def get_or_create_push_config(self, user, transformer_key=None) -> SourceConfig:
         assert isinstance(user, ShareUser)
         _config_label = '.'.join((
             user.username,

@@ -18,7 +18,7 @@ def make_http_response(
     content_rendering: ProtoRendering,
     http_headers: typing.Iterable[tuple[str, str]] = (),
     http_request: djhttp.HttpRequest | None = None,
-) -> djhttp.HttpResponse:
+) -> djhttp.HttpResponse | djhttp.StreamingHttpResponse:
     _response_type = (
         djhttp.StreamingHttpResponse
         if isinstance(content_rendering, StreamableRendering)
@@ -50,13 +50,13 @@ def make_http_error_response(
     )
 
 
-def _sanitize_file_name(requested_name: str):
+def _sanitize_file_name(requested_name: str) -> str:
     _underscored = re.sub(r'["\'/:\\;\s]', '_', requested_name)
     _datestamp = datetime.date.today().isoformat()
     return f'{_datestamp}_{_underscored}' if _underscored else _datestamp
 
 
-def _get_file_name(requested_name: str, mediatype: str):
+def _get_file_name(requested_name: str, mediatype: str) -> str:
     _file_name = _sanitize_file_name(requested_name)
     _dot_extension = mediatypes.dot_extension(mediatype)
     if _file_name.endswith(_dot_extension):
@@ -64,7 +64,7 @@ def _get_file_name(requested_name: str, mediatype: str):
     return f'{_file_name}{_dot_extension}'
 
 
-def _disposition(filename: str):
+def _disposition(filename: str) -> bytes:
     return b'; '.join((
         b'attachment',
         b'filename=' + filename.encode('latin-1', errors='replace'),

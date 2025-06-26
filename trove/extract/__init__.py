@@ -7,7 +7,7 @@ from .turtle import TurtleRdfExtractor
 __all__ = ('get_rdf_extractor_class',)
 
 
-def get_rdf_extractor_class(mediatype) -> type[BaseRdfExtractor]:
+def get_rdf_extractor_class(mediatype: str) -> type[BaseRdfExtractor]:
     if mediatype == 'text/turtle':
         return TurtleRdfExtractor
     raise trove_exceptions.CannotDigestMediatype(mediatype)

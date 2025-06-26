@@ -3,7 +3,7 @@ from celery import states
 from django.db import models
 
 from share.models.fields import DateTimeAwareJSONField
-from share.version import get_share_version
+from share.version import get_shtrove_version
 
 
 ALL_STATES = sorted(states.ALL_STATES)
@@ -26,7 +26,7 @@ class CeleryTaskResult(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False, db_index=True)
 
-    share_version = models.TextField(default=get_share_version, editable=False)
+    share_version = models.TextField(default=get_shtrove_version, editable=False)
 
     class Meta:
         verbose_name = 'Celery Task Result'

@@ -26,7 +26,7 @@ class BasicTroveParams:
     iri_shorthand: rdf.IriShorthand = dataclasses.field(repr=False)
     accept_mediatype: str | None
     included_relations: PropertypathSet = dataclasses.field(repr=False, compare=False)
-    attrpaths_by_type: Mapping[str, PropertypathSet] = dataclasses.field(repr=False, compare=False)
+    attrpaths_by_type: Mapping[str, tuple[Propertypath, ...]] = dataclasses.field(repr=False, compare=False)
     blend_cards: bool
 
     ###
@@ -65,7 +65,7 @@ class BasicTroveParams:
         return {}
 
     @classmethod
-    def _gather_shorthand(cls, queryparams: _qp.QueryparamDict):
+    def _gather_shorthand(cls, queryparams: _qp.QueryparamDict) -> rdf.IriShorthand:
         _prefixmap = {}
         for _qp_name, _iri in queryparams.get('iriShorthand', []):
             try:
@@ -95,7 +95,9 @@ class BasicTroveParams:
         str,
         tuple[Propertypath, ...],
     ]:
-        _attrpaths = SimpleChainMap([cls._default_attrpaths()])
+        _attrpaths: SimpleChainMap[str, tuple[Propertypath, ...]] = SimpleChainMap(
+            [cls._default_attrpaths()],
+        )
         _fields_params = queryparams.get('fields', [])
         if _fields_params:
             _requested: dict[str, list[Propertypath]] = defaultdict(list)

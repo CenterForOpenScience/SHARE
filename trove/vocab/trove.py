@@ -1,5 +1,7 @@
 import functools
 import urllib.parse
+from typing import Union, Any
+from uuid import UUID
 
 from django.conf import settings
 from django.urls import reverse
@@ -38,11 +40,11 @@ from trove.vocab.namespaces import (
 # - TODO: each iri is an irL that resolves to rdf, html
 
 
-def _literal_markdown(text: str, *, language: str):
+def _literal_markdown(text: str, *, language: str) -> literal:
     return literal(text, language=language, mediatype='text/markdown;charset=utf-8')
 
 
-def trove_browse_link(iri: str):
+def trove_browse_link(iri: str) -> str:
     _compact = namespaces_shorthand().compact_iri(iri)
     return urllib.parse.urljoin(
         reverse('trove:browse-iri'),
@@ -845,9 +847,9 @@ def trove_json_shorthand() -> IriShorthand:
 
 
 @functools.cache
-def trove_indexcard_namespace():
+def trove_indexcard_namespace() -> IriNamespace:
     return IriNamespace(f'{settings.SHARE_WEB_URL}trove/index-card/')
 
 
-def trove_indexcard_iri(indexcard_uuid):
+def trove_indexcard_iri(indexcard_uuid: Union[UUID, str]) -> Any:
     return trove_indexcard_namespace()[str(indexcard_uuid)]

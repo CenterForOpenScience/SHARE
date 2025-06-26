@@ -39,7 +39,7 @@ class CardsearchHandle(BasicSearchHandle):
     search_result_page: typing.Iterable[CardsearchResult] = ()
     related_propertypath_results: list[PropertypathUsage] = dataclasses.field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self):  # type: ignore
         _cursor = self.cursor
         _page = self.search_result_page
         if (  # TODO: move this logic into the... cursor?
@@ -96,7 +96,7 @@ class CardsearchResult:
     card_pk: str = ''
 
     @property
-    def card_uuid(self):
+    def card_uuid(self) -> typing.Any:
         # card iri has the uuid at the end
         return primitive_rdf.iri_minus_namespace(
             self.card_iri,
@@ -104,7 +104,7 @@ class CardsearchResult:
         )
 
     @property
-    def card_id(self):
+    def card_id(self) -> str:
         return self.card_pk or self.card_uuid
 
 
@@ -125,7 +125,7 @@ class ValuesearchResult:
     match_count: int = 0
     total_count: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         assert (self.value_iri is not None) or (self.value_value is not None), (
             f'either value_iri or value_value required (on {self})'
         )

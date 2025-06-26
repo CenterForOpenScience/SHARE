@@ -1,11 +1,15 @@
 from __future__ import annotations
-from collections.abc import Iterator
+from collections.abc import Generator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.query import QuerySet
 
 
 __all__ = ('pk_chunked',)
 
 
-def pk_chunked(queryset, chunksize: int) -> Iterator[list]:
+def pk_chunked(queryset: QuerySet, chunksize: int) -> Generator[list]:
     '''pk_chunked: get primary key values, in chunks, for the given queryset
 
     yields non-empty lists of primary keys up to `chunksize` long

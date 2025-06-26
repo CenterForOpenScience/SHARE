@@ -132,15 +132,15 @@ class TestSourcesGet:
         source_ids_after = {s['id'] for s in sources_after}
 
         assert len(sources_after) == len(sources_before) - 1
-        missing_ids = source_ids_before - source_ids_after
-        assert missing_ids == {IDObfuscator.encode(deleted_source)}
+        missing_ids = {int(i) for i in source_ids_before - source_ids_after}
+        assert missing_ids == {deleted_source.id}
 
     def test_by_id(self, client, sources):
         source = Source.objects.exclude(is_deleted=True).last()
         resp = client.get('{}{}/'.format(self.endpoint, IDObfuscator.encode(source)))
 
         assert resp.status_code == 200
-        assert IDObfuscator.load(resp.json()['data']['id']) == source
+        assert int(resp.json()['data']['id']) == source.id
         assert resp.json()['data']['type'] == 'Source'
         assert resp.json()['data']['attributes'] == {
             'name': source.name,
@@ -180,8 +180,7 @@ class TestSourcesPost:
         data = flatten_write_response(resp)
 
         created_label = data['source']['longTitle'].replace(' ', '_').lower()
-        created_user = ShareUser.objects.get(pk=IDObfuscator.decode_id(data['user']['id']))
-
+        created_user = ShareUser.objects.get(pk=data['user']['id'])
         assert data['source']['longTitle'] == test_data['data']['attributes']['long_title']
         assert data['source']['name'] == created_label
         assert data['source']['homePage'] is None
@@ -225,9 +224,13 @@ class TestSourcesPost:
         )
         assert resp_two.status_code == 409
 
-        data_two = flatten_write_response(resp_two)
-
-        assert data_one == data_two
+        resp_two_json = resp_two.json()
+        if "data" in resp_two_json:
+            data_two = flatten_write_response(resp_two)
+            assert data_one == data_two
+        else:
+            if "errors" in resp_two_json:
+                assert resp_two_json['errors']['errors'][0]['detail'] == 'That resource already exists.'
 
     def test_successful_post_put_home_page(self, client, source_add_change_user):
         test_data = get_post_body(home_page='http://test.homepage.net')

@@ -15,7 +15,7 @@ import os
 from celery.schedules import crontab
 import jwe
 
-from share import __version__
+from share.version import get_shtrove_version
 from trove.util.queryparams import parse_booly_str
 
 
@@ -43,7 +43,7 @@ SENSITIVE_DATA_KEY = jwe.kdf(SECRET_KEY.encode('utf-8'), SALT.encode('utf-8'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG', True))
 
-VERSION = __version__
+VERSION = get_shtrove_version()
 GIT_COMMIT = os.environ.get('GIT_COMMIT', None)
 
 ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(' ') if h]
@@ -237,7 +237,7 @@ if os.environ.get('USE_SENTRY'):
             else VERSION
         ),
         send_default_pii=False,
-        request_bodies='never',
+        max_request_body_size='never',
         debug=DEBUG,
         integrations=[
             DjangoIntegration(
@@ -268,9 +268,7 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.SHA1PasswordHasher',
     'django.contrib.auth.hashers.MD5PasswordHasher',
-    'django.contrib.auth.hashers.CryptPasswordHasher',
 ]
 
 
@@ -306,10 +304,6 @@ ELASTICSEARCH = {
     'MAX_RETRIES': int(os.environ.get('ELASTICSEARCH_MAX_RETRIES', 7)),
     'POST_INDEX_DELAY': int(os.environ.get('ELASTICSEARCH_POST_INDEX_DELAY', 3)),
 }
-ELASTICSEARCH5_URL = (
-    os.environ.get('ELASTICSEARCH5_URL')
-    or os.environ.get('ELASTICSEARCH_URL')  # backcompat
-)
 ELASTICSEARCH8_URL = os.environ.get('ELASTICSEARCH8_URL')
 ELASTICSEARCH8_CERT_PATH = os.environ.get('ELASTICSEARCH8_CERT_PATH')
 ELASTICSEARCH8_USERNAME = os.environ.get('ELASTICSEARCH8_USERNAME', 'elastic')
@@ -470,41 +464,6 @@ ALLOWED_TAGS = ['abbr', 'acronym', 'b', 'blockquote', 'code', 'em', 'i', 'li', '
 SUBJECTS_CENTRAL_TAXONOMY = os.environ.get('SUBJECTS_CENTRAL_TAXONOMY', 'bepress')
 
 HIDE_DEPRECATED_VIEWS = parse_booly_str(os.environ.get('HIDE_DEPRECATED_VIEWS', 'False'))
-
-# Regulator pipeline, names of setuptools entry points
-SHARE_REGULATOR_CONFIG = {
-    'NODE_STEPS': [
-        'tokenize_tags',
-        'whitespace',
-        'normalize_agent_names',
-        'cited_as',
-        ('normalize_iris', {
-            'node_types': ['workidentifier'],
-            'blocked_schemes': ['mailto'],
-            'blocked_authorities': ['issn', 'orcid.org'],
-        }),
-        ('normalize_iris', {
-            'node_types': ['agentidentifier'],
-            'blocked_schemes': ['mailto'],
-            'blocked_authorities': ['secure.gravatar.com'],
-        }),
-        ('trim_cycles', {
-            'node_types': ['abstractworkrelation', 'abstractagentrelation'],
-            'relation_fields': ['subject', 'related'],
-        }),
-        ('trim_cycles', {
-            'node_types': ['subject'],
-            'relation_fields': ['central_synonym'],
-            'delete_node': False,
-        }),
-    ],
-    'GRAPH_STEPS': [
-        'deduplicate',
-    ],
-    'VALIDATE_STEPS': [
-        'jsonld_validator',
-    ],
-}
 
 # API KEYS
 DATAVERSE_API_KEY = os.environ.get('DATAVERSE_API_KEY')

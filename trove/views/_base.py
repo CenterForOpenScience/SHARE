@@ -1,31 +1,37 @@
-__all__ = (
-    'GatheredTroveView',
-    'StaticTroveView',
-)
-
+from __future__ import annotations
 import abc
 from collections.abc import Container
 import functools
-from typing import ClassVar
+from typing import (
+    ClassVar,
+    TYPE_CHECKING,
+)
 
-from django import http as djhttp
 from django.views import View
 from primitive_metadata import gather
 from primitive_metadata import primitive_rdf as rdf
 
 from trove import exceptions as trove_exceptions
-from trove.vocab.namespaces import TROVE, RDF
 from trove.util.trove_params import BasicTroveParams
+from trove.vocab.namespaces import TROVE, RDF
 from trove.render import (
-    BaseRenderer,
     DEFAULT_RENDERER_TYPE,
     get_renderer_type,
 )
-from trove.render._rendering import ProtoRendering
 from ._gather_ask import ask_gathering_from_params
 from ._responder import (
     make_http_error_response,
     make_http_response,
+)
+if TYPE_CHECKING:
+    from django.http import HttpResponse, StreamingHttpResponse, HttpRequest
+    from trove.render import BaseRenderer
+    from trove.render._rendering import ProtoRendering
+
+
+__all__ = (
+    'GatheredTroveView',
+    'StaticTroveView',
 )
 
 
@@ -37,7 +43,7 @@ class BaseTroveView(View, abc.ABC):
     def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs) -> ProtoRendering:
         raise NotImplementedError
 
-    def get(self, request, **kwargs):
+    def get(self, request: HttpRequest, **kwargs: str) -> HttpResponse | StreamingHttpResponse:
         try:
             _renderer_type = get_renderer_type(request)
         except trove_exceptions.CannotRenderMediatype as _error:
@@ -57,7 +63,7 @@ class BaseTroveView(View, abc.ABC):
                 renderer_type=_renderer_type,
             )
 
-    def _parse_params(self, request: djhttp.HttpRequest):
+    def _parse_params(self, request: HttpRequest):
         return self.params_type.from_querystring(request.META['QUERY_STRING'])
 
 
@@ -78,10 +84,10 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
             ask_gathering_from_params(_gathering, params, focus)
         return renderer_type(focus, _gathering)
 
-    def _get_focus_iri(self, request, params):
+    def _get_focus_iri(self, request, params) -> str:
         return request.build_absolute_uri()
 
-    def _build_focus(self, request, params, url_kwargs):
+    def _build_focus(self, request, params, url_kwargs) -> gather.Focus:
         return gather.Focus.new(self._get_focus_iri(request, params), self.focus_type_iris)
 
     def _build_gathering(self, params, renderer_type: type[BaseRenderer]) -> gather.Gathering:
@@ -89,7 +95,7 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
             self._get_gatherer_kwargs(params, renderer_type),
         )
 
-    def _get_gatherer_kwargs(self, params, renderer_type):
+    def _get_gatherer_kwargs(self, params, renderer_type) -> dict:
         _kwargs = {}
         _deriver_kw = _get_param_keyword(TROVE.deriverIRI, self.gathering_organizer)
         if _deriver_kw:

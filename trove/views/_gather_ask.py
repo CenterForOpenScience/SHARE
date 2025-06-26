@@ -7,7 +7,7 @@ def ask_gathering_from_params(
     gathering: gather.Gathering,
     params: BasicTroveParams,
     start_focus: gather.Focus,
-):
+) -> None:
     # fill the gathering's cache with included related resources...
     gathering.ask(params.included_relations, focus=start_focus)
     # ...and add requested attributes on the focus and related resources

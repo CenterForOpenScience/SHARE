@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from typing import Union, Dict, Any, List, Tuple, Optional, Set
 
 from primitive_metadata import primitive_rdf
 
@@ -98,7 +99,10 @@ _SHAREv2_TYPES_BY_SPECIFICITY = (
 EMPTY_VALUES = (None, '', [])  # type: ignore[var-annotated]
 
 
-def strip_empty_values(thing):
+JSONLike = Union[Dict[str, Any], List[Any], Tuple[Any, ...], Any]
+
+
+def strip_empty_values(thing: JSONLike) -> JSONLike:
     if isinstance(thing, dict):
         return {
             k: strip_empty_values(v)
@@ -145,7 +149,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         return _allowed_focustype_iris.isdisjoint(_focustype_iris)
 
     # abstract method from IndexcardDeriver
-    def derive_card_as_text(self):
+    def derive_card_as_text(self) -> str:
         _suid = self.upstream_description.indexcard.source_record_suid
         try:  # maintain doc id in the sharev2 index
             _suid = _suid.get_backcompat_sharev2_suid()
@@ -204,7 +208,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             sort_keys=True,
         )
 
-    def _related_names(self, *predicate_iris):
+    def _related_names(self, *predicate_iris: Tuple[Dict[str, Any]]) -> List[None | str | Any]:
         _obj_iter = self.data.q(
             self.focus_iri,
             {
@@ -217,7 +221,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             for _obj in _obj_iter
         ]
 
-    def _single_date(self, *predicate_iris, focus_iri=None):
+    def _single_date(self, *predicate_iris: Tuple[Any], focus_iri: Optional[str] = None) -> None | str | Any:
         _val = self._single_value(*predicate_iris, focus_iri=focus_iri)
         if isinstance(_val, primitive_rdf.Literal):
             return _val.unicode_value
@@ -225,10 +229,10 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             return _val.isoformat()
         return _val
 
-    def _single_string(self, *predicate_iris, focus_iri=None):
+    def _single_string(self, *predicate_iris: Tuple[Any], focus_iri: Optional[str] = None) -> None | str | Any:
         return _obj_to_string_or_none(self._single_value(*predicate_iris, focus_iri=focus_iri))
 
-    def _single_value(self, *predicate_iris, focus_iri=None):
+    def _single_value(self, *predicate_iris: Tuple[Any], focus_iri: Optional[str] = None) -> None | str | Any:
         # for sharev2 back-compat, some fields must have a single value
         # (tho now the corresponding rdf property may have many values)
         for _pred in predicate_iris:
@@ -242,7 +246,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                 continue
         return None
 
-    def _string_list(self, *predicate_paths, focus_iri=None):
+    def _string_list(self, *predicate_paths: Tuple[Any], focus_iri: Optional[str] = None) -> List[Any]:
         _object_iter = self.data.q(
             focus_iri or self.focus_iri,
             predicate_paths,
@@ -266,7 +270,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             for _key, _pred in _osf_artifact_types.items()
         }
 
-    def _related_agent_list(self, *predicate_iris, focus_iri=None):
+    def _related_agent_list(self, *predicate_iris: str, focus_iri: Optional[str] = None) -> List[Dict[str, Any]]:
         _agent_list = []
         for _predicate_iri in predicate_iris:
             _agent_iri_iter = self.data.q(
@@ -277,7 +281,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                 _agent_list.append(self._related_agent(_predicate_iri, _agent_iri))
         return _agent_list
 
-    def _related_agent(self, relation_iri, agent_iri):
+    def _related_agent(self, relation_iri: str, agent_iri: str) -> Dict[str, Any]:
         return {
             'type': self._single_type(agent_iri),
             'types': self._type_list(agent_iri),
@@ -288,7 +292,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             # TODO 'order_cited':
         }
 
-    def _single_type_iri(self, type_iris) -> str | None:
+    def _single_type_iri(self, type_iris: List[Any] | Set[Any]) -> str | None | Any:
         # try SHAREv2 types
         _sharev2_type_iris = set(filter(SHAREv2.__contains__, type_iris))
         if _sharev2_type_iris:
@@ -309,7 +313,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             return self._single_type_iri([SHAREv2[_typename], SHAREv2.CreativeWork])
         return None
 
-    def _single_type(self, focus_iri):
+    def _single_type(self, focus_iri: str) -> str | None:
         _type_iris = set(self.data.q(focus_iri, RDF.type))
         _type_iri = self._single_type_iri(_type_iris)
         return (
@@ -318,27 +322,27 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             else None
         )
 
-    def _type_list(self, focus_iri):
+    def _type_list(self, focus_iri: str) -> list[str]:
         return sorted(
             self._format_type_iri(_type_iri)
             for _type_iri in self.data.q(focus_iri, RDF.type)
             if _type_iri in SHAREv2 or _type_iri in OSFMAP
         )
 
-    def _format_type_iri(self, iri):
+    def _format_type_iri(self, iri: str) -> str:
         if iri in SHAREv2:
             _typename = primitive_rdf.iri_minus_namespace(iri, namespace=SHAREv2)
         elif iri in OSFMAP:
             _typename = primitive_rdf.iri_minus_namespace(iri, namespace=OSFMAP)
         else:
-            return iri  # oh well
+            return iri
         return self._format_typename(_typename)
 
-    def _format_typename(self, sharev2_typename: str):
+    def _format_typename(self, sharev2_typename: str) -> str:
         # convert from PascalCase to lower case with spaces between words
         return re.sub(r'\B([A-Z])', r' \1', sharev2_typename).lower()
 
-    def _work_lineage_list(self, work_iri):
+    def _work_lineage_list(self, work_iri: str) -> List[Optional[Dict[str, Any]]]:
         # expects a linear lineage (each resource only "part of" one other)
         _parent_iri = self._single_value(DCTERMS.isPartOf, focus_iri=work_iri)
         if isinstance(_parent_iri, str):
@@ -350,7 +354,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
         else:
             return []
 
-    def _work_lineage_item(self, work_iri):
+    def _work_lineage_item(self, work_iri: str) -> Dict[str, Any]:
         return {
             'type': self._single_type(work_iri),
             'types': self._type_list(work_iri),
@@ -358,7 +362,7 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
             'identifiers': self._string_list(DCTERMS.identifier, focus_iri=work_iri),
         }
 
-    def _subjects_and_synonyms(self, source_name):
+    def _subjects_and_synonyms(self, source_name: str) -> Tuple[List[str], List[str]]:
         _subjects = []
         _subject_synonyms = []
         # making extra osf-specific assumptions here
@@ -374,7 +378,12 @@ class ShareV2ElasticDeriver(IndexcardDeriver):
                     _subjects.append(_serialize_subject('bepress', _bepress_lineage))
         return _subjects, _subject_synonyms
 
-    def _subject_lineage(self, subject_iri, label_predicate_iri, visiting_set=None) -> tuple[str, ...]:
+    def _subject_lineage(
+            self,
+            subject_iri: str,
+            label_predicate_iri: str,
+            visiting_set: Optional[Set[str]] = None
+    ) -> Tuple[str, ...]:
         _visiting_set = visiting_set or set()
         _visiting_set.add(subject_iri)
         _labeltext = next(self.data.q(subject_iri, label_predicate_iri), None)
@@ -391,7 +400,7 @@ def _serialize_subject(taxonomy_name: str, subject_lineage: tuple[str, ...]) -> 
     return '|'.join((taxonomy_name, *subject_lineage))
 
 
-def _obj_to_string_or_none(obj):
+def _obj_to_string_or_none(obj: Optional[str]) -> None | str | Any:
     if obj is None:
         return None
     if isinstance(obj, primitive_rdf.Literal):
