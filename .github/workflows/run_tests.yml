@@ -53,7 +53,7 @@ jobs:
         ports:
           - 5432:5432
       elasticsearch8:
-        image: elasticsearch:8.7.0
+        image: elasticsearch:8.18.1
         env:
           xpack.security.enabled: false
           node.name: singlenode
