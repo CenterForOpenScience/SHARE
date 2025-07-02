@@ -65,7 +65,7 @@ def ingest(
             expiration_date=expiration_date,
         )
         for _card in _extracted_cards:
-            task__derive.delay(_card.id, urgent=urgent)
+            task__derive.delay(_card.pk, urgent=urgent)
 
 
 @transaction.atomic
@@ -109,7 +109,7 @@ def sniff(
         _suid.focus_identifier = _focus_identifier
         _suid.save()
     else:
-        if _suid.focus_identifier_id != _focus_identifier.id:
+        if _suid.focus_identifier_id != _focus_identifier.pk:
             raise DigestiveError(f'suid focus_identifier should not change! suid={_suid}, focus changed from {_suid.focus_identifier} to {_focus_identifier}')
     return _suid
 
@@ -249,7 +249,7 @@ def _expel_supplementary_descriptions(supplementary_rdf_queryset: QuerySet[trove
             _affected_indexcards.add(_supplement.indexcard)
         _supplement.delete()
     for _indexcard in _affected_indexcards:
-        task__derive.delay(_indexcard.id)
+        task__derive.delay(_indexcard.pk)
 
 
 ### BEGIN celery tasks

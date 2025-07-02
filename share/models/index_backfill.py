@@ -160,6 +160,7 @@ def task__schedule_index_backfill(self, index_backfill_pk):
         _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
         _messagetype = _index_strategy.backfill_message_type
         assert _messagetype in _index_strategy.supported_message_types
+        _target_queryset: models.QuerySet
         if _messagetype == MessageType.BACKFILL_INDEXCARD:
             _target_queryset = (
                 trove_db.Indexcard.objects

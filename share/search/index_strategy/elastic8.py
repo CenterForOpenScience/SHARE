@@ -105,7 +105,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         return ChecksumIri.digest_json(
             checksumalgorithm_name='sha-256',
             salt=cls.__name__,
-            raw_json=_current_json,
+            raw_json=_current_json,  # type: ignore[arg-type]
         )
 
     # abstract method from IndexStrategy

@@ -57,7 +57,7 @@ def linked_fk[T: type[ModelAdmin]](field_name: str) -> Callable[[T], T]:
             linked_obj = getattr(instance, field_name)
             return admin_link_html(linked_obj)
         link_field = '{}_link'.format(field_name)
-        link.short_description = field_name.replace('_', ' ')  # type: ignore[attr-defined]
+        link.short_description = field_name.replace('_', ' ')
         setattr(cls, link_field, link)
         append_to_cls_property(cls, 'readonly_fields', link_field)
         append_to_cls_property(cls, 'exclude', field_name)
@@ -89,7 +89,7 @@ def linked_many[T: type[ModelAdmin]](
                 ))
             )
         links_field = f'{field_name}_links'
-        links.short_description = field_name.replace('_', ' ')  # type: ignore[attr-defined]
+        links.short_description = field_name.replace('_', ' ')
         setattr(cls, links_field, links)
         append_to_cls_property(cls, 'readonly_fields', links_field)
         append_to_cls_property(cls, 'exclude', field_name)

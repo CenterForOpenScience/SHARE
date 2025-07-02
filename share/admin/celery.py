@@ -100,15 +100,15 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
             self.STATUS_COLORS.get(obj.status, 'black'),
             obj.status.title()
         )
-    status_.short_description = 'Status'  # type: ignore[attr-defined]
+    status_.short_description = 'Status'
 
     def meta_(self, obj):
         return pprint.pformat(obj.meta)
-    meta_.short_description = 'Meta'  # type: ignore[attr-defined]
+    meta_.short_description = 'Meta'
 
     def source_(self, obj):
         return obj.meta.get('source_config') or obj.meta.get('source')
-    source_.short_description = 'Source'  # type: ignore[attr-defined]
+    source_.short_description = 'Source'
 
     def retry(self, request, queryset):
         for task in queryset:
@@ -117,4 +117,4 @@ class CeleryTaskResultAdmin(admin.ModelAdmin):
                 task.meta.get('kwargs', {}),
                 task_id=str(task.task_id)
             )
-    retry.short_description = 'Retry Tasks'  # type: ignore[attr-defined]
+    retry.short_description = 'Retry Tasks'

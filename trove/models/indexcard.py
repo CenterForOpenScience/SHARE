@@ -50,7 +50,7 @@ class IndexcardManager(models.Manager['Indexcard']):
                 restore_deleted=restore_deleted,
                 expiration_date=expiration_date,
             )
-            _focus_identifier_ids = {str(_fid.id) for _fid in _indexcard.focus_identifier_set.all()}
+            _focus_identifier_ids = {str(_fid.pk) for _fid in _indexcard.focus_identifier_set.all()}
             if not _seen_focus_identifier_ids.isdisjoint(_focus_identifier_ids):
                 _duplicates = (
                     ResourceIdentifier.objects
@@ -63,7 +63,7 @@ class IndexcardManager(models.Manager['Indexcard']):
         for _indexcard_to_delete in (
             Indexcard.objects
             .filter(source_record_suid=suid)
-            .exclude(id__in=[_card.id for _card in _indexcards])
+            .exclude(id__in=[_card.pk for _card in _indexcards])
         ):
             _indexcard_to_delete.pls_delete()
             _indexcards.append(_indexcard_to_delete)
@@ -85,7 +85,7 @@ class IndexcardManager(models.Manager['Indexcard']):
                 focus_iri=_focus_iri,
                 expiration_date=expiration_date,
             ))
-        _seen_indexcard_ids = {_card.id for _card in _indexcards}
+        _seen_indexcard_ids = {_card.pk for _card in _indexcards}
         # supplementary data seen previously on this suid (but not this time) should be deleted
         for _supplement_to_delete in (
             SupplementaryResourceDescription.objects

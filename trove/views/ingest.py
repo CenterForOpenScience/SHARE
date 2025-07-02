@@ -10,6 +10,8 @@ from share.models.feature_flag import FeatureFlag
 from trove import digestive_tract
 from trove import exceptions as trove_exceptions
 from trove.util.queryparams import parse_booly_str
+if __debug__:
+    from share.models import ShareUser
 
 
 logger = logging.getLogger(__name__)
@@ -25,6 +27,7 @@ class RdfIngestView(View):
         # TODO: permissions by focus_iri domain (compare with user's Source)?
         if not request.user.is_authenticated:
             return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
+        assert isinstance(request.user, ShareUser)
         if FeatureFlag.objects.flag_is_up(FeatureFlag.FORBID_UNTRUSTED_FEED) and not request.user.is_trusted:
             return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass
@@ -66,6 +69,7 @@ class RdfIngestView(View):
         # TODO: cleaner permissions
         if not request.user.is_authenticated:
             return http.HttpResponse(status=HTTPStatus.UNAUTHORIZED)
+        assert isinstance(request.user, ShareUser)
         if FeatureFlag.objects.flag_is_up(FeatureFlag.FORBID_UNTRUSTED_FEED) and not request.user.is_trusted:
             return http.HttpResponse(status=HTTPStatus.FORBIDDEN)
         # TODO: declare/validate params with dataclass

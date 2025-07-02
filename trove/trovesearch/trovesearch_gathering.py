@@ -73,7 +73,7 @@ trovesearch_by_indexstrategy = gather.GatheringOrganizer(
 )
 
 
-class _TypedFocus(gather.Focus):
+class _TypedFocus(gather.Focus):  # type: ignore
     TYPE_IRI: ClassVar[str]  # (expected on subclasses)
     ADDITIONAL_TYPE_IRIS: ClassVar[tuple[str, ...]] = ()  # (optional on subclasses)
 

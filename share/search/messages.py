@@ -7,7 +7,6 @@ import time
 import typing
 
 from share.search import exceptions
-from share.util import chunked
 
 
 logger = logging.getLogger(__name__)
@@ -98,7 +97,11 @@ class DaemonMessage(abc.ABC):
         '''pass-thru to PreferedDaemonMessageSubclass.compose
         '''
         assert isinstance(target_id, int)
-        return V3Message.compose(message_type, target_id)
+        return V3Message.compose((
+            MessageType.from_int(message_type)
+            if isinstance(message_type, int)
+            else message_type
+        ), target_id)
 
     @classmethod
     def from_received_message(cls, kombu_message):
@@ -202,7 +205,7 @@ class V3Message(DaemonMessage):
         }
 
     @property
-    def _message_twople(self) -> (int, int):
+    def _message_twople(self) -> tuple[int, int]:
         return self.kombu_message.payload['m']
 
     @property
