@@ -89,16 +89,6 @@ class MessagesChunk:
     def timestamp(self) -> int:
         return time.time_ns()
 
-    @classmethod
-    def stream_chunks(
-        cls,
-        message_type: MessageType,
-        id_stream: typing.Iterable[int],
-        chunk_size: int,
-    ) -> 'typing.Iterable[MessagesChunk]':
-        for id_chunk in chunked(id_stream, chunk_size):
-            yield cls(message_type, id_chunk)
-
 
 class DaemonMessage(abc.ABC):
     PROTOCOL_VERSION = None

@@ -14,9 +14,9 @@ from django.utils import timezone
 
 import sentry_sdk
 
-from share.util import chunked
 from share.models import CeleryTaskResult
 from share.models.sql import GroupBy
+from trove.util.django import pk_chunked
 
 
 logger = logging.getLogger(__name__)
@@ -168,7 +168,7 @@ class TaskResultCleaner:
         try:
             with transaction.atomic():
                 # .delete loads the entire queryset and can't be sliced... Hooray
-                for ids in chunked(queryset.values_list('id', flat=True).iterator(), size=self.chunk_size):
+                for ids in pk_chunked(queryset, chunksize=self.chunk_size):
                     num_deleted, _ = queryset.model.objects.filter(id__in=ids).delete()
                     total_deleted += num_deleted
         except Exception as e:

@@ -13,6 +13,7 @@ import sentry_sdk
 from share.search.messages import MessagesChunk, MessageType
 from share.search import index_strategy
 from trove.models import Indexcard
+from trove.util.django import pk_chunked
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class IndexMessenger:
             MessagesChunk(
                 MessageType.UPDATE_INDEXCARD,
                 [
-                    _indexcard.id
+                    _indexcard.pk
                     for _indexcard in indexcards
                 ],
             ),
@@ -121,14 +122,14 @@ class IndexMessenger:
     def stream_message_chunks(
         self,
         message_type: MessageType,
-        id_stream: typing.Iterable[int],
+        target_queryset,
         *,
-        chunk_size,
+        chunk_size: int,
         urgent=False,
     ):
         with self._open_message_queues(message_type, urgent) as message_queues:
-            for messages_chunk in MessagesChunk.stream_chunks(message_type, id_stream, chunk_size):
-                self._put_messages_chunk(messages_chunk, message_queues)
+            for _pk_chunk in pk_chunked(target_queryset, chunk_size):
+                self._put_messages_chunk(MessagesChunk(message_type, _pk_chunk), message_queues)
 
     @contextlib.contextmanager
     def _open_message_queues(self, message_type, urgent):
