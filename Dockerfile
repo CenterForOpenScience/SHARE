@@ -46,11 +46,6 @@ COPY poetry.lock .
 
 RUN $POETRY_HOME/bin/poetry install --compile --no-root
 
-RUN apt-get remove -y \
-    gcc \
-    zlib1g-dev \
-    && apt-get autoremove -y
-
 COPY ./ /code/
 
 RUN $POETRY_HOME/bin/poetry install --compile --only-root
@@ -68,6 +63,14 @@ CMD ["python", "manage.py", "--help"]
 FROM app AS dist
 
 RUN $POETRY_HOME/bin/poetry install --compile --only deploy
+
+# remove packages needed only for install
+RUN apt-get remove -y \
+        gcc \
+        zlib1g-dev \
+    && apt-get clean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
 
 ### Dev
 FROM app AS dev
