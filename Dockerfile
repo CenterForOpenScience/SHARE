@@ -22,6 +22,7 @@ RUN apt-get update \
 
 RUN update-ca-certificates
 
+# set working directory once, use relative paths from "./"
 RUN mkdir -p /code
 WORKDIR /code
 
@@ -41,11 +42,11 @@ RUN python -m venv $POETRY_HOME
 
 RUN $POETRY_HOME/bin/pip install poetry==2.1.3
 
-COPY pyproject.toml poetry.lock .
+COPY pyproject.toml poetry.lock ./
 
 RUN $POETRY_HOME/bin/poetry install --compile --no-root
 
-COPY ./ /code/
+COPY ./ ./
 
 RUN $POETRY_HOME/bin/poetry install --compile --only-root
 
