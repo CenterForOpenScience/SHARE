@@ -146,6 +146,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     command:
       - /bin/bash
       - -c
@@ -163,6 +164,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     command:
       /bin/bash -c 'cp -r /elastic8_certs /elastic_certs && chown -R daemon:daemon /elastic_certs/ && /usr/local/bin/celery --app project worker --uid daemon -l INFO'
     depends_on:
@@ -188,6 +190,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - 8003:8000
@@ -212,6 +215,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev
     command: python manage.py shtrove_indexer_run
     depends_on:
       - postgres

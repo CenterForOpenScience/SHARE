@@ -41,8 +41,7 @@ RUN python -m venv $POETRY_HOME
 
 RUN $POETRY_HOME/bin/pip install poetry==2.1.3
 
-COPY pyproject.toml .
-COPY poetry.lock .
+COPY pyproject.toml poetry.lock .
 
 RUN $POETRY_HOME/bin/poetry install --compile --no-root
 
@@ -59,6 +58,11 @@ ENV GIT_COMMIT=${GIT_COMMIT}
 
 CMD ["python", "manage.py", "--help"]
 
+### Dev
+FROM app AS dev
+
+RUN $POETRY_HOME/bin/poetry install --compile --only dev
+
 ### Dist
 FROM app AS dist
 
@@ -70,9 +74,5 @@ RUN apt-get remove -y \
         zlib1g-dev \
     && apt-get clean \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
-
-### Dev
-FROM app AS dev
-
-RUN $POETRY_HOME/bin/poetry install --compile --only dev
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/poetry-*
