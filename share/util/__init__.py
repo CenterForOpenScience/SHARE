@@ -1,12 +1,4 @@
-from collections import OrderedDict
 import re
-
-
-WHITESPACE_RE = r'\s+'
-
-
-def strip_whitespace(string):
-    return re.sub(WHITESPACE_RE, ' ', string).strip()
 
 
 class InvalidID(Exception):
@@ -24,7 +16,7 @@ class IDObfuscator:
     ID_RE = re.compile(r'([0-9A-Fa-f]{2,})([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})-([0-9A-Fa-f]{3})')
 
     @classmethod
-    def encode(cls, instance):
+    def encode(cls, instance) -> str:
         return cls.encode_id(instance.id, instance._meta.model)
 
     @classmethod
@@ -92,113 +84,3 @@ class BaseJSONAPIMeta:
             return IDObfuscator.resolve(id)
         except InvalidID:
             return model_class.objects.get(id=id)
-
-
-class CyclicalDependency(Exception):
-    pass
-
-
-class TopologicalSorter:
-    """Sort a list of nodes topologically, so a node is always preceded by its dependencies.
-
-    Params:
-    - `nodes`: Iterable of objects
-    - `dependencies`: Callable that takes a single argument (a node) and returns an iterable
-        of nodes that should precede it (or keys, if `key` is given)
-    - `key`: Callable that takes a single argument (a node) and returns a unique key.
-        If omitted, nodes will be compared for equality directly.
-    """
-
-    def __init__(self, nodes, dependencies, key=None):
-        self.__sorted = []
-        self.__nodes = list(nodes)
-        self.__visited = set()
-        self.__visiting = set()
-        self.__dependencies = dependencies
-        self.__key = key
-        self.__node_map = {key(n): n for n in nodes} if key else None
-
-    def sorted(self):
-        if not self.__nodes:
-            return self.__sorted
-
-        while self.__nodes:
-            n = self.__nodes.pop(0)
-            self.__visit(n)
-
-        return self.__sorted
-
-    def __visit(self, node):
-        key = self.__key(node) if self.__key else node
-        if key in self.__visiting:
-            raise CyclicalDependency(key, self.__visiting)
-
-        if key in self.__visited:
-            return
-
-        self.__visiting.add(key)
-        for k in self.__dependencies(node):
-            if k is not None and k is not key:
-                self.__visit(self.__get_node(k))
-
-        self.__visited.add(key)
-        self.__sorted.append(node)
-        self.__visiting.remove(key)
-
-    def __get_node(self, key):
-        return self.__node_map[key] if self.__node_map else key
-
-
-class DictHashingDict:
-    # A wrapper around dicts that can have dicts as keys
-
-    def __init__(self):
-        self.__inner = {}
-
-    def get(self, key, *args):
-        return self.__inner.get(self._hash(key), *args)
-
-    def pop(self, key, *args):
-        return self.__inner.pop(self._hash(key), *args)
-
-    def setdefault(self, key, *args):
-        return self.__inner.setdefault(self._hash(key), *args)
-
-    def __getitem__(self, key):
-        return self.__inner[self._hash(key)]
-
-    def __setitem__(self, key, value):
-        self.__inner[self._hash(key)] = value
-
-    def __contains__(self, key):
-        return self._hash(key) in self.__inner
-
-    def _hash(self, val):
-        if isinstance(val, dict):
-            if not isinstance(val, OrderedDict):
-                val = tuple((k, self._hash(v)) for k, v in sorted(val.items(), key=lambda x: x[0]))
-            else:
-                val = tuple((k, self._hash(v)) for k, v in val.items())
-        if isinstance(val, (list, tuple)):
-            val = tuple(self._hash(v) for v in val)
-        return val
-
-
-def chunked(iterable, size=25, fail_fast=False):
-    iterable = iter(iterable)
-    try:
-        while True:
-            chunk = []
-            for _ in range(size):
-                chunk.append(next(iterable))
-            yield chunk
-    except StopIteration:
-        yield chunk
-    except Exception as e:
-        if not fail_fast and chunk:
-            yield chunk
-        raise e
-
-
-def placeholders(length):
-    return ', '.join('%s' for _ in range(length))

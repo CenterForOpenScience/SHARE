@@ -50,7 +50,7 @@ def get_iri_scheme(iri: str) -> str:
     return _iri_scheme
 
 
-def iris_sufficiently_equal(*iris) -> bool:
+def iris_sufficiently_equal(*iris: str) -> bool:
     '''
     >>> iris_sufficiently_equal(
     ...  'flipl://iri.example/blarg/blerg/?#',
@@ -112,7 +112,7 @@ def get_sufficiently_unique_iri_and_scheme(iri: str) -> tuple[str, str]:
     return (_cleaned_remainder, _scheme)
 
 
-def is_worthwhile_iri(iri: str):
+def is_worthwhile_iri(iri: str) -> bool:
     '''
     >>> is_worthwhile_iri('flipl://iri.example/blarg/?#')
     True
@@ -127,7 +127,7 @@ def is_worthwhile_iri(iri: str):
     )
 
 
-def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) -> str:
+def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq: bool = False) -> str:
     '''return a string-serialized list of iris
 
     meant for storing in an elasticsearch "keyword" field (happens to use json)
@@ -138,6 +138,10 @@ def iri_path_as_keyword(iris: list[str] | tuple[str, ...], *, suffuniq=False) ->
     ...     suffuniq=True)
     '["://iri.example/blarg", "namly:urn.example:blerg"]'
     '''
+    assert isinstance(iris, (list, tuple)) and all(
+        isinstance(_pathstep, str)
+        for _pathstep in iris
+    ), f'expected list or tuple of str, got {iris}'
     _list = iris
     if suffuniq:
         _list = [

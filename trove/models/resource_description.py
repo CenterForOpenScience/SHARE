@@ -60,10 +60,10 @@ class ResourceDescription(models.Model):
             _rdfdoc.add_tripledict(_supplement.as_rdf_tripledict())
         return _rdfdoc
 
-    def __repr__(self):
-        return f'<{self.__class__.__qualname__}({self.id}, "{self.focus_iri}")'
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__qualname__}({self.pk}, "{self.focus_iri}")'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 
@@ -74,18 +74,11 @@ class LatestResourceDescription(ResourceDescription):
             models.UniqueConstraint(
                 fields=('indexcard',),
                 name='trove_latestindexcardrdf_uniq_indexcard',
-                # TODO when on django 5.2:
-                # name='%(app_label)s_%(class)s_uniq_indexcard',
-                # ...and add migration with `AlterConstraint` to rename
+                # note: backcompat naming -- change if/when `RenameConstraint` exists
             ),
         ]
         indexes = [
-            models.Index(
-                fields=('modified',),  # for OAI-PMH selective harvest
-                name='trove_lates_modifie_c6b0b1_idx',
-                # TODO when on django 5.2:
-                # remove explicit name, add migration with `RenameIndex` to match
-            ),
+            models.Index(fields=('modified',)),  # for OAI-PMH selective harvest
             models.Index(fields=['expiration_date']),  # for expiring
         ]
 
@@ -108,9 +101,7 @@ class SupplementaryResourceDescription(ResourceDescription):
             models.UniqueConstraint(
                 fields=('indexcard', 'supplementary_suid'),
                 name='trove_supplementaryindexcardrdf_uniq_supplement',
-                # TODO when on django 5.2:
-                # name='%(app_label)s_%(class)s_uniq_supplement',
-                # ...and add migration with `AlterConstraint` to rename
+                # note: backcompat naming -- change if/when `RenameConstraint` exists
             ),
         ]
         indexes = [

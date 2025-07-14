@@ -1,6 +1,9 @@
-from django.contrib.admin import SimpleListFilter
+from collections.abc import Callable, Sequence
+
+from django.contrib.admin import SimpleListFilter, ModelAdmin
 from django.core.paginator import Paginator
 from django.db import connection, transaction, OperationalError
+from django.db.models import Model
 from django.utils.functional import cached_property
 from django.urls import reverse
 from django.utils.html import format_html
@@ -46,7 +49,7 @@ def admin_link_html(linked_obj):
     return format_html('<a href="{}">{}</a>', url, repr(linked_obj))
 
 
-def linked_fk(field_name):
+def linked_fk[T: type[ModelAdmin]](field_name: str) -> Callable[[T], T]:
     """Decorator that adds a link for a foreign key field
     """
     def add_link(cls):
@@ -62,11 +65,15 @@ def linked_fk(field_name):
     return add_link
 
 
-def linked_many(field_name, order_by=None, select_related=None, defer=None):
-    """Decorator that adds links for a *-to-many field
-    """
-    def add_links(cls):
-        def links(self, instance):
+def linked_many[T: type[ModelAdmin]](
+    field_name: str,
+    order_by: Sequence[str] = (),
+    select_related: Sequence[str] = (),
+    defer: Sequence[str] = (),
+) -> Callable[[T], T]:
+    """Decorator that adds links for a *-to-many field"""
+    def add_links(cls: T) -> T:
+        def links(self, instance: Model) -> str:
             linked_qs = getattr(instance, field_name).all()
             if select_related:
                 linked_qs = linked_qs.select_related(*select_related)
@@ -81,7 +88,7 @@ def linked_many(field_name, order_by=None, select_related=None, defer=None):
                     for obj in linked_qs
                 ))
             )
-        links_field = '{}_links'.format(field_name)
+        links_field = f'{field_name}_links'
         links.short_description = field_name.replace('_', ' ')
         setattr(cls, links_field, links)
         append_to_cls_property(cls, 'readonly_fields', links_field)

@@ -9,12 +9,35 @@ permissions:
   checks: write  # for coveralls
 
 jobs:
+  lint_and_type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'poetry'
+
+      - name: install despondencies
+        run: poetry install --with dev
+
+      - name: flake it
+        run: poetry run flake8 .
+
+      - name: type-check
+        run: poetry run mypy trove
+
   run_tests:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10']  # TODO: 3.11, 3.12
-        postgres-version: ['15', '17']
+        python-version: ['3.13']
+        postgres-version: ['17']
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -30,19 +53,13 @@ jobs:
         ports:
           - 5432:5432
       elasticsearch8:
-        image: elasticsearch:8.7.0
+        image: elasticsearch:8.18.1
         env:
           xpack.security.enabled: false
           node.name: singlenode
           cluster.initial_master_nodes: singlenode
         ports:
           - 9208:9200
-      elasticsearch5:
-        image: elasticsearch:5.4
-        env:
-          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-        ports:
-          - 9205:9200
       rabbitmq:
         image: rabbitmq:management
         ports:
@@ -54,32 +71,25 @@ jobs:
       - name: install non-py dependencies
         run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt1-dev libpq-dev git gcc
 
-      - name: set up python${{ matrix.python-version }}
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: |
-            requirements.txt
-            dev-requirements.txt
+          cache: 'poetry'
 
-      - name: install py dependencies
-        run: pip install -r dev-requirements.txt
-
-      - name: install share
-        run: python setup.py develop
-
-      - name: flake it
-        run: flake8 .
+      - name: install despondencies
+        run: poetry install --with dev
 
       - name: run tests
         run: |
-          coverage run -m pytest --create-db -x
-          coverage xml -o _shtrove_coverage.xml
+          poetry run coverage run -m pytest --create-db -x
+          poetry run coverage xml -o _shtrove_coverage.xml
         env:
           DATABASE_PASSWORD: postgres
           ELASTICSEARCH8_URL: http://localhost:9208/
-          # ELASTICSEARCH5_URL: http://localhost:9205/
 
       - name: coveralls
         uses: coverallsapp/github-action@v2

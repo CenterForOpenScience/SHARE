@@ -1,6 +1,6 @@
-import collections.abc
+from collections.abc import Mapping
 import types
-
+from typing import Any
 
 _FROZEN_TYPES = (
     tuple,
@@ -11,7 +11,7 @@ _FROZEN_TYPES = (
 )
 
 
-def freeze(obj):
+def freeze(obj: Any) -> Any:
     '''
     >>> freeze([1, 1, 2])
     (1, 1, 2)
@@ -37,10 +37,8 @@ def freeze(obj):
     raise ValueError(f'how freeze {obj!r}?')
 
 
-def freeze_mapping(_base_mapping=None, /, **kwargs) -> collections.abc.Mapping:
-    _mutable_mapping = {}
-    for _map in (_base_mapping, kwargs):
-        if _map is not None:
-            for _key, _val in _map.items():
-                _mutable_mapping[_key] = freeze(_val)
+def freeze_mapping[K, V](_map: Mapping[K, V]) -> Mapping[K, V]:
+    _mutable_mapping: dict[K, V] = {}
+    for _key, _val in _map.items():
+        _mutable_mapping[_key] = freeze(_val)
     return types.MappingProxyType(_mutable_mapping)

@@ -31,12 +31,10 @@ from trove.trovesearch.page_cursor import (
 )
 from trove.trovesearch.search_params import (
     CardsearchParams,
-    Propertypath,
     SearchFilter,
     SearchText,
     ValueType,
     ValuesearchParams,
-    is_globpath,
 )
 from trove.trovesearch.search_handle import (
     CardsearchHandle,
@@ -45,6 +43,10 @@ from trove.trovesearch.search_handle import (
     TextMatchEvidence,
     ValuesearchHandle,
     ValuesearchResult,
+)
+from trove.util.propertypath import (
+    is_globpath,
+    Propertypath,
 )
 from trove.vocab import osfmap
 from trove.vocab.namespaces import OWL, RDF

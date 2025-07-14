@@ -1,9 +1,10 @@
 from collections.abc import Sequence, Mapping, Iterator
 import dataclasses
+from typing import Self
 
 
 @dataclasses.dataclass
-class SimpleChainMap(Mapping):
+class SimpleChainMap[K, V](Mapping[K, V]):
     """Combine multiple mappings for sequential lookup.
 
     (inspired by rejecting the suggested "greatly simplified read-only version of Chainmap"
@@ -41,9 +42,9 @@ class SimpleChainMap(Mapping):
     >>> _map.with_new({'a': 17}).get('a')
     17
     """
-    maps: Sequence[Mapping]
+    maps: Sequence[Mapping[K, V]]
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: K) -> V:
         for _mapping in self.maps:
             try:
                 return _mapping[key]
@@ -51,7 +52,7 @@ class SimpleChainMap(Mapping):
                 pass
         raise KeyError(key)
 
-    def __iter__(self) -> Iterator:
+    def __iter__(self) -> Iterator[K]:
         _seen: set = set()
         for _mapping in self.maps:
             for _key in _mapping.keys():
@@ -59,8 +60,8 @@ class SimpleChainMap(Mapping):
                     yield _key
                     _seen.add(_key)
 
-    def __len__(self):  # for Mapping
+    def __len__(self) -> int:  # for Mapping
         return sum(1 for _ in self)  # use __iter__
 
-    def with_new(self, new_map):
+    def with_new(self, new_map: Mapping[K, V]) -> Self:
         return dataclasses.replace(self, maps=[new_map, *self.maps])

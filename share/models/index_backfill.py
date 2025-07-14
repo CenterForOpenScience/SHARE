@@ -160,26 +160,25 @@ def task__schedule_index_backfill(self, index_backfill_pk):
         _messenger = IndexMessenger(celery_app=self.app, index_strategys=[_index_strategy])
         _messagetype = _index_strategy.backfill_message_type
         assert _messagetype in _index_strategy.supported_message_types
+        _target_queryset: models.QuerySet
         if _messagetype == MessageType.BACKFILL_INDEXCARD:
-            _targetid_queryset = (
+            _target_queryset = (
                 trove_db.Indexcard.objects
                 .exclude(source_record_suid__source_config__disabled=True)
                 .exclude(source_record_suid__source_config__source__is_deleted=True)
-                .values_list('id', flat=True)
             )
         elif _messagetype == MessageType.BACKFILL_SUID:
-            _targetid_queryset = (
+            _target_queryset = (
                 db.SourceUniqueIdentifier.objects
                 .exclude(source_config__disabled=True)
                 .exclude(source_config__source__is_deleted=True)
-                .values_list('id', flat=True)
             )
         else:
             raise ValueError(f'unknown backfill messagetype {_messagetype}')
         _chunk_size = settings.ELASTICSEARCH['CHUNK_SIZE']
         _messenger.stream_message_chunks(
             _messagetype,
-            _targetid_queryset.iterator(chunk_size=_chunk_size),
+            _target_queryset,
             chunk_size=_chunk_size,
             urgent=False,
         )

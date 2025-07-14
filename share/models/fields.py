@@ -48,13 +48,10 @@ class DateTimeAwareJSONDecoder(json.JSONDecoder):
 
 
 class DateTimeAwareJSONField(models.JSONField):
-    def __init__(self, *args, encoder=None, decoder=None, **kwargs):
-        return super().__init__(
-            *args,
-            **kwargs,
-            encoder=DateTimeAwareJSONEncoder,
-            decoder=DateTimeAwareJSONDecoder,
-        )
+    def __init__(self, *args, **kwargs):
+        kwargs['encoder'] = DateTimeAwareJSONEncoder
+        kwargs['decoder'] = DateTimeAwareJSONDecoder
+        return super().__init__(*args, **kwargs)
 
 
 class ShareURLField(models.TextField):
@@ -69,10 +66,10 @@ class ShareURLField(models.TextField):
         kwargs.pop('max_length', None)
         return name, path, args, kwargs
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs):  # type: ignore[override]
         # As with CharField, this will cause URL validation to be performed
         # twice.
-        defaults = {
+        defaults: dict = {
             'form_class': forms.URLField,
         }
         if self.null and self.unique:
@@ -89,7 +86,7 @@ class EncryptedJSONField(models.BinaryField):
     """
     prefix = b'jwe:::'
 
-    def get_db_prep_value(self, input_json, **kwargs):
+    def get_db_prep_value(self, input_json, **kwargs):  # type: ignore[override]
         if not input_json:
             return None
 

@@ -76,7 +76,7 @@ class SourceConfigAdmin(admin.ModelAdmin):
 
     def enabled(self, obj):
         return not obj.disabled
-    enabled.boolean = True  # type: ignore[attr-defined]
+    enabled.boolean = True
 
     @admin.action(description='schedule re-derive of all cards for each selected source config')
     def schedule_derive(self, request, queryset):

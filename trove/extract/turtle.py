@@ -4,5 +4,5 @@ from ._base import BaseRdfExtractor
 
 
 class TurtleRdfExtractor(BaseRdfExtractor):
-    def extract_rdf(self, input_document):
+    def extract_rdf(self, input_document: str):  # type: ignore
         return primitive_rdf.tripledict_from_turtle(input_document)

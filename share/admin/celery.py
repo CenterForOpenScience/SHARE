@@ -39,8 +39,9 @@ class StatusFilter(admin.SimpleListFilter):
         return sorted((x, x.title()) for x in states.ALL_STATES)
 
     def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(status=self.value().upper())
+        _value = self.value()
+        if _value:
+            return queryset.filter(status=_value.upper())
         return queryset
 
 

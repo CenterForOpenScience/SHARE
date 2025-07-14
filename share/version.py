@@ -1,5 +1,10 @@
-__version__ = '25.4.0'
+import functools
+import importlib.metadata
 
 
-def get_share_version() -> str:
-    return __version__
+__all__ = ('get_shtrove_version',)
+
+
+@functools.cache
+def get_shtrove_version() -> str:
+    return importlib.metadata.version('shtrove')

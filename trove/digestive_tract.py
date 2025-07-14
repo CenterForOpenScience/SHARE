@@ -11,9 +11,11 @@ __all__ = ('sniff', 'extract', 'derive', 'expel', 'ingest')
 import copy
 import datetime
 import logging
+from typing import Iterable
 
 import celery
 from django.db import transaction
+from django.db.models import QuerySet
 from primitive_metadata import primitive_rdf
 
 from share import models as share_db
@@ -39,12 +41,12 @@ def ingest(
     focus_iri: str,
     record_mediatype: str,
     raw_record: str,
-    record_identifier: str = '',  # default focus_iri
+    record_identifier: str | None = None,  # default focus_iri
     is_supplementary: bool = False,
     expiration_date: datetime.date | None = None,  # default "never"
     restore_deleted: bool = False,
     urgent: bool = False,
-):
+) -> None:
     '''ingest: shorthand for sniff + extract + (eventual) derive'''
     _suid = sniff(
         from_user=from_user,
@@ -63,7 +65,7 @@ def ingest(
             expiration_date=expiration_date,
         )
         for _card in _extracted_cards:
-            task__derive.delay(_card.id, urgent=urgent)
+            task__derive.delay(_card.pk, urgent=urgent)
 
 
 @transaction.atomic
@@ -71,7 +73,7 @@ def sniff(
     *,  # all keyword-args
     from_user: share_db.ShareUser,
     focus_iri: str,
-    record_identifier: str = '',
+    record_identifier: str | None = None,
     is_supplementary: bool = False,
 ) -> share_db.SourceUniqueIdentifier:
     '''sniff: get a vague sense of a metadata record without touching the record itself
@@ -107,7 +109,7 @@ def sniff(
         _suid.focus_identifier = _focus_identifier
         _suid.save()
     else:
-        if _suid.focus_identifier_id != _focus_identifier.id:
+        if _suid.focus_identifier_id != _focus_identifier.pk:
             raise DigestiveError(f'suid focus_identifier should not change! suid={_suid}, focus changed from {_suid.focus_identifier} to {_focus_identifier}')
     return _suid
 
@@ -134,7 +136,7 @@ def extract(
     if (expiration_date is not None) and (expiration_date <= datetime.date.today()):
         raise CannotDigestExpiredDatum(suid, expiration_date)
     _tripledicts_by_focus_iri = {}
-    _extractor = get_rdf_extractor_class(record_mediatype)(suid.source_config)
+    _extractor = get_rdf_extractor_class(record_mediatype)()
     # TODO normalize (or just validate) tripledict:
     #   - synonymous iris should be grouped (only one as subject-key, others under owl:sameAs)
     #   - focus should have rdf:type
@@ -142,6 +144,7 @@ def extract(
     #   - connected graph (all subject-key iris reachable from focus, or reverse for vocab terms?)
     _extracted_tripledict: primitive_rdf.RdfTripleDictionary = _extractor.extract_rdf(raw_record)
     if _extracted_tripledict:
+        assert suid.focus_identifier is not None
         try:
             _focus_iri = suid.focus_identifier.find_equivalent_iri(_extracted_tripledict)
         except ValueError:
@@ -173,7 +176,7 @@ def extract(
     )
 
 
-def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
+def derive(indexcard: trove_db.Indexcard, deriver_iris: Iterable[str] | None = None) -> list[trove_db.DerivedIndexcard]:
     '''derive: build other kinds of index cards from the extracted rdf
 
     will create, update, or delete:
@@ -209,7 +212,7 @@ def derive(indexcard: trove_db.Indexcard, deriver_iris=None):
     return _derived_list
 
 
-def expel(from_user: share_db.ShareUser, record_identifier: str):
+def expel(from_user: share_db.ShareUser, record_identifier: str) -> None:
     _suid_qs = share_db.SourceUniqueIdentifier.objects.filter(
         source_config__source__user=from_user,
         identifier=record_identifier,
@@ -238,7 +241,7 @@ def expel_expired_data(today: datetime.date) -> None:
     )
 
 
-def _expel_supplementary_descriptions(supplementary_rdf_queryset) -> None:
+def _expel_supplementary_descriptions(supplementary_rdf_queryset: QuerySet[trove_db.SupplementaryResourceDescription]) -> None:
     # delete expired supplementary metadata
     _affected_indexcards = set()
     for _supplement in supplementary_rdf_queryset.select_related('indexcard'):
@@ -246,7 +249,7 @@ def _expel_supplementary_descriptions(supplementary_rdf_queryset) -> None:
             _affected_indexcards.add(_supplement.indexcard)
         _supplement.delete()
     for _indexcard in _affected_indexcards:
-        task__derive.delay(_indexcard.id)
+        task__derive.delay(_indexcard.pk)
 
 
 ### BEGIN celery tasks
@@ -256,9 +259,9 @@ def task__derive(
     task: celery.Task,
     indexcard_id: int,
     deriver_iri: str | None = None,
-    notify_index=True,
-    urgent=False,
-):
+    notify_index: bool = True,
+    urgent: bool = False,
+) -> None:
     _indexcard = trove_db.Indexcard.objects.get(id=indexcard_id)
     derive(
         _indexcard,
@@ -271,7 +274,7 @@ def task__derive(
 
 
 @celery.shared_task(acks_late=True)
-def task__schedule_derive_for_source_config(source_config_id: int, notify_index=False):
+def task__schedule_derive_for_source_config(source_config_id: int, notify_index: bool = False) -> None:
     _indexcard_id_qs = (
         trove_db.Indexcard.objects
         .filter(source_record_suid__source_config_id=source_config_id)
@@ -282,7 +285,7 @@ def task__schedule_derive_for_source_config(source_config_id: int, notify_index=
 
 
 @celery.shared_task(acks_late=True)
-def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
+def task__schedule_all_for_deriver(deriver_iri: str, notify_index: bool = False) -> None:
     if not get_deriver_classes([deriver_iri]):
         raise DigestiveError(f'unknown deriver_iri: {deriver_iri}')
     _indexcard_id_qs = (
@@ -294,5 +297,5 @@ def task__schedule_all_for_deriver(deriver_iri: str, notify_index=False):
 
 
 @celery.shared_task(acks_late=True)
-def task__expel_expired_data():
+def task__expel_expired_data() -> None:
     expel_expired_data(datetime.date.today())

@@ -12,7 +12,8 @@ import sentry_sdk
 
 from share.search.messages import MessagesChunk, MessageType
 from share.search import index_strategy
-
+from trove.models import Indexcard
+from trove.util.django import pk_chunked
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class IndexMessenger:
         'max_retries': 30,    # give up after 30 tries.
     }
 
-    def __init__(self, *, celery_app=None, index_strategys=None):
+    def __init__(self, *, celery_app=None, index_strategys=None) -> None:
         self.celery_app = (
             celery.current_app
             if celery_app is None
@@ -33,12 +34,12 @@ class IndexMessenger:
         )
         self.index_strategys = index_strategys or tuple(index_strategy.each_strategy())
 
-    def notify_indexcard_update(self, indexcards, *, urgent=False):
+    def notify_indexcard_update(self, indexcards: list[Indexcard], *, urgent=False) -> None:
         self.send_messages_chunk(
             MessagesChunk(
                 MessageType.UPDATE_INDEXCARD,
                 [
-                    _indexcard.id
+                    _indexcard.pk
                     for _indexcard in indexcards
                 ],
             ),
@@ -53,7 +54,7 @@ class IndexMessenger:
             urgent=urgent,
         )
 
-    def notify_suid_update(self, suid_ids, *, urgent=False):
+    def notify_suid_update(self, suid_ids, *, urgent=False) -> None:
         self.send_messages_chunk(
             MessagesChunk(MessageType.INDEX_SUID, suid_ids),
             urgent=urgent,
@@ -121,14 +122,14 @@ class IndexMessenger:
     def stream_message_chunks(
         self,
         message_type: MessageType,
-        id_stream: typing.Iterable[int],
+        target_queryset,
         *,
-        chunk_size,
+        chunk_size: int,
         urgent=False,
     ):
         with self._open_message_queues(message_type, urgent) as message_queues:
-            for messages_chunk in MessagesChunk.stream_chunks(message_type, id_stream, chunk_size):
-                self._put_messages_chunk(messages_chunk, message_queues)
+            for _pk_chunk in pk_chunked(target_queryset, chunk_size):
+                self._put_messages_chunk(MessagesChunk(message_type, _pk_chunk), message_queues)
 
     @contextlib.contextmanager
     def _open_message_queues(self, message_type, urgent):

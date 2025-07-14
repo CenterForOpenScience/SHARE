@@ -1,6 +1,7 @@
 from __future__ import annotations
 import datetime
 import uuid
+from typing import Any
 
 from django.db import models
 from django.db import transaction
@@ -25,8 +26,8 @@ from trove.vocab.trove import trove_indexcard_iri, trove_indexcard_namespace
 __all__ = ('Indexcard',)
 
 
-class IndexcardManager(models.Manager):
-    def get_for_iri(self, iri: str):
+class IndexcardManager(models.Manager['Indexcard']):
+    def get_for_iri(self, iri: str) -> Indexcard:
         _uuid = rdf.iri_minus_namespace(iri, namespace=trove_indexcard_namespace())
         return self.get(uuid=_uuid)
 
@@ -49,7 +50,7 @@ class IndexcardManager(models.Manager):
                 restore_deleted=restore_deleted,
                 expiration_date=expiration_date,
             )
-            _focus_identifier_ids = {_fid.id for _fid in _indexcard.focus_identifier_set.all()}
+            _focus_identifier_ids = {str(_fid.pk) for _fid in _indexcard.focus_identifier_set.all()}
             if not _seen_focus_identifier_ids.isdisjoint(_focus_identifier_ids):
                 _duplicates = (
                     ResourceIdentifier.objects
@@ -62,7 +63,7 @@ class IndexcardManager(models.Manager):
         for _indexcard_to_delete in (
             Indexcard.objects
             .filter(source_record_suid=suid)
-            .exclude(id__in=[_card.id for _card in _indexcards])
+            .exclude(id__in=[_card.pk for _card in _indexcards])
         ):
             _indexcard_to_delete.pls_delete()
             _indexcards.append(_indexcard_to_delete)
@@ -84,7 +85,7 @@ class IndexcardManager(models.Manager):
                 focus_iri=_focus_iri,
                 expiration_date=expiration_date,
             ))
-        _seen_indexcard_ids = {_card.id for _card in _indexcards}
+        _seen_indexcard_ids = {_card.pk for _card in _indexcards}
         # supplementary data seen previously on this suid (but not this time) should be deleted
         for _supplement_to_delete in (
             SupplementaryResourceDescription.objects
@@ -104,7 +105,7 @@ class IndexcardManager(models.Manager):
         focus_iri: str,
         restore_deleted: bool = False,
         expiration_date: datetime.date | None = None,
-    ):
+    ) -> Indexcard:
         assert not suid.is_supplementary
         _focus_identifier_set = (
             ResourceIdentifier.objects
@@ -114,7 +115,7 @@ class IndexcardManager(models.Manager):
             ResourceIdentifier.objects.get_or_create_for_iri(_iri)
             for _iri in rdf_tripledict[focus_iri].get(RDF.type, ())
         ]
-        _indexcard = Indexcard.objects.filter(
+        _indexcard: Indexcard | None = Indexcard.objects.filter(
             source_record_suid=suid,
             focus_identifier_set__in=_focus_identifier_set,
         ).first()
@@ -193,7 +194,7 @@ class Indexcard(models.Model):
         return self.trove_latestresourcedescription_set.get()  # may raise DoesNotExist
 
     @property
-    def archived_description_set(self):
+    def archived_description_set(self) -> Any:
         '''convenience for the "other side" of ArchivedResourceDescription.indexcard
 
         returns a RelatedManager
@@ -201,17 +202,17 @@ class Indexcard(models.Model):
         return self.trove_archivedresourcedescription_set
 
     @property
-    def supplementary_description_set(self):
+    def supplementary_description_set(self) -> Any:
         '''convenience for the "other side" of SupplementaryResourceDescription.indexcard
 
         returns a RelatedManager
         '''
         return self.trove_supplementaryresourcedescription_set
 
-    def get_iri(self):
+    def get_iri(self) -> str:
         return trove_indexcard_iri(self.uuid)
 
-    def pls_delete(self, *, notify_indexes=True):
+    def pls_delete(self, *, notify_indexes: bool = True) -> None:
         # do not actually delete Indexcard, just mark deleted:
         if self.deleted is None:
             self.deleted = timezone.now()
@@ -231,10 +232,10 @@ class Indexcard(models.Model):
             from share.search.index_messenger import IndexMessenger
             IndexMessenger().notify_indexcard_update([self])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'<{self.__class__.__qualname__}({self.uuid}, {self.source_record_suid})'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
     @transaction.atomic

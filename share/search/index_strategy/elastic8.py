@@ -105,7 +105,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         return ChecksumIri.digest_json(
             checksumalgorithm_name='sha-256',
             salt=cls.__name__,
-            raw_json=_current_json,
+            raw_json=_current_json,  # type: ignore[arg-type]
         )
 
     # abstract method from IndexStrategy
@@ -125,7 +125,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         should_sniff = settings.ELASTICSEARCH['SNIFF']
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         return elasticsearch8.Elasticsearch(
-            settings.ELASTICSEARCH8_URL,
+            hosts=settings.ELASTICSEARCH8_URL,
             # security:
             ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
             basic_auth=(

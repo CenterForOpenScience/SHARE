@@ -1,6 +1,8 @@
+from __future__ import annotations
 import contextlib
 import datetime
 import json
+from typing import Any, Iterator, TYPE_CHECKING
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -8,6 +10,11 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import RDF, OWL, TROVE
 from trove.vocab import mediatypes
 from ._base import BaseRenderer
+if TYPE_CHECKING:
+    from trove.util.json import (
+        JsonObject,
+        JsonValue,
+    )
 
 
 _PREDICATES_OF_FLEXIBLE_CARDINALITY = {
@@ -20,7 +27,7 @@ class RdfJsonldRenderer(BaseRenderer):
     MEDIATYPE = mediatypes.JSONLD
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    __visiting_iris: set | None = None
+    __visiting_iris: set[str] | None = None
 
     def simple_render_document(self) -> str:
         return json.dumps(
@@ -34,7 +41,7 @@ class RdfJsonldRenderer(BaseRenderer):
         rdfgraph: rdf.RdfGraph,
         focus_iri: str,
         with_context: bool = False,
-    ) -> dict:
+    ) -> JsonObject:
         with self.iri_shorthand.track_used_shorts() as _used_shorts:
             _rendered = self.rdfobject_as_jsonld(focus_iri, rdfgraph.tripledict)
         if with_context:
@@ -44,7 +51,7 @@ class RdfJsonldRenderer(BaseRenderer):
             }
         return _rendered
 
-    def literal_as_jsonld(self, rdfliteral: rdf.Literal):
+    def literal_as_jsonld(self, rdfliteral: rdf.Literal) -> JsonObject:
         if not rdfliteral.datatype_iris or rdfliteral.datatype_iris == {RDF.string}:
             return {'@value': rdfliteral.unicode_value}
         if RDF.JSON in rdfliteral.datatype_iris:
@@ -74,7 +81,7 @@ class RdfJsonldRenderer(BaseRenderer):
         self,
         rdfobject: rdf.RdfObject,
         tripledict: rdf.RdfTripleDictionary | None = None,
-    ):
+    ) -> JsonObject:
         if isinstance(rdfobject, str):
             return self.iri_as_jsonld(rdfobject, tripledict)
         elif isinstance(rdfobject, frozenset):
@@ -95,7 +102,7 @@ class RdfJsonldRenderer(BaseRenderer):
         self,
         blanknode: rdf.RdfBlanknode,
         tripledict: rdf.RdfTripleDictionary | None = None,
-    ) -> dict:
+    ) -> JsonObject:
         _twopledict = rdf.twopledict_from_twopleset(blanknode)
         _jsonld = {}
         for _pred, _objectset in _twopledict.items():
@@ -111,9 +118,9 @@ class RdfJsonldRenderer(BaseRenderer):
         self,
         iri: str,
         tripledict: rdf.RdfTripleDictionary | None = None,
-    ):
+    ) -> JsonObject:
         if (not tripledict) or (iri not in tripledict) or self.__already_visiting(iri):
-            return self.iri_shorthand.compact_iri(iri)
+            return {'@id': self.iri_shorthand.compact_iri(iri)}
         with self.__visiting(iri):
             _nested_obj = (
                 {}
@@ -131,7 +138,7 @@ class RdfJsonldRenderer(BaseRenderer):
                     )
             return _nested_obj
 
-    def _list_or_single_value(self, predicate_iri: str, objectlist: list):
+    def _list_or_single_value(self, predicate_iri: str, objectlist: list[JsonValue]) -> JsonValue:
         _only_one_object = (
             (predicate_iri, RDF.type, OWL.FunctionalProperty) in self.thesaurus
         )
@@ -152,7 +159,7 @@ class RdfJsonldRenderer(BaseRenderer):
         return sorted(objectlist, key=_naive_sort_key)
 
     @contextlib.contextmanager
-    def __visiting(self, iri: str):
+    def __visiting(self, iri: str) -> Iterator[None]:
         if self.__visiting_iris is None:
             self.__visiting_iris = set()
         self.__visiting_iris.add(iri)
@@ -163,6 +170,6 @@ class RdfJsonldRenderer(BaseRenderer):
         return bool(self.__visiting_iris and (iri in self.__visiting_iris))
 
 
-def _naive_sort_key(jsonable_obj):
+def _naive_sort_key(jsonable_obj: Any) -> tuple[int, str]:
     _json = json.dumps(jsonable_obj)
-    return (len(_json), _json)
+    return len(_json), _json
