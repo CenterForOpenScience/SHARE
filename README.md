@@ -1,33 +1,17 @@
-# SHARE/Trove
+# SHARE/trove (aka SHARtrove, shtrove)
 
-SHARE is creating a free, open dataset of research (meta)data.
+> share (verb): to have or use in common.
 
-> **Note**: SHARE’s open API tools and services help bring together scholarship distributed across research ecosystems for the purpose of greater discoverability. However, SHARE does not guarantee a complete aggregation of searched outputs. For this reason, SHARE results should not be used for methodological analyses, such as systematic reviews.
+> trove (noun): a store of valuable or delightful things.
 
-[![Coverage Status](https://coveralls.io/repos/github/CenterForOpenScience/SHARE/badge.svg?branch=develop)](https://coveralls.io/github/CenterForOpenScience/SHARE?branch=develop)
+SHARE/trove (aka SHARtrove, shtrove) is is a service meant to store (meta)data you wish to keep and offer openly.
 
-## Documentation
+note: this codebase is currently rather entangled with [osf.io](https://osf.io), which has its shtrove at https://share.osf.io/trove -- stay tuned for more-reusable open-source libraries and tools for working with (meta)data
 
-### What is this?
-see [WHAT-IS-THIS-EVEN.md](./WHAT-IS-THIS-EVEN.md)
+see [ARCHITECTURE.md](./ARCHITECTURE.md) for help navigating this codebase
 
-### How can I use it?
-see [how-to/use-the-api.md](./how-to/use-the-api.md)
+see [CONTRIBUTING.md](./CONTRIBUTING.md) for info about contributing changes
 
-### How do I navigate this codebase?
-see [ARCHITECTURE.md](./ARCHITECTURE.md)
+see [how-to/use-the-api.md](./how-to/use-the-api.md) for help using the api to add and access (meta)data
 
-### How do I run a copy locally?
-see [how-to/run-locally.md](./how-to/run-locally.md)
-
-
-## Running Tests
-
-### Unit test suite
-
-  py.test
-
-### BDD Suite
-
-  behave
-
+see [how-to/run-locally.md](./how-to/run-locally.md) for help running a shtrove instance for local development
