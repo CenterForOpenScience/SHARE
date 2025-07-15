@@ -1,5 +1,11 @@
 # Change Log
 
+# [25.5.0] - 2025-07-15
+- use python 3.13
+- use `poetry` to manage dependencies
+- upgrade various dependencies
+- start using `mypy` for type-checking (loosely)
+
 # [25.4.0] - 2025-06-24
 - delete `RawDatum` model
     - `trove.digestive_tract.extract` now must succeed before `/trove/ingest` responds
