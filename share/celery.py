@@ -4,14 +4,16 @@ import logging
 
 from celery import states
 from celery.app.task import Context
-from celery.backends.base import BaseDictBackend
+from celery.backends.base import BaseBackend
 from celery.utils.time import maybe_timedelta
-
 from django.conf import settings
-from django.db import transaction
+from django.db import (
+    transaction,
+    IntegrityError as DjIntegrityError,
+    OperationalError as DjOperationalError,
+)
 from django.db.models import Q
 from django.utils import timezone
-
 import sentry_sdk
 
 from share.models import CeleryTaskResult
@@ -40,7 +42,7 @@ def die_on_unhandled(func):
 
 
 # Based on https://github.com/celery/django-celery-results/commit/f88c677d66ba1eaf1b7cb1f3b8c910012990984f
-class CeleryDatabaseBackend(BaseDictBackend):
+class CeleryDatabaseBackend(BaseBackend):
     """
 
     Implemented from scratch rather than subclassed due to:
@@ -53,8 +55,53 @@ class CeleryDatabaseBackend(BaseDictBackend):
     """
     TaskModel = CeleryTaskResult
 
+    ###
+    # decorate some methods to fully stop/restart the worker on unhandled errors,
+    # including safe-to-retry errors that have been maximally retried
+    # (restarting may resolve some problems; others it will merely make more visible)
+
     @die_on_unhandled
+    def get_task_meta(self, *args, **kwargs):
+        super().get_task_meta(*args, **kwargs)
+
+    @die_on_unhandled
+    def store_result(self, *args, **kwargs):
+        super().store_result(*args, **kwargs)
+
+    @die_on_unhandled
+    def forget(self, *args, **kwargs):
+        super().forget(*args, **kwargs)
+
+    @die_on_unhandled
+    def cleanup(self, expires=None):
+        # no super implementation
+        TaskResultCleaner(
+            success_ttl=(expires or self.expires),
+            nonsuccess_ttl=settings.FAILED_CELERY_RESULT_EXPIRES,
+        ).clean()
+
+    # END die_on_unhandled decorations
+    ###
+
+    # override BaseBackend
+    def exception_safe_to_retry(self, exc):
+        return isinstance(exc, (
+            DjOperationalError,  # connection errors and whatnot
+            DjIntegrityError,  # e.g. overlapping transactions with conflicting `get_or_create`
+        ))
+
+    # implement for BaseBackend
     def _store_result(self, task_id, result, status, traceback=None, request=None, **kwargs):
+        _already_successful = (
+            self.TaskModel.objects
+            .filter(task_id=task_id, status=states.SUCCESS)
+            .exists()
+        )
+        if _already_successful:
+            # avoid clobbering prior successful result, which could be caused by network partition or lost worker, ostensibly:
+            # https://github.com/celery/celery/blob/92514ac88afc4ccdff31f3a1018b04499607ca1e/celery/backends/base.py#L967-L972
+            return
+
         fields = {
             'result': result,
             'traceback': traceback,
@@ -88,20 +135,14 @@ class CeleryDatabaseBackend(BaseDictBackend):
                     setattr(obj, key, value)
             obj.save()
 
-        return obj
-
-    @die_on_unhandled
-    def cleanup(self, expires=None):
-        TaskResultCleaner(
-            success_ttl=(expires or self.expires),
-            nonsuccess_ttl=settings.FAILED_CELERY_RESULT_EXPIRES,
-        ).clean()
-
-    @die_on_unhandled
+    # implement for BaseBackend
     def _get_task_meta_for(self, task_id):
-        return self.TaskModel.objects.get(task_id=task_id).as_dict()
+        try:
+            return self.TaskModel.objects.get(task_id=task_id).as_dict()
+        except self.TaskModel.DoesNotExist:
+            return {'status': states.PENDING, 'result': None}
 
-    @die_on_unhandled
+    # implement for BaseBackend
     def _forget(self, task_id):
         try:
             self.TaskModel.objects.get(task_id=task_id).delete()
