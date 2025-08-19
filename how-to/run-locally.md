@@ -1,14 +1,14 @@
 # SHARE Quickstart or: How I Learned to Stop Worrying and Love the Dock
 
-this guide guides you through setting up SHARE locally using Docker
-for development and manual testing.
+this guide guides you through setting up SHARE locally for development and manual testing
+using the `docker-compose.yml` file included in this repository.
 
 this guide does NOT guide you to anything appropriate for the open Internet.
 
 
 ## pre-requisites
-- [git](https://git-scm.com/)
-- [docker](https://www.docker.com/) (including `docker-compose`)
+- [git](https://git-scm.com/) or equivalent
+- [docker](https://www.docker.com/) (including `docker-compose`) or equivalent
 
 ## getting a local SHARE running
 
@@ -48,11 +48,11 @@ docker-compose run --rm --no-deps worker bash
 this will open a bash prompt within a temporary `worker` container -- from here we can
 run commands within SHARE's environment, including django's `manage.py`
 
-from within that worker shell, use django's `migrate` command to set up tables in postgres:
+from within that worker shell, use django's `migrate` command to create tables in postgres:
 ```
 python manage.py migrate
 ```
-...and use `sharectl` to set up indexes in elasticsearch:
+...and the `shtrove_search_setup` command to create indexes in elasticsearch:
 ```
 python manage.py shtrove_search_setup --initial
 ```
