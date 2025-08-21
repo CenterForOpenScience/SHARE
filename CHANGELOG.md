@@ -1,5 +1,10 @@
 # Change Log
 
+# [25.5.1] - 2025-08-21
+- improve error handling in celery task-result backend
+- use logging config in celery worker
+- improve code docs (README.md et al.)
+
 # [25.5.0] - 2025-07-15
 - use python 3.13
 - use `poetry` to manage dependencies
