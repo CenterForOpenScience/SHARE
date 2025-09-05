@@ -232,11 +232,9 @@ class TestOAILists:
         pages = 0
         count = 0
         token = None
-        while True:
-            if token:
-                parsed = oai_request({'verb': verb, 'resumptionToken': token}, request_method)
-            else:
-                parsed = oai_request({'verb': verb, 'metadataPrefix': 'oai_dc', **params}, request_method)
+        next_params: dict[str, str] | None = {'verb': verb, 'metadataPrefix': 'oai_dc', **params}
+        while next_params is not None:
+            parsed = oai_request(next_params, request_method)
             page = parsed.xpath('//oai:header/oai:identifier', namespaces=NAMESPACES)
             pages += 1
             count += len(page)
@@ -245,9 +243,10 @@ class TestOAILists:
             token = token[0].text
             if token:
                 assert len(page) == page_size
+                next_params = {'verb': verb, 'resumptionToken': token}
             else:
                 assert len(page) <= page_size
-                break
+                next_params = None  # done
 
         assert count == expected_count
         assert pages == math.ceil(expected_count / page_size)

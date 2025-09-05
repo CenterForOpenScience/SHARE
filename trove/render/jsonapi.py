@@ -38,15 +38,11 @@ _IriOrBlanknode = Union[str, frozenset[Any]]
 
 def _resource_ids_defaultdict() -> defaultdict[Any, str]:
     _prefix = str(time.time_ns())
-    _ints = itertools.count()
-
-    def _iter_ids() -> Iterator[str]:
-        while True:
-            _id = next(_ints)
-            yield f'{_prefix}-{_id}'
-
-    _ids = _iter_ids()
-    return defaultdict(lambda: next(_ids))
+    _infinite_ids = (
+        f'{_prefix}-{_id}'
+        for _id in itertools.count()
+    )
+    return defaultdict(_infinite_ids.__next__)
 
 
 @dataclasses.dataclass
