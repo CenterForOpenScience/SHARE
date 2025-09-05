@@ -1,7 +1,7 @@
 import json
 
 from trove.render.simple_json import TrovesearchSimpleJsonRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import SimpleRendering
 from trove.vocab.namespaces import BLARG
 from . import _base
 

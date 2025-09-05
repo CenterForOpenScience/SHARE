@@ -1,7 +1,7 @@
 import json
 
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import SimpleRendering
 from ._inputs import BLARG
 from . import _base
 

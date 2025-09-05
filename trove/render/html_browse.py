@@ -12,7 +12,6 @@ from typing import ClassVar
 from urllib.parse import quote, urlsplit, urlunsplit
 from xml.etree.ElementTree import (
     Element,
-    tostring as etree_tostring,
     fromstring as etree_fromstring,
 )
 
@@ -60,12 +59,10 @@ _QUERYPARAM_SPLIT_RE = re.compile(r'(?=[?&])')
 
 _PHI = (math.sqrt(5) + 1) / 2
 
-_HTML_DOCTYPE = '<!DOCTYPE html>'
-
 
 @dataclasses.dataclass
 class RdfHtmlBrowseRenderer(BaseRenderer):
-    MEDIATYPE: ClassVar[str] = 'text/html; charset=utf-8'
+    MEDIATYPE: ClassVar[str] = mediatypes.HTML
     __current_data: rdf.RdfTripleDictionary = dataclasses.field(init=False)
     __visiting_iris: set[str] = dataclasses.field(init=False)
     __hb: HtmlBuilder = dataclasses.field(init=False)
@@ -82,7 +79,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
 
     # override BaseRenderer
     def simple_render_document(self) -> str:
-        self.__hb = HtmlBuilder(Element('html'))
+        self.__hb = HtmlBuilder()
         self.render_html_head()
         _body_attrs = {
             'class': 'BrowseWrapper',
@@ -92,10 +89,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             self.render_nav()
             self.render_main()
             self.render_footer()
-        return '\n'.join((
-            _HTML_DOCTYPE,
-            etree_tostring(self.__hb.root_element, encoding='unicode', method='html'),
-        ))
+        return self.__hb.as_html_doc()
 
     def render_html_head(self) -> None:
         with self.__hb.nest('head'):

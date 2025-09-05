@@ -7,7 +7,7 @@ from primitive_metadata import (
 
 from trove.trovesearch.trovesearch_gathering import trovesearch_by_indexstrategy
 from trove.render._base import BaseRenderer
-from trove.render._rendering import ProtoRendering
+from trove.render.rendering import ProtoRendering
 from trove.vocab.namespaces import RDF
 from tests.trove._input_output_tests import BasicInputOutputTestCase
 from ._inputs import UNRENDERED_RDF, UNRENDERED_SEARCH_RDF, RdfCase
@@ -66,9 +66,9 @@ class TroveRendererTests(BasicInputOutputTestCase):
             self._get_rendered_output(actual_output),
         )
 
-    def _get_rendered_output(self, rendering: ProtoRendering):
+    def _get_rendered_output(self, rendering: ProtoRendering) -> str:
         # for now, they always iter strings (update if/when bytes are in play)
-        return ''.join(rendering.iter_content())  # type: ignore[arg-type]
+        return ''.join(map(str, rendering.iter_content()))
 
 
 class TrovesearchRendererTests(TroveRendererTests):

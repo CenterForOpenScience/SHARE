@@ -5,6 +5,7 @@ import dataclasses
 from xml.etree.ElementTree import (
     Element,
     SubElement,
+    tostring as etree_tostring,
 )
 from typing import Any
 
@@ -13,10 +14,12 @@ from primitive_metadata import primitive_rdf as rdf
 
 __all__ = ('HtmlBuilder',)
 
+HTML_DOCTYPE = '<!DOCTYPE html>'
+
 
 @dataclasses.dataclass
 class HtmlBuilder:
-    given_root: Element
+    given_root: Element = dataclasses.field(default_factory=lambda: Element('html'))
     _: dataclasses.KW_ONLY
     _nested_elements: list[Element] = dataclasses.field(default_factory=list)
     _heading_depth: int = 0
@@ -67,3 +70,9 @@ class HtmlBuilder:
             _leaf_element.text = text.unicode_value
         elif text is not None:
             _leaf_element.text = text
+
+    def as_html_doc(self) -> str:
+        return '\n'.join((
+            HTML_DOCTYPE,
+            etree_tostring(self.root_element, encoding='unicode', method='html'),
+        ))

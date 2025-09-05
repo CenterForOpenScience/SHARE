@@ -1,8 +1,7 @@
-from typing import Type
-
 from django import http
 
 from trove import exceptions as trove_exceptions
+from trove.vocab.mediatypes import strip_mediatype_parameters
 from ._base import BaseRenderer
 from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
@@ -25,10 +24,6 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     TrovesearchSimpleTsvRenderer,
 )
 
-RendersType = Type[
-    BaseRenderer | RdfHtmlBrowseRenderer | RdfJsonapiRenderer | RdfTurtleRenderer | RdfJsonldRenderer | TrovesearchSimpleCsvRenderer | TrovesearchSimpleJsonRenderer | TrovesearchSimpleTsvRenderer
-]
-
 RENDERER_BY_MEDIATYPE = {
     _renderer_type.MEDIATYPE: _renderer_type
     for _renderer_type in RENDERERS
@@ -42,7 +37,9 @@ def get_renderer_type(request: http.HttpRequest) -> type[BaseRenderer]:
     _requested_mediatype = request.GET.get('acceptMediatype')
     if _requested_mediatype:
         try:
-            _chosen_renderer_type = RENDERER_BY_MEDIATYPE[_requested_mediatype]
+            _chosen_renderer_type = RENDERER_BY_MEDIATYPE[
+                strip_mediatype_parameters(_requested_mediatype)
+            ]
         except KeyError:
             raise trove_exceptions.CannotRenderMediatype(_requested_mediatype)
     else:

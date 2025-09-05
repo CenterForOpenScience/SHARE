@@ -4,6 +4,7 @@ import trove.util.chainmap
 import trove.util.frozen
 import trove.util.iris
 import trove.util.propertypath
+import trove.vocab.mediatypes
 
 _DOCTEST_OPTIONFLAGS = (
     doctest.ELLIPSIS
@@ -15,6 +16,7 @@ _MODULES_WITH_DOCTESTS = (
     trove.util.frozen,
     trove.util.iris,
     trove.util.propertypath,
+    trove.vocab.mediatypes,
 )
 
 

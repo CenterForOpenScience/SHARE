@@ -9,7 +9,7 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import JSONAPI_LINK_OBJECT
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
-from ._rendering import ProtoRendering, SimpleRendering
+from .rendering import ProtoRendering, SimpleRendering
 if TYPE_CHECKING:
     from trove.util.json import JsonObject
 
@@ -30,7 +30,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
         raise NotImplementedError
 
     def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
-        return SimpleRendering(  # type: ignore[return-value]
+        return SimpleRendering(
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_unicard_rendering(card_iri, osfmap_json),
         )
@@ -41,7 +41,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             for _page in card_pages
             for _card_iri, _card_contents in _page.items()
         )
-        return SimpleRendering(  # type: ignore[return-value]
+        return SimpleRendering(
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_multicard_rendering(_cards),
         )

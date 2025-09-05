@@ -11,7 +11,8 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from ._rendering import StreamableRendering, ProtoRendering
+from .rendering import ProtoRendering
+from .rendering.streamable import StreamableRendering
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 if typing.TYPE_CHECKING:
     from trove.util.json import JsonObject
@@ -31,7 +32,7 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
         }, indent=2)
 
     def multicard_rendering(self, card_pages: typing.Iterator[dict[str, dict[str, typing.Any]]]) -> ProtoRendering:
-        return StreamableRendering(  # type: ignore[return-value]
+        return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=self._stream_json(card_pages),
         )

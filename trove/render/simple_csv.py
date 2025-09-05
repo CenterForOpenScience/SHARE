@@ -20,7 +20,8 @@ from trove.vocab import mediatypes
 from trove.vocab import osfmap
 from trove.vocab.namespaces import TROVE
 from ._simple_trovesearch import SimpleTrovesearchRenderer
-from ._rendering import StreamableRendering, ProtoRendering
+from .rendering import ProtoRendering
+from .rendering.streamable import StreamableRendering
 if TYPE_CHECKING:
     from trove.util.trove_params import BasicTroveParams
     from trove.util.json import JsonValue, JsonObject
@@ -47,7 +48,7 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
             card_pages,
             trove_params=getattr(self.response_focus, 'search_params', None),
         )
-        return StreamableRendering(  # type: ignore[return-value]
+        return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=csv_stream(self.CSV_DIALECT, _doc.header(), _doc.rows()),
         )

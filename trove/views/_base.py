@@ -26,7 +26,7 @@ from ._responder import (
 if TYPE_CHECKING:
     from django.http import HttpResponse, StreamingHttpResponse, HttpRequest
     from trove.render import BaseRenderer
-    from trove.render._rendering import ProtoRendering
+    from trove.render.rendering import ProtoRendering
 
 
 __all__ = (

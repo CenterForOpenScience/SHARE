@@ -1,7 +1,7 @@
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.render.turtle import RdfTurtleRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import SimpleRendering
 from . import _base
 
 

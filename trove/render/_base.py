@@ -13,7 +13,7 @@ from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
 from trove.vocab.trove import TROVE_API_THESAURUS
 from trove.vocab.namespaces import namespaces_shorthand
-from ._rendering import ProtoRendering, SimpleRendering
+from .rendering import ProtoRendering, SimpleRendering
 
 
 @dataclasses.dataclass
@@ -61,7 +61,7 @@ class BaseRenderer(abc.ABC):
         except NotImplementedError:
             raise NotImplementedError(f'class "{type(self)}" must implement either `render_document` or `simple_render_document`')
         else:
-            return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
+            return SimpleRendering(
                 mediatype=self.MEDIATYPE,
                 rendered_content=_content,
             )
@@ -69,7 +69,7 @@ class BaseRenderer(abc.ABC):
     @classmethod
     def render_error_document(cls, error: trove_exceptions.TroveError) -> ProtoRendering:
         # may override, but default to jsonapi
-        return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
+        return SimpleRendering(
             mediatype=mediatypes.JSONAPI,
             rendered_content=json.dumps(
                 {'errors': [{  # https://jsonapi.org/format/#error-objects

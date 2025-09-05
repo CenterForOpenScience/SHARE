@@ -1,5 +1,5 @@
 from trove.render.simple_tsv import TrovesearchSimpleTsvRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import SimpleRendering
 from . import _base
 
 
