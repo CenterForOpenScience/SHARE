@@ -7,7 +7,6 @@ from xml.etree.ElementTree import (
     SubElement,
     tostring as etree_tostring,
 )
-from typing import Any
 
 from primitive_metadata import primitive_rdf as rdf
 
@@ -39,18 +38,16 @@ class HtmlBuilder:
     # html-building helper methods
 
     @contextlib.contextmanager
-    def nest_h_tag(self, **kwargs: Any) -> Generator[Element]:
+    def deeper_heading(self) -> Generator[str]:
         _outer_heading_depth = self._heading_depth
         if not _outer_heading_depth:
             self._heading_depth = 1
         elif _outer_heading_depth < 6:  # h6 deepest
             self._heading_depth += 1
-        _h_tag = f'h{self._heading_depth}'
-        with self.nest(_h_tag, **kwargs) as _nested:
-            try:
-                yield _nested
-            finally:
-                self._heading_depth = _outer_heading_depth
+        try:
+            yield f'h{self._heading_depth}'
+        finally:
+            self._heading_depth = _outer_heading_depth
 
     @contextlib.contextmanager
     def nest(self, tag_name: str, attrs: dict | None = None) -> Generator[Element]:

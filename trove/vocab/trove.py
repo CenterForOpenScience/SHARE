@@ -48,7 +48,7 @@ def trove_browse_link(iri: str) -> str:
     _compact = namespaces_shorthand().compact_iri(iri)
     return urllib.parse.urljoin(
         reverse('trove:browse-iri'),
-        f'?iri={urllib.parse.quote(_compact)}',
+        f'?blendCards&iri={urllib.parse.quote(_compact)}',
     )
 
 
@@ -494,7 +494,7 @@ stable mediatypes:
 
 unstable mediatypes (may change or sometimes respond 500):
 
-* `text/html;charset=utf-8`: rdf as browsable html
+* `text/html`: rdf as browsable html
 * `text/turtle`: rdf as [turtle](https://www.w3.org/TR/turtle/)
 * `application/ld+json`: rdf as [json-ld](https://www.w3.org/TR/json-ld11/)
 
