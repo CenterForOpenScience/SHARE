@@ -4,13 +4,11 @@ ways to better this mess
 ## better shtrove api experience
 
 - better web-browsing experience
-    - when `Accept` header accepts html, use html regardless of query-params
-        - when query param `acceptMediatype` requests another mediatype, display on page in copy/pastable way
-        - exception: when given `withFileName`, download without html wrapping
-        - exception: `/trove/browse` should still give hypertext with clickable links
     - include more explanatory docs (and better fill out those explanations)
-    - more helpful (less erratic) visual design
+    - even more helpful (less erratic) visual design
     - in each html rendering of an api response, include a `<form>` for adding/editing/viewing query params
+    - in browsable html, replace json literals with rdf rendered like the rest of the page
+    - (perf) add bare-minimal IndexcardDeriver (iris, types, namelikes); use for search-result display
 - better tsv/csv experience
     - set default columns for `index-value-search` (and/or broadly improve `fields` handling)
 - better turtle experience
