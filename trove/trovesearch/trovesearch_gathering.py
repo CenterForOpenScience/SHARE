@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     )
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 type GathererGenerator = Generator[rdf.RdfTriple | rdf.RdfTwople]

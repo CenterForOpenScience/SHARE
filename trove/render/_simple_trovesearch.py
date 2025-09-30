@@ -1,6 +1,8 @@
 from __future__ import annotations
-from collections.abc import Generator, Iterator
+from collections.abc import Generator, Iterator, Sequence
+import itertools
 import json
+import logging
 from typing import Any, TYPE_CHECKING
 
 from primitive_metadata import primitive_rdf as rdf
@@ -12,6 +14,8 @@ from ._base import BaseRenderer
 from .rendering import ProtoRendering, SimpleRendering
 if TYPE_CHECKING:
     from trove.util.json import JsonObject
+
+_logger = logging.getLogger(__name__)
 
 
 class SimpleTrovesearchRenderer(BaseRenderer):
@@ -35,12 +39,8 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             rendered_content=self.simple_unicard_rendering(card_iri, osfmap_json),
         )
 
-    def multicard_rendering(self, card_pages: Iterator[dict[str, JsonObject]]) -> ProtoRendering:
-        _cards = (
-            (_card_iri, _card_contents)
-            for _page in card_pages
-            for _card_iri, _card_contents in _page.items()
-        )
+    def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
+        _cards = itertools.chain.from_iterable(card_pages)
         return SimpleRendering(
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_multicard_rendering(_cards),
@@ -57,7 +57,7 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             )
         raise trove_exceptions.UnsupportedRdfType(_focustypes)
 
-    def _iter_card_pages(self) -> Generator[dict[str, JsonObject]]:
+    def _iter_card_pages(self) -> Generator[list[tuple[str, JsonObject]]]:
         assert not self.__already_iterated_cards
         self.__already_iterated_cards = True
         self._page_links = set()
@@ -67,22 +67,22 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             if (RDF.type, JSONAPI_LINK_OBJECT) in _page:
                 self._page_links.add(_page)
             elif rdf.is_container(_page):
-                _cardpage = []
-                for _search_result in rdf.container_objects(_page):
+                _cardpage: list[tuple[str, JsonObject]] = []
+                for _search_result_blanknode in rdf.container_objects(_page):
                     try:
                         _card = next(
                             _obj
-                            for _pred, _obj in _search_result
+                            for _pred, _obj in _search_result_blanknode
                             if _pred == TROVE.indexCard
                         )
                     except StopIteration:
                         pass  # skip malformed
                     else:
-                        _cardpage.append(_card)
-                yield {
-                    self._get_card_iri(_card): self._get_card_content(_card, _page_graph)
-                    for _card in _cardpage
-                }
+                        _cardpage.append((
+                            self._get_card_iri(_card),
+                            self._get_card_content(_card, _page_graph),
+                        ))
+                yield _cardpage
 
     def _get_card_iri(self, card: str | rdf.RdfBlanknode) -> str:
         return card if isinstance(card, str) else ''

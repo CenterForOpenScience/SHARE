@@ -2,19 +2,20 @@ from __future__ import annotations
 from collections.abc import (
     Generator,
     Iterator,
-    Iterable,
     Sequence,
 )
 import csv
+import dataclasses
 import functools
 import itertools
-import dataclasses
+import logging
 from typing import TYPE_CHECKING, ClassVar
 
 from trove.trovesearch.search_params import (
     CardsearchParams,
     ValuesearchParams,
 )
+from trove.util.iter import iter_unique
 from trove.util.propertypath import Propertypath, GLOB_PATHSTEP
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
     from trove.util.trove_params import BasicTroveParams
     from trove.util.json import JsonValue, JsonObject
 
+_logger = logging.getLogger(__name__)
 
 type Jsonpath = Sequence[str]  # path of json keys
 type CsvValue = str | int | float | None
@@ -41,9 +43,10 @@ class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
     CSV_DIALECT: ClassVar[type[csv.Dialect]] = csv.excel
 
     def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
-        return self.multicard_rendering(card_pages=iter([{card_iri: osfmap_json}]))
+        _page = [(card_iri, osfmap_json)]
+        return self.multicard_rendering(card_pages=iter([_page]))
 
-    def multicard_rendering(self, card_pages: Iterator[dict[str, JsonObject]]) -> ProtoRendering:
+    def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         _doc = TabularDoc(
             card_pages,
             trove_params=getattr(self.response_focus, 'search_params', None),
@@ -67,7 +70,7 @@ def csv_stream(
 
 @dataclasses.dataclass
 class TabularDoc:
-    card_pages: Iterator[dict[str, JsonObject]]
+    card_pages: Iterator[Sequence[tuple[str, JsonObject]]]
     trove_params: BasicTroveParams | None = None
     _started: bool = False
 
@@ -78,10 +81,6 @@ class TabularDoc:
             for _path in self._column_paths()
         )
         return (_ID_JSONPATH, *_column_jsonpaths)
-
-    @functools.cached_property
-    def first_page(self) -> dict[str, JsonObject]:
-        return next(self.card_pages, {})
 
     def _column_paths(self) -> Iterator[Propertypath]:
         _pathlists: list[Sequence[Propertypath]] = []
@@ -103,29 +102,16 @@ class TabularDoc:
                     _pathlists.append(_pathlist)
         if not _pathlists:
             _pathlists.append(osfmap.DEFAULT_TABULAR_SEARCH_COLUMN_PATHS)
-        return self.iter_unique(itertools.chain.from_iterable(_pathlists))
-
-    @staticmethod
-    def iter_unique[T](iterable: Iterable[T]) -> Generator[T]:
-        _seen = set()
-        for _item in iterable:
-            if _item not in _seen:
-                _seen.add(_item)
-                yield _item
-
-    def _iter_card_pages(self) -> Generator[dict[str, JsonObject]]:
-        assert not self._started
-        self._started = True
-        if self.first_page:
-            yield self.first_page
-            yield from self.card_pages
+        return iter_unique(itertools.chain.from_iterable(_pathlists))
 
     def header(self) -> list[CsvValue]:
         return ['.'.join(_path) for _path in self.column_jsonpaths]
 
     def rows(self) -> Generator[list[CsvValue]]:
-        for _page in self._iter_card_pages():
-            for _card_iri, _osfmap_json in _page.items():
+        assert not self._started
+        self._started = True
+        for _page in self.card_pages:
+            for _card_iri, _osfmap_json in _page:
                 yield self._row_values(_osfmap_json)
 
     def _row_values(self, osfmap_json: JsonObject) -> list[CsvValue]:

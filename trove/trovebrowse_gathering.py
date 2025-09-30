@@ -46,7 +46,7 @@ def gather_cards_focused_on(focus: gather.Focus, *, blend_cards: bool) -> Gather
     )
     if blend_cards:
         for _resource_description in _lrd_qs:
-            yield from rdf.iter_tripleset(_resource_description.as_rdf_tripledict())
+            yield from rdf.iter_tripleset(_resource_description.as_rdfdoc_with_supplements().tripledict)
             yield (ns.FOAF.isPrimaryTopicOf, _resource_description.indexcard.get_iri())
     else:
         for _resource_description in _lrd_qs:
