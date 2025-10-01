@@ -29,7 +29,7 @@ UNRENDERED_RDF = {
             DCTERMS.issued: {rdf.literal(datetime.date(2024, 1, 1))},
             DCTERMS.modified: {rdf.literal(datetime.date(2024, 1, 1))},
             TROVE.resourceMetadata: {rdf.literal(
-                json.dumps({'@id': BLARG.anItem, 'title': 'an item, yes'}),
+                json.dumps({'@id': BLARG.anItem, 'title': [{'@value': 'an item, yes'}]}),
                 datatype_iris=RDF.JSON,
             )},
         },
@@ -83,7 +83,7 @@ UNRENDERED_SEARCH_RDF = {
             DCTERMS.issued: {rdf.literal(datetime.date(2024, 1, 1))},
             DCTERMS.modified: {rdf.literal(datetime.date(2024, 1, 1))},
             TROVE.resourceMetadata: {rdf.literal(
-                json.dumps({'@id': BLARG.anItem, 'title': 'an item, yes'}),
+                json.dumps({'@id': BLARG.anItem, 'title': [{'@value': 'an item, yes'}]}),
                 datatype_iris=RDF.JSON,
             )},
         },
@@ -94,7 +94,7 @@ UNRENDERED_SEARCH_RDF = {
             DCTERMS.issued: {rdf.literal(datetime.date(2024, 2, 2))},
             DCTERMS.modified: {rdf.literal(datetime.date(2024, 2, 2))},
             TROVE.resourceMetadata: {rdf.literal(
-                json.dumps({'@id': BLARG.anItemm, 'title': 'an itemm, yes'}),
+                json.dumps({'@id': BLARG.anItemm, 'title': [{'@value': 'an itemm, yes'}]}),
                 datatype_iris=RDF.JSON,
             )},
         },
@@ -105,7 +105,31 @@ UNRENDERED_SEARCH_RDF = {
             DCTERMS.issued: {rdf.literal(datetime.date(2024, 3, 3))},
             DCTERMS.modified: {rdf.literal(datetime.date(2024, 3, 3))},
             TROVE.resourceMetadata: {rdf.literal(
-                json.dumps({'@id': BLARG.anItemmm, 'title': 'an itemmm, yes'}),
+                json.dumps({
+                    '@id': BLARG.anItemmm,
+                    "sameAs": [
+                        {"@id": "https://doi.example/13.0/anItemmm"}
+                    ],
+                    'title': [{'@value': 'an itemmm, yes'}],
+                    "creator": [
+                        {
+                            "@id": BLARG.aPerson,
+                            "resourceType": [
+                                {"@id": "Agent"},
+                                {"@id": "Person"}
+                            ],
+                            "identifier": [
+                                {"@value": BLARG.aPerson}
+                            ],
+                            "name": [
+                                {"@value": "a person indeed"}
+                            ]
+                        }
+                    ],
+                    "dateCreated": [
+                        {"@value": "2001-02-03"}
+                    ],
+                }),
                 datatype_iris=RDF.JSON,
             )},
         },

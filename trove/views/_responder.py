@@ -17,6 +17,8 @@ _BROWSER_FRIENDLY_MEDIATYPES = {
     mediatypes.JSON,
     mediatypes.JSONLD,
     mediatypes.JSONAPI,
+    mediatypes.ATOM,
+    mediatypes.RSS,
 }
 
 

@@ -27,30 +27,39 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
                 "data": [
                     {
                         "@id": BLARG.anItem,
-                        "title": "an item, yes",
-                        "foaf:isPrimaryTopicOf": [
-                            {
-                                "@id": BLARG.aCard
-                            }
-                        ]
+                        "title": [{"@value": "an item, yes"}],
+                        "foaf:isPrimaryTopicOf": [{"@id": BLARG.aCard}]
                     },
                     {
                         "@id": BLARG.anItemm,
-                        "title": "an itemm, yes",
-                        "foaf:isPrimaryTopicOf": [
-                            {
-                                "@id": BLARG.aCardd
-                            }
-                        ]
+                        "title": [{"@value": "an itemm, yes"}],
+                        "foaf:isPrimaryTopicOf": [{"@id": BLARG.aCardd}]
                     },
                     {
-                        "@id": BLARG.anItemmm,
-                        "title": "an itemmm, yes",
-                        "foaf:isPrimaryTopicOf": [
+                        '@id': BLARG.anItemmm,
+                        "sameAs": [
+                            {"@id": "https://doi.example/13.0/anItemmm"}
+                        ],
+                        'title': [{'@value': 'an itemmm, yes'}],
+                        "creator": [
                             {
-                                "@id": BLARG.aCarddd
+                                "@id": BLARG.aPerson,
+                                "resourceType": [
+                                    {"@id": "Agent"},
+                                    {"@id": "Person"}
+                                ],
+                                "identifier": [
+                                    {"@value": BLARG.aPerson}
+                                ],
+                                "name": [
+                                    {"@value": "a person indeed"}
+                                ]
                             }
-                        ]
+                        ],
+                        "dateCreated": [
+                            {"@value": "2001-02-03"}
+                        ],
+                        "foaf:isPrimaryTopicOf": [{"@id": BLARG.aCarddd}]
                     }
                 ],
                 "links": {},

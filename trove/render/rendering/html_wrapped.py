@@ -3,7 +3,7 @@ import html
 from typing import Iterator
 
 from trove.vocab import mediatypes
-from trove.render._html import HTML_DOCTYPE
+from trove.util.html import HTML_DOCTYPE
 from .proto import ProtoRendering
 
 
@@ -16,5 +16,7 @@ class HtmlWrappedRendering(ProtoRendering):
         yield HTML_DOCTYPE
         yield '<pre>'
         for _content in self.inner_rendering.iter_content():
+            if not isinstance(_content, str):
+                _content = _content.decode()
             yield html.escape(_content)
         yield '</pre>'

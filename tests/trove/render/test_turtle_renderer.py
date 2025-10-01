@@ -30,7 +30,7 @@ blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:modified "2024-01-01"^^xsd:date ;
     foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": [{\\"@value\\": \\"an item, yes\\"}]}"^^rdf:JSON .
 ''',
         ),
         'various_types': SimpleRendering(
@@ -99,21 +99,21 @@ blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:modified "2024-01-01"^^xsd:date ;
     foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": [{\\"@value\\": \\"an item, yes\\"}]}"^^rdf:JSON .
 
 blarg:aCardd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-02-02"^^xsd:date ;
     dcterms:modified "2024-02-02"^^xsd:date ;
     foaf:primaryTopic blarg:anItemm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemm"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemm\\", \\"title\\": \\"an itemm, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemm\\", \\"title\\": [{\\"@value\\": \\"an itemm, yes\\"}]}"^^rdf:JSON .
 
 blarg:aCarddd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-03-03"^^xsd:date ;
     dcterms:modified "2024-03-03"^^xsd:date ;
     foaf:primaryTopic blarg:anItemmm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemmm"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemmm\\", \\"title\\": \\"an itemmm, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemmm\\", \\"sameAs\\": [{\\"@id\\": \\"https://doi.example/13.0/anItemmm\\"}], \\"title\\": [{\\"@value\\": \\"an itemmm, yes\\"}], \\"creator\\": [{\\"@id\\": \\"http://blarg.example/vocab/aPerson\\", \\"resourceType\\": [{\\"@id\\": \\"Agent\\"}, {\\"@id\\": \\"Person\\"}], \\"identifier\\": [{\\"@value\\": \\"http://blarg.example/vocab/aPerson\\"}], \\"name\\": [{\\"@value\\": \\"a person indeed\\"}]}], \\"dateCreated\\": [{\\"@value\\": \\"2001-02-03\\"}]}"^^rdf:JSON .
 ''',
         ),
     }

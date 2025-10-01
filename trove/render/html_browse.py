@@ -12,7 +12,6 @@ from xml.etree.ElementTree import (
     fromstring as etree_fromstring,
 )
 
-from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.http import QueryDict
 from django.urls import reverse
@@ -20,15 +19,18 @@ from django.utils.translation import gettext as _
 import markdown2
 from primitive_metadata import primitive_rdf as rdf
 
+from trove.links import (
+    trove_browse_link,
+    is_local_url,
+)
+from trove.util.html import HtmlBuilder
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.util.randomness import shuffled
 from trove.vocab import mediatypes
 from trove.vocab import jsonapi
 from trove.vocab.namespaces import RDF, RDFS, SKOS, DCTERMS, FOAF, DC, OSFMAP
 from trove.vocab.static_vocab import combined_thesaurus__suffuniq
-from trove.vocab.trove import trove_browse_link
 from ._base import BaseRenderer
-from ._html import HtmlBuilder
 
 STABLE_MEDIATYPES = (mediatypes.JSONAPI,)
 UNSTABLE_MEDIATYPES = (
@@ -168,7 +170,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
                 if include_details and (_twopledict := self.__current_data.tripledict.get(subj_iri, {})):
                     _details_attrs = (
                         {'open': ''}
-                        if (self.__is_focus(subj_iri) or _is_local_url(subj_iri))
+                        if (self.__is_focus(subj_iri) or is_local_url(subj_iri))
                         else {}
                     )
                     with self.__hb.nest('details', _details_attrs):
@@ -241,7 +243,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
             if _is_markdown:
                 # TODO: tests for safe_mode
                 _html = markdown2.markdown(_lit.unicode_value, safe_mode='escape')
-                self.__hb._current_element.append(etree_fromstring(f'<q>{_html}</q>'))
+                self.__hb.current_element.append(etree_fromstring(f'<q>{_html}</q>'))
             else:
                 self.__hb.leaf('q', text=_lit)
 
@@ -331,7 +333,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __nest_link(self, iri: str, attrs: dict[str, str] | None = None) -> contextlib.AbstractContextManager[Element]:
         _href = (
             iri
-            if _is_local_url(iri)
+            if is_local_url(iri)
             else trove_browse_link(iri)
         )
         return self.__hb.nest('a', attrs={**(attrs or {}), 'href': _href})
@@ -381,7 +383,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
 
     def _queryparam_href(self, param_name: str, param_value: str | None) -> str:
         _base_url = self.response_focus.single_iri()
-        if not _is_local_url(_base_url):
+        if not is_local_url(_base_url):
             _base_url = trove_browse_link(_base_url)
         (_scheme, _netloc, _path, _query, _fragment) = urlsplit(_base_url)
         _qparams = QueryDict(_query, mutable=True)
@@ -415,7 +417,7 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         else:
             (_scheme, _netloc, _path, _query, _fragment) = urlsplit(iri)
             # first line with path
-            if _is_local_url(iri):
+            if is_local_url(iri):
                 yield f'/{_path.lstrip('/')}'
             elif _netloc:
                 yield f'://{_netloc}{_path}'
@@ -436,10 +438,6 @@ def _append_class(el: Element, element_class: str) -> None:
         'class',
         ' '.join(filter(None, (element_class, el.get('class')))),
     )
-
-
-def _is_local_url(iri: str) -> bool:
-    return iri.startswith(settings.SHARE_WEB_URL)
 
 
 def _is_sequence_obj(obj: rdf.RdfObject) -> bool:

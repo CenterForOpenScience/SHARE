@@ -2,7 +2,7 @@ import json
 
 from trove.render.jsonld import RdfJsonldRenderer
 from trove.render.rendering import SimpleRendering
-from ._inputs import BLARG
+from trove.vocab.namespaces import BLARG
 from . import _base
 
 
@@ -38,7 +38,7 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                 ],
                 "trove:resourceMetadata": {
                     "@id": BLARG.anItem,
-                    "title": "an item, yes"
+                    "title": [{"@value": "an item, yes"}]
                 }
             }),
         ),
@@ -145,7 +145,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItem,
-                                        "title": "an item, yes"
+                                        "title": [{"@value": "an item, yes"}]
                                     }
                                 }
                             },
@@ -181,7 +181,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItemm,
-                                        "title": "an itemm, yes"
+                                        "title": [{"@value": "an itemm, yes"}]
                                     }
                                 }
                             },
@@ -214,8 +214,29 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         {"@value": BLARG.anItemmm}
                                     ],
                                     "trove:resourceMetadata": {
-                                        "@id": BLARG.anItemmm,
-                                        "title": "an itemmm, yes"
+                                        '@id': BLARG.anItemmm,
+                                        "sameAs": [
+                                            {"@id": "https://doi.example/13.0/anItemmm"}
+                                        ],
+                                        'title': [{'@value': 'an itemmm, yes'}],
+                                        "creator": [
+                                            {
+                                                "@id": BLARG.aPerson,
+                                                "resourceType": [
+                                                    {"@id": "Agent"},
+                                                    {"@id": "Person"}
+                                                ],
+                                                "identifier": [
+                                                    {"@value": BLARG.aPerson}
+                                                ],
+                                                "name": [
+                                                    {"@value": "a person indeed"}
+                                                ]
+                                            }
+                                        ],
+                                        "dateCreated": [
+                                            {"@value": "2001-02-03"}
+                                        ],
                                     }
                                 }
                             }

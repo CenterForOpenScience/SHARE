@@ -10,6 +10,8 @@ from .jsonld import RdfJsonldRenderer
 from .simple_csv import TrovesearchSimpleCsvRenderer
 from .simple_json import TrovesearchSimpleJsonRenderer
 from .simple_tsv import TrovesearchSimpleTsvRenderer
+from .cardsearch_rss import CardsearchRssRenderer
+from .cardsearch_atom import CardsearchAtomRenderer
 
 
 __all__ = ('get_renderer_type', 'BaseRenderer')
@@ -23,12 +25,16 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     TrovesearchSimpleJsonRenderer,
     TrovesearchSimpleTsvRenderer,
 )
+CARDSEARCH_ONLY_RENDERERS = (  # TODO: use/consider
+    CardsearchRssRenderer,
+    CardsearchAtomRenderer,
+)
 
 RENDERER_BY_MEDIATYPE = {
     _renderer_type.MEDIATYPE: _renderer_type
     for _renderer_type in RENDERERS
 }
-DEFAULT_RENDERER_TYPE = RdfJsonapiRenderer  # the most stable one
+DEFAULT_RENDERER_TYPE = RdfJsonapiRenderer  # the most stable one?
 
 
 def get_renderer_type(request: http.HttpRequest) -> type[BaseRenderer]:

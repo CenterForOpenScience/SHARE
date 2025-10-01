@@ -46,7 +46,7 @@ def get_trove_openapi() -> dict[str, Any]:
             'contact': {
                 # 'name':
                 # 'url': web-browsable version of this
-                'email': 'share-support@osf.io',
+                'email': settings.SHARE_SUPPORT_EMAIL,
             },
             # 'license':
             'version': get_shtrove_version(),

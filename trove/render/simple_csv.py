@@ -16,20 +16,22 @@ from trove.trovesearch.search_params import (
     ValuesearchParams,
 )
 from trove.util.iter import iter_unique
+from trove.util.json import json_prims
 from trove.util.propertypath import Propertypath, GLOB_PATHSTEP
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
-from trove.vocab.namespaces import TROVE
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 from .rendering import ProtoRendering
 from .rendering.streamable import StreamableRendering
 if TYPE_CHECKING:
     from trove.util.trove_params import BasicTroveParams
-    from trove.util.json import JsonValue, JsonObject
+    from trove.util.json import (
+        JsonObject,
+        JsonPath,
+    )
 
 _logger = logging.getLogger(__name__)
 
-type Jsonpath = Sequence[str]  # path of json keys
 type CsvValue = str | int | float | None
 
 _MULTIVALUE_DELIMITER = ' ; '  # possible improvement: smarter in-value delimiting?
@@ -39,12 +41,7 @@ _ID_JSONPATH = ('@id',)
 
 class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
     MEDIATYPE = mediatypes.CSV
-    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
     CSV_DIALECT: ClassVar[type[csv.Dialect]] = csv.excel
-
-    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
-        _page = [(card_iri, osfmap_json)]
-        return self.multicard_rendering(card_pages=iter([_page]))
 
     def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         _doc = TabularDoc(
@@ -75,7 +72,7 @@ class TabularDoc:
     _started: bool = False
 
     @functools.cached_property
-    def column_jsonpaths(self) -> tuple[Jsonpath, ...]:
+    def column_jsonpaths(self) -> tuple[JsonPath, ...]:
         _column_jsonpaths = (
             _osfmap_jsonpath(_path)
             for _path in self._column_paths()
@@ -120,10 +117,11 @@ class TabularDoc:
             for _field_path in self.column_jsonpaths
         ]
 
-    def _row_field_value(self, osfmap_json: JsonObject, field_path: Jsonpath) -> CsvValue:
+    def _row_field_value(self, osfmap_json: JsonObject, field_path: JsonPath) -> CsvValue:
         _rendered_values = [
-            _render_tabularly(_obj)
-            for _obj in _iter_values(osfmap_json, field_path)
+            _obj
+            for _obj in json_prims(osfmap_json, field_path, _VALUE_KEY_PREFERENCE)
+            if _obj is not None
         ]
         if len(_rendered_values) == 1:
             return _rendered_values[0]  # preserve type for single numbers
@@ -131,56 +129,12 @@ class TabularDoc:
         return _MULTIVALUE_DELIMITER.join(map(str, _rendered_values))
 
 
-def _osfmap_jsonpath(iri_path: Propertypath) -> Jsonpath:
+def _osfmap_jsonpath(iri_path: Propertypath) -> JsonPath:
     _shorthand = osfmap.osfmap_json_shorthand()
     return tuple(
         _shorthand.compact_iri(_pathstep)
         for _pathstep in iri_path
     )
-
-
-def _has_value(osfmap_json: JsonObject, path: Jsonpath) -> bool:
-    try:
-        next(_iter_values(osfmap_json, path))
-    except StopIteration:
-        return False
-    else:
-        return True
-
-
-def _iter_values(osfmap_json: JsonObject, path: Jsonpath) -> Generator[JsonValue]:
-    assert path
-    (_step, *_rest) = path
-    _val = osfmap_json.get(_step)
-    if _rest:
-        if isinstance(_val, dict):
-            yield from _iter_values(_val, _rest)
-        elif isinstance(_val, list):
-            for _val_obj in _val:
-                if isinstance(_val_obj, dict):
-                    yield from _iter_values(_val_obj, _rest)
-    else:
-        if isinstance(_val, list):
-            yield from _val
-        elif _val is not None:
-            yield _val
-
-
-def _render_tabularly(json_val: JsonValue) -> CsvValue:
-    if isinstance(json_val, (str, int, float)):
-        return json_val
-    if isinstance(json_val, dict):
-        for _key in _VALUE_KEY_PREFERENCE:
-            _val = json_val.get(_key)
-            if isinstance(_val, list):
-                return (
-                    _render_tabularly(_val[0])
-                    if _val
-                    else None
-                )
-            if _val is not None:
-                return _render_tabularly(_val)
-    return None
 
 
 class _Echo:

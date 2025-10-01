@@ -24,19 +24,13 @@ class SimpleTrovesearchRenderer(BaseRenderer):
     (very entangled with trove/trovesearch/trovesearch_gathering.py)
     '''
     PASSIVE_RENDER = False  # knows the properties it cares about
-    _page_links: set[str]
+    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']  # assumes osfmap_json
+    _page_links: set[str]  # for use *after* iterating cards/card_pages
     __already_iterated_cards = False
 
-    def simple_unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> str:
-        raise NotImplementedError
-
-    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> str:
-        raise NotImplementedError
-
-    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
-        return SimpleRendering(
-            mediatype=self.MEDIATYPE,
-            rendered_content=self.simple_unicard_rendering(card_iri, osfmap_json),
+    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> str | bytes:
+        raise NotImplementedError(
+            f'{self.__class__.__name__} must implement either `multicard_rendering` or `simple_multicard_rendering`'
         )
 
     def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
@@ -45,6 +39,10 @@ class SimpleTrovesearchRenderer(BaseRenderer):
             mediatype=self.MEDIATYPE,
             rendered_content=self.simple_multicard_rendering(_cards),
         )
+
+    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
+        _page = [(card_iri, osfmap_json)]
+        return self.multicard_rendering(card_pages=iter([_page]))
 
     def render_document(self) -> ProtoRendering:
         _focustypes = self.response_focus.type_iris

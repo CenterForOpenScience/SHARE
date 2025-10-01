@@ -45,7 +45,7 @@ class BaseTroveView(View, abc.ABC):
 
     def get(self, request: HttpRequest, **kwargs: str) -> HttpResponse | StreamingHttpResponse:
         try:
-            _renderer_type = get_renderer_type(request)
+            _renderer_type = self._get_renderer_type(request)
         except trove_exceptions.CannotRenderMediatype as _error:
             return make_http_error_response(
                 error=_error,
@@ -63,6 +63,9 @@ class BaseTroveView(View, abc.ABC):
                 renderer_type=_renderer_type,
             )
 
+    def _get_renderer_type(self, request: HttpRequest):
+        return get_renderer_type(request)
+
     def _parse_params(self, request: HttpRequest):
         return self.params_type.from_querystring(request.META['QUERY_STRING'])
 
@@ -74,6 +77,8 @@ class GatheredTroveView(BaseTroveView, abc.ABC):
     focus_type_iris: ClassVar[Container[str]] = ()
 
     def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs):
+        '''implement abstract method from BaseTroveView
+        '''
         _focus = self._build_focus(request, params, url_kwargs)
         _renderer = self._gather_to_renderer(_focus, params, renderer_type)
         return _renderer.render_document()
@@ -123,6 +128,8 @@ class StaticTroveView(BaseTroveView, abc.ABC):
         return cls.get_static_triples(focus_iri)
 
     def _render_response_content(self, request, params, renderer_type: type[BaseRenderer], url_kwargs):
+        '''implement abstract method from BaseTroveView
+        '''
         _focus_iri = self.get_focus_iri()
         _triples = self.cached_static_triples(_focus_iri)
         _focus = gather.Focus.new(

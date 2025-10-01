@@ -4,7 +4,8 @@ from lxml import etree
 
 from django.urls import reverse
 
-from share.oaipmh.util import format_datetime, SubEl, ns, nsmap
+from share.oaipmh.util import SubEl, ns, nsmap
+from trove.util.datetime import datetime_isoformat_z as format_datetime
 
 
 class OAIRenderer:

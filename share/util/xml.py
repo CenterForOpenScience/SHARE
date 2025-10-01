@@ -15,5 +15,5 @@ RE_XML_ILLEGAL = re.compile(
 )
 
 
-def strip_illegal_xml_chars(string):
+def strip_illegal_xml_chars(string: str) -> str:
     return RE_XML_ILLEGAL.sub('', string)

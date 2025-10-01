@@ -27,7 +27,7 @@ class DeprecationMiddleware:
 
         if settings.HIDE_DEPRECATED_VIEWS and deprecation_level == DeprecationLevel.HIDDEN:
             return HttpResponse(
-                f'This path ({request.path}) has been removed. If you have built something that relies on it, please email us at share-support@osf.io',
+                f'This path ({request.path}) has been removed. If you have built something that relies on it, please email us at {settings.SHARE_SUPPORT_EMAIL}',
                 status=410,
             )
 

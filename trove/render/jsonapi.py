@@ -7,13 +7,17 @@ import datetime
 import itertools
 import json
 import time
-from typing import Iterable, Union, List, Any, Dict, Tuple, Iterator
+from typing import Iterable, Union, Any, Iterator
 
-from typing import Optional
 from primitive_metadata import primitive_rdf
 
 from trove import exceptions as trove_exceptions
+from trove.util.json import (
+    JsonObject,
+    JsonValue,
+)
 from trove.vocab.jsonapi import (
+    JSONAPI_LINK,
     JSONAPI_MEMBERNAME,
     JSONAPI_RELATIONSHIP,
     JSONAPI_ATTRIBUTE,
@@ -86,9 +90,9 @@ class RdfJsonapiRenderer(BaseRenderer):
             indent=2,  # TODO: pretty-print query param?
         )
 
-    def render_dict(self, primary_iris: Union[str, Iterable[str]]) -> dict[str, Any]:
-        _primary_data: dict | list | None = None
-        _included_data = []
+    def render_dict(self, primary_iris: Union[str, Iterable[str]]) -> JsonObject:
+        _primary_data: JsonValue = None
+        _included_data: list[JsonValue] = []
         with self._contained__to_include() as _to_include:
             if isinstance(primary_iris, str):
                 _already_included = {primary_iris}
@@ -104,26 +108,37 @@ class RdfJsonapiRenderer(BaseRenderer):
                 if _next not in _already_included:
                     _already_included.add(_next)
                     _included_data.append(self.render_resource_object(_next))
-        _document = {'data': _primary_data}
+        _document: JsonObject = {'data': _primary_data}
         if _included_data:
             _document['included'] = _included_data
         return _document
 
-    def render_resource_object(self, iri_or_blanknode: _IriOrBlanknode) -> dict[str, Any]:
-        _resource_object = {**self.render_identifier_object(iri_or_blanknode)}
+    def render_resource_object(self, iri_or_blanknode: _IriOrBlanknode) -> JsonObject:
+        _resource_object: JsonObject = {**self.render_identifier_object(iri_or_blanknode)}
         _twopledict = (
             (self.response_data.tripledict.get(iri_or_blanknode) or {})
             if isinstance(iri_or_blanknode, str)
             else primitive_rdf.twopledict_from_twopleset(iri_or_blanknode)
         )
+        _links: JsonObject = {}
         for _pred, _obj_set in _twopledict.items():
-            if _pred != RDF.type:
-                self._render_field(_pred, _obj_set, into=_resource_object)
+            if _pred == JSONAPI_LINK:
+                _links.update(
+                    self._render_link_object(_link_obj)
+                    for _link_obj in _obj_set
+                )
+            elif _pred != RDF.type:
+                _doc_key, _field_key, _field_value = self._render_field(_pred, _obj_set)
+                _doc_obj = _resource_object.setdefault(_doc_key, {})
+                assert isinstance(_doc_obj, dict)
+                _doc_obj[_field_key] = _field_value
         if isinstance(iri_or_blanknode, str):
-            _resource_object.setdefault('links', {})['self'] = iri_or_blanknode
+            _links['self'] = iri_or_blanknode
+        if _links:
+            _resource_object['links'] = _links
         return _resource_object
 
-    def render_identifier_object(self, iri_or_blanknode: _IriOrBlanknode) -> Any | dict[str, Any]:
+    def render_identifier_object(self, iri_or_blanknode: _IriOrBlanknode) -> JsonObject:
         try:
             return self._identifier_object_cache[iri_or_blanknode]
         except KeyError:
@@ -152,7 +167,7 @@ class RdfJsonapiRenderer(BaseRenderer):
             self._identifier_object_cache[iri_or_blanknode] = _id_obj
             return _id_obj
 
-    def _single_typename(self, type_iris: list[str]) -> Optional[str]:
+    def _single_typename(self, type_iris: list[str]) -> str:
         if not type_iris:
             return ''
         if len(type_iris) == 1:
@@ -164,7 +179,7 @@ class RdfJsonapiRenderer(BaseRenderer):
                 return self._membername_for_iri(_type_iris[0])
         return self._membername_for_iri(sorted(type_iris)[0])
 
-    def _membername_for_iri(self, iri: str) -> Optional[str] | Any:
+    def _membername_for_iri(self, iri: str) -> str:
         try:
             _membername = next(self.thesaurus.q(iri, JSONAPI_MEMBERNAME))
         except StopIteration:
@@ -189,12 +204,12 @@ class RdfJsonapiRenderer(BaseRenderer):
         # as fallback, encode the iri into a valid jsonapi member name
         return base64.urlsafe_b64encode(iri.encode()).decode()
 
-    def _render_field(self, predicate_iri: str, object_set: Iterable[Any], *, into: dict[str, Any]) -> None:
+    def _render_field(self, predicate_iri: str, object_set: Iterable[Any]) -> tuple[str, str, JsonValue]:
         _is_relationship = (predicate_iri, RDF.type, JSONAPI_RELATIONSHIP) in self.thesaurus
         _is_attribute = (predicate_iri, RDF.type, JSONAPI_ATTRIBUTE) in self.thesaurus
         _field_key = self._membername_for_iri(predicate_iri)
         _doc_key = 'meta'  # unless configured for jsonapi, default to unstructured 'meta'
-        if ':' not in _field_key:  # type: ignore
+        if ':' not in _field_key:
             if _is_relationship:
                 _doc_key = 'relationships'
             elif _is_attribute:
@@ -203,10 +218,9 @@ class RdfJsonapiRenderer(BaseRenderer):
             _fieldvalue = self._render_relationship_object(predicate_iri, object_set)
         else:
             _fieldvalue = self._one_or_many(predicate_iri, self._attribute_datalist(object_set))  # type: ignore
-        # update the given `into` resource object
-        into.setdefault(_doc_key, {})[_field_key] = _fieldvalue
+        return _doc_key, _field_key, _fieldvalue
 
-    def _one_or_many(self, predicate_iri: str, datalist: list[Any]) -> Union[list[Any], Any, None]:
+    def _one_or_many(self, predicate_iri: str, datalist: list[Any]) -> JsonValue:
         _only_one = (predicate_iri, RDF.type, OWL.FunctionalProperty) in self.thesaurus
         if _only_one:
             if len(datalist) > 1:
@@ -214,19 +228,19 @@ class RdfJsonapiRenderer(BaseRenderer):
             return datalist[0] if datalist else None
         return datalist
 
-    def _attribute_datalist(self, object_set: Iterable[Any]) -> List[Any]:
+    def _attribute_datalist(self, object_set: Iterable[Any]) -> list[Any]:
         return [
             self._render_attribute_datum(_obj)
             for _obj in object_set
         ]
 
     def _render_relationship_object(
-            self,
-            predicate_iri: str,
-            object_set: Iterable[Union[frozenset[Any], str]]
-    ) -> Dict[str, Any]:
+        self,
+        predicate_iri: str,
+        object_set: Iterable[Union[frozenset[Any], str]]
+    ) -> JsonObject:
         _data = []
-        _links = {}
+        _links: JsonObject = {}
         for _obj in object_set:
             if isinstance(_obj, frozenset):
                 if (RDF.type, RDF.Seq) in _obj:
@@ -243,14 +257,14 @@ class RdfJsonapiRenderer(BaseRenderer):
                 assert isinstance(_obj, str)
                 _data.append(self.render_identifier_object(_obj))
                 self._pls_include(_obj)
-        _relationship_obj = {
+        _relationship_obj: JsonObject = {
             'data': self._one_or_many(predicate_iri, _data),
         }
         if _links:
             _relationship_obj['links'] = _links
         return _relationship_obj
 
-    def _render_link_object(self, link_obj: frozenset[Tuple[Any, Any]]) -> Tuple[str, Dict[str, Any]]:
+    def _render_link_object(self, link_obj: frozenset[tuple[Any, Any]]) -> tuple[str, JsonObject]:
         _membername = next(
             _obj.unicode_value
             for _pred, _obj in link_obj
@@ -292,14 +306,14 @@ class RdfJsonapiRenderer(BaseRenderer):
         if self.__to_include is not None:
             self.__to_include.add(item)
 
-    def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> dict[Any, Any] | list[Any] | str | float | int:
+    def _render_attribute_datum(self, rdfobject: primitive_rdf.RdfObject) -> JsonValue:
         if isinstance(rdfobject, frozenset):
             if (RDF.type, RDF.Seq) in rdfobject:
                 return [
                     self._render_attribute_datum(_seq_obj)
                     for _seq_obj in primitive_rdf.sequence_objects_in_order(rdfobject)
                 ]
-            _json_blanknode = {}
+            _json_blanknode: JsonObject = {}
             for _pred, _obj_set in primitive_rdf.twopledict_from_twopleset(rdfobject).items():
                 _key = self._membername_for_iri(_pred)
                 _json_blanknode[_key] = self._one_or_many(_pred, self._attribute_datalist(_obj_set))

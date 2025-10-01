@@ -5,6 +5,8 @@ TURTLE = 'text/turtle'
 HTML = 'text/html'
 TSV = 'text/tab-separated-values'
 CSV = 'text/csv'
+RSS = 'application/rss+xml'
+ATOM = 'application/atom+xml'
 
 
 _file_extensions = {
@@ -15,6 +17,8 @@ _file_extensions = {
     HTML: '.html',
     TSV: '.tsv',
     CSV: '.csv',
+    RSS: '.xml',
+    ATOM: '.xml',
 }
 
 _PARAMETER_DELIMITER = ';'

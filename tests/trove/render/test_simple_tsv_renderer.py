@@ -18,7 +18,7 @@ class TestSimpleTsvRenderer(_base.TrovesearchRendererTests):
                 '@id\tsameAs\tresourceType\tresourceNature\ttitle\tname\tdateCreated\tdateModified\trights\r\n',
                 'http://blarg.example/vocab/anItem\t\t\t\tan item, yes\t\t\t\t\r\n',
                 'http://blarg.example/vocab/anItemm\t\t\t\tan itemm, yes\t\t\t\t\r\n',
-                'http://blarg.example/vocab/anItemmm\t\t\t\tan itemmm, yes\t\t\t\t\r\n',
+                'http://blarg.example/vocab/anItemmm\thttps://doi.example/13.0/anItemmm\t\t\tan itemmm, yes\t\t2001-02-03\t\t\r\n',
             )),
         ),
     }

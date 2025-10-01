@@ -1,4 +1,5 @@
 import json
+import typing
 
 from primitive_metadata import (
     gather,
@@ -56,7 +57,7 @@ class TroveRendererTests(BasicInputOutputTestCase):
         )
         return _renderer.render_document()
 
-    def assert_outputs_equal(self, expected_output, actual_output) -> None:
+    def assert_outputs_equal(self, expected_output: typing.Any, actual_output: typing.Any) -> None:
         if expected_output is None:
             print(repr(actual_output))
             raise NotImplementedError

@@ -43,7 +43,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                         ],
                         "resourceMetadata": {
                             "@id": BLARG.anItem,
-                            "title": "an item, yes"
+                            "title": [{"@value": "an item, yes"}]
                         }
                     },
                     "links": {
@@ -189,7 +189,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                             ],
                             "resourceMetadata": {
                                 "@id": BLARG.anItem,
-                                "title": "an item, yes"
+                                "title": [{"@value": "an item, yes"}]
                             }
                         },
                         "links": {
@@ -215,8 +215,29 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                                 BLARG.anItemmm
                             ],
                             "resourceMetadata": {
-                                "@id": BLARG.anItemmm,
-                                "title": "an itemmm, yes"
+                                '@id': BLARG.anItemmm,
+                                "sameAs": [
+                                    {"@id": "https://doi.example/13.0/anItemmm"}
+                                ],
+                                'title': [{'@value': 'an itemmm, yes'}],
+                                "creator": [
+                                    {
+                                        "@id": BLARG.aPerson,
+                                        "resourceType": [
+                                            {"@id": "Agent"},
+                                            {"@id": "Person"}
+                                        ],
+                                        "identifier": [
+                                            {"@value": BLARG.aPerson}
+                                        ],
+                                        "name": [
+                                            {"@value": "a person indeed"}
+                                        ]
+                                    }
+                                ],
+                                "dateCreated": [
+                                    {"@value": "2001-02-03"}
+                                ],
                             }
                         },
                         "links": {
@@ -243,7 +264,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                             ],
                             "resourceMetadata": {
                                 "@id": BLARG.anItemm,
-                                "title": "an itemm, yes"
+                                "title": [{"@value": "an itemm, yes"}]
                             }
                         },
                         "links": {

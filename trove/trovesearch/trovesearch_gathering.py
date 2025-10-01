@@ -9,9 +9,11 @@ from primitive_metadata import primitive_rdf as rdf
 
 from trove import models as trove_db
 from trove.derive.osfmap_json import _RdfOsfmapJsonldRenderer
+from trove.links import cardsearch_feed_links
 from trove.util.iris import get_sufficiently_unique_iri
 from trove.vocab.namespaces import RDF, FOAF, DCTERMS, RDFS, DCAT, TROVE
 from trove.vocab.jsonapi import (
+    JSONAPI_LINK,
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
@@ -311,6 +313,17 @@ def gather_valuesearch_page(focus: ValuesearchFocus, *, deriver_iri: str, blend_
 )
 def gather_valuesearch_count(focus: ValuesearchFocus, **kwargs: Any) -> GathererGenerator:
     yield (TROVE.totalResultCount, focus.search_handle.total_result_count)
+
+
+@trovesearch_by_indexstrategy.gatherer(
+    JSONAPI_LINK,
+    focustype_iris={TROVE.Cardsearch},
+)
+def gather_feed_links(focus: CardsearchFocus, **kwargs: Any) -> GathererGenerator:
+    _feed_links = cardsearch_feed_links(focus.single_iri())
+    if _feed_links is not None:
+        yield (JSONAPI_LINK, _jsonapi_link('rss', _feed_links.rss))
+        yield (JSONAPI_LINK, _jsonapi_link('atom', _feed_links.atom))
 
 
 # @trovesearch_by_indexstrategy.gatherer(

@@ -1,10 +1,8 @@
 import functools
-import urllib.parse
 from typing import Union, Any
 from uuid import UUID
 
 from django.conf import settings
-from django.urls import reverse
 from primitive_metadata.primitive_rdf import (
     IriNamespace,
     IriShorthand,
@@ -42,14 +40,6 @@ from trove.vocab.namespaces import (
 
 def _literal_markdown(text: str, *, language: str) -> literal:
     return literal(text, language=language, mediatype='text/markdown;charset=utf-8')
-
-
-def trove_browse_link(iri: str) -> str:
-    _compact = namespaces_shorthand().compact_iri(iri)
-    return urllib.parse.urljoin(
-        reverse('trove:browse-iri'),
-        f'?blendCards&iri={urllib.parse.quote(_compact)}',
-    )
 
 
 TROVE_API_THESAURUS: RdfTripleDictionary = {

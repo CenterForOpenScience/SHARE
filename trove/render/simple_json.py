@@ -11,7 +11,10 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from .rendering import ProtoRendering
+from .rendering import (
+    ProtoRendering,
+    SimpleRendering,
+)
 from .rendering.streamable import StreamableRendering
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 if typing.TYPE_CHECKING:
@@ -27,14 +30,16 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
-    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def simple_unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> str:
-        return json.dumps({
-            'data': self._render_card_content(card_iri, osfmap_json),
-            'links': self._render_links(),
-            'meta': self._render_meta(),
-        }, indent=2)
+    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
+        return SimpleRendering(
+            mediatype=self.MEDIATYPE,
+            rendered_content=json.dumps({
+                'data': self._render_card_content(card_iri, osfmap_json),
+                'links': self._render_links(),
+                'meta': self._render_meta(),
+            }, indent=2),
+        )
 
     def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         return StreamableRendering(

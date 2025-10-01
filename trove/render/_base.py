@@ -52,7 +52,7 @@ class BaseRenderer(abc.ABC):
         # TODO: self.response_gathering.ask_all_about or a default ask...
         return self.response_gathering.leaf_a_record()
 
-    def simple_render_document(self) -> str:
+    def simple_render_document(self) -> str | bytes:
         raise NotImplementedError
 
     def render_document(self) -> ProtoRendering:

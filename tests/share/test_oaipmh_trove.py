@@ -8,8 +8,8 @@ from lxml import etree
 import pytest
 
 from share import models as share_db
-from share.oaipmh.util import format_datetime
 from trove import models as trove_db
+from trove.util.datetime import datetime_isoformat_z as format_datetime
 from trove.vocab.namespaces import OAI_DC
 
 from tests import factories
