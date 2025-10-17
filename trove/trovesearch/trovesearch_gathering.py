@@ -497,8 +497,7 @@ def _osfmap_or_unknown_iri_as_json(iri: str) -> rdf.Literal:
         _twopledict = osfmap.OSFMAP_THESAURUS[iri]
     except KeyError:
         return rdf.literal_json({'@id': iri})
-    else:
-        return _osfmap_json({iri: _twopledict}, focus_iri=iri)
+    return _osfmap_json({iri: _twopledict}, focus_iri=iri)
 
 
 def _valuesearch_result_as_json(result: ValuesearchResult) -> rdf.Literal:

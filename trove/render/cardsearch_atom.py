@@ -73,5 +73,4 @@ class CardsearchAtomRenderer(TrovesearchCardOnlyRenderer):
             _uuid = rdf.iri_minus_namespace(card_iri, namespace=trove_indexcard_namespace())
         except ValueError:
             return card_iri
-        else:
-            return f'urn:uuid:{_uuid}'
+        return f'urn:uuid:{_uuid}'

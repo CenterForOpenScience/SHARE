@@ -151,8 +151,7 @@ class _RdfOsfmapJsonldRenderer:
                 (_only_obj,) = json_list
             except ValueError:
                 return None
-            else:
-                return _only_obj
+            return _only_obj
         return (
             sorted(json_list, key=json.dumps)
             if len(json_list) > 1

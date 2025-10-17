@@ -157,8 +157,7 @@ class RdfJsonldRenderer(BaseRenderer):
                 (_only_obj,) = objectlist
             except ValueError:
                 return None
-            else:
-                return _only_obj
+            return _only_obj
         if predicate_iri in _PREDICATES_OF_FLEXIBLE_CARDINALITY and len(objectlist) == 1:
             return objectlist[0]
         return sorted(objectlist, key=_naive_sort_key)
