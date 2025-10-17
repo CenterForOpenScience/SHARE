@@ -11,37 +11,48 @@ from trove.vocab.jsonapi import (
 )
 from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
-from ._rendering import StreamableRendering, ProtoRendering
-from ._simple_trovesearch import SimpleTrovesearchRenderer
+from .rendering import (
+    ProtoRendering,
+    EntireRendering,
+)
+from .rendering.streamable import StreamableRendering
+from ._trovesearch_card_only import TrovesearchCardOnlyRenderer
 if typing.TYPE_CHECKING:
+    from collections.abc import (
+        Generator,
+        Iterator,
+        Sequence,
+    )
     from trove.util.json import JsonObject
 
 
-class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
+class TrovesearchJsonRenderer(TrovesearchCardOnlyRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON
-    INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def simple_unicard_rendering(self, card_iri: str, osfmap_json: dict[str, typing.Any]) -> str:
-        return json.dumps({
-            'data': self._render_card_content(card_iri, osfmap_json),
-            'links': self._render_links(),
-            'meta': self._render_meta(),
-        }, indent=2)
+    def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
+        return EntireRendering(
+            mediatype=self.MEDIATYPE,
+            entire_content=json.dumps({
+                'data': self._render_card_content(card_iri, osfmap_json),
+                'links': self._render_links(),
+                'meta': self._render_meta(),
+            }, indent=2),
+        )
 
-    def multicard_rendering(self, card_pages: typing.Iterator[dict[str, dict[str, typing.Any]]]) -> ProtoRendering:
-        return StreamableRendering(  # type: ignore[return-value]
+    def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
+        return StreamableRendering(
             mediatype=self.MEDIATYPE,
             content_stream=self._stream_json(card_pages),
         )
 
-    def _stream_json(self, card_pages: typing.Iterator[dict[str, typing.Any]]) -> typing.Generator[str]:
+    def _stream_json(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> Generator[str]:
         _prefix = '{"data": ['
         yield _prefix
         _datum_prefix = None
         for _page in card_pages:
-            for _card_iri, _osfmap_json in _page.items():
+            for _card_iri, _osfmap_json in _page:
                 if _datum_prefix is not None:
                     yield _datum_prefix
                 yield json.dumps(self._render_card_content(_card_iri, _osfmap_json), indent=2)
@@ -78,7 +89,7 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
             pass
         return _meta
 
-    def _render_links(self) -> dict[str, typing.Any]:
+    def _render_links(self) -> JsonObject:
         _links = {}
         for _pagelink in self._page_links:
             _twopledict = rdf.twopledict_from_twopleset(_pagelink)
@@ -88,8 +99,8 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
                 _links[_membername.unicode_value] = _link_url
         return _links
 
-    def _add_twople(self, json_dict: dict[str, typing.Any], predicate_iri: str, object_iri: str) -> None:
-        _obj_ref = {'@id': object_iri}
+    def _add_twople(self, json_dict: JsonObject, predicate_iri: str, object_iri: str) -> None:
+        _obj_ref: JsonObject = {'@id': object_iri}
         _obj_list = json_dict.setdefault(predicate_iri, [])
         if isinstance(_obj_list, list):
             _obj_list.append(_obj_ref)

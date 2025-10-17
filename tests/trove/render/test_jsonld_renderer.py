@@ -1,8 +1,8 @@
 import json
 
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.render._rendering import SimpleRendering
-from ._inputs import BLARG
+from trove.render.rendering import EntireRendering
+from trove.vocab.namespaces import BLARG
 from . import _base
 
 
@@ -10,9 +10,9 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
     renderer_class = RdfJsonldRenderer
 
     expected_outputs = {
-        'simple_card': SimpleRendering(
+        'simple_card': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aCard",
                 "dcterms:issued": [
                     {
@@ -38,13 +38,13 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                 ],
                 "trove:resourceMetadata": {
                     "@id": BLARG.anItem,
-                    "title": "an item, yes"
+                    "title": [{"@value": "an item, yes"}]
                 }
             }),
         ),
-        'various_types': SimpleRendering(
+        'various_types': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSubject",
                 "blarg:hasDateLiteral": [
                     {
@@ -88,9 +88,9 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
     renderer_class = RdfJsonldRenderer
 
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSearch",
                 "rdf:type": [
                     {"@id": "trove:Cardsearch"}
@@ -101,9 +101,9 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                 }
             }),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSearchFew",
                 "rdf:type": [
                     {"@id": "trove:Cardsearch"}
@@ -145,7 +145,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItem,
-                                        "title": "an item, yes"
+                                        "title": [{"@value": "an item, yes"}]
                                     }
                                 }
                             },
@@ -181,7 +181,7 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                     ],
                                     "trove:resourceMetadata": {
                                         "@id": BLARG.anItemm,
-                                        "title": "an itemm, yes"
+                                        "title": [{"@value": "an itemm, yes"}]
                                     }
                                 }
                             },
@@ -214,8 +214,29 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                                         {"@value": BLARG.anItemmm}
                                     ],
                                     "trove:resourceMetadata": {
-                                        "@id": BLARG.anItemmm,
-                                        "title": "an itemmm, yes"
+                                        '@id': BLARG.anItemmm,
+                                        "sameAs": [
+                                            {"@id": "https://doi.example/13.0/anItemmm"}
+                                        ],
+                                        'title': [{'@value': 'an itemmm, yes'}],
+                                        "creator": [
+                                            {
+                                                "@id": BLARG.aPerson,
+                                                "resourceType": [
+                                                    {"@id": "Agent"},
+                                                    {"@id": "Person"}
+                                                ],
+                                                "identifier": [
+                                                    {"@value": BLARG.aPerson}
+                                                ],
+                                                "name": [
+                                                    {"@value": "a person indeed"}
+                                                ]
+                                            }
+                                        ],
+                                        "dateCreated": [
+                                            {"@value": "2001-02-03"}
+                                        ],
                                     }
                                 }
                             }

@@ -185,5 +185,4 @@ def task__schedule_index_backfill(self, index_backfill_pk):
     except Exception as error:
         _index_backfill.pls_mark_error(error)
         raise error
-    else:
-        _index_backfill.pls_note_scheduling_has_finished()
+    _index_backfill.pls_note_scheduling_has_finished()

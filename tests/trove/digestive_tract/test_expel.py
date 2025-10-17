@@ -40,12 +40,6 @@ class TestDigestiveTractExpel(TestCase):
     def _replacement_notify_indexcard_update(self, indexcards, **kwargs):
         self.notified_indexcard_ids.update(_card.id for _card in indexcards)
 
-    def enterContext(self, context_manager):
-        # TestCase.enterContext added in python3.11 -- implementing here until then
-        result = context_manager.__enter__()
-        self.addCleanup(lambda: context_manager.__exit__(None, None, None))
-        return result
-
     def test_setup(self):
         self.indexcard_1.refresh_from_db()
         self.indexcard_2.refresh_from_db()

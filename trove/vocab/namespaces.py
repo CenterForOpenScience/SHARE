@@ -47,6 +47,8 @@ TROVE = rdf.IriNamespace('https://share.osf.io/vocab/2023/trove/')
 SHAREv2 = rdf.IriNamespace('https://share.osf.io/vocab/2017/sharev2/')
 # for the OSF metadata application profile (TODO: update to resolvable URL, when there is one)
 OSFMAP = rdf.IriNamespace('https://osf.io/vocab/2022/')
+# non-standard namespace used by OSF for datacite terms (resolves to datacite docs)
+DATACITE = rdf.IriNamespace('https://schema.datacite.org/meta/kernel-4/#')
 
 # for identifying jsonapi concepts with linked anchors on the jsonapi spec (probably fine)
 JSONAPI = rdf.IriNamespace('https://jsonapi.org/format/1.1/#')
@@ -58,6 +60,7 @@ _NAMESPACES_BY_PREFIX = {
     'jsonapi': JSONAPI,
     'oai': OAI,
     'oai_dc': OAI_DC,
+    'datacite': DATACITE,
 }
 
 if __debug__:  # blarg: a nothing namespace for examples and testing

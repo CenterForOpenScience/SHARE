@@ -35,6 +35,7 @@ from trove.util.queryparams import (
     get_single_value,
 )
 from trove.vocab import osfmap
+from trove.vocab.jsonapi import JSONAPI_LINK
 from trove.vocab.trove import trove_json_shorthand
 from trove.vocab.namespaces import RDF, TROVE, OWL, FOAF, DCTERMS
 if typing.TYPE_CHECKING:
@@ -82,6 +83,7 @@ DEFAULT_FIELDS_BY_TYPE: Mapping[str, tuple[Propertypath, ...]] = freeze({
         (TROVE.totalResultCount,),
         (TROVE.cardSearchText,),
         (TROVE.cardSearchFilter,),
+        (JSONAPI_LINK,),
     ],
     TROVE.Valuesearch: [
         (TROVE.propertyPath,),

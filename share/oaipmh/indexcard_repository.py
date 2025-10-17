@@ -1,15 +1,16 @@
+import datetime
 import uuid
 
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.conf import settings
 from django.db.models import OuterRef, Subquery, F
 
 from share.oaipmh import errors as oai_errors
 from share.oaipmh.verbs import OAIVerb
 from share.oaipmh.response_renderer import OAIRenderer
-from share.oaipmh.util import format_datetime
-from share.util.fromisoformat import fromisoformat
 from share import models as share_db
 from trove import models as trove_db
+from trove.util.datetime import datetime_isoformat_z as format_datetime
 from trove.vocab.namespaces import OAI_DC
 
 
@@ -18,7 +19,7 @@ class OaiPmhRepository:
     REPOSITORY_IDENTIFIER = 'share.osf.io'
     IDENTIFER_DELIMITER = ':'
     GRANULARITY = 'YYYY-MM-DD'
-    ADMIN_EMAILS = ['share-support@osf.io']
+    ADMIN_EMAILS = [settings.SHARE_SUPPORT_EMAIL]
 
     # TODO better way of structuring this than a bunch of dictionaries?
     # this dictionary's keys are `metadataPrefix` values
@@ -206,7 +207,7 @@ class OaiPmhRepository:
         )
         if 'from' in kwargs:
             try:
-                _from = fromisoformat(kwargs['from'])
+                _from = datetime.datetime.fromisoformat(kwargs['from'])
             except ValueError:
                 if not catch:
                     raise
@@ -217,7 +218,7 @@ class OaiPmhRepository:
                 )
         if 'until' in kwargs:
             try:
-                _until = fromisoformat(kwargs['until'])
+                _until = datetime.datetime.fromisoformat(kwargs['until'])
             except ValueError:
                 if not catch:
                     raise
@@ -291,12 +292,12 @@ class OaiPmhRepository:
         _until = None
         if 'from' in kwargs:
             try:
-                _from = fromisoformat(kwargs['from'])
+                _from = datetime.datetime.fromisoformat(kwargs['from'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'from'))
         if 'until' in kwargs:
             try:
-                _until = fromisoformat(kwargs['until'])
+                _until = datetime.datetime.fromisoformat(kwargs['until'])
             except ValueError:
                 self.errors.append(oai_errors.BadArgument('Invalid value for', 'until'))
         _set_spec = kwargs.get('set', '')

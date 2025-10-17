@@ -13,7 +13,10 @@ from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
 from trove.vocab.trove import TROVE_API_THESAURUS
 from trove.vocab.namespaces import namespaces_shorthand
-from ._rendering import ProtoRendering, SimpleRendering
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 
 
 @dataclasses.dataclass
@@ -52,26 +55,16 @@ class BaseRenderer(abc.ABC):
         # TODO: self.response_gathering.ask_all_about or a default ask...
         return self.response_gathering.leaf_a_record()
 
-    def simple_render_document(self) -> str:
-        raise NotImplementedError
-
+    @abc.abstractmethod
     def render_document(self) -> ProtoRendering:
-        try:
-            _content = self.simple_render_document()
-        except NotImplementedError:
-            raise NotImplementedError(f'class "{type(self)}" must implement either `render_document` or `simple_render_document`')
-        else:
-            return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
-                mediatype=self.MEDIATYPE,
-                rendered_content=_content,
-            )
+        raise NotImplementedError
 
     @classmethod
     def render_error_document(cls, error: trove_exceptions.TroveError) -> ProtoRendering:
         # may override, but default to jsonapi
-        return SimpleRendering(  # type: ignore[return-value]  # until ProtoRendering(typing.Protocol) with py3.12
+        return EntireRendering(
             mediatype=mediatypes.JSONAPI,
-            rendered_content=json.dumps(
+            entire_content=json.dumps(
                 {'errors': [{  # https://jsonapi.org/format/#error-objects
                     'status': error.http_status,
                     'code': error.error_location,

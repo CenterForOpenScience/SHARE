@@ -39,14 +39,21 @@ trovebrowse = gather.GatheringOrganizer(
 def gather_cards_focused_on(focus: gather.Focus, *, blend_cards: bool) -> GathererGenerator:
     _identifier_qs = trove_db.ResourceIdentifier.objects.queryset_for_iris(focus.iris)
     _indexcard_qs = trove_db.Indexcard.objects.filter(focus_identifier_set__in=_identifier_qs)
+    _lrd_qs = (
+        trove_db.LatestResourceDescription.objects
+        .filter(indexcard__in=_indexcard_qs)
+        .select_related('indexcard')
+    )
     if blend_cards:
-        for _latest_resource_description in trove_db.LatestResourceDescription.objects.filter(indexcard__in=_indexcard_qs):
-            yield from rdf.iter_tripleset(_latest_resource_description.as_rdf_tripledict())
+        for _resource_description in _lrd_qs:
+            yield from rdf.iter_tripleset(_resource_description.as_rdfdoc_with_supplements().tripledict)
+            yield (ns.FOAF.isPrimaryTopicOf, _resource_description.indexcard.get_iri())
     else:
-        for _indexcard in _indexcard_qs:
-            _card_iri = _indexcard.get_iri()
+        for _resource_description in _lrd_qs:
+            _card_iri = _resource_description.indexcard.get_iri()
             yield (ns.FOAF.isPrimaryTopicOf, _card_iri)
             yield (_card_iri, ns.RDF.type, ns.TROVE.Indexcard)
+            yield (_card_iri, ns.TROVE.resourceMetadata, _resource_description.as_quoted_graph())
 
 
 @trovebrowse.gatherer(ns.TROVE.thesaurusEntry)

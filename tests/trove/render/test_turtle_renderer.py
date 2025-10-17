@@ -1,7 +1,7 @@
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.render.turtle import RdfTurtleRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from . import _base
 
 
@@ -14,9 +14,9 @@ class _BaseTurtleRendererTest(_base.TroveRendererTests):
 
 class TestTurtleRenderer(_BaseTurtleRendererTest):
     expected_outputs = {
-        'simple_card': SimpleRendering(
+        'simple_card': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -30,12 +30,12 @@ blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:modified "2024-01-01"^^xsd:date ;
     foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": [{\\"@value\\": \\"an item, yes\\"}]}"^^rdf:JSON .
 ''',
         ),
-        'various_types': SimpleRendering(
+        'various_types': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -54,9 +54,9 @@ blarg:aSubject a blarg:aType ;
 
 class TestTurtleTrovesearchRenderer(_BaseTurtleRendererTest, _base.TrovesearchRendererTests):
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix trove: <https://share.osf.io/vocab/2023/trove/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -65,9 +65,9 @@ blarg:aSearch a trove:Cardsearch ;
     trove:totalResultCount 0 .
 ''',
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -99,21 +99,21 @@ blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:modified "2024-01-01"^^xsd:date ;
     foaf:primaryTopic blarg:anItem ;
     trove:focusIdentifier "http://blarg.example/vocab/anItem"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": \\"an item, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": [{\\"@value\\": \\"an item, yes\\"}]}"^^rdf:JSON .
 
 blarg:aCardd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-02-02"^^xsd:date ;
     dcterms:modified "2024-02-02"^^xsd:date ;
     foaf:primaryTopic blarg:anItemm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemm"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemm\\", \\"title\\": \\"an itemm, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemm\\", \\"title\\": [{\\"@value\\": \\"an itemm, yes\\"}]}"^^rdf:JSON .
 
 blarg:aCarddd a dcat:CatalogRecord, trove:Indexcard ;
     dcterms:issued "2024-03-03"^^xsd:date ;
     dcterms:modified "2024-03-03"^^xsd:date ;
     foaf:primaryTopic blarg:anItemmm ;
     trove:focusIdentifier "http://blarg.example/vocab/anItemmm"^^rdf:string ;
-    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemmm\\", \\"title\\": \\"an itemmm, yes\\"}"^^rdf:JSON .
+    trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItemmm\\", \\"sameAs\\": [{\\"@id\\": \\"https://doi.example/13.0/anItemmm\\"}], \\"title\\": [{\\"@value\\": \\"an itemmm, yes\\"}], \\"creator\\": [{\\"@id\\": \\"http://blarg.example/vocab/aPerson\\", \\"resourceType\\": [{\\"@id\\": \\"Agent\\"}, {\\"@id\\": \\"Person\\"}], \\"identifier\\": [{\\"@value\\": \\"http://blarg.example/vocab/aPerson\\"}], \\"name\\": [{\\"@value\\": \\"a person indeed\\"}]}], \\"dateCreated\\": [{\\"@value\\": \\"2001-02-03\\"}]}"^^rdf:JSON .
 ''',
         ),
     }

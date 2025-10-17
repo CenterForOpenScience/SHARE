@@ -17,7 +17,6 @@ MAX_OFFSET = 9997
 
 DEFAULT_PAGE_SIZE = 13
 MAX_PAGE_SIZE = 101
-UNBOUNDED_PAGE_SIZE = math.inf  # json-serialized as "Infinity"
 
 
 @dataclasses.dataclass

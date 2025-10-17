@@ -445,6 +445,7 @@ SITE_ID = 1
 PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', 'http://localhost:8003').rstrip('/') + '/'
+SHARE_SUPPORT_EMAIL = os.environ.get('SHARE_SUPPORT_EMAIL', 'share-support@cos.io')
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 SHARE_ADMIN_USERNAME = os.environ.get('SHARE_ADMIN_USERNAME', 'admin')
 SHARE_ADMIN_PASSWORD = os.environ.get('SHARE_ADMIN_PASSWORD')

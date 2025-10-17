@@ -20,7 +20,7 @@
     flex-wrap: wrap;
     gap: var(--gutter-1);
     margin: 0;
-    padding: 1rem;
+    padding: var(--gutter-2);
     min-height: 100vh;
     background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
 }
@@ -36,7 +36,7 @@
 .Browse__card {
     display: flex;
     flex-direction: column;
-    padding: var(--gutter-2) var(--gutter-3);
+    padding: var(--gutter-3) var(--gutter-4);
     background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
     border-color: lch(59% var(--bg-chroma) var(--hue-turn));
     border-style: solid;
@@ -44,10 +44,10 @@
     border-block-start-width: var(--gutter-4);
     border-inline-end-width: 0;
     border-block-end-width: 0;
-    /*
-    border-start-end-radius: 1rem;
-    border-end-start-radius: 1rem;
-    */
+}
+
+.BrowseWrapper details > summary {
+    padding-left: var(--gutter-4);
 }
 
 .BrowseWrapper details > summary::before {
@@ -65,14 +65,20 @@
 .Browse__card > header {
     display: flex;
     flex-direction: row;
-    gap: var(--gutter-2);
+    flex-wrap: wrap;
+    gap: var(--gutter-3);
     align-items: baseline;
-    border-bottom: solid 1px rgba(0,0,0,0.382);
-    margin-bottom: var(--gutter-3);
+    padding-left: var(--gutter-3);
 }
 
 .Browse__card > header > :first-child {
     margin: 0;
+}
+
+.Browse__card > header:not(:last-child) {
+    border-bottom: solid 1px rgba(0,0,0,0.382);
+    padding-bottom: var(--gutter-3);
+    margin-bottom: var(--gutter-3);
 }
 
 .Browse__card > footer {
@@ -86,7 +92,7 @@ dl.Browse__twopleset {
         [twople-obj] 1fr
     ;
     grid-auto-flow: row;
-    row-gap: var(--gutter-2);
+    row-gap: var(--gutter-3);
     margin: 0;
     padding: 0;
 }
@@ -126,8 +132,7 @@ dl.Browse__twopleset > dd {
 .Browse__literal {
     display: flex;
     flex-direction: row;
-    gap: var(--gutter-3);
-    padding: var(--gutter-4);
+    gap: var(--gutter-5);
 }
 
 .Browse__literal > q {
@@ -140,10 +145,18 @@ dl.Browse__twopleset > dd {
 
 .Browse__predicate {
     background-color: lch(from var(--bg-color-initial) 89% c var(--hue-turn));
-    padding: var(--gutter-4);
+    padding: 0 var(--gutter-4);
+}
+
+.Browse__predicate .Browse__literal {
+    padding: 0 var(--gutter-3);
 }
 
 .Browse__object {
     background-color: lch(from var(--bg-color-initial) 93% c var(--hue-turn));
-    padding: var(--gutter-4);
+    padding: 0 var(--gutter-4);
+}
+
+.Browse__object.Browse__blanknode {
+    background-color: lch(var(--bg-luminance) var(--bg-chroma) var(--hue-turn));
 }

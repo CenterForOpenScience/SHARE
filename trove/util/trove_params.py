@@ -72,8 +72,7 @@ class BasicTroveParams:
                 (_shortname,) = _qp_name.bracketed_names
             except ValueError:
                 raise trove_exceptions.InvalidQueryParamName(_qp_name)
-            else:
-                _prefixmap[_shortname] = _iri
+            _prefixmap[_shortname] = _iri
         _shorthand = cls._default_shorthand()
         if _prefixmap:
             _shorthand = _shorthand.with_update(_prefixmap)

@@ -39,7 +39,8 @@ class CardsearchHandle(BasicSearchHandle):
     search_result_page: typing.Iterable[CardsearchResult] = ()
     related_propertypath_results: list[PropertypathUsage] = dataclasses.field(default_factory=list)
 
-    def __post_init__(self):  # type: ignore
+    def __post_init__(self) -> None:
+        # update cursor and/or search_result_page to agree with each other
         _cursor = self.cursor
         _page = self.search_result_page
         if (  # TODO: move this logic into the... cursor?
@@ -60,7 +61,6 @@ class CardsearchHandle(BasicSearchHandle):
             elif not _cursor.has_many_more():
                 # visiting first page for the first time
                 _cursor.first_page_ids = [_result.card_id for _result in _page]
-        return _page
 
     def get_next_streaming_handle(self) -> typing.Self | None:
         if self.cursor.is_complete_page:
