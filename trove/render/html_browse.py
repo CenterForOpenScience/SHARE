@@ -28,7 +28,7 @@ from trove.util.iris import get_sufficiently_unique_iri
 from trove.util.randomness import shuffled
 from trove.vocab import mediatypes
 from trove.vocab import jsonapi
-from trove.vocab.namespaces import RDF, RDFS, SKOS, DCTERMS, FOAF, DC, OSFMAP
+from trove.vocab.namespaces import RDF, RDFS, SKOS, DCTERMS, FOAF, DC, OSFMAP, TROVE
 from trove.vocab.static_vocab import combined_thesaurus__suffuniq
 from ._base import BaseRenderer
 
@@ -41,6 +41,11 @@ UNSTABLE_MEDIATYPES = (
     mediatypes.TSV,
     mediatypes.CSV,
 )
+SEARCHONLY_MEDIATYPES = frozenset((
+    mediatypes.JSON,
+    mediatypes.TSV,
+    mediatypes.CSV,
+))
 
 _LINK_TEXT_PREDICATES = (
     SKOS.prefLabel,
@@ -81,6 +86,13 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     @property
     def is_data_blended(self) -> bool | None:
         return self.response_gathering.gatherer_kwargs.get('blend_cards')
+
+    @property
+    def is_search(self) -> bool:
+        return not self.response_focus.type_iris.isdisjoint((
+            TROVE.Cardsearch,
+            TROVE.Valuesearch,
+        ))
 
     # override BaseRenderer
     def simple_render_document(self) -> str:
@@ -124,7 +136,10 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
     def __alternate_mediatypes_card(self) -> None:
         with self.__nest_card('details'):
             self.__hb.leaf('summary', text=_('alternate mediatypes'))
-            for _mediatype in shuffled((*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES)):
+            _linked_mediatypes = {*STABLE_MEDIATYPES, *UNSTABLE_MEDIATYPES}
+            if not self.is_search:
+                _linked_mediatypes -= SEARCHONLY_MEDIATYPES
+            for _mediatype in shuffled(_linked_mediatypes):
                 with self.__hb.nest('span', attrs={'class': 'Browse__literal'}):
                     self.__mediatype_link(_mediatype)
 
