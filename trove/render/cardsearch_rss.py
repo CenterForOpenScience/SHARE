@@ -1,10 +1,12 @@
 from __future__ import annotations
 from email.utils import format_datetime as rfc2822_datetime
+import itertools
 import typing
 
 from django.conf import settings
 from django.utils.translation import gettext as _
 
+from trove.render.rendering import EntireRendering
 from trove.util.json import (
     json_datetimes,
     json_vals,
@@ -15,8 +17,9 @@ from trove.vocab import mediatypes
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
     from trove.util.json import JsonObject
+    from trove.render.rendering import ProtoRendering
 
 
 class CardsearchRssRenderer(SimpleTrovesearchRenderer):
@@ -24,7 +27,7 @@ class CardsearchRssRenderer(SimpleTrovesearchRenderer):
     '''
     MEDIATYPE = mediatypes.RSS
 
-    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> bytes:
+    def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         def _strs(*path: str) -> Iterator[str]:
             yield from json_strs(_osfmap_json, path, coerce_str=True)
 
@@ -39,7 +42,7 @@ class CardsearchRssRenderer(SimpleTrovesearchRenderer):
             _xb.leaf('link', text=self.response_focus.single_iri())
             _xb.leaf('description', text=_('feed of metadata records matching given filters'))
             _xb.leaf('webMaster', text=settings.SHARE_SUPPORT_EMAIL)
-            for _card_iri, _osfmap_json in cards:
+            for _card_iri, _osfmap_json in itertools.chain.from_iterable(card_pages):
                 with _xb.nest('item'):
                     # see https://www.rssboard.org/rss-specification#hrelementsOfLtitemgt
                     _iri = _osfmap_json.get('@id', _card_iri)
@@ -58,4 +61,7 @@ class CardsearchRssRenderer(SimpleTrovesearchRenderer):
                         _creator_name = next(json_strs(_creator_obj, ['name']))
                         _creator_id = _creator_obj.get('@id', _creator_name)
                         _xb.leaf('author', text=f'{_creator_id} ({_creator_name})')
-        return bytes(_xb)
+        return EntireRendering(
+            mediatype=self.MEDIATYPE,
+            entire_content=bytes(_xb),
+        )

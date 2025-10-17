@@ -1,6 +1,6 @@
 from __future__ import annotations
+import abc
 from collections.abc import Generator, Iterator, Sequence
-import itertools
 import json
 import logging
 from typing import Any, TYPE_CHECKING
@@ -11,14 +11,14 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import JSONAPI_LINK_OBJECT
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
-from .rendering import ProtoRendering, EntireRendering
 if TYPE_CHECKING:
     from trove.util.json import JsonObject
+    from trove.render.rendering import ProtoRendering
 
 _logger = logging.getLogger(__name__)
 
 
-class SimpleTrovesearchRenderer(BaseRenderer):
+class SimpleTrovesearchRenderer(BaseRenderer, abc.ABC):
     '''for "simple" search api responses (including only result metadata)
 
     (very entangled with trove/trovesearch/trovesearch_gathering.py)
@@ -28,17 +28,9 @@ class SimpleTrovesearchRenderer(BaseRenderer):
     _page_links: set[str]  # for use *after* iterating cards/card_pages
     __already_iterated_cards = False
 
-    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> str | bytes:
-        raise NotImplementedError(
-            f'{self.__class__.__name__} must implement either `multicard_rendering` or `simple_multicard_rendering`'
-        )
-
+    @abc.abstractmethod
     def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
-        _cards = itertools.chain.from_iterable(card_pages)
-        return EntireRendering(
-            mediatype=self.MEDIATYPE,
-            entire_content=self.simple_multicard_rendering(_cards),
-        )
+        raise NotImplementedError(f'{self.__class__.__name__} must implement `multicard_rendering`')
 
     def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
         _page = [(card_iri, osfmap_json)]

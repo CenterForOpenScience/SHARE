@@ -1,9 +1,11 @@
 from __future__ import annotations
+import itertools
 import typing
 
 from django.utils.translation import gettext as _
 from primitive_metadata import primitive_rdf as rdf
 
+from trove.render.rendering import EntireRendering
 from trove.util.datetime import datetime_isoformat_z
 from trove.util.json import (
     json_strs,
@@ -16,8 +18,9 @@ from trove.vocab.trove import trove_indexcard_namespace
 from ._simple_trovesearch import SimpleTrovesearchRenderer
 
 if typing.TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
     from trove.util.json import JsonObject
+    from trove.render.rendering import ProtoRendering
 
 
 class CardsearchAtomRenderer(SimpleTrovesearchRenderer):
@@ -25,7 +28,7 @@ class CardsearchAtomRenderer(SimpleTrovesearchRenderer):
     '''
     MEDIATYPE = mediatypes.ATOM
 
-    def simple_multicard_rendering(self, cards: Iterator[tuple[str, JsonObject]]) -> bytes:
+    def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         def _strs(*path: str) -> Iterator[str]:
             yield from json_strs(_osfmap_json, path, coerce_str=True)
 
@@ -37,7 +40,7 @@ class CardsearchAtomRenderer(SimpleTrovesearchRenderer):
         _xb.leaf('subtitle', text=_('feed of metadata records matching given filters'))
         _xb.leaf('link', text=self.response_focus.single_iri())
         _xb.leaf('id', text=self.response_focus.single_iri())
-        for _card_iri, _osfmap_json in cards:
+        for _card_iri, _osfmap_json in itertools.chain.from_iterable(card_pages):
             with _xb.nest('entry'):
                 _iri = _osfmap_json.get('@id', _card_iri)
                 _xb.leaf('link', {'href': _iri})
@@ -60,7 +63,10 @@ class CardsearchAtomRenderer(SimpleTrovesearchRenderer):
                             _xb.leaf('uri', text=_creator_iri)
                         for _sameas_iri in json_strs(_creator_obj, ['sameAs']):
                             _xb.leaf('uri', text=_sameas_iri)
-        return bytes(_xb)
+        return EntireRendering(
+            mediatype=self.MEDIATYPE,
+            entire_content=bytes(_xb),
+        )
 
     def _atom_id(self, card_iri: str) -> str:
         try:
