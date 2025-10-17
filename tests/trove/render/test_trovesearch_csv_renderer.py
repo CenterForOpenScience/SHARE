@@ -1,12 +1,12 @@
-from trove.render.simple_csv import TrovesearchSimpleCsvRenderer
+from trove.render.trovesearch_csv import TrovesearchCsvRenderer
 from trove.render.rendering import EntireRendering
 from . import _base
 
 
 # note: trovesearch only -- this renderer doesn't do arbitrary rdf
 
-class TestSimpleCsvRenderer(_base.TrovesearchRendererTests):
-    renderer_class = TrovesearchSimpleCsvRenderer
+class TestTrovesearchCsvRenderer(_base.TrovesearchRendererTests):
+    renderer_class = TrovesearchCsvRenderer
     expected_outputs = {
         'no_results': EntireRendering(
             mediatype='text/csv',

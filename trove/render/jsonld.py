@@ -10,6 +10,10 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.namespaces import RDF, OWL, TROVE
 from trove.vocab import mediatypes
 from ._base import BaseRenderer
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 if TYPE_CHECKING:
     from trove.util.json import (
         JsonObject,
@@ -29,12 +33,13 @@ class RdfJsonldRenderer(BaseRenderer):
 
     __visiting_iris: set[str] | None = None
 
-    def simple_render_document(self) -> str:
-        return json.dumps(
+    def render_document(self) -> ProtoRendering:
+        _json_str = json.dumps(
             self.render_jsonld(self.response_data, self.response_focus.single_iri()),
             indent=2,
             sort_keys=True,
         )
+        return EntireRendering(self.MEDIATYPE, _json_str)
 
     def render_jsonld(
         self,

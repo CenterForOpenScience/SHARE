@@ -20,7 +20,7 @@ from trove.util.json import json_prims
 from trove.util.propertypath import Propertypath, GLOB_PATHSTEP
 from trove.vocab import mediatypes
 from trove.vocab import osfmap
-from ._simple_trovesearch import SimpleTrovesearchRenderer
+from ._trovesearch_card_only import TrovesearchCardOnlyRenderer
 from .rendering import ProtoRendering
 from .rendering.streamable import StreamableRendering
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ _VALUE_KEY_PREFERENCE = ('@value', '@id', 'name', 'prefLabel', 'label')
 _ID_JSONPATH = ('@id',)
 
 
-class TrovesearchSimpleCsvRenderer(SimpleTrovesearchRenderer):
+class TrovesearchCsvRenderer(TrovesearchCardOnlyRenderer):
     MEDIATYPE = mediatypes.CSV
     CSV_DIALECT: ClassVar[type[csv.Dialect]] = csv.excel
 

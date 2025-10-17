@@ -18,10 +18,10 @@ if TYPE_CHECKING:
 _logger = logging.getLogger(__name__)
 
 
-class SimpleTrovesearchRenderer(BaseRenderer, abc.ABC):
-    '''for "simple" search api responses (including only result metadata)
+class TrovesearchCardOnlyRenderer(BaseRenderer, abc.ABC):
+    '''for search api responses that include only metadata about results
 
-    (very entangled with trove/trovesearch/trovesearch_gathering.py)
+    very entangled with trove/trovesearch/trovesearch_gathering.py and trove/derive/osfmap_json.py
     '''
     PASSIVE_RENDER = False  # knows the properties it cares about
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']  # assumes osfmap_json

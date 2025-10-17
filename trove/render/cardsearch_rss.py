@@ -14,7 +14,7 @@ from trove.util.json import (
 )
 from trove.util.xml import XmlBuilder
 from trove.vocab import mediatypes
-from ._simple_trovesearch import SimpleTrovesearchRenderer
+from ._trovesearch_card_only import TrovesearchCardOnlyRenderer
 
 if typing.TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -22,7 +22,7 @@ if typing.TYPE_CHECKING:
     from trove.render.rendering import ProtoRendering
 
 
-class CardsearchRssRenderer(SimpleTrovesearchRenderer):
+class CardsearchRssRenderer(TrovesearchCardOnlyRenderer):
     '''render card-search results into RSS following https://www.rssboard.org/rss-specification
     '''
     MEDIATYPE = mediatypes.RSS

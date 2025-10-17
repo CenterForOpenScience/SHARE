@@ -13,7 +13,10 @@ from trove import exceptions as trove_exceptions
 from trove.vocab import mediatypes
 from trove.vocab.trove import TROVE_API_THESAURUS
 from trove.vocab.namespaces import namespaces_shorthand
-from .rendering import ProtoRendering, EntireRendering
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 
 
 @dataclasses.dataclass
@@ -52,19 +55,9 @@ class BaseRenderer(abc.ABC):
         # TODO: self.response_gathering.ask_all_about or a default ask...
         return self.response_gathering.leaf_a_record()
 
-    def simple_render_document(self) -> str | bytes:
-        raise NotImplementedError
-
+    @abc.abstractmethod
     def render_document(self) -> ProtoRendering:
-        try:
-            _content = self.simple_render_document()
-        except NotImplementedError:
-            raise NotImplementedError(f'class "{type(self)}" must implement either `render_document` or `simple_render_document`')
-        else:
-            return EntireRendering(
-                mediatype=self.MEDIATYPE,
-                entire_content=_content,
-            )
+        raise NotImplementedError
 
     @classmethod
     def render_error_document(cls, error: trove_exceptions.TroveError) -> ProtoRendering:

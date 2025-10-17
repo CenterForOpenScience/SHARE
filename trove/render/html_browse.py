@@ -31,6 +31,10 @@ from trove.vocab import jsonapi
 from trove.vocab.namespaces import RDF, RDFS, SKOS, DCTERMS, FOAF, DC, OSFMAP, TROVE
 from trove.vocab.static_vocab import combined_thesaurus__suffuniq
 from ._base import BaseRenderer
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 
 STABLE_MEDIATYPES = (mediatypes.JSONAPI,)
 UNSTABLE_MEDIATYPES = (
@@ -95,7 +99,10 @@ class RdfHtmlBrowseRenderer(BaseRenderer):
         ))
 
     # override BaseRenderer
-    def simple_render_document(self) -> str:
+    def render_document(self) -> ProtoRendering:
+        return EntireRendering(self.MEDIATYPE, self.render_html_str())
+
+    def render_html_str(self) -> str:
         self.__hb = HtmlBuilder()
         self.render_html_head()
         with (

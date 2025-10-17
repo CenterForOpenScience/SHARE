@@ -7,11 +7,11 @@ from .jsonapi import RdfJsonapiRenderer
 from .html_browse import RdfHtmlBrowseRenderer
 from .turtle import RdfTurtleRenderer
 from .jsonld import RdfJsonldRenderer
-from .simple_csv import TrovesearchSimpleCsvRenderer
-from .simple_json import TrovesearchSimpleJsonRenderer
-from .simple_tsv import TrovesearchSimpleTsvRenderer
 from .cardsearch_rss import CardsearchRssRenderer
 from .cardsearch_atom import CardsearchAtomRenderer
+from .trovesearch_csv import TrovesearchCsvRenderer
+from .trovesearch_json import TrovesearchJsonRenderer
+from .trovesearch_tsv import TrovesearchTsvRenderer
 
 
 __all__ = ('get_renderer_type', 'BaseRenderer')
@@ -21,9 +21,9 @@ RENDERERS: tuple[type[BaseRenderer], ...] = (
     RdfJsonapiRenderer,
     RdfTurtleRenderer,
     RdfJsonldRenderer,
-    TrovesearchSimpleCsvRenderer,
-    TrovesearchSimpleJsonRenderer,
-    TrovesearchSimpleTsvRenderer,
+    TrovesearchCsvRenderer,
+    TrovesearchJsonRenderer,
+    TrovesearchTsvRenderer,
 )
 CARDSEARCH_ONLY_RENDERERS = (  # TODO: use/consider
     CardsearchRssRenderer,

@@ -1,12 +1,12 @@
-from trove.render.simple_tsv import TrovesearchSimpleTsvRenderer
+from trove.render.trovesearch_tsv import TrovesearchTsvRenderer
 from trove.render.rendering import EntireRendering
 from . import _base
 
 
 # note: trovesearch only -- this renderer doesn't do arbitrary rdf
 
-class TestSimpleTsvRenderer(_base.TrovesearchRendererTests):
-    renderer_class = TrovesearchSimpleTsvRenderer
+class TestTrovesearchTsvRenderer(_base.TrovesearchRendererTests):
+    renderer_class = TrovesearchTsvRenderer
     expected_outputs = {
         'no_results': EntireRendering(
             mediatype='text/tab-separated-values',

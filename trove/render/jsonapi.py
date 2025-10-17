@@ -33,6 +33,10 @@ from trove.vocab.namespaces import (
 )
 from trove.vocab.trove import trove_indexcard_namespace
 from ._base import BaseRenderer
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 
 
 # a jsonapi resource may pull rdf data using an iri or blank node
@@ -84,11 +88,12 @@ class RdfJsonapiRenderer(BaseRenderer):
     def get_deriver_iri(cls, card_blending: bool) -> str | None:
         return (None if card_blending else super().get_deriver_iri(card_blending))
 
-    def simple_render_document(self) -> str:
-        return json.dumps(
+    def render_document(self) -> ProtoRendering:
+        _json_str = json.dumps(
             self.render_dict(self.response_focus.single_iri()),
             indent=2,  # TODO: pretty-print query param?
         )
+        return EntireRendering(self.MEDIATYPE, _json_str)
 
     def render_dict(self, primary_iris: Union[str, Iterable[str]]) -> JsonObject:
         _primary_data: JsonValue = None

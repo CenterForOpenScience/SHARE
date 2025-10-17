@@ -15,7 +15,7 @@ from trove.util.json import (
 from trove.util.xml import XmlBuilder
 from trove.vocab import mediatypes
 from trove.vocab.trove import trove_indexcard_namespace
-from ._simple_trovesearch import SimpleTrovesearchRenderer
+from ._trovesearch_card_only import TrovesearchCardOnlyRenderer
 
 if typing.TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -23,7 +23,7 @@ if typing.TYPE_CHECKING:
     from trove.render.rendering import ProtoRendering
 
 
-class CardsearchAtomRenderer(SimpleTrovesearchRenderer):
+class CardsearchAtomRenderer(TrovesearchCardOnlyRenderer):
     '''render card-search results into Atom following https://www.rfc-editor.org/rfc/rfc4287
     '''
     MEDIATYPE = mediatypes.ATOM

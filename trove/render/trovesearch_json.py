@@ -16,7 +16,7 @@ from .rendering import (
     EntireRendering,
 )
 from .rendering.streamable import StreamableRendering
-from ._simple_trovesearch import SimpleTrovesearchRenderer
+from ._trovesearch_card_only import TrovesearchCardOnlyRenderer
 if typing.TYPE_CHECKING:
     from collections.abc import (
         Generator,
@@ -26,7 +26,7 @@ if typing.TYPE_CHECKING:
     from trove.util.json import JsonObject
 
 
-class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
+class TrovesearchJsonRenderer(TrovesearchCardOnlyRenderer):
     '''for "simple json" search api -- very entangled with trove/trovesearch/trovesearch_gathering.py
     '''
     MEDIATYPE = mediatypes.JSON

@@ -1,6 +1,6 @@
 import json
 
-from trove.render.simple_json import TrovesearchSimpleJsonRenderer
+from trove.render.trovesearch_json import TrovesearchJsonRenderer
 from trove.render.rendering import EntireRendering
 from trove.vocab.namespaces import BLARG
 from . import _base
@@ -8,8 +8,8 @@ from . import _base
 
 # note: trovesearch only -- this renderer doesn't do arbitrary rdf
 
-class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
-    renderer_class = TrovesearchSimpleJsonRenderer
+class TestTrovesearchJsonRenderer(_base.TrovesearchJsonRendererTests):
+    renderer_class = TrovesearchJsonRenderer
     expected_outputs = {
         'no_results': EntireRendering(
             mediatype='application/json',
