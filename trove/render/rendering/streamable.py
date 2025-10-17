@@ -7,6 +7,8 @@ from .proto import ProtoRendering
 
 @dataclasses.dataclass
 class StreamableRendering(ProtoRendering):
+    '''StreamableRendering: for response content that may be rendered incrementally while being streamed
+    '''
     mediatype: str
     content_stream: Iterator[str] | Iterator[bytes] = iter(())
     _started_already: bool = False

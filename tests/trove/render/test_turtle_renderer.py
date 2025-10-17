@@ -1,7 +1,7 @@
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.render.turtle import RdfTurtleRenderer
-from trove.render.rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from . import _base
 
 
@@ -14,9 +14,9 @@ class _BaseTurtleRendererTest(_base.TroveRendererTests):
 
 class TestTurtleRenderer(_BaseTurtleRendererTest):
     expected_outputs = {
-        'simple_card': SimpleRendering(
+        'simple_card': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -33,9 +33,9 @@ blarg:aCard a dcat:CatalogRecord, trove:Indexcard ;
     trove:resourceMetadata "{\\"@id\\": \\"http://blarg.example/vocab/anItem\\", \\"title\\": [{\\"@value\\": \\"an item, yes\\"}]}"^^rdf:JSON .
 ''',
         ),
-        'various_types': SimpleRendering(
+        'various_types': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -54,9 +54,9 @@ blarg:aSubject a blarg:aType ;
 
 class TestTurtleTrovesearchRenderer(_BaseTurtleRendererTest, _base.TrovesearchRendererTests):
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix trove: <https://share.osf.io/vocab/2023/trove/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -65,9 +65,9 @@ blarg:aSearch a trove:Cardsearch ;
     trove:totalResultCount 0 .
 ''',
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='text/turtle',
-            rendered_content='''
+            entire_content='''
 @prefix blarg: <http://blarg.example/vocab/> .
 @prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .

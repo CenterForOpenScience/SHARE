@@ -11,7 +11,7 @@ from trove import exceptions as trove_exceptions
 from trove.vocab.jsonapi import JSONAPI_LINK_OBJECT
 from trove.vocab.namespaces import TROVE, RDF
 from ._base import BaseRenderer
-from .rendering import ProtoRendering, SimpleRendering
+from .rendering import ProtoRendering, EntireRendering
 if TYPE_CHECKING:
     from trove.util.json import JsonObject
 
@@ -35,9 +35,9 @@ class SimpleTrovesearchRenderer(BaseRenderer):
 
     def multicard_rendering(self, card_pages: Iterator[Sequence[tuple[str, JsonObject]]]) -> ProtoRendering:
         _cards = itertools.chain.from_iterable(card_pages)
-        return SimpleRendering(
+        return EntireRendering(
             mediatype=self.MEDIATYPE,
-            rendered_content=self.simple_multicard_rendering(_cards),
+            entire_content=self.simple_multicard_rendering(_cards),
         )
 
     def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:

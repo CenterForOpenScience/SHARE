@@ -1,7 +1,7 @@
 import json
 
 from trove.render.jsonld import RdfJsonldRenderer
-from trove.render.rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from trove.vocab.namespaces import BLARG
 from . import _base
 
@@ -10,9 +10,9 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
     renderer_class = RdfJsonldRenderer
 
     expected_outputs = {
-        'simple_card': SimpleRendering(
+        'simple_card': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aCard",
                 "dcterms:issued": [
                     {
@@ -42,9 +42,9 @@ class TestJsonldRenderer(_base.TroveJsonRendererTests):
                 }
             }),
         ),
-        'various_types': SimpleRendering(
+        'various_types': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSubject",
                 "blarg:hasDateLiteral": [
                     {
@@ -88,9 +88,9 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
     renderer_class = RdfJsonldRenderer
 
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSearch",
                 "rdf:type": [
                     {"@id": "trove:Cardsearch"}
@@ -101,9 +101,9 @@ class TestJsonldSearchRenderer(_base.TrovesearchJsonRendererTests):
                 }
             }),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/ld+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "@id": "blarg:aSearchFew",
                 "rdf:type": [
                     {"@id": "trove:Cardsearch"}

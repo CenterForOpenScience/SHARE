@@ -1,7 +1,7 @@
 import json
 
 from trove.render.simple_json import TrovesearchSimpleJsonRenderer
-from trove.render.rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from trove.vocab.namespaces import BLARG
 from . import _base
 
@@ -11,9 +11,9 @@ from . import _base
 class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
     renderer_class = TrovesearchSimpleJsonRenderer
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": [],
                 "links": {},
                 "meta": {
@@ -21,9 +21,9 @@ class TestSimpleJsonRenderer(_base.TrovesearchJsonRendererTests):
                 }
             }),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": [
                     {
                         "@id": BLARG.anItem,

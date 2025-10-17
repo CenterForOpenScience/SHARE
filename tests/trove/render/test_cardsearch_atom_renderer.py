@@ -1,5 +1,5 @@
 from trove.render.cardsearch_atom import CardsearchAtomRenderer
-from trove.render.rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from . import _base
 
 
@@ -8,9 +8,9 @@ from . import _base
 class TestCardsearchAtomRenderer(_base.TrovesearchRendererTests):
     renderer_class = CardsearchAtomRenderer
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/atom+xml',
-            rendered_content=(
+            entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
                 b'<feed xmlns="http://www.w3.org/2005/Atom">'
                 b'<title>shtrove search results</title>'
@@ -20,9 +20,9 @@ class TestCardsearchAtomRenderer(_base.TrovesearchRendererTests):
                 b'</feed>'
             ),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/atom+xml',
-            rendered_content=(
+            entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
                 b'<feed xmlns="http://www.w3.org/2005/Atom">'
                 b'<title>shtrove search results</title>'

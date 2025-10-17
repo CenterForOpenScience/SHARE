@@ -1,4 +1,4 @@
 from .proto import ProtoRendering
-from .simple import SimpleRendering
+from .entire import EntireRendering
 
-__all__ = ('ProtoRendering', 'SimpleRendering')
+__all__ = ('ProtoRendering', 'EntireRendering')

@@ -1,5 +1,5 @@
 from trove.render.cardsearch_rss import CardsearchRssRenderer
-from trove.render.rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from . import _base
 
 
@@ -8,9 +8,9 @@ from . import _base
 class TestCardsearchRssRenderer(_base.TrovesearchRendererTests):
     renderer_class = CardsearchRssRenderer
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/rss+xml',
-            rendered_content=(
+            entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
                 b'<rss version="2.0">'
                 b'<channel>'
@@ -21,9 +21,9 @@ class TestCardsearchRssRenderer(_base.TrovesearchRendererTests):
                 b'</channel></rss>'
             ),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/rss+xml',
-            rendered_content=(
+            entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
                 b'<rss version="2.0"><channel>'
                 b'<title>shtrove search results</title>'

@@ -13,7 +13,7 @@ from trove.vocab import mediatypes
 from trove.vocab.namespaces import TROVE, RDF
 from .rendering import (
     ProtoRendering,
-    SimpleRendering,
+    EntireRendering,
 )
 from .rendering.streamable import StreamableRendering
 from ._simple_trovesearch import SimpleTrovesearchRenderer
@@ -32,9 +32,9 @@ class TrovesearchSimpleJsonRenderer(SimpleTrovesearchRenderer):
     MEDIATYPE = mediatypes.JSON
 
     def unicard_rendering(self, card_iri: str, osfmap_json: JsonObject) -> ProtoRendering:
-        return SimpleRendering(
+        return EntireRendering(
             mediatype=self.MEDIATYPE,
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 'data': self._render_card_content(card_iri, osfmap_json),
                 'links': self._render_links(),
                 'meta': self._render_meta(),
