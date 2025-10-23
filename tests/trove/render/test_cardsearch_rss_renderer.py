@@ -12,10 +12,11 @@ class TestCardsearchRssRenderer(_base.TrovesearchRendererTests):
             mediatype='application/rss+xml',
             entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
-                b'<rss version="2.0">'
+                b'<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">'
                 b'<channel>'
                 b'<title>shtrove search results</title>'
                 b'<link>http://blarg.example/vocab/aSearch</link>'
+                b'<atom:link rel="self" href="http://blarg.example/vocab/aSearch" />'
                 b'<description>feed of metadata records matching given filters</description>'
                 b'<webMaster>share-support@cos.io</webMaster>'
                 b'</channel></rss>'
@@ -25,9 +26,11 @@ class TestCardsearchRssRenderer(_base.TrovesearchRendererTests):
             mediatype='application/rss+xml',
             entire_content=(
                 b"<?xml version='1.0' encoding='utf-8'?>\n"
-                b'<rss version="2.0"><channel>'
+                b'<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">'
+                b'<channel>'
                 b'<title>shtrove search results</title>'
                 b'<link>http://blarg.example/vocab/aSearchFew</link>'
+                b'<atom:link rel="self" href="http://blarg.example/vocab/aSearchFew" />'
                 b'<description>feed of metadata records matching given filters</description>'
                 b'<webMaster>share-support@cos.io</webMaster>'
                 b'<item>'
@@ -43,7 +46,7 @@ class TestCardsearchRssRenderer(_base.TrovesearchRendererTests):
                 b'<guid isPermaLink="true">http://blarg.example/vocab/anItemmm</guid>'
                 b'<title>an itemmm, yes</title>'
                 b'<pubDate>Sat, 03 Feb 2001 00:00:00 -0000</pubDate>'
-                b'<author>http://blarg.example/vocab/aPerson (a person indeed)</author>'
+                b'<dc:creator>http://blarg.example/vocab/aPerson (a person indeed)</dc:creator>'
                 b'</item></channel></rss>'
             ),
         ),

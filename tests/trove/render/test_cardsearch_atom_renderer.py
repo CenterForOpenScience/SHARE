@@ -1,3 +1,6 @@
+from unittest import mock
+import datetime
+
 from trove.render.cardsearch_atom import CardsearchAtomRenderer
 from trove.render.rendering import EntireRendering
 from . import _base
@@ -15,8 +18,9 @@ class TestCardsearchAtomRenderer(_base.TrovesearchRendererTests):
                 b'<feed xmlns="http://www.w3.org/2005/Atom">'
                 b'<title>shtrove search results</title>'
                 b'<subtitle>feed of metadata records matching given filters</subtitle>'
-                b'<link>http://blarg.example/vocab/aSearch</link>'
+                b'<link href="http://blarg.example/vocab/aSearch" />'
                 b'<id>http://blarg.example/vocab/aSearch</id>'
+                b'<updated>2345-06-07T08:09:10Z</updated>'
                 b'</feed>'
             ),
         ),
@@ -27,8 +31,9 @@ class TestCardsearchAtomRenderer(_base.TrovesearchRendererTests):
                 b'<feed xmlns="http://www.w3.org/2005/Atom">'
                 b'<title>shtrove search results</title>'
                 b'<subtitle>feed of metadata records matching given filters</subtitle>'
-                b'<link>http://blarg.example/vocab/aSearchFew</link>'
+                b'<link href="http://blarg.example/vocab/aSearchFew" />'
                 b'<id>http://blarg.example/vocab/aSearchFew</id>'
+                b'<updated>2345-06-07T08:09:10Z</updated>'
                 b'<entry>'
                 b'<link href="http://blarg.example/vocab/anItem" />'
                 b'<id>http://blarg.example/vocab/aCard</id>'
@@ -42,7 +47,14 @@ class TestCardsearchAtomRenderer(_base.TrovesearchRendererTests):
                 b'<id>http://blarg.example/vocab/aCarddd</id>'
                 b'<title>an itemmm, yes</title>'
                 b'<published>2001-02-03T00:00:00Z</published>'
+                b'<author><name>a person indeed</name><uri>http://blarg.example/vocab/aPerson</uri></author>'
                 b'</entry></feed>'
             ),
         ),
     }
+
+    def setUp(self):
+        self.enterContext(mock.patch(
+            'django.utils.timezone.now',
+            return_value=datetime.datetime(2345, 6, 7, 8, 9, 10, tzinfo=datetime.UTC),
+        ))
