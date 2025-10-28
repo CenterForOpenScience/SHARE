@@ -35,11 +35,19 @@ class CardsearchRssRenderer(TrovesearchCardOnlyRenderer):
             for _dt in json_datetimes(_osfmap_json, path):
                 yield rfc2822_datetime(_dt)
 
-        _xb = XmlBuilder('rss', {'version': '2.0'})
+        _xb = XmlBuilder('rss', {
+            'version': '2.0',
+            'xmlns:dc': 'http://purl.org/dc/elements/1.1/',
+            'xmlns:atom': 'http://www.w3.org/2005/Atom',
+        })
         with _xb.nest('channel'):
             # see https://www.rssboard.org/rss-specification#requiredChannelElements
             _xb.leaf('title', text=_('shtrove search results'))
             _xb.leaf('link', text=self.response_focus.single_iri())
+            _xb.leaf('atom:link', {
+                'rel': 'self',
+                'href': self.response_focus.single_iri(),
+            })
             _xb.leaf('description', text=_('feed of metadata records matching given filters'))
             _xb.leaf('webMaster', text=settings.SHARE_SUPPORT_EMAIL)
             for _card_iri, _osfmap_json in itertools.chain.from_iterable(card_pages):
@@ -48,8 +56,8 @@ class CardsearchRssRenderer(TrovesearchCardOnlyRenderer):
                     _iri = _osfmap_json.get('@id', _card_iri)
                     _xb.leaf('link', text=_iri)
                     _xb.leaf('guid', {'isPermaLink': 'true'}, text=_iri)
-                    for _title in _strs('title'):
-                        _xb.leaf('title', text=_title)
+                    _titles = itertools.chain(_strs('title'), _strs('fileName'))
+                    _xb.leaf('title', text=next(_titles, ''))
                     for _desc in _strs('description'):
                         _xb.leaf('description', text=_desc)
                     for _keyword in _strs('keyword'):
@@ -60,7 +68,7 @@ class CardsearchRssRenderer(TrovesearchCardOnlyRenderer):
                         assert isinstance(_creator_obj, dict)
                         _creator_name = next(json_strs(_creator_obj, ['name']))
                         _creator_id = _creator_obj.get('@id', _creator_name)
-                        _xb.leaf('author', text=f'{_creator_id} ({_creator_name})')
+                        _xb.leaf('dc:creator', text=f'{_creator_id} ({_creator_name})')
         return EntireRendering(
             mediatype=self.MEDIATYPE,
             entire_content=bytes(_xb),

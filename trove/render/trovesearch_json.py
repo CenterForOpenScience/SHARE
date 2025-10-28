@@ -1,4 +1,5 @@
 from __future__ import annotations
+import itertools
 import json
 import re
 import typing
@@ -6,6 +7,7 @@ import typing
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.vocab.jsonapi import (
+    JSONAPI_LINK,
     JSONAPI_LINK_OBJECT,
     JSONAPI_MEMBERNAME,
 )
@@ -91,8 +93,9 @@ class TrovesearchJsonRenderer(TrovesearchCardOnlyRenderer):
 
     def _render_links(self) -> JsonObject:
         _links = {}
-        for _pagelink in self._page_links:
-            _twopledict = rdf.twopledict_from_twopleset(_pagelink)
+        _response_links = self.response_gathering.ask(JSONAPI_LINK, focus=self.response_focus)
+        for _link_obj in itertools.chain(self._page_links, _response_links):
+            _twopledict = rdf.twopledict_from_twopleset(_link_obj)
             if JSONAPI_LINK_OBJECT in _twopledict.get(RDF.type, ()):
                 (_membername,) = _twopledict[JSONAPI_MEMBERNAME]
                 (_link_url,) = _twopledict[RDF.value]

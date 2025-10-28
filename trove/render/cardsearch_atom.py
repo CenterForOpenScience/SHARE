@@ -2,6 +2,7 @@ from __future__ import annotations
 import itertools
 import typing
 
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from primitive_metadata import primitive_rdf as rdf
 
@@ -38,8 +39,9 @@ class CardsearchAtomRenderer(TrovesearchCardOnlyRenderer):
         _xb = XmlBuilder('feed', {'xmlns': 'http://www.w3.org/2005/Atom'})
         _xb.leaf('title', text=_('shtrove search results'))
         _xb.leaf('subtitle', text=_('feed of metadata records matching given filters'))
-        _xb.leaf('link', text=self.response_focus.single_iri())
+        _xb.leaf('link', {'href': self.response_focus.single_iri()})
         _xb.leaf('id', text=self.response_focus.single_iri())
+        _xb.leaf('updated', text=datetime_isoformat_z(timezone.now()))
         for _card_iri, _osfmap_json in itertools.chain.from_iterable(card_pages):
             with _xb.nest('entry'):
                 _iri = _osfmap_json.get('@id', _card_iri)
@@ -47,13 +49,20 @@ class CardsearchAtomRenderer(TrovesearchCardOnlyRenderer):
                 _xb.leaf('id', text=self._atom_id(_card_iri))
                 for _title in _strs('title'):
                     _xb.leaf('title', text=_title)
+                for _filename in _strs('fileName'):
+                    _xb.leaf('title', text=_filename)
                 for _desc in _strs('description'):
                     _xb.leaf('summary', text=_desc)
                 for _keyword in _strs('keyword'):
-                    _xb.leaf('category', text=_keyword)
+                    _xb.leaf('category', {'term': _keyword})
                 for _created in _dates('dateCreated'):
                     _xb.leaf('published', text=_created)
-                for _creator_obj in json_vals(_osfmap_json, 'creator'):
+                for _modified in _dates('dateModified'):
+                    _xb.leaf('updated', text=_modified)
+                _creator_objs = list(json_vals(_osfmap_json, ['creator']))
+                if not _creator_objs:
+                    _creator_objs = list(json_vals(_osfmap_json, ['isContainedBy', 'creator']))
+                for _creator_obj in _creator_objs:
                     assert isinstance(_creator_obj, dict)
                     with _xb.nest('author'):
                         for _name in json_strs(_creator_obj, ['name']):
@@ -61,8 +70,6 @@ class CardsearchAtomRenderer(TrovesearchCardOnlyRenderer):
                         _creator_iri = _creator_obj.get('@id')
                         if _creator_iri:
                             _xb.leaf('uri', text=_creator_iri)
-                        for _sameas_iri in json_strs(_creator_obj, ['sameAs']):
-                            _xb.leaf('uri', text=_sameas_iri)
         return EntireRendering(
             mediatype=self.MEDIATYPE,
             entire_content=bytes(_xb),
