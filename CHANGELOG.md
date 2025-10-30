@@ -1,5 +1,25 @@
 # Change Log
 
+# [25.6.0] - 2025-10-30
+- bump dependencies
+    - `celery` to 5.5.3
+    - `kombu` to 5.5.4
+- improve error handling in celery task-result backend
+- use logging config in celery worker
+- improve code docs (README.md et al.)
+- add cardsearch feeds (rss and atom)
+    - /trove/index-card-search/rss.xml
+    - /trove/index-card-search/atom.xml
+- fix: render >1 result in streamed index-value-search (csv, tsv, json)
+- when browsing trove api in browser, wrap non-browser-friendly mediatypes in html (unless `withFileName`, which requests download)
+- better trove.render test coverage
+- code cleanliness
+    - de-collide "simple" names
+        - SimpleRendering => EntireRendering
+        - SimpleTrovesearchRenderer => TrovesearchCardOnlyRenderer
+    - consolidate more shared logic into trove.util
+    - more accurate type annotations
+
 # [25.5.0] - 2025-07-15
 - use python 3.13
 - use `poetry` to manage dependencies
