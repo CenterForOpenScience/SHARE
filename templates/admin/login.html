@@ -1,0 +1,3 @@
+{% extends "admin/login.html" %}
+
+{% block content %}{{ block.super }}<a href="{% url 'osf_login' %}">login with osf</a>{% endblock %}

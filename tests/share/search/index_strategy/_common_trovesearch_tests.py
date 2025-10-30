@@ -117,10 +117,10 @@ class CommonTrovesearchTests(RealElasticTestCase):
             }))
         self._index_indexcards(_cards)
         # gather all pages results:
-        _querystring: str = f'page[size]={_page_size}'
+        _querystring: str | None = f'page[size]={_page_size}'
         _result_iris: set[str] = set()
         _page_count = 0
-        while True:
+        while _querystring is not None:
             _cardsearch_handle = self.index_strategy.pls_handle_cardsearch(
                 CardsearchParams.from_querystring(_querystring),
             )
@@ -133,9 +133,11 @@ class CommonTrovesearchTests(RealElasticTestCase):
             _result_iris.update(_page_iris)
             _page_count += 1
             _next_cursor = _cardsearch_handle.cursor.next_cursor()
-            if _next_cursor is None:
-                break
-            _querystring = urlencode({'page[cursor]': _next_cursor.as_queryparam_value()})
+            _querystring = (
+                urlencode({'page[cursor]': _next_cursor.as_queryparam_value()})
+                if _next_cursor is not None
+                else None  # done
+            )
         self.assertEqual(_page_count, math.ceil(_total_count / _page_size))
         self.assertEqual(_result_iris, _expected_iris)
 

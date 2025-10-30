@@ -48,12 +48,6 @@ class RealElasticTestCase(TransactionTestCase, abc.ABC):
             connections['default']._test_serialized_contents
         )
 
-    def enterContext(self, context_manager):
-        # TestCase.enterContext added in python3.11 -- implementing here until then
-        result = context_manager.__enter__()
-        self.addCleanup(lambda: context_manager.__exit__(None, None, None))
-        return result
-
     @contextlib.contextmanager
     def _daemon_up(self):
         _daemon_control = IndexerDaemonControl(celery_app)

@@ -61,9 +61,8 @@ class RdfIngestView(View):
         except trove_exceptions.DigestiveError as e:
             logger.exception(str(e))
             return http.HttpResponse(str(e), status=HTTPStatus.BAD_REQUEST)
-        else:
-            # TODO: include (link to?) extracted card(s)
-            return http.HttpResponse(status=HTTPStatus.CREATED)
+        # TODO: include (link to?) extracted card(s)
+        return http.HttpResponse(status=HTTPStatus.CREATED)
 
     def delete(self, request: HttpRequest) -> HttpResponse:
         # TODO: cleaner permissions

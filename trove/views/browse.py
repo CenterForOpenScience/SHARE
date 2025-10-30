@@ -47,6 +47,11 @@ class BrowseParams(BasicTroveParams):
             _ns.TROVE.usedAtPath,
         ))
 
+    def to_querydict(self):
+        _querydict = super().to_querydict()
+        _querydict['iri'] = self.iri
+        return _querydict
+
 
 class BrowseIriView(GatheredTroveView):
     gathering_organizer = trovebrowse

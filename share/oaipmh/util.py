@@ -1,21 +1,9 @@
-import datetime
 from typing import Any
 
 from lxml import etree
 from primitive_metadata import primitive_rdf
 
-from share.util.fromisoformat import fromisoformat
 from trove.vocab.namespaces import OAI, OAI_DC
-
-
-def format_datetime(dt: datetime.datetime | primitive_rdf.Literal | str) -> str:
-    """OAI-PMH has specific time format requirements -- comply.
-    """
-    if isinstance(dt, primitive_rdf.Literal):
-        dt = dt.unicode_value
-    if isinstance(dt, str):
-        dt = fromisoformat(dt)
-    return dt.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 XML_NAMESPACES = {

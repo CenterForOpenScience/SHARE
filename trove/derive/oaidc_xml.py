@@ -2,8 +2,9 @@ from typing import Any
 from lxml import etree
 from primitive_metadata import primitive_rdf as rdf
 
-from share.oaipmh.util import format_datetime, ns, nsmap, SubEl
+from share.oaipmh.util import ns, nsmap, SubEl
 
+from trove.util.datetime import datetime_isoformat_z as format_datetime
 from trove.vocab.namespaces import (
     DCTYPE,
     DCTERMS,

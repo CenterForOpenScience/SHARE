@@ -28,12 +28,12 @@ class BasicInputOutputTestCase(TestCase):
         self.assertEqual(expected_output, actual_output)
 
     # (optional override, for when logic is more complicated)
-    def run_input_output_test(self, given_input, expected_output):
+    def run_input_output_test(self, given_input: typing.Any, expected_output: typing.Any) -> None:
         _actual_output = self.compute_output(given_input)
         self.assert_outputs_equal(expected_output, _actual_output)
 
     # (optional override, for when logic is more complicated)
-    def missing_case(self, name: str, given_input):
+    def missing_case(self, name: str, given_input: typing.Any) -> typing.Never:
         _cls = self.__class__
         _actual_output = self.compute_output(given_input)
         raise NotImplementedError('\n'.join((
@@ -43,16 +43,10 @@ class BasicInputOutputTestCase(TestCase):
             pprint.pformat(_actual_output),
         )))
 
-    def enterContext(self, context_manager):
-        # TestCase.enterContext added in python3.11 -- implementing here until then
-        result = context_manager.__enter__()
-        self.addCleanup(lambda: context_manager.__exit__(None, None, None))
-        return result
-
     ###
     # private details
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: typing.Any) -> None:
         super().__init_subclass__(**kwargs)
         # HACK: assign `test_*` method only on concrete subclasses,
         # so the test runner doesn't try instantiating a base class

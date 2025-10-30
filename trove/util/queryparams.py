@@ -113,8 +113,7 @@ def get_single_value(
         (_singlevalue,) = _paramvalues
     except ValueError:
         raise trove_exceptions.InvalidRepeatedQueryParam(str(queryparam_name))
-    else:
-        return _singlevalue
+    return _singlevalue
 
 
 def get_bool_value(

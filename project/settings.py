@@ -326,6 +326,7 @@ RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
 RABBITMQ_HEARTBEAT_TIMEOUT = int(os.environ.get('RABBITMQ_HEARTBEAT_TIMEOUT', 60))
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://{}:{}@{}:{}/{}'.format(RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_VHOST))
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
@@ -336,6 +337,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 CELERY_RESULT_BACKEND = 'share.celery:CeleryDatabaseBackend'
+CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
+CELERY_RESULT_BACKEND_MAX_RETRIES = int(os.environ.get('CELERY_RESULT_BACKEND_MAX_RETRIES', 17))
 CELERY_RESULT_EXPIRES = int(os.environ.get(
     'CELERY_RESULT_EXPIRES',
     60 * 60 * 24 * 3,  # 3 days
@@ -442,6 +445,7 @@ SITE_ID = 1
 PUBLIC_SENTRY_DSN = os.environ.get('PUBLIC_SENTRY_DSN')
 
 SHARE_WEB_URL = os.environ.get('SHARE_WEB_URL', 'http://localhost:8003').rstrip('/') + '/'
+SHARE_SUPPORT_EMAIL = os.environ.get('SHARE_SUPPORT_EMAIL', 'share-support@cos.io')
 SHARE_USER_AGENT = os.environ.get('SHARE_USER_AGENT', 'SHAREbot/{} (+{})'.format(VERSION, SHARE_WEB_URL))
 SHARE_ADMIN_USERNAME = os.environ.get('SHARE_ADMIN_USERNAME', 'admin')
 SHARE_ADMIN_PASSWORD = os.environ.get('SHARE_ADMIN_PASSWORD')

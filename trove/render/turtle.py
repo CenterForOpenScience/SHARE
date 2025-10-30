@@ -1,9 +1,11 @@
-from typing import Any
-
 from primitive_metadata import primitive_rdf as rdf
 
 from trove.vocab.namespaces import TROVE
 from ._base import BaseRenderer
+from .rendering import (
+    EntireRendering,
+    ProtoRendering,
+)
 
 
 class RdfTurtleRenderer(BaseRenderer):
@@ -11,7 +13,10 @@ class RdfTurtleRenderer(BaseRenderer):
     # include indexcard metadata as JSON literals (because QuotedGraph is non-standard)
     INDEXCARD_DERIVER_IRI = TROVE['derive/osfmap_json']
 
-    def simple_render_document(self) -> Any:
+    def render_document(self) -> ProtoRendering:
+        return EntireRendering(self.MEDIATYPE, self._render_turtle())
+
+    def _render_turtle(self) -> str:
         return rdf.turtle_from_tripledict(
             self.response_data.tripledict,
             focus=self.response_focus.single_iri(),

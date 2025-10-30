@@ -1,3 +1,4 @@
+import datetime
 from xml.sax.saxutils import unescape
 import json
 import logging
@@ -10,7 +11,6 @@ import sentry_sdk
 from share.search import index_strategy
 from share.search.exceptions import IndexStrategyError
 from share.util.xml import strip_illegal_xml_chars
-from share.util.fromisoformat import fromisoformat
 
 
 logger = logging.getLogger(__name__)
@@ -108,10 +108,10 @@ class MetadataRecordsRSS(Feed):
         return prepare_string('{}{}'.format(author_name, ' et al.' if len(authors) > 1 else ''))
 
     def item_pubdate(self, item):
-        return fromisoformat(item.get('date_published') or item.get('date_created'))
+        return datetime.datetime.fromisoformat(item.get('date_published') or item.get('date_created'))
 
     def item_updateddate(self, item):
-        return fromisoformat(item.get(self._order))
+        return datetime.datetime.fromisoformat(item.get(self._order))
 
     def item_categories(self, item):
         categories = item.get('subjects', [])

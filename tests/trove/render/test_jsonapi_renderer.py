@@ -2,7 +2,7 @@ import json
 from unittest import mock
 
 from trove.render.jsonapi import RdfJsonapiRenderer
-from trove.render._rendering import SimpleRendering
+from trove.render.rendering import EntireRendering
 from trove.vocab.namespaces import BLARG
 from . import _base
 
@@ -31,9 +31,9 @@ class _BaseJsonapiRendererTest(_base.TroveJsonRendererTests):
 
 class TestJsonapiRenderer(_BaseJsonapiRendererTest):
     expected_outputs = {
-        'simple_card': SimpleRendering(
+        'simple_card': EntireRendering(
             mediatype='application/vnd.api+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": {
                     "id": "blarg:aCard",
                     "type": "index-card",
@@ -43,7 +43,7 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                         ],
                         "resourceMetadata": {
                             "@id": BLARG.anItem,
-                            "title": "an item, yes"
+                            "title": [{"@value": "an item, yes"}]
                         }
                     },
                     "links": {
@@ -63,9 +63,9 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
                 }
             }),
         ),
-        'various_types': SimpleRendering(
+        'various_types': EntireRendering(
             mediatype='application/vnd.api+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": {
                     "id": "blarg:aSubject",
                     "type": "blarg:aType",
@@ -86,9 +86,9 @@ class TestJsonapiRenderer(_BaseJsonapiRendererTest):
 
 class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonRendererTests):
     expected_outputs = {
-        'no_results': SimpleRendering(
+        'no_results': EntireRendering(
             mediatype='application/vnd.api+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": {
                     "id": "blarg:aSearch",
                     "type": "index-card-search",
@@ -101,9 +101,9 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                 }
             }),
         ),
-        'few_results': SimpleRendering(
+        'few_results': EntireRendering(
             mediatype='application/vnd.api+json',
-            rendered_content=json.dumps({
+            entire_content=json.dumps({
                 "data": {
                     "id": "blarg:aSearchFew",
                     "type": "index-card-search",
@@ -189,7 +189,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                             ],
                             "resourceMetadata": {
                                 "@id": BLARG.anItem,
-                                "title": "an item, yes"
+                                "title": [{"@value": "an item, yes"}]
                             }
                         },
                         "links": {
@@ -215,8 +215,29 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                                 BLARG.anItemmm
                             ],
                             "resourceMetadata": {
-                                "@id": BLARG.anItemmm,
-                                "title": "an itemmm, yes"
+                                '@id': BLARG.anItemmm,
+                                "sameAs": [
+                                    {"@id": "https://doi.example/13.0/anItemmm"}
+                                ],
+                                'title': [{'@value': 'an itemmm, yes'}],
+                                "creator": [
+                                    {
+                                        "@id": BLARG.aPerson,
+                                        "resourceType": [
+                                            {"@id": "Agent"},
+                                            {"@id": "Person"}
+                                        ],
+                                        "identifier": [
+                                            {"@value": BLARG.aPerson}
+                                        ],
+                                        "name": [
+                                            {"@value": "a person indeed"}
+                                        ]
+                                    }
+                                ],
+                                "dateCreated": [
+                                    {"@value": "2001-02-03"}
+                                ],
                             }
                         },
                         "links": {
@@ -243,7 +264,7 @@ class TestJsonapiSearchRenderer(_BaseJsonapiRendererTest, _base.TrovesearchJsonR
                             ],
                             "resourceMetadata": {
                                 "@id": BLARG.anItemm,
-                                "title": "an itemm, yes"
+                                "title": [{"@value": "an itemm, yes"}]
                             }
                         },
                         "links": {
