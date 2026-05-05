@@ -20,12 +20,15 @@ class TestIndexBackfillMethods:
             index_strategy_name=fake_strategy.strategy_name,
         )
 
-    def test_happypath(self, index_backfill: IndexBackfill, fake_strategy):
+    def test_happypath(self, index_backfill: IndexBackfill, fake_strategy, django_capture_on_commit_callbacks):
         assert index_backfill.backfill_status == IndexBackfill.INITIAL
         assert index_backfill.strategy_checksum == ''
-        with mock.patch('share.models.index_backfill.task__schedule_index_backfill') as mock_task:
+        with (
+            mock.patch('share.models.index_backfill.task__schedule_index_backfill') as mock_task,
+            django_capture_on_commit_callbacks(execute=True),
+        ):
             index_backfill.pls_start(fake_strategy)
-            mock_task.apply_async.assert_called_once_with((index_backfill.pk,))
+        mock_task.apply_async.assert_called_once_with((index_backfill.pk,))
         assert index_backfill.backfill_status == IndexBackfill.WAITING
         assert index_backfill.strategy_checksum == 'foo_bar'
         index_backfill.pls_note_scheduling_has_begun()

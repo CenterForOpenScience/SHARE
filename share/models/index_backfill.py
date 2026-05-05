@@ -98,14 +98,11 @@ class IndexBackfill(models.Model):
                 locked_self.strategy_checksum = _current_checksum
                 locked_self.backfill_status = IndexBackfill.INITIAL
             locked_self.__update_error(None)
-            try:
-                task__schedule_index_backfill.apply_async((locked_self.pk,))
-            except Exception as error:
-                locked_self.__update_error(error)
-            else:
-                locked_self.backfill_status = IndexBackfill.WAITING
-            finally:
-                locked_self.save()
+            locked_self.backfill_status = IndexBackfill.WAITING
+            locked_self.save()
+            transaction.on_commit(
+                lambda: task__schedule_index_backfill.apply_async((locked_self.pk,))
+            )
 
     def pls_note_scheduling_has_begun(self):
         with self.mutex() as locked_self:

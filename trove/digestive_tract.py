@@ -65,7 +65,7 @@ def ingest(
             expiration_date=expiration_date,
         )
         for _card in _extracted_cards:
-            task__derive.delay(_card.pk, urgent=urgent)
+            transaction.on_commit(lambda: task__derive.delay(_card.pk, urgent=urgent))
 
 
 @transaction.atomic
@@ -249,7 +249,7 @@ def _expel_supplementary_descriptions(supplementary_rdf_queryset: QuerySet[trove
             _affected_indexcards.add(_supplement.indexcard)
         _supplement.delete()
     for _indexcard in _affected_indexcards:
-        task__derive.delay(_indexcard.pk)
+        transaction.on_commit(lambda: task__derive.delay(_indexcard.pk))
 
 
 ### BEGIN celery tasks
