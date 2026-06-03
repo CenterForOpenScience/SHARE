@@ -67,10 +67,10 @@ services:
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
         fi
-        echo "Setting file permissions"
+        echo "Setting cert file permissions (give read permission to all users -- may not be suitable for production)"
         chown -R root:root config/certs;
-        find . -type d -exec chmod 750 \{\} \;;
-        find . -type f -exec chmod 640 \{\} \;;
+        find . -type d -exec chmod 755 \{\} \;;
+        find . -type f -exec chmod 644 \{\} \;;
         echo "Waiting for Elasticsearch availability";
         until curl -s --cacert config/certs/ca/ca.crt https://elastic8:9200 | grep -q "missing authentication credentials"; do sleep 1; done;
         echo "Setting kibana_system password";
@@ -165,8 +165,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    command:
-      /bin/bash -c 'cp -r /elastic8_certs /elastic_certs && chown -R daemon:daemon /elastic_certs/ && /usr/local/bin/celery --app project worker --uid daemon -l INFO'
+    command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
       - rabbitmq
@@ -181,7 +180,7 @@ services:
       - .docker-compose.env
     environment:
       - ELASTICSEARCH8_SECRET=secretsecret
-      - ELASTICSEARCH8_CERT_PATH=/elastic_certs/ca/ca.crt
+      - ELASTICSEARCH8_CERT_PATH=/elastic8_certs/ca/ca.crt
     stdin_open: true
     networks:
       - share_network
