@@ -1,5 +1,11 @@
 # Change Log
 
+# [26.0.0] - 2026-06-10
+- update `sentry-sdk`
+- fix `iriShorthand` query param handling on `/trove/` api
+- fix reindexing action on `/admin/trove/indexcard/`
+- fix intermittent ingest blockage by scheduling tasks with `on_commit`
+
 # [25.6.1] - 2025-12-08
 - bump `django` to 5.2.8
 - fix: cap length for elasticsearch document id
