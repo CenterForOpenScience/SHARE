@@ -126,6 +126,7 @@ class Elastic8IndexStrategy(IndexStrategy):
         timeout = settings.ELASTICSEARCH['TIMEOUT']
         return elasticsearch8.Elasticsearch(
             hosts=settings.ELASTICSEARCH8_URL,
+            ssl_assert_hostname=settings.ELASTICSEARCH8_ASSERT_HOSTNAME,
             # security:
             ca_certs=settings.ELASTICSEARCH8_CERT_PATH,
             basic_auth=(
