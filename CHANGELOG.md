@@ -1,5 +1,8 @@
 # Change Log
 
+# [26.0.1] - 2026-07-25
+- allow setting elasticsearch's `ssl_assert_hostname` with env var `ELASTICSEARCH8_ASSERT_HOSTNAME`
+
 # [26.0.0] - 2026-06-10
 - update `sentry-sdk`
 - fix `iriShorthand` query param handling on `/trove/` api

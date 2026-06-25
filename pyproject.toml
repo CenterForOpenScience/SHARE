@@ -1,6 +1,6 @@
 [project]
 name = "shtrove"
-version = "26.0.0"
+version = "26.0.1"
 description = ""
 authors = [
     {name = "CenterForOpenScience", email = "share-support@cos.io"}
