@@ -38,14 +38,10 @@ services:
     user: "0"
     environment:
       - ELASTIC_PASSWORD=secretsecret
-      - KIBANA_PASSWORD=${KIBANA_PASSWORD:-kibanakibana}
     command: >
       bash -c '
         if [ x$${ELASTIC_PASSWORD} == x ]; then
           echo "Set the ELASTIC_PASSWORD environment variable";
-          exit 1;
-        elif [ x$${KIBANA_PASSWORD} == x ]; then
-          echo "Set the KIBANA_PASSWORD environment variable";
           exit 1;
         fi;
         if [ ! -f config/certs/ca.zip ]; then
@@ -67,28 +63,19 @@ services:
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
         fi
-        echo "Setting file permissions"
+        echo "Setting cert file permissions (give read permission to all users -- may not be suitable for production)"
         chown -R root:root config/certs;
-        find . -type d -exec chmod 750 \{\} \;;
-        find . -type f -exec chmod 640 \{\} \;;
-        echo "Waiting for Elasticsearch availability";
-        until curl -s --cacert config/certs/ca/ca.crt https://elastic8:9200 | grep -q "missing authentication credentials"; do sleep 1; done;
-        echo "Setting kibana_system password";
-        until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:$${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elastic8:9200/_security/user/kibana_system/_password -d "{\"password\":\"$${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 1; done;
+        find . -type d -exec chmod 755 \{\} \;;
+        find . -type f -exec chmod 644 \{\} \;;
         echo "All done!";
       '
-    healthcheck:
-      test: ["CMD-SHELL", "[ -f config/certs/singlenode/singlenode.crt ]"]
-      interval: 1s
-      timeout: 5s
-      retries: 120
     networks:
       - share_network
 
   elastic8:
     depends_on:
       elastic8_setup:
-        condition: service_healthy
+        condition: service_completed_successfully
     image: docker.elastic.co/elasticsearch/elasticsearch:8.18.3
     ports:
       - 9208:9200
@@ -115,7 +102,7 @@ services:
       - share_network
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3.8-management
     ports:
       - 5673:5672
       - 15673:15672
@@ -165,8 +152,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    command:
-      /bin/bash -c 'cp -r /elastic8_certs /elastic_certs && chown -R daemon:daemon /elastic_certs/ && /usr/local/bin/celery --app project worker --uid daemon -l INFO'
+    command: /usr/local/bin/celery --app project worker --uid daemon -l INFO
     depends_on:
       - postgres
       - rabbitmq
@@ -181,7 +167,7 @@ services:
       - .docker-compose.env
     environment:
       - ELASTICSEARCH8_SECRET=secretsecret
-      - ELASTICSEARCH8_CERT_PATH=/elastic_certs/ca/ca.crt
+      - ELASTICSEARCH8_CERT_PATH=/elastic8_certs/ca/ca.crt
     stdin_open: true
     networks:
       - share_network

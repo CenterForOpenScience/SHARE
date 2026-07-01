@@ -8,7 +8,7 @@
 
 `GET /trove/browse?iri=...`: inquire about a thing you have already identified
 
-(see [openapi docs](/trove/docs/openapi.html) for detail and available parameters)
+(see [openapi docs](https://share.osf.io/trove/docs) for detail and available parameters)
 
 
 ### Posting index-cards

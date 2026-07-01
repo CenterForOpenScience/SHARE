@@ -43,12 +43,12 @@ docker-compose up -d postgres elastic8
 since we're not installing anything more on the host machine, it'll be useful to open
 a shell running within SHARE's environment in docker:
 ```
-docker-compose run --rm --no-deps worker bash
+docker-compose run --rm --no-deps indexer bash
 ```
-this will open a bash prompt within a temporary `worker` container -- from here we can
+this will open a bash prompt within a temporary `indexer` container -- from here we can
 run commands within SHARE's environment, including django's `manage.py`
 
-from within that worker shell, use django's `migrate` command to create tables in postgres:
+from within that indexer shell, use django's `migrate` command to create tables in postgres:
 ```
 python manage.py migrate
 ```
@@ -94,14 +94,14 @@ docker-compose up -d worker
 there are several ways to open a shell with SHARE's environment (which has
 django's `manage.py` and management commands defined in `management/commands/`
 
-if `worker` is already up, can open a shell within that container:
+if `indexer` is already up, can open a shell within that container:
 ```
-docker-compose exec worker bash
+docker-compose exec indexer bash
 ```
 
-if no services are up, can open a shell within a new, temporary `worker` container:
+if no services are up, can open a shell within a new, temporary `indexer` container:
 ```
-docker-compose run --rm --no-deps worker bash
+docker-compose run --rm --no-deps indexer bash
 ```
 (remove `--no-deps` if you'd like the other services started automatically)
 
