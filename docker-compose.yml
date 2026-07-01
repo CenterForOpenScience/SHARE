@@ -102,7 +102,7 @@ services:
       - share_network
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3.8-management
     ports:
       - 5673:5672
       - 15673:15672
