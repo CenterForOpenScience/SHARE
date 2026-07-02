@@ -50,6 +50,7 @@ graph LR;
 ```
 
 ### /trove/ingest
+a slightly simplified look at how metadata records are ingested, as currently implemented:
 ```mermaid
 sequenceDiagram
     participant ms as metadata source
@@ -68,15 +69,16 @@ sequenceDiagram
     ss ->> sq: enqueue derive task
     ss ->> ms: 201 CREATED (success!)
     sq -->> sw: receive derive task
-    sd <<-->> sw: load metadata record
+    sd <<-->> sw: load ResourceDescription(s)
     sw ->> sd: save DerivedIndexcards
     sw ->> sq: enqueue indexer message
-    sq -->> si: bulk receive indexer messages
-    sd <<-->> si: bulk load metadata
+    sq -->> si: bulk receive messages
+    sd <<-->> si: bulk load metadata records
     si ->> se: bulk index
 ```
 
 ### /trove/index-card-search
+a slightly simplified look at how search requests are served, as currently implemented:
 ```mermaid
 sequenceDiagram
     participant c as client
@@ -86,10 +88,9 @@ sequenceDiagram
     participant se as elasticsearch
     end
     c ->> ss: GET /trove/index-card-search
-    ss ->> se: query (via index strategy)
-    se ->> ss: result ids (plus context)
+    ss <<-->> se: query for result ids (and context)
     ss <<-->> sd: load metadata records
-    ss ->> c: respond/stream search results (formatted as requested)
+    ss ->> c: respond/stream search results
 ```
 
 ## Code map
@@ -135,9 +136,7 @@ Uses the [resource description framework](https://www.w3.org/TR/rdf11-primer/#se
 
 ### Identifiers
 
-Whenever feasible, use full URI strings to identify resources, concepts, types, and properties that may be exposed outwardly.
-
-Prefer using open, standard, well-defined namespaces wherever possible ([DCAT](https://www.w3.org/TR/vocab-dcat-3/) is a good place to start; see `trove.vocab.namespaces` for others already in use). When app-specific concepts must be defined, use the `TROVE` namespace (`https://share.osf.io/vocab/2023/trove/`).
+Whenever feasible, use full [IRI](https://www.rfc-editor.org/rfc/rfc3987.html) strings (utf-8) to identify resources, concepts, types, and properties that may be exposed outwardly (without converting to URI or using to send requests). Prefer using open, standard, well-defined namespaces wherever possible ([DCAT](https://www.w3.org/TR/vocab-dcat-3/) is a good place to start; see `trove.vocab.namespaces` for others already in use). When app-specific concepts must be defined, use the `TROVE` namespace (`https://share.osf.io/vocab/2023/trove/`).
 
 A notable exception (non-URI identifier) is the "source-unique identifier" or "suid" -- essentially a two-tuple `(source, identifier)` that uniquely and persistently identifies a metadata record in a source repository. This `identifier` may be any string value, provided by the external source.
 
