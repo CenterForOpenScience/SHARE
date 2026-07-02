@@ -9,7 +9,8 @@ In short, SHARE/trove holds metadata records that describe things and makes thos
 
 
 ## Parts
-a look at the tangles of communication between different parts of the system:
+a slightly simplified look at the tangles of communication between different parts of the system,
+as currently implemented:
 
 ```mermaid
 graph LR;
@@ -46,6 +47,49 @@ graph LR;
     subscribers-->rss;
     subscribers-->atom;
     subscribers-->oaipmh;
+```
+
+### /trove/ingest
+```mermaid
+sequenceDiagram
+    participant ms as metadata source
+    box shtrove
+    participant ss as web server
+    participant sd as db (postgres)
+    participant sw as worker (celery)
+    participant sq as queues (rabbitmq)
+    participant si as indexer
+    participant se as elasticsearch
+    end
+    ms ->> ss: POST /trove/ingest
+    ss ->> sd: save ResourceIdentifier(s)
+    ss ->> sd: save Indexcard
+    ss ->> sd: save ResourceDescription(s)
+    ss ->> sq: enqueue derive task
+    ss ->> ms: 201 CREATED (success!)
+    sq -->> sw: receive derive task
+    sd <<-->> sw: load metadata record
+    sw ->> sd: save DerivedIndexcards
+    sw ->> sq: enqueue indexer message
+    sq -->> si: bulk receive indexer messages
+    sd <<-->> si: bulk load metadata
+    si ->> se: bulk index
+```
+
+### /trove/index-card-search
+```mermaid
+sequenceDiagram
+    participant c as client
+    box shtrove
+    participant ss as web server
+    participant sd as db (postgres)
+    participant se as elasticsearch
+    end
+    c ->> ss: GET /trove/index-card-search
+    ss ->> se: query (via index strategy)
+    se ->> ss: result ids (plus context)
+    ss <<-->> sd: load metadata records
+    ss ->> c: respond/stream search results (formatted as requested)
 ```
 
 ## Code map
