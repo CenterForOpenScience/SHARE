@@ -9,7 +9,6 @@ class IndexStatus:
     specific_indexname: str
     doc_count: int = 0
     is_kept_live: bool = False
-    is_default_for_searching: bool = False
 
 
 @dataclasses.dataclass

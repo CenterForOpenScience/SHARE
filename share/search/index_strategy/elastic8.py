@@ -360,7 +360,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                     index_subname=self.subname,
                     specific_indexname=self.full_index_name,
                     is_kept_live=False,
-                    is_default_for_searching=False,
                     doc_count=0,
                     creation_date='',
                 )
@@ -383,10 +382,6 @@ class Elastic8IndexStrategy(IndexStrategy):
                 specific_indexname=self.full_index_name,
                 is_kept_live=(
                     self.index_strategy._alias_for_keeping_live
-                    in index_aliases
-                ),
-                is_default_for_searching=(
-                    self.index_strategy._alias_for_searching
                     in index_aliases
                 ),
                 creation_date=creation_date,

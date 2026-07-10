@@ -38,6 +38,9 @@ nav {
     </section>
     <section>
       <h3>current: {{ strategy_info.status.strategy_id }}</h3>
+      {% if strategy_info.status.is_default_for_searching %}
+      <p>{% blocktranslate %}(default for searching with {{ index_strategy_name }}){% endblocktranslate %}</p>
+      {% endif %}
       <nav>
         {% if not strategy_info.status.is_set_up %}
         <form method="post">
@@ -81,22 +84,12 @@ nav {
             {% trans "backfill" %}:{{ strategy_info.backfill.backfill_status }}
         </a></p>
         {% endif %}
-        {% if strategy_info.status.is_set_up %}
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
-          <input type="hidden" name="pls_do" value="delete" />
-          <input type="submit" value="{% trans "delete" %}" />
-          <label>{% trans "really? (you have to type 'really really')" %}<input type="text" name="really"/></label>
-        </form>
-        {% endif %}
       </nav>
       <table>
         <tr>
-          <th>{% trans "index" %}</th>
+          <th>{% trans "key" %}</th>
           <th>{% trans "created" %}</th>
           <th>{% trans "is kept live" %}</th>
-          <th>{% trans "is default for searching" %}</th>
           <th>{% trans "doc count" %}</th>
           <th>{% trans "links" %}</th>
           <th>{% trans "full index name" %}</th>
@@ -106,7 +99,6 @@ nav {
           <td>{{ current_index_status.index_subname }}</td>
           <td>{{ current_index_status.creation_date|default:"--" }}</td>
           <td>{% if current_index_status.is_kept_live %}✓{% endif %}</td>
-          <td>{% if current_index_status.is_default_for_searching %}✓{% endif %}</td>
           <td><a href="{{search_url_prefix}}{{current_index_status.specific_indexname}}" target="_blank">{{ current_index_status.doc_count }}</a></td>
           <td>
             {% if current_index_status.creation_date %}
@@ -117,10 +109,23 @@ nav {
         </tr>
         {% endfor %}
       </table>
+      {% if strategy_info.status.is_set_up %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
+        <input type="hidden" name="pls_do" value="delete" />
+        <input type="submit" value="{% trans "delete" %}" />
+        <label>{% blocktranslate with strategy_id=strategy_info.status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
+        <input type="text" name="really"/></label>
+      </form>
+      {% endif %}
     </section>
     {% for prior_strategy_status in strategy_info.status.existing_prior_strategies %}
       <section>
         <h3>prior: {{ prior_strategy_status.strategy_id }}</h3>
+        {% if prior_strategy_status.is_default_for_searching %}
+        <p>{% blocktranslate %}(default for searching with {{ index_strategy_name }}){% endblocktranslate %}</p>
+        {% endif %}
         <nav>
           {% if not prior_strategy_status.is_default_for_searching %}
           <form method="post">
@@ -144,21 +149,13 @@ nav {
             <input type="hidden" name="pls_do" value="start_keeping_live" />
             <input type="submit" value="{% trans "start keeping live" %}" />
           </form>
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
-            <input type="hidden" name="pls_do" value="delete" />
-            <input type="submit" value="{% trans "delete" %}" />
-            <label>{% trans "really? (you have to type 'really really')" %}<input type="text" name="really"/></label>
-          </form>
           {% endif %}
         </nav>
         <table>
           <tr>
-            <th>{% trans "index" %}</th>
+            <th>{% trans "key" %}</th>
             <th>{% trans "created" %}</th>
             <th>{% trans "is kept live" %}</th>
-            <th>{% trans "is default for searching" %}</th>
             <th>{% trans "doc count" %}</th>
             <th>{% trans "links" %}</th>
             <th>{% trans "full index name" %}</th>
@@ -168,7 +165,6 @@ nav {
             <td>{{ index_status.index_subname }}</td>
             <td>{{ index_status.creation_date }}</td>
             <td>{% if index_status.is_kept_live %}✓{% endif %}</td>
-            <td>{% if index_status.is_default_for_searching %}✓{% endif %}</td>
             <td><a href="{{search_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{{ index_status.doc_count }}</a></td>
             <td>{% if index_status.creation_date %}
               <p><a href="{{mappings_url_prefix}}{{index_status.specific_indexname}}" target="_blank">{% trans "mappings" %}</a></p>
@@ -178,6 +174,16 @@ nav {
           </tr>
           {% endfor %}
         </table>
+        {% if not prior_strategy_status.is_kept_live %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
+          <input type="hidden" name="pls_do" value="delete" />
+          <input type="submit" value="{% trans "delete" %}" />
+          <label>{% blocktranslate with strategy_id=prior_strategy_status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
+          <input type="text" name="really"/></label>
+        </form>
+        {% endif %}
       </section>
     {% endfor %}
   </section>
