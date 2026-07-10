@@ -1,13 +1,22 @@
-# how this relates to osf.io
+# how this relates to osf.io (as of 2026-07)
 
-how OSF metadata (see [osf.io repo](https://github.com/CenterForOpenScience/osf.io)) gets indexed for search (currently, as of 2026-07):
+OSF uses shtrove to hold metadata records for all its public items, and uses the [trove search api](./use-the-api.md) to power various search/discover interfaces:
+- `osf.example/search`
+- `osf.example/preprints/<id>/discover`
+- `osf.example/registries/<id>/discover`
+- `osf.example/institutions/<id>`
+- `osf.example/institutions/<id>/dashboard`
+- `osf.example/user/<id>`
 
+## ingestion from OSF
+
+how OSF metadata (see [osf.io repo](https://github.com/CenterForOpenScience/osf.io)) gets indexed for search:
 1. gather an OSFMAP metadata record (as [linked open data](https://en.wikipedia.org/wiki/Linked_open_data))
 2. send that record to shtrove for ingestion
 3. derive multiple representations/serializations
 4. index by multiple indexing strategies in parallel
 
-## 1. gather metadata
+### 1. gather metadata
 in `osf.metadata.osf_gathering`, each metadata property defined in OSF's metadata application
 profile ([OSFMAP](https://osf.io/8yczr)) has a "gatherer" function that gets data from OSF's
 database for the given item and yields values as portable/interoperable RDF linked data
@@ -20,7 +29,7 @@ after an update occurs to an item on OSF that is public and meant to be discover
 background tasks (see OSF's `api.share.utils`) gather all available metadata and send
 it to SHARE/trove
 
-## 2. send to shtrove
+### 2. send to shtrove
 metadata records are sent in [turtle](https://en.wikipedia.org/wiki/Turtle_RDF) format with
 a POST request to shtrove's `/trove/ingest` api -- for details of query params, see
 [how-to docs](https://github.com/CenterForOpenScience/SHARE/blob/develop/how-to/use-the-api.md#posting-index-cards)
@@ -59,7 +68,7 @@ shtrove then enqueues a background `task__derive` and responds to OSF with `201 
 (note: from this point on, all background tasks are in SHARE's own queues and workers,
 unaffected by OSF's chronic celery-task logjams)
 
-## 3. derive representations
+### 3. derive representations
 after an update has been received for an `Indexcard`, `trove.digestive_tract.task__derive`
 combines that card's `LatestResourceDescription` and each current `SupplementaryResourceDescription`
 and creates a `DerivedIndexcard` for each deriver in `trove.derive.DEFAULT_DERIVER_SET`
@@ -74,7 +83,7 @@ once all relevant `DerivedIndexcard`s are saved, `task__derive` enqueues message
 (using `share.search.index_messenger`) to notify shtrove's "indexer daemon" that the
 given `Indexcard` is ready for indexing
 
-## 4. index multiple ways
+### 4. index multiple ways
 shtrove's indexer daemon (see `share.search.daemon`) is meant for efficient bulk-indexing
 to multiple indexing strategies in parallel -- each index strategy has its own separate
 message queues and daemon threads for urgent and nonurgent updates, where each thread fetches
@@ -103,7 +112,7 @@ could be implemented a variety of ways -- if there were multiple trovesearch str
 (as there was before settling on trovesearch_denorm), can select a non-default one with
 the `indexStrategy` query param)
 
-## OSF-thru-shtrove ingestion sequence
+### OSF-thru-shtrove ingestion sequence
 (slightly simplified)
 ```mermaid
 sequenceDiagram
