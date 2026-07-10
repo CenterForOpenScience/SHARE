@@ -64,9 +64,9 @@ def get_strategy(
     if strategy_check:
         _strategy = _strategy.with_strategy_check(strategy_check)
     return (
-        _strategy.pls_get_default_for_searching()
-        if (for_search and not strategy_check)
-        else _strategy
+        _strategy
+        if strategy_check or not for_search
+        else _strategy.pls_get_default_for_searching() or _strategy
     )
 
 

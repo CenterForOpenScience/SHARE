@@ -102,10 +102,6 @@ def _pls_start_keeping_live(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_start_keeping_live()
 
 
-def _pls_stop_keeping_live(index_strategy: IndexStrategy, request_kwargs):
-    index_strategy.pls_stop_keeping_live()
-
-
 def _pls_start_backfill(index_strategy: IndexStrategy, request_kwargs):
     assert index_strategy.is_current
     index_strategy.pls_start_backfill()
@@ -130,6 +126,5 @@ PLS_DOERS = {
     'start_backfill': _pls_start_backfill,
     'mark_backfill_complete': _pls_mark_backfill_complete,
     'make_default_for_searching': _pls_make_default_for_searching,
-    'stop_keeping_live': _pls_stop_keeping_live,
     'delete': _pls_delete,
 }

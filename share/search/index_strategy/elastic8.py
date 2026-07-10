@@ -228,12 +228,12 @@ class Elastic8IndexStrategy(IndexStrategy):
         )
 
     # abstract method from IndexStrategy
-    def pls_get_default_for_searching(self) -> IndexStrategy:
+    def pls_get_default_for_searching(self) -> IndexStrategy | None:
         _searchnames = self._get_indexnames_for_alias(self._alias_for_searching)
         try:
             (_indexname, *_) = _searchnames
         except ValueError:
-            return self  # no default set, this one's fine
+            return None  # no default set
         (_strategyname, _strategycheck, *_) = parse_indexname_parts(_indexname)
         assert _strategyname == self.strategy_name
         _strategycheck = _strategycheck.rstrip('*')  # may be a wildcard alias

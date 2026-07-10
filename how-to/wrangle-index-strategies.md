@@ -25,7 +25,10 @@ major-version upgrade of elasticsearch) you should instead create a new index st
 3. ensure all services are running up-to-date code (in local dev setup, restart `indexer`, `worker`, and `web`)
 4. in the [shtrove admin site](./use-the-admin-site.md), use `/admin/search-indexes` to setup and backfill the new current version
 5. use the trove api with `indexStrategy` query param (using the full `mystrategy__checksum...` identifier) to test/compare against the prior (default) version
-6. use `/admin/search-indexes` to make the updated "current" the new default for searching with that strategy
+6. when ready to switch over to use the new version by default, use `/admin/search-indexes`:
+    - 
+6. when ready to switch over use `/admin/search-indexes` to make the updated "current" the new default for searching with that strategy
+7. when ready to delete a prior version, use `/admin/search-indexes`
 
 ## how to set up a new index strategy
 1. add an instance of your `IndexStrategy` subclass to `share.search.index_strategy._AvailableStrategies` with a unique shortname (this should someday be configurable in settings, but is currently hard-coded)

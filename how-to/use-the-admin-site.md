@@ -48,13 +48,13 @@ for each available index strategy:
     - backfill status (if any)
         - for manual tracking of backfill progress
         - click link to view/reset backfill status and error message, if any
-    - lifecycle controls (each displayed only when doable):
+    - lifecycle controls (each displayed only when safe to do):
         - setup (create indexes -- note only the current version can be set up)
         - start keeping live (receive new metadata updates)
         - start backfill (schedule task to enqueue indexer messages for all existing cards)
         - mark backfill complete (to be done manually, when queue clear)
-        - make default for searching (each strategy has only one default)
-        - delete (must confirm by typing "really really")
+        - make default for searching within this strategy (only when backfill marked complete)
+        - delete -- must confirm by typing "really really"
     - status of each specific index within this strategy version:
         - key (short name within the strategy)
         - created date
@@ -64,10 +64,10 @@ for each available index strategy:
         - full index name
 - for each prior version of this same strategy (that still has existing indexes):
     - unique checksum of index mappings/settings
-    - lifecycle controls (each displayed only when doable):
+    - lifecycle controls (each displayed only when safe to do):
         - start keeping live (receive new metadata updates)
-        - make default for searching (each strategy has only one default)
-        - delete (must confirm by typing "really really" -- note prior versions cannot be recreated from current code)
+        - make default for searching within this strategy (only when backfill marked complete)
+        - delete (only when not default for searching) -- must confirm by typing "really really"
     - status of each specific index within this strategy version:
         - key (short name within the strategy)
         - created date

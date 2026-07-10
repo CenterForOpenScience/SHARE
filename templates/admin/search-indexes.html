@@ -3,8 +3,12 @@
 
 {% block extrastyle %}
 <style>
-section, table {
-  padding-left: 2em;
+section {
+  margin-left: 2em;
+}
+section.shtrove_index_strategy_version {
+  border: 1px solid;
+  padding: 0 0.8em 0.8em;
 }
 nav {
   display: flex;
@@ -20,10 +24,9 @@ nav {
   <section>
     <h2 id="{{index_strategy_name}}"><i>{{ index_strategy_name }}</i> index strategy</h2>
     <section>
-      <h3>queues</h3>
       <table>
         <tr>
-          <th>{% trans "name" %}</th>
+          <th>{% trans "queue" %}</th>
           <th>{% trans "depth" %}</th>
           <th>{% trans "rate (past 30s)" %}</th>
         </tr>
@@ -36,7 +39,7 @@ nav {
         {% endfor %}
       </table>
     </section>
-    <section>
+    <section class='shtrove_index_strategy_version'>
       <h3>current: {{ strategy_info.status.strategy_id }}</h3>
       {% if strategy_info.status.is_default_for_searching %}
       <p>{% blocktranslate %}(default for searching with {{ index_strategy_name }}){% endblocktranslate %}</p>
@@ -71,7 +74,7 @@ nav {
           <input type="submit" value="{% trans "mark backfill complete" %}" />
         </form>
         {% endif %}
-        {% if strategy_info.status.is_set_up and not strategy_info.status.is_default_for_searching %}
+        {% if strategy_info.status.is_set_up and strategy_info.backfill.is_complete and not strategy_info.status.is_default_for_searching %}
         <form method="post">
           {% csrf_token %}
           <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
@@ -79,7 +82,7 @@ nav {
           <input type="submit" value="{% trans "make default for searching" %}" />
         </form>
         {% endif %}
-        {% if strategy_info.backfill.backfill_admin_url %}
+        {% if strategy_info.status.is_set_up and strategy_info.backfill.backfill_admin_url %}
         <p><a href="{{strategy_info.backfill.backfill_admin_url}}">
             {% trans "backfill" %}:{{ strategy_info.backfill.backfill_status }}
         </a></p>
@@ -110,18 +113,20 @@ nav {
         {% endfor %}
       </table>
       {% if strategy_info.status.is_set_up %}
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
-        <input type="hidden" name="pls_do" value="delete" />
-        <input type="submit" value="{% trans "delete" %}" />
-        <label>{% blocktranslate with strategy_id=strategy_info.status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
-        <input type="text" name="really"/></label>
-      </form>
+      <nav class="delete-confirmation">
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="strategy_name" value="{{index_strategy_name}}" />
+          <input type="hidden" name="pls_do" value="delete" />
+          <input type="submit" value="{% trans "delete" %}" class="delete-button" />
+          <label>{% blocktranslate with strategy_id=strategy_info.status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
+          <input type="text" name="really"/></label>
+        </form>
+      </nav>
       {% endif %}
     </section>
     {% for prior_strategy_status in strategy_info.status.existing_prior_strategies %}
-      <section>
+      <section class='shtrove_index_strategy_version'>
         <h3>prior: {{ prior_strategy_status.strategy_id }}</h3>
         {% if prior_strategy_status.is_default_for_searching %}
         <p>{% blocktranslate %}(default for searching with {{ index_strategy_name }}){% endblocktranslate %}</p>
@@ -135,14 +140,7 @@ nav {
             <input type="submit" value="{% trans "make default for searching" %}" />
           </form>
           {% endif %}
-          {% if prior_strategy_status.is_kept_live %}
-          <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
-            <input type="hidden" name="pls_do" value="stop_keeping_live" />
-            <input type="submit" value="{% trans "stop keeping live" %}" />
-          </form>
-          {% else %}
+          {% if not prior_strategy_status.is_kept_live %}
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
@@ -174,15 +172,17 @@ nav {
           </tr>
           {% endfor %}
         </table>
-        {% if not prior_strategy_status.is_kept_live %}
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
-          <input type="hidden" name="pls_do" value="delete" />
-          <input type="submit" value="{% trans "delete" %}" />
-          <label>{% blocktranslate with strategy_id=prior_strategy_status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
-          <input type="text" name="really"/></label>
-        </form>
+        {% if not prior_strategy_status.is_default_for_searching %}
+        <nav class="delete-confirmation">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="strategy_name" value="{{prior_strategy_status.strategy_id}}" />
+            <input type="hidden" name="pls_do" value="delete" />
+            <input type="submit" value="{% trans "delete" %}" class="delete-button" />
+            <label>{% blocktranslate with strategy_id=prior_strategy_status.strategy_id %}really delete {{strategy_id}}? (you have to type 'really really'){% endblocktranslate %}
+            <input type="text" name="really"/></label>
+          </form>
+        </nav>
         {% endif %}
       </section>
     {% endfor %}
