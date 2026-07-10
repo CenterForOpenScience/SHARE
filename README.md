@@ -8,10 +8,8 @@ SHARE/trove (aka SHARtrove, shtrove) is is a service meant to store (meta)data y
 
 note: this codebase is currently (and historically) rather entangled with [osf.io](https://osf.io), which has its shtrove at https://share.osf.io -- stay tuned for more-reusable open-source libraries and tools for working with (meta)data
 
+see [how-to docs](./how-to/) for help setting up and using various things
+
 see [ARCHITECTURE.md](./ARCHITECTURE.md) for help navigating this codebase
 
 see [CONTRIBUTING.md](./CONTRIBUTING.md) for info about contributing changes
-
-see [how-to/use-the-api.md](./how-to/use-the-api.md) for help using the api to add and access (meta)data
-
-see [how-to/run-locally.md](./how-to/run-locally.md) for help running a shtrove instance for local development
