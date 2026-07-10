@@ -80,7 +80,11 @@ def _serialize_backfill(strategy: IndexStrategy):
         backfill = IndexBackfill.objects.get(index_strategy_name=strategy.strategy_name)
     except IndexBackfill.DoesNotExist:
         backfill = None
-    if not backfill or (backfill.strategy_checksum != str(strategy.CURRENT_STRATEGY_CHECKSUM)):
+    if not backfill or backfill.strategy_checksum not in (
+        str(strategy.CURRENT_STRATEGY_CHECKSUM),
+        # for backcompat with backfills with specific index name instead of strategy checksum
+        *(_index.full_index_name for _index in strategy.each_subnamed_index()),
+    ):
         return {
             'can_start_backfill': strategy.pls_check_exists(),
         }
