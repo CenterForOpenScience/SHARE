@@ -103,28 +103,36 @@ could be implemented a variety of ways -- if there were multiple trovesearch str
 (as there was before settling on trovesearch_denorm), can select a non-default one with
 the `indexStrategy` query param)
 
-## OSF-to-shtrove ingestion sequence
+## OSF-thru-shtrove ingestion sequence
 (slightly simplified)
 ```mermaid
 sequenceDiagram
-    participant ms as metadata source
+    box OSF
+    participant oq as queues (rabbitmq)
+    participant od as db (postgres)
+    participant ow as worker (celery)
+    end
     box shtrove
     participant ss as web server
-    participant sd as db
-    participant sw as worker
-    participant sq as queues
+    participant sd as db (postgres)
+    participant sw as worker (celery)
+    participant sq as queues (rabbitmq)
     participant si as indexer
-    participant se as elastic
+    participant se as elasticsearch
     end
-    ms ->> ss: POST /trove/ingest
-    ss ->> sd: save metadata record
+    oq -->> ow: receive update task
+    od <<-->> ow: gather metadata
+    ow ->> ss: POST /trove/ingest
+    ss ->> sd: save ResourceIdentifier(s)
+    ss ->> sd: save Indexcard
+    ss ->> sd: save ResourceDescription(s)
     ss ->> sq: enqueue derive task
-    ss ->> ow: success!
+    ss ->> ow: 201 CREATED (success!)
     sq -->> sw: receive derive task
-    sd <<-->> sw: load metadata record
+    sd <<-->> sw: load ResourceDescription(s)
     sw ->> sd: save DerivedIndexcards
     sw ->> sq: enqueue indexer message
-    sq -->> si: bulk receive indexer messages
-    sd <<-->> si: bulk load metadata
+    sq -->> si: bulk receive messages
+    sd <<-->> si: bulk load metadata records
     si ->> se: bulk index
 ```

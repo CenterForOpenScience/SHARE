@@ -1,4 +1,4 @@
-# how to use the admin ui
+# how to use the admin site
 
 shtrove has a [django admin site](https://docs.djangoproject.com/en/stable/ref/contrib/admin/)
 at `/admin/` that can be used for interacting with the database and managing search indexes
