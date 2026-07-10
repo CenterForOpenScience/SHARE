@@ -36,11 +36,11 @@ an Indexcard's detail view has links to:
 if an Indexcard has been marked deleted, its "latest" and "derived" data will be removed
 but "archived" will remain
 
-## how to view index status
+## how to view index statuses
 click on the "elasticsearch indexes" link in the admin-site header (or go to `/admin/search-indexes`)
 to see the current status of all configured index strategies, including their queues and indexes
 
-for each available index strategy:
+for each available index strategy, this page provides:
 - status of urgent and non-urgent queues
     - depth (count of enqueued messages)
     - approximate indexing rate over the past 30 seconds
