@@ -1,11 +1,13 @@
 from __future__ import annotations
 from typing import Any
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.html import format_html
 
 from share.admin import admin_site
 from share.admin.util import TimeLimitedPaginator, linked_fk, linked_many
 from share.search.index_messenger import IndexMessenger
+from share.models import SourceUniqueIdentifier
 from trove.models import (
     ArchivedResourceDescription,
     DerivedIndexcard,
@@ -49,10 +51,18 @@ class IndexcardAdmin(admin.ModelAdmin):
     paginator = TimeLimitedPaginator
     list_display = ('uuid', 'source_record_suid', 'created', 'modified')
     show_full_result_count = False
-    search_fields = ('uuid', 'source_record_suid__identifier')
+    search_fields = ('uuid', 'source_record_suid__identifier')  # see get_search_results
     list_select_related = ('source_record_suid',)
     list_filter = ('deleted', 'source_record_suid__source_config')
     actions = ('_freshen_index',)
+
+    def get_search_results(self, request, queryset, search_term):
+        # allow search on source_record_suid__identifier more efficiently than with search_fields
+        _suid_qs = SourceUniqueIdentifier.objects.filter(identifier=search_term)
+        _indexcard_qs = queryset.filter(
+            Q(uuid=search_term) | Q(source_record_suid__in=_suid_qs)
+        )
+        return _indexcard_qs, False  # no duplicates
 
     def _freshen_index(self, request, queryset: list[Indexcard]) -> None:
         IndexMessenger().notify_indexcard_update(queryset)
