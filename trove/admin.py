@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import Any
+import uuid
+
 from django.contrib import admin
 from django.db.models import Q
 from django.utils.html import format_html
@@ -58,11 +60,17 @@ class IndexcardAdmin(admin.ModelAdmin):
 
     def get_search_results(self, request, queryset, search_term):
         # allow search on source_record_suid__identifier more efficiently than with search_fields
-        _suid_qs = SourceUniqueIdentifier.objects.filter(identifier=search_term)
-        _indexcard_qs = queryset.filter(
-            Q(uuid=search_term) | Q(source_record_suid__in=_suid_qs)
-        )
-        return _indexcard_qs, False  # no duplicates
+        if search_term:
+            _suid_qs = SourceUniqueIdentifier.objects.filter(identifier=search_term)
+            _q = Q(source_record_suid__in=_suid_qs)
+            try:
+                _search_uuid = uuid.UUID(search_term)
+            except ValueError:
+                pass  # invalid UUID
+            else:
+                _q |= Q(uuid=_search_uuid)
+            queryset = queryset.filter(_q)
+        return queryset, False  # no duplicates
 
     def _freshen_index(self, request, queryset: list[Indexcard]) -> None:
         IndexMessenger().notify_indexcard_update(queryset)
