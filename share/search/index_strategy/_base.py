@@ -130,10 +130,9 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         for _index in self.each_subnamed_index():
             _index.pls_create()
             _index.pls_start_keeping_live()
-        if skip_backfill:
-            _backfill = self.get_or_create_backfill()
-            _backfill.backfill_status = _backfill.COMPLETE
-            _backfill.save()
+        _backfill = self.get_or_create_backfill()
+        _backfill.backfill_status = (_backfill.COMPLETE if skip_backfill else _backfill.INITIAL)
+        _backfill.save()
 
     def pls_teardown(self) -> None:
         for _index in self.each_existing_index():
@@ -245,7 +244,7 @@ If you made these changes on purpose, pls update {self.__class__.__qualname__} w
         raise NotImplementedError
 
     @abc.abstractmethod
-    def pls_get_default_for_searching(self) -> IndexStrategy:
+    def pls_get_default_for_searching(self) -> IndexStrategy | None:
         raise NotImplementedError
 
     ###

@@ -9,7 +9,6 @@ from share.models.index_backfill import IndexBackfill
 from share.search.index_messenger import IndexMessenger
 from share.search.index_strategy import (
     IndexStrategy,
-    all_strategy_names,
     each_strategy,
     parse_strategy_name,
     parse_specific_index_name,
@@ -54,23 +53,12 @@ def _mappings_url_prefix():
 
 
 def _index_status_by_strategy():
-    _backfill_by_checksum: dict[str, IndexBackfill] = {
-        _backfill.strategy_checksum: _backfill
-        for _backfill in (
-            IndexBackfill.objects
-            .filter(index_strategy_name__in=all_strategy_names())
-        )
-    }
     status_by_strategy = {}
     _messenger = IndexMessenger()
     for _index_strategy in each_strategy():
-        _current_backfill = (
-            _backfill_by_checksum.get(str(_index_strategy.CURRENT_STRATEGY_CHECKSUM))
-            or _backfill_by_checksum.get(_index_strategy.indexname_prefix)  # backcompat
-        )
         status_by_strategy[_index_strategy.strategy_name] = {
             'status': _index_strategy.pls_get_strategy_status(),
-            'backfill': _serialize_backfill(_index_strategy, _current_backfill),
+            'backfill': _serialize_backfill(_index_strategy),
             'queues': [
                 {
                     'name': _queue_name,
@@ -85,13 +73,18 @@ def _index_status_by_strategy():
     return status_by_strategy
 
 
-def _serialize_backfill(
-    strategy: IndexStrategy,
-    backfill: IndexBackfill | None,
-):
+def _serialize_backfill(strategy: IndexStrategy):
     if not strategy.is_current:
         return {}
-    if not backfill:
+    try:
+        backfill = IndexBackfill.objects.get(index_strategy_name=strategy.strategy_name)
+    except IndexBackfill.DoesNotExist:
+        backfill = None
+    if not backfill or backfill.strategy_checksum not in (
+        str(strategy.CURRENT_STRATEGY_CHECKSUM),
+        # for backcompat with backfills with specific index name instead of strategy checksum
+        *(_index.full_index_name for _index in strategy.each_subnamed_index()),
+    ):
         return {
             'can_start_backfill': strategy.pls_check_exists(),
         }
@@ -111,10 +104,6 @@ def _pls_setup(index_strategy: IndexStrategy, request_kwargs):
 
 def _pls_start_keeping_live(index_strategy: IndexStrategy, request_kwargs):
     index_strategy.pls_start_keeping_live()
-
-
-def _pls_stop_keeping_live(index_strategy: IndexStrategy, request_kwargs):
-    index_strategy.pls_stop_keeping_live()
 
 
 def _pls_start_backfill(index_strategy: IndexStrategy, request_kwargs):
@@ -141,6 +130,5 @@ PLS_DOERS = {
     'start_backfill': _pls_start_backfill,
     'mark_backfill_complete': _pls_mark_backfill_complete,
     'make_default_for_searching': _pls_make_default_for_searching,
-    'stop_keeping_live': _pls_stop_keeping_live,
     'delete': _pls_delete,
 }

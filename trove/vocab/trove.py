@@ -504,6 +504,24 @@ the response will have the http header `Content-Disposition: attachment`
 with a filename based on the query param value, current date, and response content mediatype
 ''', language='en')},
     },
+    TROVE.iriShorthand: {
+        RDF.type: {RDF.Property, TROVE.QueryParameter},
+        JSONAPI_MEMBERNAME: {literal('iriShorthand', language='en')},
+        RDFS.label: {literal('iriShorthand', language='en')},
+        RDFS.comment: {literal('define a shorthand namespace or alias for IRIs in this query string', language='en')},
+        TROVE.jsonSchema: {literal_json({'type': 'string'})},
+        DCTERMS.description: {_literal_markdown('''**iriShorthand** is
+a query parameter to define a shorthand name used for parsing IRIs in other query parameters
+
+for example, a request to `/trove/index-card-search` with these query parameters:
+- `iriShorthand[blarg]=https://blarg.example/vocab/`
+- `iriShorthand[foo]=https://another.example/vocab/foo`
+- `cardSearchFilter[blarg:prop]=foo`
+
+will find cards with the IRI value `<https://another.example/vocab/foo>`
+at the property `<https://blarg.example/vocab/prop>`
+''', language='en')},
+    },
     TROVE.cardSearchText: {
         RDF.type: {RDF.Property, JSONAPI_ATTRIBUTE, TROVE.QueryParameter},
         JSONAPI_MEMBERNAME: {literal('cardSearchText', language='en')},
@@ -709,10 +727,14 @@ may not be used with `page[cursor]`.
         DCTERMS.description: {_literal_markdown(f'''a **property-path** is
 a dot-separated path of short-hand IRIs, used in several api parameters
 
-currently the only supported shorthand is defined by [OSFMAP]({osfmap.OSFMAP_LINK})
-
 for example, `creator.name` is parsed as a two-step path that follows
 `creator` (aka `dcterms:creator`, `<http://purl.org/dc/terms/creator>`) and then `name` (aka `foaf:name`, `<http://xmlns.com/foaf/0.1/name>`)
+
+currently, the only implied shorthand is that defined by [OSFMAP]({osfmap.OSFMAP_LINK})
+-- to search on other properties, use an `iriShorthand` query param to provide an explicit
+alias or namespace (e.g. with `iriShorthand[blarg]=https://blarg.example/vocab/`,
+`blarg:prop1.blarg:prop2` in another param will be parsed as a two-step property-path
+following `<https://blarg.example/vocab/prop1>` then `<https://blarg.example/vocab/prop2>`)
 
 most places that allow one property-path also accept a comma-separated set of paths,
 like `title,description` (which is parsed as two paths: `title` and `description`)
