@@ -1,0 +1,14 @@
+name: cy.ac.cut
+long_title: Cyprus University of Technology
+home_page: http://ktisis.cut.ac.cy/
+user: providers.cy.ac.cut
+configs:
+- label: cy.ac.cut
+  base_url: http://ktisis.cut.ac.cy/oai/request
+  harvester: oai
+  harvester_kwargs:
+      metadata_prefix: oai_dc
+  rate_limit_allowance: 5
+  rate_limit_period: 1
+  transformer: oai_dc
+  transformer_kwargs: {}
