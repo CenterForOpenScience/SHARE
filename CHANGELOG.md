@@ -1,5 +1,8 @@
 # Change Log
 
+# [26.0.2] - 2026-09-01
+- add `build_spec.yaml` for OCI CI/CD
+
 # [26.0.1] - 2026-07-25
 - allow setting elasticsearch's `ssl_assert_hostname` with env var `ELASTICSEARCH8_ASSERT_HOSTNAME`
 
