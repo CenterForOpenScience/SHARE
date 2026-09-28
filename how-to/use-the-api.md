@@ -8,10 +8,10 @@
 
 `GET /trove/browse?iri=...`: inquire about a thing you have already identified
 
-(see [openapi docs](/trove/docs/openapi.html) for detail and available parameters)
+(see [openapi docs](https://share.osf.io/trove/docs) for detail and available parameters)
 
 
-### Posting index-cards
+## Posting index-cards
 > NOTE: currently used only by other COS projects, not yet for public use, authorization required
 
 `POST /trove/ingest?focus_iri=...`: 

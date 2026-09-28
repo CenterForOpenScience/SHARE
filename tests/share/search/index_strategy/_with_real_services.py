@@ -87,33 +87,35 @@ class RealElasticTestCase(TransactionTestCase, abc.ABC):
         # initial (no indexes exist)
         for _index in self.index_strategy.each_subnamed_index():
             assert not _index.pls_check_exists()
-            index_status = _index.pls_get_status()
-            assert not index_status.creation_date
-            assert not index_status.is_kept_live
-            assert not index_status.is_default_for_searching
-            assert not index_status.doc_count
+        _status = self.index_strategy.pls_get_strategy_status()
+        assert not _status.is_kept_live
+        assert not _status.is_default_for_searching
+        for _index_status in _status.index_statuses:
+            assert not _index_status.creation_date
+            assert not _index_status.doc_count
         # create each index
         for _index in self.index_strategy.each_subnamed_index():
             _index.pls_create()
             assert _index.pls_check_exists()  # new!
-            index_status = _index.pls_get_status()
-            assert index_status.creation_date  # new!
-            assert not index_status.is_kept_live
-            assert not index_status.is_default_for_searching
-            assert not index_status.doc_count
+        _status = self.index_strategy.pls_get_strategy_status()
+        assert not _status.is_kept_live
+        assert not _status.is_default_for_searching
+        for _index_status in _status.index_statuses:
+            assert _index_status.creation_date  # new!
+            assert not _index_status.doc_count
         # start keeping each index live (with ingested updates)
         self.index_strategy.pls_start_keeping_live()
-        for _index in self.index_strategy.each_subnamed_index():
-            index_status = _index.pls_get_status()
-            assert index_status.creation_date
-            assert index_status.is_kept_live  # new!
-            assert not index_status.is_default_for_searching
-            assert not index_status.doc_count
+        _status = self.index_strategy.pls_get_strategy_status()
+        assert _status.is_kept_live  # new!
+        assert not _status.is_default_for_searching
+        for _index_status in _status.index_statuses:
+            assert _index_status.creation_date
+            assert not _index_status.doc_count
         # make this version of the strategy the default for searching
         self.index_strategy.pls_make_default_for_searching()
-        for _index in self.index_strategy.each_subnamed_index():
-            index_status = _index.pls_get_status()
-            assert index_status.creation_date
-            assert index_status.is_kept_live
-            assert index_status.is_default_for_searching  # new!
-            assert not index_status.doc_count  # (still empty)
+        _status = self.index_strategy.pls_get_strategy_status()
+        assert _status.is_kept_live
+        assert _status.is_default_for_searching  # new!
+        for _index_status in _status.index_statuses:
+            assert _index_status.creation_date
+            assert not _index_status.doc_count  # (still empty)

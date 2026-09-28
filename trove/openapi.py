@@ -168,7 +168,7 @@ def _openapi_path(path_iri: str, api_graph: primitive_rdf.RdfGraph) -> Tuple[str
 
 def _concept_markdown_blocks(concept_iri: str, api_graph: primitive_rdf.RdfGraph) -> Generator[str, None, None]:
     for _label in api_graph.q(concept_iri, RDFS.label):
-        yield f'## {_label.unicode_value}'
+        yield f'## concept: {_label.unicode_value}'
     for _comment in api_graph.q(concept_iri, RDFS.comment):
         yield f'<aside>{_comment.unicode_value}</aside>'
     for _desc in api_graph.q(concept_iri, DCTERMS.description):

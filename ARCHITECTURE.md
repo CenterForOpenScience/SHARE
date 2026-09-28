@@ -9,7 +9,8 @@ In short, SHARE/trove holds metadata records that describe things and makes thos
 
 
 ## Parts
-a look at the tangles of communication between different parts of the system:
+a slightly simplified look at the tangles of communication between different parts of the system,
+as currently implemented:
 
 ```mermaid
 graph LR;
@@ -46,6 +47,50 @@ graph LR;
     subscribers-->rss;
     subscribers-->atom;
     subscribers-->oaipmh;
+```
+
+### /trove/ingest
+a slightly simplified look at how metadata records are ingested, as currently implemented:
+```mermaid
+sequenceDiagram
+    participant ms as metadata source
+    box shtrove
+    participant ss as web server
+    participant sd as db (postgres)
+    participant sw as worker (celery)
+    participant sq as queues (rabbitmq)
+    participant si as indexer
+    participant se as elasticsearch
+    end
+    ms ->> ss: POST /trove/ingest
+    ss ->> sd: save ResourceIdentifier(s)
+    ss ->> sd: save Indexcard
+    ss ->> sd: save ResourceDescription(s)
+    ss ->> sq: enqueue derive task
+    ss ->> ms: 201 CREATED (success!)
+    sq -->> sw: receive derive task
+    sd <<-->> sw: load ResourceDescription(s)
+    sw ->> sd: save DerivedIndexcards
+    sw ->> sq: enqueue indexer message
+    sq -->> si: bulk receive messages
+    sd <<-->> si: bulk load metadata records
+    si ->> se: bulk index
+```
+
+### /trove/index-card-search
+a slightly simplified look at how search requests are served, as currently implemented:
+```mermaid
+sequenceDiagram
+    participant c as client
+    box shtrove
+    participant ss as web server
+    participant sd as db (postgres)
+    participant se as elasticsearch
+    end
+    c ->> ss: GET /trove/index-card-search
+    ss <<-->> se: query for result ids (and context)
+    ss <<-->> sd: load metadata records
+    ss ->> c: respond/stream search results
 ```
 
 ## Code map
@@ -91,9 +136,7 @@ Uses the [resource description framework](https://www.w3.org/TR/rdf11-primer/#se
 
 ### Identifiers
 
-Whenever feasible, use full URI strings to identify resources, concepts, types, and properties that may be exposed outwardly.
-
-Prefer using open, standard, well-defined namespaces wherever possible ([DCAT](https://www.w3.org/TR/vocab-dcat-3/) is a good place to start; see `trove.vocab.namespaces` for others already in use). When app-specific concepts must be defined, use the `TROVE` namespace (`https://share.osf.io/vocab/2023/trove/`).
+Whenever feasible, use full [IRI](https://www.rfc-editor.org/rfc/rfc3987.html) strings (utf-8) to identify resources, concepts, types, and properties that may be exposed outwardly (without converting to URI or using to send requests). Prefer using open, standard, well-defined namespaces wherever possible ([DCAT](https://www.w3.org/TR/vocab-dcat-3/) is a good place to start; see `trove.vocab.namespaces` for others already in use). When app-specific concepts must be defined, use the `TROVE` namespace (`https://share.osf.io/vocab/2023/trove/`).
 
 A notable exception (non-URI identifier) is the "source-unique identifier" or "suid" -- essentially a two-tuple `(source, identifier)` that uniquely and persistently identifies a metadata record in a source repository. This `identifier` may be any string value, provided by the external source.
 
